@@ -15,5 +15,5 @@ Pull requests are appreciated!  Please use the same [Contributor License Agreeme
 ---
 
 <p align="center">
-<a href="http://cesiumjs.org/"><img src="figures/cesium.jpg" /></a>
+<a href="http://cesiumjs.org/"><img src="figures/cesium.png" /></a>
 </p>
