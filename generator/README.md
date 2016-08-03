@@ -1,1 +1,1 @@
-Command line utilities for processing and converting 3D Tilesets.
+Tools for generating sample 3D Tiles tilesets.

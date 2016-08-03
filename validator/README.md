@@ -1,1 +1,1 @@
-Command line utilities for processing and converting 3D Tilesets.
+Tools for validating 3D Tiles tilesets.
