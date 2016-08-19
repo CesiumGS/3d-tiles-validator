@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 
+var Cesium = require('cesium');
 var Promise = require('bluebird');
-var defined = require('defined');
 var fs = require('fs-extra');
+
+var defined = Cesium.defined;
 
 var argv = require('yargs')
     .usage('Usage: $0 \<tilesets\> [options]')
