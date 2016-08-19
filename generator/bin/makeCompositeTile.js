@@ -43,7 +43,7 @@ Promise.map(tilePaths, function(tilePath) {
             if (tilePadding !== 0) {
                 tile = Buffer.concat([tile, new Buffer(4 - tilePadding)]);
             }
-            tile.writeUInt32LE(tile.length, 8); //byteLength
+            tile.writeUInt32LE(tile.length, 8); // byteLength
             byteLength += tile.length;
             buffers.push(tile);
         }
