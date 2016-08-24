@@ -37,7 +37,8 @@
     "jshint-stylish": "2.2.0",
     "open": "0.0.5",
     "request": "2.74.0",
-    "requirejs": "2.2.0"
+    "requirejs": "2.2.0",
+    "rimraf": "2.5.4"
   },
   "scripts": {
     "jsHint": "gulp jsHint",
