@@ -22,6 +22,7 @@ var readTile = require('../lib/readTile');
 var writeTile = require('../lib/writeTile');
 
 var tilePaths = argv._;
+var outputPath = argv.o;
 
 Promise.map(tilePaths, function(tilePath) {
     return readTile(tilePath);
