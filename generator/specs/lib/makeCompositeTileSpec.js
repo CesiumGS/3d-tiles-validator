@@ -1,7 +1,7 @@
 'use strict';
-
 var makeCompositeTile = require('../../lib/makeCompositeTile');
 var readTile = require('../../lib/readTile');
+
 var justHeaderI3dmPath = './specs/data/justHeader.i3dm';
 
 describe('makeCompositeTile', function() {

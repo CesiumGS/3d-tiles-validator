@@ -3,11 +3,10 @@ var Cesium = require('cesium');
 var Promise = require('bluebird');
 var fs = require('fs-extra');
 var zlib = require('zlib');
+var isGzipped = require('./isGzipped');
 
 var DeveloperError = Cesium.DeveloperError;
 var defined = Cesium.defined;
-
-var isGzipped = require('./isGzipped');
 
 var fsReadFile = Promise.promisify(fs.readFile);
 var zlibGunzip = Promise.promisify(zlib.gunzip);

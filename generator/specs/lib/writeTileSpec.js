@@ -2,7 +2,6 @@
 var Promise = require('bluebird');
 var fs = require('fs-extra');
 var rimraf = require('rimraf');
-
 var isGzipped = require('../../lib/isGzipped');
 var writeTile = require('../../lib/writeTile');
 

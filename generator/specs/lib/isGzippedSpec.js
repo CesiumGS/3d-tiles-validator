@@ -1,7 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
 var zlib = require('zlib');
-
 var isGzipped = require('../../lib/isGzipped');
 
 var zlibGzip = Promise.promisify(zlib.gzip);

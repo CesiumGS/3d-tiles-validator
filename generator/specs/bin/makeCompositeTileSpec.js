@@ -3,7 +3,6 @@ var Promise = require('bluebird');
 var childProcess = require('child_process');
 var fs = require('fs-extra');
 var rimraf = require('rimraf');
-
 var isGzipped = require('../../lib/isGzipped');
 
 var fsReadFile = Promise.promisify(fs.readFile);

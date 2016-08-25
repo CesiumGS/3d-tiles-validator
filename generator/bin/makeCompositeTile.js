@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 'use strict';
 var Promise = require('bluebird');
+var makeCompositeTile = require('../lib/makeCompositeTile');
+var readTile = require('../lib/readTile');
+var writeTile = require('../lib/writeTile');
 
 var argv = require('yargs')
     .usage('Usage: $0 \<tiles\> [options]')
@@ -18,10 +21,6 @@ var argv = require('yargs')
     .alias('h', 'help')
     .demand(1)
     .argv;
-
-var makeCompositeTile = require('../lib/makeCompositeTile');
-var readTile = require('../lib/readTile');
-var writeTile = require('../lib/writeTile');
 
 var tilePaths = argv._;
 var outputPath = argv.o;
