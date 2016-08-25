@@ -13,7 +13,7 @@ var justHeaderI3dmPath = './specs/data/justHeader.i3dm';
 var justHeaderGzippedI3dmPath = './specs/data/justHeaderGzipped.i3dm';
 var testOutputPath = './specs/data/.test/';
 
-describe('makeCompositeTile', function() {
+describe('makeCompositeTile cli', function() {
     afterAll(function(done) {
         rimrafAsync(testOutputPath, {})
             .then(done);
@@ -34,6 +34,8 @@ describe('makeCompositeTile', function() {
                 expect(tileData.readUInt32LE(8)).toBe(byteLength); // byteLength
                 expect(tileData.readUInt32LE(12)).toBe(2);         // tilesLength
                 var tileMagic = tileData.toString('utf8', 16, 20);
+                expect(tileMagic).toEqual('i3dm');
+                tileMagic = tileData.toString('utf8', 48, 52);
                 expect(tileMagic).toEqual('i3dm');
             }), done).toResolve();
     });
