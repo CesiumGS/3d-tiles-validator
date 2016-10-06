@@ -19,13 +19,12 @@ Validates the input tileset.
 node ./bin/3d-tiles-validator.js ./specs/data/Tileset/
 ```
 ```
-node ./bin/3d-tiles-tools.js gzip -i ./specs/data/Tileset/
+node ./bin/3d-tiles-validator.js -i ./specs/data/Tileset/
 ```
 
 |Flag|Description|Required|
 |----|-----------|--------|
-|`-i`, `--input`|Input directory of the tileset.| :white_check_mark: Yes|
-
+|`-i`, `--input`|Input directory of the tileset.| No. An input tileset is required but this flag may be omitted|
 
 ## Build Instructions
 
