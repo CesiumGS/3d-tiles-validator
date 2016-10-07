@@ -23,11 +23,10 @@
   },
   "dependencies": {
     "bluebird": "3.4.1",
-    "cesium": "1.24",
-    "fs-extra": "0.30.0",
-    "yargs": "5.0.0"
+    "cesium": "1.24"
   },
   "devDependencies": {
+    "fs-extra": "0.30.0",
     "gulp": "3.9.1",
     "gulp-jshint": "2.0.1",
     "istanbul": "0.4.4",
@@ -38,6 +37,7 @@
     "open": "0.0.5",
     "request": "2.74.0",
     "requirejs": "2.2.0",
+    "yargs": "4.8.1"
   },
   "scripts": {
     "jsHint": "gulp jsHint",
