@@ -3,7 +3,6 @@ var Cesium = require('cesium');
 var Promise = require('bluebird');
 var path = require('path');
 var zlib = require('zlib');
-
 var getDefaultWriteCallback = require('./getDefaultWriteCallback');
 var getFilesInDirectory = require('./getFilesInDirectory');
 var isTileFile = require('./isTileFile');

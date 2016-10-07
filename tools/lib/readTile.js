@@ -18,20 +18,15 @@ module.exports = readTile;
  *
  * @param {String} filePath The file path to read from.
  * @returns {Promise} A promise that resolves with the data when the read operation completes.
- *
- * @throws {DeveloperError} Will throw an error if filePath is undefined.
  */
 function readTile(filePath) {
-    return Promise.resolve()
-        .then(function() {
-            if (!defined(filePath)) {
-                throw new DeveloperError('filePath must be defined');
-            }
-            return fsReadFile(filePath);
-        })
+    if (!defined(filePath)) {
+        throw new DeveloperError('filePath must be defined');
+    }
+    return fsReadFile(filePath)
         .then(function(buffer) {
             if (isGzipped(buffer)) {
-                return zlibGunzip(buffer, undefined);
+                return zlibGunzip(buffer);
             }
             return buffer;
         });

@@ -23,22 +23,21 @@ module.exports = writeTile;
  * @returns {Promise} A promise that resolves when the write operation completes.
  */
 function writeTile(filePath, tileData, options) {
-    return Promise.resolve()
-        .then(function() {
-            if (!defined(filePath)) {
-                throw new DeveloperError('filePath must be defined.');
-            }
-            if (!defined(tileData)) {
-                throw new DeveloperError('tileData must be defined.');
-            }
-            options = defaultValue(options, {});
-            var gzip = defaultValue(options.gzip, false);
-            if (gzip) {
-                return zlibGzip(tileData, undefined);
-            }
-            return Promise.resolve(tileData);
-        })
-        .then(function(buffer) {
-            return fsOutputFile(filePath, buffer);
-        });
+    if (!defined(filePath)) {
+        throw new DeveloperError('filePath must be defined.');
+    }
+    if (!defined(tileData)) {
+        throw new DeveloperError('tileData must be defined.');
+    }
+    options = defaultValue(options, defaultValue.EMPTY_OBJECT);
+    var gzip = defaultValue(options.gzip, false);
+    var promise;
+    if (gzip) {
+        promise = zlibGzip(tileData);
+    } else {
+        promise = Promise.resolve(tileData);
+    }
+    return promise.then(function(data) {
+        return fsOutputFile(filePath, data);
+    });
 }

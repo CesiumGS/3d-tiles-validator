@@ -4,16 +4,16 @@ var Promise = require('bluebird');
 var fs = require('fs');
 var path = require('path');
 
+var defaultValue = Cesium.defaultValue;
+
 var fsReaddir = Promise.promisify(fs.readdir);
 var fsStat = Promise.promisify(fs.stat);
-
-var defaultValue = Cesium.defaultValue;
 
 module.exports = getFilesInDirectory;
 
 function getFilesInDirectory(directory, options) {
     var files = [];
-    options = defaultValue(options, {});
+    options = defaultValue(options, defaultValue);
     var recursive = defaultValue(options.recursive, false);
     var filter = defaultValue(options.filter, function() {
         return true;

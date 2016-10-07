@@ -2,11 +2,10 @@
 var readTile = require('../../lib/readTile');
 
 describe('readTile', function() {
-    it('throws DeveloperError if filePath is undefined', function(done) {
-        expect(readTile(undefined)
-            .catch(function(error) {
-                expect(error).toBeDefined();
-            }), done).toResolve();
+    it('throws DeveloperError if filePath is undefined', function() {
+        expect(function() {
+            readTile();
+        }).toThrowDeveloperError();
     });
 
     it('reads a tile', function(done) {

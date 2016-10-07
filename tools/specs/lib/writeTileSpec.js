@@ -15,18 +15,16 @@ describe('writeTile', function() {
             .then(done);
     });
 
-    it('throws DeveloperError if filePath is undefined', function(done) {
-        expect(writeTile(undefined, new Buffer(0))
-            .catch(function(error) {
-                expect(error).toBeDefined();
-            }), done).toResolve();
+    it('throws DeveloperError if filePath is undefined', function() {
+        expect(function() {
+            writeTile(undefined, new Buffer(0))
+        }).toThrowDeveloperError();
     });
 
-    it('throws DeveloperError if tileData is undefined', function(done) {
-        expect(writeTile('', undefined)
-            .catch(function(error) {
-                expect(error).toBeDefined();
-            }), done).toResolve();
+    it('throws DeveloperError if tileData is undefined', function() {
+        expect(function() {
+            writeTile('', undefined)
+        }).toThrowDeveloperError();
     });
 
     it('writes a tile', function(done) {
@@ -39,7 +37,7 @@ describe('writeTile', function() {
             .then(function(tileData) {
                 var magic = tileData.toString('utf8', 0, 4);
                 expect(magic).toEqual('i3dm');
-            }),done).toResolve();
+            }), done).toResolve();
     });
 
     it('writes a gzipped tile', function(done) {
@@ -51,6 +49,6 @@ describe('writeTile', function() {
             })
             .then(function(tileData) {
                 expect(isGzipped(tileData)).toBeTruthy();
-            }),done).toResolve();
+            }), done).toResolve();
     });
 });

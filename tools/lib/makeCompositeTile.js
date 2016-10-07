@@ -1,11 +1,10 @@
 'use strict';
-
 module.exports = makeCompositeTile;
 
 /**
  * Combines an array of tile buffers into a single composite tile.
  *
- * @param {Array.<Buffer>} tileBuffers An array of buffers holding tile data.
+ * @param {Buffer[]} tileBuffers An array of buffers holding tile data.
  * @returns {Buffer} A single buffer holding the composite tile.
  */
 function makeCompositeTile(tileBuffers) {

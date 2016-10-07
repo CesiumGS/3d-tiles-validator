@@ -2,7 +2,6 @@
 var Promise = require('bluebird');
 var fs = require('fs-extra');
 var path = require('path');
-
 var isTileFile = require('../../lib/isTileFile');
 var getFilesInDirectory = require('../../lib/getFilesInDirectory');
 

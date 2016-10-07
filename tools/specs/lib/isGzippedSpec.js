@@ -9,15 +9,15 @@ describe('isGzipped', function() {
     it('throws DeveloperError if data is undefined', function() {
         expect(function() {
             isGzipped(undefined);
-        }).toThrowError();
+        }).toThrowDeveloperError();
     });
 
     it('detects when data is gzipped', function(done) {
         var data = new Buffer(40);
-        expect(isGzipped(data)).toBeFalsy();
+        expect(isGzipped(data)).toBe(false);
         expect(zlibGzip(data, undefined)
             .then(function(zippedData) {
-                expect(isGzipped(zippedData)).toBeTruthy();
+                expect(isGzipped(zippedData)).toBe(true);
             }), done).toResolve();
     });
 });

@@ -3,7 +3,6 @@ var Cesium = require('cesium');
 var Promise = require('bluebird');
 var fs = require('fs-extra');
 var path = require('path');
-
 var getWorkingDirectory = require('./getWorkingDirectory');
 var gzipTileset = require('./gzipTileset');
 
