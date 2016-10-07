@@ -1,6 +1,5 @@
 'use strict';
 var fs = require('fs-extra');
-var path = require('path');
 var Promise = require('bluebird');
 var isGzippedFile = require('../../lib/isGzippedFile');
 var gzipTileset = require('../../lib/gzipTileset');

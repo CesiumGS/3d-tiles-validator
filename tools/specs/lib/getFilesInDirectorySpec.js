@@ -19,7 +19,7 @@ describe('getFilesInDirectory', function() {
             fsOutputFile('tmp/1/4.pnts', ''),
             fsOutputFile('tmp/1/5.not-a-tile', '')
         ])
-            .then(done)
+            .then(done);
     });
 
     afterAll(function(done) {
@@ -70,5 +70,5 @@ describe('getFilesInDirectory', function() {
                     path.normalize('tmp/1/4.pnts')
                 ]);
             }), done).toResolve();
-    })
+    });
 });

@@ -1,18 +1,17 @@
 'use strict';
 var Promise = require('bluebird');
 var fs = require('fs-extra');
-var rimraf = require('rimraf');
 var isGzipped = require('../../lib/isGzipped');
 var writeTile = require('../../lib/writeTile');
 
 var fsReadFile = Promise.promisify(fs.readFile);
-var rimrafAsync = Promise.promisify(rimraf);
+var fsRemove = Promise.promisify(fs.remove);
 
 var testOutputPath = './specs/data/.test/';
 
 describe('writeTile', function() {
     afterAll(function(done) {
-        rimrafAsync(testOutputPath, {})
+        fsRemove(testOutputPath)
             .then(done);
     });
 

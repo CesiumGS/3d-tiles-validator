@@ -15,7 +15,7 @@ function getFilesInDirectory(directory, options) {
     var files = [];
     options = defaultValue(options, {});
     var recursive = defaultValue(options.recursive, false);
-    var filter = defaultValue(options.filter, function(path) {
+    var filter = defaultValue(options.filter, function() {
         return true;
     });
     return findFiles(directory, files, recursive, filter);
@@ -35,5 +35,5 @@ function findFiles(directory, files, recursive, filter) {
     })
         .then(function() {
             return files;
-        })
+        });
 }
