@@ -1,13 +1,13 @@
 'use strict';
 var Cesium = require('cesium');
 var Promise = require('bluebird');
-var fs = require('fs');
+var fsExtra = require('fs-extra');
 var path = require('path');
 
 var defaultValue = Cesium.defaultValue;
 
-var fsReaddir = Promise.promisify(fs.readdir);
-var fsStat = Promise.promisify(fs.stat);
+var fsExtraReaddir = Promise.promisify(fsExtra.readdir);
+var fsExtraStat = Promise.promisify(fsExtra.stat);
 
 module.exports = getFilesInDirectory;
 
@@ -22,9 +22,9 @@ function getFilesInDirectory(directory, options) {
 }
 
 function findFiles(directory, files, recursive, filter) {
-    return fsReaddir(directory).map(function(fileName) {
+    return fsExtraReaddir(directory).map(function(fileName) {
         var fullPath = path.join(directory, fileName);
-        return fsStat(fullPath)
+        return fsExtraStat(fullPath)
             .then(function(stats) {
                 if (stats.isFile() && filter(fullPath)) {
                     files.push(fullPath);

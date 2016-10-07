@@ -1,12 +1,12 @@
 'use strict';
-var fs = require('fs-extra');
+var fsExtra = require('fs-extra');
 var Promise = require('bluebird');
 var isGzippedFile = require('../../lib/isGzippedFile');
 var gzipTileset = require('../../lib/gzipTileset');
 
-var fsOutputFile = Promise.promisify(fs.outputFile);
-var fsReadFile = Promise.promisify(fs.readFile);
-var fsRemove = Promise.promisify(fs.remove);
+var fsExtraOutputFile = Promise.promisify(fsExtra.outputFile);
+var fsExtraReadFile = Promise.promisify(fsExtra.readFile);
+var fsExtraRemove = Promise.promisify(fsExtra.remove);
 
 var tilesetDirectory = './specs/data/TilesetOfTilesets/';
 var tilesetJson = './specs/data/TilesetOfTilesets/tileset.json';
@@ -18,8 +18,8 @@ var ungzippedJson = './specs/data/TilesetOfTilesets-ungzipped/tileset.json';
 describe('gzipTileset', function() {
     afterEach(function (done) {
         Promise.all([
-            fsRemove(gzippedDirectory),
-            fsRemove(ungzippedDirectory)
+            fsExtraRemove(gzippedDirectory),
+            fsExtraRemove(ungzippedDirectory)
         ]).then(function() {
             done();
         });
@@ -93,8 +93,8 @@ describe('gzipTileset', function() {
                 return gzipTileset(gzipAgainOptions)
                     .then(function() {
                         var promises = [
-                            fsReadFile(gzippedJson),
-                            fsReadFile(ungzippedJson)
+                            fsExtraReadFile(gzippedJson),
+                            fsExtraReadFile(ungzippedJson)
                         ];
                         return Promise.all(promises)
                             .then(function(contents) {
@@ -113,8 +113,8 @@ describe('gzipTileset', function() {
         expect(gzipTileset(ungzipOptions)
             .then(function() {
                 var promises = [
-                    fsReadFile(tilesetJson),
-                    fsReadFile(ungzippedJson)
+                    fsExtraReadFile(tilesetJson),
+                    fsExtraReadFile(ungzippedJson)
                 ];
                 return Promise.all(promises)
                     .then(function(contents) {
@@ -173,7 +173,7 @@ describe('gzipTileset', function() {
 
     it('accepts custom writeCallback that returns a promise', function (done) {
         var writeCallback = function(file, data) {
-            return fsOutputFile(file, data);
+            return fsExtraOutputFile(file, data);
         };
         var gzipOptions = {
             inputDirectory : tilesetDirectory,

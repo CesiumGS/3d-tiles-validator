@@ -1,29 +1,29 @@
 'use strict';
 var Promise = require('bluebird');
-var fs = require('fs-extra');
+var fsExtra = require('fs-extra');
 var isGzipped = require('../../lib/isGzipped');
 var writeTile = require('../../lib/writeTile');
 
-var fsReadFile = Promise.promisify(fs.readFile);
-var fsRemove = Promise.promisify(fs.remove);
+var fsExtraReadFile = Promise.promisify(fsExtra.readFile);
+var fsExtraRemove = Promise.promisify(fsExtra.remove);
 
 var testOutputPath = './specs/data/.test/';
 
 describe('writeTile', function() {
     afterAll(function(done) {
-        fsRemove(testOutputPath)
+        fsExtraRemove(testOutputPath)
             .then(done);
     });
 
     it('throws DeveloperError if filePath is undefined', function() {
         expect(function() {
-            writeTile(undefined, new Buffer(0))
+            writeTile(undefined, new Buffer(0));
         }).toThrowDeveloperError();
     });
 
     it('throws DeveloperError if tileData is undefined', function() {
         expect(function() {
-            writeTile('', undefined)
+            writeTile('', undefined);
         }).toThrowDeveloperError();
     });
 
@@ -32,7 +32,7 @@ describe('writeTile', function() {
         var data = new Buffer('i3dm');
         expect(writeTile(path, data)
             .then(function() {
-                return fsReadFile(path);
+                return fsExtraReadFile(path);
             })
             .then(function(tileData) {
                 var magic = tileData.toString('utf8', 0, 4);
@@ -45,7 +45,7 @@ describe('writeTile', function() {
         var data = new Buffer('i3dm');
         expect(writeTile(path, data, {gzip : true})
             .then(function() {
-                return fsReadFile(path);
+                return fsExtraReadFile(path);
             })
             .then(function(tileData) {
                 expect(isGzipped(tileData)).toBeTruthy();

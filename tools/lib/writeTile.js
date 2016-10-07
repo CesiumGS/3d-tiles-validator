@@ -1,14 +1,14 @@
 'use strict';
 var Cesium = require('cesium');
 var Promise = require('bluebird');
-var fs = require('fs-extra');
+var fsExtra = require('fs-extra');
 var zlib = require('zlib');
 
 var DeveloperError = Cesium.DeveloperError;
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 
-var fsOutputFile = Promise.promisify(fs.outputFile);
+var fsExtraOutputFile = Promise.promisify(fsExtra.outputFile);
 var zlibGzip = Promise.promisify(zlib.gzip);
 
 module.exports = writeTile;
@@ -38,6 +38,6 @@ function writeTile(filePath, tileData, options) {
         promise = Promise.resolve(tileData);
     }
     return promise.then(function(data) {
-        return fsOutputFile(filePath, data);
+        return fsExtraOutputFile(filePath, data);
     });
 }

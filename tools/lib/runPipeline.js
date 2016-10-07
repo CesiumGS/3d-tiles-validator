@@ -1,7 +1,7 @@
 'use strict';
 var Cesium = require('cesium');
 var Promise = require('bluebird');
-var fs = require('fs-extra');
+var fsExtra = require('fs-extra');
 var path = require('path');
 var getWorkingDirectory = require('./getWorkingDirectory');
 var gzipTileset = require('./gzipTileset');
@@ -10,9 +10,9 @@ var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 var DeveloperError = Cesium.DeveloperError;
 
-var fsCopy = Promise.promisify(fs.copy);
-var fsEmptyDir = Promise.promisify(fs.emptyDir);
-var fsRemove = Promise.promisify(fs.remove);
+var fsExtraCopy = Promise.promisify(fsExtra.copy);
+var fsExtraEmptyDir = Promise.promisify(fsExtra.emptyDir);
+var fsExtraRemove = Promise.promisify(fsExtra.remove);
 
 module.exports = runPipeline;
 
@@ -41,7 +41,7 @@ function runPipeline(pipeline, options) {
         path.join(path.dirname(inputDirectory), path.basename(inputDirectory) + '-processed')));
 
     if (!defined(stages)) {
-        return fsCopy(inputDirectory, outputDirectory);
+        return fsExtraCopy(inputDirectory, outputDirectory);
     }
 
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
@@ -98,7 +98,7 @@ function runPipeline(pipeline, options) {
 
     // Run the stages in sequence
     return Promise.each(stageObjects, function (stage) {
-        return fsEmptyDir(stage.options.outputDirectory)
+        return fsExtraEmptyDir(stage.options.outputDirectory)
             .then(function () {
                 if (defined(logCallback)) {
                     logCallback('Running ' + stage.name);
@@ -107,8 +107,8 @@ function runPipeline(pipeline, options) {
             });
     }).finally(function () {
         return Promise.all([
-            fsRemove(workingDirectory1),
-            fsRemove(workingDirectory2)
+            fsExtraRemove(workingDirectory1),
+            fsExtraRemove(workingDirectory2)
         ]);
     });
 }

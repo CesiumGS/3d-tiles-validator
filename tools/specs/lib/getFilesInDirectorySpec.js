@@ -1,28 +1,28 @@
 'use strict';
 var Promise = require('bluebird');
-var fs = require('fs-extra');
+var fsExtra = require('fs-extra');
 var path = require('path');
 var isTileFile = require('../../lib/isTileFile');
 var getFilesInDirectory = require('../../lib/getFilesInDirectory');
 
-var fsOutputFile = Promise.promisify(fs.outputFile);
-var fsRemove = Promise.promisify(fs.remove);
+var fsExtraOutputFile = Promise.promisify(fsExtra.outputFile);
+var fsExtraRemove = Promise.promisify(fsExtra.remove);
 
 describe('getFilesInDirectory', function() {
     beforeAll(function(done) {
         Promise.all([
-            fsOutputFile('tmp/0.b3dm', ''),
-            fsOutputFile('tmp/1.i3dm', ''),
-            fsOutputFile('tmp/0/2.cmpt', ''),
-            fsOutputFile('tmp/0/0/3.vctr', ''),
-            fsOutputFile('tmp/1/4.pnts', ''),
-            fsOutputFile('tmp/1/5.not-a-tile', '')
+            fsExtraOutputFile('tmp/0.b3dm', ''),
+            fsExtraOutputFile('tmp/1.i3dm', ''),
+            fsExtraOutputFile('tmp/0/2.cmpt', ''),
+            fsExtraOutputFile('tmp/0/0/3.vctr', ''),
+            fsExtraOutputFile('tmp/1/4.pnts', ''),
+            fsExtraOutputFile('tmp/1/5.not-a-tile', '')
         ])
             .then(done);
     });
 
     afterAll(function(done) {
-        fsRemove('tmp')
+        fsExtraRemove('tmp')
             .then(done);
     });
 
