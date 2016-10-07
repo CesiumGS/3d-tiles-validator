@@ -1,8 +1,9 @@
 'use strict';
 var Cesium = require('cesium');
-var fsExtra = require('fs-extra');
-var path = require('path');
 var Promise = require('bluebird');
+var fs = require('fs-extra');
+var path = require('path');
+
 var getWorkingDirectory = require('./getWorkingDirectory');
 var gzipTileset = require('./gzipTileset');
 
@@ -10,9 +11,9 @@ var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 var DeveloperError = Cesium.DeveloperError;
 
-var fsExtraCopy = Promise.promisify(fsExtra.copy);
-var fsExtraEmptyDir = Promise.promisify(fsExtra.emptyDir);
-var fsExtraRemove = Promise.promisify(fsExtra.remove);
+var fsCopy = Promise.promisify(fs.copy);
+var fsEmptyDir = Promise.promisify(fs.emptyDir);
+var fsRemove = Promise.promisify(fs.remove);
 
 module.exports = runPipeline;
 
@@ -41,7 +42,7 @@ function runPipeline(pipeline, options) {
         path.join(path.dirname(inputDirectory), path.basename(inputDirectory) + '-processed')));
 
     if (!defined(stages)) {
-        return fsExtraCopy(inputDirectory, outputDirectory);
+        return fsCopy(inputDirectory, outputDirectory);
     }
 
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
@@ -90,25 +91,25 @@ function runPipeline(pipeline, options) {
         }
 
         stageObjects.push({
-            options : stageOptions,
-            stageFunction : stageFunction,
-            name : stageName
+            options: stageOptions,
+            stageFunction: stageFunction,
+            name: stageName
         });
     }
 
     // Run the stages in sequence
-    return Promise.each(stageObjects, function(stage) {
-        return fsExtraEmptyDir(stage.options.outputDirectory)
-            .then(function() {
+    return Promise.each(stageObjects, function (stage) {
+        return fsEmptyDir(stage.options.outputDirectory)
+            .then(function () {
                 if (defined(logCallback)) {
                     logCallback('Running ' + stage.name);
                 }
                 return stage.stageFunction(stage.options);
             });
-    }).finally(function() {
+    }).finally(function () {
         return Promise.all([
-            fsExtraRemove(workingDirectory1),
-            fsExtraRemove(workingDirectory2)
+            fsRemove(workingDirectory1),
+            fsRemove(workingDirectory2)
         ]);
     });
 }
