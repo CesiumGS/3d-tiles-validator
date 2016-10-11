@@ -6,19 +6,24 @@ var isGzipped = require('./isGzipped');
 
 var fsReadFile = Promise.promisify(fs.readFile);
 var zlibGunzip = Promise.promisify(zlib.gunzip);
-var parseJson = Promise.promisify(JSON.parse)
 
-
+/**
+ * Reads tileset data from a file.
+ *
+ * @param {String} filePath The file path to read from.
+ * @returns {JSON} A JSON that contains the parsed data in the filePath.
+ *
+ */
 function readTileset(filePath) {
     return fsReadFile(filePath)
         .then(function (buffer) {
             if (isGzipped(buffer)) {
                 return zlibGunzip(buffer)
                     .then(function(data) {
-                        return parseJson(data.toString());
+                        return JSON.parse(data.toString());
                 })
             } else {
-                return parseJson(buffer.toString());
+                return JSON.parse(buffer.toString());
             }
         });
 }
