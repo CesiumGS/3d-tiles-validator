@@ -1,17 +1,18 @@
 'use strict';
 var Cesium = require('cesium');
-var fsExtra = require('fs-extra');
-var path = require('path');
 var Promise = require('bluebird');
+var path = require('path');
 var zlib = require('zlib');
 var getDefaultWriteCallback = require('./getDefaultWriteCallback');
-var isGzipped = require('./isGzipped');
-
-var fsExtraReadFile = Promise.promisify(fsExtra.readFile);
+var getFilesInDirectory = require('./getFilesInDirectory');
+var isTileFile = require('./isTileFile');
+var readTile = require('./readTile');
 
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 var DeveloperError = Cesium.DeveloperError;
+
+var zlibGzip = Promise.promisify(zlib.gzip);
 
 module.exports = gzipTileset;
 
@@ -40,100 +41,26 @@ function gzipTileset(options) {
     outputDirectory = path.normalize(defaultValue(outputDirectory,
         path.join(path.dirname(inputDirectory), path.basename(inputDirectory) + '-' + (gzip ? 'gzipped' : 'ungzipped'))));
 
-    var writeCallback = defaultValue(options.writeCallback, getDefaultWriteCallback(outputDirectory));
+    var writeCallback = defaultValue(options.writeCallback, getDefaultWriteCallback());
     var logCallback = options.logCallback;
 
     if (defined(logCallback)) {
         logCallback((gzip ? 'Compressing' : 'Uncompressing') + ' files...');
     }
 
-    var operation = gzip ? zlib.gzipSync : zlib.gunzipSync;
-
-    return new Promise(function(resolve, reject) {
-        getNumberOfFilesInDirectory(inputDirectory)
-            .then(function(numberOfFiles) {
-                var writeFile = getWriteFile(writeCallback, numberOfFiles, resolve, reject);
-                fsExtra.walk(inputDirectory)
-                    .on('data', function (item) {
-                        if (!item.stats.isDirectory()) {
-                            var inputFile = item.path;
-                            var file = path.relative(inputDirectory, item.path);
-
-                            if (gzip && tilesOnly && !isTile(inputFile)) {
-                                copyFile(inputFile, file, writeFile);
-                            } else {
-                                isGzipped(inputFile)
-                                    .then(function(fileIsGzipped) {
-                                        if (fileIsGzipped === gzip) {
-                                            // File is already in the correct state
-                                            copyFile(inputFile, file, writeFile);
-                                        } else {
-                                            fsExtraReadFile(inputFile)
-                                                .then(function(data) {
-                                                    data = operation(data);
-                                                    writeFile(file, data);
-                                                })
-                                                .catch(reject);
-                                        }
-                                    })
-                                    .catch(reject);
-                            }
-                        }
-                    })
-                    .on('error', reject);
-            })
-            .catch(reject);
-    });
-}
-
-function isTile(file) {
-    var extension = path.extname(file);
-    return extension === '.b3dm' ||
-           extension === '.i3dm' ||
-           extension === '.pnts' ||
-           extension === '.cmpt' ||
-           extension === '.vctr';
-}
-
-function getNumberOfFilesInDirectory(directory) {
-    return new Promise(function(resolve, reject) {
-        var numberOfFiles = 0;
-        fsExtra.walk(directory)
-            .on('data', function (item) {
-                if (!item.stats.isDirectory()) {
-                    ++numberOfFiles;
+    return getFilesInDirectory(inputDirectory, {
+        recursive: true
+    }).map(function (filename) {
+        var writeFile = path.join(outputDirectory, path.relative(inputDirectory, filename));
+        return readTile(filename)
+            .then(function(data) {
+                if (gzip && (!tilesOnly || isTileFile(writeFile))) {
+                    return zlibGzip(data);
                 }
+                return Promise.resolve(data);
             })
-            .on('end', function () {
-                resolve(numberOfFiles);
-            })
-            .on('error', reject);
+            .then(function(data) {
+                return writeCallback(writeFile, data);
+            });
     });
-}
-
-function getWriteFile(writeCallback, numberOfFiles, resolve, reject) {
-    var numberComplete = 0;
-    function complete() {
-        ++numberComplete;
-        if (numberComplete === numberOfFiles) {
-            resolve();
-        }
-    }
-    return function(file, data) {
-        var promise = writeCallback(file, data);
-        if (defined(promise)) {
-            promise
-                .then(complete)
-                .catch(reject);
-        } else {
-            complete();
-        }
-    };
-}
-
-function copyFile(inputFile, file, writeFile) {
-    return fsExtraReadFile(inputFile)
-        .then(function(data) {
-            return writeFile(file, data);
-        });
 }

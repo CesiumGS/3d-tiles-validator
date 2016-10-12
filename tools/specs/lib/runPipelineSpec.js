@@ -1,8 +1,7 @@
 'use strict';
 var fsExtra = require('fs-extra');
-var path = require('path');
 var Promise = require('bluebird');
-var isGzipped = require('../../lib/isGzipped');
+var isGzipped = require('../../lib/isGzippedFile');
 var runPipeline = require('../../lib/runPipeline');
 
 var fsExtraOutputFile = Promise.promisify(fsExtra.outputFile);
@@ -177,12 +176,12 @@ describe('runPipeline', function() {
 
     it('accepts custom writeCallback', function (done) {
         var writeCallback = function(file, data) {
-            var outputFile = path.join(outputDirectory, file);
-            return fsExtraOutputFile(outputFile, data);
+            return fsExtraOutputFile(file, data);
         };
 
         var pipeline = {
             input : inputDirectory,
+            output : outputDirectory,
             stages : ['gzip']
         };
 

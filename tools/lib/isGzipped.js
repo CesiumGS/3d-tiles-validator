@@ -1,17 +1,20 @@
 'use strict';
-var fsExtra = require('fs-extra');
-var Promise = require('bluebird');
+var Cesium = require('cesium');
 
-var fsExtraReadFile = Promise.promisify(fsExtra.readFile);
+var DeveloperError = Cesium.DeveloperError;
+var defined = Cesium.defined;
 
 module.exports = isGzipped;
 
 /**
- * @private
+ * Test if the provided data is gzipped.
+ *
+ * @param {Buffer} data A buffer containing the data to test.
+ * @returns {Boolean} True if the data is gzipped, False if not.
  */
-function isGzipped(file) {
-    return fsExtraReadFile(file)
-        .then(function (data) {
-            return (data[0] === 0x1f) && (data[1] === 0x8b);
-        });
+function isGzipped(data) {
+    if (!defined(data)) {
+        throw new DeveloperError('data must be defined.');
+    }
+    return data[0] === 0x1f && data[1] === 0x8b;
 }

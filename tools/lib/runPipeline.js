@@ -1,8 +1,8 @@
 'use strict';
 var Cesium = require('cesium');
+var Promise = require('bluebird');
 var fsExtra = require('fs-extra');
 var path = require('path');
-var Promise = require('bluebird');
 var getWorkingDirectory = require('./getWorkingDirectory');
 var gzipTileset = require('./gzipTileset');
 
@@ -90,22 +90,22 @@ function runPipeline(pipeline, options) {
         }
 
         stageObjects.push({
-            options : stageOptions,
-            stageFunction : stageFunction,
-            name : stageName
+            options: stageOptions,
+            stageFunction: stageFunction,
+            name: stageName
         });
     }
 
     // Run the stages in sequence
-    return Promise.each(stageObjects, function(stage) {
+    return Promise.each(stageObjects, function (stage) {
         return fsExtraEmptyDir(stage.options.outputDirectory)
-            .then(function() {
+            .then(function () {
                 if (defined(logCallback)) {
                     logCallback('Running ' + stage.name);
                 }
                 return stage.stageFunction(stage.options);
             });
-    }).finally(function() {
+    }).finally(function () {
         return Promise.all([
             fsExtraRemove(workingDirectory1),
             fsExtraRemove(workingDirectory2)
