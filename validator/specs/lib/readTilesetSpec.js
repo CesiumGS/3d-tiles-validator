@@ -11,7 +11,7 @@ describe('readTileset', function() {
     });
 
     it('reads a gzipped tileset', function(done) {
-        expect(readTile('./specs/data/TilesetGzipped/tileset.json')
+        expect(readTileset('./specs/data/TilesetGzipped/tileset.json')
             .then(function(tilesetData) {
                  expect(tilesetData).toBeDefined();
             }), done).toResolve();
