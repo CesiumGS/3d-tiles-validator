@@ -16,19 +16,27 @@ function validateB3dm(content) {
     if(!Cesium.defined(content)) {
         throw new DeveloperError('b3dm content must be defined');
     }
-    var magic = content.toString('uft8', 0, 4);
+
+    if(!Buffer.isBuffer(content)) {
+        throw new DeveloperError('content must be of type buffer');
+    }
+
+    var magic = content.toString('utf8', 0, 4);
     var version = content.readUInt32LE(4);
     var byteLength = content.readUInt32LE(8);
 
-    if(magic !== 'bd3m') {
+    if(magic !== 'b3dm') {
+        console.log("magic wrong");
         return false;
     }
 
     if(version !== 1) {
+        console.log("version wrong");
         return false;
     }
 
     if (byteLength !== content.length) {
+        console.log("length wrong");
         return false;
     }
 
