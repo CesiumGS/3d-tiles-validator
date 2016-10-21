@@ -26,17 +26,14 @@ function validateB3dm(content) {
     var byteLength = content.readUInt32LE(8);
 
     if(magic !== 'b3dm') {
-        console.log("magic wrong");
         return false;
     }
 
     if(version !== 1) {
-        console.log("version wrong");
         return false;
     }
 
     if (byteLength !== content.length) {
-        console.log("length wrong");
         return false;
     }
 
