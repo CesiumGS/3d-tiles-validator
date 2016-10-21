@@ -2,8 +2,9 @@
 var validateB3dm = require('../../lib/validateB3dm');
 
 describe('validateB3dm', function() {
+
     it('validated is a b3dm tile', function(done) {
-        expect(validateB3dm('./specs/data/Tileset/parent.b3dm')).toBe(true);
+        expect(validateB3dm(createB3dmTile())).toBe(true);
     });
 
     it('validated not b3dm tile, invalid magic', function(done) {
@@ -19,9 +20,38 @@ describe('validateB3dm', function() {
     });
 });
 
+function createB3dmTile() {
+
+    var header = new Buffer(24);
+
+    header.write('b3dm', 0); // magic
+    header.writeUInt32LE(1, 4); // version
+    header.writeUInt32LE(header.length, 8); // byteLength
+    header.writeUInt32LE(0, 12); // batchTableJSONByteLength
+    header.writeUInt32LE(0, 16); // batchTableBinaryByteLength
+    header.writeUInt32LE(0, 20); // batchLength
+
+    return header;
+}
+
 function createInvalidMagic() {
 
     var header = new Buffer(24);
+
+    header.write('b3bm', 0); // magic
+    header.writeUInt32LE(1, 4); // version
+    header.writeUInt32LE(header.length, 8); // byteLength
+    header.writeUInt32LE(0, 12); // batchTableJSONByteLength
+    header.writeUInt32LE(0, 16); // batchTableBinaryByteLength
+    header.writeUInt32LE(0, 20); // batchLength
+
+    return header;
+}
+
+function createInvalidMagic() {
+
+    var header = new Buffer(24);
+
     header.write('b3bm', 0); // magic
     header.writeUInt32LE(1, 4); // version
     header.writeUInt32LE(header.length, 8); // byteLength
