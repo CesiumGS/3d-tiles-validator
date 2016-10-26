@@ -1,6 +1,7 @@
 'use strict';
 var Cesium = require('cesium');
 
+var defined = Cesium.defined;
 var DeveloperError = Cesium.DeveloperError;
 
 module.exports = validateB3dm;
@@ -13,11 +14,11 @@ module.exports = validateB3dm;
  * {@link https://github.com/AnalyticalGraphicsInc/3d-tiles/tree/master/TileFormats/Batched3DModel}, False if not.
  */
 function validateB3dm(content) {
-    if(!Cesium.defined(content)) {
+    if (!defined(content)) {
         throw new DeveloperError('b3dm content must be defined');
     }
 
-    if(!Buffer.isBuffer(content)) {
+    if (!Buffer.isBuffer(content)) {
         throw new DeveloperError('content must be of type buffer');
     }
 
@@ -25,11 +26,11 @@ function validateB3dm(content) {
     var version = content.readUInt32LE(4);
     var byteLength = content.readUInt32LE(8);
 
-    if(magic !== 'b3dm') {
+    if (magic !== 'b3dm') {
         return false;
     }
 
-    if(version !== 1) {
+    if (version !== 1) {
         return false;
     }
 
@@ -38,4 +39,5 @@ function validateB3dm(content) {
     }
 
     return true;
+
 }
