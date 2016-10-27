@@ -12,9 +12,6 @@ module.exports = validateTileset;
  *
  */
 function validateTileset(tileset) {
-    if (tileset.root.geometricError > tileset.geometricError) {
-        return Promise.resolve(false, 'Root has geometricError greater than tileset');
-    }
 
     return new Promise(function(resolve) {
         validateNode(tileset.root, tileset.geometricError, resolve);

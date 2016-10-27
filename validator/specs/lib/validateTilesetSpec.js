@@ -50,18 +50,32 @@ describe('validateTileset', function() {
     };
 
     it('reads a valid JSON', function(done) {
-        expect(validateTileset(tileset))
-            .then(function(data) {
-           expect(data[0]).toBeTruthy();
-        });
+        expect(validateTileset(tileset)
+            .then(function(result, errorMessage) {
+           expect(result).toBe(true);
+        }), done).toResolve();
     });
 
-    it('reads an invalid JSON', function(done) {
-        // TODO
-    });
+    var invalidTileset = clone(tileset);
+    invalidTileset.root.children[0].children[0].geometricError = 100;
 
     it('reads an invalid JSON', function(done) {
-        // TODO
+        expect(validateTileset(invalidTileset)
+            .then(function(result, errorMessage) {
+                expect(result).toBe(false);
+                expect(errorMessage).toBe('Child has geometricError greater than parent');
+            }), done).toResolve();
+    });
+
+    invalidTileset = clone(tileset);
+    invalidTileset.root.geometricError = 300;
+
+    it('reads an invalid JSON', function(done) {
+        expect(validateTileset(invalidTileset)
+            .then(function(result, errorMessage) {
+                expect(result).toBe(false);
+                expect(errorMessage).toBe('Child has geometricError greater than parent');
+            }), done).toResolve();
     });
 
 });
