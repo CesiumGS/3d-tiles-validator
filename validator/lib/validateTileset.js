@@ -23,10 +23,11 @@ function validateNode(node, parentGeometricError, resolve) {
     if (node.geometricError > parentGeometricError) {
         return resolve(false, 'Child has geometricError greater than parent');
     }
-    // Call the function with each child
+    if (typeof node.children === "undefined") {
+        return resolve(true, '');
+    }
     var length = node.children.length;
     for (var i = 0; i < length; i++) {
-            validateNode(node.children[i], node.geometricError, resolve);
+        validateNode(node.children[i], node.geometricError, resolve);
     }
-
 }
