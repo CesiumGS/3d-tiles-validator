@@ -56,10 +56,9 @@ describe('validateTileset', function() {
         }), done).toResolve();
     });
 
-    var invalidTileset = clone(tileset);
-    invalidTileset.root.children[0].children[0].geometricError = 100;
-
     it('reads an invalid JSON', function(done) {
+        var invalidTileset = clone(tileset);
+        invalidTileset.root.children[0].children[0].geometricError = 100;
         expect(validateTileset(invalidTileset)
             .then(function(result, errorMessage) {
                 expect(result).toBe(false);
@@ -67,10 +66,9 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    invalidTileset = clone(tileset);
-    invalidTileset.root.geometricError = 300;
-
     it('reads an invalid JSON', function(done) {
+        var invalidTileset = clone(tileset);
+        invalidTileset.root.geometricError = 300;
         expect(validateTileset(invalidTileset)
             .then(function(result, errorMessage) {
                 expect(result).toBe(false);
