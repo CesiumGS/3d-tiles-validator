@@ -29,7 +29,10 @@ function validateNode(root, parentGeometricError, resolve) {
         if (typeof obj !== "undefined") {
 
             if (obj['node'].geometricError > obj['parentError']) {
-                return resolve(false, 'Child has geometricError greater than parent');
+                return resolve({
+                    result : false,
+                    message : 'Child has geometricError greater than parent'
+                });
             }
 
             if (typeof obj['node'].children !== "undefined") {
@@ -45,5 +48,8 @@ function validateNode(root, parentGeometricError, resolve) {
 
     }
 
-    return resolve(true, '');
+    return resolve({
+        result : true,
+        message : ''
+    });
 }
