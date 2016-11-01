@@ -49,14 +49,15 @@ describe('validateTileset', function() {
         }
     };
 
-    it('reads a valid JSON', function(done) {
+    it('validates a valid JSON', function(done) {
         expect(validateTileset(tileset)
             .then(function(response) {
-           expect(response.result).toBe(true);
-        }), done).toResolve();
+                expect(response.result).toBe(true);
+                expect(response.message).toBe('Tileset is valid');
+            }), done).toResolve();
     });
 
-    it('reads an invalid JSON', function(done) {
+    it('validates an invalid JSON', function(done) {
         var invalidTileset = clone(tileset);
         invalidTileset.root.children[0].children[0].geometricError = 100;
         expect(validateTileset(invalidTileset)
@@ -66,7 +67,7 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    it('reads an invalid JSON', function(done) {
+    it('validates an invalid JSON', function(done) {
         var invalidTileset = clone(tileset);
         invalidTileset.root.geometricError = 300;
         expect(validateTileset(invalidTileset)
@@ -75,5 +76,4 @@ describe('validateTileset', function() {
                 expect(response.message).toBe('Child has geometricError greater than parent');
             }), done).toResolve();
     });
-
 });

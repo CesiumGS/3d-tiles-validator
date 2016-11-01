@@ -10,6 +10,6 @@ var readTileset = require('../lib/readTileset');
 var validateTileset = require('../lib/validateTileset');
 
 var filePath = argv._[0];
-var jsonTileset = readTileset(filePath);
-var response = validateTileset(jsonTileset);
-console.log(response);
+var response = validateTileset(readTileset(filePath));
+
+console.log(response.message);

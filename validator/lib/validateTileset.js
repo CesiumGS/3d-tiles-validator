@@ -1,6 +1,8 @@
 'use strict';
 
 var Promise = require('bluebird');
+var Cesium = require('Cesium');
+var defined = Cesium.defined;
 
 module.exports = validateTileset;
 
@@ -14,42 +16,44 @@ module.exports = validateTileset;
  */
 function validateTileset(tileset) {
     return new Promise(function(resolve) {
-        validateNode(tileset.root, tileset.geometricError, resolve);
+        validateNode(tileset.root, tileset, resolve);
     });
 }
 
-function validateNode(root, parentGeometricError, resolve) {
+function validateNode(root, parent, resolve) {
     var stack = [];
-    stack.push({'node': root, 'parentError': parentGeometricError});
+    stack.push({
+          node: root,
+          parent: parent
+        });
 
     while (stack.length > 0) {
 
-        var obj = stack.pop();
+        var node = stack.pop();
+        var tile = node.node;
+        var parent = node.parent;
 
-        if (typeof obj !== "undefined") {
+        if (tile.geometricError > parent.geometricError) {
+            return resolve({
+                result : false,
+                message : 'Child has geometricError greater than parent'
+            });
+        }
 
-            if (obj['node'].geometricError > obj['parentError']) {
-                return resolve({
-                    result : false,
-                    message : 'Child has geometricError greater than parent'
+        if (defined(tile.children)) {
+            var length = tile.children.length;
+            for (var i = 0; i < length; i++) {
+                stack.push({
+                    node: tile.children[i],
+                    parent: tile
                 });
             }
-
-            if (typeof obj['node'].children !== "undefined") {
-                var length = obj['node'].children.length;
-                for (var i = 0; i < length; i++) {
-                    if (typeof obj['node'].children[i] !== "undefined") {
-                        stack.push({'node': obj['node'].children[i], 'parentError': obj['node'].geometricError});
-                    }
-                }
-            }
-
         }
 
     }
 
     return resolve({
         result : true,
-        message : ''
+        message : 'Tileset is valid'
     });
 }
