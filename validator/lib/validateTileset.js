@@ -1,7 +1,7 @@
 'use strict';
 
 var Promise = require('bluebird');
-var Cesium = require('Cesium');
+var Cesium = require('cesium');
 var defined = Cesium.defined;
 
 module.exports = validateTileset;
@@ -25,10 +25,9 @@ function validateNode(root, parent, resolve) {
     stack.push({
           node: root,
           parent: parent
-        });
+    });
 
     while (stack.length > 0) {
-
         var node = stack.pop();
         var tile = node.node;
         var parent = node.parent;
@@ -49,9 +48,7 @@ function validateNode(root, parent, resolve) {
                 });
             }
         }
-
     }
-
     return resolve({
         result : true,
         message : 'Tileset is valid'
