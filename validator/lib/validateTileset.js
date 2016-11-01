@@ -23,14 +23,14 @@ function validateTileset(tileset) {
 function validateNode(root, parent, resolve) {
     var stack = [];
     stack.push({
-          node: root,
-          parent: parent
+        node: root,
+        parent: parent
     });
 
     while (stack.length > 0) {
         var node = stack.pop();
         var tile = node.node;
-        var parent = node.parent;
+        parent = node.parent;
 
         if (tile.geometricError > parent.geometricError) {
             return resolve({
