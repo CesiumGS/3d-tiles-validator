@@ -24,6 +24,7 @@
   "dependencies": {
     "bluebird": "3.4.1",
     "cesium": "1.24",
+    "clone": "2.0.0",
     "fs-extra": "0.30.0",
     "yargs": "4.8.1"
   },
