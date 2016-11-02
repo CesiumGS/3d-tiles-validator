@@ -10,8 +10,8 @@ module.exports = validateB3dm;
  * Checks if provided buffer has valid b3dm tile contents
  *
  * @param {Buffer} content A buffer containing the contents of a b3dm tile.
- * @returns {Boolean} True if the content is valid according to the spec:
- * {@link https://github.com/AnalyticalGraphicsInc/3d-tiles/tree/master/TileFormats/Batched3DModel}, False if not.
+ * @returns {Object} An object with two parameters - (1) a boolean for whether the tile is a valid b3dm tile
+ *                                                   (2) a message to indicate which tile field is invalid, if any
  */
 function validateB3dm(content) {
     if (!defined(content)) {
@@ -27,17 +27,29 @@ function validateB3dm(content) {
     var byteLength = content.readUInt32LE(8);
 
     if (magic !== 'b3dm') {
-        return false;
+        return {
+            result : false,
+            message: 'Tile has an invalid magic'
+        };
     }
 
     if (version !== 1) {
-        return false;
+        return {
+            result : false,
+            message: 'Tile has an invalid version'
+        };
     }
 
     if (byteLength !== content.length) {
-        return false;
+        return {
+            result : false,
+            message: 'Tile has the wrong byteLength'
+        };
     }
 
-    return true;
+    return {
+        result : true,
+        message: 'Tile is a valid b3dm tile'
+    };
 
 }
