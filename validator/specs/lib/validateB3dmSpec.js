@@ -62,7 +62,7 @@ function createWrongByteLength() {
     var header = new Buffer(24);
     header.write('b3dm', 0); // magic
     header.writeUInt32LE(1, 4); // version
-    header.writeUInt32LE(99, 8); // byteLength
+    header.writeUInt32LE(header.length - 1, 8); // byteLength
     header.writeUInt32LE(0, 12); // batchTableJSONByteLength
     header.writeUInt32LE(0, 16); // batchTableBinaryByteLength
     header.writeUInt32LE(0, 20); // batchLength
