@@ -4,19 +4,19 @@ var validateB3dm = require('../../lib/validateB3dm');
 describe('validateB3dm', function() {
 
     it('returns true if the b3dm tile is valid, returns false if the b3dm has invalid magic', function() {
-        expect(validateB3dm(createInvalidMagic())).toBe(false);
+        expect(validateB3dm(createInvalidMagic()).result).toBe(false);
     });
 
     it('returns true if the b3dm tile is valid, returns false if the b3dm has invalid version', function() {
-        expect(validateB3dm(createInvalidVersion())).toBe(false);
+        expect(validateB3dm(createInvalidVersion()).result).toBe(false);
     });
 
     it('returns true if the b3dm tile is valid, returns false if the b3dm has wrong byteLength', function() {
-        expect(validateB3dm(createWrongByteLength())).toBe(false);
+        expect(validateB3dm(createWrongByteLength()).result).toBe(false);
     });
 
     it('returns true if b3dm tile matches spec', function() {
-        expect(validateB3dm(createB3dmTile())).toBe(true);
+        expect(validateB3dm(createB3dmTile()).result).toBe(true);
     });
 });
 
