@@ -22,7 +22,6 @@ describe('validateB3dm', function() {
 
 function createB3dmTile() {
     var header = new Buffer(24);
-
     header.write('b3dm', 0); // magic
     header.writeUInt32LE(1, 4); // version
     header.writeUInt32LE(header.length, 8); // byteLength
@@ -35,7 +34,6 @@ function createB3dmTile() {
 
 function createInvalidMagic() {
     var header = new Buffer(24);
-
     header.write('xxxx', 0); // magic
     header.writeUInt32LE(1, 4); // version
     header.writeUInt32LE(header.length, 8); // byteLength
