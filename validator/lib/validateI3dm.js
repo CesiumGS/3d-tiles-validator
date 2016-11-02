@@ -63,6 +63,6 @@ function validateI3dm(content) {
 
     return {
         result : true,
-        message: 'Tile is a valid ib3m tile ' + gltfFormat
+        message: 'Tile is a valid ib3m tile ' + gltfFormatMsg
     };
 }
