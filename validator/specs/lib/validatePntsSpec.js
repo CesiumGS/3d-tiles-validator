@@ -51,9 +51,10 @@ function createInvalidVersion() {
     header.write('pnts', 0); // magic
     header.writeUInt32LE(5, 4); // version
     header.writeUInt32LE(header.length, 8); // byteLength
-    header.writeUInt32LE(0, 12); // batchTableJSONByteLength
-    header.writeUInt32LE(0, 16); // batchTableBinaryByteLength
-    header.writeUInt32LE(0, 20); // batchLength
+    header.writeUInt32LE(0, 12); // featureTableJSONByteLength
+    header.writeUInt32LE(0, 16); // featureTableBinaryByteLength
+    header.writeUInt32LE(0, 20); // batchTableJSONByteLength
+    header.writeUInt32LE(0, 24); // batchTableBinaryByteLength
 
     return header;
 }
@@ -63,9 +64,10 @@ function createWrongByteLength() {
     header.write('pnts', 0); // magic
     header.writeUInt32LE(1, 4); // version
     header.writeUInt32LE(header.length - 1, 8); // byteLength
-    header.writeUInt32LE(0, 12); // batchTableJSONByteLength
-    header.writeUInt32LE(0, 16); // batchTableBinaryByteLength
-    header.writeUInt32LE(0, 20); // batchLength
+    header.writeUInt32LE(0, 12); // featureTableJSONByteLength
+    header.writeUInt32LE(0, 16); // featureTableBinaryByteLength
+    header.writeUInt32LE(0, 20); // batchTableJSONByteLength
+    header.writeUInt32LE(0, 24); // batchTableBinaryByteLength
 
     return header;
 }
