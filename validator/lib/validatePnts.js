@@ -26,7 +26,6 @@ function validatePnts(content) {
     var version = content.readUInt32LE(4);
     var byteLength = content.readUInt32LE(8);
 
-
     if (magic !== 'pnts') {
         return {
             result : false,
@@ -52,5 +51,4 @@ function validatePnts(content) {
         result : true,
         message: 'Tile is a valid pnts tile'
     };
-
 }
