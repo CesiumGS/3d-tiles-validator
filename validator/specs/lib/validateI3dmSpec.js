@@ -28,7 +28,6 @@ describe('validateB3dm', function() {
     });
 });
 
-
 function createI3dmTileGltfUrl() {
     var header = new Buffer(32);
 
