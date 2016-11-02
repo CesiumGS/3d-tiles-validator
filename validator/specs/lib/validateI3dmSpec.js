@@ -21,12 +21,14 @@ describe('validateB3dm', function() {
 
     it('returns true if b3dm i3dm matches spec with glTF field of the body being a url', function() {
         var validatorObject = validateI3dm(createI3dmTileGltfUrl());
-        expect(validatorObject.result && validatorObject.message.includes("url")).toBe(true);
+        var message = validatorObject.message;
+        expect(validatorObject.result && message.includes("url")).toBe(true);
     });
 
     it('returns true if b3dm i3dm matches spec with glTF field of the body being an embedded binary glTF', function() {
         var validatorObject = validateI3dm(createI3dmTileGltfBinaryGITF());
-        expect(validatorObject.result && validatorObject.message.includes("embedded binary gITF")).toBe(true);
+        var message = validatorObject.message;
+        expect(validatorObject.result && message.includes("embedded binary gITF")).toBe(true);
     });
 });
 
