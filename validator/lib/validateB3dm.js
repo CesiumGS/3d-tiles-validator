@@ -7,7 +7,7 @@ var DeveloperError = Cesium.DeveloperError;
 module.exports = validateB3dm;
 
 /**
- * Checks if provided buffer has valid b3dm tile contents
+ * Checks if provided buffer has valid b3dm tile content
  *
  * @param {Buffer} content A buffer containing the contents of a b3dm tile.
  * @returns {Object} An object with two parameters - (1) a boolean for whether the tile is a valid b3dm tile
