@@ -9,7 +9,7 @@ module.exports = validateI3dm;
 /**
  * Checks if provided buffer has valid i3dm tile content
  *
- * @param {Buffer} content A buffer containing the contents of a i3dm tile.
+ * @param {Buffer} content - A buffer containing the contents of a i3dm tile.
  * @returns {Object} An object with two parameters - (1) a boolean for whether the tile is a valid i3dm tile
  *                                                   (2) a message to indicate which tile field is invalid, if any
  */

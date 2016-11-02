@@ -1,7 +1,7 @@
 'use strict';
 var validateI3dm = require('../../lib/validateI3dm');
 
-describe('validateB3dm', function() {
+describe('validateI3dm', function() {
 
     it('returns true if the i3dm tile is valid, returns false if the i3dm has invalid magic', function() {
         expect(validateI3dm(createInvalidMagic()).result).toBe(false);
@@ -19,13 +19,13 @@ describe('validateB3dm', function() {
         expect(validateI3dm(createInvalidGltfFormat()).result).toBe(false);
     });
 
-    it('returns true if b3dm i3dm matches spec with glTF field of the body being a url', function() {
+    it('returns true if i3dm matches spec with glTF field of the body being a url', function() {
         var validatorObject = validateI3dm(createI3dmTileGltfUrl());
         var message = validatorObject.message;
         expect(validatorObject.result && message.includes("url")).toBe(true);
     });
 
-    it('returns true if b3dm i3dm matches spec with glTF field of the body being an embedded binary glTF', function() {
+    it('returns true if i3dm matches spec with glTF field of the body being an embedded binary glTF', function() {
         var validatorObject = validateI3dm(createI3dmTileGltfBinaryGITF());
         var message = validatorObject.message;
         expect(validatorObject.result && message.includes("embedded binary gITF")).toBe(true);
@@ -34,7 +34,6 @@ describe('validateB3dm', function() {
 
 function createI3dmTileGltfUrl() {
     var header = new Buffer(32);
-
     header.write('i3dm', 0); // magic
     header.writeUInt32LE(1, 4); // version
     header.writeUInt32LE(header.length, 8); // byteLength
@@ -49,7 +48,6 @@ function createI3dmTileGltfUrl() {
 
 function createI3dmTileGltfBinaryGITF() {
     var header = new Buffer(32);
-
     header.write('i3dm', 0); // magic
     header.writeUInt32LE(1, 4); // version
     header.writeUInt32LE(header.length, 8); // byteLength
@@ -64,7 +62,6 @@ function createI3dmTileGltfBinaryGITF() {
 
 function createInvalidMagic() {
     var header = new Buffer(32);
-
     header.write('xxxx', 0); // magic
     header.writeUInt32LE(1, 4); // version
     header.writeUInt32LE(header.length, 8); // byteLength
@@ -79,7 +76,6 @@ function createInvalidMagic() {
 
 function createInvalidVersion() {
     var header = new Buffer(32);
-
     header.write('i3dm', 0); // magic
     header.writeUInt32LE(5, 4); // version
     header.writeUInt32LE(header.length, 8); // byteLength
@@ -94,7 +90,6 @@ function createInvalidVersion() {
 
 function createWrongByteLength() {
     var header = new Buffer(32);
-
     header.write('i3dm', 0); // magic
     header.writeUInt32LE(1, 4); // version
     header.writeUInt32LE(header.length - 1, 8); // byteLength
@@ -109,7 +104,6 @@ function createWrongByteLength() {
 
 function createInvalidGltfFormat() {
     var header = new Buffer(32);
-
     header.write('i3dm', 0); // magic
     header.writeUInt32LE(1, 4); // version
     header.writeUInt32LE(header.length, 8); // byteLength
