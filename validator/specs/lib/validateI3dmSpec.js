@@ -3,32 +3,28 @@ var validateI3dm = require('../../lib/validateI3dm');
 
 describe('validateI3dm', function() {
 
-    it('returns true if the i3dm tile is valid, returns false if the i3dm has invalid magic', function() {
+    it('returns false if the i3dm has invalid magic', function() {
         expect(validateI3dm(createInvalidMagic()).result).toBe(false);
     });
 
-    it('returns true if the i3dm tile is valid, returns false if the i3dm has invalid version', function() {
+    it('returns false if the i3dm has invalid version', function() {
         expect(validateI3dm(createInvalidVersion()).result).toBe(false);
     });
 
-    it('returns true if the i3dm tile is valid, returns false if the i3dm has wrong byteLength', function() {
+    it('returns false if the i3dm has wrong byteLength', function() {
         expect(validateI3dm(createWrongByteLength()).result).toBe(false);
     });
 
-    it('returns true if the i3dm tile is valid, returns false if the i3dm has invalid gITF Format', function() {
+    it('returns false if the i3dm has invalid gITF Format', function() {
         expect(validateI3dm(createInvalidGltfFormat()).result).toBe(false);
     });
 
-    it('returns true if i3dm matches spec with glTF field of the body being a url', function() {
-        var validatorObject = validateI3dm(createI3dmTileGltfUrl());
-        var message = validatorObject.message;
-        expect(validatorObject.result && message.includes("url")).toBe(true);
+    it('validates an i3dm tile with a url glTF', function() {
+        expect(validateI3dm(createI3dmTileGltfUrl()).result).toBe(true);
     });
 
-    it('returns true if i3dm matches spec with glTF field of the body being an embedded binary glTF', function() {
-        var validatorObject = validateI3dm(createI3dmTileGltfBinaryGITF());
-        var message = validatorObject.message;
-        expect(validatorObject.result && message.includes("embedded binary gITF")).toBe(true);
+    it('validates an i3dm tile with an embedded binary glTF', function() {
+        expect(validateI3dm(createI3dmTileGltfBinaryGITF()).result).toBe(true);
     });
 });
 
@@ -44,6 +40,7 @@ function createI3dmTileGltfUrl() {
     header.writeUInt32LE(0, 28); // gltfFormat: 0 - url
 
     return header;
+
 }
 
 function createI3dmTileGltfBinaryGITF() {
@@ -58,6 +55,7 @@ function createI3dmTileGltfBinaryGITF() {
     header.writeUInt32LE(1, 28); // gltfFormat: 1 - embedded binary gITF
 
     return header;
+
 }
 
 function createInvalidMagic() {
@@ -72,6 +70,7 @@ function createInvalidMagic() {
     header.writeUInt32LE(0, 28); // gltfFormat: 0 - url
 
     return header;
+
 }
 
 function createInvalidVersion() {
@@ -100,6 +99,7 @@ function createWrongByteLength() {
     header.writeUInt32LE(0, 28); // gltfFormat: 0 - url
 
     return header;
+
 }
 
 function createInvalidGltfFormat() {
@@ -114,4 +114,5 @@ function createInvalidGltfFormat() {
     header.writeUInt32LE(5, 28); // gltfFormat: invalid
 
     return header;
+
 }
