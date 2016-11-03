@@ -27,42 +27,39 @@ function validateI3dm(content) {
     var byteLength = content.readUInt32LE(8);
     var gltfFormat = content.readUInt32LE(28);
 
-    var gltfFormatMsg = "";
-
     if (magic !== 'i3dm') {
         return {
             result : false,
-            message: 'Tile has an invalid magic'
+            message: 'Header has an invalid magic field. Expected version = \'i3dm\'. Found magic = ' + magic
         };
     }
 
     if (version !== 1) {
         return {
             result : false,
-            message: 'Tile has an invalid version'
+            message: 'Header has an invalid version field. Expected version = 1. Found version = ' + version
         };
     }
 
     if (byteLength !== content.length) {
         return {
             result : false,
-            message: 'Tile has the wrong byteLength'
+            message: 'Header has an invalid byteLength field. Expected byteLength = ' + content.length + '. Found byteLength = ' + byteLength
         };
     }
 
     if (gltfFormat === 0) {
-        gltfFormatMsg = "with gltf format as a url";
     } else if (gltfFormat === 1) {
-        gltfFormatMsg = "with gltf format as an embedded binary gITF";
     } else {
         return {
             result : false,
-            message: 'Tile has an invalid gltfFormat'
+            message: 'Header has an invalid gltfFormat field. Expected gltfFormat = 0 or 1. Found gltfFormat = ' + gltfFormat
         };
     }
 
     return {
         result : true,
-        message: 'Tile is a valid ib3m tile ' + gltfFormatMsg
+        message: 'valid'
     };
+
 }
