@@ -32,6 +32,19 @@ function validateNode(root, parent, resolve) {
         var tile = node.node;
         var parent = node.parent;
 
+        if (defined(tile.content.boundingVolume)) {
+            var region = tile.content.boundingVolume.region;
+            var parentRegion = parent.content.boundingVolume.region;
+            for (var i = 0; i < region.length; i++) {
+                if (region[i] > parentRegion[i]) {
+                    return resolve({
+                        result: false,
+                        message: 'Child occupies region greater than parent'
+                    });
+                }
+            }
+        }
+
         if (tile.geometricError > parent.geometricError) {
             return resolve({
                 result : false,
