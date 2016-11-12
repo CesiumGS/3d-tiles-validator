@@ -48,9 +48,7 @@ function validateI3dm(content) {
         };
     }
 
-    if (gltfFormat === 0) {
-    } else if (gltfFormat === 1) {
-    } else {
+    if (gltfFormat !== 0 && gltfFormat !== 1) {
         return {
             result : false,
             message: 'Header has an invalid gltfFormat field. Expected gltfFormat = 0 or 1. Found gltfFormat = ' + gltfFormat
@@ -61,5 +59,4 @@ function validateI3dm(content) {
         result : true,
         message: 'valid'
     };
-
 }

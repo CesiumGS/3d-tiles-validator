@@ -2,7 +2,6 @@
 var validateI3dm = require('../../lib/validateI3dm');
 
 describe('validateI3dm', function() {
-
     it('returns false if the i3dm has invalid magic', function() {
         expect(validateI3dm(createInvalidMagic()).result).toBe(false);
     });
@@ -40,7 +39,6 @@ function createI3dmTileGltfUrl() {
     header.writeUInt32LE(0, 28); // gltfFormat: 0 - url
 
     return header;
-
 }
 
 function createI3dmTileGltfBinaryGITF() {
@@ -55,7 +53,6 @@ function createI3dmTileGltfBinaryGITF() {
     header.writeUInt32LE(1, 28); // gltfFormat: 1 - embedded binary gITF
 
     return header;
-
 }
 
 function createInvalidMagic() {
@@ -70,7 +67,6 @@ function createInvalidMagic() {
     header.writeUInt32LE(0, 28); // gltfFormat: 0 - url
 
     return header;
-
 }
 
 function createInvalidVersion() {
@@ -99,7 +95,6 @@ function createWrongByteLength() {
     header.writeUInt32LE(0, 28); // gltfFormat: 0 - url
 
     return header;
-
 }
 
 function createInvalidGltfFormat() {
@@ -114,5 +109,4 @@ function createInvalidGltfFormat() {
     header.writeUInt32LE(5, 28); // gltfFormat: invalid
 
     return header;
-
 }
