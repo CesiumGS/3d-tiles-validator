@@ -2,20 +2,19 @@
 var validatePnts = require('../../lib/validatePnts');
 
 describe('validatePnts', function() {
-
-    it('returns true if the pnts tile is valid, returns false if the pnts has invalid magic', function() {
+    it('returns false if the pnts has invalid magic', function() {
         expect(validatePnts(createInvalidMagic()).result).toBe(false);
     });
 
-    it('returns true if the pnts tile is valid, returns false if the pnts has invalid version', function() {
+    it('returns false if the pnts has invalid version', function() {
         expect(validatePnts(createInvalidVersion()).result).toBe(false);
     });
 
-    it('returns true if the pnts tile is valid, returns false if the pnts has wrong byteLength', function() {
+    it('returns false if the pnts has wrong byteLength', function() {
         expect(validatePnts(createWrongByteLength()).result).toBe(false);
     });
 
-    it('returns true if pnts tile matches spec', function() {
+    it('validates that pnts tile matches spec', function() {
         expect(validatePnts(createPntsTile()).result).toBe(true);
     });
 });
@@ -47,7 +46,7 @@ function createInvalidMagic() {
 }
 
 function createInvalidVersion() {
-    var header = new Buffer(24);
+    var header = new Buffer(28);
     header.write('pnts', 0); // magic
     header.writeUInt32LE(5, 4); // version
     header.writeUInt32LE(header.length, 8); // byteLength
