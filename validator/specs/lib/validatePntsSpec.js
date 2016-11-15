@@ -59,7 +59,7 @@ function createInvalidVersion() {
 }
 
 function createWrongByteLength() {
-    var header = new Buffer(24);
+    var header = new Buffer(28);
     header.write('pnts', 0); // magic
     header.writeUInt32LE(1, 4); // version
     header.writeUInt32LE(header.length - 1, 8); // byteLength
