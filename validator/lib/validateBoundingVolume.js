@@ -12,6 +12,10 @@ function validateVolume(tileset) {
     });
 }
 
+var scratchCartographic = new Cartographic();
+var scratchRect;
+var scratchTileRect;
+
 function validateNode(root, parent, resolve) {
     var stack = [];
     stack.push({
@@ -30,20 +34,28 @@ function validateNode(root, parent, resolve) {
                     var region = tile.content.boundingVolume.region;
                     var tileRegion = tile.boundingVolume.region;
 
-                    var rect = Cesium.Rectangle(region[0], region[1], region[2], region[3]);
-                    var tileRectangle = Cesium.Rectangle(tileRegion[0], tileRegion[1], tileRegion[2], tileRegion[3]);
-                    var maxHeight = region[5];
+                    Cesium.Rectangle.fromDegrees(region[0], region[1], region[2], region[3], scratchRect);
+                    Cesium.Rectangle.fromDegrees(tileRegion[0], tileRegion[1], tileRegion[2], tileRegion[3],
+                                                scratchTileRect);
 
-                    if(rect.contains(tileRectangle, Cartographic(rect.west, rect.north, maxHeight))) {
+                    var maxRectHeight = region[5];
+                    var maxTileHeight = tileRegion[5];
 
-                    } else if (rect.contains(tileRectangle, Cartographic(rect.west, rect.south, maxHeight))) {
-
-                    } else if (rect.contains(tileRectangle, Cartographic(rect.east, rect.north, maxHeight))) {
-
-                    } else if (rect.contains(tileRectangle, Cartographic(rect.east, rect.south, maxHeight))) {
-
+                    if (Rectangle.contains(scratchTileRect, Cartographic.fromRadians(scratchRect.west,
+                                                                scratchRect.north, 0.0, scratchCartographic))
+                        && Rectangle.contains(scratchTileRect, Cartographic.fromRadians(scratchRect.west,
+                                                                scratchRect.south, 0.0, scratchCartographic))
+                        && Rectangle.contains(scratchTileRect, Cartographic.fromRadians(scratchRect.east,
+                                                                scratchRect.north, 0.0, scratchCartographic))
+                        && Rectangle.contains(scratchTileRect, Cartographic.fromRadians(scratchRect.east,
+                                                                scratchRect.south, 0.0, scratchCartographic))) {
+                        continue;
+                    } else {
+                        return resolve({
+                            result: false,
+                            message: 'Child bounding volume is not contained within parent'
+                        });
                     }
-
                 }
             }
         }
