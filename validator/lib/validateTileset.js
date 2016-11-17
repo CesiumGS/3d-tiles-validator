@@ -64,6 +64,7 @@ function validateNode(root, parent, resolve) {
             }
         }
     }
+
     return resolve({
         result : true,
         message : 'Tileset is valid'
