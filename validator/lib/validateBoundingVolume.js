@@ -3,6 +3,8 @@
 var Promise = require('bluebird');
 var Cesium = require('cesium');
 var defined = Cesium.defined;
+var Rectangle = Cesium.Rectangle;
+var Cartographic = Cesium.Cartographic;
 
 module.exports = validateVolume;
 
@@ -13,34 +15,27 @@ function validateVolume(tileset) {
 }
 
 var scratchCartographic = new Cartographic();
-var scratchRect = new Rectangle();
-var scratchTileRect = new Rectangle();
 
-function regionInsideRegion() {
-    return (Rectangle.contains(scratchTileRect, Cartographic.fromRadians(scratchRect.west,
-        scratchRect.north, 0.0, scratchCartographic))
-    && Rectangle.contains(scratchTileRect, Cartographic.fromRadians(scratchRect.west,
-        scratchRect.south, 0.0, scratchCartographic))
-    && Rectangle.contains(scratchTileRect, Cartographic.fromRadians(scratchRect.east,
-        scratchRect.north, 0.0, scratchCartographic))
-    && Rectangle.contains(scratchTileRect, Cartographic.fromRadians(scratchRect.east,
-        scratchRect.south, 0.0, scratchCartographic)));
+function regionInsideRegion(contentRect, tileRect) {
+    return (Rectangle.contains(tileRect, Cartographic.fromRadians(contentRect.west,
+        contentRect.north, 0.0, scratchCartographic))
+    && Rectangle.contains(tileRect, Cartographic.fromRadians(contentRect.west,
+        contentRect.south, 0.0, scratchCartographic))
+    && Rectangle.contains(tileRect, Cartographic.fromRadians(contentRect.east,
+        contentRect.north, 0.0, scratchCartographic))
+    && Rectangle.contains(tileRect, Cartographic.fromRadians(contentRect.east,
+        contentRect.south, 0.0, scratchCartographic)));
 }
 
-function sphereInsideSphere(sphere, tileSphere) {
-  var sphereX = sphere[0];
-  var sphereY = sphere[1];
-  var sphereZ = sphere[2];
-  var sphereRadius = sphere[3];
-  var tileSphereX = tileSphere[0];
-  var tileSphereY = tileSphere[1];
-  var tileSphereZ = tileSphere[2];
-  var distance = (sphereX - tileSphereX)*(sphereX - tileSphereX) + (sphereY - tileSphereY)*(sphereY - tileSphereY) +
-      (sphereZ - tileSphereZ)*(sphereZ - tileSphereZ);
-  var tileRadius = tileSphere[3];
-
-  return (distance <= sphereRadius^2 && tileRadius <= sphereRadius);
-
+function sphereInsideSphere(contentSphere, tileSphere) {
+    var contentSphereRadius = contentSphere[3];
+    var tileRadius = tileSphere[3];
+    var distance = CesiumMath.distance(Cartesian3.unpack(contentSphere, 0), Cartesian3.unpack(tileSphere, 0));
+    if (Math.min(contentSphereRadius, tileRadius) == contentSphereRadius) {
+        return ((distance + contentSphereRadius) <= tileRadius);
+    } else {
+        return false;
+    }
 }
 
 function validateNode(root, parent, resolve) {
@@ -54,40 +49,38 @@ function validateNode(root, parent, resolve) {
         var node = stack.pop();
         var tile = node.node;
         var parent = node.parent;
+        var tileContent = tile.content;
 
-        if (defined(tile.content)) {
-            if (defined(tile.content.boundingVolume)) {
-                if (defined(tile.content.boundingVolume.region) && defined(tile.boundingVolume.region)) {
-                    var region = tile.content.boundingVolume.region;
-                    var tileRegion = tile.boundingVolume.region;
+        if (defined(tileContent) && defined(tileContent.boundingVolume)) {
+            if (defined(tileContent.boundingVolume.region) && defined(tile.boundingVolume.region)) {
+                var contentRegion = tileContent.boundingVolume.region;
+                var tileRegion = tile.boundingVolume.region;
 
-                    Cesium.Rectangle.fromRadians(region[0], region[1], region[2], region[3], scratchRect);
-                    Cesium.Rectangle.fromRadians(tileRegion[0], tileRegion[1], tileRegion[2], tileRegion[3],
-                                                scratchTileRect);
+                var contentRect = Rectangle.unpack(contentRegion, 0);
+                var tileRect = Rectangle.unpack(tileRegion, 0);
 
-                    var maxRectHeight = region[5];
-                    var maxTileHeight = tileRegion[5];
+                var maxRectHeight = contentRegion[5];
+                var maxTileHeight = tileRegion[5];
+                var minRectHeight = contentRegion[4];
+                var minTileHeight = tileRegion[4];
 
-                    if (!regionInsideRegion() || maxRectHeight > maxTileHeight) {
-                        return resolve({
-                            result: false,
-                            message: 'Child bounding volume is not contained within parent'
-                        });
-                    }
+                if (!regionInsideRegion(contentRect, tileRect) || (maxRectHeight > maxTileHeight) || (minRectHeight > minTileHeight)) {
+                    return resolve({
+                        result: false,
+                        message: 'Child bounding volume is not contained within parent'
+                    });
                 }
+            }
 
-                if (defined(tile.content.boundingVolume.sphere) && defined(tile.boundingVolume.sphere)) {
-                    var sphere = tile.content.boundingVolume.sphere;
-                    var tileSphere = tile.boundingVolume.sphere;
-
-                    if (!sphereInsideSphere(sphere, tileSphere)) {
-                        return resolve({
-                            result: false,
-                            message: 'Child bounding volume is not contained within parent'
-                        });
-                    }
+            if (defined(tileContent.boundingVolume.sphere) && defined(tile.boundingVolume.sphere)) {
+                var sphere = tileContent.boundingVolume.sphere;
+                var tileSphere = tile.boundingVolume.sphere;
+                if (!sphereInsideSphere(sphere, tileSphere)) {
+                    return resolve({
+                        result: false,
+                        message: 'Child bounding volume is not contained within parent'
+                    });
                 }
-
             }
         }
 
