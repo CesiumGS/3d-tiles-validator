@@ -3,6 +3,7 @@
 var Promise = require('bluebird');
 var Cesium = require('cesium');
 var defined = Cesium.defined;
+var Cartesian3 = Cesium.Cartesian3;
 var Rectangle = Cesium.Rectangle;
 var Cartographic = Cesium.Cartographic;
 
@@ -15,27 +16,25 @@ function validateVolume(tileset) {
 }
 
 var scratchCartographic = new Cartographic();
+var scratchContentCartesian = new Cartesian3();
+var scratchTileCartesian = new Cartesian3();
+var scratchContentRectangle = new Rectangle();
+var scratchTileRectangle = new Rectangle();
 
-function regionInsideRegion(contentRect, tileRect) {
-    return (Rectangle.contains(tileRect, Cartographic.fromRadians(contentRect.west,
-        contentRect.north, 0.0, scratchCartographic))
-    && Rectangle.contains(tileRect, Cartographic.fromRadians(contentRect.west,
-        contentRect.south, 0.0, scratchCartographic))
-    && Rectangle.contains(tileRect, Cartographic.fromRadians(contentRect.east,
-        contentRect.north, 0.0, scratchCartographic))
-    && Rectangle.contains(tileRect, Cartographic.fromRadians(contentRect.east,
-        contentRect.south, 0.0, scratchCartographic)));
+function regionInsideRegion(contentRectangle, tileRectangle) {
+    return (Rectangle.contains(tileRectangle,  Rectangle.northwest(contentRectangle, scratchCartographic))
+        && Rectangle.contains(tileRectangle, Rectangle.southwest(contentRectangle, scratchCartographic))
+        && Rectangle.contains(tileRectangle, Rectangle.northeast(contentRectangle, scratchCartographic))
+        && Rectangle.contains(tileRectangle, Rectangle.southeast(contentRectangle, scratchCartographic)));
 }
 
 function sphereInsideSphere(contentSphere, tileSphere) {
-    var contentSphereRadius = contentSphere[3];
+    var contentRadius = contentSphere[3];
     var tileRadius = tileSphere[3];
-    var distance = CesiumMath.distance(Cartesian3.unpack(contentSphere, 0), Cartesian3.unpack(tileSphere, 0));
-    if (Math.min(contentSphereRadius, tileRadius) == contentSphereRadius) {
-        return ((distance + contentSphereRadius) <= tileRadius);
-    } else {
-        return false;
-    }
+    var contentCenter = Cartesian3.unpack(contentSphere, 0, scratchContentCartesian);
+    var tileCenter = Cartesian3.unpack(tileSphere, 0, scratchTileCartesian);
+    var distance = Cartesian3.distance(contentCenter, tileCenter);
+    return ((distance + contentRadius) <= tileRadius);
 }
 
 function validateNode(root, parent, resolve) {
@@ -56,15 +55,15 @@ function validateNode(root, parent, resolve) {
                 var contentRegion = tileContent.boundingVolume.region;
                 var tileRegion = tile.boundingVolume.region;
 
-                var contentRect = Rectangle.unpack(contentRegion, 0);
-                var tileRect = Rectangle.unpack(tileRegion, 0);
+                var contentRect = Rectangle.unpack(contentRegion, 0, scratchContentRectangle);
+                var tileRect = Rectangle.unpack(tileRegion, 0, scratchTileRectangle);
 
-                var maxRectHeight = contentRegion[5];
+                var maxContentHeight = contentRegion[5];
+                var minContentHeight = contentRegion[4];
                 var maxTileHeight = tileRegion[5];
-                var minRectHeight = contentRegion[4];
                 var minTileHeight = tileRegion[4];
 
-                if (!regionInsideRegion(contentRect, tileRect) || (maxRectHeight > maxTileHeight) || (minRectHeight > minTileHeight)) {
+                if (!regionInsideRegion(contentRect, tileRect) || (maxContentHeight > maxTileHeight) || (minContentHeight < minTileHeight)) {
                     return resolve({
                         result: false,
                         message: 'Child bounding volume is not contained within parent'
@@ -73,9 +72,9 @@ function validateNode(root, parent, resolve) {
             }
 
             if (defined(tileContent.boundingVolume.sphere) && defined(tile.boundingVolume.sphere)) {
-                var sphere = tileContent.boundingVolume.sphere;
+                var contentSphere = tileContent.boundingVolume.sphere;
                 var tileSphere = tile.boundingVolume.sphere;
-                if (!sphereInsideSphere(sphere, tileSphere)) {
+                if (!sphereInsideSphere(contentSphere, tileSphere)) {
                     return resolve({
                         result: false,
                         message: 'Child bounding volume is not contained within parent'
