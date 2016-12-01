@@ -21,11 +21,19 @@ var scratchTileCartesian = new Cartesian3();
 var scratchContentRectangle = new Rectangle();
 var scratchTileRectangle = new Rectangle();
 
-function regionInsideRegion(contentRectangle, tileRectangle) {
+function regionInsideRegion(contentRegion, tileRegion) {
+    var contentRectangle = Rectangle.unpack(contentRegion, 0, scratchContentRectangle);
+    var tileRectangle = Rectangle.unpack(tileRegion, 0, scratchTileRectangle);
+    var maxContentHeight = contentRegion[5];
+    var minContentHeight = contentRegion[4];
+    var maxTileHeight = tileRegion[5];
+    var minTileHeight = tileRegion[4];
     return (Rectangle.contains(tileRectangle,  Rectangle.northwest(contentRectangle, scratchCartographic))
         && Rectangle.contains(tileRectangle, Rectangle.southwest(contentRectangle, scratchCartographic))
         && Rectangle.contains(tileRectangle, Rectangle.northeast(contentRectangle, scratchCartographic))
-        && Rectangle.contains(tileRectangle, Rectangle.southeast(contentRectangle, scratchCartographic)));
+        && Rectangle.contains(tileRectangle, Rectangle.southeast(contentRectangle, scratchCartographic)))
+        && (maxContentHeight < maxTileHeight)
+        && (minContentHeight > minTileHeight);
 }
 
 function sphereInsideSphere(contentSphere, tileSphere) {
@@ -34,7 +42,13 @@ function sphereInsideSphere(contentSphere, tileSphere) {
     var contentCenter = Cartesian3.unpack(contentSphere, 0, scratchContentCartesian);
     var tileCenter = Cartesian3.unpack(tileSphere, 0, scratchTileCartesian);
     var distance = Cartesian3.distance(contentCenter, tileCenter);
-    return ((distance + contentRadius) <= tileRadius);
+    return distance  <= (tileRadius - contentRadius);
+}
+
+function sphereInsideRegion(contentSphere, tileRegion) {
+    var contentRadius = contentSphere[3];
+    var tileRectangle = Rectangle.unpack(tileRegion, 0, scratchTileRectangle);
+
 }
 
 function validateNode(root, parent, resolve) {
@@ -55,15 +69,7 @@ function validateNode(root, parent, resolve) {
                 var contentRegion = tileContent.boundingVolume.region;
                 var tileRegion = tile.boundingVolume.region;
 
-                var contentRect = Rectangle.unpack(contentRegion, 0, scratchContentRectangle);
-                var tileRect = Rectangle.unpack(tileRegion, 0, scratchTileRectangle);
-
-                var maxContentHeight = contentRegion[5];
-                var minContentHeight = contentRegion[4];
-                var maxTileHeight = tileRegion[5];
-                var minTileHeight = tileRegion[4];
-
-                if (!regionInsideRegion(contentRect, tileRect) || (maxContentHeight > maxTileHeight) || (minContentHeight < minTileHeight)) {
+                if (!regionInsideRegion(contentRegion, tileRegion)) {
                     return resolve({
                         result: false,
                         message: 'Child bounding volume is not contained within parent'
@@ -75,6 +81,17 @@ function validateNode(root, parent, resolve) {
                 var contentSphere = tileContent.boundingVolume.sphere;
                 var tileSphere = tile.boundingVolume.sphere;
                 if (!sphereInsideSphere(contentSphere, tileSphere)) {
+                    return resolve({
+                        result: false,
+                        message: 'Child bounding volume is not contained within parent'
+                    });
+                }
+            }
+
+            if (defined(tileContent.boundingVolume.sphere) && defined(tile.boundingVolume.region)) {
+                var contentSphere = tileContent.boundingVolume.sphere;
+                var tileRegion = tileContent.boundingVolume.region;
+                if (!sphereInsideRegion(contentSphere, tileRegion)) {
                     return resolve({
                         result: false,
                         message: 'Child bounding volume is not contained within parent'
