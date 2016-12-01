@@ -81,18 +81,18 @@ describe('validateTileset', function() {
 
 
 describe('validateBoundingVolume', function() {
-   var regionTileset = {
+    var regionTileset = {
        "root": {
            "boundingVolume": {
-               "region": [10, 10, 10, 10, 10, 88]
+               "region": [20, 40, 50, 10, 10, 88]
            },
            "content": {
                "boundingVolume": {
-                   "region":  [0, 0, 0, 0, 20, 30]
-               },
+                   "region":  [18, 14, 15, 8, 20, 30]
+               }
            }
        }
-   };
+    };
 
     it('validates region inside region', function(done) {
         expect(validateBoundingVolume(regionTileset)
@@ -102,7 +102,7 @@ describe('validateBoundingVolume', function() {
             }), done).toResolve();
     });
 
-    it('validates an invalid region inside region', function(done) {
+    it('invalidates when a content region exceeds the tile region', function(done) {
         var invalidTileset = clone(regionTileset);
         expect(validateBoundingVolume(invalidTileset)
             .then(function(response) {
@@ -111,7 +111,7 @@ describe('validateBoundingVolume', function() {
             }), done).toResolve();
     });
 
-    it('validates content region max height taller than tile region', function(done) {
+    it('invalidates when content region max height exceeds tile region max height', function(done) {
         var invalidTileset = clone(regionTileset);
         invalidTileset.root.content.boundingVolume.region[5] = 100;
         expect(validateBoundingVolume(invalidTileset)
@@ -121,7 +121,7 @@ describe('validateBoundingVolume', function() {
             }), done).toResolve();
     });
 
-    it('validates content region min height smaller than tile region', function(done) {
+    it('invalidates when tile region min height exceeds content region min height', function(done) {
         var invalidTileset = clone(regionTileset);
         invalidTileset.root.content.boundingVolume.region[4] = 5;
         expect(validateBoundingVolume(invalidTileset)
@@ -171,5 +171,7 @@ describe('validateBoundingVolume', function() {
                 expect(response.message).toBe('Child bounding volume is not contained within parent');
             }), done).toResolve();
     });
+
+    
 
 });
