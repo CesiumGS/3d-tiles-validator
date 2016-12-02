@@ -84,11 +84,11 @@ describe('validateBoundingVolume', function() {
     var regionTileset = {
        "root": {
            "boundingVolume": {
-               "region": [20, 40, 50, 10, 10, 88]
+               "region": [20, 40, 50, 55, 10, 88]
            },
            "content": {
                "boundingVolume": {
-                   "region":  [18, 14, 15, 8, 20, 30]
+                   "region":  [22, 45, 25, 50, 20, 30]
                }
            }
        }
@@ -104,6 +104,7 @@ describe('validateBoundingVolume', function() {
 
     it('invalidates when a content region exceeds the tile region', function(done) {
         var invalidTileset = clone(regionTileset);
+        invalidTileset.root.content.boundingVolume.region[0] = 18;
         expect(validateBoundingVolume(invalidTileset)
             .then(function(response) {
                 expect(response.result).toBe(false);
@@ -172,6 +173,6 @@ describe('validateBoundingVolume', function() {
             }), done).toResolve();
     });
 
-    
+
 
 });
