@@ -1,7 +1,12 @@
 'use strict';
 var validateCmpt = require('../../lib/validateCmpt');
+var validateB3dm = require('../../lib/validateB3dm');
 
 describe('validateCmpt', function() {
+    it('returns false if the cmpt header is too short', function() {
+        expect(validateCmpt(createShortHeader()).result).toBe(false);
+    });
+
     it('returns false if the cmpt has invalid magic', function() {
         expect(validateCmpt(createInvalidMagic()).result).toBe(false);
     });
@@ -31,6 +36,7 @@ describe('validateCmpt', function() {
     });
 
     it('validates a cmpt tile with a valid b3dm inner tile', function() {
+        console.log(validateCmpt(createCmptB3dm()).message);
         expect(validateCmpt(createCmptB3dm()).result).toBe(true);
     });
 
@@ -62,6 +68,15 @@ describe('validateCmpt', function() {
         expect(validateCmpt(createCmptInvalidCombination()).result).toBe(false);
     });
 });
+
+function createShortHeader() {
+    var cmptTile = new Buffer(12);
+    cmptTile.write('xxxx', 0); // magic
+    cmptTile.writeUInt32LE(1, 4); // version
+    cmptTile.writeUInt32LE(cmptTile.length, 8); // byteLength
+
+    return cmptTile;
+}
 
 function createInvalidMagic() {
     var cmptTile = new Buffer(16);
@@ -141,6 +156,10 @@ function createCmptUnidentifierInner() {
 
     //unknown header
     cmptTile.write('xxxx', byteOffset); // magic
+    byteOffset += sizeU32Int;
+    cmptTile.writeUInt32LE(1, byteOffset); // version
+    byteOffset += sizeU32Int;
+    cmptTile.writeUInt32LE(28, byteOffset); // byteLength
 
     return cmptTile;
 }
