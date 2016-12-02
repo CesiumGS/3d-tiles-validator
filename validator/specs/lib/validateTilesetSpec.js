@@ -102,9 +102,39 @@ describe('validateBoundingVolume', function() {
             }), done).toResolve();
     });
 
-    it('invalidates when a content region exceeds the tile region', function(done) {
+    it('invalidates when a content region west exceeds the tile region', function(done) {
         var invalidTileset = clone(regionTileset);
         invalidTileset.root.content.boundingVolume.region[0] = 18;
+        expect(validateBoundingVolume(invalidTileset)
+            .then(function(response) {
+                expect(response.result).toBe(false);
+                expect(response.message).toBe('Child bounding volume is not contained within parent');
+            }), done).toResolve();
+    });
+
+    it('invalidates when a content region south exceeds the tile region', function(done) {
+        var invalidTileset = clone(regionTileset);
+        invalidTileset.root.content.boundingVolume.region[1] = 35;
+        expect(validateBoundingVolume(invalidTileset)
+            .then(function(response) {
+                expect(response.result).toBe(false);
+                expect(response.message).toBe('Child bounding volume is not contained within parent');
+            }), done).toResolve();
+    });
+
+    it('invalidates when a content region east exceeds the tile region', function(done) {
+        var invalidTileset = clone(regionTileset);
+        invalidTileset.root.content.boundingVolume.region[2] = 55;
+        expect(validateBoundingVolume(invalidTileset)
+            .then(function(response) {
+                expect(response.result).toBe(false);
+                expect(response.message).toBe('Child bounding volume is not contained within parent');
+            }), done).toResolve();
+    });
+
+    it('invalidates when a content region north exceeds the tile region', function(done) {
+        var invalidTileset = clone(regionTileset);
+        invalidTileset.root.content.boundingVolume.region[3] = 65;
         expect(validateBoundingVolume(invalidTileset)
             .then(function(response) {
                 expect(response.result).toBe(false);
