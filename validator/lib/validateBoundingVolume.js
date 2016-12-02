@@ -47,8 +47,9 @@ function sphereInsideSphere(contentSphere, tileSphere) {
 
 function sphereInsideRegion(contentSphere, tileRegion) {
     var contentRadius = contentSphere[3];
-    var tileRectangle = Rectangle.unpack(tileRegion, 0, scratchTileRectangle);
-
+    var width = tileRegion[2] - tileRegion[0];
+    var height = tileRegion[3] - tileRegion[1];
+    return (2*contentRadius <= width && 2*contentRadius <= height);
 }
 
 function validateNode(root, parent, resolve) {
@@ -90,7 +91,7 @@ function validateNode(root, parent, resolve) {
 
             if (defined(tileContent.boundingVolume.sphere) && defined(tile.boundingVolume.region)) {
                 var contentSphere = tileContent.boundingVolume.sphere;
-                var tileRegion = tileContent.boundingVolume.region;
+                var tileRegion = tile.boundingVolume.region;
                 if (!sphereInsideRegion(contentSphere, tileRegion)) {
                     return resolve({
                         result: false,

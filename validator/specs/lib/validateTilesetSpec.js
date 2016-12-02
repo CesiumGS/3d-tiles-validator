@@ -203,6 +203,35 @@ describe('validateBoundingVolume', function() {
             }), done).toResolve();
     });
 
+    var hybridTileset = {
+        "root": {
+            "boundingVolume": {
+                "region":  [20, 40, 50, 55, 10, 88]
+            },
+            "content": {
+                "boundingVolume": {
+                    "sphere": [0, 0, 0, 2]
+                },
+            }
+        }
+    };
 
+    it('validates a sphere inside a region', function(done) {
+        expect(validateBoundingVolume(hybridTileset)
+            .then(function(response) {
+                expect(response.result).toBe(true);
+                expect(response.message).toBe('Tileset is valid');
+            }), done).toResolve();
+    });
+
+    it('invalidates a sphere with a larger radius than region width', function(done) {
+        var invalidSphere = clone(hybridTileset);
+        invalidSphere.root.content.boundingVolume.sphere[3] = 56;
+        expect(validateBoundingVolume(invalidSphere)
+            .then(function(response) {
+                expect(response.result).toBe(false);
+                expect(response.message).toBe('Child bounding volume is not contained within parent');
+            }), done).toResolve();
+    });
 
 });
