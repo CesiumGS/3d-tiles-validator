@@ -1,6 +1,5 @@
 'use strict';
 var validateCmpt = require('../../lib/validateCmpt');
-var validateB3dm = require('../../lib/validateB3dm');
 
 describe('validateCmpt', function() {
     it('returns false if the cmpt header is too short', function() {
@@ -20,11 +19,11 @@ describe('validateCmpt', function() {
     });
 
     it('returns false if the cmpt has less inner tiles than tilesLength field', function() {
-        expect(validateCmpt(createCmptShort()).result).toBe(false);
+        expect(validateCmpt(createCmptMissingInner()).result).toBe(false);
     });
 
     it('returns false if the cmpt has an unidentifiable inner tile', function() {
-        expect(validateCmpt(createCmptUnidentifierInner()).result).toBe(false);
+        expect(validateCmpt(createCmptUnidentifiedInner()).result).toBe(false);
     });
 
     it('returns false if the cmpt has an extra bytes in tiles[] field', function() {
@@ -36,7 +35,6 @@ describe('validateCmpt', function() {
     });
 
     it('validates a cmpt tile with a valid b3dm inner tile', function() {
-        console.log(validateCmpt(createCmptB3dm()).message);
         expect(validateCmpt(createCmptB3dm()).result).toBe(true);
     });
 
@@ -69,446 +67,225 @@ describe('validateCmpt', function() {
     });
 });
 
+var b3dmHeaderSize = 24;
+var i3dmHeaderSize = 32;
+var pntsHeaderSize = 28;
+var cmptHeaderSize = 16;
+var unknownHeaderSize = 12;
+var sizeU32Int = 4;
+
+function createB3dmTile(version, byteLength) {
+    var byteOffset = 0;
+
+    var b3dmTile = new Buffer(b3dmHeaderSize);
+    b3dmTile.write('b3dm', byteOffset); // magic
+    byteOffset += sizeU32Int;
+    b3dmTile.writeUInt32LE(version, byteOffset); // version
+    byteOffset += sizeU32Int;
+    b3dmTile.writeUInt32LE(byteLength, byteOffset); // byteLength
+
+    return b3dmTile;
+}
+
+function createI3dmTile(version, byteLength, gltfFormat) {
+    var byteOffset = 0;
+
+    var i3dmTile = new Buffer(i3dmHeaderSize);
+    i3dmTile.write('i3dm', byteOffset); // magic
+    byteOffset += sizeU32Int;
+    i3dmTile.writeUInt32LE(version, byteOffset); // version
+    byteOffset += sizeU32Int;
+    i3dmTile.writeUInt32LE(byteLength, byteOffset); // byteLength
+    byteOffset += sizeU32Int;
+    byteOffset += sizeU32Int; // skip featureTableJSONByteLength
+    byteOffset += sizeU32Int; // skip featureTableBinaryByteLength
+    byteOffset += sizeU32Int; // skip batchTableJSONByteLength
+    byteOffset += sizeU32Int; // skip batchTableBinaryByteLength
+    i3dmTile.writeUInt32LE(gltfFormat, byteOffset); // gltfFormat: 0 - url
+
+    return i3dmTile;
+}
+
+function createCmptTile(version, byteLength, tilesLength) {
+    var byteOffset = 0;
+
+    var cmptTile = new Buffer(cmptHeaderSize);
+    cmptTile.write('cmpt', byteOffset); // magic
+    byteOffset += sizeU32Int;
+    cmptTile.writeUInt32LE(version, byteOffset); // version
+    byteOffset += sizeU32Int;
+    cmptTile.writeUInt32LE(byteLength, byteOffset); // byteLength
+    byteOffset += sizeU32Int;
+    cmptTile.writeUInt32LE(tilesLength, byteOffset); // tilesLength
+
+    return cmptTile;
+}
+
+function createPntsTile(version, byteLength) {
+    var byteOffset = 0;
+
+    var pntsTile = new Buffer(pntsHeaderSize);
+    pntsTile.write('pnts', byteOffset); // magic
+    byteOffset += sizeU32Int;
+    pntsTile.writeUInt32LE(version, byteOffset); // version
+    byteOffset += sizeU32Int;
+    pntsTile.writeUInt32LE(byteLength, byteOffset); // byteLength
+
+    return pntsTile;
+}
+
+function createUnknownTile(version, byteLength) {
+    var byteOffset = 0;
+
+    var unknownTile = new Buffer(12);
+    unknownTile.write('xxxx', byteOffset); // magic
+    byteOffset += sizeU32Int;
+    unknownTile.writeUInt32LE(version, byteOffset); // version
+    byteOffset += sizeU32Int;
+    unknownTile.writeUInt32LE(byteLength, byteOffset); // byteLength
+
+    return unknownTile;
+}
+
 function createShortHeader() {
-    var cmptTile = new Buffer(12);
-    cmptTile.write('xxxx', 0); // magic
-    cmptTile.writeUInt32LE(1, 4); // version
-    cmptTile.writeUInt32LE(cmptTile.length, 8); // byteLength
+    var byteOffset = 0;
+
+    var cmptTile = new Buffer(cmptHeaderSize - 4);
+    cmptTile.write('cmpt', byteOffset); // magic
+    byteOffset += sizeU32Int;
+    cmptTile.writeUInt32LE(1, byteOffset); // version
+    byteOffset += sizeU32Int;
+    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
 
     return cmptTile;
 }
 
 function createInvalidMagic() {
+    var byteOffset = 0;
+
     var cmptTile = new Buffer(16);
-    cmptTile.write('xxxx', 0); // magic
-    cmptTile.writeUInt32LE(1, 4); // version
-    cmptTile.writeUInt32LE(cmptTile.length, 8); // byteLength
-    cmptTile.writeUInt32LE(0, 12); // tilesLength
+    cmptTile.write('xxxx', byteOffset); // magic
+    byteOffset += sizeU32Int;
+    cmptTile.writeUInt32LE(1, byteOffset); // version
+    byteOffset += sizeU32Int;
+    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
+    byteOffset += sizeU32Int;
+    cmptTile.writeUInt32LE(0, byteOffset); // tilesLength
 
     return cmptTile;
 }
 
 function createInvalidVersion() {
-    var cmptTile = new Buffer(16);
-    cmptTile.write('cmpt', 0); // magic
-    cmptTile.writeUInt32LE(5, 4); // version
-    cmptTile.writeUInt32LE(cmptTile.length, 8); // byteLength
-    cmptTile.writeUInt32LE(0, 12); // tilesLength
-
+    var cmptTile = createCmptTile(5, cmptHeaderSize, 0);
     return cmptTile;
 }
 
 function createInvalidByteLength() {
-    var cmptTile = new Buffer(16);
-    cmptTile.write('cmpt', 0); // magic
-    cmptTile.writeUInt32LE(1, 4); // version
-    cmptTile.writeUInt32LE(cmptTile.length - 1, 8); // byteLength
-    cmptTile.writeUInt32LE(0, 12); // tilesLength
-
+    var cmptTile = createCmptTile(1, cmptHeaderSize - 1, 0);
     return cmptTile;
 }
 
-function createCmptShort() {
-    var byteOffset = 0;
-    var sizeU32Int = 4;
-    var cmptTile = new Buffer(48);
+function createCmptMissingInner() {
+    var cmptTile = createCmptTile(1, cmptHeaderSize + i3dmHeaderSize, 5);
+    var innerI3dm = createI3dmTile(1, i3dmHeaderSize, 0);
+    var buf = Buffer.concat([cmptTile, innerI3dm], cmptHeaderSize + i3dmHeaderSize);
 
-    //cmpt header
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(5, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //i3dm header
-    cmptTile.write('i3dm', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length - 16, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    byteOffset += sizeU32Int; // skip featureTableJSONByteLength
-    byteOffset += sizeU32Int; // skip featureTableBinaryByteLength
-    byteOffset += sizeU32Int; // skip batchTableJSONByteLength
-    byteOffset += sizeU32Int; // skip batchTableBinaryByteLength
-    cmptTile.writeUInt32LE(0, byteOffset); // gltfFormat: 0 - url
-
-    return cmptTile;
+    return buf;
 }
 
-function createCmptUnidentifierInner() {
-    var byteOffset = 0;
-    var sizeU32Int = 4;
-    var cmptTile = new Buffer(40);
+function createCmptUnidentifiedInner() {
+    var cmptTile = createCmptTile(1, cmptHeaderSize + unknownHeaderSize, 1);
+    var innerUnknown = createUnknownTile(1, unknownHeaderSize);
+    var buf = Buffer.concat([cmptTile, innerUnknown], cmptHeaderSize + unknownHeaderSize);
 
-    //cmpt header
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //unknown header
-    cmptTile.write('xxxx', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(28, byteOffset); // byteLength
-
-    return cmptTile;
+    return buf;
 }
 
 function createCmptExtraBytes() {
-    var byteOffset = 0;
-    var sizeU32Int = 4;
-    var cmptTile = new Buffer(44);
+    var cmptTile = createCmptTile(1, cmptHeaderSize + b3dmHeaderSize + 4, 1);
+    var innerB3dm = createB3dmTile(1, b3dmHeaderSize);
+    var buf = Buffer.concat([cmptTile, innerB3dm], cmptHeaderSize + b3dmHeaderSize + 4);
 
-    //cmpt header
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //b3dm header
-    cmptTile.write('b3dm', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(24, byteOffset); // byteLength
-
-    return cmptTile;
+    return buf;
 }
 
 function createEmptyCmpt() {
-    var cmptTile = new Buffer(16);
-    cmptTile.write('cmpt', 0); // magic
-    cmptTile.writeUInt32LE(1, 4); // version
-    cmptTile.writeUInt32LE(cmptTile.length, 8); // byteLength
-    cmptTile.writeUInt32LE(0, 12); // tilesLength
-
+    var cmptTile = createCmptTile(1, cmptHeaderSize, 0);
     return cmptTile;
 }
 
 function createCmptB3dm() {
-    var byteOffset = 0;
-    var sizeU32Int = 4;
-    var cmptTile = new Buffer(40);
+    var cmptTile = createCmptTile(1, cmptHeaderSize + b3dmHeaderSize, 1);
+    var innerB3dm = createB3dmTile(1, b3dmHeaderSize);
+    var buf = Buffer.concat([cmptTile, innerB3dm], cmptHeaderSize + b3dmHeaderSize);
 
-    //cmpt header
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //b3dm header
-    cmptTile.write('b3dm', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length - 16, byteOffset); // byteLength
-
-    return cmptTile;
+    return buf;
 }
 
 function createCmptI3dm() {
-    var byteOffset = 0;
-    var sizeU32Int = 4;
-    var cmptTile = new Buffer(48);
+    var cmptTile = createCmptTile(1, cmptHeaderSize + i3dmHeaderSize, 1);
+    var innerI3dm = createI3dmTile(1, i3dmHeaderSize, 0);
+    var buf = Buffer.concat([cmptTile, innerI3dm], cmptHeaderSize + i3dmHeaderSize);
 
-    //cmpt header
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //i3dm header
-    cmptTile.write('i3dm', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length - 16, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    byteOffset += sizeU32Int; // skip featureTableJSONByteLength
-    byteOffset += sizeU32Int; // skip featureTableBinaryByteLength
-    byteOffset += sizeU32Int; // skip batchTableJSONByteLength
-    byteOffset += sizeU32Int; // skip batchTableBinaryByteLength
-    cmptTile.writeUInt32LE(0, byteOffset); // gltfFormat: 0 - url
-
-    return cmptTile;
+    return buf;
 }
 
 function createCmptPnts() {
-    var byteOffset = 0;
-    var sizeU32Int = 4;
-    var cmptTile = new Buffer(44);
+    var cmptTile = createCmptTile(1, cmptHeaderSize + pntsHeaderSize, 1);
+    var innerPnts = createPntsTile(1, pntsHeaderSize);
+    var buf = Buffer.concat([cmptTile, innerPnts], cmptHeaderSize + pntsHeaderSize);
 
-    //cmpt header
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //pnts header
-    cmptTile.write('pnts', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length - 16, byteOffset); // byteLength
-
-    return cmptTile;
+    return buf;
 }
 
 function createCmptCombination() {
-    //cmpt[b3dm, cmpt[cmpt[pnts], i3dm]]
+    //cmpt1[b3dm, cmpt2[cmpt3[pnts], i3dm]]
+    var totalSize = 3 * cmptHeaderSize + b3dmHeaderSize + i3dmHeaderSize + pntsHeaderSize
+    var cmptTile1 = createCmptTile(1, totalSize, 2);
+    var cmptTile2 = createCmptTile(1, 2 * cmptHeaderSize + i3dmHeaderSize + pntsHeaderSize, 2);
+    var cmptTile3 = createCmptTile(1, cmptHeaderSize + pntsHeaderSize, 1);
+    var innerB3dmTile = createB3dmTile(1, b3dmHeaderSize);
+    var innerPntsTile = createPntsTile(1, pntsHeaderSize);
+    var innerI3dmTile = createI3dmTile(1, i3dmHeaderSize, 0);
+    var buf = Buffer.concat([cmptTile1, innerB3dmTile, cmptTile2, cmptTile3, innerPntsTile, innerI3dmTile], totalSize);
 
-    var byteOffset = 0;
-    var sizeU32Int = 4;
-    var cmptTile = new Buffer(132);
-
-    //cmpt1 header - contains b3dm and then cmpt2
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(2, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //cmpt[b3dm] header
-    cmptTile.write('b3dm', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(24, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    byteOffset += sizeU32Int; // skip batchTableJSONByteLength
-    byteOffset += sizeU32Int; // skip batchTableBinaryByteLength
-    byteOffset += sizeU32Int; // skip batchLength
-
-    //cmpt[cmpt2] header - contains cmpt3 and then i3dm
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length - 40, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(2, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //cmpt[cmpt2[cmpt3] header - contains pnts
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length - 56 - 32, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //cmpt[cmpt2[cmpt3[pnt]] header
-    cmptTile.write('pnts', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(28, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    byteOffset += sizeU32Int; // featureTableJSONByteLength
-    byteOffset += sizeU32Int; // featureTableBinaryByteLength
-    byteOffset += sizeU32Int; // batchTableJSONByteLength
-    byteOffset += sizeU32Int; // batchTableBinaryByteLength
-
-    //cmpt[cmpt2[i3dm] header
-    cmptTile.write('i3dm', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(32, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    byteOffset += sizeU32Int; // skip featureTableJSONByteLength
-    byteOffset += sizeU32Int; // skip featureTableBinaryByteLength
-    byteOffset += sizeU32Int; // skip batchTableJSONByteLength
-    byteOffset += sizeU32Int; // skip batchTableBinaryByteLength
-    cmptTile.writeUInt32LE(0, byteOffset); // gltfFormat: 0 - url
-
-    return cmptTile;
+    return buf;
 }
 
 function createCmptInvalidB3dm() {
-    var byteOffset = 0;
-    var sizeU32Int = 4;
-    var cmptTile = new Buffer(40);
+    var cmptTile = createCmptTile(1, cmptHeaderSize + b3dmHeaderSize, 1);
+    var innerB3dm = createB3dmTile(5, b3dmHeaderSize);
+    var buf = Buffer.concat([cmptTile, innerB3dm], cmptHeaderSize + b3dmHeaderSize);
 
-    //cmpt header
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //b3dm header
-    cmptTile.write('b3dm', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(5, byteOffset); // version: Invalid
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-
-    return cmptTile;
+    return buf;
 }
 
 function createCmptInvalidI3dm() {
-    var byteOffset = 0;
-    var sizeU32Int = 4;
-    var cmptTile = new Buffer(48);
+    var cmptTile = createCmptTile(1, cmptHeaderSize + i3dmHeaderSize, 1);
+    var innerI3dm = createI3dmTile(1, i3dmHeaderSize, 15);
+    var buf = Buffer.concat([cmptTile, innerI3dm], cmptHeaderSize + i3dmHeaderSize);
 
-    //cmpt header
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //i3dm header
-    cmptTile.write('i3dm', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length - 16, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    byteOffset += sizeU32Int; // skip featureTableJSONByteLength
-    byteOffset += sizeU32Int; // skip featureTableBinaryByteLength
-    byteOffset += sizeU32Int; // skip batchTableJSONByteLength
-    byteOffset += sizeU32Int; // skip batchTableBinaryByteLength
-    cmptTile.writeUInt32LE(15, byteOffset); // gltfFormat: invalid
-
-    return cmptTile;
+    return buf;
 }
 
 function createCmptInvalidPnts() {
-    var byteOffset = 0;
-    var sizeU32Int = 4;
-    var cmptTile = new Buffer(44);
+    var cmptTile = createCmptTile(1, cmptHeaderSize + pntsHeaderSize, 1);
+    var innerPnts = createPntsTile(5, pntsHeaderSize);
+    var buf = Buffer.concat([cmptTile, innerPnts], cmptHeaderSize + pntsHeaderSize);
 
-    //cmpt header
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //pnts header
-    cmptTile.write('pnts', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length - 20, byteOffset); // byteLength: Invalid
-
-    return cmptTile;
+    return buf;
 }
 
 function createCmptInvalidCombination() {
-    //cmpt[b3dm, cmpt[cmpt[pnts], i3dm]]
+    //cmpt1[b3dm, cmpt2[cmpt3[pnts], i3dm]] - i3dm is invalid
+    var totalSize = 3 * cmptHeaderSize + b3dmHeaderSize + i3dmHeaderSize + pntsHeaderSize
+    var cmptTile1 = createCmptTile(1, totalSize, 2);
+    var cmptTile2 = createCmptTile(1, 2 * cmptHeaderSize + i3dmHeaderSize + pntsHeaderSize, 2);
+    var cmptTile3 = createCmptTile(1, cmptHeaderSize + pntsHeaderSize, 1);
+    var innerB3dmTile = createB3dmTile(1, b3dmHeaderSize);
+    var innerPntsTile = createPntsTile(1, pntsHeaderSize);
+    var innerI3dmTile = createI3dmTile(1, i3dmHeaderSize, 15);
+    var buf = Buffer.concat([cmptTile1, innerB3dmTile, cmptTile2, cmptTile3, innerPntsTile, innerI3dmTile], totalSize);
 
-    var byteOffset = 0;
-    var sizeU32Int = 4;
-    var cmptTile = new Buffer(132);
-
-    //cmpt1 header - contains b3dm and then cmpt2
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(2, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //cmpt[b3dm] header
-    cmptTile.write('b3dm', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(24, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    byteOffset += sizeU32Int; // skip batchTableJSONByteLength
-    byteOffset += sizeU32Int; // skip batchTableBinaryByteLength
-    byteOffset += sizeU32Int; // skip batchLength
-
-    //cmpt[cmpt2] header - contains cmpt3 and then i3dm
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length - 40, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(2, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //cmpt[cmpt2[cmpt3] header - contains pnts
-    cmptTile.write('cmpt', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(cmptTile.length - 56 - 32, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // tilesLength
-    byteOffset += sizeU32Int;
-
-    //cmpt[cmpt2[cmpt3[pnt]] header
-    cmptTile.write('pnts', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(28, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    byteOffset += sizeU32Int; // featureTableJSONByteLength
-    byteOffset += sizeU32Int; // featureTableBinaryByteLength
-    byteOffset += sizeU32Int; // batchTableJSONByteLength
-    byteOffset += sizeU32Int; // batchTableBinaryByteLength
-
-    //cmpt[cmpt2[i3dm] header
-    cmptTile.write('i3dm', byteOffset); // magic
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(1, byteOffset); // version
-    byteOffset += sizeU32Int;
-    cmptTile.writeUInt32LE(32, byteOffset); // byteLength
-    byteOffset += sizeU32Int;
-    byteOffset += sizeU32Int; // skip featureTableJSONByteLength
-    byteOffset += sizeU32Int; // skip featureTableBinaryByteLength
-    byteOffset += sizeU32Int; // skip batchTableJSONByteLength
-    byteOffset += sizeU32Int; // skip batchTableBinaryByteLength
-    cmptTile.writeUInt32LE(15, byteOffset); // gltfFormat: invalid
-
-    return cmptTile;
+    return buf;
 }
