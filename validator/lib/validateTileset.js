@@ -3,6 +3,11 @@
 var Promise = require('bluebird');
 var Cesium = require('cesium');
 var defined = Cesium.defined;
+var readTile = require('../lib/readTile');
+var validateB3dm = require('../lib/validateB3dm');
+var validateI3dm = require('../lib/validateI3dm');
+var validatePnts = require('../lib/validatePnts');
+//var validateCmpt = require('../lib/validateCmpt');
 
 module.exports = validateTileset;
 
@@ -43,6 +48,56 @@ function validateNode(root, parent, resolve) {
                             message: 'Child occupies region greater than parent'
                         });
                     }
+                }
+            }
+        }
+
+        if (defined(tile.content) && defined(tile.content.url)) {
+            var tileBuffer = readTile(tile.content.url);
+            if (defined(tileBuffer)) {
+                var magic = tileBuffer.toString('utf8', 0, 4);
+                if (magic === 'b3dm') {
+                    validateB3dm(tileBuffer)
+                        .then(function(result) {
+                            if (!result.result) {
+                                return resolve({
+                                    result : false,
+                                    message : 'invalid b3dm'
+                                });
+                            }
+                        });
+                } else if (magic === 'i3dm') {
+                    validateI3dm(tileBuffer)
+                        .then(function(result) {
+                            if (!result.result) {
+                                return resolve({
+                                    result : false,
+                                    message : 'invalid i3dm'
+                                });
+                            }
+                        });
+                } else if (magic === 'pnts') {
+                    validatePnts(tileBuffer)
+                        .then(function(result) {
+                            if (!result.result) {
+                                return resolve({
+                                    result : false,
+                                    message : 'invalid pnts'
+                                });
+                            }
+                        });
+                } else if (magic === 'cmpt') {
+                    /*
+                    validateCmpt(tileBuffer)
+                        .then(function(result) {
+                            if (!result.result) {
+                                return resolve({
+                                    result : false,
+                                    message : 'invalid cmpt'
+                                });
+                            }
+                        });
+                    */
                 }
             }
         }
