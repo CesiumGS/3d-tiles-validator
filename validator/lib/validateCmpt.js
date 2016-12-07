@@ -68,36 +68,45 @@ function validateCmpt(content) {
         var validatorResult;
 
         if (byteOffset + 3 * sizeOfUint32 > byteLength) {
-            isValid = false;
-            errorAddon += '\nCmpt header given tilesLength = ' + tilesLength + '. Found number of inner tiles = ' + (i + 1);
-        } else {
-            var innerTileMagic = content.toString('utf8', byteOffset, byteOffset + sizeOfUint32);
-            var innerTileByteLength = content.readUInt32LE(byteOffset + 2 * sizeOfUint32);
-            var innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
-
-            if (innerTileMagic === 'b3dm') {
-                validatorResult = validateB3dm(innerTile);
-                isValid = isValid && validatorResult.result;
-                errorAddon += validatorResult.message;
-            } else if (innerTileMagic === 'i3dm') {
-                validatorResult = validateI3dm(innerTile);
-                isValid = isValid && validatorResult.result;
-                errorAddon += validatorResult.message;
-            } else if (innerTileMagic === 'pnts') {
-                validatorResult = validatePnts(innerTile);
-                isValid = isValid && validatorResult.result;
-                errorAddon += validatorResult.message;
-            } else if (innerTileMagic === 'cmpt') {
-                validatorResult = validateCmpt(innerTile);
-                isValid = isValid && validatorResult.result;
-                errorAddon += validatorResult.message;
-            } else {
-                isValid = false;
-                errorAddon += '\nInner tile header magic cannot be identified; header = ' + innerTileMagic;
-            }
-
-            byteOffset = byteOffset + innerTileByteLength; // skip over this tile
+            return {
+                result : false,
+                message: 'Cmpt header given tilesLength = ' + tilesLength + '. Found number of inner tiles = ' + (i + 1)
+            };
         }
+
+        var innerTileMagic = content.toString('utf8', byteOffset, byteOffset + sizeOfUint32);
+        var innerTileByteLength = content.readUInt32LE(byteOffset + 2 * sizeOfUint32);
+        var innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
+
+        if (byteOffset + innerTileByteLength > byteLength) {
+            return {
+                result : false,
+                message: 'Inner tile exceeds provided buffer\'s length. Byte length = ' + byteLength + '. Inner tile\'s end = ' + byteOffset + innerTileByteLength
+            };
+        }
+
+        if (innerTileMagic === 'b3dm') {
+            validatorResult = validateB3dm(innerTile);
+            isValid = isValid && validatorResult.result;
+            errorAddon += validatorResult.message;
+        } else if (innerTileMagic === 'i3dm') {
+            validatorResult = validateI3dm(innerTile);
+            isValid = isValid && validatorResult.result;
+            errorAddon += validatorResult.message;
+        } else if (innerTileMagic === 'pnts') {
+            validatorResult = validatePnts(innerTile);
+            isValid = isValid && validatorResult.result;
+            errorAddon += validatorResult.message;
+        } else if (innerTileMagic === 'cmpt') {
+            validatorResult = validateCmpt(innerTile);
+            isValid = isValid && validatorResult.result;
+            errorAddon += validatorResult.message;
+        } else {
+            isValid = false;
+            errorAddon += '\nInner tile header magic cannot be identified; header = ' + innerTileMagic;
+        }
+
+        byteOffset = byteOffset + innerTileByteLength; // skip over this tile
 
         if (!isValid) {
             var errorMessage = 'Cmpt header has an invalid inner tile:\n';
@@ -110,13 +119,6 @@ function validateCmpt(content) {
                 message: errorMessage
             };
         }
-    }
-
-    if (byteOffset !== byteLength) {
-        return {
-            result : false,
-            message: 'Cmpt header has extra bytes. Expected end of tile = ' + byteLength + '. Found end = ' + byteOffset
-        };
     }
 
     return {

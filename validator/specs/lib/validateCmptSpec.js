@@ -26,10 +26,6 @@ describe('validateCmpt', function() {
         expect(validateCmpt(createCmptUnidentifiedInner()).result).toBe(false);
     });
 
-    it('returns false if the cmpt has an extra bytes in tiles[] field', function() {
-        expect(validateCmpt(createCmptExtraBytes()).result).toBe(false);
-    });
-
     it('validates a cmpt tile with no inner tiles', function() {
         expect(validateCmpt(createEmptyCmpt()).result).toBe(true);
     });
@@ -201,14 +197,6 @@ function createCmptUnidentifiedInner() {
     return buf;
 }
 
-function createCmptExtraBytes() {
-    var cmptTile = createCmptTile(1, cmptHeaderSize + b3dmHeaderSize + 4, 1);
-    var innerB3dm = createB3dmTile(1, b3dmHeaderSize);
-    var buf = Buffer.concat([cmptTile, innerB3dm], cmptHeaderSize + b3dmHeaderSize + 4);
-
-    return buf;
-}
-
 function createEmptyCmpt() {
     var cmptTile = createCmptTile(1, cmptHeaderSize, 0);
     return cmptTile;
@@ -240,7 +228,7 @@ function createCmptPnts() {
 
 function createCmptCombination() {
     //cmpt1[b3dm, cmpt2[cmpt3[pnts], i3dm]]
-    var totalSize = 3 * cmptHeaderSize + b3dmHeaderSize + i3dmHeaderSize + pntsHeaderSize
+    var totalSize = 3 * cmptHeaderSize + b3dmHeaderSize + i3dmHeaderSize + pntsHeaderSize;
     var cmptTile1 = createCmptTile(1, totalSize, 2);
     var cmptTile2 = createCmptTile(1, 2 * cmptHeaderSize + i3dmHeaderSize + pntsHeaderSize, 2);
     var cmptTile3 = createCmptTile(1, cmptHeaderSize + pntsHeaderSize, 1);
@@ -278,7 +266,7 @@ function createCmptInvalidPnts() {
 
 function createCmptInvalidCombination() {
     //cmpt1[b3dm, cmpt2[cmpt3[pnts], i3dm]] - i3dm is invalid
-    var totalSize = 3 * cmptHeaderSize + b3dmHeaderSize + i3dmHeaderSize + pntsHeaderSize
+    var totalSize = 3 * cmptHeaderSize + b3dmHeaderSize + i3dmHeaderSize + pntsHeaderSize;
     var cmptTile1 = createCmptTile(1, totalSize, 2);
     var cmptTile2 = createCmptTile(1, 2 * cmptHeaderSize + i3dmHeaderSize + pntsHeaderSize, 2);
     var cmptTile3 = createCmptTile(1, cmptHeaderSize + pntsHeaderSize, 1);
