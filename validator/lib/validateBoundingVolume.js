@@ -6,6 +6,7 @@ var defined = Cesium.defined;
 var Cartesian3 = Cesium.Cartesian3;
 var Rectangle = Cesium.Rectangle;
 var Cartographic = Cesium.Cartographic;
+var Ellipsoid = Cesium.Ellipsoid;
 
 module.exports = validateVolume;
 
@@ -32,8 +33,8 @@ function regionInsideRegion(contentRegion, tileRegion) {
         && Rectangle.contains(tileRectangle, Rectangle.southwest(contentRectangle, scratchCartographic))
         && Rectangle.contains(tileRectangle, Rectangle.northeast(contentRectangle, scratchCartographic))
         && Rectangle.contains(tileRectangle, Rectangle.southeast(contentRectangle, scratchCartographic)))
-        && (maxContentHeight < maxTileHeight)
-        && (minContentHeight > minTileHeight);
+        && (maxContentHeight <= maxTileHeight)
+        && (minContentHeight >= minTileHeight);
 }
 
 function sphereInsideSphere(contentSphere, tileSphere) {
@@ -42,17 +43,17 @@ function sphereInsideSphere(contentSphere, tileSphere) {
     var contentCenter = Cartesian3.unpack(contentSphere, 0, scratchContentCartesian);
     var tileCenter = Cartesian3.unpack(tileSphere, 0, scratchTileCartesian);
     var distance = Cartesian3.distance(contentCenter, tileCenter);
-    return distance  <= (tileRadius - contentRadius);
+    return distance <= (tileRadius - contentRadius);
 }
 
 function sphereInsideRegion(contentSphere, tileRegion) {
     var contentRadius = contentSphere[3];
-    Cartesian3.unpack(contentSphere, 0, scratchContentCartesian);
-    Cartographic.fromCartesian(scratchContentCartesian, Cesium.Ellipsoid.WGS84, scratchCartographic);
+    var contentCenter = Cartesian3.unpack(contentSphere, 0, scratchContentCartesian);
+    var contentCartographic = Cartographic.fromCartesian(contentCenter, Ellipsoid.WGS84, scratchCartographic);
     var tileRectangle = Rectangle.unpack(tileRegion, 0, scratchTileRectangle);
     var width = tileRegion[2] - tileRegion[0];
     var height = tileRegion[3] - tileRegion[1];
-    return ((Rectangle.contains(tileRectangle, scratchCartographic)) &&
+    return ((Rectangle.contains(tileRectangle, contentCartographic)) &&
             (2*contentRadius <= width && 2*contentRadius <= height));
 }
 

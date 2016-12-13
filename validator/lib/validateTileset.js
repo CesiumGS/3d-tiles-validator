@@ -26,6 +26,9 @@ function validateTileset(tileset) {
 }
 
 function validateNode(root, parent, resolve) {
+
+    var tilePromises = [];
+
     var stack = [];
     stack.push({
         node: root,
