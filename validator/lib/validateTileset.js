@@ -30,7 +30,7 @@ function validateNode(root, parent, resolve) {
     while (stack.length > 0) {
         var node = stack.pop();
         var tile = node.node;
-        parent = node.parent;
+        var nodeParent = node.parent;
 
         if (defined(tile.content)) {
             if (defined(tile.content.boundingVolume)) {
@@ -47,7 +47,7 @@ function validateNode(root, parent, resolve) {
             }
         }
 
-        if (tile.geometricError > parent.geometricError) {
+        if (tile.geometricError > nodeParent.geometricError) {
             return resolve({
                 result : false,
                 message : 'Child has geometricError greater than parent'
@@ -56,9 +56,9 @@ function validateNode(root, parent, resolve) {
 
         if (defined(tile.children)) {
             var length = tile.children.length;
-            for (var i = 0; i < length; i++) {
+            for (var j = 0; j < length; j++) {
                 stack.push({
-                    node: tile.children[i],
+                    node: tile.children[j],
                     parent: tile
                 });
             }

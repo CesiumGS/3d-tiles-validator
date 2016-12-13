@@ -12,5 +12,5 @@ readTileset(filePath)
        validateTileset(json)
            .then(function(response) {
             console.log(response.message);
-        })
+        });
     });
