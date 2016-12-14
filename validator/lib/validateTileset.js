@@ -46,70 +46,64 @@ function validateNode(root, parent, resolve) {
                 var parentRegion = tile.boundingVolume.region;
                 for (var i = 0; i < region.length; i++) {
                     if (region[i] > parentRegion[i]) {
-                        return resolve({
+                        tilePromises.push(resolve({
                             result: false,
                             message: 'Child occupies region greater than parent'
-                        });
+                        }));
                     }
                 }
             }
         }
 
         if (defined(tile.content) && defined(tile.content.url)) {
-            var tileBuffer = readTile(tile.content.url);
-            if (defined(tileBuffer)) {
-                var magic = tileBuffer.toString('utf8', 0, 4);
-                if (magic === 'b3dm') {
-                    validateB3dm(tileBuffer)
-                        .then(function(result) {
-                            if (!result.result) {
-                                return resolve({
-                                    result : false,
-                                    message : 'invalid b3dm'
-                                });
+            readTile(tile.content.url)
+                .then(function(tileBuffer) {
+                    if (defined(tileBuffer)) {
+                        var magic = tileBuffer.toString('utf8', 0, 4);
+                        if (magic === 'b3dm') {
+                            var validateB3dmTest = validateB3dm(tileBuffer)
+                            if (!validB3dmTest.result) {
+                                tilePromises.push(resolve({
+                                    result: false,
+                                    message: 'invalid b3dm'
+                                }));
                             }
-                        });
-                } else if (magic === 'i3dm') {
-                    validateI3dm(tileBuffer)
-                        .then(function(result) {
-                            if (!result.result) {
-                                return resolve({
-                                    result : false,
-                                    message : 'invalid i3dm'
-                                });
+                        } else if (magic === 'i3dm') {
+                            var validateI3dmTest = validateI3dm(tileBuffer);
+                            if (!validI3dmTest.result) {
+                                tilePromises.push(resolve({
+                                    result: false,
+                                    message: 'invalid i3dm'
+                                }));
                             }
-                        });
-                } else if (magic === 'pnts') {
-                    validatePnts(tileBuffer)
-                        .then(function(result) {
-                            if (!result.result) {
-                                return resolve({
-                                    result : false,
-                                    message : 'invalid pnts'
-                                });
+                        } else if (magic === 'pnts') {
+                            var validPntsTest = validatePnts(tileBuffer);
+                            if (!validPntsTest.result) {
+                                tilePromises.push(resolve({
+                                    result: false,
+                                    message: 'invalid pnts'
+                                }));
                             }
-                        });
-                } else if (magic === 'cmpt') {
-                    /*
-                    validateCmpt(tileBuffer)
-                        .then(function(result) {
-                            if (!result.result) {
-                                return resolve({
-                                    result : false,
-                                    message : 'invalid cmpt'
-                                });
-                            }
-                        });
-                    */
-                }
-            }
+                        } else if (magic === 'cmpt') {
+                            /*
+                             var validateCmptTest = validateCmpt(tileBuffer);
+                             if (!validateCmptTest.result) {
+                                 tilePromises.push(resolve({
+                                 result: false,
+                                 message: 'invalid cmpt'
+                                 }));
+                             }
+                             */
+                        }
+                    }
+                });
         }
 
         if (tile.geometricError > parent.geometricError) {
-            return resolve({
+            tilePromises.push(resolve({
                 result : false,
                 message : 'Child has geometricError greater than parent'
-            });
+            }));
         }
 
         if (defined(tile.children)) {
@@ -123,8 +117,10 @@ function validateNode(root, parent, resolve) {
         }
     }
 
-    return resolve({
-        result : true,
-        message : 'Tileset is valid'
+    Promise.all(tilePromises).then(function() {
+        return resolve({
+            result : true,
+            message : 'Tileset is valid'
+        });
     });
 }
