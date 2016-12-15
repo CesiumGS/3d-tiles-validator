@@ -56,7 +56,7 @@ function validateNode(root, parent, resolve) {
         }
 
         if (defined(tile.content) && defined(tile.content.url)) {
-            readTile(tile.content.url)
+            tilePromises.push(readTile(tile.content.url)
                 .then(function(tileBuffer) {
                     if (defined(tileBuffer)) {
                         var magic = tileBuffer.toString('utf8', 0, 4);
@@ -96,7 +96,7 @@ function validateNode(root, parent, resolve) {
                              */
                         }
                     }
-                });
+                }));
         }
 
         if (tile.geometricError > parent.geometricError) {
