@@ -61,34 +61,34 @@ function validateNode(root, parent, resolve) {
                     if (defined(tileBuffer)) {
                         var magic = tileBuffer.toString('utf8', 0, 4);
                         if (magic === 'b3dm') {
-                            var validateB3dmTest = validateB3dm(tileBuffer)
+                            var validateB3dmTest = validateB3dm(tileBuffer);
                             if (!validB3dmTest.result) {
-                                tilePromises.push(resolve({
+                                resolve({
                                     result: false,
                                     message: 'invalid b3dm'
-                                }));
+                                });
                             }
                         } else if (magic === 'i3dm') {
                             var validateI3dmTest = validateI3dm(tileBuffer);
                             if (!validI3dmTest.result) {
-                                tilePromises.push(resolve({
+                                resolve({
                                     result: false,
                                     message: 'invalid i3dm'
-                                }));
+                                });
                             }
                         } else if (magic === 'pnts') {
                             var validPntsTest = validatePnts(tileBuffer);
                             if (!validPntsTest.result) {
-                                tilePromises.push(resolve({
+                                resolve({
                                     result: false,
                                     message: 'invalid pnts'
-                                }));
+                                });
                             }
                         } else if (magic === 'cmpt') {
                             /*
                              var validateCmptTest = validateCmpt(tileBuffer);
                              if (!validateCmptTest.result) {
-                                 tilePromises.push(resolve({
+                                 resolve({
                                  result: false,
                                  message: 'invalid cmpt'
                                  }));
@@ -100,10 +100,10 @@ function validateNode(root, parent, resolve) {
         }
 
         if (tile.geometricError > parent.geometricError) {
-            tilePromises.push(resolve({
+            resolve({
                 result : false,
                 message : 'Child has geometricError greater than parent'
-            }));
+            });
         }
 
         if (defined(tile.children)) {
