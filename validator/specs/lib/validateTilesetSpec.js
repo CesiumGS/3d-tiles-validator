@@ -234,4 +234,13 @@ describe('validateBoundingVolume', function() {
             }), done).toResolve();
     });
 
+
+    it('reads a valid tileset', function(done) {
+        expect(validateTileset('./specs/data/TilesetGzipped/tileset2.json')
+            .then(function(response) {
+                expect(response.result).toBe(true);
+                expect(response.message).toBe('Tileset is valid');
+            }), done).toResolve();
+    });
+
 });
