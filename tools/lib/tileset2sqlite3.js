@@ -15,6 +15,9 @@ var fsReadFile = Promise.promisify(fs.readFile);
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 var DeveloperError = Cesium.DeveloperError;
+var CesiumMath = Cesium.Math;
+var Matrix3 = Cesium.Matrix3;
+var Matrix4 = Cesium.Matrix4;
 
 module.exports = tileset2sqlite3;
 
@@ -73,6 +76,18 @@ function tileset2sqlite3(inputDirectory, outputFile, force) {
                 return fsReadFile(filepath)
                     .then(function(data) {
                         filepath = path.normalize(path.relative(inputDirectory, filepath)).replace(/\\/g, '/');
+                        if (filepath === 'tileset.json') {
+                            var json = JSON.parse(data);
+                            var transform = json.root.transform;
+
+                            var transformMatrix = Matrix4.unpack(transform);
+                            var reverseTransform = Matrix4.fromRotationTranslation(Matrix3.fromRotationX(-CesiumMath.PI_OVER_TWO));
+                            var newTransform = Matrix4.multiply(transformMatrix, reverseTransform, new Matrix4());
+
+                            Matrix4.pack(newTransform, json.root.transform);
+
+                            data = JSON.stringify(json);
+                        }
                         if (!isGzipped(data)) {
                             data = zlib.gzipSync(data);
                         }
