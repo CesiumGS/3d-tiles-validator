@@ -45,16 +45,6 @@ function sphereInsideSphere(contentSphere, tileSphere) {
     return distance <= (tileRadius - contentRadius);
 }
 
-function sphereInsideRegion(contentSphere, tileRegion) {
-    var contentRadius = contentSphere[3];
-    var contentCenter = Cartesian3.unpack(contentSphere, 0, scratchContentCartesian);
-    var contentCartographic = Cartographic.fromCartesian(contentCenter, Ellipsoid.WGS84, scratchCartographic);
-    var tileRectangle = Rectangle.unpack(tileRegion, 0, scratchTileRectangle);
-    var width = tileRegion[2] - tileRegion[0];
-    var height = tileRegion[3] - tileRegion[1];
-    return ((Rectangle.contains(tileRectangle, contentCartographic)) &&  (2*contentRadius <= width && 2*contentRadius <= height));
-}
-
 function validateNode(root, parent, resolve) {
     var stack = [];
     stack.push({
