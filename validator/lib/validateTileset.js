@@ -64,7 +64,7 @@ function validateContent(tilePromises, tileContent) {
                 if (magic === 'b3dm') {
                     var validateB3dmTest = validateB3dm(tileBuffer);
                     if (!validateB3dmTest.result) {
-                        resolve({
+                        Promise.resolve({
                             result: false,
                             message: 'invalid b3dm'
                         });
@@ -72,7 +72,7 @@ function validateContent(tilePromises, tileContent) {
                 } else if (magic === 'i3dm') {
                     var validateI3dmTest = validateI3dm(tileBuffer);
                     if (!validateI3dmTest.result) {
-                        resolve({
+                        Promise.resolve({
                             result: false,
                             message: 'invalid i3dm'
                         });
@@ -80,7 +80,7 @@ function validateContent(tilePromises, tileContent) {
                 } else if (magic === 'pnts') {
                     var validatePntsTest = validatePnts(tileBuffer);
                     if (!validatePntsTest.result) {
-                        resolve({
+                        Promise.resolve({
                             result: false,
                             message: 'invalid pnts'
                         });
@@ -105,23 +105,8 @@ function validateNode(root, parent, resolve) {
         var tileContent = tile.content;
         var nodeParent = node.parent;
 
-        if (defined(tile.content)) {
-            if (defined(tile.content.boundingVolume)) {
-                var region = tile.content.boundingVolume.region;
-                var parentRegion = tile.boundingVolume.region;
-                for (var i = 0; i < region.length; i++) {
-                    if (region[i] > parentRegion[i]) {
-                        resolve({
-                            result: false,
-                            message: 'Child occupies region greater than parent'
-                        });
-                    }
-                }
-            }
-        }
-
-        if (defined(tile.content) && defined(tile.content.url)) {
-            validateContent(tilePromises, tile.content);
+        if (defined(tileContent) && defined(tileContent.url)) {
+            validateContent(tilePromises, tileContent);
         }
 
         if (defined(tileContent) && defined(tileContent.boundingVolume)) {
@@ -132,7 +117,7 @@ function validateNode(root, parent, resolve) {
 
             if (defined(contentRegion) && defined(tileRegion)) {
                 if (!regionInsideRegion(contentRegion, tileRegion)) {
-                    return resolve({
+                    resolve({
                         result: false,
                         message: 'Child bounding volume is not contained within parent'
                     });
@@ -141,7 +126,7 @@ function validateNode(root, parent, resolve) {
 
             if (defined(contentSphere) && defined(tileSphere)) {
                 if (!sphereInsideSphere(contentSphere, tileSphere)) {
-                    return resolve({
+                    resolve({
                         result: false,
                         message: 'Child bounding volume is not contained within parent'
                     });

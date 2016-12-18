@@ -2,7 +2,6 @@
 
 var clone = require('clone');
 var validateTileset = require('../../lib/validateTileset');
-var validateBoundingVolume = require('../../lib/validateBoundingVolume');
 
 describe('validateTileset', function() {
     var tileset = {
@@ -22,18 +21,12 @@ describe('validateTileset', function() {
                         "region": [-1.3197209591796106, 0.6988424218, -1.31968, 0.698874, 0, 20]
                     },
                     "geometricError": 50,
-                    "content": {
-                        "url": "a.b3dm"
-                    },
                     "children": [
                         {
                             "boundingVolume": {
                                 "region": [-1.3197209591796106, 0.6988424218, -1.31968, 0.698874, 0, 10]
                             },
-                            "geometricError": 0,
-                            "content": {
-                                "url": "b.b3dm"
-                            }
+                            "geometricError": 0
                         }
                     ]
                 },
@@ -41,10 +34,7 @@ describe('validateTileset', function() {
                     "boundingVolume": {
                         "region": [-1.31968, 0.6988424218, -1.3196390408203893, 0.698874, 0, 20]
                     },
-                    "geometricError": 0,
-                    "content": {
-                        "url": "c.b3dm"
-                    }
+                    "geometricError": 0
                 }
             ]
         }
