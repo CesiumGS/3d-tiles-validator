@@ -1,5 +1,7 @@
 'use strict';
 var Cesium = require('cesium');
+var extractBatchTable = require('../lib/extractBatchTable');
+var validateBatchTable = require('../lib/validateBatchTable');
 
 var defined = Cesium.defined;
 var DeveloperError = Cesium.DeveloperError;
@@ -29,22 +31,28 @@ function validatePnts(content) {
     if (magic !== 'pnts') {
         return {
             result : false,
-            message: 'Tile has an invalid magic'
+            message: 'pnts tile has an invalid magic'
         };
     }
 
     if (version !== 1) {
         return {
             result : false,
-            message: 'Tile has an invalid version'
+            message: 'pnts tile has an invalid version'
         };
     }
 
     if (byteLength !== content.length) {
         return {
             result : false,
-            message: 'Tile has the wrong byteLength'
+            message: 'pnts tile has the wrong byteLength'
         };
+    }
+
+    var batchTable = extractBatchTable(magic, content);
+    if(defined(batchTable.batchTableJSON)) {
+        //validateBatch returns boolean or promise?
+        validateBatchTable(batchTable.batchTableJSON, batchTable.batchTableBinary);
     }
 
     return {

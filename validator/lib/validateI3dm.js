@@ -1,8 +1,11 @@
 'use strict';
 var Cesium = require('cesium');
+var extractBatchTable = require('../lib/extractBatchTable');
+var validateBatchTable = require('../lib/validateBatchTable');
 
 var defined = Cesium.defined;
 var DeveloperError = Cesium.DeveloperError;
+
 
 module.exports = validateI3dm;
 
@@ -30,29 +33,35 @@ function validateI3dm(content) {
     if (magic !== 'i3dm') {
         return {
             result : false,
-            message: 'Header has an invalid magic field. Expected version = \'i3dm\'. Found magic = ' + magic
+            message: 'i3dm tile has an invalid magic field. Expected version = \'i3dm\'. Found magic = ' + magic
         };
     }
 
     if (version !== 1) {
         return {
             result : false,
-            message: 'Header has an invalid version field. Expected version = 1. Found version = ' + version
+            message: 'i3dm tile has an invalid version field. Expected version = 1. Found version = ' + version
         };
     }
 
     if (byteLength !== content.length) {
         return {
             result : false,
-            message: 'Header has an invalid byteLength field. Expected byteLength = ' + content.length + '. Found byteLength = ' + byteLength
+            message: 'i3dm tile has an invalid byteLength field. Expected byteLength = ' + content.length + '. Found byteLength = ' + byteLength
         };
     }
 
     if (gltfFormat !== 0 && gltfFormat !== 1) {
         return {
             result : false,
-            message: 'Header has an invalid gltfFormat field. Expected gltfFormat = 0 or 1. Found gltfFormat = ' + gltfFormat
+            message: 'i3dm tile has an invalid gltfFormat field. Expected gltfFormat = 0 or 1. Found gltfFormat = ' + gltfFormat
         };
+    }
+
+    var batchTable = extractBatchTable(magic, content);
+    if(defined(batchTable.batchTableJSON)) {
+        //validateBatch returns boolean or promise?
+        validateBatchTable(batchTable.batchTableJSON, batchTable.batchTableBinary);
     }
 
     return {
