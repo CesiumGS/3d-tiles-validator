@@ -25,7 +25,9 @@ function validateCmpt(content) {
         throw new DeveloperError('content must be of type buffer');
     }
 
-    if (content.length < 16) {
+    var headerByteLength = 16;
+
+    if (content.length < headerByteLength) {
         return {
             result : false,
             message: 'Cmpt header must have min byte length of 16. Current header length = ' + content.length
@@ -63,7 +65,6 @@ function validateCmpt(content) {
     }
 
     for (var i = 0; i < tilesLength; i++) {
-
         var errorAddon = '';
         var validatorResult;
 
@@ -76,14 +77,15 @@ function validateCmpt(content) {
 
         var innerTileMagic = content.toString('utf8', byteOffset, byteOffset + sizeOfUint32);
         var innerTileByteLength = content.readUInt32LE(byteOffset + 2 * sizeOfUint32);
-        var innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
 
         if (byteOffset + innerTileByteLength > byteLength) {
             return {
                 result : false,
-                message: 'Inner tile exceeds provided buffer\'s length. Byte length = ' + byteLength + '. Inner tile\'s end = ' + byteOffset + innerTileByteLength
+                message: 'Inner ' + innerTileMagic + ' tile exceeds provided buffer\'s length. Byte length = ' + byteLength + '. Inner tile\'s end = ' + byteOffset + innerTileByteLength
             };
         }
+
+        var innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
 
         if (innerTileMagic === 'b3dm') {
             validatorResult = validateB3dm(innerTile);
@@ -103,7 +105,7 @@ function validateCmpt(content) {
             errorAddon += validatorResult.message;
         } else {
             isValid = false;
-            errorAddon += '\nInner tile header magic cannot be identified; header = ' + innerTileMagic;
+            errorAddon += 'Inner tile header magic cannot be identified; header = ' + innerTileMagic;
         }
 
         byteOffset = byteOffset + innerTileByteLength; // skip over this tile
@@ -111,7 +113,7 @@ function validateCmpt(content) {
         if (!isValid) {
             var errorMessage = 'Cmpt header has an invalid inner tile:\n';
             errorMessage += 'Invalid inner tile index = ' + i + ' starting at byte = ' + (byteOffset - innerTileByteLength) + '\n';
-            errorMessage += 'Invalid inner tile has magic = ' + innerTileMagic;
+            errorMessage += 'Invalid inner tile has magic = ' + innerTileMagic + '\n';
             errorMessage += errorAddon;
 
             return {
@@ -122,7 +124,7 @@ function validateCmpt(content) {
     }
 
     return {
-        result : isValid,
+        result : true,
         message: 'valid cmpt'
     };
 }
