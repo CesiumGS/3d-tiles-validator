@@ -1,29 +1,53 @@
 'use strict';
 var validateCmpt = require('../../lib/validateCmpt');
 
+var b3dmHeaderSize = 24;
+var i3dmHeaderSize = 32;
+var pntsHeaderSize = 28;
+var cmptHeaderSize = 16;
+
 describe('validateCmpt', function() {
     it('returns false if the cmpt header is too short', function() {
-        expect(validateCmpt(createShortHeader()).result).toBe(false);
+        var cmptTile = createCmptTile([]);
+        cmptTile = cmptTile.slice(cmptHeaderSize - 4);
+
+        expect(validateCmpt(cmptTile).result).toBe(false);
     });
 
     it('returns false if the cmpt has invalid magic', function() {
-        expect(validateCmpt(createInvalidMagic()).result).toBe(false);
+        var cmptTile = createCmptTile([]);
+        cmptTile.write('xxxx', 0); // magic
+
+        expect(validateCmpt(cmptTile).result).toBe(false);
     });
 
     it('returns false if the cmpt has invalid version', function() {
-        expect(validateCmpt(createInvalidVersion()).result).toBe(false);
+        var cmptTile = createCmptTile([]);
+        cmptTile.writeUInt32LE(15, 4); // version
+
+        expect(validateCmpt(cmptTile).result).toBe(false);
     });
 
     it('returns false if the cmpt has invalid byteLength', function() {
-        expect(validateCmpt(createInvalidByteLength()).result).toBe(false);
+        var cmptTile = createCmptTile([]);
+        cmptTile.writeUInt32LE(cmptHeaderSize - 1, 8); // byteLength
+
+        expect(validateCmpt(cmptTile).result).toBe(false);
     });
 
     it('returns false if the cmpt has less inner tiles than tilesLength field', function() {
-        expect(validateCmpt(createCmptMissingInner()).result).toBe(false);
+        var innerI3dm = createI3dmTile(0);
+        var cmptTile = createCmptTile([innerI3dm]);
+        cmptTile.writeUInt32LE(5, 12);
+
+        expect(validateCmpt(cmptTile).result).toBe(false);
     });
 
     it('returns false if the cmpt has an unidentifiable inner tile', function() {
-        expect(validateCmpt(createCmptUnidentifiedInner()).result).toBe(false);
+        var innerUnknown = createUnknownTile();
+        var cmptTile = createCmptTile([innerUnknown]);
+
+        expect(validateCmpt(cmptTile).result).toBe(false);
     });
 
     it('validates a cmpt tile with no inner tiles', function() {
@@ -31,15 +55,24 @@ describe('validateCmpt', function() {
     });
 
     it('validates a cmpt tile with a valid b3dm inner tile', function() {
-        expect(validateCmpt(createCmptB3dm()).result).toBe(true);
+        var innerB3dm = createB3dmTile();
+        var cmptTile = createCmptTile([innerB3dm]);
+
+        expect(validateCmpt(cmptTile).result).toBe(true);
     });
 
     it('validates a cmpt tile with a valid i3dm inner tile', function() {
-        expect(validateCmpt(createCmptI3dm()).result).toBe(true);
+        var innerI3dm = createI3dmTile(0);
+        var cmptTile = createCmptTile([innerI3dm]);
+
+        expect(validateCmpt(cmptTile).result).toBe(true);
     });
 
     it('validates a cmpt tile with a valid pnts inner tile', function() {
-        expect(validateCmpt(createCmptPnts()).result).toBe(true);
+        var innerPnts = createPntsTile();
+        var cmptTile = createCmptTile([innerPnts]);
+
+        expect(validateCmpt(cmptTile).result).toBe(true);
     });
 
     it('validates a cmpt tile with a valid combinations of inner tiles', function() {
@@ -47,26 +80,32 @@ describe('validateCmpt', function() {
     });
 
     it('returns false if the cmpt has an invalid b3dm inner tile', function() {
-        expect(validateCmpt(createCmptInvalidB3dm()).result).toBe(false);
+        var innerB3dm = createB3dmTile();
+        innerB3dm.writeUInt32LE(5, 4); // version
+        var cmptTile = createCmptTile([innerB3dm]);
+
+        expect(validateCmpt(cmptTile).result).toBe(false);
     });
 
     it('returns false if the cmpt has an invalid i3dm inner tile', function() {
-        expect(validateCmpt(createCmptInvalidI3dm()).result).toBe(false);
+        var innerI3dm = createI3dmTile(15);
+        var cmptTile = createCmptTile([innerI3dm]);
+
+        expect(validateCmpt(cmptTile).result).toBe(false);
     });
 
     it('returns false if the cmpt has an invalid pnts inner tile', function() {
-        expect(validateCmpt(createCmptInvalidPnts()).result).toBe(false);
+        var innerPnts = createPntsTile();
+        innerPnts.writeUInt32LE(5, 4); // version
+        var cmptTile = createCmptTile([innerPnts]);
+
+        expect(validateCmpt(cmptTile).result).toBe(false);
     });
 
     it('returns false if the cmpt contains any invalid inner tiles', function() {
         expect(validateCmpt(createCmptInvalidCombination()).result).toBe(false);
     });
 });
-
-var b3dmHeaderSize = 24;
-var i3dmHeaderSize = 32;
-var pntsHeaderSize = 28;
-var cmptHeaderSize = 16;
 
 function createB3dmTile() {
     var b3dmTile = new Buffer(b3dmHeaderSize);
@@ -92,7 +131,7 @@ function createI3dmTile(gltfFormat) {
 }
 
 function createCmptTile(tiles) {
-    var byteLength = 16;
+    var byteLength = cmptHeaderSize;
     for(var i = 0; i < tiles.length; i++) {
         byteLength += tiles[i].readUInt32LE(8);
     }
@@ -125,60 +164,6 @@ function createUnknownTile() {
     return unknownTile;
 }
 
-function createShortHeader() {
-    var cmptTile = createCmptTile([]);
-    return cmptTile.slice(cmptHeaderSize - 4);
-}
-
-function createInvalidMagic() {
-    var cmptTile = createCmptTile([]);
-    cmptTile.write('xxxx', 0); // magic
-
-    return cmptTile;
-}
-
-function createInvalidVersion() {
-    var cmptTile = createCmptTile([]);
-    cmptTile.writeUInt32LE(15, 4); // magic
-
-    return cmptTile;
-}
-
-function createInvalidByteLength() {
-    var cmptTile = createCmptTile([]);
-    cmptTile.writeUInt32LE(cmptHeaderSize - 1, 8); // magic
-
-    return cmptTile;
-}
-
-function createCmptMissingInner() {
-    var innerI3dm = createI3dmTile(0);
-    var cmptTile = createCmptTile([innerI3dm]);
-    cmptTile.writeUInt32LE(5, 12);
-
-    return cmptTile;
-}
-
-function createCmptUnidentifiedInner() {
-    var innerUnknown = createUnknownTile();
-    return createCmptTile([innerUnknown]);
-}
-
-function createCmptB3dm() {
-    var innerB3dm = createB3dmTile();
-    return createCmptTile([innerB3dm]);
-}
-
-function createCmptI3dm() {
-    var innerI3dm = createI3dmTile(0);
-    return createCmptTile([innerI3dm]);
-}
-
-function createCmptPnts() {
-    var innerPnts = createPntsTile();
-    return createCmptTile([innerPnts]);
-}
-
 function createCmptCombination() {
     //cmpt1[b3dm, cmpt2[cmpt3[pnts], i3dm]]
     var innerB3dmTile = createB3dmTile();
@@ -190,23 +175,6 @@ function createCmptCombination() {
     var cmptTile1 = createCmptTile([innerB3dmTile, cmptTile2]);
 
     return cmptTile1;
-}
-
-function createCmptInvalidB3dm() {
-    var innerB3dm = createB3dmTile();
-    innerB3dm.writeUInt32LE(5, 4); // version
-    return createCmptTile([innerB3dm]);
-}
-
-function createCmptInvalidI3dm() {
-    var innerI3dm = createI3dmTile(15);
-    return createCmptTile([innerI3dm]);
-}
-
-function createCmptInvalidPnts() {
-    var innerPnts = createPntsTile();
-    innerPnts.writeUInt32LE(5, 4); // version
-    return createCmptTile([innerPnts]);
 }
 
 function createCmptInvalidCombination() {
