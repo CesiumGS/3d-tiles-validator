@@ -1,10 +1,7 @@
-/coverage
 /output
-/specs
-/TypeScriptDefinitions
 /.idea
 .jshintrc
 .npmignore
-.travis.yml
 gulpfile.js
 *.tgz
+*.zip
