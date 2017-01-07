@@ -21,9 +21,9 @@ module.exports = validateTileset;
  *                                                                 (2) the error message if the tileset is not valid.
  *
  */
-function validateTileset(tileset) {
+function validateTileset(tileset, tilesetDirectory) {
     return new Promise(function(resolve) {
-        validateNode(tileset.root, tileset, resolve);
+        validateNode(tileset.root, tileset, tilesetDirectory, resolve);
     });
 }
 
@@ -56,8 +56,8 @@ function sphereInsideSphere(contentSphere, tileSphere) {
     return distance <= (tileRadius - contentRadius);
 }
 
-function validateContent(tilePromises, tileContent) {
-    tilePromises.push(readTile(tileContent.url)
+function validateContent(tilePromises, tileContent, tilesetDirectory) {
+    tilePromises.push(readTile(path.join(tilesetDirectory,tileContent.url))
         .then(function(tileBuffer) {
             if (defined(tileBuffer)) {
                 var magic = tileBuffer.toString('utf8', 0, 4);
@@ -90,7 +90,7 @@ function validateContent(tilePromises, tileContent) {
         }));
 }
 
-function validateNode(root, parent, resolve) {
+function validateNode(root, parent, tilesetDirectory, resolve) {
     var tilePromises = [];
 
     var stack = [];
@@ -106,7 +106,7 @@ function validateNode(root, parent, resolve) {
         var nodeParent = node.parent;
 
         if (defined(tileContent) && defined(tileContent.url)) {
-            validateContent(tilePromises, tileContent);
+            validateContent(tilePromises, tileContent, tilesetDirectory);
         }
 
         if (defined(tileContent) && defined(tileContent.boundingVolume)) {

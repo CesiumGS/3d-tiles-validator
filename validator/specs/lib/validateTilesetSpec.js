@@ -42,7 +42,7 @@ describe('validateTileset', function() {
     };
 
     it('validates a valid JSON', function(done) {
-        expect(validateTileset(tileset)
+        expect(validateTileset(tileset, '')
             .then(function(response) {
                 expect(response.result).toBe(true);
                 expect(response.message).toBe('Tileset is valid');
@@ -50,7 +50,7 @@ describe('validateTileset', function() {
     });
 
     it('validates an invalid JSON', function(done) {
-        var invalidTileset = clone(tileset);
+        var invalidTileset = clone(tileset, '');
         invalidTileset.root.children[0].children[0].geometricError = 100;
         expect(validateTileset(invalidTileset)
             .then(function(response) {
@@ -60,7 +60,7 @@ describe('validateTileset', function() {
     });
 
     it('validates an invalid JSON', function(done) {
-        var invalidTileset = clone(tileset);
+        var invalidTileset = clone(tileset, '');
         invalidTileset.root.geometricError = 300;
         expect(validateTileset(invalidTileset)
             .then(function(response) {
@@ -86,7 +86,7 @@ describe('validateBoundingVolume', function() {
     };
 
     it('validates region inside region', function (done) {
-        expect(validateTileset(regionTileset)
+        expect(validateTileset(regionTileset, '')
             .then(function (response) {
                 expect(response.result).toBe(true);
                 expect(response.message).toBe('Tileset is valid');
@@ -96,7 +96,7 @@ describe('validateBoundingVolume', function() {
     it('invalidates when a content region west exceeds the tile region', function (done) {
         var invalidTileset = clone(regionTileset);
         invalidTileset.root.content.boundingVolume.region[0] = 18;
-        expect(validateTileset(invalidTileset)
+        expect(validateTileset(invalidTileset, '')
             .then(function (response) {
                 expect(response.result).toBe(false);
                 expect(response.message).toBe('Child bounding volume is not contained within parent');
@@ -106,7 +106,7 @@ describe('validateBoundingVolume', function() {
     it('invalidates when a content region south exceeds the tile region', function (done) {
         var invalidTileset = clone(regionTileset);
         invalidTileset.root.content.boundingVolume.region[1] = 35;
-        expect(validateTileset(invalidTileset)
+        expect(validateTileset(invalidTileset, '')
             .then(function (response) {
                 expect(response.result).toBe(false);
                 expect(response.message).toBe('Child bounding volume is not contained within parent');
@@ -116,7 +116,7 @@ describe('validateBoundingVolume', function() {
     it('invalidates when a content region east exceeds the tile region', function (done) {
         var invalidTileset = clone(regionTileset);
         invalidTileset.root.content.boundingVolume.region[2] = 55;
-        expect(validateTileset(invalidTileset)
+        expect(validateTileset(invalidTileset, '')
             .then(function (response) {
                 expect(response.result).toBe(false);
                 expect(response.message).toBe('Child bounding volume is not contained within parent');
@@ -126,7 +126,7 @@ describe('validateBoundingVolume', function() {
     it('invalidates when a content region north exceeds the tile region', function (done) {
         var invalidTileset = clone(regionTileset);
         invalidTileset.root.content.boundingVolume.region[3] = 65;
-        expect(validateTileset(invalidTileset)
+        expect(validateTileset(invalidTileset, '')
             .then(function (response) {
                 expect(response.result).toBe(false);
                 expect(response.message).toBe('Child bounding volume is not contained within parent');
@@ -136,7 +136,7 @@ describe('validateBoundingVolume', function() {
     it('invalidates when content region max height exceeds tile region max height', function (done) {
         var invalidTileset = clone(regionTileset);
         invalidTileset.root.content.boundingVolume.region[5] = 100;
-        expect(validateTileset(invalidTileset)
+        expect(validateTileset(invalidTileset, '')
             .then(function (response) {
                 expect(response.result).toBe(false);
                 expect(response.message).toBe('Child bounding volume is not contained within parent');
@@ -146,7 +146,7 @@ describe('validateBoundingVolume', function() {
     it('invalidates when tile region min height exceeds content region min height', function (done) {
         var invalidTileset = clone(regionTileset);
         invalidTileset.root.content.boundingVolume.region[4] = 5;
-        expect(validateTileset(invalidTileset)
+        expect(validateTileset(invalidTileset, '')
             .then(function (response) {
                 expect(response.result).toBe(false);
                 expect(response.message).toBe('Child bounding volume is not contained within parent');
@@ -167,7 +167,7 @@ describe('validateBoundingVolume', function() {
     };
 
     it('validates a sphere inside sphere', function (done) {
-        expect(validateTileset(sphereTileset)
+        expect(validateTileset(sphereTileset, '')
             .then(function (response) {
                 expect(response.result).toBe(true);
                 expect(response.message).toBe('Tileset is valid');
@@ -177,7 +177,7 @@ describe('validateBoundingVolume', function() {
     it('invalidates a sphere with large radius', function (done) {
         var invalidSphere = clone(sphereTileset);
         invalidSphere.root.content.boundingVolume.sphere[3] = 6;
-        expect(validateTileset(invalidSphere)
+        expect(validateTileset(invalidSphere, '')
             .then(function (response) {
                 expect(response.result).toBe(false);
                 expect(response.message).toBe('Child bounding volume is not contained within parent');
@@ -187,7 +187,7 @@ describe('validateBoundingVolume', function() {
     it('invalidates a sphere with large distance', function (done) {
         var invalidSphere = clone(sphereTileset);
         invalidSphere.root.content.boundingVolume.sphere[2] = 6;
-        expect(validateTileset(invalidSphere)
+        expect(validateTileset(invalidSphere, '')
             .then(function (response) {
                 expect(response.result).toBe(false);
                 expect(response.message).toBe('Child bounding volume is not contained within parent');
