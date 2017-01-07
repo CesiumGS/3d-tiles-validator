@@ -2,6 +2,7 @@
 
 var Promise = require('bluebird');
 var Cesium = require('cesium');
+var path = require('path');
 var defined = Cesium.defined;
 var readTile = require('../lib/readTile');
 var validateB3dm = require('../lib/validateB3dm');
@@ -17,6 +18,7 @@ module.exports = validateTileset;
  * Walks down the tree represented by the JSON object and checks if it is a valid tileset.
  *
  * @param {Object} tileset The JSON object representing the tileset.
+ * @param {String} tilesetDirectory The tileset directory.
  * @return {Promise} A promise that resolves with two parameters - (1) a boolean for whether the tileset is valid
  *                                                                 (2) the error message if the tileset is not valid.
  *

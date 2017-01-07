@@ -197,11 +197,11 @@ describe('validateBoundingVolume', function() {
     it('reads a valid tileset', function (done) {
         expect(readTileset('./specs/data/TilesetGzipped/tileset.json')
             .then(function (tileset) {
-                expect(validateTileset(tileset, './specs/data/TilesetGzipped/')
+                return validateTileset(tileset, './specs/data/TilesetGzipped/')
                     .then(function (response) {
                         expect(response.result).toBe(true);
                         expect(response.message).toBe('Tileset is valid');
-                    }), done).toResolve();
+                    });
             }), done).toResolve();
     });
 });
