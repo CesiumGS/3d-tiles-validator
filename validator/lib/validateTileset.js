@@ -3,14 +3,15 @@
 var Promise = require('bluebird');
 var Cesium = require('cesium');
 var path = require('path');
-var defined = Cesium.defined;
 var readTile = require('../lib/readTile');
 var validateB3dm = require('../lib/validateB3dm');
 var validateI3dm = require('../lib/validateI3dm');
 var validatePnts = require('../lib/validatePnts');
+
 var Cartesian3 = Cesium.Cartesian3;
-var Rectangle = Cesium.Rectangle;
 var Cartographic = Cesium.Cartographic;
+var defined = Cesium.defined;
+var Rectangle = Cesium.Rectangle;
 
 module.exports = validateTileset;
 
