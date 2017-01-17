@@ -7,8 +7,10 @@ var gulpJshint = require('gulp-jshint');
 var Jasmine = require('jasmine');
 var SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 var path = require('path');
+var yargs = require('yargs');
 
 var defined = Cesium.defined;
+var argv = yargs.argv;
 
 // Add third-party node module binaries to the system path
 // since some tasks need to call them directly.
