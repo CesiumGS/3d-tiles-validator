@@ -15,6 +15,7 @@ module.exports = createB3dm;
  * @param {Number} [options.batchLength] The number of features in the tile.
  * @param {Object} [options.batchTableJson] Batch table describing the per-feature metadata.
  * @param {Buffer} [options.batchTableBinary] The batch table binary.
+ * @param {Boolean} [options.deprecated=false] Save the b3dm with the deprecated 20-byte header.
  * @returns {Buffer} The generated b3dm tile buffer.
  */
 function createB3dm(options) {
@@ -23,6 +24,13 @@ function createB3dm(options) {
     var batchTableJson = getJsonBufferPadded(options.batchTableJson);
     var batchTableBinary = getBufferPadded(options.batchTableBinary);
 
+    var deprecated = defaultValue(options.deprecated, false);
+    var header = deprecated ? getHeaderDeprecated(glb, batchLength, batchTableJson) : getHeader(glb, batchLength, batchTableJson, batchTableBinary);
+
+    return Buffer.concat([header, batchTableJson, batchTableBinary, glb]);
+}
+
+function getHeader(glb, batchLength, batchTableJson, batchTableBinary) {
     var version = 1;
     var headerByteLength = 24;
     var batchTableJsonByteLength = batchTableJson.length;
@@ -38,5 +46,22 @@ function createB3dm(options) {
     header.writeUInt32LE(batchTableBinaryByteLength, 16);
     header.writeUInt32LE(batchLength, 20);
 
-    return Buffer.concat([header, batchTableJson, batchTableBinary, glb]);
+    return header;
+}
+
+function getHeaderDeprecated(glb, batchLength, batchTableJson) {
+    var version = 1;
+    var headerByteLength = 20;
+    var batchTableJsonByteLength = batchTableJson.length;
+    var gltfByteLength = glb.length;
+    var byteLength = headerByteLength + batchTableJsonByteLength + gltfByteLength;
+
+    var header = Buffer.alloc(headerByteLength);
+    header.write('b3dm', 0);
+    header.writeUInt32LE(version, 4);
+    header.writeUInt32LE(byteLength, 8);
+    header.writeUInt32LE(batchLength, 12);
+    header.writeUInt32LE(batchTableJsonByteLength, 16);
+
+    return header;
 }

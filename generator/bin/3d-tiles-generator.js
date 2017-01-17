@@ -13,15 +13,18 @@ var createTilesetJsonSingle = require('../lib/createTilesetJsonSingle');
 var getProperties = require('../lib/getProperties');
 var saveTile = require('../lib/saveTile');
 var saveTilesetJson = require('../lib/saveTilesetJson');
-var util = require('../lib/util');
+var util = require('../lib/utility');
 
 var fsExtraCopy = Promise.promisify(fsExtra.copy);
 var fsExtraReadFile = Promise.promisify(fsExtra.readFile);
 
+var Cartesian3 = Cesium.Cartesian3;
+var CesiumMath = Cesium.Math;
 var clone = Cesium.clone;
 var defaultValue = Cesium.defaultValue;
 var defined  = Cesium.defined;
 var Matrix4 = Cesium.Matrix4;
+var Quaternion = Cesium.Quaternion;
 
 var lowercase = util.lowercase;
 var metersToLongitude = util.metersToLongitude;
@@ -47,9 +50,6 @@ var south = latitude - latitudeExtent / 2.0;
 var east = longitude + longitudeExtent / 2.0;
 var north = latitude + latitudeExtent / 2.0;
 
-var buildingsTransform = wgs84Transform(longitude, latitude, 0.0);
-var buildingsCenter = [buildingsTransform[12], buildingsTransform[13], buildingsTransform[14]];
-
 var buildingTemplate = {
     numberOfBuildings : 10,
     tileWidth : tileWidth,
@@ -61,6 +61,9 @@ var buildingTemplate = {
     latitude : latitude
 };
 
+var buildingsTransform = wgs84Transform(longitude, latitude, 0.0); // height is 0.0 because the base of building models is at the origin
+var buildingsCenter = [buildingsTransform[12], buildingsTransform[13], buildingsTransform[14]];
+
 // Small buildings
 var smallGeometricError = 70.0; // Estimated
 var smallHeight = 20.0; // Estimated
@@ -70,9 +73,9 @@ var smallSphere = [buildingsCenter[0], buildingsCenter[1], buildingsCenter[2] + 
 var smallSphereLocal = [0.0, 0.0, smallHeight / 2.0, smallRadius];
 var smallBoxLocal = [
     0.0, 0.0, smallHeight / 2.0, // center
-    tileWidth, 0.0, 0.0,         // width
-    0.0,tileWidth, 0.0,          // depth
-    0.0, 0.0, smallHeight        // height
+    tileWidth / 2.0, 0.0, 0.0,   // width
+    0.0, tileWidth / 2.0, 0.0,   // depth
+    0.0, 0.0, smallHeight / 2.0  // height
 ];
 
 // Large buildings
@@ -87,20 +90,110 @@ var pointCloudTransform = wgs84Transform(longitude, latitude, pointCloudRadius);
 var pointCloudGeometricError = 1.732 * pointCloudTileWidth; // Diagonal of the point cloud box
 var pointCloudCenter = [pointCloudTransform[12], pointCloudTransform[13], pointCloudTransform[14]];
 var pointCloudSphere = [pointCloudCenter[0], pointCloudCenter[1], pointCloudCenter[2], pointCloudRadius];
-var pointCloudSphereLocal = [0.0, 0.0, pointCloudRadius, pointCloudRadius];
+var pointCloudSphereLocal = [0.0, 0.0, 0.0, pointCloudRadius];
 
 // Instances
 var instancesLength = 25;
-var instancesTileWidth = tileWidth;
-var instancesUrl = 'data/box.glb';
-var instancesModelSize = 20.0;
-var instancesTransform = wgs84Transform(longitude, latitude, instancesModelSize / 2.0);
-var instancesRegion = [west, south, east, north, 0.0, instancesModelSize];
 var instancesGeometricError = 70.0; // Estimated
+var instancesTileWidth = tileWidth;
+var instancesUrl = 'data/box.glb'; // Model's center is at the origin
+var instancesRedUrl = 'data/red_box.glb'; // Model's center is at the origin
+var instancesModelSize = 20.0;
+var instancesHeight = instancesModelSize + 10.0; // Just a little extra padding at the top for aiding Cesium tests
+var instancesTransform = wgs84Transform(longitude, latitude, instancesModelSize / 2.0);
+var instancesRegion = [west, south, east, north, 0.0, instancesHeight];
+var instancesBoxLocal = [
+    0.0, 0.0, 0.0,                      // center
+    instancesTileWidth / 2.0, 0.0, 0.0, // width
+    0.0,instancesTileWidth / 2.0, 0.0,  // depth
+    0.0, 0.0, instancesHeight           // height
+];
 
 // Composite
 var compositeRegion = instancesRegion;
 var compositeGeometricError = instancesGeometricError;
+
+// City Tileset
+var parentRegion = [longitude - longitudeExtent, latitude - latitudeExtent, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, largeHeight];
+var parentContentRegion = [longitude - longitudeExtent / 2.0, latitude - latitudeExtent / 2.0, longitude + longitudeExtent / 2.0, latitude + latitudeExtent / 2.0, 0.0, largeHeight];
+var parentOptions = clone(buildingTemplate);
+parentOptions.averageWidth = 20.0;
+parentOptions.averageHeight = 82.0;
+parentOptions.longitude = longitude;
+parentOptions.latitude = latitude;
+var parentTileOptions = {
+    buildingOptions : parentOptions,
+    createBatchTable : true,
+    transform : buildingsTransform,
+    optimizeForCesium : optimizeForCesium,
+    relativeToCenter : relativeToCenter
+};
+
+var childrenRegion = [longitude - longitudeExtent, latitude - latitudeExtent, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, smallHeight];
+
+var llRegion = [longitude - longitudeExtent, latitude - latitudeExtent, longitude, latitude, 0.0, smallHeight];
+var llLongitude = longitude - longitudeExtent / 2.0;
+var llLatitude = latitude - latitudeExtent / 2.0;
+var llTransform = wgs84Transform(llLongitude, llLatitude);
+var llOptions = clone(buildingTemplate);
+llOptions.longitude = llLongitude;
+llOptions.latitude = llLatitude;
+llOptions.seed = 0;
+var llTileOptions = {
+    buildingOptions : llOptions,
+    createBatchTable : true,
+    transform : llTransform,
+    optimizeForCesium : optimizeForCesium,
+    relativeToCenter : relativeToCenter
+};
+
+var lrRegion = [longitude, latitude - latitudeExtent, longitude + longitudeExtent, latitude, 0.0, smallHeight];
+var lrLongitude = longitude + longitudeExtent / 2.0;
+var lrLatitude = latitude - latitudeExtent / 2.0;
+var lrTransform = wgs84Transform(lrLongitude, lrLatitude);
+var lrOptions = clone(buildingTemplate);
+lrOptions.longitude = lrLongitude;
+lrOptions.latitude = lrLatitude;
+lrOptions.seed = 1;
+var lrTileOptions = {
+    buildingOptions : lrOptions,
+    createBatchTable : true,
+    transform : lrTransform,
+    optimizeForCesium : optimizeForCesium,
+    relativeToCenter : relativeToCenter
+};
+
+var urRegion = [longitude, latitude, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, smallHeight];
+var urLongitude = longitude + longitudeExtent / 2.0;
+var urLatitude = latitude + latitudeExtent / 2.0;
+var urTransform = wgs84Transform(urLongitude, urLatitude);
+var urOptions = clone(buildingTemplate);
+urOptions.longitude = urLongitude;
+urOptions.latitude = urLatitude;
+urOptions.seed = 2;
+var urTileOptions = {
+    buildingOptions : urOptions,
+    createBatchTable : true,
+    transform : urTransform,
+    optimizeForCesium : optimizeForCesium,
+    relativeToCenter : relativeToCenter
+};
+
+var ulRegion = [longitude - longitudeExtent, latitude, longitude, latitude + latitudeExtent, 0.0, smallHeight];
+var ulLongitude = longitude - longitudeExtent / 2.0;
+var ulLatitude = latitude + latitudeExtent / 2.0;
+var ulTransform = wgs84Transform(ulLongitude, ulLatitude);
+var ulOptions = clone(buildingTemplate);
+ulOptions.longitude = ulLongitude;
+ulOptions.latitude = ulLatitude;
+ulOptions.seed = 3;
+var ulTileOptions = {
+    buildingOptions : ulOptions,
+    createBatchTable : true,
+    transform : ulTransform,
+    optimizeForCesium : optimizeForCesium,
+    relativeToCenter : relativeToCenter
+};
 
 var promises = [
     // Batched
@@ -117,9 +210,11 @@ var promises = [
     createBatchedWithTransformBox(),
     createBatchedWithTransformSphere(),
     createBatchedWithTransformRegion(),
-    createBatchedNoBuildings(),
+    createBatchedNoBatchIds(),
     createBatchedWithKHRMaterialsCommon(),
     createBatchedWithQuantization(),
+    createBatchedWGS84(),
+    createBatchedDeprecated(),
     // Point Cloud
     createPointCloudRGB(),
     createPointCloudRGBA(),
@@ -146,17 +241,31 @@ var promises = [
     createInstancedScaleNonUniform(),
     createInstancedScale(),
     createInstancedWithTransform(),
+    createInstancedRedMaterial(),
     // Composite
     createComposite(),
     createCompositeOfComposite(),
     // Tilesets
-    createCityTileset(),
+    createTileset(),
+    createTilesetEmptyRoot(),
+    createTilesetInvalid(),
+    createTilesetOfTilesets(),
+    createTilesetRefinementMix(),
+    createTilesetReplacement1(),
+    createTilesetReplacement2(),
+    createTilesetReplacement3(),
+    createTilesetWithTransforms(),
+    createTilesetWithViewerRequestVolume(),
+    // Samples
     createDiscreteLOD(),
-    createTreeBillboards()
+    createTreeBillboards(),
+    createRequestVolume(),
+    createExpireTileset()
 ];
 
 Promise.all(promises)
     .then(function() {
+        fsExtra.copySync(outputDirectory, 'C:/Code/cesium/Specs/Data/Cesium3DTiles');
         console.log('Done');
     });
 
@@ -282,11 +391,11 @@ function createBatchedWithTransformRegion() {
     return saveBatchedTileset('BatchedWithTransformRegion', tileOptions, tilesetOptions);
 }
 
-function createBatchedNoBuildings() {
+function createBatchedNoBatchIds() {
     var tileOptions = {
         useBatchIds : false
     };
-    return saveBatchedTileset('BatchedNoBuildings', tileOptions);
+    return saveBatchedTileset('BatchedNoBatchIds', tileOptions);
 }
 
 function createBatchedWithKHRMaterialsCommon() {
@@ -301,6 +410,22 @@ function createBatchedWithQuantization() {
         quantization : true
     };
     return saveBatchedTileset('BatchedWithQuantization', tileOptions);
+}
+
+function createBatchedWGS84() {
+    // Only for testing - vertices are defined directly in WGS84 causing visual artifacts due to lack of precision.
+    var tileOptions = {
+        relativeToCenter : false
+    };
+    return saveBatchedTileset('BatchedWGS84', tileOptions);
+}
+
+function createBatchedDeprecated() {
+    // Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic
+    var tileOptions = {
+        deprecated : true
+    };
+    return saveBatchedTileset('BatchedDeprecated', tileOptions);
 }
 
 function createPointCloudRGB() {
@@ -383,7 +508,9 @@ function createPointCloudQuantizedOctEncoded() {
 function createPointCloudBatched() {
     var tileOptions = {
         batched : true,
-        colorMode : 'none'
+        colorMode : 'none',
+        shape : 'sphere',
+        generateNormals : true
     };
     return savePointCloudTileset('PointCloudBatched', tileOptions);
 }
@@ -397,7 +524,8 @@ function createPointCloudWithPerPointProperties() {
 
 function createPointCloudWithTransform() {
     var tileOptions = {
-        transform : Matrix4.IDENTITY
+        transform : Matrix4.IDENTITY,
+        relativeToCenter : false
     };
     var tilesetOptions = {
         transform : pointCloudTransform,
@@ -486,9 +614,17 @@ function createInstancedWithTransform() {
         eastNorthUp : false
     };
     var tilesetOptions = {
-        transform : instancesTransform
+        transform : instancesTransform,
+        box : instancesBoxLocal
     };
     return saveInstancedTileset('InstancedWithTransform', tileOptions, tilesetOptions);
+}
+
+function createInstancedRedMaterial() {
+    var tileOptions = {
+        url : instancesRedUrl
+    };
+    return saveInstancedTileset('InstancedRedMaterial', tileOptions);
 }
 
 function createComposite() {
@@ -497,7 +633,8 @@ function createComposite() {
         tileWidth : instancesTileWidth,
         transform : instancesTransform,
         instancesLength : instancesLength,
-        modelSize : instancesModelSize
+        modelSize : instancesModelSize,
+        eastNorthUp : true
     };
 
     var b3dmOptions = {
@@ -584,6 +721,7 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions.transform = defaultValue(tileOptions.transform, instancesTransform);
     tileOptions.instancesLength = instancesLength;
     tileOptions.modelSize = instancesModelSize;
+    tileOptions.eastNorthUp = defaultValue(tileOptions.eastNorthUp, true);
 
     tilesetOptions = defaultValue(tilesetOptions, {});
     tilesetOptions.tileName = tileName;
@@ -672,93 +810,40 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     ]);
 }
 
-function createCityTileset() {
+function saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, saveProperties) {
+    return Promise.map(tileOptions, function(tileOptions, index) {
+        return createBuildingsTile(tileOptions)
+            .then(function(result) {
+                var b3dm = result.b3dm;
+                var batchTable = result.batchTableJson;
+                var tilePath = path.join(tilesetDirectory, tileNames[index]);
+                return saveTile(tilePath, b3dm, gzip)
+                    .then(function() {
+                        return batchTable;
+                    });
+            });
+    }).then(function(batchTables) {
+        if (saveProperties) {
+            tilesetJson.properties = getProperties(batchTables);
+        }
+        return saveTilesetJson(tilesetPath, tilesetJson, prettyJson);
+    });
+}
+
+function createTileset() {
     // Create a tileset with one root tile and four child tiles
     var tilesetName = 'Tileset';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
     var tileNames = ['parent.b3dm', 'll.b3dm', 'lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
-
-    var parentRegion = [longitude - longitudeExtent, latitude - latitudeExtent, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, largeHeight];
-    var parentContentRegion = [longitude - longitudeExtent / 2.0, latitude - latitudeExtent / 2.0, longitude + longitudeExtent / 2.0, latitude + latitudeExtent / 2.0, 0.0, largeHeight];
-    var parentOptions = clone(buildingTemplate);
-    parentOptions.averageWidth = 20.0;
-    parentOptions.averageHeight = 40.0;
-    parentOptions.longitude = longitude;
-    parentOptions.latitude = latitude;
-    var parentTileOptions = {
-        buildingOptions : parentOptions,
-        createBatchTable : true,
-        transform : buildingsTransform,
-        optimizeForCesium : optimizeForCesium,
-        relativeToCenter : relativeToCenter
-    };
-
-    var llRegion = [longitude - longitudeExtent, latitude - latitudeExtent, longitude, latitude, 0.0, smallHeight];
-    var llLongitude = longitude - longitudeExtent / 2.0;
-    var llLatitude = latitude - latitudeExtent / 2.0;
-    var llTransform = wgs84Transform(llLongitude, llLatitude);
-    var llOptions = clone(buildingTemplate);
-    llOptions.longitude = llLongitude;
-    llOptions.latitude = llLatitude;
-    var llTileOptions = {
-        buildingOptions : llOptions,
-        createBatchTable : true,
-        transform : llTransform,
-        optimizeForCesium : optimizeForCesium,
-        relativeToCenter : relativeToCenter
-    };
-
-    var lrRegion = [longitude, latitude - latitudeExtent, longitude + longitudeExtent, latitude, 0.0, smallHeight];
-    var lrLongitude = longitude + longitudeExtent / 2.0;
-    var lrLatitude = latitude - latitudeExtent / 2.0;
-    var lrTransform = wgs84Transform(lrLongitude, lrLatitude);
-    var lrOptions = clone(buildingTemplate);
-    lrOptions.longitude = lrLongitude;
-    lrOptions.latitude = lrLatitude;
-    var lrTileOptions = {
-        buildingOptions : lrOptions,
-        createBatchTable : true,
-        transform : lrTransform,
-        optimizeForCesium : optimizeForCesium,
-        relativeToCenter : relativeToCenter
-    };
-
-    var urRegion = [longitude, latitude, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, smallHeight];
-    var urLongitude = longitude + longitudeExtent / 2.0;
-    var urLatitude = latitude + latitudeExtent / 2.0;
-    var urTransform = wgs84Transform(urLongitude, urLatitude);
-    var urOptions = clone(buildingTemplate);
-    urOptions.longitude = urLongitude;
-    urOptions.latitude = urLatitude;
-    var urTileOptions = {
-        buildingOptions : urOptions,
-        createBatchTable : true,
-        transform : urTransform,
-        optimizeForCesium : optimizeForCesium,
-        relativeToCenter : relativeToCenter
-    };
-
-    var ulRegion = [longitude - longitudeExtent, latitude, longitude, latitude + latitudeExtent, 0.0, smallHeight];
-    var ulLongitude = longitude - longitudeExtent / 2.0;
-    var ulLatitude = latitude + latitudeExtent / 2.0;
-    var ulTransform = wgs84Transform(ulLongitude, ulLatitude);
-    var ulOptions = clone(buildingTemplate);
-    ulOptions.longitude = ulLongitude;
-    ulOptions.latitude = ulLatitude;
-    var ulTileOptions = {
-        buildingOptions : ulOptions,
-        createBatchTable : true,
-        transform : ulTransform,
-        optimizeForCesium : optimizeForCesium,
-        relativeToCenter : relativeToCenter
-    };
+    var tileOptions = [parentTileOptions, llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
 
     var tilesetJson = {
         asset : {
             version : '0.0',
             tilesetVersion : '1.2.3'
         },
+        properties : undefined,
         geometricError : largeGeometricError,
         root : {
             boundingVolume : {
@@ -813,30 +898,803 @@ function createCityTileset() {
         }
     };
 
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true);
+}
+
+function createTilesetEmptyRoot() {
+    // Create a tileset with one empty root tile and four child tiles
+    var tilesetName = 'TilesetEmptyRoot';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var tileNames = ['ll.b3dm', 'lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
+    var tileOptions = [llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : smallGeometricError,
+        root : {
+            boundingVolume : {
+                region : childrenRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'add',
+            children : [
+                {
+                    boundingVolume : {
+                        region : llRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'll.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : lrRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'lr.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : urRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ur.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : ulRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ul.b3dm'
+                    }
+                }
+            ]
+        }
+    };
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true);
+}
+
+function createTilesetInvalid() {
+    // Create a tileset with one tile pointing to an invalid url
+    var tilesetName = 'TilesetInvalid';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var tileNames = ['lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
+    var tileOptions = [lrTileOptions, urTileOptions, ulTileOptions];
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : smallGeometricError,
+        root : {
+            boundingVolume : {
+                region : childrenRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'add',
+            children : [
+                {
+                    boundingVolume : {
+                        region : llRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'invalid.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : lrRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'lr.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : urRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ur.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : ulRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ul.b3dm'
+                    }
+                }
+            ]
+        }
+    };
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true);
+}
+
+function createTilesetOfTilesets() {
+    // Create a tileset that references an external tileset
+    var tilesetName = 'TilesetOfTilesets';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var tileset2Path = path.join(tilesetDirectory, 'tileset2.json');
+    var tileset3Path = path.join(tilesetDirectory, 'tileset3', 'tileset3.json');
+    var llPath = path.join('tileset3', 'll.b3dm');
+    var tileNames = ['parent.b3dm', llPath, 'lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
     var tileOptions = [parentTileOptions, llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
 
-    return Promise.map(tileOptions, function(tileOptions, index) {
-        return createBuildingsTile(tileOptions)
-            .then(function(result) {
-                var b3dm = result.b3dm;
-                var batchTable = result.batchTableJson;
-                var tilePath = path.join(tilesetDirectory, tileNames[index]);
-                return saveTile(tilePath, b3dm, gzip)
-                    .then(function() {
-                        return batchTable;
-                    });
-            });
-    }).then(function(batchTables) {
-        tilesetJson.properties = getProperties(batchTables);
-        return saveTilesetJson(tilesetPath, tilesetJson, prettyJson);
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : largeGeometricError,
+        root : {
+            boundingVolume : {
+                region : parentRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'add',
+            content : {
+                url : 'tileset2.json'
+            }
+        }
+    };
+
+    var tileset2Json = {
+        asset : {
+            version : '0.0'
+        },
+        geometricError : smallGeometricError,
+        root : {
+            boundingVolume : {
+                region : parentRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'add',
+            content : {
+                url : 'parent.b3dm'
+            },
+            children : [
+                {
+                    boundingVolume : {
+                        region : llRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'tileset3/tileset3.json'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : lrRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'lr.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : urRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ur.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : ulRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ul.b3dm'
+                    }
+                }
+            ]
+        }
+    };
+
+    var tileset3Json = {
+        asset : {
+            version : '0.0'
+        },
+        geometricError : 0.0,
+        root : {
+            boundingVolume : {
+                region : llRegion
+            },
+            geometricError : 0.0,
+            refine : 'add',
+            content : {
+                url : 'll.b3dm'
+            }
+        }
+    };
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true)
+        .then(function() {
+            return Promise.all([
+                saveTilesetJson(tileset2Path, tileset2Json, prettyJson),
+                saveTilesetJson(tileset3Path, tileset3Json, prettyJson)
+            ]);
+        });
+}
+
+function createTilesetRefinementMix() {
+    // Create a tileset with a mix of additive and replacement refinement
+    // A - add
+    // R - replace
+    //          A
+    //      A       R (not rendered)
+    //    R   A   R   A
+    var tilesetName = 'TilesetRefinementMix';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var tileNames = ['parent.b3dm', 'll.b3dm', 'lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
+    var tileOptions = [parentTileOptions, llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : largeGeometricError,
+        root : {
+            boundingVolume : {
+                region : parentRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'add',
+            content : {
+                url : 'parent.b3dm',
+                boundingVolume : {
+                    region : parentContentRegion
+                }
+            },
+            children : [
+                {
+                    boundingVolume : {
+                        region : parentContentRegion
+                    },
+                    geometricError : smallGeometricError,
+                    refine : 'replace',
+                    content : {
+                        url : 'parent.b3dm'
+                    },
+                    children : [
+                        {
+                            boundingVolume : {
+                                region : llRegion
+                            },
+                            geometricError : 0.0,
+                            refine : 'add',
+                            content : {
+                                url : 'll.b3dm'
+                            }
+                        },
+                        {
+                            boundingVolume : {
+                                region : urRegion
+                            },
+                            geometricError : 0.0,
+                            refine : 'replace',
+                            content : {
+                                url : 'ur.b3dm'
+                            }
+                        }
+                    ]
+                },
+                {
+                    boundingVolume : {
+                        region : parentContentRegion
+                    },
+                    geometricError : smallGeometricError,
+                    refine : 'add',
+                    content : {
+                        url : 'parent.b3dm'
+                    },
+                    children : [
+                        {
+                            boundingVolume : {
+                                region : ulRegion
+                            },
+                            geometricError : 0.0,
+                            refine : 'add',
+                            content : {
+                                url : 'ul.b3dm'
+                            }
+                        },
+                        {
+                            boundingVolume : {
+                                region : lrRegion
+                            },
+                            geometricError : 0.0,
+                            refine : 'replace',
+                            content : {
+                                url : 'lr.b3dm'
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    };
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true);
+}
+
+function createTilesetReplacement1() {
+    // No children have content, but all grandchildren have content. Root uses replacement refinement.
+    // C - content
+    // E - empty
+    //          C
+    //      E       E
+    //    C   C   C   C
+    var tilesetName = 'TilesetReplacement1';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var tileNames = ['parent.b3dm', 'll.b3dm', 'lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
+    var tileOptions = [parentTileOptions, llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : largeGeometricError,
+        root : {
+            boundingVolume : {
+                region : parentRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'replace',
+            content : {
+                url : 'parent.b3dm',
+                boundingVolume : {
+                    region : parentContentRegion
+                }
+            },
+            children : [
+                {
+                    boundingVolume : {
+                        region : childrenRegion
+                    },
+                    geometricError : smallGeometricError,
+                    refine : 'add',
+                    children : [
+                        {
+                            boundingVolume : {
+                                region : llRegion
+                            },
+                            geometricError : 0.0,
+                            content : {
+                                url : 'll.b3dm'
+                            }
+                        },
+                        {
+                            boundingVolume : {
+                                region : urRegion
+                            },
+                            geometricError : 0.0,
+                            content : {
+                                url : 'ur.b3dm'
+                            }
+                        }
+                    ]
+                },
+                {
+                    boundingVolume : {
+                        region : childrenRegion
+                    },
+                    geometricError : smallGeometricError,
+                    refine : 'add',
+                    children : [
+                        {
+                            boundingVolume : {
+                                region : lrRegion
+                            },
+                            geometricError : 0.0,
+                            content : {
+                                url : 'lr.b3dm'
+                            }
+                        },
+                        {
+                            boundingVolume : {
+                                region : ulRegion
+                            },
+                            geometricError : 0.0,
+                            content : {
+                                url : 'ul.b3dm'
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    };
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true);
+}
+
+function createTilesetReplacement2() {
+    //          C
+    //          E
+    //        C   E
+    //            C (smaller geometric error)
+    //
+    var tilesetName = 'TilesetReplacement2';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var tileNames = ['parent.b3dm', 'll.b3dm', 'ur.b3dm'];
+    var tileOptions = [parentTileOptions, llTileOptions, urTileOptions];
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : largeGeometricError,
+        root : {
+            boundingVolume : {
+                region : parentRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'replace',
+            content : {
+                url : 'parent.b3dm',
+                boundingVolume : {
+                    region : parentContentRegion
+                }
+            },
+            children : [
+                {
+                    boundingVolume : {
+                        region : childrenRegion
+                    },
+                    geometricError : smallGeometricError,
+                    refine : 'add',
+                    children : [
+                        {
+                            boundingVolume : {
+                                region : urRegion
+                            },
+                            geometricError : 7.0,
+                            refine : 'replace',
+                            children : [
+                                {
+                                    boundingVolume : {
+                                        region : urRegion
+                                    },
+                                    geometricError : 0.0,
+                                    content : {
+                                        url : 'ur.b3dm'
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            boundingVolume : {
+                                region : llRegion
+                            },
+                            geometricError : 0.0,
+                            content : {
+                                url : 'll.b3dm'
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    };
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true);
+}
+
+function createTilesetReplacement3() {
+    //          C
+    //          T (external tileset ref)
+    //          E (root of external tileset)
+    //     C  C  C  C
+    var tilesetName = 'TilesetReplacement3';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var tileset2Path = path.join(tilesetDirectory, 'tileset2.json');
+    var tileNames = ['parent.b3dm', 'll.b3dm', 'lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
+    var tileOptions = [parentTileOptions, llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : largeGeometricError,
+        root : {
+            boundingVolume : {
+                region : parentRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'replace',
+            content : {
+                url : 'parent.b3dm',
+                boundingVolume : {
+                    region : parentContentRegion
+                }
+            },
+            children : [
+                {
+                    boundingVolume : {
+                        region : childrenRegion
+                    },
+                    geometricError : smallGeometricError,
+                    refine : 'add',
+                    content : {
+                        url : 'tileset2.json'
+                    }
+                }
+            ]
+        }
+    };
+
+    var tileset2Json = {
+        asset : {
+            version : '0.0'
+        },
+        geometricError : smallGeometricError,
+        root : {
+            boundingVolume : {
+                region : childrenRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'replace',
+            children : [
+                {
+                    boundingVolume : {
+                        region : llRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'll.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : lrRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'lr.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : urRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ur.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : ulRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ul.b3dm'
+                    }
+                }
+            ]
+        }
+    };
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true)
+        .then(function() {
+            return saveTilesetJson(tileset2Path, tileset2Json, prettyJson);
+        });
+}
+
+function createTilesetWithTransforms() {
+    var tilesetName = 'TilesetWithTransforms';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var buildingsTileName = 'buildings.b3dm';
+    var buildingsTilePath = path.join(tilesetDirectory, buildingsTileName);
+    var instancesTileName = 'instances.i3dm';
+    var instancesTilePath = path.join(tilesetDirectory, instancesTileName);
+
+    var rootTransform = Matrix4.pack(buildingsTransform, new Array(16));
+
+    var rotation = Quaternion.fromAxisAngle(Cartesian3.UNIT_Z, CesiumMath.PI_OVER_FOUR);
+    var translation = new Cartesian3(0, 0, 5.0);
+    var scale = new Cartesian3(0.5, 0.5, 0.5);
+    var childMatrix = Matrix4.fromTranslationQuaternionRotationScale(translation, rotation, scale);
+    var childTransform = Matrix4.pack(childMatrix, new Array(16));
+
+    var instancesOptions = {
+        tileWidth : instancesTileWidth,
+        transform : Matrix4.IDENTITY,
+        instancesLength : instancesLength,
+        url : instancesUrl,
+        modelSize : instancesModelSize,
+        eastNorthUp : false
+    };
+
+    var buildingsOptions = {
+        buildingOptions : buildingTemplate,
+        transform : Matrix4.IDENTITY,
+        optimizeForCesium : optimizeForCesium,
+        relativeToCenter : false
+    };
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : smallGeometricError,
+        root : {
+            boundingVolume : {
+                box : smallBoxLocal
+            },
+            transform : rootTransform,
+            geometricError : instancesGeometricError,
+            refine : 'add',
+            content : {
+                url : buildingsTileName
+            },
+            children : [
+                {
+                    boundingVolume : {
+                        box : instancesBoxLocal
+                    },
+                    transform : childTransform,
+                    geometricError : 0.0,
+                    content : {
+                        url : instancesTileName
+                    }
+                }
+            ]
+        }
+    };
+
+    return Promise.all([
+        createInstancesTile(instancesOptions),
+        createBuildingsTile(buildingsOptions)
+    ]).then(function(results) {
+        var i3dm = results[0].i3dm;
+        var b3dm = results[1].b3dm;
+        return Promise.all([
+            saveTile(instancesTilePath, i3dm, gzip),
+            saveTile(buildingsTilePath, b3dm, gzip),
+            saveTilesetJson(tilesetPath, tilesetJson, prettyJson)
+        ]);
     });
+}
+
+function createTilesetWithViewerRequestVolume() {
+    // Create a tileset with one root tile and four child tiles
+    var tilesetName = 'TilesetWithViewerRequestVolume';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var tileNames = ['ll.b3dm', 'lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
+    var tileOptions = [llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
+    var pointCloudTileName = 'points.pnts';
+    var pointCloudTilePath = path.join(tilesetDirectory, pointCloudTileName);
+
+    var pointsLength = 1000;
+    var pointCloudTileWidth = 20.0;
+    var pointCloudRadius = pointCloudTileWidth / 2.0;
+    var pointCloudSphereLocal = [0.0, 0.0, 0.0, pointCloudRadius];
+    var pointCloudHeight = pointCloudRadius + 5.0;
+    var pointCloudMatrix = wgs84Transform(longitude, latitude, pointCloudHeight);
+    var pointCloudTransform = Matrix4.pack(pointCloudMatrix, new Array(16));
+    var pointCloudViewerRequestSphere = [0.0, 0.0, 0.0, pointCloudTileWidth * 50.0]; // Point cloud only become visible when you are inside the request volume
+
+    var pointCloudOptions = {
+        tileWidth : pointCloudTileWidth,
+        pointsLength : pointsLength,
+        transform : Matrix4.IDENTITY,
+        relativeToCenter : false,
+        shape : 'sphere'
+    };
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        geometricError : largeGeometricError,
+        root : {
+            boundingVolume : {
+                region : childrenRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'add',
+            children : [
+                {
+                    boundingVolume : {
+                        region : llRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'll.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : lrRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'lr.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : urRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ur.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : ulRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ul.b3dm'
+                    }
+                },
+                {
+                    transform : pointCloudTransform,
+                    viewerRequestVolume : {
+                        sphere : pointCloudViewerRequestSphere
+                    },
+                    boundingVolume : {
+                        sphere : pointCloudSphereLocal
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'points.pnts'
+                    }
+                }
+            ]
+        }
+    };
+
+    var pnts = createPointCloudTile(pointCloudOptions).pnts;
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, false)
+        .then(function() {
+            return saveTile(pointCloudTilePath, pnts, gzip);
+        });
 }
 
 function createDiscreteLOD() {
     var glbPaths = ['data/dragon_high.glb', 'data/dragon_medium.glb', 'data/dragon_low.glb'];
     var tileNames = ['dragon_high.b3dm', 'dragon_medium.b3dm', 'dragon_low.b3dm'];
     var tilesetName = 'TilesetWithDiscreteLOD';
-    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetDirectory = path.join(outputDirectory, 'Samples', tilesetName);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     var dragonLowGeometricError = 500.0;
@@ -916,27 +1774,35 @@ function createTreeBillboards() {
     var glbPaths = ['data/tree.glb', 'data/tree_billboard.glb'];
     var tileNames = ['tree.i3dm', 'tree_billboard.i3dm'];
     var tilesetName = 'TilesetWithTreeBillboards';
-    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetDirectory = path.join(outputDirectory, 'Samples', tilesetName);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     var treeBillboardGeometricError = 100.0;
     var treeGeometricError = 10.0;
 
     var treesCount = 25;
-    var treesHeight = 10.0;
+    var treesHeight = 20.0;
     var treesTileWidth = tileWidth;
-    var treesTransform = wgs84Transform(longitude, latitude, treesHeight / 2.0);
     var treesRegion = [west, south, east, north, 0.0, treesHeight];
 
     var options = {
         tileWidth : treesTileWidth,
-        transform : treesTransform,
         instancesLength : treesCount,
         embed : true,
         modelSize : treesHeight,
         createBatchTable : true,
         eastNorthUp : true
     };
+
+    var treeOptions = clone(options);
+    treeOptions.url = glbPaths[0];
+    treeOptions.transform = wgs84Transform(longitude, latitude, 0.0); // Detailed model's base is at the origin
+
+    var billboardOptions = clone(options);
+    billboardOptions.url = glbPaths[1];
+    billboardOptions.transform = wgs84Transform(longitude, latitude, treesHeight / 2.0); // Billboard model is centered about the origin
+
+    var optionsArray = [treeOptions, billboardOptions];
 
     var tilesetJson = {
         asset : {
@@ -966,8 +1832,7 @@ function createTreeBillboards() {
         }
     };
 
-    return Promise.map(glbPaths, function(glbPath, index) {
-        options.url = glbPath;
+    return Promise.map(optionsArray, function(options, index) {
         return createInstancesTile(options)
             .then(function(result) {
                 var i3dm = result.i3dm;
@@ -982,4 +1847,236 @@ function createTreeBillboards() {
         tilesetJson.properties = getProperties(batchTables);
         return saveTilesetJson(tilesetPath, tilesetJson, prettyJson);
     });
+}
+
+function createRequestVolume() {
+    var tilesetName = 'TilesetWithRequestVolume';
+    var tilesetDirectory = path.join(outputDirectory, 'Samples', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var buildingGlbPath = 'data/building.glb';
+    var buildingTileName = 'building.b3dm';
+    var buildingTilePath = path.join(tilesetDirectory, buildingTileName);
+    var pointCloudTileName = 'points.pnts';
+    var pointCloudTilePath = path.join(tilesetDirectory, pointCloudTileName);
+
+    var cityTilesetPath = path.join(tilesetDirectory, 'city', 'tileset.json');
+    var cityTileNames = ['ll.b3dm', 'lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
+    var cityTileOptions = [llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
+
+    var buildingWidth = 3.738;
+    var buildingDepth = 3.72;
+    var buildingHeight = 13.402;
+    var buildingGeometricError = 100.0; // Estimate based on diagonal
+    var buildingScale = 5.0;
+    var wgs84Matrix = wgs84Transform(longitude, latitude, 0.0);
+    var scaleMatrix = Matrix4.fromUniformScale(buildingScale);
+    var buildingMatrix = Matrix4.multiply(wgs84Matrix, scaleMatrix, new Matrix4());
+    var buildingTransform = Matrix4.pack(buildingMatrix, new Array(16));
+    var buildingBoxLocal = [
+        0.0, 0.0, buildingHeight / 2.0, // center
+        buildingWidth / 2.0, 0.0, 0.0,  // width
+        0.0, buildingDepth / 2.0, 0.0,  // depth
+        0.0, 0.0, buildingHeight / 2.0  // height
+    ];
+
+    var pointsLength = 125000;
+    var pointCloudTileWidth = 2.5;
+    var pointCloudRadius = pointCloudTileWidth / 2.0;
+    var pointCloudSphereLocal = [0.0, 0.0, 0.0, pointCloudRadius];
+    var pointCloudHeight = pointCloudRadius + 0.2; // Try to place it in one of the building's floors
+    var pointCloudMatrix = wgs84Transform(longitude, latitude, pointCloudHeight);
+    var pointCloudTransform = Matrix4.pack(pointCloudMatrix, new Array(16));
+    var pointCloudViewerRequestSphere = [0.0, 0.0, 0.0, pointCloudTileWidth * 6.0]; // Point cloud only become visible when you are inside the request volume
+
+    var pointCloudOptions = {
+        tileWidth : pointCloudTileWidth,
+        pointsLength : pointsLength,
+        transform : Matrix4.IDENTITY,
+        relativeToCenter : false,
+        shape : 'sphere'
+    };
+
+    var totalRegion = clone(childrenRegion);
+    totalRegion[5] = buildingHeight * buildingScale;
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        geometricError : buildingGeometricError,
+        root : {
+            boundingVolume : {
+                region : totalRegion
+            },
+            geometricError : buildingGeometricError,
+            refine : 'add',
+            children : [
+                {
+                    boundingVolume : {
+                        region : childrenRegion
+                    },
+                    geometricError : smallGeometricError,
+                    content : {
+                        url : 'city/tileset.json'
+                    }
+                },
+                {
+                    transform : buildingTransform,
+                    boundingVolume : {
+                        box : buildingBoxLocal
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : buildingTileName
+                    }
+                },
+                {
+                    transform : pointCloudTransform,
+                    viewerRequestVolume : {
+                        sphere : pointCloudViewerRequestSphere
+                    },
+                    boundingVolume : {
+                        sphere : pointCloudSphereLocal
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : pointCloudTileName
+                    }
+                }
+            ]
+        }
+    };
+
+    var cityTilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : smallGeometricError,
+        root : {
+            boundingVolume : {
+                region : childrenRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'add',
+            children : [
+                {
+                    boundingVolume : {
+                        region : llRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'll.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : lrRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'lr.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : urRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ur.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : ulRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ul.b3dm'
+                    }
+                }
+            ]
+        }
+    };
+
+    var pnts = createPointCloudTile(pointCloudOptions).pnts;
+
+    var cityTilePromises = Promise.map(cityTileOptions, function(tileOptions, index) {
+        return createBuildingsTile(tileOptions)
+            .then(function(result) {
+                var tilePath = path.join(tilesetDirectory, 'city', cityTileNames[index]);
+                return saveTile(tilePath, result.b3dm, gzip);
+            });
+    });
+
+    var buildingPromise = fsExtraReadFile(buildingGlbPath)
+        .then(function(glb) {
+            return createB3dm({
+                glb : glb
+            });
+        })
+        .then(function(b3dm) {
+            saveTile(buildingTilePath, b3dm, gzip);
+        });
+
+    return Promise.all([
+        cityTilePromises,
+        buildingPromise,
+        saveTile(pointCloudTilePath, pnts, gzip),
+        saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
+        saveTilesetJson(cityTilesetPath, cityTilesetJson, prettyJson)
+    ]);
+}
+
+function createExpireTileset() {
+    var tilesetName = 'TilesetWithExpiration';
+    var tilesetDirectory = path.join(outputDirectory, 'Samples', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var pointCloudTileName = 'points.pnts';
+    var pointCloudTilePath = path.join(tilesetDirectory, pointCloudTileName);
+
+    var pointsLength = 125000;
+    var pointCloudTileWidth = 200.0;
+    var pointCloudSphereLocal = [0.0, 0.0, 0.0, pointCloudTileWidth / 2.0];
+    var pointCloudGeometricError = 1.732 * pointCloudTileWidth; // Diagonal of the point cloud box
+    var pointCloudMatrix = wgs84Transform(longitude, latitude, pointCloudTileWidth / 2.0);
+    var pointCloudTransform = Matrix4.pack(pointCloudMatrix, new Array(16));
+
+    var pointCloudOptions = {
+        tileWidth : pointCloudTileWidth,
+        pointsLength : pointsLength,
+        transform : Matrix4.IDENTITY,
+        relativeToCenter : false,
+        color : 'noise',
+        shape : 'box'
+    };
+
+    var pnts = createPointCloudTile(pointCloudOptions).pnts;
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        geometricError : pointCloudGeometricError,
+        root : {
+            expire : {
+                duration : 1.0
+            },
+            transform : pointCloudTransform,
+            boundingVolume : {
+                sphere : pointCloudSphereLocal
+            },
+            geometricError : 0.0,
+            refine : 'add',
+            content : {
+                url : pointCloudTileName
+            }
+        }
+    };
+
+    return Promise.all([
+        saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
+        saveTile(pointCloudTilePath, pnts, gzip)
+    ]);
 }

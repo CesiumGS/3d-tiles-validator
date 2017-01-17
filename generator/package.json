@@ -27,6 +27,7 @@
     "cesium": "^1.29",
     "fs-extra": "^2.0.0",
     "gltf-pipeline": "^0.1.0-alpha9",
+    "mime": "^1.3.4",
     "simplex-noise": "^2.3.0"
   },
   "devDependencies": {

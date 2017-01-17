@@ -1,7 +1,7 @@
 'use strict';
 var Cesium = require('cesium');
 var Material = require('./Material');
-var util = require('./util');
+var util = require('./utility');
 
 var Cartesian3 = Cesium.Cartesian3;
 var CesiumMath = Cesium.Math;
@@ -18,6 +18,26 @@ var scratchTranslation = new Cartesian3();
 var scratchRotation = new Quaternion();
 var scratchScale = new Cartesian3();
 
+var whiteOpaqueMaterial = new Material({
+    diffuse : [1.0, 1.0, 1.0, 1.0],
+    ambient : [0.2, 0.2, 0.2, 1.0]
+});
+
+var whiteTranslucentMaterial = new Material({
+    diffuse: [1.0, 1.0, 1.0, 0.5],
+    ambient : [0.2, 0.2, 0.2, 1.0]
+});
+
+var texturedMaterial = new Material({
+    diffuse : 'data/wood_red.png',
+    ambient : [0.2, 0.0, 0.0, 1.0]
+});
+
+var redMaterial = new Material({
+    diffuse : [1.0, 0.0, 0.0, 1.0],
+    ambient : [0.2, 0.0, 0.0, 1.0]
+});
+
 /**
  * Creates a set of buildings that will be converted to a b3dm tile.
  *
@@ -30,12 +50,14 @@ var scratchScale = new Cartesian3();
  * @param {String} [options.translucencyType='opaque'] Specifies the type of translucency to apply to the tile. Possible values are 'opaque', 'translucent', 'mix'.
  * @param {Number} [options.longitude=-1.31968] The center longitude of the tile. Used to generate metadata for the batch table.
  * @param {Number} [options.latitude=0.698874] The center latitude of the tile. Used to generate metadata for the batch table.
+ * @param {Number} [options.seed=2] The random seed to use.
  *
  * @returns {Building[]} An array of buildings.
  */
 function createBuildings(options) {
     // Set the random number seed before creating each set of buildings so that the generated buildings are the same between runs
-    CesiumMath.setRandomNumberSeed(2);
+    var seed = defaultValue(options.seed, 2);
+    CesiumMath.setRandomNumberSeed(seed);
 
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
     var numberOfBuildings = defaultValue(options.numberOfBuildings, 10);
@@ -49,7 +71,8 @@ function createBuildings(options) {
 
     var buildings = new Array(numberOfBuildings);
     for (var i = 0; i < numberOfBuildings; ++i) {
-        var material = getMaterial(diffuseType, translucencyType);
+        // Create buildings with the z-axis as up
+        var material = getMaterial(diffuseType, translucencyType, i, numberOfBuildings);
         var width = Math.max(averageWidth + (CesiumMath.nextRandomNumber() - 0.5) * 8.0, 1.0);
         var depth = Math.max(width + (CesiumMath.nextRandomNumber() - 0.5) * 4.0, 1.0);
         var height = Math.max(averageHeight + (CesiumMath.nextRandomNumber() - 0.5) * 8.0, 1.0);
@@ -65,7 +88,7 @@ function createBuildings(options) {
             rangeX = 0.0;
             rangeY = 0.0;
             if ((diffuseType === 'color') && (translucencyType === 'opaque')) {
-                material = getRedMaterial();
+                material = redMaterial;
             }
         }
 
@@ -118,51 +141,25 @@ function Building(options) {
     this.height = options.height;
 }
 
-function getWhiteOpaqueMaterial() {
-    return new Material({
-        diffuse: [1.0, 1.0, 1.0, 1.0]
-    });
-}
-
-function getWhiteTranslucentMaterial() {
-    return new Material({
-        diffuse: [1.0, 1.0, 1.0, 0.5]
-    });
-}
-
-function getTexturedMaterial() {
-    return new Material({
-        diffuse : 'data/wood_red.png'
-    });
-}
-
-function getRedMaterial() {
-    return new Material({
-        diffuse : [1.0, 0.0, 0.0, 1.0]
-    });
-}
-
 function getRandomColorMaterial(alpha) {
     var red = CesiumMath.nextRandomNumber();
     var green = CesiumMath.nextRandomNumber();
     var blue = CesiumMath.nextRandomNumber();
     return new Material({
-        diffuse : [red, green, blue, alpha]
+        diffuse : [red, green, blue, alpha],
+        ambient : [0.2, 0.2, 0.2, 1.0]
     });
 }
 
-function getMaterial(diffuseType, translucencyType) {
+function getMaterial(diffuseType, translucencyType, buildingIndex, numberOfBuildings) {
+    var firstHalf = (buildingIndex < numberOfBuildings / 2);
     if (diffuseType === 'white') {
         if (translucencyType === 'opaque') {
-            return getWhiteOpaqueMaterial();
+            return whiteOpaqueMaterial;
         } else if (translucencyType === 'translucent') {
-            return getWhiteTranslucentMaterial();
+            return whiteTranslucentMaterial;
         } else if (translucencyType === 'mix') {
-            if (CesiumMath.nextRandomNumber() < 0.5) {
-                return getWhiteOpaqueMaterial();
-            } else {
-                return getWhiteTranslucentMaterial();
-            }
+            return firstHalf ? whiteOpaqueMaterial : whiteTranslucentMaterial;
         }
     } else if (diffuseType === 'color') {
         if (translucencyType === 'opaque') {
@@ -170,10 +167,10 @@ function getMaterial(diffuseType, translucencyType) {
         } else if (translucencyType === 'translucent') {
             return getRandomColorMaterial(0.5);
         } else if (translucencyType === 'mix') {
-            var alpha = (CesiumMath.nextRandomNumber() < 0.5) ? 0.5 : 1.0;
+            var alpha = firstHalf ? 1.0 : 0.5;
             return getRandomColorMaterial(alpha);
         }
     } else if (diffuseType === 'textured') {
-        return getTexturedMaterial();
+        return texturedMaterial;
     }
 }

@@ -1,11 +1,12 @@
 'use strict';
 var Cesium = require('cesium');
 var Material = require('./Material');
-var util = require('./util');
+var util = require('./utility');
 
 var Cartesian3 = Cesium.Cartesian3;
 var ComponentDatatype = Cesium.ComponentDatatype;
 var defaultValue = Cesium.defaultValue;
+var defined = Cesium.defined;
 var Matrix4 = Cesium.Matrix4;
 
 var typeToNumberOfComponents = util.typeToNumberOfComponents;
@@ -117,35 +118,18 @@ Mesh.prototype.getCenter = function() {
 };
 
 /**
- * Get the positions relative to center.
- *
- * @returns {Number[]} A packed array of floats representing the mesh positions relative to center.
+ * Set the positions relative to center.
  */
-Mesh.prototype.getPositionsRelativeToCenter = function() {
+Mesh.prototype.setPositionsRelativeToCenter = function() {
     var positions = this.positions;
-    var positionsRTC = new Array(positions.length);
     var center = this.getCenter();
     var vertexCount = this.getVertexCount();
     for (var i = 0; i < vertexCount; ++i) {
         var position = Cartesian3.unpack(positions, i * 3, scratchCartesian);
         Cartesian3.subtract(position, center, position);
-        Cartesian3.pack(position, positionsRTC, i * 3);
+        Cartesian3.pack(position, positions, i * 3);
     }
-    return positionsRTC;
 };
-
-function hasMultipleMaterials(meshes) {
-    // Efficient enough when the number of meshes is small.
-    var length = meshes.length;
-    for (var i = 0; i < length; ++i) {
-        for (var j = 0; j < length; ++j) {
-            if (meshes[i].material !== meshes[j].material) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
 
 /**
  * Batch multiple meshes into a single mesh. Assumes the input meshes do not already have batch ids.
@@ -162,8 +146,8 @@ Mesh.batch = function(meshes) {
 
     var startIndex = 0;
     var indexOffset = 0;
-    var multipleMaterials = hasMultipleMaterials(meshes);
     var views = [];
+    var currentView;
     var meshesLength = meshes.length;
     for (var i = 0; i < meshesLength; ++i) {
         var mesh = meshes[i];
@@ -184,12 +168,15 @@ Mesh.batch = function(meshes) {
         var indices = mesh.indices;
         var indicesLength = indices.length;
 
-        if (multipleMaterials) {
-            views.push(new MeshView({
+        if (!defined(currentView) || (currentView.material !== mesh.material)) {
+            currentView = new MeshView({
                 material : mesh.material,
                 indexOffset : indexOffset,
                 indexCount : indicesLength
-            }));
+            });
+            views.push(currentView);
+        } else {
+            currentView.indexCount += indicesLength;
         }
 
         for (var j = 0; j < indicesLength; ++j) {
@@ -198,16 +185,6 @@ Mesh.batch = function(meshes) {
         }
         startIndex += vertexCount;
         indexOffset += indicesLength;
-    }
-
-    // If all meshes share the same material create a single mesh view
-    if (!multipleMaterials) {
-        var material = defaultValue(meshes[0].material, new Material());
-        views.push(new MeshView({
-            material : material,
-            indexOffset : 0,
-            indexCount : batchedIndices.length
-        }));
     }
 
     return new Mesh({

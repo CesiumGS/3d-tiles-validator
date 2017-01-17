@@ -1,6 +1,12 @@
 'use strict';
 var Cesium = require('cesium');
+var fsExtra = require('fs-extra');
 var gltfPipeline = require('gltf-pipeline');
+var mime = require('mime');
+var path = require('path');
+var Promise = require('bluebird');
+
+var fsExtraReadFile = Promise.promisify(fsExtra.readFile);
 
 var Cartesian3 = Cesium.Cartesian3;
 var combine = Cesium.combine;
@@ -26,6 +32,7 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.relativeToCenter=false] Use the Cesium_RTC extension.
  * @param {Boolean} [options.khrMaterialsCommon=false] Save glTF with the KHR_materials_common extension.
  * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
+ * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
  *
  * @returns {Promise} A promise that resolves with the binary glTF buffer.
  */
@@ -35,6 +42,7 @@ function createGltf(options) {
     var relativeToCenter = defaultValue(options.relativeToCenter, false);
     var khrMaterialsCommon = defaultValue(options.khrMaterialsCommon, false);
     var quantization = defaultValue(options.quantization, false);
+    var deprecated = defaultValue(options.deprecated, false);
 
     var mesh = options.mesh;
     var positions = mesh.positions;
@@ -43,9 +51,16 @@ function createGltf(options) {
     var indices = mesh.indices;
     var views = mesh.views;
 
+    // Get the center position in WGS84 coordinates
+    var center;
     if (relativeToCenter) {
-        positions = mesh.getPositionsRelativeToCenter();
+        center = mesh.getCenter();
+        mesh.setPositionsRelativeToCenter();
     }
+
+    // The glTF spec defines the y-axis as up, so apply a z-up to y-up transform
+    // In Cesium a y-up to z-up transform is applied later so that the glTF and 3D Tiles coordinate systems are consistent
+    var zUpToYUp = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
 
     var i;
     var positionsMinMax = getMinMax(positions, 3);
@@ -101,7 +116,6 @@ function createGltf(options) {
     var images = {};
     var samplers = {};
     var textures = {};
-    var basePath = './';
 
     var viewsLength = views.length;
     for (i = 0; i < viewsLength; ++i) {
@@ -126,6 +140,7 @@ function createGltf(options) {
         var emission = material.emission;
         var specular = material.specular;
         var shininess = material.shininess;
+        var transparent = false;
 
         if (typeof diffuse === 'string') {
             images.image_diffuse = {
@@ -147,10 +162,10 @@ function createGltf(options) {
             };
 
             diffuse = 'texture_diffuse';
+        } else {
+            transparent = diffuse[3] < 1.0;
         }
 
-        var transparency = diffuse[3];
-        var transparent = (transparency < 1.0);
         var doubleSided = transparent;
         var technique = (shininess > 0.0) ? 'PHONG' : 'LAMBERT';
 
@@ -164,7 +179,7 @@ function createGltf(options) {
                         emission : emission,
                         specular : specular,
                         shininess : shininess,
-                        transparency : transparency,
+                        transparency : 1.0,
                         transparent : transparent,
                         doubleSided : doubleSided
                     }
@@ -223,7 +238,11 @@ function createGltf(options) {
         accessors : accessors,
         asset : {
             generator : '3d-tiles-generator',
-            version : '1.1'
+            version : '1.0',
+            profile : {
+                api : 'WebGL',
+                version : '1.0'
+            }
         },
         buffers : {
             buffer : {
@@ -246,7 +265,6 @@ function createGltf(options) {
             }
         },
         extensionsUsed : ['KHR_materials_common'],
-        extensionsRequired : ['KHR_materials_common'],
         images : images,
         materials : materials,
         meshes : {
@@ -255,51 +273,79 @@ function createGltf(options) {
             }
         },
         nodes : {
-            node : {
-                matrix : [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            rootNode : {
+                matrix : zUpToYUp,
                 meshes : ['mesh'],
-                name : 'node'
+                name : 'rootNode'
             }
         },
         samplers : samplers,
         scene : 'scene',
         scenes : {
             scene : {
-                nodes : ['node']
+                nodes : ['rootNode']
             }
         },
         textures : textures
     };
 
-    var kmcOptions = {
-        enable : khrMaterialsCommon,
-        technique : 'PHONG',
-        doubleSided : false
-    };
+    var kmcOptions;
+    if (khrMaterialsCommon) {
+        kmcOptions = {
+            technique : 'LAMBERT',
+            doubleSided : false
+        };
+    }
 
     var gltfOptions = {
-        basePath : basePath,
         optimizeForCesium : optimizeForCesium,
         kmcOptions : kmcOptions,
+        preserve : true, // Don't apply extra optimizations to the glTF
         quantize : quantization,
         compressTextureCoordinates : quantization,
         encodeNormals : quantization
     };
 
-    // Run through the gltf-pipeline to generate techniques and shaders for the glTF
-    return processGltf(gltf, gltfOptions)
-        .then(function(gltf) {
-            if (useBatchIds) {
-                modifyGltfWithBatchIds(gltf, mesh);
-            }
-            if (relativeToCenter) {
-                modifyGltfWithRelativeToCenter(gltf, mesh);
-            }
-            if (optimizeForCesium) {
-                modifyGltfForCesium(gltf);
-            }
-            return convertToBinaryGltf(gltf);
+    return loadImages(gltf)
+        .then(function() {
+            // Run through the gltf-pipeline to generate techniques and shaders for the glTF
+            return processGltf(gltf, gltfOptions)
+                .then(function(gltf) {
+                    if (useBatchIds) {
+                        modifyGltfWithBatchIds(gltf, mesh, deprecated);
+                    }
+                    if (relativeToCenter) {
+                        modifyGltfWithRelativeToCenter(gltf, center);
+                    }
+                    if (optimizeForCesium) {
+                        modifyGltfForCesium(gltf);
+                    }
+                    return convertToBinaryGltf(gltf);
+                });
         });
+}
+
+function getLoadImageFunction(image) {
+    return function() {
+        var imagePath = image.uri;
+        var extension = path.extname(imagePath);
+        return fsExtraReadFile(imagePath)
+            .then(function(buffer) {
+                image.uri = 'data:' + mime.lookup(extension) + ';base64,' + buffer.toString('base64');
+            });
+    };
+}
+
+function loadImages(gltf) {
+    var imagePromises = [];
+    var images = gltf.images;
+    for (var id in images) {
+        if (images.hasOwnProperty(id)) {
+            var image = images[id];
+            imagePromises.push(getLoadImageFunction(image)());
+        }
+    }
+    return Promise.all(imagePromises);
 }
 
 function convertToBinaryGltf(gltf) {
@@ -310,7 +356,7 @@ function convertToBinaryGltf(gltf) {
         });
 }
 
-function modifyGltfWithBatchIds(gltf, mesh) {
+function modifyGltfWithBatchIds(gltf, mesh, deprecated) {
     var i;
     var batchIds = mesh.batchIds;
     var batchIdsMinMax = getMinMax(batchIds, 1);
@@ -320,6 +366,7 @@ function modifyGltfWithBatchIds(gltf, mesh) {
         batchIdsBuffer.writeUInt16LE(batchIds[i], i * sizeOfUint16);
     }
     var batchIdsBufferUri = 'data:application/octet-stream;base64,' + batchIdsBuffer.toString('base64');
+    var batchIdSemantic = deprecated ? 'BATCHID' : '_BATCHID';
 
     gltf.accessors.accessor_batchId = {
         bufferView : 'bufferView_batchId',
@@ -351,7 +398,7 @@ function modifyGltfWithBatchIds(gltf, mesh) {
             var length = primitives.length;
             for (i = 0; i < length; ++i) {
                 var primitive = primitives[i];
-                primitive.attributes._BATCHID = 'accessor_batchId';
+                primitive.attributes[batchIdSemantic] = 'accessor_batchId';
             }
         }
     }
@@ -370,7 +417,7 @@ function modifyGltfWithBatchIds(gltf, mesh) {
             var technique = techniques[techniqueId];
             technique.attributes.a_batchId = 'batchId';
             technique.parameters.batchId = {
-                semantic : '_BATCHID',
+                semantic : batchIdSemantic,
                 type : 5123 // UNSIGNED_SHORT
             };
         }
@@ -392,14 +439,11 @@ function modifyGltfWithBatchIds(gltf, mesh) {
     }
 }
 
-function modifyGltfWithRelativeToCenter(gltf, mesh) {
-    var center = mesh.getCenter();
+function modifyGltfWithRelativeToCenter(gltf, center) {
     gltf.extensionsUsed = defaultValue(gltf.extensionsUsed, []);
-    gltf.extensionsRequired = defaultValue(gltf.extensionsRequired, []);
     gltf.extensions = defaultValue(gltf.extensions, {});
 
     gltf.extensionsUsed.push('CESIUM_RTC');
-    gltf.extensionsRequired.push('CESIUM_RTC');
     gltf.extensions.CESIUM_RTC = {
         center : Cartesian3.pack(center, new Array(3))
     };
@@ -422,16 +466,6 @@ function modifyGltfWithRelativeToCenter(gltf, mesh) {
 }
 
 function modifyGltfForCesium(gltf) {
-    // Cesium expects glTFs to be y-up, so add a z-up to y-up transform
-    var sceneNodes = gltf.scenes[gltf.scene].nodes;
-    var nodeId = sceneNodes[0];
-    sceneNodes[0] = 'node_transform';
-    gltf.nodes.node_transform = {
-        children : [nodeId],
-        matrix : [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-        name : 'Y_UP_Transform'
-    };
-
     // Add diffuse semantic to support colorBlendMode in Cesium
     var techniques = gltf.techniques;
     for (var techniqueId in techniques) {
@@ -442,12 +476,12 @@ function modifyGltfForCesium(gltf) {
     }
 }
 
-function getMinMax(array, components, start, end) {
+function getMinMax(array, components, start, length) {
     start = defaultValue(start, 0);
-    end = defaultValue(end, array.length);
+    length = defaultValue(length, array.length);
     var min = new Array(components).fill(Number.POSITIVE_INFINITY);
     var max = new Array(components).fill(Number.NEGATIVE_INFINITY);
-    var count = (end - start) / components;
+    var count = length / components;
     for (var i = 0; i < count; ++i) {
         for (var j = 0; j < components; ++j) {
             var index = start + i * components + j;

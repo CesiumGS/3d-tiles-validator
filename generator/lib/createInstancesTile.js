@@ -43,7 +43,6 @@ var sizeOfFloat32 = 4;
  *
  * @returns {Promise} A promise that resolves with the i3dm buffer and batch table JSON.
  */
-
 function createInstancesTile(options) {
     // Set the random number seed before creating the instances so that the generated instances are the same between runs
     CesiumMath.setRandomNumberSeed(0);
@@ -58,7 +57,7 @@ function createInstancesTile(options) {
     var createBatchTable = defaultValue(options.createBatchTable, false);
     var createBatchTableBinary = defaultValue(options.createBatchTableBinary, false);
     var quantizePositions = defaultValue(options.quantizePositions, false);
-    var eastNorthUp = defaultValue(options.eastNorthUp, true);
+    var eastNorthUp = defaultValue(options.eastNorthUp, false);
     var orientations = defaultValue(options.orientations, false);
     var octEncodeOrientations = defaultValue(options.octEncodeOrientations, false);
     var uniformScales = defaultValue(options.uniformScales, false);

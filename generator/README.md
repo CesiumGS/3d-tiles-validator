@@ -12,14 +12,14 @@ npm install
 node bin/3d-tiles-generator.js
 ```
 
-This commands generates a series of tilesets and saves them in a folder called `output`. The `Batched`, `Composite`, `Instanced`, `PointCloud`, and `Tilesets` folders may be copied directly to Cesium's `Specs/Data/Cesium3DTiles/` folder for testing with Cesium. The tilesets in the `Samples` folder may be copied to the `tilesets` folder in `3d-tiles-samples`.
+This commands generates a set of tilesets and saves them in a folder called `output`. The `Batched`, `Composite`, `Instanced`, `PointCloud`, and `Tilesets` folders may be copied directly to Cesium's `Specs/Data/Cesium3DTiles/` folder for testing with Cesium. The tilesets in the `Samples` folder may be copied to the `tilesets` folder in `3d-tiles-samples`.
 
 For more fine-grained control, edit the following options directly in `3d-tiles-generator.js`. This includes:
 * Output directory
-* Optimize for Cesium
-* Use Cesium RTC extension for b3dm tiles
-* Pretty JSON
-* Gzip tiles
+* Optimize for Cesium (`default: true`)
+* Use Cesium RTC extension for b3dm tiles (`default: true`)
+* Pretty JSON (`default: true`)
+* Gzip tiles (`default: false`)
 * Longitude, Latitude, Tile Width
 
 Run the tests:

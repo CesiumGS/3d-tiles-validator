@@ -26,18 +26,22 @@ function getProperties(batchTable) {
                 var values = batchTable[name];
                 if (Array.isArray(values)) {
                     if (typeof values[0] === 'number') {
-                        var min = Number.MAX_VALUE;
-                        var max = -Number.MAX_VALUE;
+                        if (!defined(properties[name])) {
+                            properties[name] = {
+                                minimum : Number.MAX_VALUE,
+                                maximum : -Number.MAX_VALUE
+                            };
+                        }
+                        var min = properties[name].minimum;
+                        var max = properties[name].maximum;
                         var length = values.length;
                         for (var j = 0; j < length; ++j) {
                             var value = values[j];
                             min = Math.min(value, min);
                             max = Math.max(value, max);
                         }
-                        properties[name] = {
-                            minimum : min,
-                            maximum : max
-                        };
+                        properties[name].minimum = min;
+                        properties[name].maximum = max;
                     }
                 }
             }

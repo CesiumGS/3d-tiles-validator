@@ -41,7 +41,6 @@ var simplex = new SimplexNoise(CesiumMath.nextRandomNumber);
  *
  * @returns {Object} An object containing the pnts buffer and batch table JSON.
  */
-
 function createPointCloudTile(options) {
     // Set the random number seed before creating each point cloud so that the generated points are the same between runs
     CesiumMath.setRandomNumberSeed(0);
@@ -186,9 +185,9 @@ function getPosition(i, pointsLength) {
     var y = Math.floor((i - z * width * width) / width);
     var x = i - width * (y + width * z);
 
-    x = x / width - 0.5;
-    y = y / width - 0.5;
-    z = z / width - 0.5;
+    x = x / (width - 1) - 0.5;
+    y = y / (width - 1) - 0.5;
+    z = z / (width - 1) - 0.5;
 
     return new Cartesian3(x, y, z);
 }
@@ -200,7 +199,6 @@ function boxFunction(i, pointsLength, radius) {
 }
 
 function sphereFunction(i, pointsLength, radius) {
-    void(i, pointsLength); // Unused parameters
     var theta = CesiumMath.nextRandomNumber() * 2 * Math.PI;
     var phi = CesiumMath.nextRandomNumber() * Math.PI - Math.PI/2.0;
     var x = radius * Math.cos(theta) * Math.cos(phi);
@@ -210,7 +208,6 @@ function sphereFunction(i, pointsLength, radius) {
 }
 
 function randomFunction(position) {
-    void(position); // Unused parameter
     return Color.fromRandom();
 }
 
@@ -223,7 +220,7 @@ function gradientFunction(position) {
 
 function getNoise(position, time) {
     time = defaultValue(time, 0.0);
-    return simplex.noise4D(position.x, position.y, position.z, time);
+    return Math.abs(simplex.noise4D(position.x, position.y, position.z, time));
 }
 
 function getNoiseFunction(time) {
@@ -422,7 +419,6 @@ function getColorsRGB(colors) {
         var r = Math.floor(color.red * 255);
         var g = Math.floor(color.green * 255);
         var b = Math.floor(color.blue * 255);
-
         buffer.writeUInt8(r, i * 3);
         buffer.writeUInt8(g, i * 3 + 1);
         buffer.writeUInt8(b, i * 3 + 2);

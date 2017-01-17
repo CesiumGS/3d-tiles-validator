@@ -30,6 +30,7 @@ var scratchMatrix = new Matrix4();
  * @param {Boolean} [options.relativeToCenter=false] Use the Cesium_RTC extension.
  * @param {Boolean} [options.khrMaterialsCommon=false] Save glTF with the KHR_materials_common extension.
  * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
+ * @param {Boolean} [options.deprecated=false] Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic.
  *
  * @returns {Promise} A promise that resolves with the b3dm buffer and batch table JSON.
  */
@@ -44,6 +45,7 @@ function createBuildingsTile(options) {
     var relativeToCenter = options.relativeToCenter;
     var khrMaterialsCommon = options.khrMaterialsCommon;
     var quantization = options.quantization;
+    var deprecated = options.deprecated;
     var buildingsLength = buildings.length;
     var batchLength = useBatchIds ? buildingsLength : 0;
 
@@ -80,13 +82,15 @@ function createBuildingsTile(options) {
         optimizeForCesium : optimizeForCesium,
         relativeToCenter : relativeToCenter,
         khrMaterialsCommon : khrMaterialsCommon,
-        quantization : quantization
+        quantization : quantization,
+        deprecated : deprecated
     }).then(function(glb) {
         var b3dm =  createB3dm({
             glb : glb,
             batchLength : batchLength,
             batchTableJson : batchTableJson,
-            batchTableBinary : batchTableBinary
+            batchTableBinary : batchTableBinary,
+            deprecated : deprecated
         });
         return {
             b3dm : b3dm,
@@ -98,6 +102,7 @@ function createBuildingsTile(options) {
 function generateBatchTable(buildings) {
     var buildingsLength = buildings.length;
     var batchTable = {
+        id : new Array(buildingsLength),
         Longitude : new Array(buildingsLength),
         Latitude : new Array(buildingsLength),
         Height : new Array(buildingsLength)
@@ -105,6 +110,7 @@ function generateBatchTable(buildings) {
 
     for (var i = 0; i < buildingsLength; ++i) {
         var building = buildings[i];
+        batchTable.id[i] = i;
         batchTable.Longitude[i] = building.longitude;
         batchTable.Latitude[i] = building.latitude;
         batchTable.Height[i] = building.height;
