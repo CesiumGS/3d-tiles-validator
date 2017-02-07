@@ -265,7 +265,6 @@ var promises = [
 
 Promise.all(promises)
     .then(function() {
-        fsExtra.copySync(outputDirectory, 'C:/Code/cesium/Specs/Data/Cesium3DTiles');
         console.log('Done');
     });
 
