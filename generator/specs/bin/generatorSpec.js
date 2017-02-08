@@ -19,5 +19,5 @@ describe('3d-tiles-generator', function () {
                 done();
             }
         });
-    });
+    }, 20000);
 });
