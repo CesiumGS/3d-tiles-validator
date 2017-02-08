@@ -28,8 +28,8 @@ function getProperties(batchTable) {
                     if (typeof values[0] === 'number') {
                         if (!defined(properties[name])) {
                             properties[name] = {
-                                minimum : Number.MAX_VALUE,
-                                maximum : -Number.MAX_VALUE
+                                minimum : Number.POSITIVE_INFINITY,
+                                maximum : Number.NEGATIVE_INFINITY
                             };
                         }
                         var min = properties[name].minimum;
