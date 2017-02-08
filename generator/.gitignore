@@ -7,6 +7,6 @@ npm-debug.log
 .idea/tasks.xml
 
 # Generated files
-coverage
+output
 *.tgz
 *.zip
