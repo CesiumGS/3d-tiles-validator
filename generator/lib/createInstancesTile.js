@@ -31,8 +31,8 @@ var sizeOfFloat32 = 4;
  * @param {Number} [options.instancesLength=25] The number of instances.
  * @param {Boolean} [options.embed=true] Whether to embed the glTF in the tile or not.
  * @param {Number} [options.modelSize=20.0] The height of the instanced model. Used to generate metadata for the batch table.
- * @param {Boolean} [options.createBatchTable=false] Create a batch table for the i3dm tile.
- * @param {Boolean} [options.createBatchTableBinary=true] Create a batch table binary for the i3dm tile.
+ * @param {Boolean} [options.createBatchTable=true] Create a batch table for the i3dm tile.
+ * @param {Boolean} [options.createBatchTableBinary=false] Create a batch table binary for the i3dm tile.
  * @param {Boolean} [options.quantizePositions=false] Quantize instanced positions.
  * @param {Boolean} [options.eastNorthUp=true] Instance orientations default to the east/north/up reference frame's orientation on the WGS84 ellipsoid.
  * @param {Boolean} [options.orientations=false] Generate orientations for the instances.
@@ -54,7 +54,7 @@ function createInstancesTile(options) {
     var url = options.url;
     var embed = defaultValue(options.embed, true);
     var modelSize = defaultValue(options.modelSize, 20.0);
-    var createBatchTable = defaultValue(options.createBatchTable, false);
+    var createBatchTable = defaultValue(options.createBatchTable, true);
     var createBatchTableBinary = defaultValue(options.createBatchTableBinary, false);
     var quantizePositions = defaultValue(options.quantizePositions, false);
     var eastNorthUp = defaultValue(options.eastNorthUp, false);
@@ -339,6 +339,7 @@ function getBatchIds(instancesLength) {
     return {
         buffer : buffer,
         componentType : componentType,
+        propertyName : 'BATCH_ID',
         byteAlignment : byteAlignment
     };
 }

@@ -255,6 +255,7 @@ function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shape
     var noiseValues = new Array(pointsLength);
 
     for (var i = 0; i < pointsLength; ++i) {
+        var unitPosition = getPosition(i, pointsLength);
         var position = shapeFunction(i, pointsLength, radius);
         var normal;
         if (Cartesian3.equals(position, Cartesian3.ZERO)) {
@@ -262,9 +263,9 @@ function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shape
         } else {
             normal = Cartesian3.normalize(position, new Cartesian3());
         }
-        var batchId = getBatchId(position);
-        var color = colorFunction(position);
-        var noise = getNoise(position);
+        var batchId = getBatchId(unitPosition);
+        var color = colorFunction(unitPosition);
+        var noise = getNoise(unitPosition);
 
         Matrix4.multiplyByPoint(transform, position, position);
         Matrix4.multiplyByPointAsVector(inverseTranspose, normal, normal);

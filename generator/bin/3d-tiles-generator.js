@@ -242,6 +242,7 @@ var promises = [
     createInstancedScale(),
     createInstancedWithTransform(),
     createInstancedRedMaterial(),
+    createInstancedWithBatchIds(),
     // Composite
     createComposite(),
     createCompositeOfComposite(),
@@ -516,9 +517,15 @@ function createPointCloudBatched() {
 
 function createPointCloudWithPerPointProperties() {
     var tileOptions = {
-        perPointProperties : true
+        perPointProperties : true,
+        transform : Matrix4.IDENTITY,
+        relativeToCenter : false
     };
-    return savePointCloudTileset('PointCloudWithPerPointProperties', tileOptions);
+    var tilesetOptions = {
+        transform : pointCloudTransform,
+        sphere : pointCloudSphereLocal
+    };
+    return savePointCloudTileset('PointCloudWithPerPointProperties', tileOptions, tilesetOptions);
 }
 
 function createPointCloudWithTransform() {
@@ -624,6 +631,13 @@ function createInstancedRedMaterial() {
         url : instancesRedUrl
     };
     return saveInstancedTileset('InstancedRedMaterial', tileOptions);
+}
+
+function createInstancedWithBatchIds() {
+    var tileOptions = {
+        batchIds : true
+    };
+    return saveInstancedTileset('InstancedWithBatchIds', tileOptions);
 }
 
 function createComposite() {
