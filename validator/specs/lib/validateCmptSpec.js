@@ -36,7 +36,7 @@ describe('validateCmpt', function() {
     });
 
     it('returns false if the cmpt has less inner tiles than tilesLength field', function() {
-        var innerI3dm = createI3dmTile(0);
+        var innerI3dm = createI3dmTile();
         var cmptTile = createCmptTile([innerI3dm]);
         cmptTile.writeUInt32LE(5, 12);
 
@@ -62,7 +62,7 @@ describe('validateCmpt', function() {
     });
 
     it('validates a cmpt tile with a valid i3dm inner tile', function() {
-        var innerI3dm = createI3dmTile(0);
+        var innerI3dm = createI3dmTile();
         var cmptTile = createCmptTile([innerI3dm]);
 
         expect(validateCmpt(cmptTile).result).toBe(true);
@@ -88,7 +88,8 @@ describe('validateCmpt', function() {
     });
 
     it('returns false if the cmpt has an invalid i3dm inner tile', function() {
-        var innerI3dm = createI3dmTile(15);
+        var innerI3dm = createI3dmTile();
+        innerI3dm.writeUInt32LE(15, 28);
         var cmptTile = createCmptTile([innerI3dm]);
 
         expect(validateCmpt(cmptTile).result).toBe(false);
@@ -116,7 +117,7 @@ function createB3dmTile() {
     return b3dmTile;
 }
 
-function createI3dmTile(gltfFormat) {
+function createI3dmTile() {
     var i3dmTile = new Buffer(i3dmHeaderSize);
     i3dmTile.write('i3dm', 0); // magic
     i3dmTile.writeUInt32LE(1, 4); // version
@@ -125,25 +126,20 @@ function createI3dmTile(gltfFormat) {
     i3dmTile.writeUInt32LE(0, 16); // featureTableBinaryByteLength
     i3dmTile.writeUInt32LE(0, 20); // batchTableJSONByteLength
     i3dmTile.writeUInt32LE(0, 24); // batchTableBinaryByteLength
-    i3dmTile.writeUInt32LE(gltfFormat, 28); // gltfFormat: 0 - url
+    i3dmTile.writeUInt32LE(0, 28); // gltfFormat: 0 - url
 
     return i3dmTile;
 }
 
 function createCmptTile(tiles) {
-    var byteLength = cmptHeaderSize;
-    for(var i = 0; i < tiles.length; i++) {
-        byteLength += tiles[i].readUInt32LE(8);
-    }
+    var innerTiles = Buffer.concat(tiles);
+    var cmptHeader = new Buffer(cmptHeaderSize);
+    cmptHeader.write('cmpt', 0); // magic
+    cmptHeader.writeUInt32LE(1, 4); // version
+    cmptHeader.writeUInt32LE(innerTiles.length, 8); // byteLength
+    cmptHeader.writeUInt32LE(tiles.length, 12); // tilesLength
 
-    var cmptTile = new Buffer(cmptHeaderSize);
-    cmptTile.write('cmpt', 0); // magic
-    cmptTile.writeUInt32LE(1, 4); // version
-    cmptTile.writeUInt32LE(byteLength, 8); // byteLength
-    cmptTile.writeUInt32LE(tiles.length, 12); // tilesLength
-
-    tiles.unshift(cmptTile);
-    return Buffer.concat(tiles, byteLength);
+    return Buffer.concat([cmptHeader, tiles]);
 }
 
 function createPntsTile() {
@@ -168,7 +164,7 @@ function createCmptCombination() {
     //cmpt1[b3dm, cmpt2[cmpt3[pnts], i3dm]]
     var innerB3dmTile = createB3dmTile();
     var innerPntsTile = createPntsTile();
-    var innerI3dmTile = createI3dmTile(0);
+    var innerI3dmTile = createI3dmTile();
 
     var cmptTile3 = createCmptTile([innerPntsTile]);
     var cmptTile2 = createCmptTile([cmptTile3, innerI3dmTile]);
@@ -181,7 +177,8 @@ function createCmptInvalidCombination() {
     //cmpt1[b3dm, cmpt2[cmpt3[pnts], i3dm]] - i3dm is invalid
     var innerB3dmTile = createB3dmTile();
     var innerPntsTile = createPntsTile();
-    var innerI3dmTile = createI3dmTile(15);
+    var innerI3dmTile = createI3dmTile();
+    innerI3dmTile.writeUInt32LE(15, 28);
 
     var cmptTile3 = createCmptTile([innerPntsTile]);
     var cmptTile2 = createCmptTile([cmptTile3, innerI3dmTile]);
