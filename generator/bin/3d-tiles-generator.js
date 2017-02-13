@@ -106,7 +106,7 @@ var instancesBoxLocal = [
     0.0, 0.0, 0.0,                      // center
     instancesTileWidth / 2.0, 0.0, 0.0, // width
     0.0,instancesTileWidth / 2.0, 0.0,  // depth
-    0.0, 0.0, instancesHeight           // height
+    0.0, 0.0, instancesHeight / 2.0     // height
 ];
 
 // Composite
@@ -1717,7 +1717,12 @@ function createDiscreteLOD() {
     var dragonWidth = 14.191;
     var dragonHeight = 10.075;
     var dragonDepth = 6.281;
-    var dragonBox = [0.0, 0.0, 0.0, dragonWidth, 0.0, 0.0, 0.0, dragonDepth, 0.0, 0.0, 0.0, dragonHeight];
+    var dragonBox = [
+        0.0, 0.0, 0.0,                // center
+        dragonWidth / 2.0, 0.0, 0.0,  // width
+        0.0, dragonDepth / 2.0, 0.0,  // depth
+        0.0, 0.0, dragonHeight / 2.0  // height
+    ];
 
     var dragonScale = 100.0;
     var dragonOffset = dragonHeight / 2.0 * dragonScale;
@@ -2074,7 +2079,7 @@ function createExpireTileset() {
         geometricError : pointCloudGeometricError,
         root : {
             expire : {
-                duration : 1.0
+                duration : 5.0
             },
             transform : pointCloudTransform,
             boundingVolume : {
