@@ -8,7 +8,9 @@ var cmptHeaderSize = 16;
 
 describe('validateCmpt', function() {
     it('returns false if the cmpt header is too short', function() {
+        console.log("obe");
         var cmptTile = createCmptTile([]);
+        console.log("two");
         cmptTile = cmptTile.slice(cmptHeaderSize - 4);
 
         expect(validateCmpt(cmptTile).result).toBe(false);
@@ -136,10 +138,10 @@ function createCmptTile(tiles) {
     var cmptHeader = new Buffer(cmptHeaderSize);
     cmptHeader.write('cmpt', 0); // magic
     cmptHeader.writeUInt32LE(1, 4); // version
-    cmptHeader.writeUInt32LE(innerTiles.length, 8); // byteLength
+    cmptHeader.writeUInt32LE(innerTiles.length + cmptHeaderSize, 8); // byteLength
     cmptHeader.writeUInt32LE(tiles.length, 12); // tilesLength
-
-    return Buffer.concat([cmptHeader, tiles]);
+    tiles.unshift(cmptHeader);
+    return Buffer.concat(tiles);
 }
 
 function createPntsTile() {
