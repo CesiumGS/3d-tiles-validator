@@ -11,11 +11,12 @@ module.exports = validateB3dm;
 /**
  * Checks if provided buffer has valid b3dm tile content
  *
+ * @param {Object} batchTableSchema - A JSON object containing the schema for the batch table.
  * @param {Buffer} content - A buffer containing the contents of a b3dm tile.
  * @returns {Object} An object with two parameters - (1) a boolean for whether the tile is a valid b3dm tile
  *                                                   (2) a message to indicate which tile field is invalid, if any
  */
-function validateB3dm(content) {
+function validateB3dm(content, batchTableSchema) {
     if (!defined(content)) {
         throw new DeveloperError('b3dm content must be defined');
     }
@@ -52,7 +53,13 @@ function validateB3dm(content) {
     var batchTable = extractBatchTable(magic, content);
     if(defined(batchTable.batchTableJSON)) {
         //validateBatch returns boolean or promise?
-        validateBatchTable(batchTable.batchTableJSON, batchTable.batchTableBinary);
+        var validBatchTable = validateBatchTable(batchTableSchema, batchTable.batchTableJSON, batchTable.batchTableBinary);
+        if(!validBatchTable.validation) {
+            return {
+                result : false,
+                message: validBatchTable.message
+            };
+        }
     }
 
     return {

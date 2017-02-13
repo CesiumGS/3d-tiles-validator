@@ -1,9 +1,27 @@
 'use strict';
+var Cesium = require('cesium');
 var validateB3dm = require('../../lib/validateB3dm');
 
-describe('validateB3dm', function() {
+var loadJson = Cesium.loadJson;
 
+describe('validateB3dm', function() {
+    var batchSchema;
+    beforeAll(function(done) {
+        console.log("beforeAll");
+
+        loadJson('https://raw.githubusercontent.com/AnalyticalGraphicsInc/3d-tiles/master/schema/batchTable.schema.json')
+            .then(function(schema) {
+                console.log("loadJson success");
+                batchSchema = schema;
+                done();
+            }).otherwise(function(error){
+                console.log("Error loading batch table schema");
+                console.log(error);
+                //done();
+            });
+    });
     it('returns true if the b3dm tile is valid, returns false if the b3dm has invalid magic', function() {
+        console.log("first b3dm test");
         expect(validateB3dm(createInvalidMagic()).result).toBe(false);
     });
 
