@@ -457,9 +457,9 @@ function getColorsRGB565(colors) {
     var buffer = Buffer.alloc(colorsLength * sizeOfUint16);
     for (var i = 0; i < colorsLength; ++i) {
         var color = colors[i];
-        var r = Math.floor(color.red * 32); // 5 bits
-        var g = Math.floor(color.green * 64); // 6 bits
-        var b = Math.floor(color.blue * 32); // 5 bits
+        var r = Math.floor(color.red * 31); // 5 bits
+        var g = Math.floor(color.green * 63); // 6 bits
+        var b = Math.floor(color.blue * 31); // 5 bits
         var packedColor = (r << 11) + (g << 5) + b;
         buffer.writeUInt16LE(packedColor, i * sizeOfUint16);
     }
