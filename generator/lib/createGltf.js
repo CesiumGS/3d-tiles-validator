@@ -34,6 +34,7 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
  * @param {Object|Object[]} [options.textureCompressionOptions] Options for compressing textures in the glTF.
+ * @param {String} [options.upAxis='Y'] Specifies the up-axis for the glTF model.
  *
  * @returns {Promise} A promise that resolves with the binary glTF buffer.
  */
@@ -45,6 +46,7 @@ function createGltf(options) {
     var quantization = defaultValue(options.quantization, false);
     var deprecated = defaultValue(options.deprecated, false);
     var textureCompressionOptions = options.textureCompressionOptions;
+    var upAxis = defaultValue(options.upAxis, 'Y');
 
     var mesh = options.mesh;
     var positions = mesh.positions;
@@ -60,9 +62,16 @@ function createGltf(options) {
         mesh.setPositionsRelativeToCenter();
     }
 
-    // The glTF spec defines the y-axis as up, so apply a z-up to y-up transform
-    // In Cesium a y-up to z-up transform is applied later so that the glTF and 3D Tiles coordinate systems are consistent
-    var zUpToYUp = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
+    var rootMatrix;
+    if (upAxis === 'Y') {
+        // Models are z-up, so add a z-up to y-up transform.
+        // The glTF spec defines the y-axis as up, so this is the default behavior.
+        // In Cesium a y-up to z-up transform is applied later so that the glTF and 3D Tiles coordinate systems are consistent
+        rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
+    } else if (upAxis === 'Z') {
+        // No conversion needed - models are already z-up
+        rootMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    }
 
     var i;
     var positionsMinMax = getMinMax(positions, 3);
@@ -276,7 +285,7 @@ function createGltf(options) {
         },
         nodes : {
             rootNode : {
-                matrix : zUpToYUp,
+                matrix : rootMatrix,
                 meshes : ['mesh'],
                 name : 'rootNode'
             }

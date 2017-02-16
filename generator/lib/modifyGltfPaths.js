@@ -34,7 +34,6 @@ function modifyGltfPaths(glb, relativePath) {
     return getBinaryGltf(gltf, false, false).glb;
 }
 
-
 function findResources(object, resources) {
     for (var propertyId in object) {
         if (object.hasOwnProperty(propertyId)) {

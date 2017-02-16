@@ -32,6 +32,7 @@ var scratchMatrix = new Matrix4();
  * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
  * @param {Boolean} [options.deprecated=false] Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic.
  * @param {Object|Object[]} [options.textureCompressionOptions] Options for compressing textures in the glTF.
+ * @param {String} [options.gltfUpAxis='Y'] Specifies the up-axis for the glTF model.
  *
  * @returns {Promise} A promise that resolves with the b3dm buffer and batch table JSON.
  */
@@ -48,6 +49,7 @@ function createBuildingsTile(options) {
     var quantization = options.quantization;
     var deprecated = options.deprecated;
     var textureCompressionOptions = options.textureCompressionOptions;
+    var gltfUpAxis = options.gltfUpAxis;
     var buildingsLength = buildings.length;
     var batchLength = useBatchIds ? buildingsLength : 0;
 
@@ -86,7 +88,8 @@ function createBuildingsTile(options) {
         khrMaterialsCommon : khrMaterialsCommon,
         quantization : quantization,
         deprecated : deprecated,
-        textureCompressionOptions : textureCompressionOptions
+        textureCompressionOptions : textureCompressionOptions,
+        upAxis : gltfUpAxis
     }).then(function(glb) {
         var b3dm =  createB3dm({
             glb : glb,
