@@ -1751,7 +1751,7 @@ function createDiscreteLOD() {
                     boundingVolume : {
                         box : dragonBox
                     },
-                    geometricError : draonHighGeometricError,
+                    geometricError : dragonHighGeometricError,
                     content : {
                         url : 'dragon_medium.b3dm'
                     },
