@@ -1712,7 +1712,7 @@ function createDiscreteLOD() {
 
     var dragonLowGeometricError = 500.0;
     var dragonMediumGeometricError = 100.0;
-    var draonHighGeometricError = 10.0;
+    var dragonHighGeometricError = 10.0;
 
     var dragonWidth = 14.191;
     var dragonHeight = 10.075;
@@ -1751,7 +1751,7 @@ function createDiscreteLOD() {
                     boundingVolume : {
                         box : dragonBox
                     },
-                    geometricError : draonHighGeometricError,
+                    geometricError : dragonHighGeometricError,
                     content : {
                         url : 'dragon_medium.b3dm'
                     },
