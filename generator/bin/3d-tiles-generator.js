@@ -195,10 +195,6 @@ var ulTileOptions = {
     relativeToCenter : relativeToCenter
 };
 
-// RequestVolumes
-var requestHeight = 50.0;
-var childRequestRegion = [longitude - longitudeExtent / 2.0, latitude - latitudeExtent / 2.0, longitude + longitudeExtent / 2.0, latitude + latitudeExtent / 2.0, 0.0, requestHeight];
-
 var promises = [
     // Batched
     createBatchedWithBatchTable(),
@@ -1715,10 +1711,12 @@ function createTilesetReplacementWithViewerRequestVolume() {
     var tileNames = ['parent.b3dm', 'll.b3dm', 'lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
     var tileOptions = [parentTileOptions, llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
 
+    var requestHeight = 50.0;
+    var childRequestRegion = [longitude - longitudeExtent / 2.0, latitude - latitudeExtent / 2.0, longitude + longitudeExtent / 2.0, latitude + latitudeExtent / 2.0, 0.0, requestHeight];
+
     var tilesetJson = {
         asset : {
-            version : '0.0',
-            tilesetVersion : '1.2.3'
+            version : '0.0'
         },
         properties : undefined,
         geometricError : largeGeometricError,
