@@ -257,6 +257,7 @@ var promises = [
     createTilesetReplacement3(),
     createTilesetWithTransforms(),
     createTilesetWithViewerRequestVolume(),
+    createTilesetReplacementWithViewerRequestVolume(),
     // Samples
     createDiscreteLOD(),
     createTreeBillboards(),
@@ -1701,6 +1702,99 @@ function createTilesetWithViewerRequestVolume() {
         .then(function() {
             return saveTile(pointCloudTilePath, pnts, gzip);
         });
+}
+
+function createTilesetReplacementWithViewerRequestVolume() {
+    var tilesetName = 'TilesetReplacementWithViewerRequestVolume';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var tileNames = ['parent.b3dm', 'll.b3dm', 'lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
+    var tileOptions = [parentTileOptions, llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
+
+    var requestHeight = 50.0;
+    var childRequestRegion = [longitude - longitudeExtent / 2.0, latitude - latitudeExtent / 2.0, longitude + longitudeExtent / 2.0, latitude + latitudeExtent / 2.0, 0.0, requestHeight];
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : largeGeometricError,
+        root : {
+            boundingVolume : {
+                region : parentRegion
+            },
+            geometricError : largeGeometricError,
+            refine : 'replace',
+            children : [
+                {
+                    boundingVolume : {
+                        region : parentRegion
+                    },
+                    geometricError : smallGeometricError,
+                    refine : 'replace',
+                    content : {
+                        url : 'parent.b3dm',
+                        boundingVolume : {
+                            region : parentContentRegion
+                        }
+                    },
+                    children : [
+                        {
+                            boundingVolume : {
+                                region : llRegion
+                            },
+                            viewerRequestVolume : {
+                                region : childRequestRegion
+                            },
+                            geometricError : 0.0,
+                            content : {
+                                url : 'll.b3dm'
+                            }
+                        },
+                        {
+                            boundingVolume : {
+                                region : lrRegion
+                            },
+                            viewerRequestVolume : {
+                                region : childRequestRegion
+                            },
+                            geometricError : 0.0,
+                            content : {
+                                url : 'lr.b3dm'
+                            }
+                        },
+                        {
+                            boundingVolume : {
+                                region : urRegion
+                            },
+                            viewerRequestVolume : {
+                                region : childRequestRegion
+                            },
+                            geometricError : 0.0,
+                            content : {
+                                url : 'ur.b3dm'
+                            }
+                        },
+                        {
+                            boundingVolume : {
+                                region : ulRegion
+                            },
+                            viewerRequestVolume : {
+                                region : childRequestRegion
+                            },
+                            geometricError : 0.0,
+                            content : {
+                                url : 'ul.b3dm'
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    };
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true);
 }
 
 function createDiscreteLOD() {
