@@ -49,7 +49,7 @@ function validateB3dm(content, batchTableSchema) {
             message: 'b3dm tile has the wrong byteLength'
         };
     }
-
+    /*
     var batchTable = extractBatchTable(magic, content);
     if(defined(batchTable.batchTableJSON)) {
         //validateBatch returns boolean or promise?
@@ -60,7 +60,7 @@ function validateB3dm(content, batchTableSchema) {
                 message: validBatchTable.message
             };
         }
-    }
+    }*/
 
     return {
         result : true,
