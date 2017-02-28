@@ -98,6 +98,7 @@ var instancesGeometricError = 70.0; // Estimated
 var instancesTileWidth = tileWidth;
 var instancesUrl = 'data/box.glb'; // Model's center is at the origin
 var instancesRedUrl = 'data/red_box.glb'; // Model's center is at the origin
+var instancesTexturedUrl = 'data/textured_box.glb'; // Model's center is at the origin
 var instancesModelSize = 20.0;
 var instancesHeight = instancesModelSize + 10.0; // Just a little extra padding at the top for aiding Cesium tests
 var instancesTransform = wgs84Transform(longitude, latitude, instancesModelSize / 2.0);
@@ -243,6 +244,7 @@ var promises = [
     createInstancedWithTransform(),
     createInstancedRedMaterial(),
     createInstancedWithBatchIds(),
+    createInstancedTextured(),
     // Composite
     createComposite(),
     createCompositeOfComposite(),
@@ -639,6 +641,13 @@ function createInstancedWithBatchIds() {
         batchIds : true
     };
     return saveInstancedTileset('InstancedWithBatchIds', tileOptions);
+}
+
+function createInstancedTextured() {
+    var tileOptions = {
+        url : instancesTexturedUrl
+    };
+    return saveInstancedTileset('InstancedTextured', tileOptions);
 }
 
 function createComposite() {
