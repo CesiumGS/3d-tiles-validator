@@ -4,6 +4,7 @@ var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
 var path = require('path');
 var Promise = require('bluebird');
+var createBatchTableHierarchy = require('../lib/createBatchTableHierarchy');
 var createBuildingsTile = require('../lib/createBuildingsTile');
 var createB3dm = require('../lib/createB3dm');
 var createCmpt = require('../lib/createCmpt');
@@ -248,6 +249,11 @@ var promises = [
     // Composite
     createComposite(),
     createCompositeOfComposite(),
+    // Hierarchy
+    createHierarchy(),
+    createHierarchyMultipleParents(),
+    createHierarchyNoParents(),
+    createHierarchyBinary(),
     // Tilesets
     createTileset(),
     createTilesetEmptyRoot(),
@@ -831,6 +837,50 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
         saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
         saveTile(tilePath, pnts, gzip)
     ]);
+}
+
+function createHierarchy() {
+    return createBatchTableHierarchy({
+        directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchy'),
+        transform : buildingsTransform,
+        optimizeForCesium : optimizeForCesium,
+        gzip : gzip,
+        prettyJson : prettyJson
+    });
+}
+
+function createHierarchyMultipleParents() {
+    return createBatchTableHierarchy({
+        directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyMultipleParents'),
+        transform : buildingsTransform,
+        multipleParents : true,
+        optimizeForCesium : optimizeForCesium,
+        gzip : gzip,
+        prettyJson : prettyJson
+    });
+}
+
+function createHierarchyNoParents() {
+    return createBatchTableHierarchy({
+        directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyNoParents'),
+        transform : buildingsTransform,
+        noParents : true,
+        optimizeForCesium : optimizeForCesium,
+        gzip : gzip,
+        prettyJson : prettyJson
+    });
+}
+
+function createHierarchyBinary() {
+    return createBatchTableHierarchy({
+        directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyBinary'),
+        transform : buildingsTransform,
+        batchTableBinary : true,
+        multipleParents : true,
+        optimizeForCesium : optimizeForCesium,
+        gzip : gzip,
+        prettyJson : prettyJson
+    });
 }
 
 function saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, saveProperties) {

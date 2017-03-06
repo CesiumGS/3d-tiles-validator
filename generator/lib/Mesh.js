@@ -261,7 +261,7 @@ function getAccessor(gltf, accessor) {
     } else if (accessor.componentType === ComponentDatatype.FLOAT) {
         typedArray = bufferToFloat32Array(data, byteOffset, length);
     }
-    return typedArray;
+    return Array.prototype.slice.call(typedArray);
 }
 
 /**
