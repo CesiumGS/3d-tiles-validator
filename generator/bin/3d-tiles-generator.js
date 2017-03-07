@@ -210,6 +210,7 @@ var promises = [
     createBatchedColorsTranslucent(),
     createBatchedColorsMix(),
     createBatchedTextured(),
+    createBatchedCompressedTextures(),
     createBatchedWithBoundingSphere(),
     createBatchedWithTransformBox(),
     createBatchedWithTransformSphere(),
@@ -248,6 +249,7 @@ var promises = [
     createInstancedRedMaterial(),
     createInstancedWithBatchIds(),
     createInstancedTextured(),
+    createInstancedCompressedTextures(),
     // Composite
     createComposite(),
     createCompositeOfComposite(),
@@ -329,6 +331,22 @@ function createBatchedTextured() {
         buildingOptions : buildingOptions
     };
     return saveBatchedTileset('BatchedTextured', tileOptions);
+}
+
+function createBatchedCompressedTextures() {
+    var buildingOptions = clone(buildingTemplate);
+    buildingOptions.diffuseType = 'textured';
+    var tileOptions = {
+        buildingOptions : buildingOptions,
+        textureCompressionOptions : [{
+            format : 'dxt1',
+            quality : 10
+        }, {
+            format : 'etc1',
+            quality : 10
+        }]
+    };
+    return saveBatchedTileset('BatchedCompressedTextures', tileOptions);
 }
 
 function createBatchedColors() {
@@ -658,6 +676,21 @@ function createInstancedTextured() {
     };
     return saveInstancedTileset('InstancedTextured', tileOptions);
 }
+
+function createInstancedCompressedTextures() {
+    var tileOptions = {
+        url : instancesTexturedUrl,
+        textureCompressionOptions : [{
+            format : 'dxt1',
+            quality : 10
+        }, {
+            format : 'etc1',
+            quality : 10
+        }]
+    };
+    return saveInstancedTileset('InstancedCompressedTextures', tileOptions);
+}
+
 
 function createComposite() {
     var i3dmOptions = {

@@ -33,6 +33,7 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.khrMaterialsCommon=false] Save glTF with the KHR_materials_common extension.
  * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
+ * @param {Object|Object[]} [options.textureCompressionOptions] Options for compressing textures in the glTF.
  *
  * @returns {Promise} A promise that resolves with the binary glTF buffer.
  */
@@ -43,6 +44,7 @@ function createGltf(options) {
     var khrMaterialsCommon = defaultValue(options.khrMaterialsCommon, false);
     var quantization = defaultValue(options.quantization, false);
     var deprecated = defaultValue(options.deprecated, false);
+    var textureCompressionOptions = options.textureCompressionOptions;
 
     var mesh = options.mesh;
     var positions = mesh.positions;
@@ -303,7 +305,8 @@ function createGltf(options) {
         preserve : true, // Don't apply extra optimizations to the glTF
         quantize : quantization,
         compressTextureCoordinates : quantization,
-        encodeNormals : quantization
+        encodeNormals : quantization,
+        textureCompressionOptions : textureCompressionOptions
     };
 
     return loadImages(gltf)
