@@ -4,6 +4,7 @@ var fsExtra = require('fs-extra');
 var path = require('path');
 var Promise = require('bluebird');
 var createI3dm = require('./createI3dm');
+var optimizeGltf = require('./optimizeGltf');
 
 var fsExtraReadFile = Promise.promisify(fsExtra.readFile);
 
@@ -40,6 +41,7 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.uniformScales=false] Generate uniform scales for the instances.
  * @param {Boolean} [options.nonUniformScales=false] Generate non-uniform scales for the instances.
  * @param {Boolean} [options.batchIds=false] Generate batch ids for the instances. Not required even if createBatchTable is true.
+ * @param {Object|Object[]} [options.textureCompressionOptions] Options for compressing textures in the glTF.
  *
  * @returns {Promise} A promise that resolves with the i3dm buffer and batch table JSON.
  */
@@ -63,6 +65,7 @@ function createInstancesTile(options) {
     var uniformScales = defaultValue(options.uniformScales, false);
     var nonUniformScales = defaultValue(options.nonUniformScales, false);
     var batchIds = defaultValue(options.batchIds, false);
+    var textureCompressionOptions = options.textureCompressionOptions;
 
     var featureTableJson = {};
     featureTableJson.INSTANCES_LENGTH = instancesLength;
@@ -132,7 +135,15 @@ function createInstancesTile(options) {
         batchTableBinary = batchTable.binary;
     }
 
+    var gltfOptions = {
+        textureCompressionOptions : textureCompressionOptions,
+        preserve : true
+    };
+
     return fsExtraReadFile(url)
+        .then(function(glb) {
+            return optimizeGltf(glb, gltfOptions);
+        })
         .then(function(glb) {
             glb = embed ? glb : undefined;
             url = path.basename(url);
