@@ -247,6 +247,7 @@ var promises = [
     createInstancedQuantized(),
     createInstancedScaleNonUniform(),
     createInstancedScale(),
+    createInstancedRTC(),
     createInstancedWithTransform(),
     createInstancedRedMaterial(),
     createInstancedWithBatchIds(),
@@ -655,6 +656,13 @@ function createInstancedScale() {
         uniformScales : true
     };
     return saveInstancedTileset('InstancedScale', tileOptions);
+}
+
+function createInstancedRTC() {
+    var tileOptions = {
+        relativeToCenter : true
+    };
+    return saveInstancedTileset('InstancedRTC', tileOptions);
 }
 
 function createInstancedWithTransform() {
