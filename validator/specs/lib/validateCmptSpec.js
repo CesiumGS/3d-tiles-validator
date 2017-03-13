@@ -8,9 +8,7 @@ var cmptHeaderSize = 16;
 
 describe('validateCmpt', function() {
     it('returns false if the cmpt header is too short', function() {
-        console.log("obe");
         var cmptTile = createCmptTile([]);
-        console.log("two");
         cmptTile = cmptTile.slice(cmptHeaderSize - 4);
 
         expect(validateCmpt(cmptTile).result).toBe(false);
