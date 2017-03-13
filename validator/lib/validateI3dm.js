@@ -1,6 +1,6 @@
 'use strict';
 var Cesium = require('cesium');
-var extractBatchTable = require('../lib/extractBatchTable');
+var batchTableSchema = require('../specs/data/schema/batchTable.schema.json');
 var validateBatchTable = require('../lib/validateBatchTable');
 
 var defined = Cesium.defined;
@@ -22,7 +22,14 @@ function validateI3dm(content) {
     }
 
     if (!Buffer.isBuffer(content)) {
-        throw new DeveloperError('content must be of type buffer');
+        throw new DeveloperError('i3dm content must be of type buffer');
+    }
+
+    if(content.length < 32) {
+        return {
+            result : false,
+            message: 'i3dm tile header must be 28 bytes'
+        };
     }
 
     var magic = content.toString('utf8', 0, 4);
@@ -58,14 +65,64 @@ function validateI3dm(content) {
         };
     }
 
-    var batchTable = extractBatchTable(magic, content);
-    if(defined(batchTable.batchTableJSON)) {
-        //validateBatch returns boolean or promise?
-        validateBatchTable(batchTable.batchTableJSON, batchTable.batchTableBinary);
+    var batchTableJSONByteLength = content.readUInt32LE(20);
+    var batchTable;
+    if(batchTableJSONByteLength > 0) {
+        batchTable = extractBatchTable(content);
+    }
+
+    if((defined(batchTable)) && (defined(batchTable.batchTableJSON))) {
+        var validBatchTable = validateBatchTable(batchTableSchema, batchTable.batchTableJSON, batchTable.batchTableBinary);
+        if(!validBatchTable.validation) {
+            return {
+                result : false,
+                message: validBatchTable.message
+            };
+        }
     }
 
     return {
         result : true,
         message: 'valid'
+    };
+}
+
+function extractBatchTable(tile) {
+    var byteLength = tile.length;
+    var batchTableJSONByteOffset = 20;
+    var batchTableOffset = 32;
+
+    var batchTableJSONByteLength = tile.readUInt32LE(batchTableJSONByteOffset);
+    var batchTableBinaryByteLength = tile.readUInt32LE(batchTableJSONByteOffset + 4);
+    var message = '';
+    var batchTableJSON, batchTableBinary;
+
+    if(batchTableJSONByteLength > 0) {
+        if((batchTableOffset + batchTableJSONByteLength) > byteLength) {
+            message += 'batchTableJSONByteLength is out of bounds at ' + batchTableOffset + batchTableJSONByteLength;
+        } else {
+            var batchTableJSONHeader = tile.slice(batchTableOffset, batchTableOffset + batchTableJSONByteLength);
+            batchTableJSON = JSON.parse(batchTableJSONHeader.toString());
+        }
+
+        batchTableOffset += batchTableJSONByteLength;
+
+        if((batchTableOffset + batchTableBinaryByteLength) > byteLength) {
+            message += '\nbatchTableBinaryByteLength is out of bounds at ' + batchTableOffset + batchTableBinaryByteLength;
+        } else {
+            batchTableBinary = tile.slice(batchTableOffset, batchTableOffset + batchTableBinaryByteLength);
+        }
+    } else {
+        message = 'Error: trying to extract batch table with length <= 0';
+    }
+
+    if(message === '') {
+        message = 'successfully extracted batch table'
+    }
+
+    return {
+        batchTableJSON: batchTableJSON,
+        batchTableBinary: batchTableBinary,
+        message: message
     };
 }

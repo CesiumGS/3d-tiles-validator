@@ -2,91 +2,41 @@
 var Cesium = require('cesium');
 var validateB3dm = require('../../lib/validateB3dm');
 
-var loadJson = Cesium.loadJson;
-var http = require('http');
-
 describe('validateB3dm', function() {
-    var batchSchema,originalTimeout;
-    beforeAll(function(done) {
-        console.log("beforeAll");
-        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        console.log('changed timeout interval: ' + originalTimeout);
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
-        console.log('changed timeout interval: ' + jasmine.DEFAULT_TIMEOUT_INTERVAL);
-        console.log();
-
-        /*loadJson('https://raw.githubusercontent.com/AnalyticalGraphicsInc/3d-tiles/master/schema/batchTable.schema.json')
-            .then(function(schema) {
-                console.log("loadJson success");
-                batchSchema = schema;
-                done();
-            }).otherwise(function(error){
-                console.log("Error loading batch table schema");
-                console.log(error);
-                //done();
-            });*/
-
-        var options = {
-            hostname: 'www.github.com'
-            //, port: 80
-            , path: '/AnalyticalGraphicsInc/3d-tiles/blob/master/schema/batchTable.schema.json'
-            , method: 'GET'
-            , json:true
-        };
-
-        var req = http.request(options, function(res) {
-            console.log('REQUEST CALLBACK');
-
-            res.setEncoding('utf8');
-
-            res.on('data', function(data) {
-                console.log('BODY');
-                //do something with JSON data
-                try {
-                    JSON.parse(data);
-                    console.log('REQUEST SUCCESS');
-                    batchSchema = data;
-                    done();
-                    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-                    console.log('reset timeout interval: ' + jasmine.DEFAULT_TIMEOUT_INTERVAL);
-
-                } catch (e) {
-                    console.log('not JSON');
-                    console.log(data);
-                }
-            });
-
-            res.on('end', function() {
-                console.log('No more data in response.');
-                jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-                console.log('reset timeout interval: ' + jasmine.DEFAULT_TIMEOUT_INTERVAL);
-            });
-        });
-
-        req.on('error', function(e) {
-            console.log('Problem with request');
-            console.log(e);
-         });
-
-        req.end();
-    });
-
-
-    it('returns true if the b3dm tile is valid, returns false if the b3dm has invalid magic', function() {
-        console.log("first b3dm test");
+    it('returns false if the b3dm has invalid magic', function() {
         expect(validateB3dm(createInvalidMagic()).result).toBe(false);
     });
 
-    it('returns true if the b3dm tile is valid, returns false if the b3dm has invalid version', function() {
+    it('returns false if the b3dm has invalid version', function() {
         expect(validateB3dm(createInvalidVersion()).result).toBe(false);
     });
 
-    it('returns true if the b3dm tile is valid, returns false if the b3dm has wrong byteLength', function() {
+    it('returns false if the b3dm has wrong byteLength', function() {
         expect(validateB3dm(createWrongByteLength()).result).toBe(false);
     });
 
-    it('returns true if b3dm tile matches spec', function() {
+    it('validates b3dm tile matches spec', function() {
         expect(validateB3dm(createB3dmTile()).result).toBe(true);
+    });
+
+    it('validates b3dm tile with batch table JSON header matches spec', function() {
+        expect(validateB3dm(createB3dmBatchJson()).result).toBe(true);
+    });
+
+    it('returns false if b3dm tile with batch table JSON header does not match spec', function() {
+        expect(validateB3dm(createInvalidB3dmBatchJson()).result).toBe(false);
+    });
+
+    it('returns false if b3dm tile with batch table JSON header is too long', function() {
+        expect(validateB3dm(createB3dmBatchJsonLong()).result).toBe(false);
+    });
+
+    it('validates b3dm tile with batch table JSON header and binary body matches spec', function() {
+        expect(validateB3dm(createB3dmBatchJsonBinary()).result).toBe(true);
+    });
+
+    it('returns false if b3dm tile with batch table JSON header and binary body does not match spec', function() {
+        expect(validateB3dm(createInvalidB3dmBatchJsonBinary()).result).toBe(false);
     });
 });
 
@@ -103,37 +53,140 @@ function createB3dmTile() {
 }
 
 function createInvalidMagic() {
-    var header = new Buffer(24);
+    var header = createB3dmTile();
     header.write('xxxx', 0); // magic
-    header.writeUInt32LE(1, 4); // version
-    header.writeUInt32LE(header.length, 8); // byteLength
-    header.writeUInt32LE(0, 12); // batchTableJSONByteLength
-    header.writeUInt32LE(0, 16); // batchTableBinaryByteLength
-    header.writeUInt32LE(0, 20); // batchLength
-
+    console.log('checking:\n' + header + '\n');
     return header;
 }
 
 function createInvalidVersion() {
-    var header = new Buffer(24);
-    header.write('b3dm', 0); // magic
+    var header = createB3dmTile();
     header.writeUInt32LE(5, 4); // version
-    header.writeUInt32LE(header.length, 8); // byteLength
-    header.writeUInt32LE(0, 12); // batchTableJSONByteLength
-    header.writeUInt32LE(0, 16); // batchTableBinaryByteLength
-    header.writeUInt32LE(0, 20); // batchLength
 
     return header;
 }
 
 function createWrongByteLength() {
-    var header = new Buffer(24);
-    header.write('b3dm', 0); // magic
-    header.writeUInt32LE(1, 4); // version
+    var header = createB3dmTile();
     header.writeUInt32LE(header.length - 1, 8); // byteLength
-    header.writeUInt32LE(0, 12); // batchTableJSONByteLength
-    header.writeUInt32LE(0, 16); // batchTableBinaryByteLength
-    header.writeUInt32LE(0, 20); // batchLength
 
     return header;
+}
+
+function createB3dmBatchJson() {
+    var header = createB3dmTile();
+    var batchJSON = createValidBatchTableJSON();
+    header.writeUInt32LE(header.length + batchJSON.length, 8); // byteLength
+    header.writeUInt32LE(batchJSON.length, 12); // batchTableJSONByteLength
+
+    return Buffer.concat([header, batchJSON]);
+}
+
+function createInvalidB3dmBatchJson() {
+    var header = createB3dmTile();
+    var batchJSON = createInvalidBatchTableJSON();
+    header.writeUInt32LE(header.length + batchJSON.length, 8); // byteLength
+    header.writeUInt32LE(batchJSON.length, 12); // batchTableJSONByteLength
+
+    return Buffer.concat([header, batchJSON]);
+}
+
+function createB3dmBatchJsonLong() {
+    var header = createB3dmTile();
+    var batchJSON = createValidBatchTableJSON();
+    header.writeUInt32LE(header.length + batchJSON.length - 1, 8); // byteLength
+    header.writeUInt32LE(batchJSON.length, 12); // batchTableJSONByteLength
+
+    return Buffer.concat([header, batchJSON]);
+}
+
+function createB3dmBatchJsonBinary() {
+    var header = createB3dmTile();
+    var batchTable = createValidBatchTableBinary();
+
+    header.writeUInt32LE(header.length + batchTable.buffer.length, 8); // byteLength
+    header.writeUInt32LE(batchTable.batchTableJSONByteLength, 12); // batchTableJSONByteLength
+    header.writeUInt32LE(batchTable.batchTableBinaryByteLength, 16); // batchTableBinaryByteLength
+
+    return Buffer.concat([header, batchTable.buffer]);
+}
+
+function createInvalidB3dmBatchJsonBinary() {
+    var header = createB3dmTile();
+    var batchTable = createInvalidBatchTableBinary();
+
+    header.writeUInt32LE(header.length + batchTable.buffer.length, 8); // byteLength
+    header.writeUInt32LE(batchTable.batchTableJSONByteLength, 12); // batchTableJSONByteLength
+    header.writeUInt32LE(batchTable.batchTableBinaryByteLength, 16); // batchTableBinaryByteLength
+
+    return Buffer.concat([header, batchTable.buffer]);
+}
+
+function createValidBatchTableJSON() {
+    var batchJson = {
+        "id":[0,1,2],
+        "longitude":[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        "height":[8,14,14]
+    };
+
+    return new Buffer(JSON.stringify(batchJson));
+}
+
+function createInvalidBatchTableJSON() {
+    var batchJson = {
+        "id":[0],
+        "longitude":[-1.3196595204101946],
+        "height":8
+    };
+
+    return new Buffer(JSON.stringify(batchJson));
+}
+
+function createValidBatchTableBinary() {
+    var batchJson = {
+        "id" : [0, 1, 2],
+        "longitude" :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        "height" : {
+            "byteOffset" : 12,
+            "componentType" : "UNSIGNED_INT",
+            "type" : "SCALAR"
+        }
+    };
+
+    var jsonHeader = new Buffer(JSON.stringify(batchJson));
+
+    var heightBinaryBody = new Buffer(12);
+    heightBinaryBody.writeUInt32LE(8, 0);
+    heightBinaryBody.writeUInt32LE(14, 4);
+    heightBinaryBody.writeUInt32LE(14, 8);
+
+    return {
+        buffer: Buffer.concat([jsonHeader, heightBinaryBody]),
+        batchTableJSONByteLength: jsonHeader.length,
+        batchTableBinaryByteLength: heightBinaryBody
+    };
+}
+
+function createInvalidBatchTableBinary() {
+    var batchJson = {
+        "id" : [0, 1, 2],
+        "longitude" :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        "height" : {
+            "byteOffset" : 12,
+            "componentType" : "UNSIGNED_INT"
+        }
+    };
+
+    var jsonHeader = new Buffer(JSON.stringify(batchJson));
+
+    var heightBinaryBody = new Buffer(12);
+    heightBinaryBody.writeUInt32LE(8, 0);
+    heightBinaryBody.writeUInt32LE(14, 4);
+    heightBinaryBody.writeUInt32LE(14, 8);
+
+    return {
+        buffer: Buffer.concat([jsonHeader, heightBinaryBody]),
+        batchTableJSONByteLength: jsonHeader.length,
+        batchTableBinaryByteLength: heightBinaryBody
+    };
 }
