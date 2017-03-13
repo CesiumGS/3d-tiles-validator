@@ -34,6 +34,7 @@ var sizeOfFloat32 = 4;
  * @param {Number} [options.modelSize=20.0] The height of the instanced model. Used to generate metadata for the batch table.
  * @param {Boolean} [options.createBatchTable=true] Create a batch table for the i3dm tile.
  * @param {Boolean} [options.createBatchTableBinary=false] Create a batch table binary for the i3dm tile.
+ * @param {Boolean} [options.relativeToCenter=false] Instance positions defined relative to center.
  * @param {Boolean} [options.quantizePositions=false] Quantize instanced positions.
  * @param {Boolean} [options.eastNorthUp=true] Instance orientations default to the east/north/up reference frame's orientation on the WGS84 ellipsoid.
  * @param {Boolean} [options.orientations=false] Generate orientations for the instances.
@@ -58,6 +59,7 @@ function createInstancesTile(options) {
     var modelSize = defaultValue(options.modelSize, 20.0);
     var createBatchTable = defaultValue(options.createBatchTable, true);
     var createBatchTableBinary = defaultValue(options.createBatchTableBinary, false);
+    var relativeToCenter = defaultValue(options.relativeToCenter, false);
     var quantizePositions = defaultValue(options.quantizePositions, false);
     var eastNorthUp = defaultValue(options.eastNorthUp, false);
     var orientations = defaultValue(options.orientations, false);
@@ -72,8 +74,11 @@ function createInstancesTile(options) {
 
     var attributes = [];
 
-    if (quantizePositions) {
-        var center = Matrix4.multiplyByPoint(transform, new Cartesian3(), new Cartesian3());
+    var center = Matrix4.multiplyByPoint(transform, new Cartesian3(), new Cartesian3());
+    if (relativeToCenter) {
+        attributes.push(getPositionsRTC(instancesLength, tileWidth, modelSize, transform, center));
+        featureTableJson.RTC_CENTER = [center.x, center.y, center.z];
+    } else if (quantizePositions) {
         var halfWidth = tileWidth / 2.0;
         attributes.push(getPositionsQuantized(instancesLength, tileWidth, modelSize, transform, center));
         featureTableJson.QUANTIZED_VOLUME_SCALE = [tileWidth, tileWidth, tileWidth];
@@ -184,6 +189,22 @@ function getPositions(instancesLength, tileWidth, modelSize, transform) {
     var buffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
     for (var i = 0; i < instancesLength; ++i) {
         var position = getPosition(i, instancesLength, tileWidth, modelSize, transform);
+        buffer.writeFloatLE(position.x, (i * 3) * sizeOfFloat32);
+        buffer.writeFloatLE(position.y, (i * 3 + 1) * sizeOfFloat32);
+        buffer.writeFloatLE(position.z, (i * 3 + 2) * sizeOfFloat32);
+    }
+    return {
+        buffer : buffer,
+        propertyName : 'POSITION',
+        byteAlignment : sizeOfFloat32
+    };
+}
+
+function getPositionsRTC(instancesLength, tileWidth, modelSize, transform, center) {
+    var buffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
+    for (var i = 0; i < instancesLength; ++i) {
+        var position = getPosition(i, instancesLength, tileWidth, modelSize, transform);
+        position = Cartesian3.subtract(position, center, position);
         buffer.writeFloatLE(position.x, (i * 3) * sizeOfFloat32);
         buffer.writeFloatLE(position.y, (i * 3 + 1) * sizeOfFloat32);
         buffer.writeFloatLE(position.z, (i * 3 + 2) * sizeOfFloat32);
