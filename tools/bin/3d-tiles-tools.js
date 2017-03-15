@@ -7,6 +7,7 @@ var path = require('path');
 var Promise = require('bluebird');
 var yargs = require('yargs');
 var zlib = require('zlib');
+var databaseToTileset = require('../lib/databaseToTileset');
 var directoryExists = require('../lib/directoryExists');
 var extractB3dm = require('../lib/extractB3dm');
 var extractCmpt = require('../lib/extractCmpt');
@@ -19,7 +20,7 @@ var glbToI3dm = require('../lib/glbToI3dm');
 var isGzipped = require('../lib/isGzipped');
 var optimizeGlb = require('../lib/optimizeGlb');
 var runPipeline = require('../lib/runPipeline');
-var tileset2sqlite3 = require('../lib/tileset2sqlite3');
+var tilesetToDatabase = require('../lib/tilesetToDatabase');
 
 var fsExtraReadJson = Promise.promisify(fsExtra.readJson);
 var fsReadFile = Promise.promisify(fsExtra.readFile);
@@ -81,7 +82,8 @@ var argv = yargs
         }
     })
     .command('pipeline', 'Execute the input pipeline JSON file.')
-    .command('tileset2sqlite3', 'Create a sqlite database for a tileset.')
+    .command('tilesetToDatabase', 'Create a sqlite database for a tileset.')
+    .command('databaseToTileset', 'Unpack a tileset database to a tileset folder.')
     .command('glbToB3dm', 'Repackage the input glb as a b3dm with a basic header.')
     .command('glbToI3dm', 'Repackage the input glb as a i3dm with a basic header.')
     .command('b3dmToGlb', 'Extract the binary glTF asset from the input b3dm.')
@@ -151,8 +153,10 @@ function runCommand(command, input, output, force, argv) {
         return readAndOptimizeB3dm(input, output, force, optionArgs);
     } else if (command === 'optimizeI3dm') {
         return readAndOptimizeI3dm(input, output, force, optionArgs);
-    } else if (command === 'tileset2sqlite3') {
-        return tilesetToSqlite3(input, output, force);
+    } else if (command === 'tilesetToDatabase') {
+        return convertTilesetToDatabase(input, output, force);
+    } else if (command === 'databaseToTileset') {
+        return convertDatabaseToTileset(input, output, force);
     } else {
         throw new DeveloperError('Invalid command: ' + command);
     }
@@ -260,11 +264,19 @@ function getStage(stageName, argv) {
     return stage;
 }
 
-function tilesetToSqlite3(inputDirectory, outputPath, force) {
+function convertTilesetToDatabase(inputDirectory, outputPath, force) {
     outputPath = defaultValue(outputPath, path.join(path.dirname(inputDirectory), path.basename(inputDirectory) + '.3dtiles'));
     return checkFileOverwritable(outputPath, force)
         .then(function() {
-            return tileset2sqlite3(inputDirectory, outputPath);
+            return tilesetToDatabase(inputDirectory, outputPath);
+        });
+}
+
+function convertDatabaseToTileset(inputPath, outputDirectory, force) {
+    outputDirectory = defaultValue(outputDirectory, path.join(path.dirname(inputPath), path.basename(inputPath, path.extname(inputPath))));
+    return checkDirectoryOverwritable(outputDirectory, force)
+        .then(function() {
+            return databaseToTileset(inputPath, outputDirectory);
         });
 }
 

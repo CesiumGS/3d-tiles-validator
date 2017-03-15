@@ -182,7 +182,7 @@ node ./bin/3d-tiles-tools.js optimizeI3dm -i ./specs/data/Textured/instancedText
 ```
 This example optimizes the i3dm and compresses the textures into `dxt1` and `etc1` formats.
 
-### tileset2sqlite3
+### tilesetToDatabase
 
 Generates a sqlite database for a tileset.
 
@@ -191,17 +191,38 @@ This tool cannot be used with the Pipeline tool.
 Each tile is stored gzipped in the database.  The specification for the tables in the database is not final, see [3d-tiles/#89](https://github.com/AnalyticalGraphicsInc/3d-tiles/issues/89).
 
 ```
-node ./bin/3d-tiles-tools.js tileset2sqlite3 ./tileset/ ./output/tileset.3dtiles
+node ./bin/3d-tiles-tools.js tilesetToDatabase ./specs/data/TilesetOfTilesets/ ./output/tileset.3dtiles
 ```
 ```
-node ./bin/3d-tiles-tools.js tileset2sqlite3 -i ./tileset/ -o ./output/tileset.3dtiles
+node ./bin/3d-tiles-tools.js tilesetToDatabase -i ./specs/data/TilesetOfTilesets/ -o ./output/tileset.3dtiles
 ```
 
 | Flag | Description | Required |
 | ---- | ----------- | -------- |
 |`-i`, `--input`| Input directory of the tileset. | :white_check_mark: Yes |
-|`-o`, `--output`| Output path of the resulting `.3dtiles` | No |
+|`-o`, `--output`| Output path of the resulting `.3dtiles`. | No |
 |`-f`, `--force`| Overwrite output file if it exists. | No, default `false` |
+
+### databaseToTileset
+
+Unpack a tileset database to a tileset folder.
+
+This tool cannot be used with the Pipeline tool.
+
+Each tile is stored gzipped in the database, and unzipped when unpacked.  The specification for the tables in the database is not final, see [3d-tiles/#89](https://github.com/AnalyticalGraphicsInc/3d-tiles/issues/89).
+
+```
+node ./bin/3d-tiles-tools.js databaseToTileset ./specs/data/tileset.3dtiles ./output/Tileset
+```
+```
+node ./bin/3d-tiles-tools.js databaseToTileset -i ./specs/data/tileset.3dtiles -o ./output/Tileset
+```
+
+| Flag | Description | Required |
+| ---- | ----------- | -------- |
+|`-i`, `--input`| Input .3dtiles database file. | :white_check_mark: Yes |
+|`-o`, `--output`| Output directory of the unpacked tileset. | No |
+|`-f`, `--force`| Overwrite output directory if it exists. | No, default `false` |
 
 ## Pipeline
 

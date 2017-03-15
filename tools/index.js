@@ -1,4 +1,5 @@
 module.exports = {
+    databaseToTileset : require('./lib/databaseToTileset'),
     extractB3dm : require('./lib/extractB3dm'),
     extractCmpt : require('./lib/extractCmpt'),
     extractI3dm : require('./lib/extractI3dm'),
@@ -6,5 +7,5 @@ module.exports = {
     glbToI3dm : require('./lib/glbToI3dm'),
     gzipTileset : require('./lib/gzipTileset'),
     runPipeline : require('./lib/runPipeline'),
-    tileset2sqlite3 : require('./lib/tileset2sqlite3')
+    tilesetToDatabase : require('./lib/tilesetToDatabase')
 };
