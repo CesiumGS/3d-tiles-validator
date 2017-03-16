@@ -2463,7 +2463,7 @@ function createExpireTileset() {
     var pointCloudTileName = 'points.pnts';
     var pointCloudTilePath = path.join(tilesetDirectory, pointCloudTileName);
 
-    var pointsLength = 125000;
+    var pointsLength = 8000;
     var pointCloudTileWidth = 200.0;
     var pointCloudSphereLocal = [0.0, 0.0, 0.0, pointCloudTileWidth / 2.0];
     var pointCloudGeometricError = 1.732 * pointCloudTileWidth; // Diagonal of the point cloud box
@@ -2479,7 +2479,19 @@ function createExpireTileset() {
         shape : 'box'
     };
 
+    var tilePromises = [];
+
     var pnts = createPointCloudTile(pointCloudOptions).pnts;
+    tilePromises.push(saveTile(pointCloudTilePath, pnts, gzip));
+
+    // Save a few tiles for the server cache
+    for (var i = 0; i < 5; ++i) {
+        var tilePath = path.join(tilesetDirectory, 'cache', 'points_' + i + '.pnts');
+        var tileOptions = clone(pointCloudOptions);
+        tileOptions.time = i * 0.1;
+        var tile = createPointCloudTile(tileOptions).pnts;
+        tilePromises.push(saveTile(tilePath, tile, gzip));
+    }
 
     var tilesetJson = {
         asset : {
@@ -2504,6 +2516,6 @@ function createExpireTileset() {
 
     return Promise.all([
         saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
-        saveTile(pointCloudTilePath, pnts, gzip)
+        Promise.all(tilePromises)
     ]);
 }
