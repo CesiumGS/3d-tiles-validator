@@ -4,11 +4,8 @@ var gltfPipeline = require('gltf-pipeline');
 
 var defined = Cesium.defined;
 
-var addPipelineExtras = gltfPipeline.addPipelineExtras;
 var getBinaryGltf = gltfPipeline.getBinaryGltf;
-var loadGltfUris = gltfPipeline.loadGltfUris;
 var parseBinaryGltf = gltfPipeline.parseBinaryGltf;
-var processGltf = gltfPipeline.Pipeline.processJSON;
 
 var dataUriRegex = /^data\:/i;
 
@@ -24,7 +21,7 @@ module.exports = modifyGltfPaths;
  * @private
  */
 function modifyGltfPaths(glb, relativePath) {
-    var gltf = gltfPipeline.parseBinaryGltf(glb);
+    var gltf = parseBinaryGltf(glb);
     var resources = [];
     findResources(gltf, resources);
     var resourcesLength = resources.length;
