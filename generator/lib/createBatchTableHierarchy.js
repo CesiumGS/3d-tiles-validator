@@ -46,7 +46,6 @@ var whiteOpaqueMaterial = new Material({
  * @param {Boolean} [options.prettyJson=true] Whether to prettify the JSON.
  * @returns {Promise} A promise that resolves when the tileset is saved.
  */
-
 function createBatchTableHierarchy(options) {
     var useBatchTableBinary = defaultValue(options.batchTableBinary, false);
     var noParents = defaultValue(options.noParents, false);

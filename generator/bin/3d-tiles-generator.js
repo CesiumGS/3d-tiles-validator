@@ -8,6 +8,7 @@ var createBatchTableHierarchy = require('../lib/createBatchTableHierarchy');
 var createBuildingsTile = require('../lib/createBuildingsTile');
 var createB3dm = require('../lib/createB3dm');
 var createCmpt = require('../lib/createCmpt');
+var createGlobalTileset = require('../lib/createGlobalTileset');
 var createI3dm = require('../lib/createI3dm');
 var createInstancesTile = require('../lib/createInstancesTile');
 var createPointCloudTile = require('../lib/createPointCloudTile');
@@ -28,6 +29,7 @@ var defaultValue = Cesium.defaultValue;
 var defined  = Cesium.defined;
 var Matrix4 = Cesium.Matrix4;
 var Quaternion = Cesium.Quaternion;
+var Rectangle = Cesium.Rectangle;
 
 var lowercase = util.lowercase;
 var metersToLongitude = util.metersToLongitude;
@@ -201,90 +203,93 @@ var ulTileOptions = {
 };
 
 var promises = [
-    // Batched
-    createBatchedWithBatchTable(),
-    createBatchedWithoutBatchTable(),
-    createBatchedWithBatchTableBinary(),
-    createBatchedTranslucent(),
-    createBatchedTranslucentOpaqueMix(),
-    createBatchedColors(),
-    createBatchedColorsTranslucent(),
-    createBatchedColorsMix(),
-    createBatchedTextured(),
-    createBatchedCompressedTextures(),
-    createBatchedWithBoundingSphere(),
-    createBatchedWithTransformBox(),
-    createBatchedWithTransformSphere(),
-    createBatchedWithTransformRegion(),
-    createBatchedNoBatchIds(),
-    createBatchedWithKHRMaterialsCommon(),
-    createBatchedWithQuantization(),
-    createBatchedWGS84(),
-    createBatchedDeprecated(),
-    createBatchedGltfZUp(),
-    // Point Cloud
-    createPointCloudRGB(),
-    createPointCloudRGBA(),
-    createPointCloudRGB565(),
-    createPointCloudConstantColor(),
-    createPointCloudNoColor(),
-    createPointCloudWGS84(),
-    createPointCloudQuantized(),
-    createPointCloudNormals(),
-    createPointCloudNormalsOctEncoded(),
-    createPointCloudQuantizedOctEncoded(),
-    createPointCloudBatched(),
-    createPointCloudWithPerPointProperties(),
-    createPointCloudWithTransform(),
-    // Instanced
-    createInstancedWithBatchTable(),
-    createInstancedWithoutBatchTable(),
-    createInstancedWithBatchTableBinary(),
-    createInstancedGltfExternal(),
-    createInstancedOrientation(),
-    createInstancedOct32POrientation(),
-    createInstancedQuantizedOct32POrientation(),
-    createInstancedQuantized(),
-    createInstancedScaleNonUniform(),
-    createInstancedScale(),
-    createInstancedRTC(),
-    createInstancedWithTransform(),
-    createInstancedRedMaterial(),
-    createInstancedWithBatchIds(),
-    createInstancedTextured(),
-    createInstancedCompressedTextures(),
-    createInstancedGltfZUp(),
-    // Composite
-    createComposite(),
-    createCompositeOfComposite(),
-    // Hierarchy
-    createHierarchy(),
-    createHierarchyMultipleParents(),
-    createHierarchyNoParents(),
-    createHierarchyBinary(),
-    // Tilesets
-    createTileset(),
-    createTilesetEmptyRoot(),
-    createTilesetInvalid(),
-    createTilesetOfTilesets(),
-    createTilesetWithExternalResources(),
-    createTilesetRefinementMix(),
-    createTilesetReplacement1(),
-    createTilesetReplacement2(),
-    createTilesetReplacement3(),
-    createTilesetWithTransforms(),
-    createTilesetWithViewerRequestVolume(),
-    createTilesetReplacementWithViewerRequestVolume(),
-    // Samples
-    createDiscreteLOD(),
-    createTreeBillboards(),
-    createRequestVolume(),
-    createExpireTileset()
+    // // Batched
+    // createBatchedWithBatchTable(),
+    // createBatchedWithoutBatchTable(),
+    // createBatchedWithBatchTableBinary(),
+    // createBatchedTranslucent(),
+    // createBatchedTranslucentOpaqueMix(),
+    // createBatchedColors(),
+    // createBatchedColorsTranslucent(),
+    // createBatchedColorsMix(),
+    // createBatchedTextured(),
+    // createBatchedCompressedTextures(),
+    // createBatchedWithBoundingSphere(),
+    // createBatchedWithTransformBox(),
+    // createBatchedWithTransformSphere(),
+    // createBatchedWithTransformRegion(),
+    // createBatchedNoBatchIds(),
+    // createBatchedWithKHRMaterialsCommon(),
+    // createBatchedWithQuantization(),
+    // createBatchedWGS84(),
+    // createBatchedDeprecated(),
+    // createBatchedGltfZUp(),
+    // // Point Cloud
+    // createPointCloudRGB(),
+    // createPointCloudRGBA(),
+    // createPointCloudRGB565(),
+    // createPointCloudConstantColor(),
+    // createPointCloudNoColor(),
+    // createPointCloudWGS84(),
+    // createPointCloudQuantized(),
+    // createPointCloudNormals(),
+    // createPointCloudNormalsOctEncoded(),
+    // createPointCloudQuantizedOctEncoded(),
+    // createPointCloudBatched(),
+    // createPointCloudWithPerPointProperties(),
+    // createPointCloudWithTransform(),
+    // // Instanced
+    // createInstancedWithBatchTable(),
+    // createInstancedWithoutBatchTable(),
+    // createInstancedWithBatchTableBinary(),
+    // createInstancedGltfExternal(),
+    // createInstancedOrientation(),
+    // createInstancedOct32POrientation(),
+    // createInstancedQuantizedOct32POrientation(),
+    // createInstancedQuantized(),
+    // createInstancedScaleNonUniform(),
+    // createInstancedScale(),
+    // createInstancedRTC(),
+    // createInstancedWithTransform(),
+    // createInstancedRedMaterial(),
+    // createInstancedWithBatchIds(),
+    // createInstancedTextured(),
+    // createInstancedCompressedTextures(),
+    // createInstancedGltfZUp(),
+    // // Composite
+    // createComposite(),
+    // createCompositeOfComposite(),
+    // // Hierarchy
+    // createHierarchy(),
+    // createHierarchyMultipleParents(),
+    // createHierarchyNoParents(),
+    // createHierarchyBinary(),
+    // // Tilesets
+    // createTileset(),
+    // createTilesetEmptyRoot(),
+    // createTilesetInvalid(),
+    // createTilesetOfTilesets(),
+    // createTilesetWithExternalResources(),
+    // createTilesetRefinementMix(),
+    // createTilesetReplacement1(),
+    // createTilesetReplacement2(),
+    // createTilesetReplacement3(),
+    // createTilesetWithTransforms(),
+    // createTilesetWithViewerRequestVolume(),
+    // createTilesetReplacementWithViewerRequestVolume(),
+    // // Samples
+    // createDiscreteLOD(),
+    // createTreeBillboards(),
+    // createRequestVolume(),
+    // createExpireTileset(),
+    // // Other
+    createTilesetGlobal()
 ];
 
 Promise.all(promises)
     .then(function() {
         console.log('Done');
+        fsExtraCopy('C:/Code/3d-tiles-tools/generator/output/Other/TilesetGlobal/', 'C:/Code/3d-tiles-samples/localTilesets/TilesetGlobal');
     });
 
 function createBatchedWithBatchTable() {
@@ -2506,4 +2511,23 @@ function createExpireTileset() {
         saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
         saveTile(pointCloudTilePath, pnts, gzip)
     ]);
+}
+
+function createTilesetGlobal() {
+    var tilesetDirectory = path.join(outputDirectory, 'Other', 'TilesetGlobal');
+
+    var options = {
+        levels : 4,
+        tessellation : 10,
+        noiseFrequency : 100,
+        noiseStrength : 100000,
+        globe : true,
+        rectangle : new Rectangle(-Math.PI, -Math.PI/2, Math.PI, Math.PI/2),
+        optimizeForCesium : optimizeForCesium,
+        gzip : gzip,
+        relativeToCenter : relativeToCenter,
+        prettyJson : prettyJson,
+        directory : tilesetDirectory
+    };
+    return createGlobalTileset(options);
 }

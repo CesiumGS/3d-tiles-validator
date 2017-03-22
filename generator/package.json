@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "bluebird": "^3.4.7",
-    "cesium": "^1.29",
+    "cesium": "^1.31",
     "fs-extra": "^2.0.0",
     "gltf-pipeline": "^0.1.0-alpha11",
     "mime": "^1.3.4",
