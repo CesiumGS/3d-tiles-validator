@@ -29,7 +29,8 @@ function createB3dm(options) {
     var featureTableJson = defaultValue(options.featureTableJson, defaultFeatureTable);
     var batchLength = featureTableJson.BATCH_LENGTH;
 
-    var featureTableJsonBuffer = getJsonBufferPadded(featureTableJson);
+    var headerByteLength = 28;
+    var featureTableJsonBuffer = getJsonBufferPadded(featureTableJson, headerByteLength);
     var featureTableBinary = getBufferPadded(options.featureTableBinary);
     var batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
     var batchTableBinary = getBufferPadded(options.batchTableBinary);

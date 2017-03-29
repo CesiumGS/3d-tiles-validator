@@ -133,11 +133,13 @@ function createInstancesTile(options) {
     var batchTableJson;
     var batchTableBinary;
     if (createBatchTable) {
-        batchTableJson = generateBatchTable(instancesLength, modelSize);
-    } else if (createBatchTableBinary) {
-        var batchTable = generateBatchTableBinary(instancesLength);
-        batchTableJson = batchTable.json;
-        batchTableBinary = batchTable.binary;
+        if (createBatchTableBinary) {
+            var batchTable = generateBatchTableBinary(instancesLength);
+            batchTableJson = batchTable.json;
+            batchTableBinary = batchTable.binary;
+        } else {
+            batchTableJson = generateBatchTable(instancesLength, modelSize);
+        }
     }
 
     var gltfOptions = {
