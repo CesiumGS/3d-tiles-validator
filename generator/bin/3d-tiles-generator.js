@@ -220,7 +220,8 @@ var promises = [
     createBatchedWithKHRMaterialsCommon(),
     createBatchedWithQuantization(),
     createBatchedWGS84(),
-    createBatchedDeprecated(),
+    createBatchedDeprecated1(),
+    createBatchedDeprecated2(),
     createBatchedGltfZUp(),
     // Point Cloud
     createPointCloudRGB(),
@@ -454,12 +455,20 @@ function createBatchedWGS84() {
     return saveBatchedTileset('BatchedWGS84', tileOptions);
 }
 
-function createBatchedDeprecated() {
+function createBatchedDeprecated1() {
     // Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic
     var tileOptions = {
-        deprecated : true
+        deprecated1 : true
     };
-    return saveBatchedTileset('BatchedDeprecated', tileOptions);
+    return saveBatchedTileset('BatchedDeprecated1', tileOptions);
+}
+
+function createBatchedDeprecated2() {
+    // Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic
+    var tileOptions = {
+        deprecated2 : true
+    };
+    return saveBatchedTileset('BatchedDeprecated2', tileOptions);
 }
 
 function createBatchedGltfZUp() {

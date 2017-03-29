@@ -116,6 +116,10 @@ function createBatchTableHierarchy(options) {
         transform : transform
     });
 
+    var featureTableJson = {
+        BATCH_LENGTH : batchLength
+    };
+
     return Promise.map(urls, function(url) {
         return fsExtraReadJson(url)
             .then(function(gltf) {
@@ -140,7 +144,7 @@ function createBatchTableHierarchy(options) {
     }).then(function(glb) {
         var b3dm = createB3dm({
             glb : glb,
-            batchLength : batchLength,
+            featureTableJson : featureTableJson,
             batchTableJson : batchTableJson,
             batchTableBinary : batchTableBinary
         });
