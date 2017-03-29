@@ -12,7 +12,6 @@ module.exports = createB3dm;
  *
  * @param {Object} options An object with the following properties:
  * @param {Buffer} options.glb The binary glTF buffer.
- * @param {Number} [options.batchLength] The number of features in the tile.
  * @param {Object} [options.featureTableJson] Feature table JSON.
  * @param {Buffer} [options.featureTableBinary] Feature table binary.
  * @param {Object} [options.batchTableJson] Batch table describing the per-feature metadata.
