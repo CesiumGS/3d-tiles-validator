@@ -75,9 +75,16 @@ function validateBatchTable(schema, batchTableJSON, batchTableBinary) {
             var propertyByteLength = batchLength * componentTypeSize[componentType] * typeSize[numberOfComponents];
             if (propertyByteLength + byteOffset > binaryBodyLength) {
                 valid = false;
-                message = 'batch table property ' + key + ' is out of binary body range';
+                message = 'batch table property ' + key + ' is out of binary body range\n';
+                message += 'batchLength: ' + batchLength;
+                message += '\nbyteOffset: ' + byteOffset;
+                message += '\ncomponentType: ' + componentType;
+                message += '\nnumberOfComponents: ' + numberOfComponents;
+                message += '\npropertyByteLength: ' + propertyByteLength;
+                message += '\npropertyByteLength + byteOffset: ' + propertyByteLength + byteOffset;
                 break;
             }
+            totalOffset += propertyByteLength;
         }
 
         if (valid) {
