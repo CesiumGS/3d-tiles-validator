@@ -2,7 +2,7 @@
 var validatePnts = require('../../lib/validatePnts');
 
 describe('validatePnts', function() {
-    /*it('returns false if the pnts has invalid magic', function() {
+    it('returns false if the pnts has invalid magic', function() {
         expect(validatePnts(createInvalidMagic()).result).toBe(false);
     });
 
@@ -36,7 +36,7 @@ describe('validatePnts', function() {
 
     it('returns false if pnts contains an invalid batch table JSON and binary body', function() {
         expect(validatePnts(createPntsWithInvalidBatchJSONBinary()).result).toBe(false);
-    });*/
+    });
 });
 
 function createPntsTile() {
@@ -163,7 +163,7 @@ function createValidBatchTableBinary() {
     return {
         buffer: Buffer.concat([jsonHeader, heightBinaryBody]),
         batchTableJSONByteLength: jsonHeader.length,
-        batchTableBinaryByteLength: heightBinaryBody
+        batchTableBinaryByteLength: heightBinaryBody.length
     };
 }
 
@@ -187,6 +187,6 @@ function createInvalidBatchTableBinary() {
     return {
         buffer: Buffer.concat([jsonHeader, heightBinaryBody]),
         batchTableJSONByteLength: jsonHeader.length,
-        batchTableBinaryByteLength: heightBinaryBody
+        batchTableBinaryByteLength: heightBinaryBody.length
     };
 }

@@ -87,16 +87,12 @@ function validateB3dm(content) {
  */
 
 function extractBatchTable(tile) {
-    //console.log('tile length: ' + tile.length);
     var byteLength = tile.length;
     var batchTableJSONByteOffset = 12;
     var batchTableOffset = 24;
 
     var batchTableJSONByteLength = tile.readUInt32LE(batchTableJSONByteOffset);
     var batchTableBinaryByteLength = tile.readUInt32LE(batchTableJSONByteOffset + 4);
-    //console.log('batchTableJSONByteLength: ' + batchTableJSONByteLength);
-    //console.log('batchTableBinaryByteLength: ' + batchTableBinaryByteLength);
-    //console.log('batchTableOffset: ' + batchTableOffset);
     var message = '';
     var batchTableJSON, batchTableBinary;
 

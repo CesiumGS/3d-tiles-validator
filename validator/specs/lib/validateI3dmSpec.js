@@ -2,7 +2,7 @@
 var validateI3dm = require('../../lib/validateI3dm');
 
 describe('validateI3dm', function() {
-    /*it('returns false if the i3dm has invalid magic', function() {
+    it('returns false if the i3dm has invalid magic', function() {
         expect(validateI3dm(createInvalidMagic()).result).toBe(false);
     });
 
@@ -44,7 +44,7 @@ describe('validateI3dm', function() {
 
     it('returns false if i3dm tile contains an invalid batch table JSON and binary body', function() {
         expect(validateI3dm(createI3dmWithInvalidBatchJSONBinary()).result).toBe(false);
-    });*/
+    });
 });
 
 function createI3dmTileGltfUrl() {
@@ -186,7 +186,7 @@ function createValidBatchTableBinary() {
     return {
         buffer: Buffer.concat([jsonHeader, heightBinaryBody]),
         batchTableJSONByteLength: jsonHeader.length,
-        batchTableBinaryByteLength: heightBinaryBody
+        batchTableBinaryByteLength: heightBinaryBody.length
     };
 }
 
@@ -210,6 +210,6 @@ function createInvalidBatchTableBinary() {
     return {
         buffer: Buffer.concat([jsonHeader, heightBinaryBody]),
         batchTableJSONByteLength: jsonHeader.length,
-        batchTableBinaryByteLength: heightBinaryBody
+        batchTableBinaryByteLength: heightBinaryBody.length
     };
 }

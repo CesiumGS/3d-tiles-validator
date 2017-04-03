@@ -7,7 +7,7 @@ var pntsHeaderSize = 28;
 var cmptHeaderSize = 16;
 
 describe('validateCmpt', function() {
-    /*it('returns false if the cmpt header is too short', function() {
+    it('returns false if the cmpt header is too short', function() {
         var cmptTile = createCmptTile([]);
         cmptTile = cmptTile.slice(cmptHeaderSize - 4);
 
@@ -112,8 +112,9 @@ describe('validateCmpt', function() {
     });
 
     it('validates a cmpt tile with an inner tile containing a valid batch table', function() {
+        console.log(validateCmpt(createCmptWithBatchTable()).message);
         expect(validateCmpt(createCmptWithBatchTable()).result).toBe(true);
-    });*/
+    });
 });
 
 function createB3dmTile() {
@@ -253,7 +254,7 @@ function createBatchTableBinary() {
     return {
         buffer: Buffer.concat([jsonHeader, heightBinaryBody]),
         batchTableJSONByteLength: jsonHeader.length,
-        batchTableBinaryByteLength: heightBinaryBody
+        batchTableBinaryByteLength: heightBinaryBody.length
     };
 }
 
@@ -277,6 +278,6 @@ function createInvalidBatchTableBinary() {
     return {
         buffer: Buffer.concat([jsonHeader, heightBinaryBody]),
         batchTableJSONByteLength: jsonHeader.length,
-        batchTableBinaryByteLength: heightBinaryBody
+        batchTableBinaryByteLength: heightBinaryBody.length
     };
 }
