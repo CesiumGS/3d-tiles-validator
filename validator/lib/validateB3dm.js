@@ -105,7 +105,6 @@ function extractBatchTable(tile) {
         }
 
         batchTableOffset += batchTableJSONByteLength;
-        //console.log('batchTableOffset: ' + batchTableOffset);
 
         if ((batchTableOffset + batchTableBinaryByteLength) > byteLength) {
             message += '\nbatchTableBinaryByteLength is out of bounds at ' + batchTableOffset + batchTableBinaryByteLength;

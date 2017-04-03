@@ -17,7 +17,9 @@ describe('validatePnts', function() {
     it('validates that pnts tile matches spec', function() {
         expect(validatePnts(createPntsTile()).result).toBe(true);
     });
+});
 
+describe('validatePnts batch table', function() {
     it('validates pnts tile contains a valid batch table JSON', function() {
         expect(validatePnts(createPntsWithBatchJSON()).result).toBe(true);
     });

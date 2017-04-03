@@ -106,16 +106,18 @@ describe('validateCmpt', function() {
 
         expect(validateCmpt(cmptTile).result).toBe(false);
     });
+});
 
+describe('validateCmpt batch table', function() {
     it('returns false if the cmpt inner tiles contain an invalid batch table', function() {
         expect(validateCmpt(createCmptWithInvalidBatchTable()).result).toBe(false);
     });
 
     it('validates a cmpt tile with an inner tile containing a valid batch table', function() {
-        console.log(validateCmpt(createCmptWithBatchTable()).message);
         expect(validateCmpt(createCmptWithBatchTable()).result).toBe(true);
     });
 });
+
 
 function createB3dmTile() {
     var b3dmTile = new Buffer(b3dmHeaderSize);

@@ -25,7 +25,9 @@ describe('validateI3dm', function() {
     it('validates an i3dm tile with an embedded binary glTF', function() {
         expect(validateI3dm(createI3dmTileGltfBinaryGITF()).result).toBe(true);
     });
+});
 
+describe('validateI3dm batch table', function() {
     it('validates i3dm tile contains a valid batch table JSON', function() {
         expect(validateI3dm(createI3dmWithBatchJSON()).result).toBe(true);
     });
@@ -46,6 +48,7 @@ describe('validateI3dm', function() {
         expect(validateI3dm(createI3dmWithInvalidBatchJSONBinary()).result).toBe(false);
     });
 });
+
 
 function createI3dmTileGltfUrl() {
     var header = new Buffer(32);
