@@ -24,7 +24,7 @@ function validateB3dm(content) {
         throw new DeveloperError('b3dm content must be of type buffer');
     }
 
-    if(content.length < 2) {
+    if (content.length < 2) {
         return {
             result : false,
             message: 'b3dm tile header must be 24 bytes'
@@ -58,13 +58,13 @@ function validateB3dm(content) {
 
     var batchTableJSONByteLength = content.readUInt32LE(12);
     var batchTable;
-    if(batchTableJSONByteLength > 0) {
+    if (batchTableJSONByteLength > 0) {
         batchTable = extractBatchTable(content);
     }
 
-    if((defined(batchTable)) && (defined(batchTable.batchTableJSON))) {
+    if ((defined(batchTable)) && (defined(batchTable.batchTableJSON))) {
         var validBatchTable = validateBatchTable(batchTableSchema, batchTable.batchTableJSON, batchTable.batchTableBinary);
-        if(!validBatchTable.validation) {
+        if (!validBatchTable.validation) {
             return {
                 result : false,
                 message: validBatchTable.message
@@ -87,17 +87,21 @@ function validateB3dm(content) {
  */
 
 function extractBatchTable(tile) {
+    //console.log('tile length: ' + tile.length);
     var byteLength = tile.length;
     var batchTableJSONByteOffset = 12;
     var batchTableOffset = 24;
 
     var batchTableJSONByteLength = tile.readUInt32LE(batchTableJSONByteOffset);
     var batchTableBinaryByteLength = tile.readUInt32LE(batchTableJSONByteOffset + 4);
+    //console.log('batchTableJSONByteLength: ' + batchTableJSONByteLength);
+    //console.log('batchTableBinaryByteLength: ' + batchTableBinaryByteLength);
+    //console.log('batchTableOffset: ' + batchTableOffset);
     var message = '';
     var batchTableJSON, batchTableBinary;
 
-    if(batchTableJSONByteLength > 0) {
-        if((batchTableOffset + batchTableJSONByteLength) > byteLength) {
+    if (batchTableJSONByteLength > 0) {
+        if ((batchTableOffset + batchTableJSONByteLength) > byteLength) {
             message += 'batchTableJSONByteLength is out of bounds at ' + batchTableOffset + batchTableJSONByteLength;
         } else {
             var batchTableJSONHeader = tile.slice(batchTableOffset, batchTableOffset + batchTableJSONByteLength);
@@ -105,8 +109,9 @@ function extractBatchTable(tile) {
         }
 
         batchTableOffset += batchTableJSONByteLength;
+        //console.log('batchTableOffset: ' + batchTableOffset);
 
-        if((batchTableOffset + batchTableBinaryByteLength) > byteLength) {
+        if ((batchTableOffset + batchTableBinaryByteLength) > byteLength) {
             message += '\nbatchTableBinaryByteLength is out of bounds at ' + batchTableOffset + batchTableBinaryByteLength;
         } else {
             batchTableBinary = tile.slice(batchTableOffset, batchTableOffset + batchTableBinaryByteLength);
@@ -115,7 +120,7 @@ function extractBatchTable(tile) {
         message = 'Error: trying to extract batch table with length <= 0';
     }
 
-    if(message === '') {
+    if (message === '') {
         message = 'successfully extracted batch table'
     }
 

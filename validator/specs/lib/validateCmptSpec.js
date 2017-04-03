@@ -7,7 +7,7 @@ var pntsHeaderSize = 28;
 var cmptHeaderSize = 16;
 
 describe('validateCmpt', function() {
-    it('returns false if the cmpt header is too short', function() {
+    /*it('returns false if the cmpt header is too short', function() {
         var cmptTile = createCmptTile([]);
         cmptTile = cmptTile.slice(cmptHeaderSize - 4);
 
@@ -79,6 +79,10 @@ describe('validateCmpt', function() {
         expect(validateCmpt(createCmptCombination()).result).toBe(true);
     });
 
+    it('returns false if the cmpt has an invalid inner tile', function() {
+        expect(validateCmpt(createCmptInvalidCombination()).result).toBe(false);
+    });
+
     it('returns false if the cmpt has an invalid b3dm inner tile', function() {
         var innerB3dm = createB3dmTile();
         innerB3dm.writeUInt32LE(5, 4); // version
@@ -103,9 +107,13 @@ describe('validateCmpt', function() {
         expect(validateCmpt(cmptTile).result).toBe(false);
     });
 
-    it('returns false if the cmpt contains any invalid inner tiles', function() {
-        expect(validateCmpt(createCmptInvalidCombination()).result).toBe(false);
+    it('returns false if the cmpt inner tiles contain an invalid batch table', function() {
+        expect(validateCmpt(createCmptWithInvalidBatchTable()).result).toBe(false);
     });
+
+    it('validates a cmpt tile with an inner tile containing a valid batch table', function() {
+        expect(validateCmpt(createCmptWithBatchTable()).result).toBe(true);
+    });*/
 });
 
 function createB3dmTile() {
@@ -185,4 +193,90 @@ function createCmptInvalidCombination() {
     var cmptTile1 = createCmptTile([innerB3dmTile, cmptTile2]);
 
     return cmptTile1;
+}
+
+function createCmptWithBatchTable() {
+    //cmpt1[b3dm, cmpt2[cmpt3[pnts], i3dm]]
+    var innerB3dmTile = createB3dmTile();
+    var innerPntsTile = createPntsTile();
+    var innerI3dmTile = createI3dmTile();
+
+    var batchTable = createBatchTableBinary();
+    innerB3dmTile.writeUInt32LE(innerB3dmTile.length + batchTable.buffer.length, 8); // byteLength
+    innerB3dmTile.writeUInt32LE(batchTable.batchTableJSONByteLength, 12); // batchTableJSONByteLength
+    innerB3dmTile.writeUInt32LE(batchTable.batchTableBinaryByteLength, 16);
+    innerB3dmTile = Buffer.concat([innerB3dmTile, batchTable.buffer]);
+
+    var cmptTile3 = createCmptTile([innerPntsTile]);
+    var cmptTile2 = createCmptTile([cmptTile3, innerI3dmTile]);
+    var cmptTile1 = createCmptTile([innerB3dmTile, cmptTile2]);
+
+    return cmptTile1;
+}
+
+function createCmptWithInvalidBatchTable() {
+    //cmpt1[b3dm, cmpt2[cmpt3[pnts], i3dm]]
+    var innerB3dmTile = createB3dmTile();
+    var innerPntsTile = createPntsTile();
+    var innerI3dmTile = createI3dmTile();
+
+    var batchTable = createInvalidBatchTableBinary();
+    innerB3dmTile.writeUInt32LE(innerB3dmTile.length + batchTable.buffer.length, 8); // byteLength
+    innerB3dmTile.writeUInt32LE(batchTable.batchTableJSONByteLength, 12); // batchTableJSONByteLength
+    innerB3dmTile.writeUInt32LE(batchTable.batchTableBinaryByteLength, 16); // batchTableBinaryByteLength
+
+    var cmptTile3 = createCmptTile([innerPntsTile]);
+    var cmptTile2 = createCmptTile([cmptTile3, innerI3dmTile]);
+    var cmptTile1 = createCmptTile([innerB3dmTile, cmptTile2]);
+
+    return cmptTile1;
+}
+
+function createBatchTableBinary() {
+    var batchTableJSON = {
+        id : [0, 1, 2],
+        longitude :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        height : {
+            "byteOffset" : 12,
+            "componentType" : 'UNSIGNED_INT',
+            "type" : 'SCALAR'
+        }
+    };
+
+    var jsonHeader = new Buffer(JSON.stringify(batchTableJSON));
+
+    var heightBinaryBody = new Buffer(12);
+    heightBinaryBody.writeUInt32LE(8, 0);
+    heightBinaryBody.writeUInt32LE(14, 4);
+    heightBinaryBody.writeUInt32LE(14, 8);
+
+    return {
+        buffer: Buffer.concat([jsonHeader, heightBinaryBody]),
+        batchTableJSONByteLength: jsonHeader.length,
+        batchTableBinaryByteLength: heightBinaryBody
+    };
+}
+
+function createInvalidBatchTableBinary() {
+    var batchTableJSON = {
+        id : [0, 1, 2],
+        longitude :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        height : {
+            "byteOffset" : 12,
+            "componentType" : 'UNSIGNED_INT'
+        }
+    };
+
+    var jsonHeader = new Buffer(JSON.stringify(batchTableJSON));
+
+    var heightBinaryBody = new Buffer(12);
+    heightBinaryBody.writeUInt32LE(8, 0);
+    heightBinaryBody.writeUInt32LE(14, 4);
+    heightBinaryBody.writeUInt32LE(14, 8);
+
+    return {
+        buffer: Buffer.concat([jsonHeader, heightBinaryBody]),
+        batchTableJSONByteLength: jsonHeader.length,
+        batchTableBinaryByteLength: heightBinaryBody
+    };
 }

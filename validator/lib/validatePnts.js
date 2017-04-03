@@ -24,7 +24,7 @@ function validatePnts(content) {
         throw new DeveloperError('pnts content must be of type buffer');
     }
 
-    if(content.length < 28) {
+    if (content.length < 28) {
         return {
             result : false,
             message: 'pnts tile header must be 28 bytes'
@@ -58,13 +58,13 @@ function validatePnts(content) {
 
     var batchTableJSONByteLength = content.readUInt32LE(20);
     var batchTable;
-    if(batchTableJSONByteLength > 0) {
+    if (batchTableJSONByteLength > 0) {
         batchTable = extractBatchTable(content);
     }
 
-    if((defined(batchTable)) && (defined(batchTable.batchTableJSON))) {
+    if ((defined(batchTable)) && (defined(batchTable.batchTableJSON))) {
         var validBatchTable = validateBatchTable(batchTableSchema, batchTable.batchTableJSON, batchTable.batchTableBinary);
-        if(!validBatchTable.validation) {
+        if (!validBatchTable.validation) {
             return {
                 result : false,
                 message: validBatchTable.message
@@ -96,8 +96,8 @@ function extractBatchTable(tile) {
     var message = '';
     var batchTableJSON, batchTableBinary;
 
-    if(batchTableJSONByteLength > 0) {
-        if((batchTableOffset + batchTableJSONByteLength) > byteLength) {
+    if (batchTableJSONByteLength > 0) {
+        if ((batchTableOffset + batchTableJSONByteLength) > byteLength) {
             message += 'batchTableJSONByteLength is out of bounds at ' + batchTableOffset + batchTableJSONByteLength;
         } else {
             var batchTableJSONHeader = tile.slice(batchTableOffset, batchTableOffset + batchTableJSONByteLength);
@@ -106,7 +106,7 @@ function extractBatchTable(tile) {
 
         batchTableOffset += batchTableJSONByteLength;
 
-        if((batchTableOffset + batchTableBinaryByteLength) > byteLength) {
+        if ((batchTableOffset + batchTableBinaryByteLength) > byteLength) {
             message += '\nbatchTableBinaryByteLength is out of bounds at ' + batchTableOffset + batchTableBinaryByteLength;
         } else {
             batchTableBinary = tile.slice(batchTableOffset, batchTableOffset + batchTableBinaryByteLength);
@@ -115,7 +115,7 @@ function extractBatchTable(tile) {
         message = 'Error: trying to extract batch table with length <= 0';
     }
 
-    if(message === '') {
+    if (message === '') {
         message = 'successfully extracted batch table'
     }
 

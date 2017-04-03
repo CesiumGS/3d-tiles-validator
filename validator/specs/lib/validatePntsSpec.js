@@ -2,7 +2,7 @@
 var validatePnts = require('../../lib/validatePnts');
 
 describe('validatePnts', function() {
-    it('returns false if the pnts has invalid magic', function() {
+    /*it('returns false if the pnts has invalid magic', function() {
         expect(validatePnts(createInvalidMagic()).result).toBe(false);
     });
 
@@ -18,25 +18,25 @@ describe('validatePnts', function() {
         expect(validatePnts(createPntsTile()).result).toBe(true);
     });
 
-    it('validates pnts tile with batch table JSON header matches spec', function() {
-        expect(validatePnts(createPntsBatchJson()).result).toBe(true);
+    it('validates pnts tile contains a valid batch table JSON', function() {
+        expect(validatePnts(createPntsWithBatchJSON()).result).toBe(true);
     });
 
-    it('returns false if pnts tile with batch table JSON header does not match spec', function() {
-        expect(validatePnts(createInvalidPntsBatchJson()).result).toBe(false);
+    it('returns false if pnts tile contains an invalid batch table JSON', function() {
+        expect(validatePnts(createPntsWithInvalidBatchJSON()).result).toBe(false);
     });
 
-    it('returns false if pnts tile with batch table JSON header is too long', function() {
-        expect(validatePnts(createPntsBatchJsonLong()).result).toBe(false);
+    it('returns false if pnts tile contains a batch table JSON that is too long', function() {
+        expect(validatePnts(createPntsWithBatchJSONLong()).result).toBe(false);
     });
 
-    it('validates pnts tile with batch table JSON header and binary body matches spec', function() {
-        expect(validatePnts(createPntsBatchJsonBinary()).result).toBe(true);
+    it('validates pnts tile contains a valid batch table JSON and binary body', function() {
+        expect(validatePnts(createPntsWithBatchJSONBinary()).result).toBe(true);
     });
 
-    it('returns false if pnts tile with batch table JSON header and binary body does not match spec', function() {
-        expect(validatePnts(createInvalidPntsBatchJsonBinary()).result).toBe(false);
-    });
+    it('returns false if pnts contains an invalid batch table JSON and binary body', function() {
+        expect(validatePnts(createPntsWithInvalidBatchJSONBinary()).result).toBe(false);
+    });*/
 });
 
 function createPntsTile() {
@@ -73,34 +73,34 @@ function createWrongByteLength() {
     return header;
 }
 
-function createPntsBatchJson() {
+function createPntsWithBatchJSON() {
     var header = createPntsTile();
-    var batchJSON = createValidBatchTableJSON();
-    header.writeUInt32LE(header.length + batchJSON.length, 8); // byteLength
-    header.writeUInt32LE(batchJSON.length, 20); // batchTableJSONByteLength
+    var batchTableJSON = createValidBatchTableJSON();
+    header.writeUInt32LE(header.length + batchTableJSON.length, 8); // byteLength
+    header.writeUInt32LE(batchTableJSON.length, 20); // batchTableJSONByteLength
 
-    return Buffer.concat([header, batchJSON]);
+    return Buffer.concat([header, batchTableJSON]);
 }
 
-function createInvalidPntsBatchJson() {
+function createPntsWithInvalidBatchJSON() {
     var header = createPntsTile();
-    var batchJSON = createInvalidBatchTableJSON();
-    header.writeUInt32LE(header.length + batchJSON.length, 8); // byteLength
-    header.writeUInt32LE(batchJSON.length, 20); // batchTableJSONByteLength
+    var batchTableJSON = createInvalidBatchTableJSON();
+    header.writeUInt32LE(header.length + batchTableJSON.length, 8); // byteLength
+    header.writeUInt32LE(batchTableJSON.length, 20); // batchTableJSONByteLength
 
-    return Buffer.concat([header, batchJSON]);
+    return Buffer.concat([header, batchTableJSON]);
 }
 
-function createPntsBatchJsonLong() {
+function createPntsWithBatchJSONLong() {
     var header = createPntsTile();
-    var batchJSON = createValidBatchTableJSON();
-    header.writeUInt32LE(header.length + batchJSON.length - 1, 8); // byteLength
-    header.writeUInt32LE(batchJSON.length, 20); // batchTableJSONByteLength
+    var batchTableJSON = createValidBatchTableJSON();
+    header.writeUInt32LE(header.length + batchTableJSON.length - 1, 8); // byteLength
+    header.writeUInt32LE(batchTableJSON.length, 20); // batchTableJSONByteLength
 
-    return Buffer.concat([header, batchJSON]);
+    return Buffer.concat([header, batchTableJSON]);
 }
 
-function createPntsBatchJsonBinary() {
+function createPntsWithBatchJSONBinary() {
     var header = createPntsTile();
     var batchTable = createValidBatchTableBinary();
 
@@ -111,7 +111,7 @@ function createPntsBatchJsonBinary() {
     return Buffer.concat([header, batchTable.buffer]);
 }
 
-function createInvalidPntsBatchJsonBinary() {
+function createPntsWithInvalidBatchJSONBinary() {
     var header = createPntsTile();
     var batchTable = createInvalidBatchTableBinary();
 
@@ -123,37 +123,37 @@ function createInvalidPntsBatchJsonBinary() {
 }
 
 function createValidBatchTableJSON() {
-    var batchJson = {
-        "id":[0,1,2],
-        "longitude":[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
-        "height":[8,14,14]
+    var batchTableJSON = {
+        id:[0,1,2],
+        longitude:[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        height:[8,14,14]
     };
 
-    return new Buffer(JSON.stringify(batchJson));
+    return new Buffer(JSON.stringify(batchTableJSON));
 }
 
 function createInvalidBatchTableJSON() {
-    var batchJson = {
-        "id":[0],
-        "longitude":[-1.3196595204101946],
-        "height":8
+    var batchTableJSON = {
+        id:[0],
+        longitude:[-1.3196595204101946],
+        height:8
     };
 
-    return new Buffer(JSON.stringify(batchJson));
+    return new Buffer(JSON.stringify(batchTableJSON));
 }
 
 function createValidBatchTableBinary() {
-    var batchJson = {
-        "id" : [0, 1, 2],
-        "longitude" :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
-        "height" : {
+    var batchTableJSON = {
+        id : [0, 1, 2],
+        longitude :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        height : {
             "byteOffset" : 12,
-            "componentType" : "UNSIGNED_INT",
-            "type" : "SCALAR"
+            "componentType" : 'UNSIGNED_INT',
+            "type" : 'SCALAR'
         }
     };
 
-    var jsonHeader = new Buffer(JSON.stringify(batchJson));
+    var jsonHeader = new Buffer(JSON.stringify(batchTableJSON));
 
     var heightBinaryBody = new Buffer(12);
     heightBinaryBody.writeUInt32LE(8, 0);
@@ -168,16 +168,16 @@ function createValidBatchTableBinary() {
 }
 
 function createInvalidBatchTableBinary() {
-    var batchJson = {
-        "id" : [0, 1, 2],
-        "longitude" :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
-        "height" : {
+    var batchTableJSON = {
+        id : [0, 1, 2],
+        longitude :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        height : {
             "byteOffset" : 12,
-            "componentType" : "UNSIGNED_INT"
+            "componentType" : 'UNSIGNED_INT'
         }
     };
 
-    var jsonHeader = new Buffer(JSON.stringify(batchJson));
+    var jsonHeader = new Buffer(JSON.stringify(batchTableJSON));
 
     var heightBinaryBody = new Buffer(12);
     heightBinaryBody.writeUInt32LE(8, 0);
