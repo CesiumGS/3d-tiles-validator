@@ -24,7 +24,7 @@ function validateB3dm(content) {
         throw new DeveloperError('b3dm content must be of type buffer');
     }
 
-    if (content.length < 2) {
+    if (content.length < 12) {
         return {
             result : false,
             message: 'b3dm tile header must be 24 bytes'
@@ -56,19 +56,28 @@ function validateB3dm(content) {
         };
     }
 
+    var offset = 24;
     var batchTableJSONByteLength = content.readUInt32LE(12);
-    var batchTable;
+    var batchTableBinaryByteLength = content.readUInt32LE(16);
     if (batchTableJSONByteLength > 0) {
-        batchTable = extractBatchTable(content);
-    }
+        var batchTableJSONHeader = content.slice(offset, offset + batchTableJSONByteLength);
+        offset +=  batchTableJSONByteLength;
+        var batchTableBinary = content.slice(offset, offset + batchTableBinaryByteLength);
 
-    if ((defined(batchTable)) && (defined(batchTable.batchTableJSON))) {
-        var validBatchTable = validateBatchTable(batchTableSchema, batchTable.batchTableJSON, batchTable.batchTableBinary);
-        if (!validBatchTable.validation) {
+        if((batchTableJSONHeader.length == batchTableJSONByteLength) && (batchTableBinary.length == batchTableBinaryByteLength))  {
+            var batchTableJSON = JSON.parse(batchTableJSONHeader.toString());
+            var validBatchTable = validateBatchTable(batchTableSchema, batchTableJSON, batchTableBinary);
+            if (!validBatchTable.validation) {
+                return {
+                    result : false,
+                    message: validBatchTable.message
+                };
+            }
+        } else {
             return {
-                result : false,
-                message: validBatchTable.message
-            };
+                result: false,
+                message: 'b3dm has invalid batch table lengths'
+            }
         }
     }
 

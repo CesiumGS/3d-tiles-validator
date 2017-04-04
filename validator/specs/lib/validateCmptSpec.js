@@ -57,7 +57,6 @@ describe('validateCmpt', function() {
     it('validates a cmpt tile with a valid b3dm inner tile', function() {
         var innerB3dm = createB3dmTile();
         var cmptTile = createCmptTile([innerB3dm]);
-
         expect(validateCmpt(cmptTile).result).toBe(true);
     });
 
@@ -124,6 +123,9 @@ function createB3dmTile() {
     b3dmTile.write('b3dm', 0); // magic
     b3dmTile.writeUInt32LE(1, 4); // version
     b3dmTile.writeUInt32LE(b3dmHeaderSize, 8); // byteLength
+    b3dmTile.writeUInt32LE(0, 12); // batchTableJSONByteLength
+    b3dmTile.writeUInt32LE(0, 16); // batchTableBinaryByteLength
+    b3dmTile.writeUInt32LE(0, 20); // batchLength
 
     return b3dmTile;
 }
