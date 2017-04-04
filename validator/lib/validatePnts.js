@@ -56,72 +56,37 @@ function validatePnts(content) {
         };
     }
 
+    var offset = 28;
+    var featureTableJSONByteLength = content.readUInt32LE(12);
+    var featureTableBinaryByteLength = content.readUInt32LE(16);
+    offset += featureTableJSONByteLength + featureTableBinaryByteLength;
     var batchTableJSONByteLength = content.readUInt32LE(20);
-    var batchTable;
-    if (batchTableJSONByteLength > 0) {
-        batchTable = extractBatchTable(content);
-    }
+    var batchTableBinaryByteLength = content.readUInt32LE(24);
 
-    if ((defined(batchTable)) && (defined(batchTable.batchTableJSON))) {
-        var validBatchTable = validateBatchTable(batchTableSchema, batchTable.batchTableJSON, batchTable.batchTableBinary);
-        if (!validBatchTable.validation) {
+    if (batchTableJSONByteLength > 0) {
+        var batchTableJSONHeader = content.slice(offset, offset + batchTableJSONByteLength);
+        offset +=  batchTableJSONByteLength;
+        var batchTableBinary = content.slice(offset, offset + batchTableBinaryByteLength);
+
+        if((batchTableJSONHeader.length == batchTableJSONByteLength) && (batchTableBinary.length == batchTableBinaryByteLength))  {
+            var batchTableJSON = JSON.parse(batchTableJSONHeader.toString());
+            var validBatchTable = validateBatchTable(batchTableSchema, batchTableJSON, batchTableBinary);
+            if (!validBatchTable.validation) {
+                return {
+                    result : false,
+                    message: validBatchTable.message
+                };
+            }
+        } else {
             return {
-                result : false,
-                message: validBatchTable.message
-            };
+                result: false,
+                message: 'pnts has invalid batch table lengths'
+            }
         }
     }
 
     return {
         result : true,
         message: 'Tile is a valid pnts tile'
-    };
-}
-
-/**
- * Extracts the batch table from the provided tile
- *
- * @param {Buffer} tile - A buffer containing the contents of the tile
- * @returns {Object}  - A JSON object representing the batch table, containing (1) the batch table JSON,
- *                     (2)batch table binary, (3) message for error or success
- */
-
-function extractBatchTable(tile) {
-    var byteLength = tile.length;
-    var batchTableJSONByteOffset = 20;
-    var batchTableOffset = 28;
-
-    var batchTableJSONByteLength = tile.readUInt32LE(batchTableJSONByteOffset);
-    var batchTableBinaryByteLength = tile.readUInt32LE(batchTableJSONByteOffset + 4);
-    var message = '';
-    var batchTableJSON, batchTableBinary;
-
-    if (batchTableJSONByteLength > 0) {
-        if ((batchTableOffset + batchTableJSONByteLength) > byteLength) {
-            message += 'batchTableJSONByteLength is out of bounds at ' + batchTableOffset + batchTableJSONByteLength;
-        } else {
-            var batchTableJSONHeader = tile.slice(batchTableOffset, batchTableOffset + batchTableJSONByteLength);
-            batchTableJSON = JSON.parse(batchTableJSONHeader.toString());
-        }
-
-        batchTableOffset += batchTableJSONByteLength;
-
-        if ((batchTableOffset + batchTableBinaryByteLength) > byteLength) {
-            message += '\nbatchTableBinaryByteLength is out of bounds at ' + batchTableOffset + batchTableBinaryByteLength;
-        } else {
-            batchTableBinary = tile.slice(batchTableOffset, batchTableOffset + batchTableBinaryByteLength);
-        }
-    } else {
-        message = 'Error: trying to extract batch table with length <= 0';
-    }
-
-    if (message === '') {
-        message = 'successfully extracted batch table'
-    }
-
-    return {
-        batchTableJSON: batchTableJSON,
-        batchTableBinary: batchTableBinary,
-        message: message
     };
 }

@@ -63,20 +63,19 @@ function createInvalidMagic() {
 function createInvalidVersion() {
     var header = createB3dmTile();
     header.writeUInt32LE(5, 4); // version
-
     return header;
 }
 
 function createWrongByteLength() {
     var header = createB3dmTile();
     header.writeUInt32LE(header.length - 1, 8); // byteLength
-
     return header;
 }
 
 function createB3dmWithBatchJSON() {
     var header = createB3dmTile();
     var batchTableJSON = createValidBatchTableJSON();
+
     header.writeUInt32LE(header.length + batchTableJSON.length, 8); // byteLength
     header.writeUInt32LE(batchTableJSON.length, 12); // batchTableJSONByteLength
 
@@ -86,6 +85,7 @@ function createB3dmWithBatchJSON() {
 function createB3dmWithInvalidBatchJSON() {
     var header = createB3dmTile();
     var batchTableJSON = createInvalidBatchTableJSON();
+
     header.writeUInt32LE(header.length + batchTableJSON.length, 8); // byteLength
     header.writeUInt32LE(batchTableJSON.length, 12); // batchTableJSONByteLength
 
@@ -95,6 +95,7 @@ function createB3dmWithInvalidBatchJSON() {
 function createB3dmWithBatchJSONLong() {
     var header = createB3dmTile();
     var batchTableJSON = createValidBatchTableJSON();
+
     header.writeUInt32LE(header.length + batchTableJSON.length - 1, 8); // byteLength
     header.writeUInt32LE(batchTableJSON.length, 12); // batchTableJSONByteLength
 
@@ -160,6 +161,7 @@ function createValidBatchTableBinary() {
     heightBinaryBody.writeUInt32LE(8, 0);
     heightBinaryBody.writeUInt32LE(14, 4);
     heightBinaryBody.writeUInt32LE(14, 8);
+
     return {
         buffer: Buffer.concat([jsonHeader, heightBinaryBody]),
         batchTableJSONByteLength: jsonHeader.length,

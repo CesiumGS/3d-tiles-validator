@@ -2,7 +2,6 @@
 var batchTableSchema = require('../data/schema/batchTable.schema.json');
 var validateBatchTable = require('../../lib/validateBatchTable');
 
-
 describe('batch table', function() {
     it('validates a batch table JSON matches schema', function() {
         var batchTableJSON = createValidBatchTableJSON();
@@ -105,4 +104,3 @@ function createValidBatchTableBinary() {
     widthBinaryBody.writeUInt32LE(6, 8);
     return Buffer.concat([heightBinaryBody, widthBinaryBody]);
 }
-

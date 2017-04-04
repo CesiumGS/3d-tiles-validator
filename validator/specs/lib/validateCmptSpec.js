@@ -117,7 +117,6 @@ describe('validateCmpt batch table', function() {
     });
 });
 
-
 function createB3dmTile() {
     var b3dmTile = new Buffer(b3dmHeaderSize);
     b3dmTile.write('b3dm', 0); // magic
