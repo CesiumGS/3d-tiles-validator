@@ -24,10 +24,10 @@ function validateB3dm(content) {
         throw new DeveloperError('b3dm content must be of type buffer');
     }
 
-    if (content.length < 12) {
+    if (content.length < 28) {
         return {
             result : false,
-            message: 'b3dm tile header must be 24 bytes'
+            message: 'b3dm tile header must be 28 bytes'
         };
     }
 
@@ -56,9 +56,9 @@ function validateB3dm(content) {
         };
     }
 
-    var offset = 24;
-    var batchTableJSONByteLength = content.readUInt32LE(12);
-    var batchTableBinaryByteLength = content.readUInt32LE(16);
+    var offset = 28;
+    var batchTableJSONByteLength = content.readUInt32LE(20);
+    var batchTableBinaryByteLength = content.readUInt32LE(24);
     if (batchTableJSONByteLength > 0) {
         var batchTableJSONHeader = content.slice(offset, offset + batchTableJSONByteLength);
         offset +=  batchTableJSONByteLength;

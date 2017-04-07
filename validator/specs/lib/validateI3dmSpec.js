@@ -49,52 +49,61 @@ describe('validateI3dm batch table', function() {
     });
 });
 
+var i3dmHeaderSize = 32;
+var magicOffset = 0;
+var versionOffset = 4;
+var byteLengthOffset = 8;
+var featureTableJSONByteLengthOffset = 12;
+var featureTableBinaryByteLengthOffset = 16;
+var batchTableJSONByteLengthOffset = 20;
+var batchTableBinaryByteLengthOffset = 24;
+var gltmFormatOffset = 28;
 
 function createI3dmTileGltfUrl() {
-    var header = new Buffer(32);
-    header.write('i3dm', 0); // magic
-    header.writeUInt32LE(1, 4); // version
-    header.writeUInt32LE(header.length, 8); // byteLength
-    header.writeUInt32LE(0, 12); // featureTableJSONByteLength
-    header.writeUInt32LE(0, 16); // featureTableBinaryByteLength
-    header.writeUInt32LE(0, 20); // batchTableJSONByteLength
-    header.writeUInt32LE(0, 24); // batchTableBinaryByteLength
-    header.writeUInt32LE(0, 28); // gltfFormat: 0 - url
+    var header = new Buffer(i3dmHeaderSize);
+    header.write('i3dm', magicOffset); // magic
+    header.writeUInt32LE(1, versionOffset); // version
+    header.writeUInt32LE(header.length, byteLengthOffset); // byteLength
+    header.writeUInt32LE(0, featureTableJSONByteLengthOffset); // featureTableJSONByteLength
+    header.writeUInt32LE(0, featureTableBinaryByteLengthOffset); // featureTableBinaryByteLength
+    header.writeUInt32LE(0, batchTableJSONByteLengthOffset); // batchTableJSONByteLength
+    header.writeUInt32LE(0, batchTableBinaryByteLengthOffset); // batchTableBinaryByteLength
+    header.writeUInt32LE(0, gltmFormatOffset); // gltfFormat: 0 - url
 
     return header;
 }
 
 function createI3dmTileGltfBinaryGITF() {
     var header = createI3dmTileGltfUrl();
-    header.writeUInt32LE(1, 28); // gltfFormat: 1 - embedded binary gITF
+    header.writeUInt32LE(1, gltmFormatOffset); // gltfFormat: 1 - embedded binary gITF
 
     return header;
 }
 
 function createInvalidMagic() {
     var header = createI3dmTileGltfUrl();
-    header.write('xxxx', 0); // magic
+    header.write('xxxx', magicOffset);
 
     return header;
 }
 
 function createInvalidVersion() {
     var header = createI3dmTileGltfUrl();
-    header.writeUInt32LE(5, 4); // version
+    header.writeUInt32LE(5, versionOffset);
 
     return header;
 }
 
 function createWrongByteLength() {
     var header = createI3dmTileGltfUrl();
-    header.writeUInt32LE(header.length - 1, 8); // byteLength
+    header.writeUInt32LE(header.length - 1, byteLengthOffset);
 
     return header;
 }
 
 function createInvalidGltfFormat() {
     var header = createI3dmTileGltfUrl();
-    header.writeUInt32LE(5, 28); // gltfFormat: invalid
+    header.writeUInt32LE(5, gltmFormatOffset);
 
     return header;
 }
@@ -102,8 +111,8 @@ function createInvalidGltfFormat() {
 function createI3dmWithBatchJSON() {
     var header = createI3dmTileGltfUrl();
     var batchTableJSON = createValidBatchTableJSON();
-    header.writeUInt32LE(header.length + batchTableJSON.length, 8); // byteLength
-    header.writeUInt32LE(batchTableJSON.length, 20); // batchTableJSONByteLength
+    header.writeUInt32LE(header.length + batchTableJSON.length, byteLengthOffset);
+    header.writeUInt32LE(batchTableJSON.length, batchTableJSONByteLengthOffset);
 
     return Buffer.concat([header, batchTableJSON]);
 }
@@ -111,8 +120,8 @@ function createI3dmWithBatchJSON() {
 function createI3dmWithInvalidBatchJSON() {
     var header = createI3dmTileGltfUrl();
     var batchTableJSON = createInvalidBatchTableJSON();
-    header.writeUInt32LE(header.length + batchTableJSON.length, 8); // byteLength
-    header.writeUInt32LE(batchTableJSON.length, 20); // batchTableJSONByteLength
+    header.writeUInt32LE(header.length + batchTableJSON.length, byteLengthOffset);
+    header.writeUInt32LE(batchTableJSON.length, batchTableJSONByteLengthOffset);
 
     return Buffer.concat([header, batchTableJSON]);
 }
@@ -120,8 +129,8 @@ function createI3dmWithInvalidBatchJSON() {
 function createI3dmWithBatchJSONLong() {
     var header = createI3dmTileGltfUrl();
     var batchTableJSON = createValidBatchTableJSON();
-    header.writeUInt32LE(header.length + batchTableJSON.length - 1, 8); // byteLength
-    header.writeUInt32LE(batchTableJSON.length, 20); // batchTableJSONByteLength
+    header.writeUInt32LE(header.length + batchTableJSON.length - 1, byteLengthOffset);
+    header.writeUInt32LE(batchTableJSON.length, batchTableJSONByteLengthOffset);
 
     return Buffer.concat([header, batchTableJSON]);
 }
@@ -130,9 +139,9 @@ function createI3dmWithBatchJSONBinary() {
     var header = createI3dmTileGltfUrl();
     var batchTable = createValidBatchTableBinary();
 
-    header.writeUInt32LE(header.length + batchTable.buffer.length, 8); // byteLength
-    header.writeUInt32LE(batchTable.batchTableJSONByteLength, 20); // batchTableJSONByteLength
-    header.writeUInt32LE(batchTable.batchTableBinaryByteLength, 24); // batchTableBinaryByteLength
+    header.writeUInt32LE(header.length + batchTable.buffer.length, byteLengthOffset);
+    header.writeUInt32LE(batchTable.batchTableJSONByteLength, batchTableJSONByteLengthOffset);
+    header.writeUInt32LE(batchTable.batchTableBinaryByteLength, batchTableBinaryByteLengthOffset);
 
     return Buffer.concat([header, batchTable.buffer]);
 }
@@ -141,9 +150,9 @@ function createI3dmWithInvalidBatchJSONBinary() {
     var header = createI3dmTileGltfUrl();
     var batchTable = createInvalidBatchTableBinary();
 
-    header.writeUInt32LE(header.length + batchTable.buffer.length, 8); // byteLength
-    header.writeUInt32LE(batchTable.batchTableJSONByteLength, 20); // batchTableJSONByteLength
-    header.writeUInt32LE(batchTable.batchTableBinaryByteLength, 24); // batchTableBinaryByteLength
+    header.writeUInt32LE(header.length + batchTable.buffer.length, byteLengthOffset);
+    header.writeUInt32LE(batchTable.batchTableJSONByteLength, batchTableJSONByteLengthOffset);
+    header.writeUInt32LE(batchTable.batchTableBinaryByteLength, batchTableBinaryByteLengthOffset);
 
     return Buffer.concat([header, batchTable.buffer]);
 }
