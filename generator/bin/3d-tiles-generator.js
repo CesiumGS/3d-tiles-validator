@@ -266,7 +266,6 @@ var promises = [
     // Tilesets
     createTileset(),
     createTilesetEmptyRoot(),
-    createTilesetInvalid(),
     createTilesetOfTilesets(),
     createTilesetWithExternalResources(),
     createTilesetRefinementMix(),
@@ -1077,70 +1076,6 @@ function createTilesetEmptyRoot() {
                     geometricError : 0.0,
                     content : {
                         url : 'll.b3dm'
-                    }
-                },
-                {
-                    boundingVolume : {
-                        region : lrRegion
-                    },
-                    geometricError : 0.0,
-                    content : {
-                        url : 'lr.b3dm'
-                    }
-                },
-                {
-                    boundingVolume : {
-                        region : urRegion
-                    },
-                    geometricError : 0.0,
-                    content : {
-                        url : 'ur.b3dm'
-                    }
-                },
-                {
-                    boundingVolume : {
-                        region : ulRegion
-                    },
-                    geometricError : 0.0,
-                    content : {
-                        url : 'ul.b3dm'
-                    }
-                }
-            ]
-        }
-    };
-
-    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true);
-}
-
-function createTilesetInvalid() {
-    // Create a tileset with one tile pointing to an invalid url
-    var tilesetName = 'TilesetInvalid';
-    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
-    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
-    var tileNames = ['lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
-    var tileOptions = [lrTileOptions, urTileOptions, ulTileOptions];
-
-    var tilesetJson = {
-        asset : {
-            version : '0.0'
-        },
-        properties : undefined,
-        geometricError : smallGeometricError,
-        root : {
-            boundingVolume : {
-                region : childrenRegion
-            },
-            geometricError : smallGeometricError,
-            refine : 'add',
-            children : [
-                {
-                    boundingVolume : {
-                        region : llRegion
-                    },
-                    geometricError : 0.0,
-                    content : {
-                        url : 'invalid.b3dm'
                     }
                 },
                 {
