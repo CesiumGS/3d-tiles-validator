@@ -30,7 +30,8 @@ var scratchMatrix = new Matrix4();
  * @param {Boolean} [options.relativeToCenter=false] Use the Cesium_RTC extension.
  * @param {Boolean} [options.khrMaterialsCommon=false] Save glTF with the KHR_materials_common extension.
  * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
- * @param {Boolean} [options.deprecated=false] Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic.
+ * @param {Boolean} [options.deprecated1=false] Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic.
+ * @param {Boolean} [options.deprecated2=false] Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic.
  * @param {Object|Object[]} [options.textureCompressionOptions] Options for compressing textures in the glTF.
  * @param {String} [options.gltfUpAxis='Y'] Specifies the up-axis for the glTF model.
  *
@@ -47,7 +48,8 @@ function createBuildingsTile(options) {
     var relativeToCenter = options.relativeToCenter;
     var khrMaterialsCommon = options.khrMaterialsCommon;
     var quantization = options.quantization;
-    var deprecated = options.deprecated;
+    var deprecated1 = options.deprecated1;
+    var deprecated2 = options.deprecated2;
     var textureCompressionOptions = options.textureCompressionOptions;
     var gltfUpAxis = options.gltfUpAxis;
     var buildingsLength = buildings.length;
@@ -80,6 +82,10 @@ function createBuildingsTile(options) {
         }
     }
 
+    var featureTableJson = {
+        BATCH_LENGTH : batchLength
+    };
+
     return createGltf({
         mesh : batchedMesh,
         useBatchIds : useBatchIds,
@@ -87,16 +93,17 @@ function createBuildingsTile(options) {
         relativeToCenter : relativeToCenter,
         khrMaterialsCommon : khrMaterialsCommon,
         quantization : quantization,
-        deprecated : deprecated,
+        deprecated : deprecated1 || deprecated2,
         textureCompressionOptions : textureCompressionOptions,
         upAxis : gltfUpAxis
     }).then(function(glb) {
         var b3dm =  createB3dm({
             glb : glb,
-            batchLength : batchLength,
+            featureTableJson : featureTableJson,
             batchTableJson : batchTableJson,
             batchTableBinary : batchTableBinary,
-            deprecated : deprecated
+            deprecated1 : deprecated1,
+            deprecated2 : deprecated2
         });
         return {
             b3dm : b3dm,
