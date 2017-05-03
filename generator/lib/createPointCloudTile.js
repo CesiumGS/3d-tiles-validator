@@ -92,7 +92,7 @@ function createPointCloudTile(options) {
         constantColor = [255, 255, 0, 51];
     }
 
-    var points = getPoints(pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform);
+    var points = getPoints(pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform, time);
     var positions = points.positions;
     var normals = points.normals;
     var batchIds = points.batchIds;
@@ -243,7 +243,7 @@ function getBatchId(position) {
 var scratchMatrix = new Matrix4();
 var scratchCenter = new Cartesian3();
 
-function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform) {
+function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform, time) {
     var inverseTranspose = scratchMatrix;
     Matrix4.transpose(transform, inverseTranspose);
     Matrix4.inverse(inverseTranspose, inverseTranspose);
@@ -266,7 +266,7 @@ function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shape
         }
         var batchId = getBatchId(unitPosition);
         var color = colorFunction(unitPosition);
-        var noise = getNoise(unitPosition);
+        var noise = getNoise(unitPosition, time);
 
         Matrix4.multiplyByPoint(transform, position, position);
         Matrix4.multiplyByPointAsVector(inverseTranspose, normal, normal);
