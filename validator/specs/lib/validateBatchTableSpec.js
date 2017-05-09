@@ -38,6 +38,11 @@ describe('validate batch table', function() {
         batchTableJSON.height.byteOffset = batchTableJSON.height.byteOffset - 1;
         expect(validateBatchTable(batchTableSchema, batchTableJSON, batchTableBinary, 3).result).toBe(false);
     });
+
+    it('invalid batch length', function() {
+        var batchTableJSON = createValidBatchTableJSON();
+        expect(validateBatchTable(batchTableSchema, batchTableJSON, -1).result).toBe(true);
+    });
 });
 
 function createValidBatchTableJSON() {

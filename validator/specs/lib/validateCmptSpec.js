@@ -255,9 +255,9 @@ function createBatchTableBinary() {
         id : [0, 1, 2],
         longitude : [-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
         height : {
-            "byteOffset" : 0,
-            "componentType" : 'UNSIGNED_INT',
-            "type" : 'SCALAR'
+            byteOffset : 0,
+            componentType : 'UNSIGNED_INT',
+            type : 'SCALAR'
         }
     };
 
@@ -280,8 +280,8 @@ function createInvalidBatchTableBinary() {
         id : [0, 1, 2],
         longitude : [-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
         height : {
-            "byteOffset" : 0,
-            "componentType" : 'UNSIGNED_INT'
+            byteOffset : 0,
+            componentType : 'UNSIGNED_INT'
         }
     };
 
