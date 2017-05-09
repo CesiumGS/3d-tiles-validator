@@ -6,7 +6,7 @@ var i3dmHeaderSize = 32;
 var pntsHeaderSize = 28;
 var cmptHeaderSize = 16;
 
-describe('validateCmpt', function() {
+describe('validate cmpt', function() {
     it('returns false if the cmpt header is too short', function() {
         var cmptTile = createCmptTile([]);
         cmptTile = cmptTile.slice(cmptHeaderSize - 4);
@@ -107,7 +107,7 @@ describe('validateCmpt', function() {
     });
 });
 
-describe('validateCmpt batch table', function() {
+describe('validate cmpt batch table', function() {
     it('returns false if the cmpt inner tiles contain an invalid batch table', function() {
         expect(validateCmpt(createCmptWithInvalidBatchTable()).result).toBe(false);
     });
@@ -204,13 +204,15 @@ function createCmptWithBatchTable() {
     //cmpt1[b3dm, cmpt2[cmpt3[pnts], i3dm]]
     var innerB3dmTile = createB3dmTile();
     var innerPntsTile = createPntsTile();
-    var innerI3dmTile = createI3dmTile();
+    var innerI3dmTile = createI3dmTile()
 
+    var featureTableJSON = createBatchLengthFeatureTable(3);
     var batchTable = createBatchTableBinary();
-    innerB3dmTile.writeUInt32LE(innerB3dmTile.length + batchTable.buffer.length, 8); // byteLength
-    innerB3dmTile.writeUInt32LE(batchTable.batchTableJSONByteLength, 12); // batchTableJSONByteLength
-    innerB3dmTile.writeUInt32LE(batchTable.batchTableBinaryByteLength, 16);
-    innerB3dmTile = Buffer.concat([innerB3dmTile, batchTable.buffer]);
+    innerB3dmTile.writeUInt32LE(innerB3dmTile.length + featureTableJSON.length + batchTable.buffer.length, 8); // byteLength
+    innerB3dmTile.writeUInt32LE(featureTableJSON.length, 12); //featureTableJSONByteLength
+    innerB3dmTile.writeUInt32LE(batchTable.batchTableJSONByteLength, 20); // batchTableJSONByteLength
+    innerB3dmTile.writeUInt32LE(batchTable.batchTableBinaryByteLength, 24); //batchTableBinaryByteLength
+    innerB3dmTile = Buffer.concat([innerB3dmTile, featureTableJSON, batchTable.buffer]);
 
     var cmptTile3 = createCmptTile([innerPntsTile]);
     var cmptTile2 = createCmptTile([cmptTile3, innerI3dmTile]);
@@ -225,10 +227,13 @@ function createCmptWithInvalidBatchTable() {
     var innerPntsTile = createPntsTile();
     var innerI3dmTile = createI3dmTile();
 
+    var featureTableJSON = createBatchLengthFeatureTable(3);
     var batchTable = createInvalidBatchTableBinary();
-    innerB3dmTile.writeUInt32LE(innerB3dmTile.length + batchTable.buffer.length, 8); // byteLength
-    innerB3dmTile.writeUInt32LE(batchTable.batchTableJSONByteLength, 12); // batchTableJSONByteLength
-    innerB3dmTile.writeUInt32LE(batchTable.batchTableBinaryByteLength, 16); // batchTableBinaryByteLength
+    innerB3dmTile.writeUInt32LE(innerB3dmTile.length + featureTableJSON.length + batchTable.buffer.length, 8); // byteLength
+    innerB3dmTile.writeUInt32LE(featureTableJSON.length, 12); //featureTableJSONByteLength
+    innerB3dmTile.writeUInt32LE(batchTable.batchTableJSONByteLength, 20); // batchTableJSONByteLength
+    innerB3dmTile.writeUInt32LE(batchTable.batchTableBinaryByteLength, 24); // batchTableBinaryByteLength
+    innerB3dmTile = Buffer.concat([innerB3dmTile, featureTableJSON, batchTable.buffer]);
 
     var cmptTile3 = createCmptTile([innerPntsTile]);
     var cmptTile2 = createCmptTile([cmptTile3, innerI3dmTile]);
@@ -237,10 +242,18 @@ function createCmptWithInvalidBatchTable() {
     return cmptTile1;
 }
 
+function createBatchLengthFeatureTable(batchLength) {
+    var featureTableJSON = {
+        BATCH_LENGTH : batchLength
+    };
+
+    return new Buffer(JSON.stringify(featureTableJSON));
+}
+
 function createBatchTableBinary() {
     var batchTableJSON = {
         id : [0, 1, 2],
-        longitude :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        longitude : [-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
         height : {
             "byteOffset" : 0,
             "componentType" : 'UNSIGNED_INT',
@@ -265,7 +278,7 @@ function createBatchTableBinary() {
 function createInvalidBatchTableBinary() {
     var batchTableJSON = {
         id : [0, 1, 2],
-        longitude :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        longitude : [-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
         height : {
             "byteOffset" : 0,
             "componentType" : 'UNSIGNED_INT'

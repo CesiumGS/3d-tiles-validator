@@ -2,7 +2,7 @@
 var Cesium = require('cesium');
 var validateB3dm = require('../../lib/validateB3dm');
 
-describe('validateB3dm', function() {
+describe('validate b3dm', function() {
     it('returns false if the b3dm has invalid magic', function() {
         expect(validateB3dm(createInvalidMagic()).result).toBe(false);
     });
@@ -20,7 +20,7 @@ describe('validateB3dm', function() {
     });
 });
 
-describe('validateB3dm batch table', function() {
+describe('validate b3dm batch table', function() {
     it('validates b3dm tile contains a valid batch table JSON', function() {
         expect(validateB3dm(createB3dmWithBatchJSON()).result).toBe(true);
     });
@@ -84,61 +84,80 @@ function createWrongByteLength() {
 
 function createB3dmWithBatchJSON() {
     var header = createB3dmTile();
+    var featureTableJSON = createBatchLengthFeatureTable(3);
     var batchTableJSON = createValidBatchTableJSON();
 
-    header.writeUInt32LE(header.length + batchTableJSON.length, byteLengthOffset);
+    header.writeUInt32LE(header.length + featureTableJSON.length + batchTableJSON.length, byteLengthOffset);
+    header.writeUInt32LE(featureTableJSON.length, featureTableJSONByteLengthOffset);
     header.writeUInt32LE(batchTableJSON.length, batchTableJSONByteLengthOffset);
 
-    return Buffer.concat([header, batchTableJSON]);
+    return Buffer.concat([header, featureTableJSON, batchTableJSON]);
 }
 
 function createB3dmWithInvalidBatchJSON() {
     var header = createB3dmTile();
+    var featureTableJSON = createBatchLengthFeatureTable(1);
     var batchTableJSON = createInvalidBatchTableJSON();
 
-    header.writeUInt32LE(header.length + batchTableJSON.length, byteLengthOffset);
+    header.writeUInt32LE(header.length + + featureTableJSON.length + batchTableJSON.length, byteLengthOffset);
+    header.writeUInt32LE(featureTableJSON.length, featureTableJSONByteLengthOffset);
+
     header.writeUInt32LE(batchTableJSON.length, batchTableJSONByteLengthOffset);
 
-    return Buffer.concat([header, batchTableJSON]);
+    return Buffer.concat([header, featureTableJSON, batchTableJSON]);
 }
 
 function createB3dmWithBatchJSONLong() {
     var header = createB3dmTile();
+    var featureTableJSON = createBatchLengthFeatureTable(3);
     var batchTableJSON = createValidBatchTableJSON();
 
-    header.writeUInt32LE(header.length + batchTableJSON.length - 1, byteLengthOffset);
+    header.writeUInt32LE(header.length + featureTableJSON.length + batchTableJSON.length - 1, byteLengthOffset);
+    header.writeUInt32LE(featureTableJSON.length, featureTableJSONByteLengthOffset);
     header.writeUInt32LE(batchTableJSON.length, batchTableJSONByteLengthOffset);
 
-    return Buffer.concat([header, batchTableJSON]);
+    return Buffer.concat([header, featureTableJSON, batchTableJSON]);
 }
 
 function createB3dmWithBatchJSONBinary() {
     var header = createB3dmTile();
+    var featureTableJSON = createBatchLengthFeatureTable(3);
     var batchTable = createValidBatchTableBinary();
 
-    header.writeUInt32LE(header.length + batchTable.buffer.length, byteLengthOffset);
+    header.writeUInt32LE(header.length + featureTableJSON.length + batchTable.buffer.length, byteLengthOffset);
+    header.writeUInt32LE(featureTableJSON.length, featureTableJSONByteLengthOffset);
     header.writeUInt32LE(batchTable.batchTableJSONByteLength, batchTableJSONByteLengthOffset);
     header.writeUInt32LE(batchTable.batchTableBinaryByteLength, batchTableBinaryByteLengthOffset);
 
-    return Buffer.concat([header, batchTable.buffer]);
+    return Buffer.concat([header, featureTableJSON, batchTable.buffer]);
 }
 
 function createB3dmWithInvalidBatchJSONBinary() {
     var header = createB3dmTile();
+    var featureTableJSON = createBatchLengthFeatureTable(3);
     var batchTable = createInvalidBatchTableBinary();
 
-    header.writeUInt32LE(header.length + batchTable.buffer.length, byteLengthOffset);
+    header.writeUInt32LE(header.length + featureTableJSON.length + batchTable.buffer.length, byteLengthOffset);
+    header.writeUInt32LE(featureTableJSON.length, featureTableJSONByteLengthOffset);
     header.writeUInt32LE(batchTable.batchTableJSONByteLength, batchTableJSONByteLengthOffset);
     header.writeUInt32LE(batchTable.batchTableBinaryByteLength, batchTableBinaryByteLengthOffset);
 
-    return Buffer.concat([header, batchTable.buffer]);
+    return Buffer.concat([header, featureTableJSON, batchTable.buffer]);
+}
+
+function createBatchLengthFeatureTable(batchLength) {
+    var featureTableJSON = {
+        BATCH_LENGTH : batchLength
+    };
+
+    return new Buffer(JSON.stringify(featureTableJSON));
 }
 
 function createValidBatchTableJSON() {
     var batchTableJSON = {
-        id:[0,1,2],
-        longitude:[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
-        height:[8,14,14]
+        id : [0,1,2],
+        longitude : [-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        height : [8,14,14]
     };
 
     return new Buffer(JSON.stringify(batchTableJSON));
@@ -146,9 +165,9 @@ function createValidBatchTableJSON() {
 
 function createInvalidBatchTableJSON() {
     var batchTableJSON = {
-        id:[0],
-        longitude:[-1.3196595204101946],
-        height:8
+        id : [0],
+        longitude : [-1.3196595204101946],
+        height : 8
     };
 
     return new Buffer(JSON.stringify(batchTableJSON));
@@ -157,7 +176,7 @@ function createInvalidBatchTableJSON() {
 function createValidBatchTableBinary() {
     var batchTableJSON = {
         id : [0, 1, 2],
-        longitude :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        longitude : [-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
         height : {
             "byteOffset" : 0,
             "componentType" : 'UNSIGNED_INT',
@@ -182,7 +201,7 @@ function createValidBatchTableBinary() {
 function createInvalidBatchTableBinary() {
     var batchTableJSON = {
         id : [0, 1, 2],
-        longitude :[-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
+        longitude : [-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
         height : {
             "byteOffset" : 0,
             "componentType" : 'UNSIGNED_INT'
