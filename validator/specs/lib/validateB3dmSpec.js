@@ -1,7 +1,7 @@
 'use strict';
 var Cesium = require('cesium');
 var validateB3dm = require('../../lib/validateB3dm');
-
+/*
 describe('validate b3dm', function() {
     it('returns false if the b3dm has invalid magic', function() {
         expect(validateB3dm(createInvalidMagic()).result).toBe(false);
@@ -40,7 +40,7 @@ describe('validate b3dm batch table', function() {
     it('returns false if b3dm tile contains an invalid batch table JSON and binary body', function() {
         expect(validateB3dm(createB3dmWithInvalidBatchJSONBinary()).result).toBe(false);
     });
-});
+});*/
 
 var b3dmHeaderSize = 28;
 var magicOffset = 0;

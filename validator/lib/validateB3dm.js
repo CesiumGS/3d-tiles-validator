@@ -37,6 +37,7 @@ function validateB3dm(content) {
     var magic = content.toString('utf8', 0, 4);
     var version = content.readUInt32LE(4);
     var byteLength = content.readUInt32LE(8);
+    console.log("tile length: " + byteLength);
 
     if (magic !== 'b3dm') {
         return {
@@ -64,11 +65,18 @@ function validateB3dm(content) {
     var featureTableBinaryByteLength = content.readUInt32LE(16);
     var batchTableJSONByteLength = content.readUInt32LE(20);
     var batchTableBinaryByteLength = content.readUInt32LE(24);
+    console.log("tile header:\n" + content.slice(0, 28) + "\n\n");
+
+    console.log("featureJSON: " + featureTableJSONByteLength);
+    console.log("featureBinary: " + featureTableBinaryByteLength);
+    console.log("batchJSON: " + batchTableJSONByteLength);
+    console.log("batchBinary: " + batchTableBinaryByteLength);
 
     var featureTableJSON;
 
     if (featureTableJSONByteLength > 0) {
         featureTableJSON = content.slice(offset, offset + featureTableJSONByteLength);
+        console.log("featureJSON Printout\n" + featureTableJSON);
         offset +=  featureTableJSONByteLength;
         var featureTableBinary = content.slice(offset, offset + featureTableBinaryByteLength);
         offset +=  featureTableBinaryByteLength;

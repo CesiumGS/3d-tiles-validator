@@ -113,7 +113,7 @@ function validateI3dm(content) {
                 };
             }
 
-            var batchLength= featureTableJSON.BATCH_LENGTH;
+            var batchLength = featureTableJSON.INSTANCES_LENGTH;
             var validBatchTable = validateBatchTable(batchTableSchema, batchTableJSON, batchTableBinary, batchLength);
             if (!validBatchTable.result) {
                 return {

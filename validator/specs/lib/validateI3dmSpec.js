@@ -167,7 +167,7 @@ function createI3dmWithInvalidBatchJSONBinary() {
 
 function createBatchLengthFeatureTable(batchLength) {
     var featureTableJSON = {
-        BATCH_LENGTH : batchLength
+        INSTANCES_LENGTH : batchLength
     };
 
     return new Buffer(JSON.stringify(featureTableJSON));
