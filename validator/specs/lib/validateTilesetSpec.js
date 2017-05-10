@@ -40,7 +40,7 @@ describe('validateTileset', function() {
             ]
         }
     };
-/*
+
     it('validates a valid JSON', function(done) {
         expect(validateTileset(tileset, '')
             .then(function(response) {
@@ -67,7 +67,7 @@ describe('validateTileset', function() {
                 expect(response.result).toBe(false);
                 expect(response.message).toBe('Child has geometricError greater than parent');
             }), done).toResolve();
-    });*/
+    });
 });
 
 
@@ -84,7 +84,7 @@ describe('validateBoundingVolume', function() {
             }
         }
     };
-    /*
+
     it('validates region inside region', function (done) {
         expect(validateTileset(regionTileset, '')
             .then(function (response) {
@@ -192,7 +192,7 @@ describe('validateBoundingVolume', function() {
                 expect(response.result).toBe(false);
                 expect(response.message).toBe('Child bounding volume is not contained within parent');
             }), done).toResolve();
-    });*/
+    });
 
     it('reads a valid tileset', function (done) {
         expect(readTileset('./specs/data/TilesetGzipped/tileset.json')
