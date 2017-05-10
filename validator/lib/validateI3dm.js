@@ -106,10 +106,10 @@ function validateI3dm(content) {
         if ((batchTableJSON.length === batchTableJSONByteLength) && (batchTableBinary.length === batchTableBinaryByteLength))  {
             batchTableJSON = JSON.parse(batchTableJSON.toString());
 
-            if(!defined(featureTableJSON)) {
+            if(!defined(featureTableJSON) || !featureTableJSON.hasOwnProperty("INSTANCES_LENGTH")) {
                 return {
                     result: false,
-                    message: 'batch table requires the BATCH_LENGTH global semantic but feature table is ' + featureTableJSON
+                    message: 'batch table requires the INSTANCES_LENGTH global semantic'
                 };
             }
 
