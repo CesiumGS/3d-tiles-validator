@@ -1,10 +1,7 @@
 'use strict';
 var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
-var Promise = require('bluebird');
 var zlib = require('zlib');
-
-var fsExtraOutputFile = Promise.promisify(fsExtra.outputFile);
 
 var defaultValue = Cesium.defaultValue;
 
@@ -24,5 +21,5 @@ function saveTile(path, contents, gzip) {
     if (gzip) {
         contents = zlib.gzipSync(contents);
     }
-    return fsExtraOutputFile(path, contents);
+    return fsExtra.outputFile(path, contents);
 }

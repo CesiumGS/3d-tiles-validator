@@ -13,8 +13,6 @@ var Mesh = require('./Mesh');
 var saveTile = require('./saveTile');
 var saveTilesetJson = require('./saveTilesetJson');
 
-var fsExtraReadJson = Promise.promisify(fsExtra.readJson);
-
 var Cartesian3 = Cesium.Cartesian3;
 var CesiumMath = Cesium.Math;
 var defaultValue = Cesium.defaultValue;
@@ -121,7 +119,7 @@ function createBatchTableHierarchy(options) {
     };
 
     return Promise.map(urls, function(url) {
-        return fsExtraReadJson(url)
+        return fsExtra.readJson(url)
             .then(function(gltf) {
                 return Mesh.fromGltf(gltf);
             });
