@@ -2,11 +2,8 @@
 var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
 var path = require('path');
-var Promise = require('bluebird');
 var createI3dm = require('./createI3dm');
 var optimizeGltf = require('./optimizeGltf');
-
-var fsExtraReadFile = Promise.promisify(fsExtra.readFile);
 
 var AttributeCompression = Cesium.AttributeCompression;
 var Cartesian2 = Cesium.Cartesian2;
@@ -147,7 +144,7 @@ function createInstancesTile(options) {
         preserve : true
     };
 
-    return fsExtraReadFile(url)
+    return fsExtra.readFile(url)
         .then(function(glb) {
             return optimizeGltf(glb, gltfOptions);
         })

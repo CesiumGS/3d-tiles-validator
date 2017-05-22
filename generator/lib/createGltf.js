@@ -6,8 +6,6 @@ var mime = require('mime');
 var path = require('path');
 var Promise = require('bluebird');
 
-var fsExtraReadFile = Promise.promisify(fsExtra.readFile);
-
 var Cartesian3 = Cesium.Cartesian3;
 var combine = Cesium.combine;
 var defaultValue = Cesium.defaultValue;
@@ -341,7 +339,7 @@ function getLoadImageFunction(image) {
     return function() {
         var imagePath = image.uri;
         var extension = path.extname(imagePath);
-        return fsExtraReadFile(imagePath)
+        return fsExtra.readFile(imagePath)
             .then(function(buffer) {
                 image.uri = 'data:' + mime.lookup(extension) + ';base64,' + buffer.toString('base64');
             });

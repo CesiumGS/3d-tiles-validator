@@ -18,9 +18,6 @@ var saveTile = require('../lib/saveTile');
 var saveTilesetJson = require('../lib/saveTilesetJson');
 var util = require('../lib/utility');
 
-var fsExtraCopy = Promise.promisify(fsExtra.copy);
-var fsExtraReadFile = Promise.promisify(fsExtra.readFile);
-
 var Cartesian3 = Cesium.Cartesian3;
 var CesiumMath = Cesium.Math;
 var clone = Cesium.clone;
@@ -845,7 +842,7 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
             ];
             if (tileOptions.embed === false) {
                 var copyPath = path.join(tilesetDirectory, path.basename(tileOptions.url));
-                promises.push(fsExtraCopy(tileOptions.url, copyPath));
+                promises.push(fsExtra.copy(tileOptions.url, copyPath));
             }
             return Promise.all(promises);
         });
@@ -1369,7 +1366,7 @@ function createTilesetWithExternalResources() {
         }
     };
 
-    return fsExtraReadFile(glbPath)
+    return fsExtra.readFile(glbPath)
         .then(function(glb) {
             var tiles = [
                 createB3dm({
@@ -1407,7 +1404,7 @@ function createTilesetWithExternalResources() {
             return Promise.all([
                 saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
                 saveTilesetJson(tileset2Path, tileset2Json, prettyJson),
-                fsExtraCopy(glbBasePath, glbCopyPath)
+                fsExtra.copy(glbBasePath, glbCopyPath)
             ]);
         });
 }
@@ -2125,7 +2122,7 @@ function createDiscreteLOD() {
     };
 
     var tilesPromise = Promise.map(glbPaths, function(glbPath, index) {
-        return fsExtraReadFile(glbPath)
+        return fsExtra.readFile(glbPath)
             .then(function(glb) {
                 var b3dm = createB3dm({
                     glb : glb
@@ -2381,7 +2378,7 @@ function createRequestVolume() {
             });
     });
 
-    var buildingPromise = fsExtraReadFile(buildingGlbPath)
+    var buildingPromise = fsExtra.readFile(buildingGlbPath)
         .then(function(glb) {
             return createB3dm({
                 glb : glb

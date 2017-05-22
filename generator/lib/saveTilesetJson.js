@@ -1,9 +1,6 @@
 'use strict';
 var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
-var Promise = require('bluebird');
-
-var fsExtraOutputJson = Promise.promisify(fsExtra.outputJson);
 
 var defaultValue = Cesium.defaultValue;
 
@@ -24,5 +21,5 @@ function saveTilesetJson(path, json, prettyJson) {
     if (prettyJson) {
         options.spaces = 2;
     }
-    return fsExtraOutputJson(path, json, options);
+    return fsExtra.outputJson(path, json, options);
 }
