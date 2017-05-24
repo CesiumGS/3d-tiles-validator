@@ -182,6 +182,8 @@ function createGltf(options) {
             extensions : {
                 KHR_materials_common : {
                     technique : technique,
+                    transparent : transparent,
+                    doubleSided : doubleSided,
                     values : {
                         ambient : ambient,
                         diffuse : diffuse,
