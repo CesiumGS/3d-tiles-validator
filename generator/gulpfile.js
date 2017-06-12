@@ -3,7 +3,7 @@
 var Cesium = require('cesium');
 var child_process = require('child_process');
 var gulp = require('gulp');
-var gulpJshint = require('gulp-jshint');
+var eslint = require('gulp-eslint');
 var Jasmine = require('jasmine');
 var SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 var path = require('path');
@@ -18,23 +18,26 @@ var environmentSeparator = process.platform === 'win32' ? ';' : ':';
 var nodeBinaries = path.join(__dirname, 'node_modules', '.bin');
 process.env.PATH += environmentSeparator + nodeBinaries;
 
-var jsHintFiles = ['**/*.js', '!node_modules/**'];
+var esLintFiles = ['**/*.js', '!node_modules/**'];
 var specFiles = ['**/*.js', '!node_modules/**'];
 
-gulp.task('jsHint', function () {
-    var stream = gulp.src(jsHintFiles)
-        .pipe(gulpJshint())
-        .pipe(gulpJshint.reporter('jshint-stylish'));
-
+gulp.task('eslint', function () {
+    var stream = gulp.src(esLintFiles)
+        .pipe(eslint())
+        .pipe(eslint.format());
     if (argv.failTaskOnError) {
-        stream = stream.pipe(gulpJshint.reporter('fail'));
+        stream = stream.pipe(eslint.failAfterError());
     }
 
     return stream;
 });
 
-gulp.task('jsHint-watch', function () {
-    gulp.watch(jsHintFiles, ['jsHint']);
+gulp.task('eslint-watch', function() {
+    gulp.watch(esLintFiles).on('change', function(event) {
+        gulp.src(event.path)
+            .pipe(eslint())
+            .pipe(eslint.format());
+    });
 });
 
 gulp.task('test', function (done) {
