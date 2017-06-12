@@ -198,7 +198,7 @@ function boxFunction(i, pointsLength, radius) {
     return position;
 }
 
-function sphereFunction(i, pointsLength, radius) {
+function sphereFunction(i, pointsLength, radius) { //eslint-disable-line no-unused-vars
     var theta = CesiumMath.nextRandomNumber() * 2 * Math.PI;
     var phi = CesiumMath.nextRandomNumber() * Math.PI - Math.PI/2.0;
     var x = radius * Math.cos(theta) * Math.cos(phi);
@@ -207,7 +207,7 @@ function sphereFunction(i, pointsLength, radius) {
     return new Cartesian3(x, y, z);
 }
 
-function randomFunction(position) {
+function randomFunction(position) { //eslint-disable-line no-unused-vars
     return Color.fromRandom();
 }
 

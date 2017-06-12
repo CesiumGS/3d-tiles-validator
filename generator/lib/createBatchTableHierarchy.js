@@ -7,7 +7,6 @@ var createB3dm = require('./createB3dm');
 var createGltf = require('./createGltf');
 var createTilesetJsonSingle = require('./createTilesetJsonSingle');
 var getBufferPadded = require('./getBufferPadded');
-var getJsonBufferPadded = require('./getJsonBufferPadded');
 var Material = require('./Material');
 var Mesh = require('./Mesh');
 var saveTile = require('./saveTile');

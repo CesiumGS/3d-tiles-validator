@@ -4,11 +4,7 @@ var gltfPipeline = require('gltf-pipeline');
 
 var defined = Cesium.defined;
 
-var addPipelineExtras = gltfPipeline.addPipelineExtras;
 var getBinaryGltf = gltfPipeline.getBinaryGltf;
-var loadGltfUris = gltfPipeline.loadGltfUris;
-var parseBinaryGltf = gltfPipeline.parseBinaryGltf;
-var processGltf = gltfPipeline.Pipeline.processJSON;
 
 var dataUriRegex = /^data\:/i;
 

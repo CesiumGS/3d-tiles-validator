@@ -5,7 +5,6 @@ var util = require('./utility');
 
 var Cartesian3 = Cesium.Cartesian3;
 var ComponentDatatype = Cesium.ComponentDatatype;
-var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 var Matrix4 = Cesium.Matrix4;
 
