@@ -1,6 +1,6 @@
 All the tools are licensed with the Apache 2.0 license. Check the LICENSE.md in each directory for more information on third-party libraries.
 
-Copyright 2016-2017 Analytical Graphics, Inc., and Contributors
+Copyright 2016-2017 Analytical Graphics, Inc. and Contributors
 
                                  Apache License
                            Version 2.0, January 2004
@@ -190,7 +190,7 @@ Copyright 2016-2017 Analytical Graphics, Inc., and Contributors
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2016-2017 Analytical Graphics, Inc., and Contributors
+   Copyright 2016-2017 Analytical Graphics, Inc. and Contributors
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
