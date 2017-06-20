@@ -994,7 +994,7 @@ function createTileset() {
                 region : parentRegion
             },
             geometricError : smallGeometricError,
-            refine : 'add',
+            refine : 'ADD',
             content : {
                 url : 'parent.b3dm',
                 boundingVolume : {
@@ -1064,7 +1064,7 @@ function createTilesetEmptyRoot() {
                 region : childrenRegion
             },
             geometricError : smallGeometricError,
-            refine : 'add',
+            refine : 'ADD',
             children : [
                 {
                     boundingVolume : {
@@ -1131,7 +1131,7 @@ function createTilesetOfTilesets() {
                 region : parentRegion
             },
             geometricError : smallGeometricError,
-            refine : 'add',
+            refine : 'ADD',
             content : {
                 url : 'tileset2.json'
             }
@@ -1148,7 +1148,7 @@ function createTilesetOfTilesets() {
                 region : parentRegion
             },
             geometricError : smallGeometricError,
-            refine : 'add',
+            refine : 'ADD',
             content : {
                 url : 'parent.b3dm'
             },
@@ -1203,7 +1203,7 @@ function createTilesetOfTilesets() {
                 region : llRegion
             },
             geometricError : 0.0,
-            refine : 'add',
+            refine : 'ADD',
             content : {
                 url : 'll.b3dm'
             }
@@ -1259,14 +1259,14 @@ function createTilesetWithExternalResources() {
                 region : smallRegion
             },
             geometricError : smallGeometricError,
-            refine : 'add',
+            refine : 'ADD',
             children : [
                 {
                     boundingVolume : {
                         region : smallRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     content : {
                         url : 'tileset2/tileset2.json'
                     }
@@ -1276,7 +1276,7 @@ function createTilesetWithExternalResources() {
                         region : smallRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     content : {
                         url : 'external.b3dm'
                     },
@@ -1287,7 +1287,7 @@ function createTilesetWithExternalResources() {
                         region : smallRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     content : {
                         url : 'external.i3dm'
                     },
@@ -1298,7 +1298,7 @@ function createTilesetWithExternalResources() {
                         region : smallRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     content : {
                         url : 'embed.i3dm'
                     },
@@ -1318,14 +1318,14 @@ function createTilesetWithExternalResources() {
                 region : smallRegion
             },
             geometricError : smallGeometricError,
-            refine : 'add',
+            refine : 'ADD',
             children : [
                 {
                     boundingVolume : {
                         region : smallRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     content : {
                         url : 'external.b3dm'
                     },
@@ -1336,7 +1336,7 @@ function createTilesetWithExternalResources() {
                         region : smallRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     content : {
                         url : 'external.i3dm'
                     },
@@ -1347,7 +1347,7 @@ function createTilesetWithExternalResources() {
                         region : smallRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     content : {
                         url : 'embed.i3dm'
                     },
@@ -1433,7 +1433,7 @@ function createTilesetRefinementMix() {
                 region : parentRegion
             },
             geometricError : smallGeometricError,
-            refine : 'add',
+            refine : 'ADD',
             content : {
                 url : 'parent.b3dm',
                 boundingVolume : {
@@ -1446,7 +1446,7 @@ function createTilesetRefinementMix() {
                         region : parentContentRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'replace',
+                    refine : 'REPLACE',
                     content : {
                         url : 'parent.b3dm'
                     },
@@ -1456,7 +1456,7 @@ function createTilesetRefinementMix() {
                                 region : llRegion
                             },
                             geometricError : 0.0,
-                            refine : 'add',
+                            refine : 'ADD',
                             content : {
                                 url : 'll.b3dm'
                             }
@@ -1466,7 +1466,7 @@ function createTilesetRefinementMix() {
                                 region : urRegion
                             },
                             geometricError : 0.0,
-                            refine : 'replace',
+                            refine : 'REPLACE',
                             content : {
                                 url : 'ur.b3dm'
                             }
@@ -1478,7 +1478,7 @@ function createTilesetRefinementMix() {
                         region : parentContentRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     content : {
                         url : 'parent.b3dm'
                     },
@@ -1488,7 +1488,7 @@ function createTilesetRefinementMix() {
                                 region : ulRegion
                             },
                             geometricError : 0.0,
-                            refine : 'add',
+                            refine : 'ADD',
                             content : {
                                 url : 'ul.b3dm'
                             }
@@ -1498,7 +1498,7 @@ function createTilesetRefinementMix() {
                                 region : lrRegion
                             },
                             geometricError : 0.0,
-                            refine : 'replace',
+                            refine : 'REPLACE',
                             content : {
                                 url : 'lr.b3dm'
                             }
@@ -1536,7 +1536,7 @@ function createTilesetReplacement1() {
                 region : parentRegion
             },
             geometricError : smallGeometricError,
-            refine : 'replace',
+            refine : 'REPLACE',
             content : {
                 url : 'parent.b3dm',
                 boundingVolume : {
@@ -1549,7 +1549,7 @@ function createTilesetReplacement1() {
                         region : childrenRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     children : [
                         {
                             boundingVolume : {
@@ -1576,7 +1576,7 @@ function createTilesetReplacement1() {
                         region : childrenRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     children : [
                         {
                             boundingVolume : {
@@ -1628,7 +1628,7 @@ function createTilesetReplacement2() {
                 region : parentRegion
             },
             geometricError : smallGeometricError,
-            refine : 'replace',
+            refine : 'REPLACE',
             content : {
                 url : 'parent.b3dm',
                 boundingVolume : {
@@ -1641,14 +1641,14 @@ function createTilesetReplacement2() {
                         region : childrenRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     children : [
                         {
                             boundingVolume : {
                                 region : urRegion
                             },
                             geometricError : 7.0,
-                            refine : 'replace',
+                            refine : 'REPLACE',
                             children : [
                                 {
                                     boundingVolume : {
@@ -1702,7 +1702,7 @@ function createTilesetReplacement3() {
                 region : parentRegion
             },
             geometricError : smallGeometricError,
-            refine : 'replace',
+            refine : 'REPLACE',
             content : {
                 url : 'parent.b3dm',
                 boundingVolume : {
@@ -1715,7 +1715,7 @@ function createTilesetReplacement3() {
                         region : childrenRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'add',
+                    refine : 'ADD',
                     content : {
                         url : 'tileset2.json'
                     }
@@ -1734,7 +1734,7 @@ function createTilesetReplacement3() {
                 region : childrenRegion
             },
             geometricError : smallGeometricError,
-            refine : 'replace',
+            refine : 'REPLACE',
             children : [
                 {
                     boundingVolume : {
@@ -1827,7 +1827,7 @@ function createTilesetWithTransforms() {
             },
             transform : rootTransform,
             geometricError : instancesGeometricError,
-            refine : 'add',
+            refine : 'ADD',
             content : {
                 url : buildingsTileName
             },
@@ -1897,7 +1897,7 @@ function createTilesetWithViewerRequestVolume() {
                 region : childrenRegion
             },
             geometricError : smallGeometricError,
-            refine : 'add',
+            refine : 'ADD',
             children : [
                 {
                     boundingVolume : {
@@ -1981,14 +1981,14 @@ function createTilesetReplacementWithViewerRequestVolume() {
                 region : parentRegion
             },
             geometricError : largeGeometricError,
-            refine : 'replace',
+            refine : 'REPLACE',
             children : [
                 {
                     boundingVolume : {
                         region : parentRegion
                     },
                     geometricError : smallGeometricError,
-                    refine : 'replace',
+                    refine : 'REPLACE',
                     content : {
                         url : 'parent.b3dm',
                         boundingVolume : {
@@ -2092,7 +2092,7 @@ function createDiscreteLOD() {
                 box : dragonBox
             },
             geometricError : dragonMediumGeometricError,
-            refine : 'replace',
+            refine : 'REPLACE',
             content : {
                 url : 'dragon_low.b3dm'
             },
@@ -2182,7 +2182,7 @@ function createTreeBillboards() {
                 region : treesRegion
             },
             geometricError : treeGeometricError,
-            refine : 'replace',
+            refine : 'REPLACE',
             content : {
                 url : 'tree_billboard.i3dm'
             },
@@ -2277,7 +2277,7 @@ function createRequestVolume() {
                 region : totalRegion
             },
             geometricError : buildingGeometricError,
-            refine : 'add',
+            refine : 'ADD',
             children : [
                 {
                     boundingVolume : {
@@ -2326,7 +2326,7 @@ function createRequestVolume() {
                 region : childrenRegion
             },
             geometricError : smallGeometricError,
-            refine : 'add',
+            refine : 'ADD',
             children : [
                 {
                     boundingVolume : {
@@ -2436,7 +2436,7 @@ function createExpireTileset() {
                 sphere : pointCloudSphereLocal
             },
             geometricError : 0.0,
-            refine : 'add',
+            refine : 'ADD',
             content : {
                 url : pointCloudTileName
             }
