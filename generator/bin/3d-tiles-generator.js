@@ -984,7 +984,7 @@ function createTileset() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0',
+            version : '1.0',
             tilesetVersion : '1.2.3'
         },
         properties : undefined,
@@ -1055,7 +1055,7 @@ function createTilesetEmptyRoot() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         properties : undefined,
         geometricError : smallGeometricError,
@@ -1122,7 +1122,7 @@ function createTilesetOfTilesets() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -1140,7 +1140,7 @@ function createTilesetOfTilesets() {
 
     var tileset2Json = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         geometricError : smallGeometricError,
         root : {
@@ -1195,7 +1195,7 @@ function createTilesetOfTilesets() {
 
     var tileset3Json = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         geometricError : 0.0,
         root : {
@@ -1250,7 +1250,7 @@ function createTilesetWithExternalResources() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0',
+            version : '1.0',
             tilesetVersion : '1.2.3'
         },
         geometricError : smallGeometricError,
@@ -1310,7 +1310,7 @@ function createTilesetWithExternalResources() {
 
     var tileset2Json = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         geometricError : smallGeometricError,
         root : {
@@ -1424,7 +1424,7 @@ function createTilesetRefinementMix() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -1527,7 +1527,7 @@ function createTilesetReplacement1() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -1619,7 +1619,7 @@ function createTilesetReplacement2() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -1693,7 +1693,7 @@ function createTilesetReplacement3() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -1726,7 +1726,7 @@ function createTilesetReplacement3() {
 
     var tileset2Json = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         geometricError : smallGeometricError,
         root : {
@@ -1817,7 +1817,7 @@ function createTilesetWithTransforms() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         properties : undefined,
         geometricError : smallGeometricError,
@@ -1889,7 +1889,7 @@ function createTilesetWithViewerRequestVolume() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         geometricError : largeGeometricError,
         root : {
@@ -1972,7 +1972,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -2083,7 +2083,7 @@ function createDiscreteLOD() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         geometricError : dragonLowGeometricError,
         root : {
@@ -2174,7 +2174,7 @@ function createTreeBillboards() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         geometricError : treeBillboardGeometricError,
         root : {
@@ -2269,7 +2269,7 @@ function createRequestVolume() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         geometricError : buildingGeometricError,
         root : {
@@ -2317,7 +2317,7 @@ function createRequestVolume() {
 
     var cityTilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         properties : undefined,
         geometricError : smallGeometricError,
@@ -2424,7 +2424,7 @@ function createExpireTileset() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         geometricError : pointCloudGeometricError,
         root : {
