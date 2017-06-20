@@ -36,7 +36,7 @@ function createTilesetJsonSingle(options) {
         geometricError : options.geometricError,
         root : {
             transform : transformArray,
-            refine : 'add',
+            refine : 'ADD',
             boundingVolume : boundingVolume,
             geometricError : 0.0,
             content : {
