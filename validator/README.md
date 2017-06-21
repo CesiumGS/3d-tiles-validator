@@ -19,13 +19,12 @@ Validates the input tileset.
 node ./bin/3d-tiles-validator.js ./specs/data/Tileset/
 ```
 ```
-node ./bin/3d-tiles-tools.js gzip -i ./specs/data/Tileset/
+node ./bin/3d-tiles-validator.js -i ./specs/data/Tileset/
 ```
 
 |Flag|Description|Required|
 |----|-----------|--------|
-|`-i`, `--input`|Input directory of the tileset.| :white_check_mark: Yes|
-
+|`-i`, `--input`|Input directory of the tileset.| No. An input tileset is required but this flag may be omitted|
 
 ## Build Instructions
 
@@ -33,13 +32,13 @@ Run the tests:
 ```
 npm run test
 ```
-To run JSHint on the entire codebase, run:
+To run ESLint on the entire codebase, run:
 ```
-npm run jsHint
+npm run eslint
 ```
-To run JSHint automatically when a file is saved, run the following and leave it open in a console window:
+To run ESLint automatically when a file is saved, run the following and leave it open in a console window:
 ```
-npm run jsHint-watch
+npm run eslint-watch
 ```
 
 ### Running Test Coverage

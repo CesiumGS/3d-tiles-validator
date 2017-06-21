@@ -2,5 +2,5 @@ language: node_js
 node_js:
   - 4
 script:
-  - npm run jsHint -- --failTaskOnError
+  - npm run eslint -- --failTaskOnError
   - npm run test -- --failTaskOnError --suppressPassed

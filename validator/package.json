@@ -28,21 +28,20 @@
     "yargs": "4.8.1"
   },
   "devDependencies": {
+    "eslint-config-cesium": "^1.0.0",
     "gulp": "3.9.1",
-    "gulp-jshint": "2.0.1",
+    "gulp-eslint": "^4.0.0",
     "istanbul": "0.4.4",
     "jasmine": "2.4.1",
     "jasmine-spec-reporter": "2.5.0",
     "jsdoc": "3.4.0",
-    "jshint": "2.9.2",
-    "jshint-stylish": "2.2.0",
     "open": "0.0.5",
     "request": "2.74.0",
     "requirejs": "2.2.0"
   },
   "scripts": {
-    "jsHint": "gulp jsHint",
-    "jsHint-watch": "gulp jsHint-watch",
+    "eslint": "gulp eslint",
+    "eslint-watch": "gulp eslint-watch",
     "test": "gulp test",
     "test-watch": "gulp test-watch",
     "coverage": "gulp coverage",

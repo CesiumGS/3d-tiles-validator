@@ -4,7 +4,7 @@
 /tools
 /TypeScriptDefinitions
 /.idea
-.jshintrc
+.eslintrc.json
 .npmignore
 .travis.yml
 gulpfile.js
