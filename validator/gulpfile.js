@@ -104,7 +104,7 @@ function copyModule(module) {
 
 gulp.task('update-ts-definitions', function () {
     fsExtra.removeSync('TypeScriptDefinitions');
-    var packageJson = require('./package.json');
+    var packageJson = fsExtra.readJSONSync('./package.json');
     Object.keys(packageJson.dependencies).forEach(copyModule);
     Object.keys(packageJson.devDependencies).forEach(copyModule);
 });
