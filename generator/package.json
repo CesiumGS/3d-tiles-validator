@@ -31,17 +31,16 @@
     "simplex-noise": "^2.3.0"
   },
   "devDependencies": {
-    "eslint-config-cesium": "^1.0.0",
+    "eslint": "^4.1.1",
+    "eslint-config-cesium": "^2.0.0",
     "gulp": "^3.9.1",
-    "gulp-eslint": "^4.0.0",
     "jasmine": "^2.6.0",
     "jasmine-spec-reporter": "^4.1.0",
     "requirejs": "^2.3.3",
     "yargs": "^8.0.1"
   },
   "scripts": {
-    "eslint": "gulp eslint",
-    "eslint-watch": "gulp eslint-watch",
+    "eslint": "eslint \"./**/*.js\" --cache --quiet",
     "test": "gulp test",
     "test-watch": "gulp test-watch"
   },
