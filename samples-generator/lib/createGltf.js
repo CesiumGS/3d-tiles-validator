@@ -248,7 +248,7 @@ function createGltf(options) {
     var gltf = {
         accessors : accessors,
         asset : {
-            generator : '3d-tiles-generator',
+            generator : '3d-tiles-samples-generator',
             version : '1.0',
             profile : {
                 api : 'WebGL',
