@@ -5,3 +5,4 @@
 gulpfile.js
 *.tgz
 *.zip
+.eslintcache

@@ -9,3 +9,4 @@
 .travis.yml
 gulpfile.js
 *.tgz
+.eslintcache
