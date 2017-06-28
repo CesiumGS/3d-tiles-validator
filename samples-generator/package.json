@@ -1,5 +1,5 @@
 {
-  "name": "3d-tiles-generator",
+  "name": "3d-tiles-samples-generator",
   "version": "0.1.0",
   "license": "Apache-2.0",
   "description": "Tools for generating sample 3D Tiles tilesets.",
@@ -46,6 +46,6 @@
     "test-watch": "gulp test-watch"
   },
   "bin": {
-    "3d-tiles-generator": "./bin/3d-tiles-generator"
+    "3d-tiles-samples-generator": "./bin/3d-tiles-samples-generator"
   }
 }
