@@ -266,6 +266,8 @@ function createHierarchy(instances) {
     var parentCounts = [];
     var parentIds = [];
     var instancesLength = instances.length;
+    var classId;
+    var classData;
 
     for (i = 0; i < instancesLength; ++i) {
         var instance = instances[i].instance;
@@ -275,8 +277,8 @@ function createHierarchy(instances) {
         var parentsLength = parents.length;
 
         // Get class id
-        var classId = undefined;
-        var classData = undefined;
+        classId = undefined;
+        classData = undefined;
         var classesLength = classes.length;
         for (j = 0; j < classesLength; ++j) {
             if (classes[j].name === className) {
@@ -830,59 +832,57 @@ function createInstances(noParents, multipleParents) {
             doorknob4, doorknob5, doorknob6, doorknob7, door4, door5, door6, door7, roof1, wall1,
             doorknob8, doorknob9, doorknob10, doorknob11, door8, door9, door10, door11, roof2, wall2
         ];
-    } else {
-        door0.instance.parents = [building0];
-        door1.instance.parents = [building0];
-        door2.instance.parents = [building0];
-        door3.instance.parents = [building0];
-        door4.instance.parents = [building1];
-        door5.instance.parents = [building1];
-        door6.instance.parents = [building1];
-        door7.instance.parents = [building1];
-        door8.instance.parents = [building2];
-        door9.instance.parents = [building2];
-        door10.instance.parents = [building2];
-        door11.instance.parents = [building2];
-        doorknob0.instance.parents = [door0];
-        doorknob1.instance.parents = [door1];
-        doorknob2.instance.parents = [door2];
-        doorknob3.instance.parents = [door3];
-        doorknob4.instance.parents = [door4];
-        doorknob5.instance.parents = [door5];
-        doorknob6.instance.parents = [door6];
-        doorknob7.instance.parents = [door7];
-        doorknob8.instance.parents = [door8];
-        doorknob9.instance.parents = [door9];
-        doorknob10.instance.parents = [door10];
-        doorknob11.instance.parents = [door11];
-        roof0.instance.parents = [building0];
-        roof1.instance.parents = [building1];
-        roof2.instance.parents = [building2];
-        wall0.instance.parents = [building0];
-        wall1.instance.parents = [building1];
-        wall2.instance.parents = [building2];
-        building0.instance.parents = [zone0];
-        building1.instance.parents = [zone0];
-        building2.instance.parents = [zone0];
-
-        if (multipleParents) {
-            door0.instance.parents.push(classifierOld);
-            building0.instance.parents.push(classifierNew);
-            building1.instance.parents.push(classifierOld);
-            building2.instance.parents.push(classifierNew, classifierOld);
-            return [
-                doorknob0, doorknob1, doorknob2, doorknob3, door0, door1, door2, door3, roof0, wall0,
-                doorknob4, doorknob5, doorknob6, doorknob7, door4, door5, door6, door7, roof1, wall1,
-                doorknob8, doorknob9, doorknob10, doorknob11, door8, door9, door10, door11, roof2, wall2,
-                building0, building1, building2, zone0, classifierNew, classifierOld
-            ];
-        } else {
-            return [
-                doorknob0, doorknob1, doorknob2, doorknob3, door0, door1, door2, door3, roof0, wall0,
-                doorknob4, doorknob5, doorknob6, doorknob7, door4, door5, door6, door7, roof1, wall1,
-                doorknob8, doorknob9, doorknob10, doorknob11, door8, door9, door10, door11, roof2, wall2,
-                building0, building1, building2, zone0
-            ];
-        }
     }
+    door0.instance.parents = [building0];
+    door1.instance.parents = [building0];
+    door2.instance.parents = [building0];
+    door3.instance.parents = [building0];
+    door4.instance.parents = [building1];
+    door5.instance.parents = [building1];
+    door6.instance.parents = [building1];
+    door7.instance.parents = [building1];
+    door8.instance.parents = [building2];
+    door9.instance.parents = [building2];
+    door10.instance.parents = [building2];
+    door11.instance.parents = [building2];
+    doorknob0.instance.parents = [door0];
+    doorknob1.instance.parents = [door1];
+    doorknob2.instance.parents = [door2];
+    doorknob3.instance.parents = [door3];
+    doorknob4.instance.parents = [door4];
+    doorknob5.instance.parents = [door5];
+    doorknob6.instance.parents = [door6];
+    doorknob7.instance.parents = [door7];
+    doorknob8.instance.parents = [door8];
+    doorknob9.instance.parents = [door9];
+    doorknob10.instance.parents = [door10];
+    doorknob11.instance.parents = [door11];
+    roof0.instance.parents = [building0];
+    roof1.instance.parents = [building1];
+    roof2.instance.parents = [building2];
+    wall0.instance.parents = [building0];
+    wall1.instance.parents = [building1];
+    wall2.instance.parents = [building2];
+    building0.instance.parents = [zone0];
+    building1.instance.parents = [zone0];
+    building2.instance.parents = [zone0];
+
+    if (multipleParents) {
+        door0.instance.parents.push(classifierOld);
+        building0.instance.parents.push(classifierNew);
+        building1.instance.parents.push(classifierOld);
+        building2.instance.parents.push(classifierNew, classifierOld);
+        return [
+            doorknob0, doorknob1, doorknob2, doorknob3, door0, door1, door2, door3, roof0, wall0,
+            doorknob4, doorknob5, doorknob6, doorknob7, door4, door5, door6, door7, roof1, wall1,
+            doorknob8, doorknob9, doorknob10, doorknob11, door8, door9, door10, door11, roof2, wall2,
+            building0, building1, building2, zone0, classifierNew, classifierOld
+        ];
+    }
+    return [
+            doorknob0, doorknob1, doorknob2, doorknob3, door0, door1, door2, door3, roof0, wall0,
+            doorknob4, doorknob5, doorknob6, doorknob7, door4, door5, door6, door7, roof1, wall1,
+            doorknob8, doorknob9, doorknob10, doorknob11, door8, door9, door10, door11, roof2, wall2,
+            building0, building1, building2, zone0
+    ];
 }

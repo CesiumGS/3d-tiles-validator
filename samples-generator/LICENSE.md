@@ -205,7 +205,7 @@ Copyright 2016-2017 Analytical Graphics, Inc. and Contributors
 Third-Party Code
 ================
 
-3d-tiles-generator includes the following third-party code:
+3d-tiles-samples-generator includes the following third-party code:
 
 ### bluebird
 
