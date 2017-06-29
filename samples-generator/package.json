@@ -33,16 +33,20 @@
   "devDependencies": {
     "eslint": "^4.1.1",
     "eslint-config-cesium": "^2.0.0",
+    "fs-extra": "^3.0.1",
     "gulp": "^3.9.1",
     "jasmine": "^2.6.0",
     "jasmine-spec-reporter": "^4.1.0",
+    "nyc": "^11.0.3",
+    "open": "^0.0.5",
     "requirejs": "^2.3.3",
     "yargs": "^8.0.1"
   },
   "scripts": {
     "eslint": "eslint \"./**/*.js\" --cache --quiet",
     "test": "gulp test",
-    "test-watch": "gulp test-watch"
+    "test-watch": "gulp test-watch",
+    "coverage": "gulp coverage"
   },
   "bin": {
     "3d-tiles-samples-generator": "./bin/3d-tiles-samples-generator"

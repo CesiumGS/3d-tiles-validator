@@ -7,6 +7,8 @@ var Jasmine = require('jasmine');
 var SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 var path = require('path');
 var yargs = require('yargs');
+var fsExtra = require('fs-extra');
+var open = require('open');
 
 var defined = Cesium.defined;
 var argv = yargs.argv;
@@ -43,4 +45,21 @@ gulp.task('test-watch', function () {
             console.log('Tests failed to execute.');
         }
     });
+});
+
+gulp.task('coverage', function () {
+    fsExtra.removeSync('coverage');
+    child_process.execSync('nyc' +
+        ' --all' +
+        ' --reporter=lcov' +
+        ' --dir coverage' +
+        ' -x "specs/**"' +
+        ' -x "coverage/**"' +
+        ' -x "gulpfile.js"' +
+        ' -x "index.js"' +
+        ' node_modules/jasmine/bin/jasmine.js' +
+        ' JASMINE_CONFIG_PATH=specs/jasmine.json', {
+        stdio: [process.stdin, process.stdout, process.stderr]
+    });
+    open('coverage/lcov-report/index.html');
 });
