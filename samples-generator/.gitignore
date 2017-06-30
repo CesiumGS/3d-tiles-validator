@@ -7,7 +7,9 @@ npm-debug.log
 .idea/tasks.xml
 
 # Generated files
+.nyc_output
 .eslintcache
+coverage
 output
 *.tgz
 *.zip
