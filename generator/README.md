@@ -1,1 +1,0 @@
-Tools for generating sample 3D Tiles tilesets.
