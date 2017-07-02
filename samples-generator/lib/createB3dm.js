@@ -7,6 +7,10 @@ var defaultValue = Cesium.defaultValue;
 
 module.exports = createB3dm;
 
+var defaultFeatureTable = {
+    BATCH_LENGTH : 0
+};
+
 /**
  * Create a Batched 3D Model (b3dm) tile from a binary glTF and per-feature metadata.
  *
@@ -21,34 +25,33 @@ module.exports = createB3dm;
  * @returns {Buffer} The generated b3dm tile buffer.
  */
 function createB3dm(options) {
-    var glb = options.glb;
-    var defaultFeatureTable = {
-        BATCH_LENGTH : 0
-    };
     var featureTableJson = defaultValue(options.featureTableJson, defaultFeatureTable);
+    var featureTableBinary = options.featureTableBinary;
+    var batchTableJson = options.batchTableJson;
+    var batchTableBinary = options.batchTableBinary;
+    var glb = options.glb;
+
     var batchLength = featureTableJson.BATCH_LENGTH;
-
-    var headerByteLength = 28;
-    var featureTableJsonBuffer = getJsonBufferPadded(featureTableJson, headerByteLength);
-    var featureTableBinary = getBufferPadded(options.featureTableBinary);
-    var batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
-    var batchTableBinary = getBufferPadded(options.batchTableBinary);
-
     var deprecated1 = defaultValue(options.deprecated1, false);
     var deprecated2 = defaultValue(options.deprecated2, false);
 
     if (deprecated1) {
-        return createB3dmDeprecated1(glb, batchLength, batchTableJsonBuffer);
+        return createB3dmDeprecated1(glb, batchLength, batchTableJson);
     } else if (deprecated2) {
-        return createB3dmDeprecated2(glb, batchLength, batchTableJsonBuffer, batchTableBinary);
+        return createB3dmDeprecated2(glb, batchLength, batchTableJson, batchTableBinary);
     }
 
-    return createB3dmCurrent(glb, featureTableJsonBuffer, featureTableBinary, batchTableJsonBuffer, batchTableBinary);
+    return createB3dmCurrent(glb, featureTableJson, featureTableBinary, batchTableJson, batchTableBinary);
 }
 
 function createB3dmCurrent(glb, featureTableJson, featureTableBinary, batchTableJson, batchTableBinary) {
-    var version = 1;
     var headerByteLength = 28;
+    featureTableJson = getJsonBufferPadded(featureTableJson, headerByteLength);
+    featureTableBinary = getBufferPadded(featureTableBinary);
+    batchTableJson = getJsonBufferPadded(batchTableJson);
+    batchTableBinary = getBufferPadded(batchTableBinary);
+
+    var version = 1;
     var featureTableJsonByteLength = featureTableJson.length;
     var featureTableBinaryByteLength = featureTableBinary.length;
     var batchTableJsonByteLength = batchTableJson.length;
@@ -69,8 +72,10 @@ function createB3dmCurrent(glb, featureTableJson, featureTableBinary, batchTable
 }
 
 function createB3dmDeprecated1(glb, batchLength, batchTableJson) {
-    var version = 1;
     var headerByteLength = 20;
+    batchTableJson = getJsonBufferPadded(batchTableJson, headerByteLength);
+
+    var version = 1;
     var batchTableJsonByteLength = batchTableJson.length;
     var gltfByteLength = glb.length;
     var byteLength = headerByteLength + batchTableJsonByteLength + gltfByteLength;
@@ -86,8 +91,11 @@ function createB3dmDeprecated1(glb, batchLength, batchTableJson) {
 }
 
 function createB3dmDeprecated2(glb, batchLength, batchTableJson, batchTableBinary) {
-    var version = 1;
     var headerByteLength = 24;
+    batchTableJson = getJsonBufferPadded(batchTableJson, headerByteLength);
+    batchTableBinary = getBufferPadded(batchTableBinary);
+
+    var version = 1;
     var batchTableJsonByteLength = batchTableJson.length;
     var batchTableBinaryByteLength = batchTableBinary.length;
     var gltfByteLength = glb.length;

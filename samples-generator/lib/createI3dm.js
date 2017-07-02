@@ -20,7 +20,8 @@ module.exports = createI3dm;
  * @returns {Buffer} The generated i3dm tile buffer.
  */
 function createI3dm(options) {
-    var featureTableJson = getJsonBufferPadded(options.featureTableJson);
+    var headerByteLength = 32;
+    var featureTableJson = getJsonBufferPadded(options.featureTableJson, headerByteLength);
     var featureTableBinary = getBufferPadded(options.featureTableBinary);
     var batchTableJson = getJsonBufferPadded(options.batchTableJson);
     var batchTableBinary = getBufferPadded(options.batchTableBinary);
@@ -29,7 +30,6 @@ function createI3dm(options) {
     var gltfBuffer = defined(options.glb) ? options.glb : getGltfUrlBuffer(options.url);
 
     var version = 1;
-    var headerByteLength = 32;
     var featureTableJsonByteLength = featureTableJson.length;
     var featureTableBinaryByteLength = featureTableBinary.length;
     var batchTableJsonByteLength = batchTableJson.length;

@@ -23,12 +23,12 @@ function glbToI3dm(glbBuffer, featureTableJson, featureTableBinary, batchTableJs
         throw new DeveloperError('glbBuffer is not defined.');
     }
 
-    var featureTableJsonBuffer = getJsonBufferPadded(featureTableJson);
+    var headerByteLength = 32;
+    var featureTableJsonBuffer = getJsonBufferPadded(featureTableJson, headerByteLength);
     var featureTableBinaryBuffer = getBufferPadded(featureTableBinary);
     var batchTableJsonBuffer = getJsonBufferPadded(batchTableJson);
     var batchTableBinaryBuffer = getBufferPadded(batchTableBinary);
 
-    var headerByteLength = 32;
     var byteLength = headerByteLength + featureTableJsonBuffer.length + featureTableBinaryBuffer.length + batchTableJsonBuffer.length + batchTableBinaryBuffer.length + glbBuffer.length;
     var gltfFormat = 1;
 
