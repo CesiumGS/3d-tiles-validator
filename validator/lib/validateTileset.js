@@ -1,164 +1,122 @@
 'use strict';
-
 var Promise = require('bluebird');
 var Cesium = require('cesium');
 var path = require('path');
+var isTile = require('../lib/isTile');
 var readTile = require('../lib/readTile');
-var validateB3dm = require('../lib/validateB3dm');
-var validateI3dm = require('../lib/validateI3dm');
-var validatePnts = require('../lib/validatePnts');
+var readTileset = require('../lib/readTileset');
+var utility = require('../lib/utility');
+var validateTile = require('../lib/validateTile');
 
-var Cartesian3 = Cesium.Cartesian3;
-var Cartographic = Cesium.Cartographic;
+var regionInsideRegion = utility.regionInsideRegion;
+var sphereInsideSphere = utility.sphereInsideSphere;
+
 var defined = Cesium.defined;
-var Rectangle = Cesium.Rectangle;
 
 module.exports = validateTileset;
 
 /**
- * Walks down the tree represented by the JSON object and checks if it is a valid tileset.
+ * Check if a tileset is valid, including the tileset JSON and all tiles referenced within.
  *
- * @param {Object} tileset The JSON object representing the tileset.
- * @param {String} tilesetDirectory The tileset directory.
- * @return {Promise} A promise that resolves with two parameters - (1) a boolean for whether the tileset is valid
- *                                                                 (2) the error message if the tileset is not valid.
- *
+ * @param {Object} tileset The tileset JSON.
+ * @param {String} tilesetDirectory The directory that all paths in the tileset JSON are relative to.
+ * @return {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
  */
 function validateTileset(tileset, tilesetDirectory) {
-    return new Promise(function(resolve) {
-        validateNode(tileset.root, tileset, tilesetDirectory, resolve);
-    });
+    var message = validateTopLevel(tileset);
+    if (defined(message)) {
+        return Promise.resolve(message);
+    }
+
+    return validateTileHierarchy(tileset.root, tilesetDirectory);
 }
 
-var scratchCartographic = new Cartographic();
-var scratchContentCartesian = new Cartesian3();
-var scratchTileCartesian = new Cartesian3();
-var scratchContentRectangle = new Rectangle();
-var scratchTileRectangle = new Rectangle();
-
-function regionInsideRegion(contentRegion, tileRegion) {
-    var contentRectangle = Rectangle.unpack(contentRegion, 0, scratchContentRectangle);
-    var tileRectangle = Rectangle.unpack(tileRegion, 0, scratchTileRectangle);
-    var maxContentHeight = contentRegion[5];
-    var minContentHeight = contentRegion[4];
-    var maxTileHeight = tileRegion[5];
-    var minTileHeight = tileRegion[4];
-    return (Rectangle.contains(tileRectangle,  Rectangle.northwest(contentRectangle, scratchCartographic)) &&
-        Rectangle.contains(tileRectangle, Rectangle.southwest(contentRectangle, scratchCartographic)) &&
-        Rectangle.contains(tileRectangle, Rectangle.northeast(contentRectangle, scratchCartographic)) &&
-        Rectangle.contains(tileRectangle, Rectangle.southeast(contentRectangle, scratchCartographic))) &&
-        (maxContentHeight <= maxTileHeight) && (minContentHeight >= minTileHeight);
+function validateTopLevel(tileset) {
+    if (!defined(tileset.geometricError)) {
+        return 'Tileset must declare its geometricError as a top-level property.';
+    }
 }
 
-function sphereInsideSphere(contentSphere, tileSphere) {
-    var contentRadius = contentSphere[3];
-    var tileRadius = tileSphere[3];
-    var contentCenter = Cartesian3.unpack(contentSphere, 0, scratchContentCartesian);
-    var tileCenter = Cartesian3.unpack(tileSphere, 0, scratchTileCartesian);
-    var distance = Cartesian3.distance(contentCenter, tileCenter);
-    return distance <= (tileRadius - contentRadius);
-}
-
-function validateContent(tilePromises, tileContent, tilesetDirectory) {
-    tilePromises.push(readTile(path.join(tilesetDirectory,tileContent.url))
-        .then(function(tileBuffer) {
-            if (defined(tileBuffer)) {
-                var magic = tileBuffer.toString('utf8', 0, 4);
-                if (magic === 'b3dm') {
-                    var validateB3dmTest = validateB3dm(tileBuffer);
-                    if (!validateB3dmTest.result) {
-                        Promise.resolve({
-                            result: false,
-                            message: 'invalid b3dm'
-                        });
-                    }
-                } else if (magic === 'i3dm') {
-                    var validateI3dmTest = validateI3dm(tileBuffer);
-                    if (!validateI3dmTest.result) {
-                        Promise.resolve({
-                            result: false,
-                            message: 'invalid i3dm'
-                        });
-                    }
-                } else if (magic === 'pnts') {
-                    var validatePntsTest = validatePnts(tileBuffer);
-                    if (!validatePntsTest.result) {
-                        Promise.resolve({
-                            result: false,
-                            message: 'invalid pnts'
-                        });
-                    }
-                }
-            }
-        }));
-}
-
-function validateNode(root, parent, tilesetDirectory, resolve) {
-    var tilePromises = [];
+function validateTileHierarchy(root, tilesetDirectory) {
+    var contentPaths = [];
 
     var stack = [];
     stack.push({
-        node: root,
-        parent: parent
+        tile : root,
+        parent : undefined
     });
 
     while (stack.length > 0) {
         var node = stack.pop();
-        var tile = node.node;
-        var tileContent = tile.content;
-        var nodeParent = node.parent;
+        var tile = node.tile;
+        var parent = node.parent;
+        var content = tile.content;
 
-        if (defined(tileContent) && defined(tileContent.url)) {
-            validateContent(tilePromises, tileContent, tilesetDirectory);
+        if (defined(parent) && (tile.geometricError > parent.geometricError)) {
+            return 'Child has geometricError greater than parent';
         }
 
-        if (defined(tileContent) && defined(tileContent.boundingVolume)) {
-            var contentRegion = tileContent.boundingVolume.region;
+
+        if (defined(content) && defined(content.url)) {
+            contentPaths.push(path.join(tilesetDirectory, content.url));
+        }
+
+        if (defined(content) && defined(content.boundingVolume)) {
+            var contentRegion = content.boundingVolume.region;
+            var contentSphere = content.boundingVolume.sphere;
             var tileRegion = tile.boundingVolume.region;
-            var contentSphere = tileContent.boundingVolume.sphere;
             var tileSphere = tile.boundingVolume.sphere;
 
-            if (defined(contentRegion) && defined(tileRegion)) {
-                if (!regionInsideRegion(contentRegion, tileRegion)) {
-                    resolve({
-                        result: false,
-                        message: 'Child bounding volume is not contained within parent'
-                    });
-                }
+            if (defined(contentRegion) && defined(tileRegion) && !regionInsideRegion(contentRegion, tileRegion)) {
+                return 'content region [' + contentRegion + '] is not within tile region + [' + tileRegion + ']';
             }
 
-            if (defined(contentSphere) && defined(tileSphere)) {
-                if (!sphereInsideSphere(contentSphere, tileSphere)) {
-                    resolve({
-                        result: false,
-                        message: 'Child bounding volume is not contained within parent'
-                    });
-                }
+            if (defined(contentSphere) && defined(tileSphere) && !sphereInsideSphere(contentSphere, tileSphere)) {
+                return 'content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']';
             }
         }
 
-        if (tile.geometricError > nodeParent.geometricError) {
-             resolve({
-                result : false,
-                message : 'Child has geometricError greater than parent'
-            });
-        }
-
-        if (defined(tile.children)) {
-            var length = tile.children.length;
-            for (var j = 0; j < length; j++) {
+        var children = tile.children;
+        if (defined(children)) {
+            var length = children.length;
+            for (var i = 0; i < length; i++) {
                 stack.push({
-                    node: tile.children[j],
-                    parent: tile
+                    tile : children[i],
+                    parent : tile
                 });
             }
         }
     }
 
-    Promise.all(tilePromises).then(function() {
-        return resolve({
-            result : true,
-            message : 'Tileset is valid'
+    return Promise.map(contentPaths, function(contentPath) {
+        if (isTile(contentPath)) {
+            return readTile(contentPath)
+                .then(function(content) {
+                    return validateTile(content);
+                })
+                .catch(function(error) {
+                    return 'Could not read file: ' + error.message;
+                });
+        }
+        return readTileset(contentPath)
+            .then(function(tileset) {
+                return validateTileset(tileset, path.dirname(contentPath));
+            })
+            .catch(function(error) {
+                return 'Could not read file: ' + error.message;
+            });
+    })
+        .then(function(messages) {
+            var message = '';
+            var length = messages.length;
+            for (var i = 0; i < length; ++i) {
+                if (defined(messages[i])) {
+                    message += 'Error in ' + contentPaths[i] + ': ' + messages[i] + '\n';
+                }
+            }
+            if (message === '') {
+                return undefined;
+            }
+            return message;
         });
-    });
 }

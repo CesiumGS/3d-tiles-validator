@@ -2,11 +2,11 @@
 module.exports = isGzipped;
 
 /**
- * Test if the provided data is gzipped.
+ * Test if the provided buffer contains gzipped data.
  *
- * @param {Buffer} data A buffer containing the data to test.
- * @returns {Boolean} True if the data is gzipped, False if not.
+ * @param {Buffer} buffer The buffer.
+ * @returns {Boolean} True if the data is gzipped, false if not.
  */
-function isGzipped(data) {
-    return data[0] === 0x1f && data[1] === 0x8b;
+function isGzipped(buffer) {
+    return buffer[0] === 0x1f && buffer[1] === 0x8b;
 }

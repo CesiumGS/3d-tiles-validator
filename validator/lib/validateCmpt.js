@@ -5,38 +5,20 @@ var validateI3dm = require('../lib/validateI3dm');
 var validatePnts = require('../lib/validatePnts');
 
 var defined = Cesium.defined;
-var DeveloperError = Cesium.DeveloperError;
 
 module.exports = validateCmpt;
 
 /**
- * Checks if provided buffer has valid cmpt tile content
+ * Checks if the provided buffer has valid cmpt tile content.
  *
- * @param {Buffer} content - A buffer containing the contents of a cmpt tile.
- * @returns {Object} An object with two parameters - (1) a boolean for whether the tile is a valid cmpt tile
- *                                                   (2) a message to indicate which tile field is invalid, if any
+ * @param {Buffer} content A buffer containing the contents of a cmpt tile.
+ * @returns {String} An error message if validation fails, otherwise undefined.
  */
 function validateCmpt(content) {
-    if (!defined(content)) {
-        throw new DeveloperError('cmpt content must be defined');
-    }
-
-    if (!Buffer.isBuffer(content)) {
-        throw new DeveloperError('content must be of type buffer');
-    }
-
     var headerByteLength = 16;
-
     if (content.length < headerByteLength) {
-        return {
-            result : false,
-            message: 'Cmpt header must have min byte length of 16. Current header length = ' + content.length
-        };
+        return 'header must be 16 bytes';
     }
-
-    var byteOffset = 16;
-    var sizeOfUint32 = 4;
-    var isValid = true;
 
     var magic = content.toString('utf8', 0, 4);
     var version = content.readUInt32LE(4);
@@ -44,87 +26,45 @@ function validateCmpt(content) {
     var tilesLength = content.readUInt32LE(12);
 
     if (magic !== 'cmpt') {
-        return {
-            result : false,
-            message: 'Cmpt header has an invalid magic field. Expected magic = \'cmpt\'. Found magic = ' + magic
-        };
+        return 'Invalid magic: ' + magic;
     }
 
     if (version !== 1) {
-        return {
-            result : false,
-            message: 'Cmpt header has an invalid version field. Expected version = 1. Found version = ' + version
-        };
+        return 'Invalid version: ' + version;
     }
 
     if (byteLength !== content.length) {
-        return {
-            result : false,
-            message: 'Cmpt header has an invalid byteLength field. Expected byteLength = ' + content.length + '. Found byteLength = ' + byteLength
-        };
+        return 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
     }
 
-    for (var i = 0; i < tilesLength; i++) {
-        var errorAddon = '';
-        var validatorResult;
-
-        if (byteOffset + 3 * sizeOfUint32 > byteLength) {
-            return {
-                result : false,
-                message: 'Cmpt header given tilesLength = ' + tilesLength + '. Found number of inner tiles = ' + (i + 1)
-            };
+    var byteOffset = headerByteLength;
+    for (var i = 0; i < tilesLength; ++i) {
+        if (byteOffset + 12 > byteLength) {
+            return 'Cannot read byte length from inner tile, exceeds cmpt tile\'s byte length.';
+        }
+        if (byteOffset % 8 > 0) {
+            return 'Inner tile must be aligned to an 8-byte boundary';
         }
 
-        var innerTileMagic = content.toString('utf8', byteOffset, byteOffset + sizeOfUint32);
-        var innerTileByteLength = content.readUInt32LE(byteOffset + 2 * sizeOfUint32);
-
-        if (byteOffset + innerTileByteLength > byteLength) {
-            return {
-                result : false,
-                message: 'Inner ' + innerTileMagic + ' tile exceeds provided buffer\'s length. Byte length = ' + byteLength + '. Inner tile\'s end = ' + byteOffset + innerTileByteLength
-            };
-        }
-
+        var innerTileMagic = content.toString('utf8', byteOffset, byteOffset + 4);
+        var innerTileByteLength = content.readUInt32LE(byteOffset + 8);
         var innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
 
+        var message;
         if (innerTileMagic === 'b3dm') {
-            validatorResult = validateB3dm(innerTile);
-            isValid = isValid && validatorResult.result;
-            errorAddon += validatorResult.message;
+            message = validateB3dm(innerTile);
         } else if (innerTileMagic === 'i3dm') {
-            validatorResult = validateI3dm(innerTile);
-            isValid = isValid && validatorResult.result;
-            errorAddon += validatorResult.message;
+            message = validateI3dm(innerTile);
         } else if (innerTileMagic === 'pnts') {
-            validatorResult = validatePnts(innerTile);
-            isValid = isValid && validatorResult.result;
-            errorAddon += validatorResult.message;
+            message = validatePnts(innerTile);
         } else if (innerTileMagic === 'cmpt') {
-            validatorResult = validateCmpt(innerTile);
-            isValid = isValid && validatorResult.result;
-            errorAddon += validatorResult.message;
-        } else {
-            isValid = false;
-            errorAddon += 'Inner tile header magic cannot be identified; header = ' + innerTileMagic;
+            message = validateCmpt(innerTile);
         }
 
-        byteOffset = byteOffset + innerTileByteLength; // skip over this tile
-
-        if (!isValid) {
-            var errorMessage = 'Cmpt header has an invalid inner tile:\n';
-            errorMessage += 'Invalid inner tile index = ' + i + ' starting at byte = ' + (byteOffset - innerTileByteLength) + '\n';
-            errorMessage += 'Invalid inner tile has magic = ' + innerTileMagic + '\n';
-            errorMessage += errorAddon;
-
-            return {
-                result : false,
-                message: errorMessage
-            };
+        if (defined(message)) {
+            return message;
         }
+
+        byteOffset += innerTileByteLength;
     }
-
-    return {
-        result : true,
-        message: 'valid cmpt'
-    };
 }

@@ -22,30 +22,29 @@
     "node": ">=4.0.0"
   },
   "dependencies": {
-    "bluebird": "3.4.1",
-    "cesium": "1.24",
-    "clone": "2.0.0",
-    "fs-extra": "0.30.0",
-    "yargs": "4.8.1"
+    "bluebird": "^3.5.0",
+    "cesium": "^1.34",
+    "fs-extra": "^3.0.1"
   },
   "devDependencies": {
+    "clone": "^2.1.1",
     "eslint": "^4.1.1",
     "eslint-config-cesium": "^2.0.0",
-    "gulp": "3.9.1",
-    "jasmine": "2.4.1",
-    "jasmine-spec-reporter": "2.5.0",
-    "jsdoc": "3.4.0",
+    "gulp": "^3.9.1",
+    "jasmine": "^2.6.0",
+    "jasmine-spec-reporter": "^4.1.1",
+    "jsdoc": "^3.4.3",
     "nyc": "^11.0.3",
-    "open": "0.0.5",
-    "request": "2.74.0",
-    "requirejs": "2.2.0"
+    "open": "^0.0.5",
+    "request": "^2.81.0",
+    "requirejs": "^2.3.3",
+    "yargs": "^8.0.2"
   },
   "scripts": {
     "eslint": "eslint \"./**/*.js\" --cache --quiet",
     "test": "gulp test",
     "test-watch": "gulp test-watch",
     "coverage": "gulp coverage",
-    "update-ts-definitions": "gulp update-ts-definitions",
     "jsDoc": "gulp jsDoc"
   },
   "bin": {

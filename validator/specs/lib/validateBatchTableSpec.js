@@ -3,109 +3,156 @@ var batchTableSchema = require('../data/schema/batchTable.schema.json');
 var validateBatchTable = require('../../lib/validateBatchTable');
 
 describe('validate batch table', function() {
-    it('validates a batch table JSON matches schema', function() {
-        var batchTableJSON = createValidBatchTableJSON();
-        expect(validateBatchTable(batchTableSchema, batchTableJSON, 3).result).toBe(true);
+    it('returns error message if byteOffset is not a number', function() {
+        var batchTableJson = {
+            height : {
+                byteOffset : '0',
+                type : 'SCALAR',
+                componentType : 'FLOAT'
+            }
+        };
+        var batchTableBinary = Buffer.alloc(4);
+        var featuresLength = 1;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('Batch table binary property "height" byteOffset must be a number.');
     });
 
-    it('validates a batch table JSON object matches schema with valid binary body', function() {
-        var batchTableJSON = createValidBatchTableJSONBinary();
-        var batchTableBinary = createValidBatchTableBinary();
-        expect(validateBatchTable(batchTableSchema, batchTableJSON, batchTableBinary, 3).result).toBe(true);
+    it('returns error message if type is undefined', function() {
+        var batchTableJson = {
+            height : {
+                byteOffset : 0,
+                componentType : 'FLOAT'
+            }
+        };
+        var batchTableBinary = Buffer.alloc(4);
+        var featuresLength = 1;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('Batch table binary property "height" must have a type.');
     });
 
-    it('returns false if batch table JSON does not match schema', function() {
-        var batchTableJSON = createInvalidBatchTableJSON();
-        expect(validateBatchTable(batchTableSchema, batchTableJSON, 1).result).toBe(false);
+    it('returns error message if type is invalid', function() {
+        var batchTableJson = {
+            height : {
+                byteOffset : 0,
+                type : 'INVALID',
+                componentType : 'FLOAT'
+            }
+        };
+        var batchTableBinary = Buffer.alloc(4);
+        var featuresLength = 1;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('Batch table binary property "height" has invalid type "INVALID".');
     });
 
-    it('returns false if batch table JSON does not match schema with binary body', function() {
-        var batchTableJSON = createInvalidBatchTableJSONBinary();
-        var batchTableBinary = createValidBatchTableBinary();
-        expect(validateBatchTable(batchTableSchema, batchTableJSON, batchTableBinary, 3).result).toBe(false);
+    it('returns error message if componentType is undefined', function() {
+        var batchTableJson = {
+            height : {
+                byteOffset : 0,
+                type : 'SCALAR'
+            }
+        };
+        var batchTableBinary = Buffer.alloc(4);
+        var featuresLength = 1;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('Batch table binary property "height" must have a componentType.');
     });
 
-    it('Binary property byteOffset out of bounds', function() {
-        var batchTableJSON = createValidBatchTableJSONBinary();
-        var batchTableBinary = createValidBatchTableBinary();
-        batchTableJSON.height.byteOffset = batchTableBinary.length + 5;
-        expect(validateBatchTable(batchTableSchema, batchTableJSON, batchTableBinary, 3).result).toBe(false);
+    it('returns error message if componentType is invalid', function() {
+        var batchTableJson = {
+            height : {
+                byteOffset : 0,
+                type : 'SCALAR',
+                componentType : 'INVALID'
+            }
+        };
+        var batchTableBinary = Buffer.alloc(4);
+        var featuresLength = 1;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('Batch table binary property "height" has invalid componentType "INVALID".');
     });
 
-    it('Binary property byteoffset within another', function() {
-        var batchTableJSON = createValidBatchTableJSONBinary();
-        var batchTableBinary = createValidBatchTableBinary();
-        batchTableJSON.height.byteOffset = batchTableJSON.height.byteOffset - 1;
-        expect(validateBatchTable(batchTableSchema, batchTableJSON, batchTableBinary, 3).result).toBe(false);
+    it('returns error message if binary property is not aligned', function() {
+        var batchTableJson = {
+            height : {
+                byteOffset : 2,
+                type : 'SCALAR',
+                componentType : 'FLOAT'
+            }
+        };
+        var batchTableBinary = Buffer.alloc(6);
+        var featuresLength = 1;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('Batch table binary property "height" must be aligned to a 4-byte boundary.');
     });
 
-    it('invalid batch length', function() {
-        var batchTableJSON = createValidBatchTableJSON();
-        expect(validateBatchTable(batchTableSchema, batchTableJSON, -1).result).toBe(true);
+    it('returns error message if binary property exceeds batch table binary byte length', function() {
+        var batchTableJson = {
+            height : {
+                byteOffset : 4,
+                type : 'SCALAR',
+                componentType : 'FLOAT'
+            }
+        };
+        var batchTableBinary = Buffer.alloc(11);
+        var featuresLength = 2;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
+    });
+
+    it('returns error message if JSON property is not an array ', function() {
+        var batchTableJson = {
+            height : 0
+        };
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 1;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('Batch table property "height" must be an array.');
+    });
+
+    it('returns error message if the property\'s array length does not equal features length', function() {
+        var batchTableJson = {
+            height : [1, 2, 3, 4]
+        };
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 3;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('Batch table property "height" array length must equal features length 3.');
+    });
+
+    it('validates batch table', function() {
+        var batchTableJson = {
+            height : [1, 2, 3, 4],
+            name : ['name1', 'name2', 'name3', 'name4'],
+            other : [{}, 0, 'a', []]
+        };
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 4;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBeUndefined();
+    });
+
+    it('validates batch table binary', function() {
+        var batchTableJson = {
+            height : {
+                byteOffset : 0,
+                type : 'SCALAR',
+                componentType : 'FLOAT'
+            },
+            color : {
+                byteOffset : 12,
+                type : 'VEC3',
+                componentType : 'UNSIGNED_BYTE'
+            },
+            id : {
+                byteOffset : 16,
+                type : 'SCALAR',
+                componentType : 'UNSIGNED_SHORT'
+            },
+            name : ['name1', 'name2', 'name3']
+        };
+        var batchTableBinary = Buffer.alloc(22);
+        var featuresLength = 3;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBeUndefined();
     });
 });
-
-function createValidBatchTableJSON() {
-    var batchTableJSON = {
-        id : [0,1,2],
-        longitude : [-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
-        height : [8,14,14]
-    };
-
-    return batchTableJSON;
-}
-
-function createInvalidBatchTableJSON() {
-    var batchTableJSON = {
-        id : [0],
-        longitude : [-1.3196595204101946],
-        height : 8
-    };
-
-    return batchTableJSON;
-}
-
-function createValidBatchTableJSONBinary() {
-    var batchTableJSON = {
-        id : [0, 1, 2],
-        longitude : [-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
-        height : {
-            "byteOffset" : 0,
-            "componentType" : 'UNSIGNED_INT',
-            "type" : 'SCALAR'
-        },
-        width : {
-            "byteOffset" : 12,
-            "componentType" : 'UNSIGNED_INT',
-            "type" : 'SCALAR'
-        }
-    };
-
-    return batchTableJSON;
-}
-
-function createInvalidBatchTableJSONBinary() {
-    var batchTableJSON = {
-        id : [0, 1, 2],
-        longitude : [-1.3196595204101946,-1.3196567190670823,-1.3196687138763508],
-        height : {
-            "byteOffset" : 0,
-            "componentType" : 'UNSIGNED_INT'
-        }
-    };
-
-    return batchTableJSON;
-}
-
-function createValidBatchTableBinary() {
-    var heightBinaryBody = new Buffer(12);
-    heightBinaryBody.writeUInt32LE(8, 0);
-    heightBinaryBody.writeUInt32LE(14, 4);
-    heightBinaryBody.writeUInt32LE(14, 8);
-
-    var widthBinaryBody = new Buffer(12);
-    widthBinaryBody.writeUInt32LE(2, 0);
-    widthBinaryBody.writeUInt32LE(3, 4);
-    widthBinaryBody.writeUInt32LE(6, 8);
-    return Buffer.concat([heightBinaryBody, widthBinaryBody]);
-}

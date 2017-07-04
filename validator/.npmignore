@@ -1,8 +1,8 @@
 /coverage
 /doc
 /specs
+/test
 /tools
-/TypeScriptDefinitions
 /.idea
 .eslintrc.json
 .npmignore
