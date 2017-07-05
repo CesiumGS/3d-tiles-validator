@@ -17,7 +17,7 @@ module.exports = validateCmpt;
 function validateCmpt(content) {
     var headerByteLength = 16;
     if (content.length < headerByteLength) {
-        return 'header must be 16 bytes';
+        return 'Header must be 16 bytes';
     }
 
     var magic = content.toString('utf8', 0, 4);

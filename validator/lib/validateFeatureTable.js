@@ -40,36 +40,38 @@ function validateFeatureTable(schema, featureTableJson, featureTableBinary, feat
 
             if (defined(byteOffset)) {
                 if (typeof byteOffset !== 'number') {
-                    return 'byteOffset must be a number';
+                    return 'Feature table binary property "' + name + '" byteOffset must be a number.';
                 }
-                if (defined(componentTypeOptions) && componentTypeOptions.indexOf(componentType) === -1) {
-                    return 'invalid componentType: "' + componentType + '"';
+                if (defined(componentTypeOptions) && defined(componentTypeOptions) && componentTypeOptions.indexOf(componentType) === -1) {
+                    return 'Feature table binary property "' + name + '" has invalid componentType "' + componentType + '".';
                 }
                 if (byteOffset % componentByteLength > 0) {
-                    return 'Property "' + name + '" must be aligned to a ' + componentByteLength + '-byte boundary';
+                    return 'Feature table binary property "' + name + '" must be aligned to a ' + componentByteLength + '-byte boundary.';
                 }
                 var propertyByteLength = componentsLength * componentByteLength * itemsLength;
                 if (byteOffset + propertyByteLength > featureTableBinary.length) {
-                    return 'Property "' + name + '" exceeds feature table binary byte length';
+                    return 'Feature table binary property "' + name + '" exceeds feature table binary byte length.';
+                }
+            } else if (type === 'boolean') {
+                if (typeof property !== 'boolean') {
+                    return 'Feature table property "' + name + '" must be a boolean.';
                 }
             } else {
-                if (type === 'boolean' && (typeof property !== 'boolean')) {
-                    return 'Property "' + name + '" must be a boolean';
-                } else if (componentsLength === 1) {
+                var arrayLength = componentsLength * itemsLength;
+                if (arrayLength === 1) {
                     if (typeof property !== 'number') {
-                        return 'Property "' + name + '" must be a number';
+                        return 'Feature table property "' + name + '" must be a number.';
                     }
-                } else if (componentsLength > 1) {
+                } else {
                     if (!Array.isArray(property)) {
-                        return 'Property "' + name + '" must be an array';
+                        return 'Feature table property "' + name + '" must be an array.';
                     }
-                    var arrayLength = componentsLength * itemsLength;
                     if (property.length !== arrayLength) {
-                        return 'Length of "' + name + '" array must equal ' + arrayLength;
+                        return 'Feature table property "' + name + '" must be an array of length ' + arrayLength + '.';
                     }
                     for (var i = 0; i < arrayLength; ++i) {
                         if (typeof property[i] !== 'number') {
-                            return 'Elements of the "' + name + '" array must be numbers';
+                            return 'Feature table property "' + name + '" array must contain numbers only.';
                         }
                     }
                 }
@@ -80,6 +82,6 @@ function validateFeatureTable(schema, featureTableJson, featureTableBinary, feat
     var ajv = new Ajv();
     var validSchema = ajv.validate(schema, featureTableJson);
     if (!validSchema) {
-        return 'feature table JSON failed schema validation: ' + ajv.errorsText();
+        return 'Feature table JSON failed schema validation: ' + ajv.errorsText();
     }
 }
