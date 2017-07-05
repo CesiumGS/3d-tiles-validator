@@ -2074,7 +2074,7 @@ function createTilesetSubtreeExpiration() {
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -2109,7 +2109,7 @@ function createTilesetSubtreeExpiration() {
 
     var subtreeJson = {
         asset : {
-            version : '0.0'
+            version : '1.0'
         },
         properties : undefined,
         geometricError : smallGeometricError,
