@@ -14,6 +14,7 @@ var extractCmpt = require('../lib/extractCmpt');
 var extractI3dm = require('../lib/extractI3dm');
 var fileExists = require('../lib/fileExists');
 var getBufferPadded = require('../lib/getBufferPadded');
+var getMagic = require('../lib/getMagic');
 var getJsonBufferPadded = require('../lib/getJsonBufferPadded');
 var glbToB3dm = require('../lib/glbToB3dm');
 var glbToI3dm = require('../lib/glbToI3dm');
@@ -105,6 +106,16 @@ var argv = yargs
         }
     })
     .command('ungzip', 'Ungzips the input tileset directory.')
+    .command('combine', 'Combines all external tilesets into a single tileset.json file.', {
+        'r': {
+            alias: 'rootJson',
+            default: 'tileset.json',
+            description: 'Relative path to the root tileset.json file.',
+            normalize: true,
+            type: 'string'
+        }
+    })
+    .command('upgrade', 'Upgrades the input tileset to the latest version of the 3D Tiles spec. Embedded glTF models will be upgraded to glTF 2.0.')
     .demand(1)
     .recommendCommands()
     .strict()
@@ -136,6 +147,10 @@ function runCommand(command, input, output, force, argv) {
         return processStage(input, output, force, command, argv);
     } else if (command === 'ungzip') {
         return processStage(input, output, force, command, argv);
+    } else if (command === 'combine') {
+        return processStage(input, output, force, command, argv);
+    } else if (command === 'upgrade') {
+        return processStage(input, output, force, command, argv);
     } else if (command === 'b3dmToGlb') {
         return readB3dmWriteGlb(input, output, force);
     } else if (command === 'i3dmToGlb') {
@@ -154,35 +169,32 @@ function runCommand(command, input, output, force, argv) {
         return convertTilesetToDatabase(input, output, force);
     } else if (command === 'databaseToTileset') {
         return convertDatabaseToTileset(input, output, force);
-    } else {
-        throw new DeveloperError('Invalid command: ' + command);
     }
+    throw new DeveloperError('Invalid command: ' + command);
 }
 
 function checkDirectoryOverwritable(directory, force) {
     if (force) {
         return Promise.resolve();
-    } else {
-        return directoryExists(directory)
-            .then(function(exists) {
-                if (exists) {
-                    throw new DeveloperError('Directory ' + directory + ' already exists. Specify -f or --force to overwrite existing files.');
-                }
-            });
     }
+    return directoryExists(directory)
+        .then(function(exists) {
+            if (exists) {
+                throw new DeveloperError('Directory ' + directory + ' already exists. Specify -f or --force to overwrite existing files.');
+            }
+        });
 }
 
 function checkFileOverwritable(file, force) {
     if (force) {
         return Promise.resolve();
-    } else {
-        return fileExists(file)
-            .then(function (exists) {
-                if (exists) {
-                    throw new DeveloperError('File ' + file + ' already exists. Specify -f or --force to overwrite existing files.');
-                }
-            });
     }
+    return fileExists(file)
+        .then(function (exists) {
+            if (exists) {
+                throw new DeveloperError('File ' + file + ' already exists. Specify -f or --force to overwrite existing files.');
+            }
+        });
 }
 
 function readFile(file) {
@@ -257,6 +269,8 @@ function getStage(stageName, argv) {
         case 'gzip':
             stage.tilesOnly = argv.tilesOnly;
             break;
+        case 'combine':
+            stage.rootJson = argv.rootJson;
     }
     return stage;
 }
@@ -340,7 +354,7 @@ function extractGlbs(tiles) {
     var tilesLength = tiles.length;
     for (var i = 0; i < tilesLength; ++i) {
         var tile = tiles[i];
-        var magic = tile.toString('utf8', 0, 4);
+        var magic = getMagic(tile);
         if (magic === 'i3dm') {
             glbs.push(extractI3dm(tile).glb);
         } else if (magic === 'b3dm') {

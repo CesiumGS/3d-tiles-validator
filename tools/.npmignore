@@ -10,3 +10,5 @@
 .travis.yml
 gulpfile.js
 *.tgz
+.eslintcache
+.nyc_output

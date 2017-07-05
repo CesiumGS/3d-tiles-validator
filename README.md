@@ -5,7 +5,7 @@
 Upcoming tools for [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles/blob/master/README.md) tilesets:
 * Manipulating tilesets, e.g., extracting glTF, gzipping, etc.  See [tools/README.md](https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/blob/master/tools/README.md).
 * Validating that a tileset conforms to the specification.  See [validator/README.md](https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/blob/master/validator/README.md).
-* Generating tilesets for testing.  See [generator/README.md](https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/blob/master/generator/README.md).
+* Generate the sample tilesets in [3d-tiles-samples](https://github.com/AnalyticalGraphicsInc/3d-tiles-samples) and [Cesium](https://github.com/AnalyticalGraphicsInc/cesium).  See [samples-generator/README.md](https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/blob/master/samples-generator/README.md).
 
 See the [roadmap](https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/issues/1).
 

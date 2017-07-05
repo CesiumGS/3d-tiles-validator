@@ -7,7 +7,7 @@ var zlibGzip = Promise.promisify(zlib.gzip);
 
 describe('isGzipped', function() {
     it('detects when data is gzipped', function(done) {
-        var data = new Buffer(40);
+        var data = Buffer.alloc(40);
         expect(isGzipped(data)).toBe(false);
         expect(zlibGzip(data)
             .then(function(zippedData) {

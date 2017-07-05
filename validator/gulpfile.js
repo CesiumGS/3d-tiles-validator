@@ -4,7 +4,6 @@ var Cesium = require('cesium');
 var child_process = require('child_process');
 var fsExtra = require('fs-extra');
 var gulp = require('gulp');
-var eslint = require('gulp-eslint');
 var Jasmine = require('jasmine');
 var JasmineSpecReporter = require('jasmine-spec-reporter');
 var open = require('open');
@@ -22,27 +21,7 @@ var environmentSeparator = process.platform === 'win32' ? ';' : ':';
 var nodeBinaries = path.join(__dirname, 'node_modules', '.bin');
 process.env.PATH += environmentSeparator + nodeBinaries;
 
-var esLintFiles = ['**/*.js', '!node_modules/**', '!coverage/**', '!doc/**'];
 var specFiles = ['**/*.js', '!node_modules/**', '!coverage/**'];
-
-gulp.task('eslint', function () {
-    var stream = gulp.src(esLintFiles)
-        .pipe(eslint())
-        .pipe(eslint.format());
-    if (argv.failTaskOnError) {
-        stream = stream.pipe(eslint.failAfterError());
-    }
-
-    return stream;
-});
-
-gulp.task('eslint-watch', function() {
-    gulp.watch(esLintFiles).on('change', function(event) {
-        gulp.src(event.path)
-            .pipe(eslint())
-            .pipe(eslint.format());
-    });
-});
 
 gulp.task('test', function (done) {
     var jasmine = new Jasmine();
@@ -72,11 +51,16 @@ gulp.task('test-watch', function () {
 
 gulp.task('coverage', function () {
     fsExtra.removeSync('coverage/server');
-    child_process.execSync('istanbul' +
-        ' cover' +
-        ' --include-all-sources' +
+    child_process.execSync('nyc' +
+        ' --all' +
+        ' --reporter=lcov' +
         ' --dir coverage' +
-        ' -x "bin/** doc/** specs/** coverage/** index.js gulpfile.js"' +
+        ' -x "bin/**"' +
+        ' -x "doc/**"' +
+        ' -x "specs/**"' +
+        ' -x "coverage/**"' +
+        ' -x index.js' +
+        ' -x gulpfile.js"' +
         ' node_modules/jasmine/bin/jasmine.js' +
         ' JASMINE_CONFIG_PATH=specs/jasmine.json', {
         stdio: [process.stdin, process.stdout, process.stderr]
@@ -104,7 +88,7 @@ function copyModule(module) {
 
 gulp.task('update-ts-definitions', function () {
     fsExtra.removeSync('TypeScriptDefinitions');
-    var packageJson = require('./package.json');
+    var packageJson = fsExtra.readJSONSync('./package.json');
     Object.keys(packageJson.dependencies).forEach(copyModule);
     Object.keys(packageJson.devDependencies).forEach(copyModule);
 });
