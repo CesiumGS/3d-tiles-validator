@@ -1,7 +1,0 @@
-/output
-/.idea
-.jshintrc
-.npmignore
-gulpfile.js
-*.tgz
-*.zip

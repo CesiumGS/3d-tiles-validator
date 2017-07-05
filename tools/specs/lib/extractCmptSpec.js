@@ -1,23 +1,21 @@
 'use strict';
-var fs = require('fs');
+var fsExtra = require('fs-extra');
 var Promise = require('bluebird');
 var extractCmpt = require('../../lib/extractCmpt');
-
-var fsReadFile = Promise.promisify(fs.readFile);
 
 var compositePath = './specs/data/composite.cmpt';
 var compositeOfCompositePath = './specs/data/compositeOfComposite.cmpt';
 
 describe('extractCmpt', function() {
     var compositeBuffer;
-    var compositeOfCompositeBuffer;
+    var compositeOfCompositeBuffer; //eslint-disable-line no-unused-vars
     beforeAll(function(done) {
         Promise.all([
-            fsReadFile(compositePath)
+            fsExtra.readFile(compositePath)
                 .then(function(data) {
                     compositeBuffer = data;
                 }),
-            fsReadFile(compositeOfCompositePath)
+            fsExtra.readFile(compositeOfCompositePath)
                 .then(function(data) {
                     compositeOfCompositeBuffer = data;
                 })

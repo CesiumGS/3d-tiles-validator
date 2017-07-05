@@ -1,12 +1,8 @@
 'use strict';
 var fsExtra = require('fs-extra');
 var path = require('path');
-var Promise = require('bluebird');
 var isGzippedFile = require('../../lib/isGzippedFile');
 var runPipeline = require('../../lib/runPipeline');
-
-var fsExtraOutputFile = Promise.promisify(fsExtra.outputFile);
-var fsExtraRemove = Promise.promisify(fsExtra.remove);
 
 var inputDirectory = './specs/data/TilesetOfTilesets/';
 var outputDirectory = './specs/data/TilesetOfTilesets-processed';
@@ -14,7 +10,7 @@ var outputJson = './specs/data/TilesetOfTilesets-processed/tileset.json';
 
 describe('runPipeline', function() {
     afterEach(function(done) {
-        fsExtraRemove(outputDirectory)
+        fsExtra.remove(outputDirectory)
             .then(done);
     });
 
@@ -33,8 +29,8 @@ describe('runPipeline', function() {
         expect(runPipeline(pipeline)
             .then(function() {
                 return isGzippedFile(outputJson)
-                    .then(function(isGzippedFile) {
-                        expect(isGzippedFile).toBe(true);
+                    .then(function(gzipped) {
+                        expect(gzipped).toBe(true);
                     });
             }), done).toResolve();
     });
@@ -43,13 +39,13 @@ describe('runPipeline', function() {
         var pipeline = {
             input : inputDirectory,
             output : outputDirectory,
-            stages : ['gzip', 'ungzip']
+            stages : ['combine', 'gzip']
         };
         expect(runPipeline(pipeline)
             .then(function() {
                 return isGzippedFile(outputJson)
-                    .then(function(isGzippedFile) {
-                        expect(isGzippedFile).toBe(false);
+                    .then(function(gzipped) {
+                        expect(gzipped).toBe(true);
                     });
             }), done).toResolve();
     });
@@ -58,13 +54,13 @@ describe('runPipeline', function() {
         var pipeline = {
             input : inputDirectory,
             output : outputDirectory,
-            stages : ['gzip', 'ungzip', 'gzip']
+            stages : ['combine', 'gzip', 'ungzip']
         };
         expect(runPipeline(pipeline)
             .then(function() {
                 return isGzippedFile(outputJson)
-                    .then(function(isGzippedFile) {
-                        expect(isGzippedFile).toBe(true);
+                    .then(function(gzipped) {
+                        expect(gzipped).toBe(false);
                     });
             }), done).toResolve();
     });
@@ -73,13 +69,13 @@ describe('runPipeline', function() {
         var pipeline = {
             input : inputDirectory,
             output : outputDirectory,
-            stages : ['gzip', 'ungzip', 'gzip', 'ungzip']
+            stages : ['combine', 'gzip', 'ungzip', 'gzip']
         };
         expect(runPipeline(pipeline)
             .then(function() {
                 return isGzippedFile(outputJson)
-                    .then(function(isGzippedFile) {
-                        expect(isGzippedFile).toBe(false);
+                    .then(function(gzipped) {
+                        expect(gzipped).toBe(true);
                     });
             }), done).toResolve();
     });
@@ -96,8 +92,8 @@ describe('runPipeline', function() {
         expect(runPipeline(pipeline)
             .then(function() {
                 return isGzippedFile(outputJson)
-                    .then(function(isGzippedFile) {
-                        expect(isGzippedFile).toBe(false);
+                    .then(function(gzipped) {
+                        expect(gzipped).toBe(false);
                     });
             }), done).toResolve();
     });
@@ -118,8 +114,8 @@ describe('runPipeline', function() {
         expect(runPipeline(pipeline)
             .then(function() {
                 return isGzippedFile(outputJson)
-                    .then(function(isGzippedFile) {
-                        expect(isGzippedFile).toBe(false);
+                    .then(function(gzipped) {
+                        expect(gzipped).toBe(false);
                     });
             }), done).toResolve();
     });
@@ -154,8 +150,8 @@ describe('runPipeline', function() {
         expect(runPipeline(pipeline)
             .then(function() {
                 return isGzippedFile(outputJson)
-                    .then(function(isGzippedFile) {
-                        expect(isGzippedFile).toBe(true);
+                    .then(function(gzipped) {
+                        expect(gzipped).toBe(true);
                     });
             }), done).toResolve();
     });
@@ -169,8 +165,8 @@ describe('runPipeline', function() {
         expect(runPipeline(pipeline)
             .then(function() {
                 return isGzippedFile(outputJson)
-                    .then(function(isGzippedFile) {
-                        expect(isGzippedFile).toBe(false);
+                    .then(function(gzipped) {
+                        expect(gzipped).toBe(false);
                     });
             }), done).toResolve();
     });
@@ -178,7 +174,7 @@ describe('runPipeline', function() {
     it('accepts custom writeCallback', function (done) {
         var writeCallback = function(file, data) {
             var outputFile = path.join(outputDirectory, file);
-            return fsExtraOutputFile(outputFile, data);
+            return fsExtra.outputFile(outputFile, data);
         };
 
         var pipeline = {
@@ -193,8 +189,8 @@ describe('runPipeline', function() {
         expect(runPipeline(pipeline, options)
             .then(function() {
                 return isGzippedFile(outputJson)
-                    .then(function(isGzippedFile) {
-                        expect(isGzippedFile).toBe(true);
+                    .then(function(gzipped) {
+                        expect(gzipped).toBe(true);
                     });
             }), done).toResolve();
     });

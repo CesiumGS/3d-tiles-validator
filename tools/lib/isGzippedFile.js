@@ -1,18 +1,25 @@
 'use strict';
-var Promise = require('bluebird');
 var fsExtra = require('fs-extra');
+var Promise = require('bluebird');
 var isGzipped = require('./isGzipped');
 
-var fsExtraReadFile = Promise.promisify(fsExtra.readFile);
-
 module.exports = isGzippedFile;
+
+var readStreamOptions = {
+    start : 0,
+    end : 2
+};
 
 /**
  * @private
  */
 function isGzippedFile(file) {
-    return fsExtraReadFile(file)
-        .then(function (buffer) {
-            return isGzipped(buffer);
+    return new Promise(function (resolve, reject) {
+        var readStream = fsExtra.createReadStream(file, readStreamOptions);
+        readStream.on('error', reject);
+        readStream.on('data', function(chunk) {
+            resolve(isGzipped(chunk));
+            readStream.destroy();
         });
+    });
 }
