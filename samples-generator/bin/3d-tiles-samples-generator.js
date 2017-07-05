@@ -220,6 +220,7 @@ var promises = [
     createBatchedDeprecated1(),
     createBatchedDeprecated2(),
     createBatchedGltfZUp(),
+    createBatchedExpiration(),
     // Point Cloud
     createPointCloudRGB(),
     createPointCloudRGBA(),
@@ -272,6 +273,7 @@ var promises = [
     createTilesetWithTransforms(),
     createTilesetWithViewerRequestVolume(),
     createTilesetReplacementWithViewerRequestVolume(),
+    createTilesetSubtreeExpiration(),
     // Samples
     createDiscreteLOD(),
     createTreeBillboards(),
@@ -475,6 +477,15 @@ function createBatchedGltfZUp() {
         gltfUpAxis : 'Z'
     };
     return saveBatchedTileset('BatchedGltfZUp', tileOptions, tilesetOptions);
+}
+
+function createBatchedExpiration() {
+    var tilesetOptions = {
+        expire : {
+            duration : 5.0
+        }
+    };
+    return saveBatchedTileset('BatchedExpiration', undefined, tilesetOptions);
 }
 
 function createPointCloudRGB() {
@@ -2053,6 +2064,108 @@ function createTilesetReplacementWithViewerRequestVolume() {
     return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true);
 }
 
+function createTilesetSubtreeExpiration() {
+    var tilesetName = 'TilesetSubtreeExpiration';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var subtreePath = path.join(tilesetDirectory, 'subtree.json');
+    var tileNames = ['parent.b3dm', 'll.b3dm', 'lr.b3dm', 'ur.b3dm', 'ul.b3dm'];
+    var tileOptions = [parentTileOptions, llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : largeGeometricError,
+        root : {
+            boundingVolume : {
+                region : parentRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'ADD',
+            content : {
+                boundingVolume : {
+                    region : parentContentRegion
+                },
+                url : 'parent.b3dm'
+            },
+            children : [
+                {
+                    expire : {
+                        duration : 5.0
+                    },
+                    boundingVolume : {
+                        region : childrenRegion
+                    },
+                    geometricError : smallGeometricError,
+                    content : {
+                        url : 'subtree.json'
+                    }
+                }
+            ]
+        }
+    };
+
+    var subtreeJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : smallGeometricError,
+        root : {
+            boundingVolume : {
+                region : childrenRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'ADD',
+            children : [
+                {
+                    boundingVolume : {
+                        region : llRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'll.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : lrRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'lr.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : urRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ur.b3dm'
+                    }
+                },
+                {
+                    boundingVolume : {
+                        region : ulRegion
+                    },
+                    geometricError : 0.0,
+                    content : {
+                        url : 'ul.b3dm'
+                    }
+                }
+            ]
+        }
+    };
+
+    return Promise.all([
+        saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true),
+        saveTilesetJson(subtreePath, subtreeJson, prettyJson)
+    ]);
+}
+
 function createDiscreteLOD() {
     var glbPaths = ['data/dragon_high.glb', 'data/dragon_medium.glb', 'data/dragon_low.glb'];
     var tileNames = ['dragon_high.b3dm', 'dragon_medium.b3dm', 'dragon_low.b3dm'];
@@ -2404,7 +2517,7 @@ function createExpireTileset() {
     var pointCloudTileName = 'points.pnts';
     var pointCloudTilePath = path.join(tilesetDirectory, pointCloudTileName);
 
-    var pointsLength = 125000;
+    var pointsLength = 8000;
     var pointCloudTileWidth = 200.0;
     var pointCloudSphereLocal = [0.0, 0.0, 0.0, pointCloudTileWidth / 2.0];
     var pointCloudGeometricError = 1.732 * pointCloudTileWidth; // Diagonal of the point cloud box
@@ -2414,13 +2527,26 @@ function createExpireTileset() {
     var pointCloudOptions = {
         tileWidth : pointCloudTileWidth,
         pointsLength : pointsLength,
+        perPointProperties : true,
         transform : Matrix4.IDENTITY,
         relativeToCenter : false,
         color : 'noise',
         shape : 'box'
     };
 
+    var tilePromises = [];
+
     var pnts = createPointCloudTile(pointCloudOptions).pnts;
+    tilePromises.push(saveTile(pointCloudTilePath, pnts, gzip));
+
+    // Save a few tiles for the server cache
+    for (var i = 0; i < 5; ++i) {
+        var tilePath = path.join(tilesetDirectory, 'cache', 'points_' + i + '.pnts');
+        var tileOptions = clone(pointCloudOptions);
+        tileOptions.time = i * 0.1;
+        var tile = createPointCloudTile(tileOptions).pnts;
+        tilePromises.push(saveTile(tilePath, tile, gzip));
+    }
 
     var tilesetJson = {
         asset : {
@@ -2445,6 +2571,6 @@ function createExpireTileset() {
 
     return Promise.all([
         saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
-        saveTile(pointCloudTilePath, pnts, gzip)
+        Promise.all(tilePromises)
     ]);
 }

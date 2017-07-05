@@ -38,6 +38,7 @@ var simplex = new SimplexNoise(CesiumMath.nextRandomNumber);
  * @param {Boolean} [options.batched=false] Group points together with batch ids and generate per-batch metadata. Good for differentiating different sections of a point cloud. Not compatible with perPointProperties.
  * @param {Boolean} [options.perPointProperties=false] Generate per-point metadata.
  * @param {Boolean} [options.relativeToCenter=true] Define point positions relative-to-center.
+ * @param {Boolean} [options.time=0.0] Time value when generating 4D simplex noise.
  *
  * @returns {Object} An object containing the pnts buffer and batch table JSON.
  */
@@ -58,8 +59,8 @@ function createPointCloudTile(options) {
     var batched = defaultValue(options.batched, false);
     var perPointProperties = defaultValue(options.perPointProperties, false);
     var relativeToCenter = defaultValue(options.relativeToCenter, true);
+    var time = defaultValue(options.time, 0.0);
 
-    var time = 0.0;
     var radius = tileWidth / 2.0;
     var center = Matrix4.getTranslation(transform, new Cartesian3());
 
@@ -91,7 +92,7 @@ function createPointCloudTile(options) {
         constantColor = [255, 255, 0, 51];
     }
 
-    var points = getPoints(pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform);
+    var points = getPoints(pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform, time);
     var positions = points.positions;
     var normals = points.normals;
     var batchIds = points.batchIds;
@@ -242,7 +243,7 @@ function getBatchId(position) {
 var scratchMatrix = new Matrix4();
 var scratchCenter = new Cartesian3();
 
-function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform) {
+function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform, time) {
     var inverseTranspose = scratchMatrix;
     Matrix4.transpose(transform, inverseTranspose);
     Matrix4.inverse(inverseTranspose, inverseTranspose);
@@ -265,7 +266,7 @@ function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shape
         }
         var batchId = getBatchId(unitPosition);
         var color = colorFunction(unitPosition);
-        var noise = getNoise(unitPosition);
+        var noise = getNoise(unitPosition, time);
 
         Matrix4.multiplyByPoint(transform, position, position);
         Matrix4.multiplyByPointAsVector(inverseTranspose, normal, normal);
