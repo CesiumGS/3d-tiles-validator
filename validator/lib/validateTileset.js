@@ -28,12 +28,7 @@ function validateTileset(tileset, tilesetDirectory) {
         return Promise.resolve(message);
     }
 
-    message = validateTileHierarchy(tileset.root, tilesetDirectory);
-    if (defined(message)) {
-        return Promise.resolve(message);
-    }
-
-    return undefined;
+    return Promise.resolve(validateTileHierarchy(tileset.root, tilesetDirectory));
 }
 
 function validateTopLevel(tileset) {
