@@ -35,6 +35,18 @@ function validateTopLevel(tileset) {
     if (!defined(tileset.geometricError)) {
         return 'Tileset must declare its geometricError as a top-level property.';
     }
+
+    if (!defined(tileset.asset)) {
+        return 'Tileset must declare its asset as a top-level property.';
+    }
+
+    if (!defined(tileset.asset.version)) {
+        return 'Tileset must declare a version in its asset property';
+    }
+
+    if (tileset.asset.version !== '1.0') {
+        return 'Tileset version must be 1.0. Tileset version provided: ' + tileset.asset.version;
+    }
 }
 
 function validateTileHierarchy(root, tilesetDirectory) {
