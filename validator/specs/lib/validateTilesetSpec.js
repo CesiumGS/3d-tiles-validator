@@ -6,7 +6,7 @@ var clone = Cesium.clone;
 
 var sampleTileset = {
     asset: {
-        version: '0.0'
+        version: '1.0'
     },
     geometricError: 240,
     root: {
@@ -43,7 +43,6 @@ var sampleTileset = {
 describe('validateTileset', function() {
     it('succeeds for valid tileset', function(done) {
         var tileset = clone(sampleTileset, true);
-        tileset.asset.version = '1.0';
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBeUndefined();
@@ -73,15 +72,16 @@ describe('validateTileset', function() {
         delete tileset.asset.version;
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Tileset must declare its version property contained inside its top-level property asset.');
+                expect(message).toBe('Tileset must declare a version in its asset property');
             }), done).toResolve();
     });
 
     it('returns error message when asset.version property value is incorrect', function(done) {
         var tileset = clone(sampleTileset, true);
+        tileset.asset.version = '0.0';
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Tileset must declare its asset.version property as always set to 1.0.');
+                expect(message).toBe('Tileset version must be 1.0. ' + 'Tileset version provided: ' + tileset.asset.version);
             }), done).toResolve();
     });
 });

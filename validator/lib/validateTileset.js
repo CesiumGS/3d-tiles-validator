@@ -36,19 +36,18 @@ function validateTopLevel(tileset) {
         return 'Tileset must declare its geometricError as a top-level property.';
     }
 
-    if(!defined(tileset.asset)){
+    if (!defined(tileset.asset)){
         return 'Tileset must declare its asset as a top-level property.';
     }
 
-    if(!defined(tileset.asset.version)){
-        return 'Tileset must declare its version property contained inside its top-level property asset.';
+    if (!defined(tileset.asset.version)){
+        return 'Tileset must declare a version in its asset property';
     }
 
-    if(tileset.asset.version !== '1.0'){
-        return 'Tileset must declare its asset.version property as always set to 1.0.';
+    if (tileset.asset.version !== '1.0'){
+        return 'Tileset version must be 1.0. ' + 'Tileset version provided: ' + tileset.asset.version;
     }
 }
-
 
 function validateTileHierarchy(root, tilesetDirectory) {
     var contentPaths = [];
