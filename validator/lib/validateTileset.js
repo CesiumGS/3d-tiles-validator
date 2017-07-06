@@ -36,6 +36,10 @@ function validateTopLevel(tileset) {
         return 'Tileset must declare its geometricError as a top-level property.';
     }
 
+    if (!defined(tileset.root.refine)) {
+        return 'Tileset must define refine property in root tile';
+    }
+
     if (!defined(tileset.asset)) {
         return 'Tileset must declare its asset as a top-level property.';
     }
@@ -99,6 +103,12 @@ function validateTileHierarchy(root, tilesetDirectory) {
 
             if (defined(contentSphere) && defined(tileSphere) && !sphereInsideSphere(contentSphere, tileSphere)) {
                 return 'content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']';
+            }
+        }
+
+        if (defined(tile.refine)) {
+            if (tile.refine !== 'ADD' && tile.refine !== 'REPLACE') {
+                return 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
             }
         }
 
