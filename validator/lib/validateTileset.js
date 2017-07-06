@@ -58,6 +58,14 @@ function validateTileHierarchy(root, tilesetDirectory) {
         var parent = node.parent;
         var content = tile.content;
 
+        if (!defined(tile.geometricError)) {
+            return 'Each tile must define geometricError';
+        }
+
+        if (tile.geometricError < 0.0) {
+            return 'geometricError must be greater than or equal to 0.0';
+        }
+
         if (defined(parent) && (tile.geometricError > parent.geometricError)) {
             return 'Child has geometricError greater than parent';
         }
