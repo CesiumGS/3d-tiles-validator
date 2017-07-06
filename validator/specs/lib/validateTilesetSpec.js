@@ -26,7 +26,7 @@ var sampleTileset = {
                         boundingVolume: {
                             region: [-1.3197209591796106, 0.6988424218, -1.31968, 0.698874, 0, 10]
                         },
-                        geometricError: 0,
+                        geometricError: 0
                     }
                 ]
             },
