@@ -7,6 +7,7 @@ var validateFeatureTable = require('../lib/validateFeatureTable');
 var batchTableSchema = require('../specs/data/schema/batchTable.schema.json');
 var featureTableSchema = require('../specs/data/schema/featureTable.schema.json');
 
+var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 
 module.exports = validatePnts;
@@ -94,7 +95,7 @@ var featureTableSemantics = {
 function validatePnts(content) {
     var headerByteLength = 28;
     if (content.length < headerByteLength) {
-        return 'header must be 28 bytes';
+        return 'Header must be 28 bytes.';
     }
 
     var magic = content.toString('utf8', 0, 4);
@@ -106,15 +107,15 @@ function validatePnts(content) {
     var batchTableBinaryByteLength = content.readUInt32LE(24);
 
     if (magic !== 'pnts') {
-        return 'invalid magic: ' + magic;
+        return 'Invalid magic: ' + magic;
     }
 
     if (version !== 1) {
-        return 'invalid version: ' + version;
+        return 'Invalid version: ' + version + '. Version must be 1.';
     }
 
     if (byteLength !== content.length) {
-        return 'byteLength (' + byteLength + ') does not equal the tile\'s actual byte length (' + content.length + ')';
+        return 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
     }
 
     var featureTableJsonByteOffset = headerByteLength;
@@ -123,15 +124,15 @@ function validatePnts(content) {
     var batchTableBinaryByteOffset = batchTableJsonByteOffset + batchTableJsonByteLength;
 
     if (featureTableBinaryByteOffset % 8 > 0) {
-        return 'feature table binary must be aligned to an 8-byte boundary';
+        return 'Feature table binary must be aligned to an 8-byte boundary.';
     }
 
     if (batchTableBinaryByteOffset % 8 > 0) {
-        return 'batch table binary must be aligned to an 8-byte boundary';
+        return 'Batch table binary must be aligned to an 8-byte boundary.';
     }
 
     if (headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength > byteLength) {
-        return 'feature table and batch table exceed the tile\'s byte length';
+        return 'Feature table and batch table exceed the tile\'s byte length.';
     }
 
     var featureTableJsonBuffer = content.slice(featureTableJsonByteOffset, featureTableBinaryByteOffset);
@@ -145,19 +146,39 @@ function validatePnts(content) {
     try {
         featureTableJson = bufferToJson(featureTableJsonBuffer);
     } catch(error) {
-        return 'feature table json could not be parsed: ' + error.message;
+        return 'Feature table JSON could not be parsed: ' + error.message;
     }
 
     try {
         batchTableJson = bufferToJson(batchTableJsonBuffer);
     } catch(error) {
-        return 'batch table json could not be parsed: ' + error.message;
+        return 'Batch table JSON could not be parsed: ' + error.message;
     }
 
+    var batchLength = defaultValue(featureTableJson.BATCH_LENGTH, 0);
     var pointsLength = featureTableJson.POINTS_LENGTH;
-    var batchLength = featureTableJson.BATCH_LENGTH;
     if (!defined(pointsLength)) {
-        return 'feature table must contain a POINTS_LENGTH property';
+        return 'Feature table must contain a POINTS_LENGTH property.';
+    }
+
+    if (!defined(featureTableJson.POSITION) && !defined(featureTableJson.POSITION_QUANTIZED)) {
+        return 'Feature table must contain either the POSITION or POSITION_QUANTIZED property.';
+    }
+
+    if (defined(featureTableJson.POSITION_QUANTIZED) && (!defined(featureTableJson.QUANTIZED_VOLUME_OFFSET) || !defined(featureTableJson.QUANTIZED_VOLUME_SCALE))) {
+        return 'Feature table properties QUANTIZED_VOLUME_OFFSET and QUANTIZED_VOLUME_SCALE are required when POSITION_QUANTIZED is present.';
+    }
+
+    if (defined(featureTableJson.BATCH_ID) && !defined(featureTableJson.BATCH_LENGTH)) {
+        return 'Feature table property BATCH_LENGTH is required when BATCH_ID is present.';
+    }
+
+    if (!defined(featureTableJson.BATCH_ID) && defined(featureTableJson.BATCH_LENGTH)) {
+        return 'Feature table property BATCH_ID is required when BATCH_LENGTH is present.';
+    }
+
+    if (batchLength > pointsLength) {
+        return 'Feature table property BATCH_LENGTH must be less than or equal to POINTS_LENGTH.';
     }
 
     var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, pointsLength, featureTableSemantics);

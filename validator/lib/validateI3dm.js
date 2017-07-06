@@ -97,7 +97,7 @@ var featureTableSemantics = {
 function validateI3dm(content) {
     var headerByteLength = 32;
     if (content.length < headerByteLength) {
-        return 'header must be 32 bytes';
+        return 'Header must be 32 bytes.';
     }
 
     var magic = content.toString('utf8', 0, 4);
@@ -110,15 +110,15 @@ function validateI3dm(content) {
     var gltfFormat = content.readUInt32LE(28);
 
     if (magic !== 'i3dm') {
-        return 'invalid magic: ' + magic;
+        return 'Invalid magic: ' + magic;
     }
 
     if (version !== 1) {
-        return 'invalid version: ' + version;
+        return 'Invalid version: ' + version + '. Version must be 1.';
     }
 
     if (byteLength !== content.length) {
-        return 'byteLength (' + byteLength + ') does not equal the tile\'s actual byte length (' + content.length + ')';
+        return 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
     }
 
     if (gltfFormat > 1) {
@@ -130,23 +130,23 @@ function validateI3dm(content) {
     var batchTableJsonByteOffset = featureTableBinaryByteOffset + featureTableBinaryByteLength;
     var batchTableBinaryByteOffset = batchTableJsonByteOffset + batchTableJsonByteLength;
     var glbByteOffset = batchTableBinaryByteOffset + batchTableBinaryByteLength;
-    var glbByteLength = byteLength - glbByteOffset;
+    var glbByteLength = Math.max(byteLength - glbByteOffset, 0);
 
     if (featureTableBinaryByteOffset % 8 > 0) {
-        return 'feature table binary must be aligned to an 8-byte boundary';
+        return 'Feature table binary must be aligned to an 8-byte boundary.';
     }
 
     if (batchTableBinaryByteOffset % 8 > 0) {
-        return 'batch table binary must be aligned to an 8-byte boundary';
+        return 'Batch table binary must be aligned to an 8-byte boundary.';
     }
 
     var embeddedGlb = (gltfFormat === 1);
     if (embeddedGlb && glbByteOffset % 8 > 0) {
-        return 'glb must be aligned to an 8-byte boundary';
+        return 'Glb must be aligned to an 8-byte boundary.';
     }
 
     if (headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + glbByteLength > byteLength) {
-        return 'feature table, batch table, and glb byte lengths exceed the tile\'s byte length';
+        return 'Feature table, batch table, and glb byte lengths exceed the tile\'s byte length.';
     }
 
     var featureTableJsonBuffer = content.slice(featureTableJsonByteOffset, featureTableBinaryByteOffset);
@@ -161,18 +161,42 @@ function validateI3dm(content) {
     try {
         featureTableJson = bufferToJson(featureTableJsonBuffer);
     } catch(error) {
-        return 'feature table json could not be parsed: ' + error.message;
+        return 'Feature table JSON could not be parsed: ' + error.message;
     }
 
     try {
         batchTableJson = bufferToJson(batchTableJsonBuffer);
     } catch(error) {
-        return 'batch table json could not be parsed: ' + error.message;
+        return 'Batch table JSON could not be parsed: ' + error.message;
     }
 
     var featuresLength = featureTableJson.INSTANCES_LENGTH;
     if (!defined(featuresLength)) {
-        return 'feature table must contain an INSTANCES_LENGTH property';
+        return 'Feature table must contain an INSTANCES_LENGTH property.';
+    }
+
+    if (!defined(featureTableJson.POSITION) && !defined(featureTableJson.POSITION_QUANTIZED)) {
+        return 'Feature table must contain either the POSITION or POSITION_QUANTIZED property.';
+    }
+
+    if (defined(featureTableJson.NORMAL_UP) && !defined(featureTableJson.NORMAL_RIGHT)) {
+        return 'Feature table property NORMAL_RIGHT is required when NORMAL_UP is present.';
+    }
+
+    if (defined(!featureTableJson.NORMAL_UP) && defined(featureTableJson.NORMAL_RIGHT)) {
+        return 'Feature table property NORMAL_UP is required when NORMAL_RIGHT is present.';
+    }
+
+    if (defined(featureTableJson.NORMAL_UP_OCT32P) && !defined(featureTableJson.NORMAL_RIGHT_OCT32P)) {
+        return 'Feature table property NORMAL_RIGHT_OCT32P is required when NORMAL_UP_OCT32P is present.';
+    }
+
+    if (defined(!featureTableJson.NORMAL_UP_OCT32P) && defined(featureTableJson.NORMAL_RIGHT_OCT32P)) {
+        return 'Feature table property NORMAL_UP_OCT32P is required when NORMAL_RIGHT_OCT32P is present.';
+    }
+
+    if (defined(featureTableJson.POSITION_QUANTIZED) && (!defined(featureTableJson.QUANTIZED_VOLUME_OFFSET) || !defined(featureTableJson.QUANTIZED_VOLUME_SCALE))) {
+        return 'Feature table properties QUANTIZED_VOLUME_OFFSET and QUANTIZED_VOLUME_SCALE are required when POSITION_QUANTIZED is present.';
     }
 
     var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);

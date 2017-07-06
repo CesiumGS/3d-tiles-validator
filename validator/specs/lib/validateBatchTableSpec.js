@@ -147,8 +147,7 @@ describe('validate batch table', function() {
                 byteOffset : 16,
                 type : 'SCALAR',
                 componentType : 'UNSIGNED_SHORT'
-            },
-            name : ['name1', 'name2', 'name3']
+            }
         };
         var batchTableBinary = Buffer.alloc(22);
         var featuresLength = 3;
