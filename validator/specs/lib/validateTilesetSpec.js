@@ -56,4 +56,13 @@ describe('validateTileset', function() {
                 expect(message).toBe('Tileset must declare its geometricError as a top-level property.');
             }), done).toResolve();
     });
+
+    it('returns error message when refine property of root tile has incorrect value', function(done) {
+        var tileset = clone(sampleTileset, true);
+        tileset.root.refine = 'NEW';
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('Refine property in root tileset must have either ADD or REPLACE as its value');
+            }), done).toResolve();
+    });
 });
