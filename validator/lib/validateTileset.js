@@ -40,6 +40,25 @@ function validateTopLevel(tileset) {
         if (tileset.root.refine !== 'ADD' && tileset.root.refine !== 'REPLACE') {
             return 'Refine property in root tileset must have either ADD or REPLACE as its value';
         }
+    }  
+
+    if (!defined(tileset.asset)) {
+        return 'Tileset must declare its asset as a top-level property.';
+    }
+
+    if (!defined(tileset.asset.version)) {
+        return 'Tileset must declare a version in its asset property';
+    }
+
+    if (tileset.asset.version !== '1.0') {
+        return 'Tileset version must be 1.0. Tileset version provided: ' + tileset.asset.version;
+    }
+
+    var gltfUpAxis = tileset.asset.gltfUpAxis;
+    if (defined(gltfUpAxis)) {
+        if (gltfUpAxis !== 'X' && gltfUpAxis !== 'Y' && gltfUpAxis !== 'Z') {
+            return 'gltfUpAxis should either be "X", "Y", or "Z".';
+        }
     }
 }
 
@@ -58,10 +77,17 @@ function validateTileHierarchy(root, tilesetDirectory) {
         var parent = node.parent;
         var content = tile.content;
 
+        if (!defined(tile.geometricError)) {
+            return 'Each tile must define geometricError';
+        }
+
+        if (tile.geometricError < 0.0) {
+            return 'geometricError must be greater than or equal to 0.0';
+        }
+
         if (defined(parent) && (tile.geometricError > parent.geometricError)) {
             return 'Child has geometricError greater than parent';
         }
-
 
         if (defined(content) && defined(content.url)) {
             contentPaths.push(path.join(tilesetDirectory, content.url));

@@ -41,15 +41,42 @@ var sampleTileset = {
 };
 
 describe('validateTileset', function() {
+    it('returns error message when the geometricError is not defined', function(done) {
+        var tileset = clone(sampleTileset, true);
+        delete tileset.root.children[0].geometricError;
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('Each tile must define geometricError');
+            }), done).toResolve();
+    });
+
+    it('returns error message when the geometricError is less than 0.0', function(done) {
+        var tileset = clone(sampleTileset, true);
+        tileset.root.children[0].geometricError = -1;
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('geometricError must be greater than or equal to 0.0');
+            }), done).toResolve();
+    });
+
+    it('returns error message when child has geometricError greater than parent', function(done) {
+        var tileset = clone(sampleTileset, true);
+        tileset.root.children[0].geometricError = 80;
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('Child has geometricError greater than parent');
+            }), done).toResolve();
+    });
+  
     it('returns error message when refine property of tileset has incorrect value', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.root.children[0].refine = 'NEW';
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('Refine property in tileset must have either ADD or REPLACE as its value.');
-            }), done).toResolve();
+          }), done).toResolve();
     });
-
+  
     it('returns error message when the top-level geometricError is missing', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.geometricError;
@@ -67,11 +94,47 @@ describe('validateTileset', function() {
                 expect(message).toBe('Refine property in root tileset must have either ADD or REPLACE as its value');
             }), done).toResolve();
     });
+          
+    it('returns error message when the top-level asset is missing', function(done) {
+        var tileset = clone(sampleTileset, true);
+        delete tileset.asset;
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('Tileset must declare its asset as a top-level property.');
+            }), done).toResolve();
+    });
 
+    it('returns error message when asset.version property is missing', function(done) {
+        var tileset = clone(sampleTileset, true);
+        delete tileset.asset.version;
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('Tileset must declare a version in its asset property');
+            }), done).toResolve();
+    });
+
+    it('returns error message when asset.version property value is incorrect', function(done) {
+        var tileset = clone(sampleTileset, true);
+        tileset.asset.version = '0.0';
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('Tileset version must be 1.0. Tileset version provided: ' + tileset.asset.version);
+            }), done).toResolve();
+    });
+
+    it('returns error message when the up-axis is not X, Y, or Z', function(done) {
+        var tileset = clone(sampleTileset, true);
+        tileset.asset.gltfUpAxis = 'A';
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('gltfUpAxis should either be "X", "Y", or "Z".');
+            }), done).toResolve();
+    });
+  
     it('succeeds for valid tileset', function(done) {
         expect(validateTileset(sampleTileset)
             .then(function(message) {
                 expect(message).toBeUndefined();
-            }), done).toResolve();
+          }), done).toResolve();
     });
 });
