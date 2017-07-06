@@ -6,7 +6,8 @@ var clone = Cesium.clone;
 
 var sampleTileset = {
     asset: {
-        version: '0.0'
+        version: '0.0',
+        gltfUpAxis: 'Z'
     },
     geometricError: 240,
     root: {
@@ -54,6 +55,15 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('Tileset must declare its geometricError as a top-level property.');
+            }), done).toResolve();
+    });
+
+    it('returns error message when the up-axis is not X, Y, or Z', function(done) {
+        var tileset = clone(sampleTileset, true);
+        tileset.asset.gltfUpAxis = 'A';
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('gltfUpAxis declared under asset should either be X, Y, or Z.');
             }), done).toResolve();
     });
 });

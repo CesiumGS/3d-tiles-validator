@@ -35,6 +35,12 @@ function validateTopLevel(tileset) {
     if (!defined(tileset.geometricError)) {
         return 'Tileset must declare its geometricError as a top-level property.';
     }
+
+    if (defined(tileset.asset.gltfUpAxis)) {
+        if (tileset.asset.gltfUpAxis !== 'X' && tileset.asset.gltfUpAxis !== 'Y' && tileset.asset.gltfUpAxis !== 'Z') {
+            return 'gltfUpAxis declared under asset should either be X, Y, or Z.';
+        }
+    }
 }
 
 function validateTileHierarchy(root, tilesetDirectory) {
