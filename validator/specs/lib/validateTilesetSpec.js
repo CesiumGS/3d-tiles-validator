@@ -81,7 +81,7 @@ describe('validateTileset', function() {
         tileset.asset.version = '0.0';
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Tileset version must be 1.0. ' + 'Tileset version provided: ' + tileset.asset.version);
+                expect(message).toBe('Tileset version must be 1.0. Tileset version provided: ' + tileset.asset.version);
             }), done).toResolve();
     });
 });
