@@ -6,8 +6,7 @@ var clone = Cesium.clone;
 
 var sampleTileset = {
     asset: {
-        version: '0.0',
-        gltfUpAxis: 'Z'
+        version: '0.0'
     },
     geometricError: 240,
     root: {
