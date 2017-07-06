@@ -6,7 +6,7 @@ var clone = Cesium.clone;
 
 var sampleTileset = {
     asset: {
-        version: '0.0'
+        version: '1.0'
     },
     geometricError: 240,
     root: {
@@ -77,12 +77,39 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
+    it('returns error message when the top-level asset is missing', function(done) {
+        var tileset = clone(sampleTileset, true);
+        delete tileset.asset;
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('Tileset must declare its asset as a top-level property.');
+            }), done).toResolve();
+    });
+
+    it('returns error message when asset.version property is missing', function(done) {
+        var tileset = clone(sampleTileset, true);
+        delete tileset.asset.version;
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('Tileset must declare a version in its asset property');
+            }), done).toResolve();
+    });
+
+    it('returns error message when asset.version property value is incorrect', function(done) {
+        var tileset = clone(sampleTileset, true);
+        tileset.asset.version = '0.0';
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('Tileset version must be 1.0. Tileset version provided: ' + tileset.asset.version);
+            }), done).toResolve();
+    });
+
     it('returns error message when the up-axis is not X, Y, or Z', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.asset.gltfUpAxis = 'A';
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('gltfUpAxis declared under asset should either be X, Y, or Z.');
+                expect(message).toBe('gltfUpAxis should either be "X", "Y", or "Z".');
             }), done).toResolve();
     });
 });
