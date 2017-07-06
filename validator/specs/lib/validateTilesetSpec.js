@@ -58,15 +58,6 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    it('returns error message when the up-axis is not X, Y, or Z', function(done) {
-        var tileset = clone(sampleTileset, true);
-        tileset.asset.gltfUpAxis = 'A';
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                expect(message).toBe('gltfUpAxis should either be "X", "Y", or "Z".');
-            }), done).toResolve();
-    });
-
     it('returns error message when the top-level asset is missing', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.asset;
@@ -91,6 +82,15 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('Tileset version must be 1.0. Tileset version provided: ' + tileset.asset.version);
+            }), done).toResolve();
+    });
+
+    it('returns error message when the up-axis is not X, Y, or Z', function(done) {
+        var tileset = clone(sampleTileset, true);
+        tileset.asset.gltfUpAxis = 'A';
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('gltfUpAxis should either be "X", "Y", or "Z".');
             }), done).toResolve();
     });
 });
