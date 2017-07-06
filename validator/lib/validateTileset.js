@@ -28,7 +28,12 @@ function validateTileset(tileset, tilesetDirectory) {
         return Promise.resolve(message);
     }
 
-    return validateTileHierarchy(tileset.root, tilesetDirectory);
+    message = validateTileHierarchy(tileset.root, tilesetDirectory);
+    if (defined(message)) {
+        return Promise.resolve(message);
+    }
+
+    return undefined;
 }
 
 function validateTopLevel(tileset) {
@@ -69,7 +74,6 @@ function validateTileHierarchy(root, tilesetDirectory) {
         if (defined(parent) && (tile.geometricError > parent.geometricError)) {
             return 'Child has geometricError greater than parent';
         }
-
 
         if (defined(content) && defined(content.url)) {
             contentPaths.push(path.join(tilesetDirectory, content.url));

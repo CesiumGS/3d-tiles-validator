@@ -41,10 +41,30 @@ var sampleTileset = {
 };
 
 describe('validateTileset', function() {
-    it('succeeds for valid tileset', function(done) {
-        expect(validateTileset(sampleTileset)
+    it('returns error message when the geometricError is not defined', function(done) {
+        var tileset = clone(sampleTileset, true);
+        delete tileset.root.children[0].geometricError;
+        expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBeUndefined();
+                expect(message).toBe('Each tile must define geometricError');
+            }), done).toResolve();
+    });
+
+    it('returns error message when the geometricError is less than 0.0', function(done) {
+        var tileset = clone(sampleTileset, true);
+        tileset.root.children[0].geometricError = -1;
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('geometricError must be greater than or equal to 0.0');
+            }), done).toResolve();
+    });
+
+    it('returns error message when child has geometricError greater than parent', function(done) {
+        var tileset = clone(sampleTileset, true);
+        tileset.root.children[0].geometricError = 80;
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('Child has geometricError greater than parent');
             }), done).toResolve();
     });
 
