@@ -6,7 +6,7 @@ var clone = Cesium.clone;
 
 var sampleTileset = {
     asset: {
-        version: '0.0'
+        version: '1.0'
     },
     geometricError: 240,
     root: {
@@ -26,7 +26,7 @@ var sampleTileset = {
                         boundingVolume: {
                             region: [-1.3197209591796106, 0.6988424218, -1.31968, 0.698874, 0, 10]
                         },
-                        geometricError: 0
+                        geometricError: 0,
                     }
                 ]
             },
@@ -41,10 +41,12 @@ var sampleTileset = {
 };
 
 describe('validateTileset', function() {
-    it('succeeds for valid tileset', function(done) {
-        expect(validateTileset(sampleTileset)
+    it('returns error message when refine property of tileset has incorrect value', function(done) {
+        var tileset = clone(sampleTileset, true);
+        tileset.root.children[0].refine = 'NEW';
+        expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBeUndefined();
+                expect(message).toBe('Refine property in tileset must have either ADD or REPLACE as its value.');
             }), done).toResolve();
     });
 
@@ -63,6 +65,13 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('Refine property in root tileset must have either ADD or REPLACE as its value');
+            }), done).toResolve();
+    });
+
+    it('succeeds for valid tileset', function(done) {
+        expect(validateTileset(sampleTileset)
+            .then(function(message) {
+                expect(message).toBeUndefined();
             }), done).toResolve();
     });
 });

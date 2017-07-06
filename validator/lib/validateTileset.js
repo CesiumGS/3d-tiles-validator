@@ -28,7 +28,7 @@ function validateTileset(tileset, tilesetDirectory) {
         return Promise.resolve(message);
     }
 
-    return validateTileHierarchy(tileset.root, tilesetDirectory);
+    return Promise.resolve(validateTileHierarchy(tileset.root, tilesetDirectory));
 }
 
 function validateTopLevel(tileset) {
@@ -36,8 +36,8 @@ function validateTopLevel(tileset) {
         return 'Tileset must declare its geometricError as a top-level property.';
     }
 
-    if (defined(tileset.root.refine)){
-        if (tileset.root.refine !== 'ADD' && tileset.root.refine !== 'REPLACE'){
+    if (defined(tileset.root.refine)) {
+        if (tileset.root.refine !== 'ADD' && tileset.root.refine !== 'REPLACE') {
             return 'Refine property in root tileset must have either ADD or REPLACE as its value';
         }
     }
@@ -79,6 +79,12 @@ function validateTileHierarchy(root, tilesetDirectory) {
 
             if (defined(contentSphere) && defined(tileSphere) && !sphereInsideSphere(contentSphere, tileSphere)) {
                 return 'content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']';
+            }
+        }
+
+        if(defined(tile.refine)) {
+            if (tile.refine !== 'ADD' && tile.refine !== 'REPLACE') {
+                return 'Refine property in tileset must have either ADD or REPLACE as its value.';
             }
         }
 
