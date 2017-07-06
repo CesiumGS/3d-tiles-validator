@@ -83,6 +83,5 @@ describe('validateTileset', function() {
             .then(function(message) {
                 expect(message).toBe('Tileset must declare its asset.version property as always set to 1.0.');
             }), done).toResolve();
-    }); 
-
+    });
 });
