@@ -68,13 +68,13 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
   
-    it('returns error message when refine property of tileset has incorrect value', function(done) {
+    it('returns error message when refine property of tile has incorrect value', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.root.children[0].refine = 'NEW';
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Refine property in tileset must have either ADD or REPLACE as its value.');
-          }), done).toResolve();
+                expect(message).toBe('Refine property in tile must have either "ADD" or "REPLACE" as its value.');
+            }), done).toResolve();
     });
   
     it('returns error message when the top-level geometricError is missing', function(done) {
@@ -86,12 +86,12 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    it('returns error message when refine property of root tile has incorrect value', function(done) {
+    it('returns error message when refine property is not defined in root tile', function(done) {
         var tileset = clone(sampleTileset, true);
-        tileset.root.refine = 'NEW';
+        delete tileset.root.refine;
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Refine property in root tileset must have either ADD or REPLACE as its value');
+                expect(message).toBe('Tileset must define refine property in root tile');
             }), done).toResolve();
     });
           
