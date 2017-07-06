@@ -62,7 +62,7 @@ describe('validateTileset', function() {
         tileset.asset.gltfUpAxis = 'A';
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('gltfUpAxis declared under asset should either be X, Y, or Z.');
+                expect(message).toBe('gltfUpAxis should either be "X", "Y", or "Z".');
             }), done).toResolve();
     });
 });

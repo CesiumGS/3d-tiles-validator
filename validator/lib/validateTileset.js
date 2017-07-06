@@ -36,9 +36,10 @@ function validateTopLevel(tileset) {
         return 'Tileset must declare its geometricError as a top-level property.';
     }
 
-    if (defined(tileset.asset.gltfUpAxis)) {
-        if (tileset.asset.gltfUpAxis !== 'X' && tileset.asset.gltfUpAxis !== 'Y' && tileset.asset.gltfUpAxis !== 'Z') {
-            return 'gltfUpAxis declared under asset should either be X, Y, or Z.';
+    var gltfUpAxis = tileset.asset.gltfUpAxis;
+    if (defined(gltfUpAxis)) {
+        if (gltfUpAxis !== 'X' && gltfUpAxis !== 'Y' && gltfUpAxis !== 'Z') {
+            return 'gltfUpAxis should either be "X", "Y", or "Z".';
         }
     }
 }
