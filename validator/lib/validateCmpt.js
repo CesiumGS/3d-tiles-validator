@@ -17,7 +17,7 @@ module.exports = validateCmpt;
 function validateCmpt(content) {
     var headerByteLength = 16;
     if (content.length < headerByteLength) {
-        return 'header must be 16 bytes';
+        return 'Header must be 16 bytes.';
     }
 
     var magic = content.toString('utf8', 0, 4);
@@ -30,7 +30,7 @@ function validateCmpt(content) {
     }
 
     if (version !== 1) {
-        return 'Invalid version: ' + version;
+        return 'Invalid version: ' + version + '. Version must be 1.';
     }
 
     if (byteLength !== content.length) {
@@ -59,10 +59,12 @@ function validateCmpt(content) {
             message = validatePnts(innerTile);
         } else if (innerTileMagic === 'cmpt') {
             message = validateCmpt(innerTile);
+        } else {
+            return 'Invalid inner tile magic: ' + innerTileMagic;
         }
 
         if (defined(message)) {
-            return message;
+            return 'Error in inner ' + innerTileMagic + ' tile: ' + message;
         }
 
         byteOffset += innerTileByteLength;
