@@ -36,8 +36,8 @@ function validateTopLevel(tileset) {
         return 'Tileset must declare its geometricError as a top-level property.';
     }
 
-    if(defined(tileset.root.refine)){
-        if(tileset.root.refine !== 'ADD' && tileset.root.refine !== 'REPLACE'){
+    if (defined(tileset.root.refine)){
+        if (tileset.root.refine !== 'ADD' && tileset.root.refine !== 'REPLACE'){
             return 'Refine property in root tileset must have either ADD or REPLACE as its value';
         }
     }
