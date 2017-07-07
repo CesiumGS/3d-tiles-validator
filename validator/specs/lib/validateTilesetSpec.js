@@ -67,7 +67,7 @@ describe('validateTileset', function() {
                 expect(message).toBe('Child has geometricError greater than parent');
             }), done).toResolve();
     });
-  
+
     it('returns error message when refine property of tile has incorrect value', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.root.children[0].refine = 'NEW';
@@ -76,7 +76,7 @@ describe('validateTileset', function() {
                 expect(message).toBe('Refine property in tile must have either "ADD" or "REPLACE" as its value.');
             }), done).toResolve();
     });
-  
+
     it('returns error message when the top-level geometricError is missing', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.geometricError;
@@ -94,7 +94,7 @@ describe('validateTileset', function() {
                 expect(message).toBe('Tileset must define refine property in root tile');
             }), done).toResolve();
     });
-          
+
     it('returns error message when the top-level asset is missing', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.asset;
@@ -110,7 +110,7 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('Tileset must declare a version in its asset property');
-            }), done).toResolve();
+           }), done).toResolve();
     });
 
     it('returns error message when asset.version property value is incorrect', function(done) {
@@ -130,7 +130,7 @@ describe('validateTileset', function() {
                 expect(message).toBe('gltfUpAxis should either be "X", "Y", or "Z".');
             }), done).toResolve();
     });
-  
+
     it('succeeds for valid tileset', function(done) {
         expect(validateTileset(sampleTileset)
             .then(function(message) {
