@@ -10,7 +10,8 @@ module.exports = {
     createB3dmLegacy2 : createB3dmLegacy2,
     createI3dm : createI3dm,
     createPnts : createPnts,
-    createCmpt : createCmpt
+    createCmpt : createCmpt,
+    createGlb : createGlb
 };
 
 function createB3dm(options) {
@@ -25,7 +26,7 @@ function createB3dm(options) {
     var featureTableBinary = getBufferPadded(options.featureTableBinary);
     var batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
     var batchTableBinary = getBufferPadded(options.batchTableBinary);
-    var glb = getBufferPadded(defaultValue(options.glb, Buffer.from('glTF')));
+    var glb = getBufferPadded(defaultValue(options.glb, createGlb()));
 
     if (options.unalignedFeatureTableBinary) {
         featureTableJsonBuffer = Buffer.concat([featureTableJsonBuffer, Buffer.from(' ')]);
@@ -96,7 +97,7 @@ function createI3dm(options) {
     var featureTableBinary = getBufferPadded(options.featureTableBinary);
     var batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
     var batchTableBinary = getBufferPadded(options.batchTableBinary);
-    var glb = getBufferPadded(defaultValue(options.glb, Buffer.from('glTF')));
+    var glb = getBufferPadded(defaultValue(options.glb, createGlb()));
 
     var gltfFormat = 1;
     if (typeof glb === 'string') {
@@ -230,4 +231,12 @@ function getJsonBufferPadded(json, byteOffset) {
     string += whitespace;
 
     return Buffer.from(string);
+}
+
+function createGlb() {
+    var glb = Buffer.alloc(12);
+    glb.write('gltf', 0); // magic
+    glb.writeUInt32LE(2, 4); // version
+    glb.writeUInt32LE(28, 8); // byteLength
+    return glb;
 }
