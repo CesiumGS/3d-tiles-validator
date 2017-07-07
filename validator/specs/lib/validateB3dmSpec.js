@@ -27,7 +27,7 @@ describe('validate b3dm', function() {
     it('returns error message if the b3dm has wrong byteLength', function() {
         var b3dm = createB3dm();
         b3dm.writeUInt32LE(0, 8);
-        expect(validateB3dm(b3dm)).toBe('byteLength of 0 does not equal the tile\'s actual byte length of 52.');
+        expect(validateB3dm(b3dm)).toBe('byteLength of 0 does not equal the tile\'s actual byte length of 60.');
     });
 
     it('returns error message if the b3dm header is a legacy version (1)', function() {
@@ -176,7 +176,7 @@ function createB3dm(options) {
     var featureTableBinary = defined(options.featureTableBinary) ? getBufferPadded(options.featureTableBinary) : Buffer.alloc(0);
     var batchTableJsonBuffer = defined(options.batchTableJson) ? getJsonBufferPadded(options.batchTableJson) : Buffer.alloc(0);
     var batchTableBinary = defined(options.batchTableBinary) ? getBufferPadded(options.batchTableBinary) : Buffer.alloc(0);
-    var glb = defaultValue(options.glb, Buffer.from('glTF'));
+    var glb = defaultValue(options.glb, createHeaderGlb());
 
     if (options.unalignedFeatureTableBinary) {
         featureTableJsonBuffer = Buffer.concat([featureTableJsonBuffer, Buffer.from(' ')]);
@@ -229,4 +229,12 @@ function createLegacyHeader2() {
     b3dm.writeUInt32LE(0, 20); // batchLength
     b3dm.write('glTF', 24);    // Start of glb
     return b3dm;
+}
+
+function createHeaderGlb() {
+    var Glb = Buffer.alloc(12);
+    Glb.write('gltf', 0);     // magic
+    Glb.writeUInt32LE(2, 4);  // version
+    Glb.writeUInt32LE(28, 8); // byteLength
+    return Glb;
 }
