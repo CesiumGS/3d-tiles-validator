@@ -110,7 +110,7 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('Tileset must declare a version in its asset property');
-           }), done).toResolve();
+            }), done).toResolve();
     });
 
     it('returns error message when asset.version property value is incorrect', function(done) {
