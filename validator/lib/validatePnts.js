@@ -185,10 +185,12 @@ function validatePnts(content) {
 
     if (defined(featureTableJson.BATCH_ID)) {
         var featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
-        var batchIds = featureTable.getPropertyArray('BATCH_ID', ComponentDatatype.UNSIGNED_SHORT, 1);
-        for (var i = 0; i < batchIds.length; i++) {
-             if (featureTableJson.BATCH_LENGTH <= batchIds[i]) {
-                return 'Feature table property BATCH_LENGTH must be greater than all the elements of BATCH_ID.';
+        var componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.BATCH_ID.componentType, 'UNSIGNED_SHORT'));
+        var batchIds = featureTable.getPropertyArray('BATCH_ID', componentDatatype, 1);
+        var length = batchIds.length;
+        for (var i = 0; i < length; i++) {
+             if (batchIds[i] >= featureTableJson.BATCH_LENGTH) {
+                return 'All the BATCH_IDs must have values less than feature table property BATCH_LENGTH.';
             }
         }
     }

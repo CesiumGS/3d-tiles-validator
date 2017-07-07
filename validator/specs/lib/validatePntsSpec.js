@@ -139,13 +139,13 @@ describe('validate pnts', function() {
     it('returns error message if any BATCH_ID is greater than BATCH_LENGTH: ', function() {
         var pnts = createPnts({
             featureTableJson : {
-                POINTS_LENGTH : 1,
-                POSITION : [0, 0, 0],
-                BATCH_ID : [2],
-                BATCH_LENGTH : 1
+                POINTS_LENGTH : 3,
+                POSITION : [1, 0, 0, 0, 1, 0, 0, 0, 1],
+                BATCH_ID : [0, 1, 2],
+                BATCH_LENGTH : 2
             }
         });
-        expect(validatePnts(pnts)).toBe('Feature table property BATCH_LENGTH must be greater than all the elements of BATCH_ID.');
+        expect(validatePnts(pnts)).toBe('All the BATCH_IDs must have values less than feature table property BATCH_LENGTH.');
     });
 
     it('returns error message if feature table is invalid', function() {
