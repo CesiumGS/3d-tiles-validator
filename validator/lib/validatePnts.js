@@ -9,8 +9,6 @@ var featureTableSchema = require('../specs/data/schema/featureTable.schema.json'
 
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
-// var Cesium3DTileFeatureTable = Cesium.Cesium3DTileFeatureTable;
-// var ComponentDatatype = Cesium.ComponentDatatype;
 
 module.exports = validatePnts;
 
