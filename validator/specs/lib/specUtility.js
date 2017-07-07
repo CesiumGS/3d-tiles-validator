@@ -38,7 +38,7 @@ function createB3dm(options) {
         batchTableBinary = Buffer.concat([batchTableJsonBuffer, Buffer.alloc(1)]);
     }
     if (options.unalignedByteLength) {
-        glb = Buffer.concat([glb, createGlb()]);
+        glb = Buffer.concat([glb, Buffer.alloc(1)]);
     }
 
     var featureTableJsonByteLength = featureTableJsonBuffer.length;
@@ -115,7 +115,7 @@ function createI3dm(options) {
         batchTableBinary = Buffer.concat([batchTableJsonBuffer, Buffer.alloc(1)]);
     }
     if (options.unalignedByteLength) {
-        glb = Buffer.concat([glb, createGlb()]);
+        glb = Buffer.concat([glb, Buffer.alloc(1)]);
     }
 
     var featureTableJsonByteLength = featureTableJsonBuffer.length;
@@ -234,9 +234,9 @@ function getJsonBufferPadded(json, byteOffset) {
 }
 
 function createGlb() {
-    var Glb = Buffer.alloc(12);
-    Glb.write('gltf', 0);     // magic
-    Glb.writeUInt32LE(2, 4);  // version
-    Glb.writeUInt32LE(28, 8); // byteLength
-    return Glb;
+    var glb = Buffer.alloc(12);
+    glb.write('gltf', 0); // magic
+    glb.writeUInt32LE(2, 4); // version
+    glb.writeUInt32LE(28, 8); // byteLength
+    return glb;
 }
