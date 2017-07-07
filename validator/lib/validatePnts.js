@@ -196,6 +196,4 @@ function validatePnts(content) {
     if (defined(batchTableMessage)) {
         return batchTableMessage;
     }
-
-
 }
