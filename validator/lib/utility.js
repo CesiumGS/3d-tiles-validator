@@ -73,41 +73,24 @@ function sphereInsideSphere(sphereInner, sphereOuter) {
     return distance <= (radiusOuter - radiusInner);
 }
 
-// An array of 12 numbers that define an oriented bounding box.  
-// The first three elements define the x, y, and z values for the center of the box.  
-// The next three elements (with indices 3, 4, and 5) define the x axis direction and half-length.  
-// The next three elements (indices 6, 7, and 8) define the y axis direction and half-length.  
-// The last three elements (indices 9, 10, and 11) define the z axis direction and half-length.
 function boxInsideBox(boxInner, boxOuter) {
     var centerInner = Cartesian3.fromElements(boxInner[0], boxInner[1], boxInner[2]);
-    var halfAxesInnerX = Cartesian3.fromElements(boxInner[3], boxInner[4], boxInner[5]);
-    var halfAxesInnerY = Cartesian3.fromElements(boxInner[6], boxInner[7], boxInner[8]);
-    var halfAxesInnerZ = Cartesian3.fromElements(boxInner[9], boxInner[10], boxInner[11]);
-
+    var halfDiagonalInner = Cartesian3.fromElements(boxInner[3] + boxInner[6] + boxInner[9],
+                                                    boxInner[4] + boxInner[7] + boxInner[10],
+                                                    boxInner[5] + boxInner[8] + boxInner[11]);
     var centerInnerPositive = new Cartesian3();
-    Cartesian3.add(centerInner, halfAxesInnerX, centerInnerPositive);
-    Cartesian3.add(centerInnerPositive, halfAxesInnerY, centerInnerPositive);
-    Cartesian3.add(centerInnerPositive, halfAxesInnerZ, centerInnerPositive);
-
+    Cartesian3.add(centerInner, halfDiagonalInner, centerInnerPositive);
     var centerInnerNegative = new Cartesian3();
-    Cartesian3.subtract(centerInner, halfAxesInnerX, centerInnerNegative);
-    Cartesian3.subtract(centerInnerNegative, halfAxesInnerY, centerInnerNegative);
-    Cartesian3.subtract(centerInnerNegative, halfAxesInnerZ, centerInnerNegative);
+    Cartesian3.subtract(centerInner, halfDiagonalInner, centerInnerNegative);
 
     var centerOuter = Cartesian3.fromElements(boxOuter[0], boxOuter[1], boxOuter[2]);
-    var halfAxesOuterX = Cartesian3.fromElements(boxOuter[3], boxOuter[4], boxOuter[5]);
-    var halfAxesOuterY = Cartesian3.fromElements(boxOuter[6], boxOuter[7], boxOuter[8]);
-    var halfAxesOuterZ = Cartesian3.fromElements(boxOuter[9], boxOuter[10], boxOuter[11]);
-
+    var halfDiagonalOuter = Cartesian3.fromElements(boxOuter[3] + boxOuter[6] + boxOuter[9],
+                                                    boxOuter[4] + boxOuter[7] + boxOuter[10],
+                                                    boxOuter[5] + boxOuter[8] + boxOuter[11]);
     var centerOuterPositive = new Cartesian3();
-    Cartesian3.add(centerOuter, halfAxesOuterX, centerOuterPositive);
-    Cartesian3.add(centerOuterPositive, halfAxesOuterY, centerOuterPositive);
-    Cartesian3.add(centerOuterPositive, halfAxesOuterZ, centerOuterPositive);
-
+    Cartesian3.add(centerOuter, halfDiagonalOuter, centerOuterPositive);
     var centerOuterNegative = new Cartesian3();
-    Cartesian3.subtract(centerOuter, halfAxesOuterX, centerOuterNegative);
-    Cartesian3.subtract(centerOuterNegative, halfAxesOuterY, centerOuterNegative);
-    Cartesian3.subtract(centerOuterNegative, halfAxesOuterZ, centerOuterNegative);
+    Cartesian3.subtract(centerOuter, halfDiagonalOuter, centerOuterNegative);
 
     return (centerInnerPositive.x <= centerOuterPositive.x) &&
         (centerInnerPositive.y <= centerOuterPositive.y) &&
