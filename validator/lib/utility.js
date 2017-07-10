@@ -2,8 +2,6 @@
 var Cesium = require('cesium');
 
 var Cartesian3 = Cesium.Cartesian3;
-var Matrix3 = Cesium.Matrix3;
-var Matrix4 = Cesium.Matrix4;
 
 module.exports = {
     typeToComponentsLength : typeToComponentsLength,
