@@ -187,9 +187,10 @@ function validatePnts(content) {
         var featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
         var componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.BATCH_ID.componentType, 'UNSIGNED_SHORT'));
         var batchIds = featureTable.getPropertyArray('BATCH_ID', componentDatatype, 1);
+        //console.log(batchIds);
         var length = batchIds.length;
         for (var i = 0; i < length; i++) {
-             if (batchIds[i] >= featureTableJson.BATCH_LENGTH) {
+            if (batchIds[i] >= featureTableJson.BATCH_LENGTH) {
                 return 'All the BATCH_IDs must have values less than feature table property BATCH_LENGTH.';
             }
         }
