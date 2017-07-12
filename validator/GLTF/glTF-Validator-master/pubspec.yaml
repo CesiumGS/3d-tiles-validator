@@ -1,0 +1,23 @@
+name: gltf
+version: 0.1.0-beta.0
+description: Library and tools to validate glTF assets
+author: The Khronos Group Inc.
+homepage: https://github.com/KhronosGroup/glTF-Validator
+
+dependencies:
+  args:
+  browser: '>=0.10.0 <0.11.0'
+  dart_to_js_script_rewriter: '^1.0.1'
+  quiver: '>=0.22.0<0.23.0'
+
+dev_dependencies:
+  test: '>=0.12.0 <0.13.0'
+
+environment:
+  sdk: '^1.17.1'
+
+executables:
+  gltf_validator:
+
+transformers:
+ - dart_to_js_script_rewriter
