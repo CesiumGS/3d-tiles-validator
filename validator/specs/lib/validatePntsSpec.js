@@ -154,19 +154,16 @@ describe('validate pnts', function() {
             0.0, 1.0, 0.0,
             0.0, 0.0, 1.0
         ]);
-        var positionBinary = Buffer.from(positionArray);
-        console.log(positionBinary);
+        var positionBinary = Buffer.from(positionArray.buffer);
 
         var batchIdArray = new Uint8Array([
             0,
             1,
             2
         ]);
-        var batchIdBinary = Buffer.from(batchIdArray);
-        console.log(batchIdBinary);
+        var batchIdBinary = Buffer.from(batchIdArray.buffer);
 
         var combinedBinary = Buffer.concat([positionBinary, batchIdBinary]);
-        console.log(combinedBinary);
 
         var pnts = createPnts({
             featureTableJson : {

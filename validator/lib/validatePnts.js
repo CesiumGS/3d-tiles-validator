@@ -185,9 +185,9 @@ function validatePnts(content) {
 
     if (defined(featureTableJson.BATCH_ID)) {
         var featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
+        featureTable.featuresLength = pointsLength;
         var componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.BATCH_ID.componentType, 'UNSIGNED_SHORT'));
         var batchIds = featureTable.getPropertyArray('BATCH_ID', componentDatatype, 1);
-        //console.log(batchIds);
         var length = batchIds.length;
         for (var i = 0; i < length; i++) {
             if (batchIds[i] >= featureTableJson.BATCH_LENGTH) {
