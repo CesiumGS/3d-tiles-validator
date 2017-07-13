@@ -13,6 +13,8 @@ var sphereInsideSphere = utility.sphereInsideSphere;
 
 var defined = Cesium.defined;
 
+var clone = Cesium.clone
+
 module.exports = validateTileset;
 
 /**
@@ -56,7 +58,7 @@ function validateTopLevel(tileset) {
     if (defined(gltfUpAxis)) {
         if (gltfUpAxis !== 'X' && gltfUpAxis !== 'Y' && gltfUpAxis !== 'Z') {
             return 'gltfUpAxis should either be "X", "Y", or "Z".';
-        }
+        } 
     }
 }
 
@@ -76,14 +78,41 @@ function validateTileHierarchy(root, tilesetDirectory) {
         var content = tile.content;
 
         if (!defined(tile.geometricError)) {
+            var tileset_debug = clone(tile, true);
+            if (defined(tile.children)) {
+                delete tile.children;
+            }
+            if (defined(tile.root)) {
+                delete tile.root;
+            }
+            console.log('Error in tileset: ');
+            console.log(JSON.stringify(tile, null, 4));
             return 'Each tile must define geometricError';
         }
 
         if (tile.geometricError < 0.0) {
+            var tileset_debug = clone(tile, true);
+            if (defined(tile.children)) {
+                delete tile.children;
+            }
+            if (defined(tile.root)) {
+                delete tile.root;
+            }
+            console.log('Error in tileset: ');
+            console.log(JSON.stringify(tile, null, 4));
             return 'geometricError must be greater than or equal to 0.0';
         }
 
         if (defined(parent) && (tile.geometricError > parent.geometricError)) {
+            var tileset_debug = clone(tile, true);
+            if (defined(tile.children)) {
+                delete tile.children;
+            }
+            if (defined(tile.root)) {
+                delete tile.root;
+            }
+            console.log('Error in tileset: ');
+            console.log(JSON.stringify(tile, null, 4));
             return 'Child has geometricError greater than parent';
         }
 
@@ -98,16 +127,29 @@ function validateTileHierarchy(root, tilesetDirectory) {
             var tileSphere = tile.boundingVolume.sphere;
 
             if (defined(contentRegion) && defined(tileRegion) && !regionInsideRegion(contentRegion, tileRegion)) {
+                console.log('Error in tileset: ');
+                console.log(JSON.stringify(content, null, 4));
                 return 'content region [' + contentRegion + '] is not within tile region + [' + tileRegion + ']';
             }
 
             if (defined(contentSphere) && defined(tileSphere) && !sphereInsideSphere(contentSphere, tileSphere)) {
+                console.log('Error in tileset: ');
+                console.log(JSON.stringify(content, null, 4));
                 return 'content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']';
             }
         }
 
         if (defined(tile.refine)) {
             if (tile.refine !== 'ADD' && tile.refine !== 'REPLACE') {
+            var tileset_debug = clone(tile, true);
+            if (defined(tile.children)) {
+                delete tile.children;
+            }
+            if (defined(tile.root)) {
+                delete tile.root;
+            }
+            console.log('Error in tileset: ');
+            console.log(JSON.stringify(tile, null, 4));
                 return 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
             }
         }
