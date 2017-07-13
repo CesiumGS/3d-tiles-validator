@@ -2,6 +2,8 @@
 var Cesium = require('cesium');
 
 var Cartesian3 = Cesium.Cartesian3;
+var Matrix3 = Cesium.Matrix3;
+var Matrix4 = Cesium.Matrix4;
 
 module.exports = {
     typeToComponentsLength : typeToComponentsLength,
@@ -71,13 +73,38 @@ function sphereInsideSphere(sphereInner, sphereOuter) {
     return distance <= (radiusOuter - radiusInner);
 }
 
+var scratchBoxCenter = new Cartesian3();
+var scratchSphereCenter = new Cartesian3();
+var scratchBoxHalfAxes = new Matrix3();
+
 function boxInsideSphere(box, sphere) {
-    var centerBox = Cartesian3.fromElements(box[0], box[1], box[2]);
-    var halfDiagonalBox = Cartesian3.fromElements(box[3] + box[6] + box[9],
-                                                    box[4] + box[7] + box[10],
-                                                    box[5] + box[8] + box[11]);
-    // Compute 8 vertices and compare distance from the center to the radius..
-    var boxVertTopXY = Cartesian3.fromElements();
-    //...
-    return undefined;//distance <= (radiusOuter - radiusInner);
+    var centerBox = Cartesian3.fromElements(box[0], box[1], box[2], scratchBoxCenter);
+    var halfAxesBox = Matrix3.fromArray(box, 3, scratchBoxHalfAxes);
+    var transformBox = Matrix4.fromRotationTranslation(halfAxesBox,centerBox);
+
+    var radiusSphere = sphere[3];
+    var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
+
+    var cube = new Array(8);
+    cube[0] = new Cartesian3(0, 0, 0);
+    cube[1] = new Cartesian3(0, 0, 1);
+    cube[2] = new Cartesian3(1, 0, 1);
+    cube[3] = new Cartesian3(1, 0, 0);
+    cube[4] = new Cartesian3(0, 1, 0);
+    cube[5] = new Cartesian3(0, 1, 1);
+    cube[6] = new Cartesian3(1, 1, 1);
+    cube[7] = new Cartesian3(1, 1, 0);
+
+    var i = 0;
+    for (i = 0; i < 8; i++) {
+        cube[i] = Matrix4.multiplyByPoint(transformBox,cube[i],cube[i]);
+    }
+
+    for (i = 0; i < 8; i++) {
+        var distance = Cartesian3.distance(cube[i], centerSphere);
+        if (distance > radiusSphere) {
+            return false;
+        }
+    }
+    return true;
 }
