@@ -2,6 +2,8 @@
 var Cesium = require('cesium');
 
 var Cartesian3 = Cesium.Cartesian3;
+var Matrix3 = Cesium.Matrix3;
+var Matrix4 = Cesium.Matrix4;
 
 module.exports = {
     typeToComponentsLength : typeToComponentsLength,
@@ -71,29 +73,48 @@ function sphereInsideSphere(sphereInner, sphereOuter) {
     return distance <= (radiusOuter - radiusInner);
 }
 
+var scratchInnerHalfAxes = new Matrix3();
+var scratchOuterHalfAxes = new Matrix3();
+
 function boxInsideBox(boxInner, boxOuter) {
-    var centerInner = Cartesian3.fromElements(boxInner[0], boxInner[1], boxInner[2]);
-    var halfDiagonalInner = Cartesian3.fromElements(boxInner[3] + boxInner[6] + boxInner[9],
-                                                    boxInner[4] + boxInner[7] + boxInner[10],
-                                                    boxInner[5] + boxInner[8] + boxInner[11]);
-    var centerInnerPositive = new Cartesian3();
-    Cartesian3.add(centerInner, halfDiagonalInner, centerInnerPositive);
-    var centerInnerNegative = new Cartesian3();
-    Cartesian3.subtract(centerInner, halfDiagonalInner, centerInnerNegative);
+    // Compute inner box..
+    var centerInner = Cartesian3.fromElements(boxInner[0], boxInner[1], boxInner[2], scratchInnerCenter);
+    var halfAxesInner = Matrix3.fromArray(boxInner, 3, scratchInnerHalfAxes);
+    var transformInner = Matrix4.fromRotationTranslation(halfAxesInner,centerInner);
 
-    var centerOuter = Cartesian3.fromElements(boxOuter[0], boxOuter[1], boxOuter[2]);
-    var halfDiagonalOuter = Cartesian3.fromElements(boxOuter[3] + boxOuter[6] + boxOuter[9],
-                                                    boxOuter[4] + boxOuter[7] + boxOuter[10],
-                                                    boxOuter[5] + boxOuter[8] + boxOuter[11]);
-    var centerOuterPositive = new Cartesian3();
-    Cartesian3.add(centerOuter, halfDiagonalOuter, centerOuterPositive);
-    var centerOuterNegative = new Cartesian3();
-    Cartesian3.subtract(centerOuter, halfDiagonalOuter, centerOuterNegative);
+    // Compute outer box..
+    var centerOuter = Cartesian3.fromElements(boxOuter[0], boxOuter[1], boxOuter[2], scratchOuterCenter);
+    var halfAxesOuter = Matrix3.fromArray(boxOuter, 3, scratchOuterHalfAxes);
+    var transformOuter = Matrix4.fromRotationTranslation(halfAxesOuter,centerOuter);
 
-    return (centerInnerPositive.x <= centerOuterPositive.x) &&
-        (centerInnerPositive.y <= centerOuterPositive.y) &&
-        (centerInnerPositive.z <= centerOuterPositive.z) &&
-        (centerInnerNegative.x >= centerOuterNegative.x) &&
-        (centerInnerNegative.y >= centerOuterNegative.y) &&
-        (centerInnerNegative.z >= centerOuterNegative.z);
+    // Create a unit cube 0,0,0 to 1,1,1..
+    var cube = new Array(8);
+    cube[0] = new Cartesian3(0, 0, 0);
+    cube[1] = new Cartesian3(0, 0, 1);
+    cube[2] = new Cartesian3(1, 0, 1);
+    cube[3] = new Cartesian3(1, 0, 0);
+    cube[4] = new Cartesian3(0, 1, 0);
+    cube[5] = new Cartesian3(0, 1, 1);
+    cube[6] = new Cartesian3(1, 1, 1);
+    cube[7] = new Cartesian3(1, 1, 0);
+
+    // TRANSFORM BY transformInner - TO GET THE INNER BOUNDING BOX IN WORLD SPACE
+    var i = 0;
+    for (i = 0; i < 8; i++) {
+        cube[i] = Matrix4.multiplyByPoint(transformInner,cube[i],cube[i]);
+    }
+
+    // TRANSFORM BY INVERSE OF transformOuter - TO GET THE BOX IN THE OUTER BOX'S SPACE
+    var transformInnerInverse = Matrix4.inverse(transformOuter,transformOuter);
+    for (i = 0; i < 8; i++) {
+        cube[i] = Matrix4.multiplyByPoint(transformInnerInverse,cube[i],cube[i]);
+    }
+
+    // COMPARE THE RESULTING CUBE WITH UNIT CUBE..
+    for (i = 0; i < 8; i++) {
+        if (cube[i].x < 0 || cube[i].x > 1 || cube[i].y < 0 || cube[i].y > 1 || cube[i].z < 0 || cube[i].z > 1) {
+            return false;
+        }
+    }
+    return true;
 }
