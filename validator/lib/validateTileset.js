@@ -58,7 +58,7 @@ function validateTopLevel(tileset) {
     if (defined(gltfUpAxis)) {
         if (gltfUpAxis !== 'X' && gltfUpAxis !== 'Y' && gltfUpAxis !== 'Z') {
             return 'gltfUpAxis should either be "X", "Y", or "Z".';
-        } 
+        }
     }
 }
 
