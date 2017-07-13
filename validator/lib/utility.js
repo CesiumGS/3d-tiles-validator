@@ -2,6 +2,7 @@
 var Cesium = require('cesium');
 
 var Cartesian3 = Cesium.Cartesian3;
+var CesiumMath = Cesium.Math;
 var Matrix3 = Cesium.Matrix3;
 var Matrix4 = Cesium.Matrix4;
 
@@ -105,8 +106,14 @@ function boxInsideBox(boxInner, boxOuter) {
         cube[i] = Matrix4.multiplyByPoint(transformInnerInverse,cube[i],cube[i]);
     }
 
+    var EPSILON8 = CesiumMath.EPSILON8;
     for (i = 0; i < 8; i++) {
-        if (cube[i].x < 0 || cube[i].x > 1 || cube[i].y < 0 || cube[i].y > 1 || cube[i].z < 0 || cube[i].z > 1) {
+        if (cube[i].x < 0 - EPSILON8 ||
+            cube[i].x > 1 + EPSILON8 ||
+            cube[i].y < 0 - EPSILON8 ||
+            cube[i].y > 1 + EPSILON8 ||
+            cube[i].z < 0 - EPSILON8 ||
+            cube[i].z > 1 + EPSILON8) {
             return false;
         }
     }
