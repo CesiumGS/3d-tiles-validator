@@ -40,6 +40,38 @@ var sampleTileset = {
     }
 };
 
+var sampleTileset2 = {
+    'asset': {
+        'version': '1.0'
+    },
+    'geometricError': 500,
+    'root': {
+        'transform': [96.86356343768793, 24.848542777253734, 0, 0,
+            -15.986465724980844, 62.317780594908875, 76.5566922962899, 0,
+            19.02322243409411, -74.15554020821229, 64.3356267137516, 0,
+            1215107.7612304366, -4736682.902037748, 4081926.095098698, 1
+        ],
+        'boundingVolume': {
+            'sphere': [
+                0, 0, 0,    // center
+                7.0955      // radius
+            ]
+        },
+        'geometricError': 100,
+        'refine': 'ADD',
+        'content': {
+            'boundingVolume': {
+                'box': [
+                    0, 0, 0,
+                    7.0955, 0, 0,
+                    0, 3.1405, 0,
+                    0, 0, 5.04
+                ]
+            }
+        }
+    }
+};
+
 describe('validateTileset', function() {
     it('returns error message when the geometricError is not defined', function(done) {
         var tileset = clone(sampleTileset, true);
@@ -129,6 +161,15 @@ describe('validateTileset', function() {
             .then(function(message) {
                 expect(message).toBe('gltfUpAxis should either be "X", "Y", or "Z".');
             }), done).toResolve();
+    });
+
+    // New test for box inside sphere..
+    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s sphere type boundingVolume', function(done) {
+        var tileset = clone(sampleTileset2, true);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('content box is not within tile sphere');
+          }), done).toResolve();
     });
 
     it('succeeds for valid tileset', function(done) {

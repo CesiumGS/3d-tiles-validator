@@ -8,7 +8,8 @@ module.exports = {
     componentTypeToByteLength : componentTypeToByteLength,
     isBufferValidUtf8 : isBufferValidUtf8,
     regionInsideRegion : regionInsideRegion,
-    sphereInsideSphere : sphereInsideSphere
+    sphereInsideSphere : sphereInsideSphere,
+    boxInsideSphere : boxInsideSphere
 };
 
 function typeToComponentsLength(type) {
@@ -68,4 +69,15 @@ function sphereInsideSphere(sphereInner, sphereOuter) {
     var centerOuter = Cartesian3.unpack(sphereOuter, 0, scratchOuterCenter);
     var distance = Cartesian3.distance(centerInner, centerOuter);
     return distance <= (radiusOuter - radiusInner);
+}
+
+function boxInsideSphere(box, sphere) {
+    var centerBox = Cartesian3.fromElements(box[0], box[1], box[2]);
+    var halfDiagonalBox = Cartesian3.fromElements(box[3] + box[6] + box[9],
+                                                    box[4] + box[7] + box[10],
+                                                    box[5] + box[8] + box[11]);
+    // Compute 8 vertices and compare distance from the center to the radius..
+    var boxVertTopXY = Cartesian3.fromElements();
+    //...
+    return undefined;//distance <= (radiusOuter - radiusInner);
 }
