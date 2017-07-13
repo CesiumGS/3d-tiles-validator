@@ -53,8 +53,8 @@ var sampleTileset3 = {
         ],
         boundingVolume: {
             sphere: [
-                0, 0, 0,    // center
-                7.0955      // radius
+                0, 0, 0,
+                7.0955
             ]
         },
         geometricError: 100,

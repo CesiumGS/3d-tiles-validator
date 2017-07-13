@@ -107,7 +107,7 @@ function validateTileHierarchy(root, tilesetDirectory) {
                 return 'content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']';
             }
 
-            if (defined(contentBox) && defined(tileSphere) && !sphereInsideSphere(contentBox, tileSphere)) {
+            if (defined(contentBox) && defined(tileSphere) && !boxInsideSphere(contentBox, tileSphere)) {
                 return 'content box is not within tile sphere';
             }
         }
