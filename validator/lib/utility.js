@@ -77,17 +77,14 @@ var scratchInnerHalfAxes = new Matrix3();
 var scratchOuterHalfAxes = new Matrix3();
 
 function boxInsideBox(boxInner, boxOuter) {
-    // Compute inner box..
     var centerInner = Cartesian3.fromElements(boxInner[0], boxInner[1], boxInner[2], scratchInnerCenter);
     var halfAxesInner = Matrix3.fromArray(boxInner, 3, scratchInnerHalfAxes);
     var transformInner = Matrix4.fromRotationTranslation(halfAxesInner,centerInner);
 
-    // Compute outer box..
     var centerOuter = Cartesian3.fromElements(boxOuter[0], boxOuter[1], boxOuter[2], scratchOuterCenter);
     var halfAxesOuter = Matrix3.fromArray(boxOuter, 3, scratchOuterHalfAxes);
     var transformOuter = Matrix4.fromRotationTranslation(halfAxesOuter,centerOuter);
 
-    // Create a unit cube 0,0,0 to 1,1,1..
     var cube = new Array(8);
     cube[0] = new Cartesian3(0, 0, 0);
     cube[1] = new Cartesian3(0, 0, 1);
@@ -98,19 +95,16 @@ function boxInsideBox(boxInner, boxOuter) {
     cube[6] = new Cartesian3(1, 1, 1);
     cube[7] = new Cartesian3(1, 1, 0);
 
-    // TRANSFORM BY transformInner - TO GET THE INNER BOUNDING BOX IN WORLD SPACE
     var i = 0;
     for (i = 0; i < 8; i++) {
         cube[i] = Matrix4.multiplyByPoint(transformInner,cube[i],cube[i]);
     }
 
-    // TRANSFORM BY INVERSE OF transformOuter - TO GET THE BOX IN THE OUTER BOX'S SPACE
     var transformInnerInverse = Matrix4.inverse(transformOuter,transformOuter);
     for (i = 0; i < 8; i++) {
         cube[i] = Matrix4.multiplyByPoint(transformInnerInverse,cube[i],cube[i]);
     }
 
-    // COMPARE THE RESULTING CUBE WITH UNIT CUBE..
     for (i = 0; i < 8; i++) {
         if (cube[i].x < 0 || cube[i].x > 1 || cube[i].y < 0 || cube[i].y > 1 || cube[i].z < 0 || cube[i].z > 1) {
             return false;
