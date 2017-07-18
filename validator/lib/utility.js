@@ -80,39 +80,39 @@ var scratchOuterHalfAxes = new Matrix3();
 function boxInsideBox(boxInner, boxOuter) {
     var centerInner = Cartesian3.fromElements(boxInner[0], boxInner[1], boxInner[2], scratchInnerCenter);
     var halfAxesInner = Matrix3.fromArray(boxInner, 3, scratchInnerHalfAxes);
-    var transformInner = Matrix4.fromRotationTranslation(halfAxesInner,centerInner);
+    var transformInner = Matrix4.fromRotationTranslation(halfAxesInner, centerInner);
 
     var centerOuter = Cartesian3.fromElements(boxOuter[0], boxOuter[1], boxOuter[2], scratchOuterCenter);
     var halfAxesOuter = Matrix3.fromArray(boxOuter, 3, scratchOuterHalfAxes);
-    var transformOuter = Matrix4.fromRotationTranslation(halfAxesOuter,centerOuter);
+    var transformOuter = Matrix4.fromRotationTranslation(halfAxesOuter, centerOuter);
 
     var cube = new Array(8);
-    cube[0] = new Cartesian3(0, 0, 0);
-    cube[1] = new Cartesian3(0, 0, 1);
-    cube[2] = new Cartesian3(1, 0, 1);
-    cube[3] = new Cartesian3(1, 0, 0);
-    cube[4] = new Cartesian3(0, 1, 0);
-    cube[5] = new Cartesian3(0, 1, 1);
+    cube[0] = new Cartesian3(-1, -1, -1);
+    cube[1] = new Cartesian3(-1, -1, 1);
+    cube[2] = new Cartesian3(1, -1, 1);
+    cube[3] = new Cartesian3(1, -1, -1);
+    cube[4] = new Cartesian3(-1, 1, -1);
+    cube[5] = new Cartesian3(-1, 1, 1);
     cube[6] = new Cartesian3(1, 1, 1);
-    cube[7] = new Cartesian3(1, 1, 0);
+    cube[7] = new Cartesian3(1, 1, -1);
 
     var i = 0;
     for (i = 0; i < 8; i++) {
-        cube[i] = Matrix4.multiplyByPoint(transformInner,cube[i],cube[i]);
+        cube[i] = Matrix4.multiplyByPoint(transformInner, cube[i], cube[i]);
     }
 
-    var transformInnerInverse = Matrix4.inverse(transformOuter,transformOuter);
+    var transformInnerInverse = Matrix4.inverse(transformOuter, transformOuter);
     for (i = 0; i < 8; i++) {
-        cube[i] = Matrix4.multiplyByPoint(transformInnerInverse,cube[i],cube[i]);
+        cube[i] = Matrix4.multiplyByPoint(transformInnerInverse, cube[i], cube[i]);
     }
 
     var EPSILON8 = CesiumMath.EPSILON8;
     for (i = 0; i < 8; i++) {
-        if (cube[i].x < 0 - EPSILON8 ||
+        if (cube[i].x < -1 - EPSILON8 ||
             cube[i].x > 1 + EPSILON8 ||
-            cube[i].y < 0 - EPSILON8 ||
+            cube[i].y < -1 - EPSILON8 ||
             cube[i].y > 1 + EPSILON8 ||
-            cube[i].z < 0 - EPSILON8 ||
+            cube[i].z < -1 - EPSILON8 ||
             cube[i].z > 1 + EPSILON8) {
             return false;
         }

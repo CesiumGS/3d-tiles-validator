@@ -40,39 +40,6 @@ var sampleTileset = {
     }
 };
 
-var sampleTileset2 = {
-    asset: {
-        version: '1.0'
-    },
-    geometricError: 500,
-    root: {
-        transform: [96.86356343768793, 24.848542777253734, 0, 0,
-            -15.986465724980844, 62.317780594908875, 76.5566922962899, 0,
-            19.02322243409411, -74.15554020821229, 64.3356267137516, 0,
-            1215107.7612304366, -4736682.902037748, 4081926.095098698, 1
-        ],
-        boundingVolume: {
-            box: [0, 0, 0,
-                7.0955, 0, 0,
-                0, 3.1405, 0,
-                0, 0, 5.0375
-            ]
-        },
-        geometricError: 100,
-        refine: 'ADD',
-        content: {
-            boundingVolume: {
-                box: [
-                    0, 0, 0,
-                    7.0955, 0, 0,
-                    0, 3.1405, 0,
-                    0, 0, 5.04
-                ]
-            }
-        }
-    }
-};
-
 describe('validateTileset', function() {
     it('returns error message when the geometricError is not defined', function(done) {
         var tileset = clone(sampleTileset, true);
@@ -164,11 +131,72 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s box type boundingVolume', function(done) {
-        var tileset = clone(sampleTileset2, true);
+    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s box type boundingVolume [invalid aligned bounding boxes]', function(done) {
+        var tileBoundingVolume = {
+            box: [0, 0, 0,
+                7.0955, 0, 0,
+                0, 3.1405, 0,
+                0, 0, 5.0375
+            ]
+        };
+        var contentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                7.0955, 0, 0,
+                0, 3.1405, 0,
+                0, 0, 5.04
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('content box is not within tile box');
+                expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']');
+            }), done).toResolve();
+    });
+
+    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s box type boundingVolume [invalid unaligned bounding boxes]', function(done) {
+        var tileBoundingVolume = {
+            box: [0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var contentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 1, 0,
+                1, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']');
+            }), done).toResolve();
+    });
+
+    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s box type boundingVolume [valid bounding boxes]', function(done) {
+        var tileBoundingVolume = {
+            box: [0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var contentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                0.5, 0.5, 0,
+                0.5, 0.5, 0,
+                0, 0, 1
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBeUndefined();
             }), done).toResolve();
     });
 
@@ -179,3 +207,26 @@ describe('validateTileset', function() {
           }), done).toResolve();
     });
 });
+
+function createSampleTileset(tileBoundingVolume, contentBoundingVolume) {
+    var sampleTileset = {
+        asset: {
+            version: '1.0'
+        },
+        geometricError: 500,
+        root: {
+            transform: [96.86356343768793, 24.848542777253734, 0, 0,
+                -15.986465724980844, 62.317780594908875, 76.5566922962899, 0,
+                19.02322243409411, -74.15554020821229, 64.3356267137516, 0,
+                1215107.7612304366, -4736682.902037748, 4081926.095098698, 1
+            ],
+            boundingVolume: tileBoundingVolume,
+            geometricError: 100,
+            refine: 'ADD',
+            content: {
+                boundingVolume: contentBoundingVolume
+            }
+        }
+    };
+    return sampleTileset;
+}
