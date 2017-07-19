@@ -808,7 +808,7 @@ function createCompositeOfInstanced() {
     };
 
     var i3dmOptions2 = {
-        url : instancesRedUrl,
+        url : instancesUrl,
         tileWidth : instancesTileWidth,
         transform : instancesTransform,
         instancesLength : instancesLength,
