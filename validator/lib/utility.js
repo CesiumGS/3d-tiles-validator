@@ -86,14 +86,14 @@ function boxInsideSphere(box, sphere) {
     var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
 
     var cube = new Array(8);
-    cube[0] = new Cartesian3(0, 0, 0);
-    cube[1] = new Cartesian3(0, 0, 1);
-    cube[2] = new Cartesian3(1, 0, 1);
-    cube[3] = new Cartesian3(1, 0, 0);
-    cube[4] = new Cartesian3(0, 1, 0);
-    cube[5] = new Cartesian3(0, 1, 1);
+    cube[0] = new Cartesian3(-1, -1, -1);
+    cube[1] = new Cartesian3(-1, -1, 1);
+    cube[2] = new Cartesian3(1, -1, 1);
+    cube[3] = new Cartesian3(1, -1, -1);
+    cube[4] = new Cartesian3(-1, 1, -1);
+    cube[5] = new Cartesian3(-1, 1, 1);
     cube[6] = new Cartesian3(1, 1, 1);
-    cube[7] = new Cartesian3(1, 1, 0);
+    cube[7] = new Cartesian3(1, 1, -1);
 
     var i = 0;
     for (i = 0; i < 8; i++) {
