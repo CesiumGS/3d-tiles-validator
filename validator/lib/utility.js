@@ -96,10 +96,9 @@ function boxInsideBox(boxInner, boxOuter) {
     cube[6] = new Cartesian3(1, 1, 1);
     cube[7] = new Cartesian3(1, 1, -1);
 
-    var i = 0;
     var transformInnerInverse = Matrix4.inverse(transformOuter, transformOuter);
     var EPSILON8 = CesiumMath.EPSILON8;
-    for (i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
         cube[i] = Matrix4.multiplyByPoint(transformInner, cube[i], cube[i]);
         cube[i] = Matrix4.multiplyByPoint(transformInnerInverse, cube[i], cube[i]);
         var min = Cartesian3.minimumComponent(cube[i]);
