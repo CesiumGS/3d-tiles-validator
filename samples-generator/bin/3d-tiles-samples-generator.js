@@ -804,7 +804,8 @@ function createCompositeOfInstanced() {
         transform : instancesTransform,
         instancesLength : instancesLength,
         modelSize : instancesModelSize,
-        eastNorthUp : true
+        eastNorthUp : true,
+        embed : false
     };
 
     var i3dmOptions2 = {
@@ -813,7 +814,8 @@ function createCompositeOfInstanced() {
         transform : instancesTransform,
         instancesLength : instancesLength,
         modelSize : instancesModelSize,
-        eastNorthUp : true
+        eastNorthUp : true,
+        embed : false
     };
 
     return Promise.all([
@@ -825,7 +827,11 @@ function createCompositeOfInstanced() {
         var i3dm1BatchTable = results[0].batchTableJson;
         var i3dm2BatchTable = results[1].batchTableJson;
         return saveCompositeTileset('CompositeOfInstanced', [i3dm1, i3dm2], [i3dm1BatchTable, i3dm2BatchTable]);
-    });
+    }).then(function() {
+        var tilesetDirectory = path.join(outputDirectory, 'Composite', 'CompositeOfInstanced');
+        var copyPath = path.join(tilesetDirectory, path.basename(instancesUrl));
+        return fsExtra.copy(instancesUrl, copyPath);
+    })
 }
 
 function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions) {
