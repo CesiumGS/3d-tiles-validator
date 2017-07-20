@@ -102,22 +102,18 @@ function sphereInsideBox(sphere, box) {
         cube[i] = Matrix4.multiplyByPoint(transformBox, cube[i], cube[i]);
     }
 
-    // Create 6 planes representing 6 faces
-    //      - the normal should point toward the inside of the BB
-
     var face = new Array(6);
-    face[0] = planeFromPoints(cube[1], cube[2], cube[0], cube[1]);
-    face[1] = planeFromPoints(cube[6], cube[7], cube[2], cube[6]);
-    face[2] = planeFromPoints(cube[5], cube[4], cube[6], cube[5]);
-    face[3] = planeFromPoints(cube[1], cube[0], cube[5], cube[1]);
-    face[4] = planeFromPoints(cube[2], cube[1], cube[6], cube[2]);
-    face[5] = planeFromPoints(cube[3], cube[7], cube[0], cube[3]);
+    face[0] = planeFromPoints(cube[0], cube[1], cube[1], cube[2]);
+    face[1] = planeFromPoints(cube[2], cube[6], cube[6], cube[7]);
+    face[2] = planeFromPoints(cube[6], cube[5], cube[5], cube[4]);
+    face[3] = planeFromPoints(cube[5], cube[1], cube[1], cube[0]);
+    face[4] = planeFromPoints(cube[6], cube[2], cube[2], cube[1]);
+    face[5] = planeFromPoints(cube[0], cube[3], cube[3], cube[7]);
 
     var boundingSphere = new Cesium.BoundingSphere(centerSphere, radiusSphere);
     for (i = 0; i < 6; i++) {
         var intersection = Sphere.intersectPlane(boundingSphere, face[i]);
-        console.log(intersection);
-        if (intersection !== Cesium.Intersect.Inside) {
+        if (intersection !== Cesium.Intersect.INSIDE) {
             return false;
         }
     }

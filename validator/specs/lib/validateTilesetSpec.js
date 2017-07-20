@@ -131,22 +131,79 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    it('returns error message when a content\'s sphere type boundingVolume is not within it\'s tile\'s box type boundingVolume', function(done) {
+    it('returns error message when content\'s sphere type boundingVolume is not within it\'s tile\'s box type boundingVolume', function(done) {
         var tileBoundingVolume = {
             box: [
                 0, 0, 0,
-                1, 0, 0,
-                0, 1, 0,
-                0, 0, 1
+                7, 0, 0,
+                0, 3, 0,
+                0, 0, 5
             ]
         };
         var contentBoundingVolume = {
-            sphere: [0, 0, 0, 0.5]
+            sphere: [0, 0, 0, 3.0001]
         };
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']');
+          }), done).toResolve();
+    });
+
+    it('returns error message when content\'s sphere type boundingVolume is entirely outside it\'s tile\'s box type boundingVolume', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                0, 0, 0,
+                7, 0, 0,
+                0, 3, 0,
+                0, 0, 5
+            ]
+        };
+        var contentBoundingVolume = {
+            sphere: [10, 10, 10, 1]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']');
+          }), done).toResolve();
+    });
+
+    it('returns error message when content\'s sphere type boundingVolume is partially outside it\'s tile\'s box type boundingVolume', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                0, 0, 0,
+                7, 0, 0,
+                0, 3, 0,
+                0, 0, 5
+            ]
+        };
+        var contentBoundingVolume = {
+            sphere: [0, 5, 0, 3]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']');
+          }), done).toResolve();
+    });
+
+    it('succeeds when content\'s sphere type boundingVolume is within it\'s tile\'s box type boundingVolume', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                0, 0, 0,
+                7, 0, 0,
+                0, 3, 0,
+                0, 0, 5
+            ]
+        };
+        var contentBoundingVolume = {
+            sphere: [0, 0, 0, 3]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBeUndefined();
           }), done).toResolve();
     });
 
