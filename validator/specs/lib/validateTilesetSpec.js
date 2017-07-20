@@ -202,8 +202,8 @@ describe('validateTileset', function() {
                 expect(message).toBeUndefined();
             }), done).toResolve();
     });
-  
-  it('returns error message when content\'s box type boundingVolume is not within it\'s tile\'s sphere type boundingVolume', function(done) {
+
+    it('returns error message when content\'s box type boundingVolume is not within it\'s tile\'s sphere type boundingVolume', function(done) {
         var tileBoundingVolume = {
             sphere: [0, 0, 0, 1]
         };

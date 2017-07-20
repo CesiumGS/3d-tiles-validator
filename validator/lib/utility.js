@@ -12,7 +12,7 @@ module.exports = {
     isBufferValidUtf8 : isBufferValidUtf8,
     regionInsideRegion : regionInsideRegion,
     sphereInsideSphere : sphereInsideSphere,
-    boxInsideBox : boxInsideBox
+    boxInsideBox : boxInsideBox,
     boxInsideSphere : boxInsideSphere
 };
 
@@ -132,7 +132,7 @@ function boxInsideSphere(box, sphere) {
     cube[5] = new Cartesian3(-1, 1, 1);
     cube[6] = new Cartesian3(1, 1, 1);
     cube[7] = new Cartesian3(1, 1, -1);
-  
+
     for (var i = 0; i < 8; i++) {
         cube[i] = Matrix4.multiplyByPoint(transformBox, cube[i], cube[i]);
         var distance = Cartesian3.distance(cube[i], centerSphere);
