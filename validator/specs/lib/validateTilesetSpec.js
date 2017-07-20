@@ -131,12 +131,9 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s sphere type boundingVolume [invalid bounding boxes]', function(done) {
+    it('returns error message when content\'s box type boundingVolume is not within it\'s tile\'s sphere type boundingVolume', function(done) {
         var tileBoundingVolume = {
-            sphere: [
-                0, 0, 0,
-                1
-            ]
+            sphere: [0, 0, 0, 1]
         };
         var contentBoundingVolume = {
             box: [
@@ -149,16 +146,13 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.sphere + ']');
+                expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile sphere [' + tileBoundingVolume.sphere + ']');
             }), done).toResolve();
     });
 
-    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s sphere type boundingVolume [valid bounding boxes]', function(done) {
+    it('succeeds when content\'s box type boundingVolume is within it\'s tile\'s sphere type boundingVolume', function(done) {
         var tileBoundingVolume = {
-            sphere: [
-                0, 0, 0,
-                1
-            ]
+            sphere: [0, 0, 0, 1]
         };
         var contentBoundingVolume = {
             box: [

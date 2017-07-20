@@ -98,9 +98,6 @@ function boxInsideSphere(box, sphere) {
     var i = 0;
     for (i = 0; i < 8; i++) {
         cube[i] = Matrix4.multiplyByPoint(transformBox, cube[i], cube[i]);
-    }
-
-    for (i = 0; i < 8; i++) {
         var distance = Cartesian3.distance(cube[i], centerSphere);
         if (distance > radiusSphere) {
             return false;
