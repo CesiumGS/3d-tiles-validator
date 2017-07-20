@@ -76,13 +76,16 @@ function sphereInsideSphere(sphereInner, sphereOuter) {
 }
 
 var scratchBoxCenter = new Cartesian3();
-// var scratchSphereCenter = new Cartesian3();
+var scratchSphereCenter = new Cartesian3();
 var scratchBoxHalfAxes = new Matrix3();
 
 function sphereInsideBox(sphere, box) {
     var centerBox = Cartesian3.fromElements(box[0], box[1], box[2], scratchBoxCenter);
     var halfAxesBox = Matrix3.fromArray(box, 3, scratchBoxHalfAxes);
     var transformBox = Matrix4.fromRotationTranslation(halfAxesBox, centerBox);
+
+    var radiusSphere = sphere[3];
+    var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
 
     var cube = new Array(8);
     cube[0] = new Cartesian3(-1, -1, -1);
@@ -110,9 +113,10 @@ function sphereInsideBox(sphere, box) {
     face[4] = planeFromPoints(cube[2], cube[1], cube[6], cube[2]);
     face[5] = planeFromPoints(cube[3], cube[7], cube[0], cube[3]);
 
+    var boundingSphere = new Cesium.BoundingSphere(centerSphere, radiusSphere);
     for (i = 0; i < 6; i++) {
-        var intersection = Cesium.Intersect.INSIDE;
-        intersection = Sphere.intersectPlane(sphere, face[i]);
+        var intersection = Sphere.intersectPlane(boundingSphere, face[i]);
+        console.log(intersection);
         if (intersection !== Cesium.Intersect.Inside) {
             return false;
         }
