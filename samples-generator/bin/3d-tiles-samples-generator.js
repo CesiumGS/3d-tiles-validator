@@ -256,6 +256,7 @@ var promises = [
     // Composite
     createComposite(),
     createCompositeOfComposite(),
+    createCompositeOfInstanced(),
     // Hierarchy
     createHierarchy(),
     createHierarchyMultipleParents(),
@@ -794,6 +795,43 @@ function createCompositeOfComposite() {
         var cmpt = createCmpt([b3dm, i3dm]);
         return saveCompositeTileset('CompositeOfComposite', [cmpt], [b3dmBatchTable, i3dmBatchTable]);
     });
+}
+
+function createCompositeOfInstanced() {
+    var i3dmOptions1 = {
+        url : instancesUrl,
+        tileWidth : instancesTileWidth,
+        transform : instancesTransform,
+        instancesLength : instancesLength,
+        modelSize : instancesModelSize,
+        eastNorthUp : true,
+        embed : false
+    };
+
+    var i3dmOptions2 = {
+        url : instancesUrl,
+        tileWidth : instancesTileWidth,
+        transform : instancesTransform,
+        instancesLength : instancesLength,
+        modelSize : instancesModelSize,
+        eastNorthUp : true,
+        embed : false
+    };
+
+    return Promise.all([
+        createInstancesTile(i3dmOptions1),
+        createInstancesTile(i3dmOptions2)
+    ]).then(function(results) {
+        var i3dm1 = results[0].i3dm;
+        var i3dm2 = results[1].i3dm;
+        var i3dm1BatchTable = results[0].batchTableJson;
+        var i3dm2BatchTable = results[1].batchTableJson;
+        return saveCompositeTileset('CompositeOfInstanced', [i3dm1, i3dm2], [i3dm1BatchTable, i3dm2BatchTable]);
+    }).then(function() {
+        var tilesetDirectory = path.join(outputDirectory, 'Composite', 'CompositeOfInstanced');
+        var copyPath = path.join(tilesetDirectory, path.basename(instancesUrl));
+        return fsExtra.copy(instancesUrl, copyPath);
+    })
 }
 
 function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions) {
