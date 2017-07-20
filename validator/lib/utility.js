@@ -3,6 +3,7 @@ var Cesium = require('cesium');
 
 var Cartesian3 = Cesium.Cartesian3;
 var Plane = Cesium.Plane;
+var Sphere = Cesium.BoundingSphere;
 var Matrix3 = Cesium.Matrix3;
 var Matrix4 = Cesium.Matrix4;
 
@@ -78,23 +79,20 @@ var scratchBoxCenter = new Cartesian3();
 // var scratchSphereCenter = new Cartesian3();
 var scratchBoxHalfAxes = new Matrix3();
 
-function sphereInsideBox(box, sphere) {
+function sphereInsideBox(sphere, box) {
     var centerBox = Cartesian3.fromElements(box[0], box[1], box[2], scratchBoxCenter);
     var halfAxesBox = Matrix3.fromArray(box, 3, scratchBoxHalfAxes);
     var transformBox = Matrix4.fromRotationTranslation(halfAxesBox, centerBox);
 
-    // var radiusSphere = sphere[3];
-    // var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
-
     var cube = new Array(8);
-    cube[0] = new Cartesian3(0, 0, 0);
-    cube[1] = new Cartesian3(0, 0, 1);
-    cube[2] = new Cartesian3(1, 0, 1);
-    cube[3] = new Cartesian3(1, 0, 0);
-    cube[4] = new Cartesian3(0, 1, 0);
-    cube[5] = new Cartesian3(0, 1, 1);
+    cube[0] = new Cartesian3(-1, -1, -1);
+    cube[1] = new Cartesian3(-1, -1, 1);
+    cube[2] = new Cartesian3(1, -1, 1);
+    cube[3] = new Cartesian3(1, -1, -1);
+    cube[4] = new Cartesian3(-1, 1, -1);
+    cube[5] = new Cartesian3(-1, 1, 1);
     cube[6] = new Cartesian3(1, 1, 1);
-    cube[7] = new Cartesian3(1, 1, 0);
+    cube[7] = new Cartesian3(1, 1, -1);
 
     var i;
     for (i = 0; i < 8; i++) {
@@ -104,38 +102,17 @@ function sphereInsideBox(box, sphere) {
     // Create 6 planes representing 6 faces
     //      - the normal should point toward the inside of the BB
 
-    var cross = Cartesian3.cross;
-    var subtract = Cartesian3.subtract;
-    var normalize = Cartesian3.normalize;
     var face = new Array(6);
-    var normal = new Cartesian3();
-
-    var p = planeFromPoints(cube[1],cube[2],cube[0],cube[1]);
-    console.log(p);
-
-    //console.log(subtract(cube[1], cube[2], new Cartesian3()));
-    // normal = cross(subtract(cube[1], cube[2], new Cartesian3()), subtract(cube[0], cube[1], new Cartesian3()), new Cartesian3());
-    face[0] = new Plane.fromPointNormal(cube[1], normalize(normal, new Cartesian3(1.0)), face[0]);
-
-    normal = cross(subtract(cube[6], cube[7], new Cartesian3()), subtract(cube[2], cube[6], new Cartesian3()), new Cartesian3());
-    face[1] = new Plane.fromPointNormal(cube[6], normalize(normal, new Cartesian3()), face[1]);
-
-    normal = cross(subtract(cube[5], cube[4], new Cartesian3()), subtract(cube[6], cube[5], new Cartesian3()), new Cartesian3());
-    face[2] = new Plane.fromPointNormal(cube[5], normalize(normal, new Cartesian3()), face[2]);
-
-    normal = cross(subtract(cube[1], cube[0], new Cartesian3()), subtract(cube[5], cube[1], new Cartesian3()), new Cartesian3());
-    face[3] = new Plane.fromPointNormal(cube[1], normalize(normal, new Cartesian3()), face[3]);
-
-    normal = cross(subtract(cube[2], cube[1], new Cartesian3()), subtract(cube[6], cube[2], new Cartesian3()), new Cartesian3());
-    face[4] = new Plane.fromPointNormal(cube[2], normalize(normal, new Cartesian3()), face[4]);
-
-    normal = cross(subtract(cube[3], cube[0], new Cartesian3()), subtract(cube[7], cube[3], new Cartesian3()), new Cartesian3());
-    face[5] = new Plane.fromPointNormal(cube[3], normalize(normal, new Cartesian3()), face[5]);
-
-    console.log(face);
+    face[0] = planeFromPoints(cube[1], cube[2], cube[0], cube[1]);
+    face[1] = planeFromPoints(cube[6], cube[7], cube[2], cube[6]);
+    face[2] = planeFromPoints(cube[5], cube[4], cube[6], cube[5]);
+    face[3] = planeFromPoints(cube[1], cube[0], cube[5], cube[1]);
+    face[4] = planeFromPoints(cube[2], cube[1], cube[6], cube[2]);
+    face[5] = planeFromPoints(cube[3], cube[7], cube[0], cube[3]);
 
     for (i = 0; i < 6; i++) {
-        var intersection = sphere.intersectPlane(sphere, face[i]);
+        var intersection = Cesium.Intersect.INSIDE;
+        intersection = Sphere.intersectPlane(sphere, face[i]);
         if (intersection !== Cesium.Intersect.Inside) {
             return false;
         }
@@ -143,16 +120,17 @@ function sphereInsideBox(box, sphere) {
     return true;
 }
 
-// function planeFromPoints(point1, point2, point3, point4) {
-//     var subtract = Cartesian3.subtract;
-//     // var normalize = Cartesian3.normalize;
-//     var normal = new Cartesian3();
-//     var a = new Cartesian3();
-//     a = subtract(point1, point2, new Cartesian3());
-//     var b = subtract(point3, point4, new Cartesian3());
-//     var cross = Cartesian3.cross(a, b, new Cartesian3());
-//     Cartesian3.normalize(cross, normal);
-//     var plane = new Plane.fromPointNormal(point1, normal);
-//     console.log(plane);
-//     return plane;
-// }
+function planeFromPoints(point1, point2, point3, point4) {
+    var a = new Cartesian3();
+    var b = new Cartesian3();
+    var c = new Cartesian3();
+    var normal = new Cartesian3();
+
+    Cartesian3.subtract(point1, point2, a);
+    Cartesian3.subtract(point3, point4, b);
+    Cartesian3.cross(a, b, c);
+    Cartesian3.normalize(c, normal);
+
+    var plane = new Plane.fromPointNormal(point1, normal);
+    return plane;
+}
