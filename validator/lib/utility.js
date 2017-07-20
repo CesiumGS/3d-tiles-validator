@@ -80,7 +80,7 @@ var scratchBoxHalfAxes = new Matrix3();
 function boxInsideSphere(box, sphere) {
     var centerBox = Cartesian3.fromElements(box[0], box[1], box[2], scratchBoxCenter);
     var halfAxesBox = Matrix3.fromArray(box, 3, scratchBoxHalfAxes);
-    var transformBox = Matrix4.fromRotationTranslation(halfAxesBox,centerBox);
+    var transformBox = Matrix4.fromRotationTranslation(halfAxesBox, centerBox);
 
     var radiusSphere = sphere[3];
     var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
@@ -97,7 +97,7 @@ function boxInsideSphere(box, sphere) {
 
     var i = 0;
     for (i = 0; i < 8; i++) {
-        cube[i] = Matrix4.multiplyByPoint(transformBox,cube[i],cube[i]);
+        cube[i] = Matrix4.multiplyByPoint(transformBox, cube[i], cube[i]);
     }
 
     for (i = 0; i < 8; i++) {
