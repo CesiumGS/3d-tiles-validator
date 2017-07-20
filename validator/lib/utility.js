@@ -97,15 +97,13 @@ function boxInsideBox(boxInner, boxOuter) {
     cube[7] = new Cartesian3(1, 1, -1);
 
     var i = 0;
-    var transformInnerInverse;
-    var min, max;
+    var transformInnerInverse = Matrix4.inverse(transformOuter, transformOuter);
     var EPSILON8 = CesiumMath.EPSILON8;
     for (i = 0; i < 8; i++) {
         cube[i] = Matrix4.multiplyByPoint(transformInner, cube[i], cube[i]);
-        transformInnerInverse = Matrix4.inverse(transformOuter, transformOuter);
         cube[i] = Matrix4.multiplyByPoint(transformInnerInverse, cube[i], cube[i]);
-        min = Cartesian3.minimumComponent(cube[i]);
-        max = Cartesian3.maximumComponent(cube[i]);
+        var min = Cartesian3.minimumComponent(cube[i]);
+        var max = Cartesian3.maximumComponent(cube[i]);
         if (min < -1 - EPSILON8 || max > 1 + EPSILON8) {
             return false;
         }
