@@ -13,6 +13,7 @@ module.exports = {
     regionInsideRegion : regionInsideRegion,
     sphereInsideSphere : sphereInsideSphere,
     boxInsideBox : boxInsideBox
+    boxInsideSphere : boxInsideSphere
 };
 
 function typeToComponentsLength(type) {
@@ -104,6 +105,38 @@ function boxInsideBox(boxInner, boxOuter) {
         var min = Cartesian3.minimumComponent(cube[i]);
         var max = Cartesian3.maximumComponent(cube[i]);
         if (min < -1 - EPSILON8 || max > 1 + EPSILON8) {
+            return false;
+        }
+    }
+    return true;
+}
+
+var scratchBoxCenter = new Cartesian3();
+var scratchSphereCenter = new Cartesian3();
+var scratchBoxHalfAxes = new Matrix3();
+
+function boxInsideSphere(box, sphere) {
+    var centerBox = Cartesian3.fromElements(box[0], box[1], box[2], scratchBoxCenter);
+    var halfAxesBox = Matrix3.fromArray(box, 3, scratchBoxHalfAxes);
+    var transformBox = Matrix4.fromRotationTranslation(halfAxesBox, centerBox);
+
+    var radiusSphere = sphere[3];
+    var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
+
+    var cube = new Array(8);
+    cube[0] = new Cartesian3(-1, -1, -1);
+    cube[1] = new Cartesian3(-1, -1, 1);
+    cube[2] = new Cartesian3(1, -1, 1);
+    cube[3] = new Cartesian3(1, -1, -1);
+    cube[4] = new Cartesian3(-1, 1, -1);
+    cube[5] = new Cartesian3(-1, 1, 1);
+    cube[6] = new Cartesian3(1, 1, 1);
+    cube[7] = new Cartesian3(1, 1, -1);
+  
+    for (var i = 0; i < 8; i++) {
+        cube[i] = Matrix4.multiplyByPoint(transformBox, cube[i], cube[i]);
+        var distance = Cartesian3.distance(cube[i], centerSphere);
+        if (distance > radiusSphere) {
             return false;
         }
     }

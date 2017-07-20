@@ -9,6 +9,8 @@ var featureTableSchema = require('../specs/data/schema/featureTable.schema.json'
 
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
+var Cesium3DTileFeatureTable = Cesium.Cesium3DTileFeatureTable;
+var ComponentDatatype = Cesium.ComponentDatatype;
 
 module.exports = validatePnts;
 
@@ -179,6 +181,19 @@ function validatePnts(content) {
 
     if (batchLength > pointsLength) {
         return 'Feature table property BATCH_LENGTH must be less than or equal to POINTS_LENGTH.';
+    }
+
+    if (defined(featureTableJson.BATCH_ID)) {
+        var featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
+        featureTable.featuresLength = pointsLength;
+        var componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.BATCH_ID.componentType, 'UNSIGNED_SHORT'));
+        var batchIds = featureTable.getPropertyArray('BATCH_ID', componentDatatype, 1);
+        var length = batchIds.length;
+        for (var i = 0; i < length; i++) {
+            if (batchIds[i] >= featureTableJson.BATCH_LENGTH) {
+                return 'All the BATCH_IDs must have values less than feature table property BATCH_LENGTH.';
+            }
+        }
     }
 
     var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, pointsLength, featureTableSemantics);
