@@ -2,13 +2,16 @@
 var Cesium = require('cesium');
 
 var Cartesian3 = Cesium.Cartesian3;
+var Matrix3 = Cesium.Matrix3;
+var Matrix4 = Cesium.Matrix4;
 
 module.exports = {
     typeToComponentsLength : typeToComponentsLength,
     componentTypeToByteLength : componentTypeToByteLength,
     isBufferValidUtf8 : isBufferValidUtf8,
     regionInsideRegion : regionInsideRegion,
-    sphereInsideSphere : sphereInsideSphere
+    sphereInsideSphere : sphereInsideSphere,
+    boxInsideSphere : boxInsideSphere
 };
 
 function typeToComponentsLength(type) {
@@ -68,4 +71,36 @@ function sphereInsideSphere(sphereInner, sphereOuter) {
     var centerOuter = Cartesian3.unpack(sphereOuter, 0, scratchOuterCenter);
     var distance = Cartesian3.distance(centerInner, centerOuter);
     return distance <= (radiusOuter - radiusInner);
+}
+
+var scratchBoxCenter = new Cartesian3();
+var scratchSphereCenter = new Cartesian3();
+var scratchBoxHalfAxes = new Matrix3();
+
+function boxInsideSphere(box, sphere) {
+    var centerBox = Cartesian3.fromElements(box[0], box[1], box[2], scratchBoxCenter);
+    var halfAxesBox = Matrix3.fromArray(box, 3, scratchBoxHalfAxes);
+    var transformBox = Matrix4.fromRotationTranslation(halfAxesBox, centerBox);
+
+    var radiusSphere = sphere[3];
+    var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
+
+    var cube = new Array(8);
+    cube[0] = new Cartesian3(-1, -1, -1);
+    cube[1] = new Cartesian3(-1, -1, 1);
+    cube[2] = new Cartesian3(1, -1, 1);
+    cube[3] = new Cartesian3(1, -1, -1);
+    cube[4] = new Cartesian3(-1, 1, -1);
+    cube[5] = new Cartesian3(-1, 1, 1);
+    cube[6] = new Cartesian3(1, 1, 1);
+    cube[7] = new Cartesian3(1, 1, -1);
+
+    for (var i = 0; i < 8; i++) {
+        cube[i] = Matrix4.multiplyByPoint(transformBox, cube[i], cube[i]);
+        var distance = Cartesian3.distance(cube[i], centerSphere);
+        if (distance > radiusSphere) {
+            return false;
+        }
+    }
+    return true;
 }
