@@ -90,15 +90,7 @@ function boxInsideBox(boxInner, boxOuter) {
     var halfAxesOuter = Matrix3.fromArray(boxOuter, 3, scratchOuterHalfAxes);
     var transformOuter = Matrix4.fromRotationTranslation(halfAxesOuter, centerOuter);
 
-    var cube = new Array(8);
-    cube[0] = new Cartesian3(-1, -1, -1);
-    cube[1] = new Cartesian3(-1, -1, 1);
-    cube[2] = new Cartesian3(1, -1, 1);
-    cube[3] = new Cartesian3(1, -1, -1);
-    cube[4] = new Cartesian3(-1, 1, -1);
-    cube[5] = new Cartesian3(-1, 1, 1);
-    cube[6] = new Cartesian3(1, 1, 1);
-    cube[7] = new Cartesian3(1, 1, -1);
+    var cube = createSampleCube();
 
     var transformInnerInverse = Matrix4.inverse(transformOuter, transformOuter);
     var EPSILON8 = CesiumMath.EPSILON8;
@@ -126,15 +118,7 @@ function boxInsideSphere(box, sphere) {
     var radiusSphere = sphere[3];
     var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
 
-    var cube = new Array(8);
-    cube[0] = new Cartesian3(-1, -1, -1);
-    cube[1] = new Cartesian3(-1, -1, 1);
-    cube[2] = new Cartesian3(1, -1, 1);
-    cube[3] = new Cartesian3(1, -1, -1);
-    cube[4] = new Cartesian3(-1, 1, -1);
-    cube[5] = new Cartesian3(-1, 1, 1);
-    cube[6] = new Cartesian3(1, 1, 1);
-    cube[7] = new Cartesian3(1, 1, -1);
+    var cube = createSampleCube();
 
     for (var i = 0; i < 8; i++) {
         cube[i] = Matrix4.multiplyByPoint(transformBox, cube[i], cube[i]);
@@ -154,15 +138,7 @@ function sphereInsideBox(sphere, box) {
     var radiusSphere = sphere[3];
     var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
 
-    var cube = new Array(8);
-    cube[0] = new Cartesian3(-1, -1, -1);
-    cube[1] = new Cartesian3(-1, -1, 1);
-    cube[2] = new Cartesian3(1, -1, 1);
-    cube[3] = new Cartesian3(1, -1, -1);
-    cube[4] = new Cartesian3(-1, 1, -1);
-    cube[5] = new Cartesian3(-1, 1, 1);
-    cube[6] = new Cartesian3(1, 1, 1);
-    cube[7] = new Cartesian3(1, 1, -1);
+    var cube = createSampleCube();
 
     var i;
     for (i = 0; i < 8; i++) {
@@ -200,4 +176,17 @@ function planeFromPoints(point1, point2, point3) {
 
     var plane = new Plane.fromPointNormal(point1, normal);
     return plane;
+}
+
+function createSampleCube() {
+    var cube = new Array(8);
+    cube[0] = new Cartesian3(-1, -1, -1);
+    cube[1] = new Cartesian3(-1, -1, 1);
+    cube[2] = new Cartesian3(1, -1, 1);
+    cube[3] = new Cartesian3(1, -1, -1);
+    cube[4] = new Cartesian3(-1, 1, -1);
+    cube[5] = new Cartesian3(-1, 1, 1);
+    cube[6] = new Cartesian3(1, 1, 1);
+    cube[7] = new Cartesian3(1, 1, -1);
+    return cube;
 }
