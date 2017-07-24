@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,52 +21,52 @@ import 'dart:html';
 import 'dart:js';
 import 'dart:math';
 
+import 'dart:typed_data';
 import 'package:gltf/gltf.dart';
+import 'package:path/path.dart' as path;
 
 const int CHUNK_SIZE = 1024 * 1024;
 
-final dropZone = querySelector('#dropZone');
-final output = querySelector('#output');
+final Element dropZone = querySelector('#dropZone');
+final Element output = querySelector('#output');
 
 void write(String text) {
-  output.appendText("$text\n");
-  context["Prism"].callMethod("highlightAll");
+  output.appendText('$text\n');
+  context['Prism'].callMethod('highlightAll');
 }
 
 void main() {
-  dropZone.onDragOver.listen((MouseEvent e) {
+  dropZone.onDragOver.listen((e) {
     dropZone.classes.add('hover');
     e.preventDefault();
   });
 
-  dropZone.onDragLeave.listen((MouseEvent e) {
+  dropZone.onDragLeave.listen((e) {
     dropZone.classes.remove('hover');
     e.preventDefault();
   });
 
-  dropZone.onDrop.listen((MouseEvent e) {
+  dropZone.onDrop.listen((e) {
     e.preventDefault();
     output.text = "";
-    dropZone.classes.remove('hover');
-    dropZone.classes.add('drop');
+    dropZone.classes
+      ..remove('hover')
+      ..add('drop');
 
-    final reports = <Report>[];
+    final reports = <ValidationResult>[];
 
     // Workaround for dart-sdk#26945
     final iterator = e.dataTransfer.files.iterator;
 
     void handleFile(File file) {
       final controller = new StreamController<List<int>>();
-      GltfReader reader;
-      Report report;
-      if (file.name.endsWith(".glb")) {
-        reader = new GlbReader(controller.stream);
-        report = new Report(reader.context, file.name);
-      } else if (file.name.endsWith(".gltf")) {
-        reader = new GltfReader(controller.stream);
-        report = new Report(reader.context, file.name);
-      } else {
-        if (iterator.moveNext()) handleFile(iterator.current);
+      final context = new Context();
+      final ext = path.extension(file.name).toLowerCase();
+      final reader = new GltfReader(controller.stream, context, ext);
+      if (reader == null) {
+        if (iterator.moveNext()) {
+          handleFile(iterator.current);
+        }
         return;
       }
 
@@ -74,15 +74,18 @@ void main() {
         if (iterator.moveNext())
           handleFile(iterator.current);
         else
-          write(new JsonEncoder.withIndent("    ").convert(reports));
+          write(const JsonEncoder.withIndent('    ').convert(reports));
       }
 
-      int index = 0;
+      var index = 0;
 
       void handleNextChunk(File file) {
         final fileReader = new FileReader();
-        fileReader.onLoadEnd.listen((ProgressEvent event) {
-          controller.add(fileReader.result as dynamic/*=List<int>*/);
+        fileReader.onLoadEnd.listen((event) {
+          if (fileReader.result is Uint8List) {
+            // ignore: argument_type_not_assignable
+            controller.add(fileReader.result);
+          }
           if (index < file.size)
             handleNextChunk(file);
           else
@@ -94,17 +97,39 @@ void main() {
 
       handleNextChunk(file);
 
-      Future.wait([reader.root, reader.done]).then((futures) {
-        final root = futures[0] as dynamic/*=Gltf*/;
-        report.info = root?.info;
-        reports.add(report);
-        checkNext();
-      }, onError: (e) {
-        checkNext();
+      reader.read().then((readerResult) {
+        final validationResult =
+            new ValidationResult(Uri.parse(file.name), context, readerResult);
+
+        if (readerResult?.gltf != null) {
+          final resourcesLoader =
+              new ResourcesLoader(validationResult, readerResult.gltf,
+                  externalBytesFetch: (uri) {
+                    if (uri != null) {
+                      return null;
+                    } else {
+                      return readerResult.buffer;
+                    }
+                  },
+                  externalStreamFetch: (uri) => null);
+
+          resourcesLoader.load().then((_) {
+            reports.add(validationResult);
+            checkNext();
+          }, onError: () {
+            reports.add(validationResult);
+            checkNext();
+          });
+        } else {
+          reports.add(validationResult);
+          checkNext();
+        }
       });
     }
 
-    if (iterator.moveNext()) handleFile(iterator.current);
+    if (iterator.moveNext()) {
+      handleFile(iterator.current);
+    }
     dropZone.classes.remove('drop');
   });
 }

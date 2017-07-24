@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +15,7 @@
  * # limitations under the License.
  */
 
-library gltf.core.gltf;
-
-import 'dart:math';
-
-import 'package:gltf/src/gl.dart' as gl;
+library gltf.base.gltf;
 
 import 'accessor.dart';
 import 'animation.dart';
@@ -32,12 +28,9 @@ import 'image.dart';
 import 'material.dart';
 import 'mesh.dart';
 import 'node.dart';
-import 'program.dart';
 import 'sampler.dart';
 import 'scene.dart';
-import 'shader.dart';
 import 'skin.dart';
-import 'technique.dart';
 import 'texture.dart';
 
 export 'accessor.dart';
@@ -50,44 +43,34 @@ export 'image.dart';
 export 'material.dart';
 export 'mesh.dart';
 export 'node.dart';
-export 'program.dart';
 export 'sampler.dart';
 export 'scene.dart';
-export 'shader.dart';
 export 'skin.dart';
-export 'technique.dart';
 export 'texture.dart';
 
 class Gltf extends GltfProperty {
   final List<String> extensionsUsed;
   final List<String> extensionsRequired;
-  final List<String> glExtensionsUsed;
-  final Map<String, Accessor> accessors;
-  final Map<String, Animation> animations;
+  final SafeList<Accessor> accessors;
+  final SafeList<Animation> animations;
   final Asset asset;
-  final Map<String, Buffer> buffers;
-  final Map<String, BufferView> bufferViews;
-  final Map<String, Camera> cameras;
-  final Map<String, Image> images;
-  final Map<String, Material> materials;
-  final Map<String, Mesh> meshes;
-  final Map<String, Node> nodes;
-  final Map<String, Program> programs;
-  final Map<String, Sampler> samplers;
-  final String sceneId;
+  final SafeList<Buffer> buffers;
+  final SafeList<BufferView> bufferViews;
+  final SafeList<Camera> cameras;
+  final SafeList<Image> images;
+  final SafeList<Material> materials;
+  final SafeList<Mesh> meshes;
+  final SafeList<Node> nodes;
+  final SafeList<Sampler> samplers;
+  final int _sceneIndex;
   final Scene scene;
-  final Map<String, Scene> scenes;
-  final Map<String, Shader> shaders;
-  final Map<String, Skin> skins;
-  final Map<String, Technique> techniques;
-  final Map<String, Texture> textures;
-
-  final Map<String, Node> joints = <String, Node>{};
+  final SafeList<Scene> scenes;
+  final SafeList<Skin> skins;
+  final SafeList<Texture> textures;
 
   Gltf._(
       this.extensionsUsed,
       this.extensionsRequired,
-      this.glExtensionsUsed,
       this.accessors,
       this.animations,
       this.asset,
@@ -98,152 +81,146 @@ class Gltf extends GltfProperty {
       this.materials,
       this.meshes,
       this.nodes,
-      this.programs,
       this.samplers,
-      this.sceneId,
+      this._sceneIndex,
       this.scene,
       this.scenes,
-      this.shaders,
       this.skins,
-      this.techniques,
       this.textures,
       Map<String, Object> extensions,
       Object extras)
       : super(extensions, extras);
 
   factory Gltf.fromMap(Map<String, Object> map, Context context) {
-    void resetPath() {
-      context.path
-        ..clear()
-        ..add("");
-    }
+    void resetPath() => context.path.clear();
 
     resetPath();
-    if (context.validate) checkMembers(map, GLTF_MEMBERS, context);
-
-    // Prepare glTF extensions handlers
-    final extensionsUsed =
-        getStringList(map, EXTENSIONS_USED, context, def: <String>[]);
-    context.initExtensions(extensionsUsed ?? <String>[]);
-
-    if (context.validate && extensionsUsed != null) {
-      checkDuplicates(extensionsUsed, EXTENSIONS_USED, context);
+    if (context.validate) {
+      checkMembers(map, GLTF_MEMBERS, context);
     }
 
-    final extensionsRequired =
-        getStringList(map, EXTENSIONS_REQUIRED, context, def: <String>[]);
+    final extensionsUsed = getStringList(map, EXTENSIONS_USED, context);
+    context.initExtensions(extensionsUsed);
 
-    if (context.validate && extensionsRequired != null) {
-      checkDuplicates(extensionsRequired, EXTENSIONS_REQUIRED, context);
+    final extensionsRequired = getStringList(map, EXTENSIONS_REQUIRED, context);
+
+    if (context.validate) {
+      // See https://github.com/KhronosGroup/glTF/pull/1025
+      if (map.containsKey(EXTENSIONS_REQUIRED) &&
+          !map.containsKey(EXTENSIONS_USED)) {
+        context.addIssue(SchemaError.unsatisfiedDependency,
+            name: EXTENSIONS_REQUIRED, args: [EXTENSIONS_USED]);
+      }
+
       for (final value in extensionsRequired) {
-        // Explicit check to handle null
-        if (extensionsUsed?.contains(value) != true) {
-          context.addIssue(GltfWarning.UNUSED_EXTENSION_REQUIRED,
+        if (!extensionsUsed.contains(value)) {
+          context.addIssue(SemanticError.unusedExtensionRequired,
               name: EXTENSIONS_REQUIRED, args: [value]);
         }
       }
     }
 
-    // Get used GL extensions and store valid in the current `context`.
-    const glExtensionsUsedEnum = const <String>[gl.OES_ELEMENT_INDEX_UINT];
+    // Helper function for converting JSON array to List of proper glTF objects
+    SafeList<T> toSafeList<T>(String name, FromMapFunction<T> fromMap) {
+      if (!map.containsKey(name)) {
+        return new SafeList<T>.empty();
+      }
 
-    final glExtensionsUsed = getStringList(map, GL_EXTENSIONS_USED, context,
-        list: glExtensionsUsedEnum, def: <String>[]);
-
-    context.initGlExtensions(glExtensionsUsed ?? <String>[]);
-
-    // Helper function for converting JSON dictionary to Map of proper glTF objects
-    Map<String, dynamic/*=T*/ > toMap/*<T>*/(
-        String name, FromMapFunction fromMap,
-        {bool req: false}) {
       resetPath();
 
-      final itemMaps = getMap(map, name, context, req: req);
-
-      if (itemMaps != null) {
-        if (itemMaps.isNotEmpty) {
-          final items = <String, dynamic/*=T*/ >{};
+      final itemsList = map[name];
+      if (itemsList is List<Object>) {
+        if (itemsList.isNotEmpty) {
+          final items = new SafeList<T>(itemsList.length);
           context.path.add(name);
-          for (final id in itemMaps.keys) {
-            final itemMap = getMap(itemMaps, id, context, req: true);
-            if (itemMap == null) continue;
-            context.path.add(id);
-            items[id] = fromMap(itemMap, context) as dynamic/*=T*/;
-            context.path.removeLast();
+          for (var i = 0; i < itemsList.length; i++) {
+            final itemMap = itemsList[i];
+            if (itemMap is Map<String, Object>) {
+              // JSON mandates all keys to be string
+              context.path.add(i.toString());
+              items[i] = fromMap(itemMap, context);
+              context.path.removeLast();
+            } else {
+              context.addIssue(SchemaError.typeMismatch,
+                  index: i, args: [itemMap, 'JSON object']);
+            }
           }
           return items;
         } else {
-          if (req)
-            context.addIssue(GltfError.ROOT_DICTIONARY_EMPTY, name: name);
-          return <String, dynamic/*=T*/ >{};
+          context.addIssue(SchemaError.emptyEntity, name: name);
+          return new SafeList<T>.empty();
         }
       } else {
-        return <String, dynamic/*=T*/ >{};
+        context.addIssue(SchemaError.typeMismatch,
+            name: name, args: [itemsList, 'JSON array']);
+        return new SafeList<T>.empty();
       }
     }
 
     // Helper function for converting JSON dictionary to proper glTF object
-    Object/*=T*/ toValue/*<T>*/(String name, FromMapFunction fromMap,
-        {bool req: false}) {
+    T toValue<T>(String name, FromMapFunction<T> fromMap, {bool req: false}) {
       resetPath();
       final item = getMap(map, name, context, req: req);
-      if (item == null) return null;
+      if (item == null) {
+        return null;
+      }
       context.path.add(name);
-      return fromMap(item, context) as dynamic/*=T*/;
+      return fromMap(item, context);
     }
 
-    final asset = toValue/*<Asset>*/(ASSET, Asset.fromMap, req: true);
+    final asset = toValue<Asset>(ASSET, Asset.fromMap, req: true);
 
-    final accessors =
-        toMap/*<Accessor>*/(ACCESSORS, Accessor.fromMap, req: true);
+    if (asset == null) {
+      return null;
+    } else if (asset.majorVersion != 2) {
+      context.addIssue(SemanticError.unknownAssetMajorVersion,
+          args: [asset?.majorVersion]);
+      return null;
+    } else if (asset.minorVersion > 0) {
+      context.addIssue(SemanticError.unknownAssetMinorVersion,
+          args: [asset?.minorVersion]);
+    }
 
-    final animations = toMap/*<Animation>*/(ANIMATIONS, Animation.fromMap);
+    final accessors = toSafeList<Accessor>(ACCESSORS, Accessor.fromMap);
 
-    final Map<String, Buffer> buffers =
-        toMap/*<Buffer>*/(BUFFERS, Buffer.fromMap, req: true);
+    final animations = toSafeList<Animation>(ANIMATIONS, Animation.fromMap);
+
+    final buffers = toSafeList<Buffer>(BUFFERS, Buffer.fromMap);
 
     final bufferViews =
-        toMap/*<BufferView>*/(BUFFER_VIEWS, BufferView.fromMap, req: true);
+        toSafeList<BufferView>(BUFFER_VIEWS, BufferView.fromMap);
 
-    final cameras = toMap/*<Camera>*/(CAMERAS, Camera.fromMap);
+    final cameras = toSafeList<Camera>(CAMERAS, Camera.fromMap);
 
-    final images = toMap/*<Image>*/(IMAGES, Image.fromMap);
+    final images = toSafeList<Image>(IMAGES, Image.fromMap);
 
-    final materials = toMap/*<Material>*/(MATERIALS, Material.fromMap);
+    final materials = toSafeList<Material>(MATERIALS, Material.fromMap);
 
-    final meshes = toMap/*<Mesh>*/(MESHES, Mesh.fromMap, req: true);
+    final meshes = toSafeList<Mesh>(MESHES, Mesh.fromMap);
 
-    final nodes = toMap/*<Node>*/(NODES, Node.fromMap);
+    final nodes = toSafeList<Node>(NODES, Node.fromMap);
 
-    final programs = toMap/*<Program>*/(PROGRAMS, Program.fromMap);
+    final samplers = toSafeList<Sampler>(SAMPLERS, Sampler.fromMap);
 
-    final samplers = toMap/*<Sampler>*/(SAMPLERS, Sampler.fromMap);
+    final scenes = toSafeList<Scene>(SCENES, Scene.fromMap);
 
-    final scenes = toMap/*<Scene>*/(SCENES, Scene.fromMap);
+    resetPath();
+    final sceneIndex = getIndex(map, SCENE, context, req: false);
+    final scene = scenes[sceneIndex];
 
-    final sceneId = getId(map, SCENE, context, req: false);
+    if (context.validate && sceneIndex != -1 && scene == null)
+      context.addIssue(LinkError.unresolvedReference,
+          name: SCENE, args: [sceneIndex]);
 
-    final scene = scenes[sceneId];
+    final skins = toSafeList<Skin>(SKINS, Skin.fromMap);
 
-    if (context.validate && sceneId != null && scene == null)
-      context.addIssue(GltfError.UNRESOLVED_REFERENCE,
-          name: SCENE, args: [sceneId]);
-
-    final shaders = toMap/*<Shader>*/(SHADERS, Shader.fromMap);
-
-    final skins = toMap/*<Skin>*/(SKINS, Skin.fromMap);
-
-    final techniques = toMap/*<Technique>*/(TECHNIQUES, Technique.fromMap);
-
-    final Map<String, Texture> textures =
-        toMap/*<Texture>*/(TEXTURES, Texture.fromMap);
+    final textures = toSafeList<Texture>(TEXTURES, Texture.fromMap);
 
     resetPath();
 
     final gltf = new Gltf._(
         extensionsUsed,
         extensionsRequired,
-        glExtensionsUsed,
         accessors,
         animations,
         asset,
@@ -254,41 +231,30 @@ class Gltf extends GltfProperty {
         materials,
         meshes,
         nodes,
-        programs,
         samplers,
-        sceneId,
+        sceneIndex,
         scene,
         scenes,
-        shaders,
         skins,
-        techniques,
         textures,
         getExtensions(map, Gltf, context),
         getExtras(map));
 
     // Step 2: linking IDs
-    final topLevelMaps = <String, Map<String, GltfProperty>>{
-      ACCESSORS: accessors,
-      ANIMATIONS: animations,
-      BUFFER_VIEWS: bufferViews,
-      MATERIALS: materials,
-      PROGRAMS: programs,
-      TECHNIQUES: techniques,
-      TEXTURES: textures
-    };
-
-    void linkCollection(String key, Map<String, GltfProperty> collection) {
+    void linkCollection(String key, SafeList<GltfProperty> list) {
       context.path.add(key);
-      collection.forEach((id, GltfProperty item) {
-        context.path.add(id);
-        if (item is Linkable)
-          (item as dynamic/*=Linkable*/).link(gltf, context);
-        if (item.extensions.isNotEmpty) {
+      list.forEachWithIndices((i, item) {
+        context.path.add(i.toString());
+        item.link(gltf, context);
+
+        if (context.extensionsLoaded.isNotEmpty && item.extensions.isNotEmpty) {
           context.path.add(EXTENSIONS);
           item.extensions.forEach((name, extension) {
-            context.path.add(name);
-            if (extension is Linkable) extension.link(gltf, context);
-            context.path.removeLast();
+            if (extension is GltfProperty) {
+              context.path.add(name);
+              extension.link(gltf, context);
+              context.path.removeLast();
+            }
           });
           context.path.removeLast();
         }
@@ -297,12 +263,21 @@ class Gltf extends GltfProperty {
       context.path.removeLast();
     }
 
-    topLevelMaps.forEach(linkCollection);
-
     // Fixed order
+    linkCollection(BUFFER_VIEWS, bufferViews);
+
+    linkCollection(ACCESSORS, accessors);
+
+    linkCollection(IMAGES, images);
+    linkCollection(TEXTURES, textures);
+    linkCollection(MATERIALS, materials);
+
+    linkCollection(MESHES, meshes);
+
     linkCollection(NODES, nodes);
     linkCollection(SKINS, skins);
-    linkCollection(MESHES, meshes);
+
+    linkCollection(ANIMATIONS, animations);
     linkCollection(SCENES, scenes);
 
     // Check node tree loops
@@ -310,16 +285,28 @@ class Gltf extends GltfProperty {
       context.path.add(NODES);
       final seenNodes = new Set<Node>();
       Node temp;
-      gltf.nodes.forEach((id, node) {
-        if (node.parent == null) return;
+      gltf.nodes.forEachWithIndices((i, node) {
+        if (!node.isJoint &&
+            node.children == null &&
+            node.mesh == null &&
+            node.camera == null &&
+            node.extensions.isEmpty &&
+            node.extras == null) {
+          context.addIssue(SemanticError.nodeEmpty, index: i);
+        }
+
+        if (node.parent == null) {
+          return;
+        }
         seenNodes.clear();
         temp = node;
-        while (true) {
-          if (temp.parent == null) break;
+        while (temp.parent != null) {
           if (seenNodes.add(temp)) {
             temp = temp.parent;
           } else {
-            if (temp == node) context.addIssue(GltfError.NODE_LOOP, name: id);
+            if (temp == node) {
+              context.addIssue(LinkError.nodeLoop, index: i);
+            }
             break;
           }
         }
@@ -330,71 +317,24 @@ class Gltf extends GltfProperty {
     return gltf;
   }
 
-  Map<String, Object> get info {
-    final info = <String, Object>{};
-
-    info[VERSION] = asset?.version;
-    if (extensionsUsed.isNotEmpty) info[EXTENSIONS_USED] = extensionsUsed;
-    if (extensionsRequired.isNotEmpty) {
-      info[EXTENSIONS_REQUIRED] = extensionsRequired;
-    }
-    if (glExtensionsUsed.isNotEmpty)
-      info[GL_EXTENSIONS_USED] = glExtensionsUsed;
-
-    final externalResources = <String, List<String>>{};
-
-    final externalBuffers = <String>[];
-    for (final buffer in buffers.values) {
-      if (buffer.uri != null) externalBuffers.add(buffer.uri.toString());
-    }
-    if (externalBuffers.isNotEmpty)
-      externalResources["buffers"] = externalBuffers;
-
-    final externalImages = <String>[];
-    for (final image in images.values) {
-      if (image.uri != null) externalImages.add(image.uri.toString());
-    }
-    if (externalImages.isNotEmpty) externalResources["images"] = externalImages;
-
-    final externalShaders = <String>[];
-    for (final shader in shaders.values) {
-      if (shader.uri != null) externalShaders.add(shader.uri.toString());
-    }
-    if (externalShaders.isNotEmpty) {
-      externalResources["shaders"] = externalShaders;
-    }
-
-    if (externalResources.isNotEmpty) {
-      info["externalResources"] = externalResources;
-    }
-
-    info["hasAnimations"] = animations.isNotEmpty;
-    info["hasMaterials"] = materials.isNotEmpty;
-    info["hasSkins"] = skins.isNotEmpty;
-    info["hasTextures"] = textures.isNotEmpty;
-
-    int primitivesCount = 0;
-    int maxAttributesUsed = 0;
-    for (final mesh in meshes.values) {
-      if (mesh.primitives != null) {
-        primitivesCount += mesh.primitives.length;
-        for (final primitive in mesh.primitives) {
-          maxAttributesUsed =
-              max(maxAttributesUsed, primitive.attributes.length);
-        }
-      }
-    }
-    info["primitivesCount"] = primitivesCount;
-    info["maxAttributesUsed"] = maxAttributesUsed;
-
-    info["programsCount"] = programs.length;
-
-    int maxUniformsUsed = 0;
-    for (final technique in techniques.values) {
-      maxUniformsUsed = max(maxUniformsUsed, technique.uniforms.length);
-    }
-    info["maxUniformsUsed"] = maxUniformsUsed;
-
-    return info;
-  }
+  @override
+  String toString([_]) => super.toString({
+        ASSET: asset,
+        ACCESSORS: accessors,
+        ANIMATIONS: animations,
+        BUFFERS: buffers,
+        BUFFER_VIEWS: bufferViews,
+        CAMERAS: cameras,
+        IMAGES: images,
+        MATERIALS: materials,
+        MESHES: meshes,
+        NODES: nodes,
+        SAMPLERS: samplers,
+        SCENES: scenes,
+        SCENE: _sceneIndex,
+        SKINS: skins,
+        TEXTURES: textures,
+        EXTENSIONS_REQUIRED: extensionsRequired,
+        EXTENSIONS_USED: extensionsUsed
+      });
 }

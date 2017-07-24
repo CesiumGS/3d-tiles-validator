@@ -1,0 +1,13 @@
+{
+    "asset": {
+        "version": "2.0"
+    },
+    "images": [
+        {
+            "uri": "pink.png"
+        },
+        {
+            "uri": "cyan.jpg"
+        }
+    ]
+}

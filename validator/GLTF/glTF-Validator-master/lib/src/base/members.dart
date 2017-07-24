@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,51 +15,54 @@
  * # limitations under the License.
  */
 
-library gltf.core.members;
+library gltf.base.members;
 
+import 'package:quiver/core.dart';
+
+import 'package:gltf/src/base/accessor.dart';
 import 'package:gltf/src/gl.dart' as gl;
 
-const String GLTF = "glTF";
+const String GLTF = 'glTF';
 
 // GltfProperty
-const String EXTENSIONS = "extensions";
-const String EXTRAS = "extras";
+const String EXTENSIONS = 'extensions';
+const String EXTRAS = 'extras';
 
 // GltfChildOfRootProperty
-const String NAME = "name";
+const String NAME = 'name';
 
 // Accessor
-const String BUFFER_VIEW = "bufferView";
-const String BYTE_OFFSET = "byteOffset";
-const String BYTE_STRIDE = "byteStride";
-const String COMPONENT_TYPE = "componentType";
-const String COUNT = "count";
-const String TYPE = "type";
-const String NORMALIZED = "normalized";
-const String MAX = "max";
-const String MIN = "min";
+const String BUFFER_VIEW = 'bufferView';
+const String BYTE_OFFSET = 'byteOffset';
+const String COMPONENT_TYPE = 'componentType';
+const String COUNT = 'count';
+const String TYPE = 'type';
+const String NORMALIZED = 'normalized';
+const String MAX = 'max';
+const String MIN = 'min';
+const String SPARSE = 'sparse';
 
-const List<String> ACCESSORS_MEMBERS = const <String>[
+const List<String> ACCESSOR_MEMBERS = const <String>[
   BUFFER_VIEW,
   BYTE_OFFSET,
-  BYTE_STRIDE,
   COMPONENT_TYPE,
   COUNT,
   TYPE,
   NORMALIZED,
   MAX,
   MIN,
+  SPARSE,
   NAME
 ];
 
 // Accessor types
-const String SCALAR = "SCALAR";
-const String VEC2 = "VEC2";
-const String VEC3 = "VEC3";
-const String VEC4 = "VEC4";
-const String MAT2 = "MAT2";
-const String MAT3 = "MAT3";
-const String MAT4 = "MAT4";
+const String SCALAR = 'SCALAR';
+const String VEC2 = 'VEC2';
+const String VEC3 = 'VEC3';
+const String VEC4 = 'VEC4';
+const String MAT2 = 'MAT2';
+const String MAT3 = 'MAT3';
+const String MAT4 = 'MAT4';
 
 const Map<String, int> ACCESSOR_TYPES_LENGTHS = const <String, int>{
   SCALAR: 1,
@@ -71,33 +74,66 @@ const Map<String, int> ACCESSOR_TYPES_LENGTHS = const <String, int>{
   MAT4: 16
 };
 
-// Animation
-const String CHANNELS = "channels";
-const String SAMPLERS = "samplers";
-const String PARAMETERS = "parameters";
+// AccessorSparse
+const String INDICES = 'indices';
+const String VALUES = 'values';
 
-const List<String> ANIMATION_MEMBERS = const <String>[
-  CHANNELS,
-  SAMPLERS,
-  NAME
+const List<String> ACCESSOR_SPARSE_MEMBERS = const <String>[
+  COUNT,
+  INDICES,
+  VALUES
 ];
 
+// AccessorSparseIndices
+const List<String> ACCESSOR_SPARSE_INDICES_MEMBERS = const <String>[
+  BUFFER_VIEW,
+  BYTE_OFFSET,
+  COMPONENT_TYPE
+];
+
+// AccessorSparseValues
+const List<String> ACCESSOR_SPARSE_VALUES_MEMBERS = const <String>[
+  BUFFER_VIEW,
+  BYTE_OFFSET
+];
+
+// Animation
+const String CHANNELS = 'channels';
+const String SAMPLERS = 'samplers';
+
+const List<String> ANIMATION_MEMBERS = const <String>[CHANNELS, SAMPLERS, NAME];
+
 // AnimationChannel
-const String TARGET = "target";
-const String SAMPLER = "sampler";
+const String TARGET = 'target';
+const String SAMPLER = 'sampler';
 
 const List<String> ANIMATION_CHANNEL_MEMBERS = const <String>[TARGET, SAMPLER];
 
 // AnimationChannelTarget
-const String ID = "id";
-const String PATH = "path";
+const String NODE = 'node';
+const String PATH = 'path';
 
-const List<String> ANIMATION_CHANNEL_TARGET_MEMBERS = const <String>[ID, PATH];
+const List<String> ANIMATION_CHANNEL_TARGET_MEMBERS = const <String>[
+  NODE,
+  PATH
+];
+
+const List<String> ANIMATION_CHANNEL_TARGET_PATHS = const <String>[
+  TRANSLATION,
+  ROTATION,
+  SCALE,
+  WEIGHTS
+];
 
 // AnimationSampler
-const String INPUT = "input";
-const String INTERPOLATION = "interpolation";
-const String OUTPUT = "output";
+const String INPUT = 'input';
+const String INTERPOLATION = 'interpolation';
+const String OUTPUT = 'output';
+
+const String LINEAR = 'LINEAR';
+const String STEP = 'STEP';
+const String CATMULLROMSPLINE = 'CATMULLROMSPLINE';
+const String CUBICSPLINE = 'CUBICSPLINE';
 
 const List<String> ANIMATION_SAMPLER_MEMBERS = const <String>[
   INPUT,
@@ -105,51 +141,110 @@ const List<String> ANIMATION_SAMPLER_MEMBERS = const <String>[
   OUTPUT
 ];
 
+const List<String> ANIMATION_SAMPLER_INTERPOLATIONS = const <String>[
+  LINEAR,
+  STEP,
+  CATMULLROMSPLINE,
+  CUBICSPLINE
+];
+
+const AccessorFormat ANIMATION_SAMPLER_INPUT_FORMAT =
+    const AccessorFormat(SCALAR, gl.FLOAT);
+
+const Map<String, List<AccessorFormat>> ANIMATION_SAMPLER_OUTPUT_FORMATS =
+    const <String, List<AccessorFormat>>{
+  TRANSLATION: const <AccessorFormat>[const AccessorFormat(VEC3, gl.FLOAT)],
+  ROTATION: const <AccessorFormat>[
+    const AccessorFormat(VEC4, gl.FLOAT),
+    const AccessorFormat(VEC4, gl.UNSIGNED_BYTE, normalized: true),
+    const AccessorFormat(VEC4, gl.BYTE, normalized: true),
+    const AccessorFormat(VEC4, gl.UNSIGNED_SHORT, normalized: true),
+    const AccessorFormat(VEC4, gl.SHORT, normalized: true)
+  ],
+  SCALE: const <AccessorFormat>[const AccessorFormat(VEC3, gl.FLOAT)],
+  WEIGHTS: const <AccessorFormat>[
+    const AccessorFormat(SCALAR, gl.FLOAT),
+    const AccessorFormat(SCALAR, gl.UNSIGNED_BYTE, normalized: true),
+    const AccessorFormat(SCALAR, gl.BYTE, normalized: true),
+    const AccessorFormat(SCALAR, gl.UNSIGNED_SHORT, normalized: true),
+    const AccessorFormat(SCALAR, gl.SHORT, normalized: true)
+  ]
+};
+
 // Asset
-const String COPYRIGHT = "copyright";
-const String GENERATOR = "generator";
-const String PREMULTIPLIED_ALPHA = "premultipliedAlpha";
-const String PROFILE = "profile";
-const String VERSION = "version";
+const String COPYRIGHT = 'copyright';
+const String GENERATOR = 'generator';
+const String VERSION = 'version';
+const String MIN_VERSION = 'minVersion';
 
 const List<String> ASSET_MEMBERS = const <String>[
   COPYRIGHT,
   GENERATOR,
-  PREMULTIPLIED_ALPHA,
-  PROFILE,
-  VERSION
+  VERSION,
+  MIN_VERSION
 ];
-
-// AssetProfile
-const String API = "api";
-
-const List<String> ASSET_PROFILE_MEMBERS = const <String>[API, VERSION];
 
 // Buffer
-const String URI = "uri";
-const String BYTE_LENGTH = "byteLength";
+const String URI = 'uri';
+const String BYTE_LENGTH = 'byteLength';
 
-const List<String> BUFFER_MEMBERS = const <String>[
-  URI,
-  BYTE_LENGTH,
-  TYPE,
-  NAME
-];
+const List<String> BUFFER_MEMBERS = const <String>[URI, BYTE_LENGTH, NAME];
+
+const String APPLICATION_OCTET_STREAM = 'application/octet-stream';
 
 // BufferView
-const String BUFFER = "buffer";
+const String BUFFER = 'buffer';
+const String BYTE_STRIDE = 'byteStride';
 
 const List<String> BUFFER_VIEW_MEMBERS = const <String>[
   BUFFER,
   BYTE_OFFSET,
   BYTE_LENGTH,
+  BYTE_STRIDE,
   TARGET,
   NAME
 ];
 
+class BufferViewUsage {
+  final String _value;
+  final int target;
+
+  const BufferViewUsage._(this._value, [this.target = -1]);
+
+  static const BufferViewUsage IBM = const BufferViewUsage._('IBM');
+  static const BufferViewUsage Image = const BufferViewUsage._('Image');
+  static const BufferViewUsage IndexBuffer =
+      const BufferViewUsage._('IndexBuffer', gl.ELEMENT_ARRAY_BUFFER);
+  static const BufferViewUsage Other = const BufferViewUsage._('Other');
+  static const BufferViewUsage VertexBuffer =
+      const BufferViewUsage._('VertexBuffer', gl.ARRAY_BUFFER);
+
+  @override
+  String toString() => _value;
+}
+
+class AccessorUsage {
+  final String _value;
+
+  const AccessorUsage._(this._value);
+
+  static const AccessorUsage AnimationInput =
+      const AccessorUsage._('AnimationInput');
+  static const AccessorUsage AnimationOutput =
+      const AccessorUsage._('AnimationOutput');
+  static const AccessorUsage IBM = const AccessorUsage._('IBM');
+  static const AccessorUsage PrimitiveIndices =
+      const AccessorUsage._('PrimitiveIndices');
+  static const AccessorUsage VertexAttribute =
+      const AccessorUsage._('VertexAttribute');
+
+  @override
+  String toString() => _value;
+}
+
 // Camera
-const String ORTHOGRAPHIC = "orthographic";
-const String PERSPECTIVE = "perspective";
+const String ORTHOGRAPHIC = 'orthographic';
+const String PERSPECTIVE = 'perspective';
 
 const List<String> CAMERA_MEMBERS = const <String>[
   TYPE,
@@ -158,11 +253,13 @@ const List<String> CAMERA_MEMBERS = const <String>[
   NAME
 ];
 
+const List<String> CAMERA_TYPES = const <String>[ORTHOGRAPHIC, PERSPECTIVE];
+
 // CameraOrthographic
-const String XMAG = "xmag";
-const String YMAG = "ymag";
-const String ZFAR = "zfar";
-const String ZNEAR = "znear";
+const String XMAG = 'xmag';
+const String YMAG = 'ymag';
+const String ZFAR = 'zfar';
+const String ZNEAR = 'znear';
 
 const List<String> CAMERA_ORTHOGRAPHIC_MEMBERS = const <String>[
   XMAG,
@@ -172,8 +269,8 @@ const List<String> CAMERA_ORTHOGRAPHIC_MEMBERS = const <String>[
 ];
 
 // CameraPerspective
-const String ASPECT_RATIO = "aspectRatio";
-const String YFOV = "yfov";
+const String ASPECT_RATIO = 'aspectRatio';
+const String YFOV = 'yfov';
 
 const List<String> CAMERA_PERSPECTIVE_MEMBERS = const <String>[
   ASPECT_RATIO,
@@ -183,31 +280,26 @@ const List<String> CAMERA_PERSPECTIVE_MEMBERS = const <String>[
 ];
 
 // Gltf
-const String EXTENSIONS_USED = "extensionsUsed";
-const String EXTENSIONS_REQUIRED = "extensionsRequired";
-const String GL_EXTENSIONS_USED = "glExtensionsUsed";
-const String ACCESSORS = "accessors";
-const String ANIMATIONS = "animations";
-const String ASSET = "asset";
-const String BUFFERS = "buffers";
-const String BUFFER_VIEWS = "bufferViews";
-const String CAMERAS = "cameras";
-const String IMAGES = "images";
-const String MATERIALS = "materials";
-const String MESHES = "meshes";
-const String NODES = "nodes";
-const String PROGRAMS = "programs";
-const String SCENE = "scene";
-const String SCENES = "scenes";
-const String SHADERS = "shaders";
-const String SKINS = "skins";
-const String TECHNIQUES = "techniques";
-const String TEXTURES = "textures";
+const String EXTENSIONS_USED = 'extensionsUsed';
+const String EXTENSIONS_REQUIRED = 'extensionsRequired';
+const String ACCESSORS = 'accessors';
+const String ANIMATIONS = 'animations';
+const String ASSET = 'asset';
+const String BUFFERS = 'buffers';
+const String BUFFER_VIEWS = 'bufferViews';
+const String CAMERAS = 'cameras';
+const String IMAGES = 'images';
+const String MATERIALS = 'materials';
+const String MESHES = 'meshes';
+const String NODES = 'nodes';
+const String SCENE = 'scene';
+const String SCENES = 'scenes';
+const String SKINS = 'skins';
+const String TEXTURES = 'textures';
 
 const List<String> GLTF_MEMBERS = const <String>[
   EXTENSIONS_USED,
   EXTENSIONS_REQUIRED,
-  GL_EXTENSIONS_USED,
   ACCESSORS,
   ANIMATIONS,
   ASSET,
@@ -218,84 +310,126 @@ const List<String> GLTF_MEMBERS = const <String>[
   MATERIALS,
   MESHES,
   NODES,
-  PROGRAMS,
   SAMPLERS,
   SCENE,
   SCENES,
-  SHADERS,
   SKINS,
-  TECHNIQUES,
   TEXTURES
 ];
 
 // Image
-const List<String> IMAGE_MEMBERS = const <String>[URI, NAME];
+const String MIME_TYPE = 'mimeType';
+const List<String> IMAGE_MEMBERS = const <String>[
+  BUFFER_VIEW,
+  MIME_TYPE,
+  URI,
+  NAME
+];
+
+const String IMAGE_JPEG = 'image/jpeg';
+const String IMAGE_PNG = 'image/png';
+
+const List<String> IMAGE_MIME_TYPES = const <String>[IMAGE_JPEG, IMAGE_PNG];
 
 // Material
-const String TECHNIQUE = "technique";
-const String VALUES = "values";
+const String PBR_METALLIC_ROUGHNESS = 'pbrMetallicRoughness';
+const String NORMAL_TEXTURE = 'normalTexture';
+const String OCCLUSION_TEXTURE = 'occlusionTexture';
+const String EMISSIVE_TEXTURE = 'emissiveTexture';
+const String EMISSIVE_FACTOR = 'emissiveFactor';
+const String ALPHA_MODE = 'alphaMode';
+const String ALPHA_CUTOFF = 'alphaCutoff';
+const String DOUBLE_SIDED = 'doubleSided';
 
-const List<String> MATERIAL_MEMBERS = const <String>[TECHNIQUE, VALUES, NAME];
+// material.alphaMode
+const String OPAQUE = 'OPAQUE';
+const String MASK = 'MASK';
+const String BLEND = 'BLEND';
+
+const List<String> MATERIAL_ALPHA_MODES = const <String>[OPAQUE, MASK, BLEND];
+
+const List<String> MATERIAL_MEMBERS = const <String>[
+  PBR_METALLIC_ROUGHNESS,
+  NORMAL_TEXTURE,
+  OCCLUSION_TEXTURE,
+  EMISSIVE_TEXTURE,
+  EMISSIVE_FACTOR,
+  ALPHA_MODE,
+  ALPHA_CUTOFF,
+  DOUBLE_SIDED,
+  NAME
+];
+
+// PbrMetallicRoughness
+const String BASE_COLOR_FACTOR = 'baseColorFactor';
+const String BASE_COLOR_TEXTURE = 'baseColorTexture';
+const String METALLIC_FACTOR = 'metallicFactor';
+const String ROUGHNESS_FACTOR = 'roughnessFactor';
+const String METALLIC_ROUGHNESS_TEXTURE = 'metallicRoughnessTexture';
+
+const List<String> PBR_METALLIC_ROUGHNESS_MEMBERS = const <String>[
+  BASE_COLOR_FACTOR,
+  BASE_COLOR_TEXTURE,
+  METALLIC_FACTOR,
+  ROUGHNESS_FACTOR,
+  METALLIC_ROUGHNESS_TEXTURE
+];
 
 // Mesh
-const String PRIMITIVES = "primitives";
+const String PRIMITIVES = 'primitives';
+const String WEIGHTS = 'weights';
 
-const List<String> MESH_MEMBERS = const <String>[PRIMITIVES, NAME];
+const List<String> MESH_MEMBERS = const <String>[PRIMITIVES, WEIGHTS, NAME];
 
 // MeshPrimitive
-const String ATTRIBUTES = "attributes";
-const String INDICES = "indices";
-const String MATERIAL = "material";
-const String MODE = "mode";
+const String ATTRIBUTES = 'attributes';
+const String MATERIAL = 'material';
+const String MODE = 'mode';
+const String TARGETS = 'targets';
 
 const List<String> MESH_PRIMITIVE_MEMBERS = const <String>[
   ATTRIBUTES,
   INDICES,
   MATERIAL,
-  MODE
+  MODE,
+  TARGETS
+];
+
+const List<AccessorFormat> MESH_PRIMITIVE_INDICES_FORMATS =
+    const <AccessorFormat>[
+  const AccessorFormat(SCALAR, gl.UNSIGNED_BYTE),
+  const AccessorFormat(SCALAR, gl.UNSIGNED_SHORT),
+  const AccessorFormat(SCALAR, gl.UNSIGNED_INT)
 ];
 
 // Node
-const String CAMERA = "camera";
-const String CHILDREN = "children";
-const String SKELETONS = "skeletons";
-const String SKIN = "skin";
-const String JOINT_NAME = "jointName";
-const String MATRIX = "matrix";
-const String ROTATION = "rotation";
-const String SCALE = "scale";
-const String TRANSLATION = "translation";
+const String CAMERA = 'camera';
+const String CHILDREN = 'children';
+const String SKIN = 'skin';
+const String MATRIX = 'matrix';
+const String MESH = 'mesh';
+const String ROTATION = 'rotation';
+const String SCALE = 'scale';
+const String TRANSLATION = 'translation';
 
 const List<String> NODE_MEMBERS = const <String>[
   CAMERA,
   CHILDREN,
-  SKELETONS,
   SKIN,
-  JOINT_NAME,
   MATRIX,
-  MESHES,
+  MESH,
   ROTATION,
   SCALE,
   TRANSLATION,
-  NAME
-];
-
-// Program
-const String FRAGMENT_SHADER = "fragmentShader";
-const String VERTEX_SHADER = "vertexShader";
-
-const List<String> PROGRAM_MEMBERS = const <String>[
-  ATTRIBUTES,
-  FRAGMENT_SHADER,
-  VERTEX_SHADER,
+  WEIGHTS,
   NAME
 ];
 
 // Sampler
-const String MAG_FILTER = "magFilter";
-const String MIN_FILTER = "minFilter";
-const String WRAP_S = "wrapS";
-const String WRAP_T = "wrapT";
+const String MAG_FILTER = 'magFilter';
+const String MIN_FILTER = 'minFilter';
+const String WRAP_S = 'wrapS';
+const String WRAP_T = 'wrapT';
 
 const List<String> SAMPLER_MEMBERS = const <String>[
   MAG_FILTER,
@@ -305,88 +439,97 @@ const List<String> SAMPLER_MEMBERS = const <String>[
   NAME
 ];
 
+const List<int> MAG_FILTERS = const <int>[gl.NEAREST, gl.LINEAR];
+
+const List<int> MIN_FILTERS = const <int>[
+  gl.NEAREST,
+  gl.LINEAR,
+  gl.NEAREST_MIPMAP_NEAREST,
+  gl.LINEAR_MIPMAP_NEAREST,
+  gl.NEAREST_MIPMAP_LINEAR,
+  gl.LINEAR_MIPMAP_LINEAR
+];
+
+const List<int> wrapFiltersEnum = const <int>[
+  gl.CLAMP_TO_EDGE,
+  gl.MIRRORED_REPEAT,
+  gl.REPEAT
+];
+
 // Scene
 const List<String> SCENE_MEMBERS = const <String>[NODES, NAME];
 
-// Shader
-const List<String> SHADER_MEMBERS = const <String>[URI, TYPE, NAME];
-
 // Skin
-const String BIND_SHAPE_MATRIX = "bindShapeMatrix";
-const String INVERSE_BIND_MATRICES = "inverseBindMatrices";
-const String JOINT_NAMES = "jointNames";
+const String INVERSE_BIND_MATRICES = 'inverseBindMatrices';
+const String SKELETON = 'skeleton';
+const String JOINTS = 'joints';
 
 const List<String> SKIN_MEMBERS = const <String>[
-  BIND_SHAPE_MATRIX,
   INVERSE_BIND_MATRICES,
-  JOINT_NAMES,
+  SKELETON,
+  JOINTS,
   NAME
 ];
 
-// Technique
-const String PROGRAM = "program";
-const String UNIFORMS = "uniforms";
-const String STATES = "states";
-
-const List<String> TECHNIQUE_MEMBERS = const <String>[
-  PARAMETERS,
-  ATTRIBUTES,
-  PROGRAM,
-  UNIFORMS,
-  STATES,
-  NAME
-];
-
-// TechniqueParameter
-const String NODE = "node";
-const String SEMANTIC = "semantic";
-const String VALUE = "value";
+const AccessorFormat SKIN_IBM_FORMAT = const AccessorFormat(MAT4, gl.FLOAT);
 
 // Attribute semantics
-const String POSITION = "POSITION";
-const String NORMAL = "NORMAL";
-const String TEXCOORD = "TEXCOORD";
-const String TEXCOORD_0 = "TEXCOORD_0";
-const String COLOR = "COLOR";
-const String JOINT = "JOINT";
-const String WEIGHT = "WEIGHT";
-
-// Uniform semantics
-const String LOCAL = "LOCAL";
-const String MODEL = "MODEL";
-const String VIEW = "VIEW";
-const String PROJECTION = "PROJECTION";
-const String MODELVIEW = "MODELVIEW";
-const String MODELVIEWPROJECTION = "MODELVIEWPROJECTION";
-const String MODELINVERSE = "MODELINVERSE";
-const String VIEWINVERSE = "VIEWINVERSE";
-const String PROJECTIONINVERSE = "PROJECTIONINVERSE";
-const String MODELVIEWINVERSE = "MODELVIEWINVERSE";
-const String MODELVIEWPROJECTIONINVERSE = "MODELVIEWPROJECTIONINVERSE";
-const String MODELINVERSETRANSPOSE = "MODELINVERSETRANSPOSE";
-const String MODELVIEWINVERSETRANSPOSE = "MODELVIEWINVERSETRANSPOSE";
-const String VIEWPORT = "VIEWPORT";
-const String JOINTMATRIX = "JOINTMATRIX";
-
-const List<String> TECHNIQUE_PARAMETER_MEMBERS = const <String>[
-  COUNT,
-  NODE,
-  TYPE,
-  SEMANTIC,
-  VALUE
-];
+const String POSITION = 'POSITION';
+const String NORMAL = 'NORMAL';
+const String TANGENT = 'TANGENT';
+const String TEXCOORD_ = 'TEXCOORD';
+const String COLOR_ = 'COLOR';
+const String JOINTS_ = 'JOINTS';
+const String WEIGHTS_ = 'WEIGHTS';
 
 const List<String> ATTRIBUTE_SEMANTIC_MEMBERS = const <String>[
   POSITION,
   NORMAL,
-  JOINT,
-  WEIGHT
+  TANGENT
 ];
 
 const List<String> ATTRIBUTE_SEMANTIC_ARRAY_MEMBERS = const <String>[
-  TEXCOORD,
-  COLOR,
+  COLOR_,
+  JOINTS_,
+  TEXCOORD_,
+  WEIGHTS_
 ];
+
+const Map<String, List<AccessorFormat>> ATTRIBUTES_ACCESSORS =
+    const <String, List<AccessorFormat>>{
+  POSITION: const [const AccessorFormat(VEC3, gl.FLOAT)],
+  NORMAL: const [const AccessorFormat(VEC3, gl.FLOAT)],
+  TANGENT: const [const AccessorFormat(VEC4, gl.FLOAT)],
+  TEXCOORD_: const [
+    const AccessorFormat(VEC2, gl.FLOAT),
+    const AccessorFormat(VEC2, gl.UNSIGNED_BYTE, normalized: true),
+    const AccessorFormat(VEC2, gl.UNSIGNED_SHORT, normalized: true)
+  ],
+  COLOR_: const [
+    const AccessorFormat(VEC3, gl.FLOAT),
+    const AccessorFormat(VEC3, gl.UNSIGNED_BYTE, normalized: true),
+    const AccessorFormat(VEC3, gl.UNSIGNED_SHORT, normalized: true),
+    const AccessorFormat(VEC4, gl.FLOAT),
+    const AccessorFormat(VEC4, gl.UNSIGNED_BYTE, normalized: true),
+    const AccessorFormat(VEC4, gl.UNSIGNED_SHORT, normalized: true)
+  ],
+  JOINTS_: const [
+    const AccessorFormat(VEC4, gl.UNSIGNED_BYTE),
+    const AccessorFormat(VEC4, gl.UNSIGNED_SHORT)
+  ],
+  WEIGHTS_: const [
+    const AccessorFormat(VEC4, gl.FLOAT),
+    const AccessorFormat(VEC4, gl.UNSIGNED_BYTE, normalized: true),
+    const AccessorFormat(VEC4, gl.UNSIGNED_SHORT, normalized: true)
+  ]
+};
+
+const Map<String, List<AccessorFormat>> MORPH_ATTRIBUTES_ACCESSORS =
+    const <String, List<AccessorFormat>>{
+  POSITION: const [const AccessorFormat(VEC3, gl.FLOAT)],
+  NORMAL: const [const AccessorFormat(VEC3, gl.FLOAT)],
+  TANGENT: const [const AccessorFormat(VEC3, gl.FLOAT)],
+};
 
 const Map<int, String> ATTRIBUTE_TYPES = const <int, String>{
   gl.FLOAT: SCALAR,
@@ -398,77 +541,57 @@ const Map<int, String> ATTRIBUTE_TYPES = const <int, String>{
   gl.FLOAT_MAT4: MAT4
 };
 
-// Used as a container for uniform semantic restrictions
-class Semantic {
-  final int type;
-  final bool isArray;
-  const Semantic([this.type = gl.FLOAT_MAT4, this.isArray = false]);
+class AccessorFormat {
+  final String type;
+  final int componentType;
+  final bool normalized;
+  const AccessorFormat(this.type, this.componentType, {this.normalized: false});
+
+  AccessorFormat.fromAccessor(Accessor accessor)
+      : this(accessor.type, accessor.componentType,
+            normalized: accessor.normalized);
+
+  @override
+  String toString() =>
+      '{$type, ${gl.TYPE_NAMES[componentType]}${normalized ? ' $NORMALIZED' : ''}}';
+
+  @override
+  bool operator ==(Object o) =>
+      o is AccessorFormat &&
+      o.type == type &&
+      o.componentType == componentType &&
+      o.normalized == normalized;
+
+  @override
+  int get hashCode => hash3(type, componentType, normalized);
 }
 
-const Map<String, Semantic> UNIFORM_SEMANTICS = const <String, Semantic>{
-  LOCAL: const Semantic(),
-  MODEL: const Semantic(),
-  VIEW: const Semantic(),
-  PROJECTION: const Semantic(),
-  MODELVIEW: const Semantic(),
-  MODELVIEWPROJECTION: const Semantic(),
-  MODELINVERSE: const Semantic(),
-  VIEWINVERSE: const Semantic(),
-  PROJECTIONINVERSE: const Semantic(),
-  MODELVIEWINVERSE: const Semantic(),
-  MODELVIEWPROJECTIONINVERSE: const Semantic(),
-  MODELINVERSETRANSPOSE: const Semantic(gl.FLOAT_MAT3),
-  MODELVIEWINVERSETRANSPOSE: const Semantic(gl.FLOAT_MAT3),
-  VIEWPORT: const Semantic(gl.FLOAT_VEC4),
-  JOINTMATRIX: const Semantic(gl.FLOAT_MAT4, true)
-};
+// Texture
+const String SOURCE = 'source';
 
-// TechniqueStates
-const String ENABLE = "enable";
-const String FUNCTIONS = "functions";
+const List<String> TEXTURE_MEMBERS = const <String>[SAMPLER, SOURCE, NAME];
 
-const List<String> TECHNIQUE_STATES_MEMBERS = const <String>[ENABLE, FUNCTIONS];
+// TextureInfo
+const String INDEX = 'index';
+const String TEX_COORD = 'texCoord';
 
-// TechniqueStatesFunctions
-const String BLEND_COLOR = "blendColor";
-const String BLEND_EQUATION_SEPARATE = "blendEquationSeparate";
-const String BLEND_FUNC_SEPARATE = "blendFuncSeparate";
-const String COLOR_MASK = "colorMask";
-const String CULL_FACE = "cullFace";
-const String DEPTH_FUNC = "depthFunc";
-const String DEPTH_MASK = "depthMask";
-const String DEPTH_RANGE = "depthRange";
-const String FRONT_FACE = "frontFace";
-const String LINE_WIDTH = "lineWidth";
-const String POLYGON_OFFSET = "polygonOffset";
-const String SCISSOR = "scissor";
-
-const List<String> TECHNIQUE_STATES_FUNCTIONS_MEMBERS = const <String>[
-  BLEND_COLOR,
-  BLEND_EQUATION_SEPARATE,
-  BLEND_FUNC_SEPARATE,
-  COLOR_MASK,
-  CULL_FACE,
-  DEPTH_FUNC,
-  DEPTH_MASK,
-  DEPTH_RANGE,
-  FRONT_FACE,
-  LINE_WIDTH,
-  POLYGON_OFFSET,
-  SCISSOR
+const List<String> TEXTURE_INFO_MEMBERS = const <String>[
+  INDEX,
+  TEX_COORD,
 ];
 
-// Texture
-const String FORMAT = "format";
-const String INTERNAL_FORMAT = "internalFormat";
-const String SOURCE = "source";
+// NormalTextureInfo
+const List<String> NORMAL_TEXTURE_INFO_MEMBERS = const <String>[
+  INDEX,
+  TEX_COORD,
+  SCALE
+];
 
-const List<String> TEXTURE_MEMBERS = const <String>[
-  FORMAT,
-  INTERNAL_FORMAT,
-  SAMPLER,
-  SOURCE,
-  TARGET,
-  TYPE,
-  NAME
+// OcclusionTextureInfo
+const String STRENGTH = 'strength';
+
+const List<String> OCCLUSION_TEXTURE_INFO_MEMBERS = const <String>[
+  INDEX,
+  TEX_COORD,
+  STRENGTH
 ];

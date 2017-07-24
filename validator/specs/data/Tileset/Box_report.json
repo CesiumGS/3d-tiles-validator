@@ -1,0 +1,16 @@
+{
+    "uri": "specs/data/Tileset/Box.glb",
+    "mimeType": "model/gltf-binary",
+    "info": {
+        "version": "2.0",
+        "generator": "COLLADA2GLTF",
+        "hasAnimations": false,
+        "hasMaterials": true,
+        "hasMorphTargets": false,
+        "hasSkins": false,
+        "hasTextures": false,
+        "hasDefaultScene": true,
+        "primitivesCount": 1,
+        "maxAttributesUsed": 2
+    }
+}

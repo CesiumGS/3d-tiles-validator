@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,29 +15,26 @@
  * # limitations under the License.
  */
 
-library gltf.core.gltf_property;
+library gltf.base.gltf_property;
 
-import 'gltf.dart';
-import 'members.dart';
+import 'package:gltf/src/base/gltf.dart';
+import 'package:gltf/src/base/members.dart';
 import 'package:gltf/src/context.dart';
 import 'package:gltf/src/utils.dart';
 
-export 'gltf.dart';
-export 'members.dart';
+export 'package:gltf/src/base/gltf.dart';
+export 'package:gltf/src/base/members.dart';
 export 'package:gltf/src/context.dart';
 export 'package:gltf/src/errors.dart';
 export 'package:gltf/src/utils.dart';
 
-typedef Object FromMapFunction(Map<String, Object> map, Context context);
+typedef T FromMapFunction<T>(Map<String, Object> map, Context context);
 
 typedef void LinkFunction(Gltf gltf);
 
-abstract class Linkable {
-  void link(Gltf gltf, Context context);
-}
-
 abstract class Stringable {
-  String toString([Map/*=Map<String, Object>*/ map]) =>
+  @override
+  String toString([Map<String, Object> map]) =>
       mapToString(map ?? <String, Object>{});
 }
 
@@ -46,13 +43,16 @@ abstract class GltfProperty extends Stringable {
   final Object extras;
   GltfProperty(this.extensions, this.extras);
 
-  String toString([Map/*=Map<String, Object>*/ map]) {
-    map ??= <String, Object>{};
+  @override
+  String toString([Map<String, Object> map]) {
+    assert(map != null);
     map[EXTENSIONS] = extensions;
     map[EXTRAS] = extras;
 
     return super.toString(map);
   }
+
+  void link(Gltf gltf, Context context) {}
 }
 
 abstract class GltfChildOfRootProperty extends GltfProperty {
@@ -61,9 +61,15 @@ abstract class GltfChildOfRootProperty extends GltfProperty {
       this.name, Map<String, Object> extensions, Object extras)
       : super(extensions, extras);
 
-  String toString([Map/*=Map<String, Object>*/ map]) {
-    map ??= <String, Object>{};
+  @override
+  String toString([Map<String, Object> map]) {
+    assert(map != null);
     map[NAME] = name;
     return super.toString(map);
   }
+}
+
+abstract class GltfResource implements GltfProperty {
+  String get uriString;
+  Uri get uri;
 }

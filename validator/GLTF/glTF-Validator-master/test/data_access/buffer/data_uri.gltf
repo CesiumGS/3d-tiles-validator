@@ -1,0 +1,11 @@
+{
+    "asset": {
+        "version": "2.0"
+    },
+    "buffers": [
+        {
+            "uri": "data:application/octet-stream;base64,AAECAwQFBgcICQoLDA0ODw==",
+            "byteLength": 16
+        }
+    ]
+}

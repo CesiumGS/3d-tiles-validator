@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,54 +15,112 @@
  * # limitations under the License.
  */
 
-library gltf.core.image;
+library gltf.base.image;
 
-import 'gltf_property.dart';
+import 'dart:typed_data';
+import 'package:gltf/src/base/gltf_property.dart';
+import 'package:gltf/src/data_access/image_decoder.dart';
 
 class Image extends GltfChildOfRootProperty {
-  final String dataString;
+  final int _bufferViewIndex;
+  final String mimeType;
   final Uri uri;
 
-  Image._(this.uri, this.dataString, String name,
-      Map<String, Object> extensions, Object extras)
+  Uint8List data;
+  BufferView _bufferView;
+
+  ImageInfo info;
+
+  Image._(this._bufferViewIndex, this.uri, this.mimeType, this.data,
+      String name, Map<String, Object> extensions, Object extras)
       : super(name, extensions, extras);
 
-  String toString([_]) => super.toString({URI: uri});
+  BufferView get bufferView => _bufferView;
+
+  @override
+  String toString([_]) => super
+      .toString({BUFFER_VIEW: _bufferViewIndex, MIME_TYPE: mimeType, URI: uri});
 
   static Image fromMap(Map<String, Object> map, Context context) {
-    if (context.validate) checkMembers(map, IMAGE_MEMBERS, context);
+    if (context.validate) {
+      checkMembers(map, IMAGE_MEMBERS, context);
+    }
 
-    const List<String> mimeTypesEnum = const <String>[
-      "image/bmp",
-      "image/gif",
-      "image/jpeg",
-      "image/png"
-    ];
+    final bufferViewIndex = getIndex(map, BUFFER_VIEW, context, req: false);
+    var mimeType = getString(map, MIME_TYPE, context, list: IMAGE_MIME_TYPES);
+    final uriString = getString(map, URI, context, req: false);
 
-    Uri uri;
-    final uriString = getString(map, URI, context, req: true);
+    if (context.validate) {
+      if (bufferViewIndex != -1 && mimeType == null) {
+        context.addIssue(SchemaError.unsatisfiedDependency,
+            name: BUFFER_VIEW, args: [MIME_TYPE]);
+      }
 
-    if (uriString != null) {
-      if (uriString.startsWith("data:")) {
-        if (context.validate) {
-          try {
-            final uriData = UriData.parse(uriString);
-            if (!mimeTypesEnum.contains(uriData.mimeType) &&
-                uriData.contentText.isNotEmpty)
-              context.addIssue(GltfError.INVALID_DATA_URI_MIME,
-                  name: URI, args: [uriData.mimeType]);
-
-            // Decode BASE64 to check encoding
-            uriData.contentAsBytes();
-          } on FormatException catch (e) {
-            context.addIssue(GltfError.INVALID_DATA_URI, name: URI, args: [e]);
-          }
-        }
-      } else {
-        uri = parseUri(uriString, context);
+      if (((bufferViewIndex != -1) && (uriString != null)) ||
+          ((bufferViewIndex == -1) && (uriString == null))) {
+        context.addIssue(SchemaError.oneOfMismatch, args: [BUFFER_VIEW, URI]);
       }
     }
-    return new Image._(uri, uriString, getName(map, context),
-        getExtensions(map, Image, context), getExtras(map));
+
+    Uri uri;
+    Uint8List data;
+
+    if (uriString != null) {
+      UriData uriData;
+      try {
+        uriData = UriData.parse(uriString);
+      } on FormatException catch (_) {
+        uri = getUri(uriString, context);
+      }
+
+      if (uriData != null) {
+        data = uriData.contentAsBytes(); // ignore: invalid_assignment
+
+        // Re-assign `mimeType` only if it wasn't set in JSON
+        if (mimeType == null) {
+          if (context.validate &&
+              !IMAGE_MIME_TYPES.contains(uriData.mimeType)) {
+            context.addIssue(SchemaError.valueNotInList,
+                name: MIME_TYPE, args: [uriData.mimeType, IMAGE_MIME_TYPES]);
+          }
+          mimeType = uriData.mimeType;
+        }
+      }
+    }
+
+    return new Image._(
+        bufferViewIndex,
+        uri,
+        mimeType,
+        data,
+        getName(map, context),
+        getExtensions(map, Image, context),
+        getExtras(map));
+  }
+
+  @override
+  void link(Gltf gltf, Context context) {
+    if (_bufferViewIndex != -1) {
+      _bufferView = gltf.bufferViews[_bufferViewIndex];
+
+      if (_bufferView == null) {
+        context.addIssue(LinkError.unresolvedReference,
+            name: BUFFER_VIEW, args: [_bufferViewIndex]);
+      } else {
+        _bufferView.setUsage(BufferViewUsage.Image, BUFFER_VIEW, context);
+      }
+    }
+  }
+
+  void tryLoadFromBufferView() {
+    if (_bufferView != null) {
+      /// use unfiltered try to skip checking invalid input here,
+      /// in the worst case, `data` will remain `null`
+      try {
+        data = new Uint8List.view(_bufferView.buffer.data.buffer,
+            _bufferView.byteOffset, _bufferView.byteLength);
+        // ignore: avoid_catches_without_on_clauses
+      } catch (_) {}
+    }
   }
 }

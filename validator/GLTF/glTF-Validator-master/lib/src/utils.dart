@@ -1,15 +1,15 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
- * # Licensed under the Apache License, Version 2.0 (the "License");
+ * # Licensed under the Apache License, Version 2.0 (the 'License');
  * # you may not use this file except in compliance with the License.
  * # You may obtain a copy of the License at
  * #
  * #     http://www.apache.org/licenses/LICENSE-2.0
  * #
  * # Unless required by applicable law or agreed to in writing, software
- * # distributed under the License is distributed on an "AS IS" BASIS,
+ * # distributed under the License is distributed on an 'AS IS' BASIS,
  * # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * # See the License for the specific language governing permissions and
  * # limitations under the License.
@@ -17,87 +17,102 @@
 
 library gltf.utils;
 
-import 'gl.dart' as gl;
+import 'dart:collection';
+import 'dart:typed_data';
+
+import 'package:vector_math/vector_math.dart';
+
 import 'base/gltf_property.dart';
 import 'ext/extensions.dart';
+import 'gl.dart' as gl;
 
-String getId(Map<String, Object> map, String name, Context context,
+int getIndex(Map<String, Object> map, String name, Context context,
     {bool req: true}) {
   final value = map[name];
-  if (value is String) {
-    if (value.isNotEmpty) return value;
-    context.addIssue(GltfError.EMPTY_ID, name: name);
+  if (value is int) {
+    if (value >= 0) {
+      return value;
+    }
+    context.addIssue(SchemaError.invalidIndex, name: name);
   } else if (value == null) {
-    if (req) context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
+    if (req) {
+      context.addIssue(SchemaError.undefinedProperty, name: name);
+    }
   } else {
-    context
-        .addIssue(GltfError.TYPE_MISMATCH, name: name, args: [value, "string"]);
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'integer']);
   }
-  return null;
+  return -1;
 }
 
-bool getBool(Map<String, Object> map, String name, Context context,
-    {bool req: false, bool def}) {
+bool getBool(Map<String, Object> map, String name, Context context) {
   final value = map[name];
-  if (value is bool) return value;
   if (value == null) {
-    if (!req) return def;
-    context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
-  } else {
-    context.addIssue(GltfError.TYPE_MISMATCH,
-        name: name, args: [value, "boolean"]);
-    return def;
+    return false;
   }
-  return null;
+  if (value is bool) {
+    return value;
+  }
+  context
+      .addIssue(SchemaError.typeMismatch, name: name, args: [value, 'boolean']);
+  return false;
 }
 
-int getInt(Map<String, Object> map, String name, Context context,
-    {bool req: false, int min, int max, int def, Iterable<int> list}) {
+int getUint(Map<String, Object> map, String name, Context context,
+    {bool req: false, int min, int max, int def: -1, Iterable<int> list}) {
   final value = map[name];
   if (value is int) {
     if (list != null) {
-      if (!checkEnum(name, value, list, context)) return null;
+      if (!checkEnum<int>(name, value, list, context)) {
+        return -1;
+      }
     } else if ((min != null && value < min) || (max != null && value > max)) {
-      context.addIssue(GltfError.VALUE_OUT_OF_RANGE, name: name, args: [value]);
-      return null;
+      context.addIssue(SchemaError.valueNotInRange, name: name, args: [value]);
+      return -1;
     }
     return value;
   } else if (value == null) {
-    if (!req) return def;
-    context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
+    if (!req) {
+      return def;
+    }
+    context.addIssue(SchemaError.undefinedProperty, name: name);
   } else {
-    context.addIssue(GltfError.TYPE_MISMATCH,
-        name: name, args: [value, "integer"]);
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'integer']);
   }
-  return null;
+  return -1;
 }
 
-num getNum(Map<String, Object> map, String name, Context context,
+double getFloat(Map<String, Object> map, String name, Context context,
     {bool req: false,
-    num min,
-    num exclMin,
-    num max,
-    num def,
-    Iterable<num> list}) {
+    double min,
+    double exclMin,
+    double max,
+    double def: double.NAN,
+    Iterable<double> list}) {
   final value = map[name];
   if (value is num) {
     if (list != null) {
-      if (!checkEnum(name, value, list, context)) return null;
+      if (!checkEnum<num>(name, value, list, context)) {
+        return double.NAN;
+      }
     } else if ((min != null && value < min) ||
         (exclMin != null && value <= exclMin) ||
         (max != null && value > max)) {
-      context.addIssue(GltfError.VALUE_OUT_OF_RANGE, name: name, args: [value]);
-      return null;
+      context.addIssue(SchemaError.valueNotInRange, name: name, args: [value]);
+      return double.NAN;
     }
-    return value;
+    return value.toDouble();
   } else if (value == null) {
-    if (!req) return def;
-    context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
+    if (!req) {
+      return def;
+    }
+    context.addIssue(SchemaError.undefinedProperty, name: name);
   } else {
-    context
-        .addIssue(GltfError.TYPE_MISMATCH, name: name, args: [value, "number"]);
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'number']);
   }
-  return null;
+  return double.NAN;
 }
 
 String getString(Map<String, Object> map, String name, Context context,
@@ -105,265 +120,379 @@ String getString(Map<String, Object> map, String name, Context context,
   final value = map[name];
   if (value is String) {
     if (list != null) {
-      if (!checkEnum(name, value, list, context)) return null;
+      if (!checkEnum<String>(name, value, list, context)) {
+        return null;
+      }
     } else if (regexp?.hasMatch(value) == false) {
-      context.addIssue(GltfError.PATTERN_MISMATCH,
+      context.addIssue(SchemaError.patternMismatch,
           name: name, args: [value, regexp.pattern]);
       return null;
     }
     return value;
   } else if (value == null) {
-    if (!req) return def;
-    context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
+    if (!req) {
+      return def;
+    }
+    context.addIssue(SchemaError.undefinedProperty, name: name);
   } else {
-    context
-        .addIssue(GltfError.TYPE_MISMATCH, name: name, args: [value, "string"]);
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'string']);
   }
   return null;
+}
+
+Uri getUri(String uriString, Context context) {
+  try {
+    final uri = Uri.parse(uriString);
+    if (uri.hasAbsolutePath || uri.hasScheme) {
+      context
+          .addIssue(SemanticError.nonRelativeUri, name: URI, args: [uriString]);
+    }
+    return uri;
+  } on FormatException catch (e) {
+    context.addIssue(SchemaError.invalidUri, name: URI, args: [uriString, e]);
+    return null;
+  }
 }
 
 Map<String, Object> getMap(
     Map<String, Object> map, String name, Context context,
     {bool req: false}) {
   final value = map[name];
-  if (value is Map) {
+  if (value is Map<String, Object>) {
     // JSON mandates all keys to be string
-    return value as dynamic/*=Map<String, Object>*/;
+    return value;
   } else if (value == null) {
     if (req) {
-      context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
+      context.addIssue(SchemaError.undefinedProperty, name: name);
       return null;
     }
   } else {
-    context.addIssue(GltfError.TYPE_MISMATCH,
-        name: name, args: [value, "JSON object"]);
-    if (req) return null;
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'JSON object']);
+    if (req) {
+      return null;
+    }
   }
-  return <String, dynamic>{};
+  return <String, Object>{};
 }
 
-Map<String, String> getStringMap(
-    Map<String, Object> map, String name, Context context,
+T getObjectFromInnerMap<T>(Map<String, Object> map, String name,
+    Context context, FromMapFunction<T> fromMap,
     {bool req: false}) {
   final value = map[name];
-  if (value is Map/*=Map<String, Object>*/) {
+  if (value is Map<String, Object>) {
     // JSON mandates all keys to be string
-    if (context.validate) {
-      var wrongMemberFound = false;
-      context.path.add(name);
-      value.forEach((k, v) {
-        if (v is! String) {
-          context
-              .addIssue(GltfError.TYPE_MISMATCH, name: k, args: [v, "string"]);
-          wrongMemberFound = true;
-        }
-      });
-      context.path.removeLast();
-      if (wrongMemberFound) <String, String>{};
-    }
-    return value as dynamic/*=Map<String, String>*/;
+    context.path.add(name);
+    final object = fromMap(value, context);
+    context.path.removeLast();
+    return object;
   } else if (value == null) {
     if (req) {
-      context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
-      return null;
+      context.addIssue(SchemaError.undefinedProperty, name: name);
     }
   } else {
-    context.addIssue(GltfError.TYPE_MISMATCH,
-        name: name, args: [value, "JSON object"]);
-    if (req) return null;
-  }
-  return <String, String>{};
-}
-
-Uri parseUri(String uri, Context context) {
-  try {
-    return Uri.parse(uri);
-  } on FormatException catch (e) {
-    context.addIssue(GltfError.INVALID_URI, name: URI, args: [uri, e]);
-    return null;
-  }
-}
-
-List<bool> getBoolList(Map<String, Object> map, String name, Context context,
-    {bool req: false, List<bool> def, List<int> lengthsList}) {
-  final value = map[name];
-  if (value is List/*=List<Object>*/) {
-    if ((lengthsList != null) &&
-        !checkEnum(name, value.length, lengthsList, context, true)) return null;
-    var wrongMemberFound = false;
-    for (final v in value) {
-      if (v is! bool) {
-        context.addIssue(GltfError.ARRAY_TYPE_MISMATCH,
-            name: name, args: [v, "boolean"]);
-        wrongMemberFound = true;
-      }
-    }
-    if (wrongMemberFound) return null;
-    return value as dynamic/*=List<bool>*/;
-  } else if (value == null) {
-    if (!req) return def;
-    context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
-  } else {
-    context.addIssue(GltfError.TYPE_MISMATCH,
-        name: name, args: [value, "boolean[]"]);
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'JSON object']);
   }
   return null;
 }
 
-List<num> getNumList(Map<String, Object> map, String name, Context context,
-    {bool req: false,
-    num min,
-    num max,
-    num exclMin,
-    int minItems,
-    int maxItems,
-    List<num> def,
-    List<num> list,
-    Iterable<int> lengthsList}) {
+List<int> getIndicesList(Map<String, Object> map, String name, Context context,
+    {bool req: false}) {
   final value = map[name];
-  if (value is List/*=List<Object>*/) {
-    if (lengthsList != null) {
-      if (!checkEnum(name, value.length, lengthsList, context, true))
+  if (value is List<Object>) {
+    if (context.validate) {
+      if (value.isEmpty) {
+        context.addIssue(SchemaError.emptyEntity, name: name);
         return null;
-    } else if ((minItems != null && value.length < minItems) ||
-        (maxItems != null && value.length > maxItems)) {
-      context.addIssue(GltfError.ARRAY_LENGTH_OUT_OF_RANGE,
-          name: name, args: [value.length]);
+      }
+      context.path.add(name);
+      final uniqueItems = new Set<int>();
+      for (var i = 0; i < value.length; i++) {
+        final v = value[i];
+        if (v is int) {
+          if (v < 0) {
+            context.addIssue(SchemaError.invalidIndex, index: i);
+          } else if (!uniqueItems.add(v)) {
+            context.addIssue(SchemaError.arrayDuplicateElements, args: [i]);
+          }
+        } else {
+          value[i] = -1;
+          context.addIssue(SchemaError.typeMismatch,
+              index: i, args: [v, 'integer']);
+        }
+      }
+      context.path.removeLast();
+      return uniqueItems.toList(growable: false);
+    }
+    return value; // ignore: return_of_invalid_type
+  } else if (value == null) {
+    if (req) {
+      context.addIssue(SchemaError.undefinedProperty, name: name);
+    }
+  } else {
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'JSON array']);
+  }
+  return null;
+}
+
+Map<String, int> getIndicesMap(Map<String, Object> map, String name,
+    Context context, _CheckKeyFunction checkKey) {
+  final value = map[name];
+  if (value is Map<String, Object>) {
+    if (value.isEmpty) {
+      context.addIssue(SchemaError.emptyEntity, name: name);
       return null;
     }
-    var wrongMemberFound = false;
-    for (final v in value) {
-      if (v is num) {
-        if (list != null) {
-          if (!checkEnum(name, v, list, context)) wrongMemberFound = true;
-        } else if ((min != null && v < min) ||
-            (exclMin != null && v <= exclMin) ||
-            (max != null && v > max)) {
-          context.addIssue(GltfError.VALUE_OUT_OF_RANGE, name: name, args: [v]);
-          wrongMemberFound = true;
+    context.path.add(name);
+    value.forEach((k, v) {
+      checkKey(k);
+      if (v is int) {
+        if (v < 0) {
+          context.addIssue(SchemaError.invalidIndex, name: k);
+          // Sanitize value
+          value[k] = -1;
         }
       } else {
-        context.addIssue(GltfError.ARRAY_TYPE_MISMATCH,
-            name: name, args: [v, "number"]);
-        wrongMemberFound = true;
+        // Sanitize value
+        value[k] = -1;
+        context
+            .addIssue(SchemaError.typeMismatch, name: k, args: [v, 'integer']);
       }
-    }
-    if (wrongMemberFound) return null;
-    return value as dynamic/*=List<num>*/;
+    });
+    context.path.removeLast();
+
+    return value; // ignore: return_of_invalid_type
   } else if (value == null) {
-    if (!req) return def;
-    context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
+    context.addIssue(SchemaError.undefinedProperty, name: name);
   } else {
-    context.addIssue(GltfError.TYPE_MISMATCH,
-        name: name, args: [value, "number[]"]);
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'JSON object']);
   }
   return null;
 }
 
-List<int> getGlIntList(Map<String, Object> map, String name, Context context,
-    {bool req: false, int type, int length}) {
+List<Map<String, int>> getIndicesMapsList(Map<String, Object> map, String name,
+    Context context, _CheckKeyFunction checkKey) {
+  final list = map[name];
+  if (list is List<Object>) {
+    if (context.validate) {
+      if (list.isEmpty) {
+        context.addIssue(SchemaError.emptyEntity, name: name);
+        return null;
+      } else {
+        var invalidElementFound = false;
+        context.path.add(name);
+        for (var i = 0; i < list.length; i++) {
+          final innerMap = list[i];
+          // JSON mandates all keys to be string
+          if (innerMap is Map<String, Object>) {
+            if (innerMap.isEmpty) {
+              context.addIssue(SchemaError.emptyEntity, index: i);
+              invalidElementFound = true;
+            } else {
+              context.path.add(i.toString());
+              innerMap.forEach((k, v) {
+                checkKey(k);
+                if (v is int) {
+                  if (v < 0) {
+                    context.addIssue(SchemaError.invalidIndex, name: k);
+                    // Sanitize value
+                    innerMap[k] = -1;
+                  }
+                } else {
+                  context.addIssue(SchemaError.typeMismatch,
+                      name: k, args: [v, 'integer']);
+                  // Sanitize value
+                  innerMap[k] = -1;
+                }
+              });
+              context.path.removeLast();
+            }
+          } else {
+            context.addIssue(SchemaError.arrayTypeMismatch,
+                args: [innerMap, 'JSON object']);
+            invalidElementFound = true;
+          }
+        }
+        context.path.removeLast();
+        if (invalidElementFound) {
+          return null;
+        }
+      }
+    }
+    return list; // ignore: return_of_invalid_type
+  } else if (list != null) {
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [list, 'JSON array']);
+  }
+  return null;
+}
+
+List<double> getFloatList(Map<String, Object> map, String name, Context context,
+    {bool req: false,
+    bool singlePrecision: false,
+    double min,
+    double max,
+    List<double> def,
+    List<int> lengthsList}) {
   final value = map[name];
-  if (value is List/*=List<Object>*/) {
+  if (value is List) {
+    if (lengthsList != null) {
+      if (!checkEnum<int>(name, value.length, lengthsList, context,
+          isLengthList: true)) {
+        return null;
+      }
+    } else if (value.isEmpty) {
+      context.addIssue(SchemaError.emptyEntity, name: name);
+      return null;
+    }
+    if (context.validate) {
+      var wrongMemberFound = false;
+      for (final v in value) {
+        if (v is num) {
+          if ((min != null && v < min) || (max != null && v > max)) {
+            context
+                .addIssue(SchemaError.valueNotInRange, name: name, args: [v]);
+            wrongMemberFound = true;
+          }
+        } else {
+          context.addIssue(SchemaError.arrayTypeMismatch,
+              name: name, args: [v, 'number']);
+          wrongMemberFound = true;
+        }
+      }
+      if (wrongMemberFound) {
+        return null;
+      }
+    }
+    if (singlePrecision) {
+      return value
+          .map<double>((num v) => doubleToSingle(v.toDouble()))
+          .toList(growable: false);
+    } else {
+      return value.map<double>((num v) => v.toDouble()).toList(growable: false);
+    }
+  } else if (value == null) {
+    if (!req) {
+      return def;
+    }
+    context.addIssue(SchemaError.undefinedProperty, name: name);
+  } else {
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'number[]']);
+  }
+  return null;
+}
+
+List<num> getGlIntList(Map<String, Object> map, String name, Context context,
+    int type, int length) {
+  final value = map[name];
+  if (value is List) {
     if (value.length != length) {
-      context.addIssue(GltfError.ARRAY_LENGTH_NOT_IN_LIST,
+      context.addIssue(SchemaError.arrayLengthNotInList,
           name: name, args: [value, length]);
     }
     var wrongMemberFound = false;
     for (final v in value) {
-      if (v is int) {
-        if (type != null) {
+      if (v is num && v.round() == v) {
+        if (v is! int) {
+          context.addIssue(SemanticError.integerWrittenAsFloat,
+              name: name, args: [v]);
+        }
+        if (type != -1) {
           final min = gl.TYPE_MINS[type];
           final max = gl.TYPE_MAXS[type];
           if ((v < min) || (v > max)) {
-            context.addIssue(GltfError.INVALID_GL_VALUE,
+            context.addIssue(SemanticError.invalidGlValue,
                 name: name, args: [v, gl.TYPE_NAMES[type]]);
             wrongMemberFound = true;
           }
         }
       } else {
-        context.addIssue(GltfError.ARRAY_TYPE_MISMATCH,
-            name: name, args: [v, "integer"]);
+        context.addIssue(SchemaError.arrayTypeMismatch,
+            name: name, args: [v, 'integer']);
         wrongMemberFound = true;
       }
     }
-    if (wrongMemberFound) return null;
-    return value as dynamic/*=List<int>*/;
-  } else if (value == null) {
-    if (!req) return null;
-    context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
-  } else {
-    context.addIssue(GltfError.TYPE_MISMATCH,
-        name: name, args: [value, "number[]"]);
+    if (wrongMemberFound) {
+      return null;
+    }
+    return value; // ignore: return_of_invalid_type
+  } else if (value != null) {
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'number[]']);
   }
   return null;
 }
 
 List<String> getStringList(
-    Map<String, Object> map, String name, Context context,
-    {bool req: false,
-    int minItems,
-    int maxItems,
-    List<String> def,
-    List<String> list,
-    Iterable<int> lengthsList}) {
+    Map<String, Object> map, String name, Context context) {
   final value = map[name];
-  if (value is List/*=List<Object>*/) {
-    if (lengthsList != null) {
-      if (!checkEnum(name, value.length, lengthsList, context, true))
-        return null;
-    } else if ((minItems != null && value.length < minItems) ||
-        (maxItems != null && value.length > maxItems)) {
-      context.addIssue(GltfError.ARRAY_LENGTH_OUT_OF_RANGE,
-          name: name, args: [value.length]);
-      return null;
+  if (value is List<Object>) {
+    if (value.isEmpty) {
+      context.addIssue(SchemaError.emptyEntity, name: name);
+      return <String>[];
     }
-    var wrongMemberFound = false;
-    for (final v in value) {
-      if (v is! String) {
-        context.addIssue(GltfError.ARRAY_TYPE_MISMATCH,
-            name: name, args: [v, "string"]);
-        wrongMemberFound = true;
-        continue;
+    if (context.validate) {
+      var wrongMemberFound = false;
+      context.path.add(name);
+      final uniqueItems = new Set<String>();
+      for (var i = 0; i < value.length; i++) {
+        final v = value[i];
+        if (v is String) {
+          if (!uniqueItems.add(v)) {
+            context.addIssue(SchemaError.arrayDuplicateElements, args: [i]);
+          }
+        } else {
+          context.addIssue(SchemaError.arrayTypeMismatch,
+              index: i, args: [v, 'string']);
+          wrongMemberFound = true;
+        }
       }
-      if (list != null && !checkEnum(name, v, list, context))
-        wrongMemberFound = true;
+      context.path.removeLast();
+      if (wrongMemberFound) {
+        return <String>[];
+      } else {
+        return uniqueItems.toList(growable: false);
+      }
     }
-    if (wrongMemberFound) return null;
-    return value as dynamic/*=List<String>*/;
-  } else if (value == null) {
-    if (!req) return def;
-    context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
-  } else {
-    context.addIssue(GltfError.TYPE_MISMATCH,
-        name: name, args: [value, "string[]"]);
+    return value; // ignore: return_of_invalid_type
+  } else if (value != null) {
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'string[]']);
   }
-  return null;
+  return <String>[];
 }
 
 List<Map<String, Object>> getMapList(
-    Map<String, Object> map, String name, Context context,
-    {bool req: false, int minItems: 0}) {
+    Map<String, Object> map, String name, Context context) {
   final value = map[name];
-  if (value is List/*=List<Object>*/) {
-    if (value.length < minItems)
-      context.addIssue(GltfError.ARRAY_LENGTH_OUT_OF_RANGE,
-          name: name, args: [value.length]);
-    var wrongMemberFound = false;
-    for (final v in value) {
-      if (v is! Map) {
-        context.addIssue(GltfError.ARRAY_TYPE_MISMATCH,
-            name: name, args: [v, "JSON object"]);
-        wrongMemberFound = true;
+  if (value is List<Object>) {
+    if (value.isEmpty) {
+      context.addIssue(SchemaError.emptyEntity, name: name);
+      return null;
+    } else {
+      var invalidElementFound = false;
+      for (final v in value) {
+        if (v is! Map) {
+          context.addIssue(SchemaError.arrayTypeMismatch,
+              name: name, args: [v, 'JSON object']);
+          invalidElementFound = true;
+        }
+      }
+      if (invalidElementFound) {
+        return null;
       }
     }
-    if (wrongMemberFound) return null;
-    return value as dynamic/*=List<Map<String, Object>>*/;
+    return value; // ignore: return_of_invalid_type
   } else if (value == null) {
-    if (!req) return <Map<String, Object>>[];
-    context.addIssue(GltfError.UNDEFINED_PROPERTY, name: name);
+    context.addIssue(SchemaError.undefinedProperty, name: name);
   } else {
-    context.addIssue(GltfError.TYPE_MISMATCH,
-        name: name, args: [value, "JSON object[]"]);
+    context.addIssue(SchemaError.typeMismatch,
+        name: name, args: [value, 'JSON array']);
   }
   return null;
 }
@@ -376,18 +505,16 @@ Map<String, Object> getExtensions(
   final extensions = <String, Object>{};
   final extensionMaps = getMap(map, EXTENSIONS, context);
 
-  if (extensionMaps.isEmpty) return extensions;
+  if (extensionMaps.isEmpty) {
+    return extensions;
+  }
 
   context.path.add(EXTENSIONS);
   for (final extension in extensionMaps.keys) {
     if (!context.extensionsLoaded.contains(extension)) {
-      if (context.validate) {
-        if (context.extensionsUsed.contains(extension)) {
-          context
-              .addIssue(GltfWarning.UNSUPPORTED_EXTENSION, args: [extension]);
-        } else {
-          context.addIssue(GltfError.UNDECLARED_EXTENSION, name: extension);
-        }
+      extensions[extension] = null;
+      if (context.validate && !context.extensionsUsed.contains(extension)) {
+        context.addIssue(LinkError.undeclaredExtension, name: extension);
       }
       continue;
     }
@@ -396,7 +523,7 @@ Map<String, Object> getExtensions(
         context.extensionsFunctions[new ExtensionTuple(type, extension)];
 
     if (functions == null) {
-      context.addIssue(GltfError.UNEXPECTED_EXTENSION, name: extension);
+      context.addIssue(LinkError.unexpectedExtensionObject, name: extension);
       continue;
     }
 
@@ -414,13 +541,13 @@ Map<String, Object> getExtensions(
 
 Object getExtras(Map<String, Object> map) => map[EXTRAS];
 
-bool checkEnum(String name, Object value, Iterable list, Context context,
-    [bool isLengthList = false]) {
+bool checkEnum<T>(String name, T value, Iterable<T> list, Context context,
+    {bool isLengthList: false}) {
   if (!list.contains(value)) {
     context.addIssue(
         isLengthList
-            ? GltfError.ARRAY_LENGTH_NOT_IN_LIST
-            : GltfError.VALUE_NOT_IN_LIST,
+            ? SchemaError.arrayLengthNotInList
+            : SchemaError.valueNotInList,
         name: name,
         args: [value, list]);
 
@@ -431,55 +558,117 @@ bool checkEnum(String name, Object value, Iterable list, Context context,
 
 void checkMembers(
     Map<String, Object> map, List<String> knownMembers, Context context,
-    [bool useSuper = true]) {
+    {bool useSuper = true}) {
   const superMembers = const <String>[EXTENSIONS, EXTRAS];
   for (final k in map.keys) {
     if (!knownMembers.contains(k) && !(useSuper && superMembers.contains(k)))
-      context.addIssue(GltfWarning.UNEXPECTED_PROPERTY, name: k);
+      context.addIssue(SchemaError.unexpectedProperty, name: k);
   }
 }
 
-void checkDuplicates(List elements, String name, Context context) {
-  if (elements.length > 1) {
-    final set = new Set<Object>.from(elements);
-    if (set.length != elements.length)
-      context.addIssue(GltfWarning.DUPLICATE_ELEMENTS, name: name);
-  }
-}
+typedef void _NodeHandlerFunction(Node element, int nodeIndex, int index);
 
-void removeDuplicates(List<String> list, Context context, String name) {
-  final set = new Set<String>.from(list);
-  if (set.length != list.length) {
-    context.addIssue(GltfWarning.DUPLICATE_ELEMENTS, name: name);
-    list
-      ..clear()
-      ..addAll(set);
-  }
-}
+typedef void _CheckKeyFunction(String key);
 
-typedef void _NodeHandlerFunction(Node element, String id);
-
-void resolveList/*<T>*/(List<String> sourceList, List/*<T>*/ targetList,
-    Map<String, Object/*=T*/ > map, String name, Context context,
+void resolveNodeList(List<int> sourceList, List<Node> targetList,
+    SafeList<Node> nodes, String name, Context context,
     [_NodeHandlerFunction handleNode]) {
   if (sourceList != null) {
-    for (final id in sourceList) {
-      final element = map[id];
-      if (element != null) {
-        targetList.add(element);
-        if (handleNode != null)
-          handleNode((element as dynamic/*=Node*/), id);
-      } else {
-        context
-            .addIssue(GltfError.UNRESOLVED_REFERENCE, name: name, args: [id]);
+    context.path.add(name);
+    for (var i = 0; i < sourceList.length; i++) {
+      final nodeIndex = sourceList[i];
+      if (nodeIndex == null) {
+        continue;
       }
+      final node = nodes[nodeIndex];
+      if (node != null) {
+        targetList[i] = node;
+        if (handleNode != null) {
+          handleNode(node, nodeIndex, i);
+        }
+      } else {
+        context.addIssue(LinkError.unresolvedReference,
+            index: i, args: [nodeIndex]);
+      }
+    }
+    context.path.removeLast();
+  }
+}
+
+String mapToString([Map<String, Object> map]) =>
+    new Map<String, Object>.fromIterable(
+        map.keys.where((key) => key != null && map[key] != null),
+        key: (String key) => key,
+        value: (String key) => map[key]).toString();
+
+class SafeList<T> extends ListBase<T> {
+  List<T> _list;
+  final int _length;
+
+  SafeList(this._length) {
+    _list = new List<T>(length);
+  }
+
+  SafeList.empty() : _length = 0 {
+    _list = new List<T>(0);
+  }
+
+  @override
+  T operator [](int index) =>
+      (index == null || index < 0 || index >= _list.length)
+          ? null
+          : _list[index];
+
+  @override
+  void operator []=(int index, T value) {
+    assert(value != null);
+    assert(index >= 0 && index < length);
+    _list[index] = value;
+  }
+
+  @override
+  int get length => _length;
+
+  @override
+  set length(int newLength) {
+    throw new UnsupportedError('Changing length is not supported');
+  }
+
+  @override
+  String toString() => _list.toString();
+
+  void forEachWithIndices(void action(int index, T element)) {
+    for (var i = 0; i < _length; i++) {
+      action(i, _list[i]);
     }
   }
 }
 
-String mapToString([Map/*=Map<String, Object>*/ map]) {
-  return new Map<String, Object>.fromIterable(
-      map.keys.where((key) => key != null && map[key] != null),
-      key: (String key) => key,
-      value: (String key) => map[key]).toString();
+final _float = new Float32List(1);
+double doubleToSingle(num value) {
+  _float[0] = value.toDouble();
+  return _float[0];
 }
+
+final _matrix = new Matrix4.zero();
+final _translation = new Vector3.zero();
+final _rotation = new Quaternion.identity();
+final _scale = new Vector3.zero();
+bool isTrsDecomposable(Matrix4 matrix) {
+  if (matrix[3] != 0.0 ||
+      matrix[7] != 0.0 ||
+      matrix[11] != 0.0 ||
+      matrix[15] != 1.0) {
+    return false;
+  }
+
+  if (matrix.determinant() == 0.0) {
+    return false;
+  }
+
+  matrix.decompose(_translation, _rotation, _scale);
+  _matrix.setFromTranslationRotationScale(_translation, _rotation, _scale);
+  return absoluteError(_matrix, matrix) < 0.00005;
+}
+
+bool isPot(int value) => (value != 0) && (value & (value - 1) == 0);

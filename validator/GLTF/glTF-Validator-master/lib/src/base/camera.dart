@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * # limitations under the License.
  */
 
-library gltf.core.camera;
+library gltf.base.camera;
 
 import 'gltf_property.dart';
 
@@ -24,106 +24,119 @@ class Camera extends GltfChildOfRootProperty {
   final CameraOrthographic orthographic;
   final CameraPerspective perspective;
 
-  Camera._(
-      this.type, String name, Map<String, Object> extensions, Object extras,
-      {this.orthographic, this.perspective})
+  Camera._(this.type, this.orthographic, this.perspective, String name,
+      Map<String, Object> extensions, Object extras)
       : super(name, extensions, extras);
 
+  @override
   String toString([_]) => super.toString(
       {TYPE: type, ORTHOGRAPHIC: orthographic, PERSPECTIVE: perspective});
 
   static Camera fromMap(Map<String, Object> map, Context context) {
-    if (context.validate) checkMembers(map, CAMERA_MEMBERS, context);
-
-    const List<String> types = const <String>[ORTHOGRAPHIC, PERSPECTIVE];
-
-    final type = getString(map, TYPE, context, req: true, list: types);
-
-    final cameraMap = getMap(map, type, context, req: true);
-
-    if (cameraMap != null) {
-      context.path.add(type);
-
-      final camera = (type == ORTHOGRAPHIC)
-          ? new CameraOrthographic.fromMap(cameraMap, context)
-          : (type == PERSPECTIVE)
-              ? new CameraPerspective.fromMap(cameraMap, context)
-              : null;
-
-      return new Camera._(type, getName(map, context),
-          getExtensions(map, Camera, context), getExtras(map),
-          orthographic: type == ORTHOGRAPHIC
-              ? camera as dynamic/*=CameraOrthographic*/ : null,
-          perspective: type == PERSPECTIVE
-              ? camera as dynamic/*=CameraPerspective*/ : null);
-    } else {
-      return new Camera._(type, getName(map, context),
-          getExtensions(map, Camera, context), getExtras(map));
+    if (context.validate) {
+      checkMembers(map, CAMERA_MEMBERS, context);
     }
+
+    if (context.validate &&
+        map.keys.where((key) => CAMERA_TYPES.contains(key)).length > 1) {
+      context.addIssue(SchemaError.oneOfMismatch, args: CAMERA_TYPES);
+    }
+
+    final type = getString(map, TYPE, context, req: true, list: CAMERA_TYPES);
+
+    CameraOrthographic orthographic;
+    CameraPerspective perspective;
+
+    switch (type) {
+      case ORTHOGRAPHIC:
+        orthographic = getObjectFromInnerMap(
+            map, ORTHOGRAPHIC, context, CameraOrthographic.fromMap,
+            req: true);
+        break;
+      case PERSPECTIVE:
+        perspective = getObjectFromInnerMap(
+            map, PERSPECTIVE, context, CameraPerspective.fromMap,
+            req: true);
+        break;
+    }
+
+    return new Camera._(type, orthographic, perspective, getName(map, context),
+        getExtensions(map, Camera, context), getExtras(map));
   }
 }
 
 class CameraOrthographic extends GltfProperty {
-  final num xmag;
-  final num ymag;
-  final num zfar;
-  final num znear;
+  final double xmag;
+  final double ymag;
+  final double zfar;
+  final double znear;
 
   CameraOrthographic._(this.xmag, this.ymag, this.zfar, this.znear,
       Map<String, Object> extensions, Object extras)
       : super(extensions, extras);
 
-  String toString([_]) =>
-      super.toString({XMAG: xmag, YMAG: ymag, ZFAR: zfar, ZNEAR: znear});
-
-  factory CameraOrthographic.fromMap(Map<String, Object> map, Context context,
-      {String name, Map<String, Object> extensions, Object extras}) {
-    if (context.validate)
+  static CameraOrthographic fromMap(Map<String, Object> map, Context context) {
+    if (context.validate) {
       checkMembers(map, CAMERA_ORTHOGRAPHIC_MEMBERS, context);
-
-    final zfar = getNum(map, ZFAR, context, req: true, min: 0);
-    final znear = getNum(map, ZNEAR, context, req: true, min: 0);
-
-    if (context.validate && zfar != null && zfar <= znear) {
-      context.addIssue(GltfError.CAMERA_ZFAR_LEQUAL_ZNEAR);
     }
 
-    return new CameraOrthographic._(getNum(map, XMAG, context, req: true),
-        getNum(map, YMAG, context, req: true), zfar, znear, extensions, extras);
+    final xmag = getFloat(map, XMAG, context, req: true);
+    final ymag = getFloat(map, YMAG, context, req: true);
+
+    final zfar = getFloat(map, ZFAR, context, req: true, exclMin: 0.0);
+    final znear = getFloat(map, ZNEAR, context, req: true, min: 0.0);
+
+    if (context.validate) {
+      if (!zfar.isNaN && !znear.isNaN && zfar <= znear) {
+        context.addIssue(SemanticError.cameraZfarLequalZnear);
+      }
+
+      if (xmag == 0.0 || ymag == 0.0) {
+        context.addIssue(SemanticError.cameraXmagYmagZero);
+      }
+    }
+
+    return new CameraOrthographic._(xmag, ymag, zfar, znear,
+        getExtensions(map, CameraOrthographic, context), getExtras(map));
   }
+
+  @override
+  String toString([_]) =>
+      super.toString({XMAG: xmag, YMAG: ymag, ZFAR: zfar, ZNEAR: znear});
 }
 
 class CameraPerspective extends GltfProperty {
-  final num aspectRatio;
-  final num yfov;
-  final num zfar;
-  final num znear;
+  final double aspectRatio;
+  final double yfov;
+  final double zfar;
+  final double znear;
 
   CameraPerspective._(this.aspectRatio, this.yfov, this.zfar, this.znear,
       Map<String, Object> extensions, Object extras)
       : super(extensions, extras);
 
-  String toString([_]) => super.toString(
-      {ASPECT_RATIO: aspectRatio, YFOV: yfov, ZFAR: zfar, ZNEAR: znear});
-
-  factory CameraPerspective.fromMap(Map<String, Object> map, Context context,
-      {String name, Map<String, Object> extensions, Object extras}) {
-    if (context.validate)
+  static CameraPerspective fromMap(Map<String, Object> map, Context context) {
+    if (context.validate) {
       checkMembers(map, CAMERA_PERSPECTIVE_MEMBERS, context);
+    }
 
-    final zfar = getNum(map, ZFAR, context, req: true, exclMin: 0);
-    final znear = getNum(map, ZNEAR, context, req: true, exclMin: 0);
+    final zfar = getFloat(map, ZFAR, context, exclMin: 0.0);
+    final znear = getFloat(map, ZNEAR, context, req: true, exclMin: 0.0);
 
-    if (context.validate && zfar != null && zfar <= znear) {
-      context.addIssue(GltfError.CAMERA_ZFAR_LEQUAL_ZNEAR);
+    if (context.validate && !zfar.isNaN && !znear.isNaN && zfar <= znear) {
+      context.addIssue(SemanticError.cameraZfarLequalZnear);
     }
 
     return new CameraPerspective._(
-        getNum(map, ASPECT_RATIO, context, exclMin: 0),
-        getNum(map, YFOV, context, req: true, exclMin: 0),
+        getFloat(map, ASPECT_RATIO, context, exclMin: 0.0),
+        getFloat(map, YFOV, context, req: true, exclMin: 0.0),
         zfar,
         znear,
-        extensions,
-        extras);
+        getExtensions(map, CameraPerspective, context),
+        getExtras(map));
   }
+
+  @override
+  String toString([_]) => super.toString(
+      {ASPECT_RATIO: aspectRatio, YFOV: yfov, ZFAR: zfar, ZNEAR: znear});
 }

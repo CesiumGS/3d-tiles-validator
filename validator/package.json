@@ -24,6 +24,7 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "cesium": "^1.34",
+    "file-exists": "^4.0.0",
     "fs-extra": "^3.0.1"
   },
   "devDependencies": {

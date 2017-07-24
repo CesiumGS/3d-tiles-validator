@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,103 +15,56 @@
  * # limitations under the License.
  */
 
-library gltf.core.texture;
+library gltf.base.texture;
 
 import 'gltf_property.dart';
-import 'package:gltf/src/gl.dart' as gl;
 
-class Texture extends GltfChildOfRootProperty implements Linkable {
-  final int format;
-  final int internalFormat;
-  final String _samplerId;
-  final String _sourceId;
-  final int target;
-  final int type;
+class Texture extends GltfChildOfRootProperty {
+  final int _samplerIndex;
+  final int _sourceIndex;
 
-  Sampler sampler;
-  Image source;
+  Sampler _sampler;
+  Image _source;
 
-  Texture._(
-      this.format,
-      this.internalFormat,
-      this._samplerId,
-      this._sourceId,
-      this.target,
-      this.type,
-      String name,
-      Map<String, Object> extensions,
-      Object extras)
+  Texture._(this._samplerIndex, this._sourceIndex, String name,
+      Map<String, Object> extensions, Object extras)
       : super(name, extensions, extras);
 
+  Sampler get sampler => _sampler;
+  Image get source => _source;
+
+  @override
   String toString([_]) => super.toString({
-        FORMAT: format,
-        INTERNAL_FORMAT: internalFormat,
-        SAMPLER: _samplerId,
-        SOURCE: _sourceId,
-        TARGET: target,
-        TYPE: type
+        SAMPLER: _samplerIndex,
+        SOURCE: _sourceIndex,
       });
 
   static Texture fromMap(Map<String, Object> map, Context context) {
-    if (context.validate) checkMembers(map, TEXTURE_MEMBERS, context);
-
-    const List<int> formatsEnum = const <int>[
-      gl.ALPHA,
-      gl.RGB,
-      gl.RGBA,
-      gl.LUMINANCE,
-      gl.LUMINANCE_ALPHA
-    ];
-
-    const List<int> targetsEnum = const <int>[gl.TEXTURE_2D];
-
-    const List<int> typesEnum = const <int>[
-      gl.UNSIGNED_BYTE,
-      gl.UNSIGNED_SHORT_5_6_5,
-      gl.UNSIGNED_SHORT_4_4_4_4,
-      gl.UNSIGNED_SHORT_5_5_5_1
-    ];
-
-    final format =
-        getInt(map, FORMAT, context, list: formatsEnum, def: gl.RGBA);
-    final internalformat =
-        getInt(map, INTERNAL_FORMAT, context, list: formatsEnum, def: gl.RGBA);
-    final type =
-        getInt(map, TYPE, context, list: typesEnum, def: gl.UNSIGNED_BYTE);
-
     if (context.validate) {
-      if (format != internalformat) {
-        context.addIssue(GltfError.TEXTURE_FORMAT_INTERNALFORMAT);
-      }
-
-      if ((type == gl.UNSIGNED_SHORT_4_4_4_4 && format != gl.RGBA) ||
-          (type == gl.UNSIGNED_SHORT_5_5_5_1 && format != gl.RGBA) ||
-          (type == gl.UNSIGNED_SHORT_5_6_5 && format != gl.RGB)) {
-        context.addIssue(GltfError.TEXTURE_FORMAT_TYPE);
-      }
+      checkMembers(map, TEXTURE_MEMBERS, context);
     }
 
     return new Texture._(
-        format,
-        internalformat,
-        getId(map, SAMPLER, context),
-        getId(map, SOURCE, context),
-        getInt(map, TARGET, context, list: targetsEnum, def: gl.TEXTURE_2D),
-        type,
+        getIndex(map, SAMPLER, context, req: false),
+        getIndex(map, SOURCE, context, req: false),
         getName(map, context),
         getExtensions(map, Texture, context),
         getExtras(map));
   }
 
+  @override
   void link(Gltf gltf, Context context) {
-    source = gltf.images[_sourceId];
-    if (context.validate && source == null)
-      context.addIssue(GltfError.UNRESOLVED_REFERENCE,
-          name: SOURCE, args: [_sourceId]);
+    _source = gltf.images[_sourceIndex];
+    _sampler = gltf.samplers[_samplerIndex];
 
-    sampler = gltf.samplers[_samplerId];
-    if (context.validate && sampler == null)
-      context.addIssue(GltfError.UNRESOLVED_REFERENCE,
-          name: SAMPLER, args: [_samplerId]);
+    if (context.validate) {
+      if (_sourceIndex != -1 && _source == null)
+        context.addIssue(LinkError.unresolvedReference,
+            name: SOURCE, args: [_sourceIndex]);
+
+      if (_samplerIndex != -1 && _sampler == null)
+        context.addIssue(LinkError.unresolvedReference,
+            name: SAMPLER, args: [_samplerIndex]);
+    }
   }
 }

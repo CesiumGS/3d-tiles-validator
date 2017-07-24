@@ -1,0 +1,14 @@
+{
+    "uri": "specs/data/Tileset/IncorrectGLB.glb",
+    "mimeType": "model/gltf-binary",
+    "errors": {
+        "UNKNOWN_ASSET_MAJOR_VERSION": [
+            {
+                "type": "UNKNOWN_ASSET_MAJOR_VERSION",
+                "path": "#/asset",
+                "message": "Unknown glTF major asset version: `3`."
+            }
+        ]
+    },
+    "info": null
+}

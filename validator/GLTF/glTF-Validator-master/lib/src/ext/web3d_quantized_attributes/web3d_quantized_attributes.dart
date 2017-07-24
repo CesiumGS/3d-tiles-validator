@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,10 +22,10 @@ import 'package:gltf/src/base/gltf_property.dart';
 import 'package:gltf/src/ext/extensions.dart';
 
 // WEB3D_quantized_attributes
-const String WEB3D_QUANTIZED_ATTRIBUTES = "WEB3D_quantized_attributes";
-const String DECODE_MATRIX = "decodeMatrix";
-const String DECODED_MAX = "decodedMax";
-const String DECODED_MIN = "decodedMin";
+const String WEB3D_QUANTIZED_ATTRIBUTES = 'WEB3D_quantized_attributes';
+const String DECODE_MATRIX = 'decodeMatrix';
+const String DECODED_MAX = 'decodedMax';
+const String DECODED_MIN = 'decodedMin';
 
 const List<String> WEB3D_QUANTIZED_ATTRIBUTES_MEMBERS = const <String>[
   DECODE_MATRIX,
@@ -34,15 +34,17 @@ const List<String> WEB3D_QUANTIZED_ATTRIBUTES_MEMBERS = const <String>[
 ];
 
 const List<int> MATRIX_LENGTHS = const <int>[4, 9, 16, 25];
+const List<int> VECTOR_LENGTHS = const <int>[1, 2, 3, 4];
 
 class Web3dQuantizedAttributes extends Stringable {
-  final List<num> decodeMatrix;
-  final List<num> decodedMin;
-  final List<num> decodedMax;
+  final List<double> decodeMatrix;
+  final List<double> decodedMin;
+  final List<double> decodedMax;
 
   Web3dQuantizedAttributes._(
       this.decodeMatrix, this.decodedMin, this.decodedMax);
 
+  @override
   String toString([_]) => super.toString({
         DECODE_MATRIX: decodeMatrix,
         DECODED_MIN: decodedMin,
@@ -54,25 +56,27 @@ class Web3dQuantizedAttributes extends Stringable {
     if (context.validate)
       checkMembers(map, WEB3D_QUANTIZED_ATTRIBUTES_MEMBERS, context);
     return new Web3dQuantizedAttributes._(
-        getNumList(map, DECODE_MATRIX, context,
+        getFloatList(map, DECODE_MATRIX, context,
             req: true, lengthsList: MATRIX_LENGTHS),
-        getNumList(map, DECODED_MIN, context,
-            req: true, minItems: 1, maxItems: 4),
-        getNumList(map, DECODED_MAX, context,
-            req: true, minItems: 1, maxItems: 4));
+        getFloatList(map, DECODED_MIN, context,
+            req: true, lengthsList: VECTOR_LENGTHS),
+        getFloatList(map, DECODED_MAX, context,
+            req: true, lengthsList: VECTOR_LENGTHS));
   }
 }
 
 class Web3dQuantizedAttributesExtension extends Extension {
+  @override
   final String name = WEB3D_QUANTIZED_ATTRIBUTES;
 
+  @override
   final Map<Type, ExtFuncs> functions = <Type, ExtFuncs>{
     Gltf: const ExtFuncs(Web3dQuantizedAttributes.fromMap, null)
   };
 
   factory Web3dQuantizedAttributesExtension() => _singleton;
 
-  static Web3dQuantizedAttributesExtension _singleton =
+  static final Web3dQuantizedAttributesExtension _singleton =
       new Web3dQuantizedAttributesExtension._();
   Web3dQuantizedAttributesExtension._();
 }

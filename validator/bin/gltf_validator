@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# This file was created by pub v1.24.2.
+# Package: gltf
+# Version: 2.0.0-dev
+# Executable: gltf_validator
+# Script: gltf_validator
+pub global run gltf:gltf_validator "$@"

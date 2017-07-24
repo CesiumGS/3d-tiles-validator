@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,39 +21,46 @@ import 'package:gltf/src/utils.dart';
 import 'package:gltf/src/base/gltf_property.dart';
 import 'package:gltf/src/ext/extensions.dart';
 
-const String CESIUM_RTC = "CESIUM_RTC";
+const String CESIUM_RTC = 'CESIUM_RTC';
 
-const String CESIUM_RTC_MODELVIEW = "CESIUM_RTC_MODELVIEW";
+const String CESIUM_RTC_MODELVIEW = 'CESIUM_RTC_MODELVIEW';
 
-const String CENTER = "center";
+const String CENTER = 'center';
 const List<String> CESIUM_RTC_MEMBERS = const <String>[CENTER];
 
 class CesiumRtc extends Stringable {
-  final List<num> center;
+  final List<double> center;
 
   CesiumRtc._(this.center);
 
+  @override
   String toString([_]) => super.toString({CENTER: center});
 
   static CesiumRtc fromMap(Map<String, Object> map, Context context) {
-    if (context.validate) checkMembers(map, CESIUM_RTC_MEMBERS, context);
+    if (context.validate) {
+      checkMembers(map, CESIUM_RTC_MEMBERS, context);
+    }
+
     return new CesiumRtc._(
-        getNumList(map, CENTER, context, req: true, lengthsList: [3]));
+        getFloatList(map, CENTER, context, req: true, lengthsList: const [3]));
   }
 }
 
 class CesiumRtcExtension extends Extension {
+  @override
   final String name = CESIUM_RTC;
 
+  @override
   final Map<Type, ExtFuncs> functions = <Type, ExtFuncs>{
     Gltf: const ExtFuncs(CesiumRtc.fromMap, null)
   };
 
+  /*@override
   final Map<String, Semantic> uniformParameterSemantics =
       const <String, Semantic>{CESIUM_RTC_MODELVIEW: const Semantic()};
-
+*/
   factory CesiumRtcExtension() => _singleton;
 
-  static CesiumRtcExtension _singleton = new CesiumRtcExtension._();
+  static final CesiumRtcExtension _singleton = new CesiumRtcExtension._();
   CesiumRtcExtension._();
 }

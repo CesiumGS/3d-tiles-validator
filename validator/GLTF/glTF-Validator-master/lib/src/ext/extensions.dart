@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,28 +18,21 @@
 library gltf.extensions;
 
 import 'package:quiver/core.dart';
-
 import 'package:gltf/src/base/gltf_property.dart';
 
-// Khronos extensions
-import 'package:gltf/src/ext/khr_binary_gltf/khr_binary_gltf.dart';
-export 'package:gltf/src/ext/khr_binary_gltf/khr_binary_gltf.dart';
-//import 'package:gltf/src/ext/khr_materials_common/khr_materials_common.dart';
-//export 'package:gltf/src/ext/khr_materials_common/khr_materials_common.dart';
-
-// Vendor extensions
+import 'package:gltf/src/ext/KHR_materials_pbrSpecularGlossiness/khr_materials_pbr_specular_glossiness.dart';
 import 'package:gltf/src/ext/cesium_rtc/cesium_rtc.dart';
-export 'package:gltf/src/ext/cesium_rtc/cesium_rtc.dart';
 import 'package:gltf/src/ext/web3d_quantized_attributes/web3d_quantized_attributes.dart';
+
+export 'package:gltf/src/ext/cesium_rtc/cesium_rtc.dart';
 export 'package:gltf/src/ext/web3d_quantized_attributes/web3d_quantized_attributes.dart';
+export 'package:gltf/src/ext/KHR_materials_pbrSpecularGlossiness/khr_materials_pbr_specular_glossiness.dart';
 
 abstract class Extension {
   String get name;
-  Map<Type, ExtFuncs> get functions => <Type, ExtFuncs>{};
-  Map<String, Semantic> get uniformParameterSemantics =>
-      const <String, Semantic>{};
-  Map<String, Semantic> get attributeParameterSemantics =>
-      const <String, Semantic>{};
+
+  Map<Type, ExtFuncs> get functions;
+
   Map<String, ErrorFunction> get errors => const <String, ErrorFunction>{};
   Map<String, ErrorFunction> get warnings => const <String, ErrorFunction>{};
 
@@ -66,12 +59,12 @@ class ExtensionTuple {
   int get hashCode => hash2(type.hashCode, name.hashCode);
 
   @override
-  bool operator ==(dynamic o) =>
+  bool operator ==(Object o) =>
       o is ExtensionTuple && name == o.name && type == o.type;
 }
 
 final List<Extension> defaultExtensions = <Extension>[
-  new KhrBinaryGltfExtension(),
+  new KhrMaterialsPbrSpecularGlossinessExtension(),
   new CesiumRtcExtension(),
   new Web3dQuantizedAttributesExtension()
 ];

@@ -9,6 +9,25 @@ Clone this repo and install [Node.js](http://nodejs.org/).  From the root direct
 npm install
 ```
 
+## Instructions to run GLTF validator as an external process
+
+### Prerequisites:
+
+- Download and install [Dart SDK](https://www.dartlang.org/install) for your platform.(https://www.dartlang.org/install)
+
+- Add Dart SDK bin folder to your [PATH](https://www.dartlang.org/tools/pub/installing).
+
+- Add packages bin folder to your PATH (`~/.pub-cache/bin` for Linux and Mac; `%APPDATA%\Pub\Cache\bin` for Windows).
+
+### glTF-Validator:
+
+- From the repository root folder (go in folder `GLTF/glTF-Validator-master/`), run `pub get` to get dependencies.
+
+- Run `pub global activate --source path ./` to add gltf_validator executable to your PATH.
+
+- On a mac and linux go to `.pub_cache` in your home directory and there you will find the `gltf_validator` executable. Take this executable file and replace the executable in `bin` folder located in your 3D-Tiles validator with it.
+For Windows the executable is in the folder `AppData\Roaming\Pub\Cache` and do the same as above.
+
 ## Command line tools
 
 ### validate

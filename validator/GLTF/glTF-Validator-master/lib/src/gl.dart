@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,14 +25,14 @@ const int TRIANGLES = 4;
 const int TRIANGLE_STRIP = 5;
 const int TRIANGLE_FAN = 6;
 
-const List<int> MODES = const <int>[
-  POINTS,
-  LINES,
-  LINE_LOOP,
-  LINE_STRIP,
-  TRIANGLES,
-  TRIANGLE_STRIP,
-  TRIANGLE_FAN
+const List<String> MODES_NAMES = const <String>[
+  'POINTS',
+  'LINES',
+  'LINE_LOOP',
+  'LINE_STRIP',
+  'TRIANGLES',
+  'TRIANGLE_STRIP',
+  'TRIANGLE_FAN'
 ];
 
 const int NEVER = 512;
@@ -147,7 +147,7 @@ const int FLOAT_MAT3 = 35675;
 const int FLOAT_MAT4 = 35676;
 const int SAMPLER_2D = 35678;
 
-const TYPE_LENGTHS = const <int, int>{
+const Map<int, int> TYPE_LENGTHS = const <int, int>{
   BYTE: 1,
   UNSIGNED_BYTE: 1,
   SHORT: 1,
@@ -171,31 +171,31 @@ const TYPE_LENGTHS = const <int, int>{
   SAMPLER_2D: 1
 };
 
-const TYPE_NAMES = const <int, String>{
-  BYTE: "BYTE",
-  UNSIGNED_BYTE: "UNSIGNED_BYTE",
-  SHORT: "SHORT",
-  UNSIGNED_SHORT: "UNSIGNED_SHORT",
-  INT: "INT",
-  UNSIGNED_INT: "UNSIGNED_INT",
-  FLOAT: "FLOAT",
-  FLOAT_VEC2: "FLOAT_VEC2",
-  FLOAT_VEC3: "FLOAT_VEC3",
-  FLOAT_VEC4: "FLOAT_VEC4",
-  INT_VEC2: "INT_VEC2",
-  INT_VEC3: "INT_VEC3",
-  INT_VEC4: "INT_VEC4",
-  BOOL: "BOOL",
-  BOOL_VEC2: "BOOL_VEC2",
-  BOOL_VEC3: "BOOL_VEC3",
-  BOOL_VEC4: "BOOL_VEC4",
-  FLOAT_MAT2: "FLOAT_MAT2",
-  FLOAT_MAT3: "FLOAT_MAT3",
-  FLOAT_MAT4: "FLOAT_MAT4",
-  SAMPLER_2D: "SAMPLER_2D"
+const Map<int, String> TYPE_NAMES = const <int, String>{
+  BYTE: 'BYTE',
+  UNSIGNED_BYTE: 'UNSIGNED_BYTE',
+  SHORT: 'SHORT',
+  UNSIGNED_SHORT: 'UNSIGNED_SHORT',
+  INT: 'INT',
+  UNSIGNED_INT: 'UNSIGNED_INT',
+  FLOAT: 'FLOAT',
+  FLOAT_VEC2: 'FLOAT_VEC2',
+  FLOAT_VEC3: 'FLOAT_VEC3',
+  FLOAT_VEC4: 'FLOAT_VEC4',
+  INT_VEC2: 'INT_VEC2',
+  INT_VEC3: 'INT_VEC3',
+  INT_VEC4: 'INT_VEC4',
+  BOOL: 'BOOL',
+  BOOL_VEC2: 'BOOL_VEC2',
+  BOOL_VEC3: 'BOOL_VEC3',
+  BOOL_VEC4: 'BOOL_VEC4',
+  FLOAT_MAT2: 'FLOAT_MAT2',
+  FLOAT_MAT3: 'FLOAT_MAT3',
+  FLOAT_MAT4: 'FLOAT_MAT4',
+  SAMPLER_2D: 'SAMPLER_2D'
 };
 
-const TYPE_MINS = const <int, int>{
+const Map<int, int> TYPE_MINS = const <int, int>{
   BYTE: -128,
   UNSIGNED_BYTE: 0,
   SHORT: -32768,
@@ -207,7 +207,7 @@ const TYPE_MINS = const <int, int>{
   INT_VEC4: -2147483648
 };
 
-const TYPE_MAXS = const <int, int>{
+const Map<int, int> TYPE_MAXS = const <int, int>{
   BYTE: 127,
   UNSIGNED_BYTE: 255,
   SHORT: 32767,
@@ -219,9 +219,9 @@ const TYPE_MAXS = const <int, int>{
   INT_VEC4: 2147483647
 };
 
-const BOOL_TYPES = const <int>[BOOL, BOOL_VEC2, BOOL_VEC3, BOOL_VEC4];
+const List<int> BOOL_TYPES = const <int>[BOOL, BOOL_VEC2, BOOL_VEC3, BOOL_VEC4];
 
-const FLOAT_TYPES = const <int>[
+const List<int> FLOAT_TYPES = const <int>[
   FLOAT,
   FLOAT_VEC2,
   FLOAT_VEC3,
@@ -231,7 +231,7 @@ const FLOAT_TYPES = const <int>[
   FLOAT_MAT4
 ];
 
-const INT_TYPES = const <int>[
+const List<int> INT_TYPES = const <int>[
   BYTE,
   UNSIGNED_BYTE,
   SHORT,
@@ -242,5 +242,3 @@ const INT_TYPES = const <int>[
   INT_VEC3,
   INT_VEC4
 ];
-
-const String OES_ELEMENT_INDEX_UINT = "OES_element_index_uint";

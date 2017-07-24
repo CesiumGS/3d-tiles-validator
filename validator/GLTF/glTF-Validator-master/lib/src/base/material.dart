@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,104 +15,256 @@
  * # limitations under the License.
  */
 
-library gltf.core.material;
+library gltf.base.material;
 
 import 'gltf_property.dart';
-import 'package:gltf/src/gl.dart' as gl;
 
-class Material extends GltfChildOfRootProperty implements Linkable {
-  final String techniqueId;
-  final Map<String, Object> _values;
-  final Map<String, List> values = <String, List>{};
+class Material extends GltfChildOfRootProperty {
+  final PbrMetallicRoughness pbrMetallicRoughness;
+  final NormalTextureInfo normalTexture;
+  final OcclusionTextureInfo occlusionTexture;
+  final TextureInfo emissiveTexture;
+  final List<double> emissiveFactor;
+  final String alphaMode;
+  final double alphaCutoff;
+  final bool doubleSided;
 
-  Technique technique;
-
-  Material._(this.techniqueId, this._values, String name,
-      Map<String, Object> extensions, Object extras)
+  Material._(
+      this.pbrMetallicRoughness,
+      this.normalTexture,
+      this.occlusionTexture,
+      this.emissiveTexture,
+      this.emissiveFactor,
+      this.alphaMode,
+      this.alphaCutoff,
+      this.doubleSided,
+      String name,
+      Map<String, Object> extensions,
+      Object extras)
       : super(name, extensions, extras);
 
-  String toString([_]) =>
-      super.toString({TECHNIQUE: techniqueId, VALUES: values});
+  @override
+  String toString([_]) => super.toString({
+        PBR_METALLIC_ROUGHNESS: pbrMetallicRoughness,
+        NORMAL_TEXTURE: normalTexture,
+        OCCLUSION_TEXTURE: occlusionTexture,
+        EMISSIVE_TEXTURE: emissiveTexture,
+        EMISSIVE_FACTOR: emissiveFactor,
+        ALPHA_MODE: alphaMode,
+        ALPHA_CUTOFF: alphaCutoff,
+        DOUBLE_SIDED: doubleSided
+      });
 
   static Material fromMap(Map<String, Object> map, Context context) {
-    if (context.validate) checkMembers(map, MATERIAL_MEMBERS, context);
-
-    final techniqueId = getId(map, TECHNIQUE, context, req: false);
-
-    if (techniqueId == null && map.containsKey(VALUES)) {
-      context.addIssue(GltfWarning.MATERIALS_VALUES_WITHOUT_TECHNIQUE);
+    if (context.validate) {
+      checkMembers(map, MATERIAL_MEMBERS, context);
     }
 
+    final pbrMetallicRoughness = getObjectFromInnerMap<PbrMetallicRoughness>(
+        map, PBR_METALLIC_ROUGHNESS, context, PbrMetallicRoughness.fromMap);
+    final normalTexture = getObjectFromInnerMap<NormalTextureInfo>(
+        map, NORMAL_TEXTURE, context, NormalTextureInfo.fromMap);
+    final occlusionTexture = getObjectFromInnerMap<OcclusionTextureInfo>(
+        map, OCCLUSION_TEXTURE, context, OcclusionTextureInfo.fromMap);
+    final emissiveTexture = getObjectFromInnerMap<TextureInfo>(
+        map, EMISSIVE_TEXTURE, context, TextureInfo.fromMap);
+    final emissiveFactor = getFloatList(map, EMISSIVE_FACTOR, context,
+        lengthsList: const [3], min: 0.0, max: 1.0, def: [0.0, 0.0, 0.0]);
+    final alphaMode = getString(map, ALPHA_MODE, context,
+        def: OPAQUE, list: MATERIAL_ALPHA_MODES);
+    final alphaCutoff =
+        getFloat(map, ALPHA_CUTOFF, context, min: 0.0, def: 0.5);
+    final doubleSided = getBool(map, DOUBLE_SIDED, context);
+
     return new Material._(
-        techniqueId,
-        getMap(map, VALUES, context),
+        pbrMetallicRoughness,
+        normalTexture,
+        occlusionTexture,
+        emissiveTexture,
+        emissiveFactor,
+        alphaMode,
+        alphaCutoff,
+        doubleSided,
         getName(map, context),
         getExtensions(map, Material, context),
         getExtras(map));
   }
 
+  @override
   void link(Gltf gltf, Context context) {
-    technique = gltf.techniques[techniqueId];
-
-    if (technique != null) {
-      if (_values.isNotEmpty) {
-        context.path.add(VALUES);
-        for (final parameterId in _values.keys) {
-          if (context.validate &&
-              technique.attributes.containsValue(parameterId)) {
-            context.addIssue(GltfError.MATERIAL_NO_ATTRIBUTES,
-                name: parameterId);
-            return;
-          }
-
-          final parameter = technique.parameters[parameterId];
-          if (parameter == null) {
-            context
-                .addIssue(GltfError.UNRESOLVED_REFERENCE, args: [parameterId]);
-            return;
-          }
-
-          List value;
-          if (parameter.type != null) {
-            if (parameter.type == gl.SAMPLER_2D) {
-              value = new List<Texture>(parameter.count ?? 1);
-
-              final stringValues = getStringList(_values, parameterId, context,
-                  lengthsList: [parameter.count ?? 1]);
-
-              if (stringValues != null) {
-                for (int i = 0; i < stringValues.length; i++) {
-                  final texture = gltf.textures[stringValues[i]];
-                  if (texture == null) {
-                    context.addIssue(GltfError.UNRESOLVED_REFERENCE,
-                        name: parameterId, args: [stringValues[i]]);
-                  } else {
-                    value[i] = texture;
-                  }
-                }
-              }
-            } else if (gl.BOOL_TYPES.contains(parameter.type)) {
-              value = getBoolList(_values, parameterId, context, lengthsList: [
-                (parameter.count ?? 1) * gl.TYPE_LENGTHS[parameter.type]
-              ]);
-            } else if (gl.FLOAT_TYPES.contains(parameter.type)) {
-              value = getNumList(_values, parameterId, context, lengthsList: [
-                (parameter.count ?? 1) * gl.TYPE_LENGTHS[parameter.type]
-              ]);
-            } else if (gl.INT_TYPES.contains(parameter.type)) {
-              value = getGlIntList(_values, parameterId, context,
-                  length:
-                      (parameter.count ?? 1) * gl.TYPE_LENGTHS[parameter.type],
-                  type: parameter.type);
-            }
-            values[parameterId] = value;
-          }
-        }
+    void linkWithPath(GltfProperty property, String name) {
+      if (property != null) {
+        context.path.add(name);
+        property.link(gltf, context);
         context.path.removeLast();
       }
-    } else if (techniqueId != null) {
-      context.addIssue(GltfError.UNRESOLVED_REFERENCE,
-          name: TECHNIQUE, args: [techniqueId]);
+    }
+
+    linkWithPath(pbrMetallicRoughness, PBR_METALLIC_ROUGHNESS);
+    linkWithPath(normalTexture, NORMAL_TEXTURE);
+    linkWithPath(occlusionTexture, OCCLUSION_TEXTURE);
+    linkWithPath(emissiveTexture, EMISSIVE_TEXTURE);
+  }
+}
+
+class PbrMetallicRoughness extends GltfProperty {
+  final List<double> baseColorFactor;
+  final TextureInfo baseColorTexture;
+
+  final double metallicFactor;
+  final double roughnessFactor;
+  final TextureInfo metallicRoughnessTexture;
+
+  PbrMetallicRoughness._(
+      this.baseColorFactor,
+      this.baseColorTexture,
+      this.metallicFactor,
+      this.roughnessFactor,
+      this.metallicRoughnessTexture,
+      Map<String, Object> extensions,
+      Object extras)
+      : super(extensions, extras);
+
+  @override
+  String toString([_]) => super.toString({
+        BASE_COLOR_FACTOR: baseColorFactor,
+        BASE_COLOR_TEXTURE: baseColorTexture,
+        METALLIC_FACTOR: metallicFactor,
+        ROUGHNESS_FACTOR: roughnessFactor,
+        METALLIC_ROUGHNESS_TEXTURE: metallicRoughnessTexture
+      });
+
+  static PbrMetallicRoughness fromMap(
+      Map<String, Object> map, Context context) {
+    if (context.validate)
+      checkMembers(map, PBR_METALLIC_ROUGHNESS_MEMBERS, context);
+
+    final baseColorFactor = getFloatList(map, BASE_COLOR_FACTOR, context,
+        lengthsList: const [4], min: 0.0, max: 1.0, def: [1.0, 1.0, 1.0, 1.0]);
+    final baseColorTexture = getObjectFromInnerMap<TextureInfo>(
+        map, BASE_COLOR_TEXTURE, context, TextureInfo.fromMap);
+    final metallicFactor =
+        getFloat(map, METALLIC_FACTOR, context, min: 0.0, max: 1.0, def: 1.0);
+    final roughnessFactor =
+        getFloat(map, ROUGHNESS_FACTOR, context, min: 0.0, max: 1.0, def: 1.0);
+    final metallicRoughnessTexture = getObjectFromInnerMap<TextureInfo>(
+        map, METALLIC_ROUGHNESS_TEXTURE, context, TextureInfo.fromMap);
+
+    return new PbrMetallicRoughness._(
+        baseColorFactor,
+        baseColorTexture,
+        metallicFactor,
+        roughnessFactor,
+        metallicRoughnessTexture,
+        getExtensions(map, PbrMetallicRoughness, context),
+        getExtras(map));
+  }
+
+  @override
+  void link(Gltf gltf, Context context) {
+    if (baseColorTexture != null) {
+      context.path.add(BASE_COLOR_TEXTURE);
+      baseColorTexture.link(gltf, context);
+      context.path.removeLast();
+    }
+
+    if (metallicRoughnessTexture != null) {
+      context.path.add(METALLIC_ROUGHNESS_TEXTURE);
+      metallicRoughnessTexture.link(gltf, context);
+      context.path.removeLast();
+    }
+  }
+}
+
+class OcclusionTextureInfo extends TextureInfo {
+  final double strength;
+
+  OcclusionTextureInfo._(int index, int texCoord, this.strength,
+      Map<String, Object> extensions, Object extras)
+      : super._(index, texCoord, extensions, extras);
+
+  @override
+  String toString([_]) => super.toString({STRENGTH: strength});
+
+  static OcclusionTextureInfo fromMap(
+      Map<String, Object> map, Context context) {
+    if (context.validate) {
+      checkMembers(map, OCCLUSION_TEXTURE_INFO_MEMBERS, context);
+    }
+
+    return new OcclusionTextureInfo._(
+        getIndex(map, INDEX, context),
+        getUint(map, TEX_COORD, context, def: 0, min: 0),
+        getFloat(map, STRENGTH, context, min: 0.0, max: 1.0, def: 1.0),
+        getExtensions(map, OcclusionTextureInfo, context),
+        getExtras(map));
+  }
+}
+
+class NormalTextureInfo extends TextureInfo {
+  final double scale;
+
+  NormalTextureInfo._(int index, int texCoord, this.scale,
+      Map<String, Object> extensions, Object extras)
+      : super._(index, texCoord, extensions, extras);
+
+  @override
+  String toString([_]) => super.toString({SCALE: scale});
+
+  static NormalTextureInfo fromMap(Map<String, Object> map, Context context) {
+    if (context.validate) {
+      checkMembers(map, NORMAL_TEXTURE_INFO_MEMBERS, context);
+    }
+
+    return new NormalTextureInfo._(
+        getIndex(map, INDEX, context),
+        getUint(map, TEX_COORD, context, def: 0, min: 0),
+        getFloat(map, SCALE, context, def: 1.0),
+        getExtensions(map, NormalTextureInfo, context),
+        getExtras(map));
+  }
+}
+
+class TextureInfo extends GltfProperty {
+  final int _index;
+  final int texCoord;
+
+  Texture _texture;
+
+  TextureInfo._(
+      this._index, this.texCoord, Map<String, Object> extensions, Object extras)
+      : super(extensions, extras);
+
+  Texture get texture => _texture;
+
+  @override
+  String toString([Map<String, Object> map]) {
+    map ??= <String, Object>{};
+    map[INDEX] = _index;
+    map[TEX_COORD] = texCoord;
+
+    return super.toString(map);
+  }
+
+  static TextureInfo fromMap(Map<String, Object> map, Context context) {
+    if (context.validate) {
+      checkMembers(map, TEXTURE_INFO_MEMBERS, context);
+    }
+
+    return new TextureInfo._(
+        getIndex(map, INDEX, context),
+        getUint(map, TEX_COORD, context, def: 0, min: 0),
+        getExtensions(map, TextureInfo, context),
+        getExtras(map));
+  }
+
+  @override
+  void link(Gltf gltf, Context context) {
+    _texture = gltf.textures[_index];
+
+    if (context.validate && _index != -1 && _texture == null) {
+      context
+          .addIssue(LinkError.unresolvedReference, name: INDEX, args: [_index]);
     }
   }
 }

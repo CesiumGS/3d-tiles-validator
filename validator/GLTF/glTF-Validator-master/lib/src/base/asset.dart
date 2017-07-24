@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,69 +15,81 @@
  * # limitations under the License.
  */
 
-library gltf.core.asset;
+library gltf.base.asset;
 
 import 'gltf_property.dart';
 
 class Asset extends GltfProperty {
+  static final RegExp versionRegexp = new RegExp(r'^([0-9]+)\.([0-9]+)$');
+
   final String copyright;
   final String generator;
-  final bool premultipliedAlpha;
-  final AssetProfile profile;
   final String version;
+  final String minVersion;
 
-  Asset._(this.copyright, this.generator, this.premultipliedAlpha, this.profile,
-      this.version, Map<String, Object> extensions, Object extras)
+  Asset._(this.copyright, this.generator, this.version, this.minVersion,
+      Map<String, Object> extensions, Object extras)
       : super(extensions, extras);
 
+  @override
   String toString([_]) => super.toString({
         COPYRIGHT: copyright,
         GENERATOR: generator,
-        PREMULTIPLIED_ALPHA: premultipliedAlpha,
-        PROFILE: profile,
-        VERSION: version
+        VERSION: version,
+        MIN_VERSION: minVersion
       });
 
+  int get majorVersion {
+    if (version == null || !versionRegexp.hasMatch(version)) {
+      return 0;
+    }
+    return int.parse(versionRegexp.firstMatch(version).group(1));
+  }
+
+  int get minorVersion {
+    if (version == null || !versionRegexp.hasMatch(version)) {
+      return 0;
+    }
+    return int.parse(versionRegexp.firstMatch(version).group(2));
+  }
+
+  int get majorMinVersion {
+    if (minVersion == null || !versionRegexp.hasMatch(minVersion)) {
+      return 2;
+    }
+    return int.parse(versionRegexp.firstMatch(minVersion).group(1));
+  }
+
+  int get minorMinVersion {
+    if (minVersion == null || !versionRegexp.hasMatch(minVersion)) {
+      return 0;
+    }
+    return int.parse(versionRegexp.firstMatch(minVersion).group(2));
+  }
+
   static Asset fromMap(Map<String, Object> map, Context context) {
-    if (context.validate) checkMembers(map, ASSET_MEMBERS, context);
+    if (context.validate) {
+      checkMembers(map, ASSET_MEMBERS, context);
+    }
 
-    final profileMap = getMap(map, PROFILE, context);
-    context.path.add(PROFILE);
-    final profile = AssetProfile.fromMap(profileMap, context);
-    context.path.removeLast();
-
-    return new Asset._(
+    final asset = new Asset._(
         getString(map, COPYRIGHT, context),
         getString(map, GENERATOR, context),
-        getBool(map, PREMULTIPLIED_ALPHA, context, def: false),
-        profile,
-        getString(map, VERSION, context, req: true, list: ["1.1"]),
+        getString(map, VERSION, context, req: true, regexp: versionRegexp),
+        getString(map, MIN_VERSION, context, regexp: versionRegexp),
         getExtensions(map, Asset, context),
         getExtras(map));
-  }
-}
 
-class AssetProfile extends GltfProperty {
-  static const String WEBGL = "WebGL";
-  static const String V1_0 = "1.0";
-  static final RegExp versionRegexp = new RegExp(r"^\d+\.\d+$");
+    if (context.validate && asset.minVersion != null) {
+      // Check that minVersion isn't greater than version
+      if (asset.majorMinVersion > asset.majorVersion ||
+          (asset.majorMinVersion == asset.majorVersion &&
+              asset.minorMinVersion > asset.minorVersion)) {
+        context.addIssue(SemanticError.minVersionGreaterThanVersion,
+            name: MIN_VERSION, args: [asset.minVersion, asset.version]);
+      }
+    }
 
-  final String api;
-  final String version;
-
-  AssetProfile._(
-      this.api, this.version, Map<String, Object> extensions, Object extras)
-      : super(extensions, extras);
-
-  String toString([_]) => super.toString({API: api, VERSION: version});
-
-  static AssetProfile fromMap(Map<String, Object> map, Context context) {
-    if (context.validate) checkMembers(map, ASSET_PROFILE_MEMBERS, context);
-
-    return new AssetProfile._(
-        getString(map, API, context, def: WEBGL),
-        getString(map, VERSION, context, regexp: versionRegexp, def: V1_0),
-        getExtensions(map, AssetProfile, context),
-        getExtras(map));
+    return asset;
   }
 }

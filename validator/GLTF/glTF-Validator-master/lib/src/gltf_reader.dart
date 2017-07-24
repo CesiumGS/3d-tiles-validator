@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,56 +17,85 @@
 
 library gltf.gltf_reader;
 
-import "dart:async";
-import "dart:convert";
+import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
-import "package:gltf/src/context.dart";
-import "package:gltf/src/base/gltf.dart";
+import 'package:gltf/src/base/gltf.dart';
+import 'package:gltf/src/glb_reader.dart';
+import 'package:gltf/src/context.dart';
 import 'package:gltf/src/errors.dart';
 
-export "package:gltf/src/context.dart";
-export "package:gltf/src/base/gltf.dart";
+export 'package:gltf/src/base/gltf.dart';
+export 'package:gltf/src/context.dart';
+
+class GltfReaderResult {
+  final String mimeType;
+  final Gltf gltf;
+  final Uint8List buffer;
+
+  GltfReaderResult(this.mimeType, this.gltf, this.buffer);
+}
 
 abstract class GltfReader {
-  Future<Gltf> get root;
-  Context get context;
-  Future get done;
+  static const String EXT_GLTF = '.gltf';
+  static const String EXT_GLB = '.glb';
 
-  factory GltfReader(Stream<List<int>> stream, [Context context]) =>
-      new GltfJsonReader(stream, context);
+  factory GltfReader(Stream<List<int>> stream,
+      [Context context, String formatExtension = EXT_GLTF]) {
+    switch (formatExtension) {
+      case EXT_GLTF:
+        return new GltfJsonReader(stream, context);
+      case EXT_GLB:
+        return new GlbReader(stream, context);
+      default:
+        return null;
+    }
+  }
+
+  Future<GltfReaderResult> read();
+
+  Context get context;
+  String get mimeType;
 }
 
 class GltfJsonReader implements GltfReader {
-  Future<Gltf> get root => _rootCompleter.future;
-  Future get done => root;
+  @override
+  final String mimeType = 'model/gltf+json';
 
-  final _rootCompleter = new Completer<Gltf>();
+  final Stream<List<int>> stream;
   StreamSubscription<List<int>> _subscription;
+  final Completer<GltfReaderResult> _completer =
+      new Completer<GltfReaderResult>();
 
   ByteConversionSink _byteSink;
 
   Context _context;
+
+  GltfJsonReader(this.stream, [Context context]) {
+    _context = context ?? new Context();
+  }
+
+  @override
   Context get context => _context;
 
-  GltfJsonReader(Stream<List<int>> stream, [Context context]) {
-    _context = context ?? new Context();
-
+  @override
+  Future<GltfReaderResult> read() {
     final outSink = new ChunkedConversionSink<Object>.withCallback((json) {
       final result = json[0];
       if (result is Map<String, Object>) {
-        try {
-          _rootCompleter.complete(new Gltf.fromMap(result, this.context));
-        } catch (e, st) {
-          _rootCompleter.completeError(e, st);
-        }
+        final root = new Gltf.fromMap(result, _context);
+        _completer.complete(new GltfReaderResult(mimeType, root, null));
       } else {
-        _context.addIssue(GltfError.INVALID_JSON_ROOT_OBJECT);
+        _context
+            .addIssue(SchemaError.typeMismatch, args: [result, 'JSON object']);
         _abort();
       }
     });
 
     _byteSink = JSON.decoder.startChunkedConversion(outSink).asUtf8Sink(false);
     _subscription = stream.listen(_onData, onError: _onError, onDone: _onDone);
+    return _completer.future;
   }
 
   void _onData(List<int> data) {
@@ -75,27 +104,29 @@ class GltfJsonReader implements GltfReader {
       _byteSink.addSlice(data, 0, data.length, false);
       _subscription.resume();
     } on FormatException catch (e) {
-      context.addIssue(GltfError.INVALID_JSON, args: [e]);
+      context.addIssue(SchemaError.invalidJson, args: [e]);
       _abort();
     }
   }
 
   void _onError(Object error) {
     _subscription.cancel();
-    if (!_rootCompleter.isCompleted) _rootCompleter.completeError(error);
+    if (!_completer.isCompleted) {
+      _completer.completeError(error);
+    }
   }
 
   void _onDone() {
     try {
       _byteSink.close();
     } on FormatException catch (e) {
-      context.addIssue(GltfError.INVALID_JSON, args: [e]);
+      context.addIssue(SchemaError.invalidJson, args: [e]);
       _abort();
     }
   }
 
   void _abort() {
     _subscription.cancel();
-    _rootCompleter.complete();
+    _completer.complete();
   }
 }

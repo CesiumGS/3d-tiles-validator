@@ -1,0 +1,19 @@
+{
+    "asset": {
+        "version": "2.0"
+    },
+    "images": [
+        {
+            "uri": "eos.png"
+        },
+        {
+            "uri": "format.png"
+        },
+        {
+            "uri": "marker.jpg"
+        },
+        {
+            "uri": "npot.png"
+        }
+    ]
+}

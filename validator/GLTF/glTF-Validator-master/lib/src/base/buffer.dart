@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,69 +15,60 @@
  * # limitations under the License.
  */
 
-library gltf.core.buffer;
+library gltf.base.buffer;
 
+import 'dart:typed_data';
 import 'gltf_property.dart';
 
 class Buffer extends GltfChildOfRootProperty {
-  static const String ARRAYBUFFER = "arraybuffer";
-
   final Uri uri;
-  final List<int> data;
   final int byteLength;
-  final String type;
 
-  Buffer._(this.uri, this.data, this.byteLength, this.type, String name,
+  Uint8List data;
+
+  Buffer._(this.uri, this.data, this.byteLength, String name,
       Map<String, Object> extensions, Object extras)
       : super(name, extensions, extras);
 
-  String toString([_]) =>
-      super.toString({URI: uri, BYTE_LENGTH: byteLength, TYPE: type});
+  @override
+  String toString([_]) => super.toString({URI: uri, BYTE_LENGTH: byteLength});
 
   static Buffer fromMap(Map<String, Object> map, Context context) {
-    if (context.validate) checkMembers(map, BUFFER_MEMBERS, context);
+    if (context.validate) {
+      checkMembers(map, BUFFER_MEMBERS, context);
+    }
 
-    const List<String> typesEnum = const <String>[ARRAYBUFFER];
+    var byteLength = getUint(map, BYTE_LENGTH, context, min: 1, req: true);
 
-    var byteLength = getInt(map, BYTE_LENGTH, context, min: 0, req: true);
-
-    final uriString = getString(map, URI, context, req: true);
+    final uriString = getString(map, URI, context);
 
     Uri uri;
-    List<int> data;
+    Uint8List data;
 
     if (uriString != null) {
-      if (uriString.startsWith("data:")) {
-        try {
-          final uriData = UriData.parse(uriString);
-          if (uriData.mimeType == "application/octet-stream") {
-            data = uriData.contentAsBytes();
-          } else if (uriData.contentText.isNotEmpty) {
-            // Stub for an empty data URI
-            context.addIssue(GltfError.INVALID_DATA_URI_MIME,
-                name: URI, args: [uriData.mimeType]);
-          }
-        } on FormatException catch (e) {
-          context.addIssue(GltfError.INVALID_DATA_URI, name: URI, args: [e]);
-        }
-      } else {
-        uri = parseUri(uriString, context);
+      UriData uriData;
+      try {
+        uriData = UriData.parse(uriString);
+      } on FormatException catch (_) {
+        uri = getUri(uriString, context);
       }
 
-      if (data != null && data.length > 0 && data.length != byteLength) {
-        context.addIssue(GltfWarning.BUFFER_EMBEDDED_BYTELENGTH_MISMATCH,
-            args: [byteLength, data.length], name: BYTE_LENGTH);
+      if (uriData != null) {
+        if (uriData.mimeType == APPLICATION_OCTET_STREAM) {
+          data = uriData.contentAsBytes(); // ignore: invalid_assignment
+        } else {
+          context.addIssue(SemanticError.bufferDataUriMimeTypeInvalid,
+              name: URI, args: [uriData.mimeType]);
+        }
+      }
+      if (data != null && data.length != byteLength) {
+        context.addIssue(DataError.bufferEmbeddedBytelengthMismatch,
+            args: [data.length, byteLength], name: BYTE_LENGTH);
         byteLength = data.length;
       }
     }
 
-    return new Buffer._(
-        uri,
-        data,
-        byteLength,
-        getString(map, TYPE, context, list: typesEnum, def: ARRAYBUFFER),
-        getName(map, context),
-        getExtensions(map, Buffer, context),
-        getExtras(map));
+    return new Buffer._(uri, data, byteLength, getName(map, context),
+        getExtensions(map, Buffer, context), getExtras(map));
   }
 }

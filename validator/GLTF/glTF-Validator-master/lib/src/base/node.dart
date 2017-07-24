@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,146 +15,206 @@
  * # limitations under the License.
  */
 
-library gltf.core.node;
+library gltf.base.node;
 
+import 'package:vector_math/vector_math.dart';
 import 'gltf_property.dart';
 
-class Node extends GltfChildOfRootProperty implements Linkable {
-  final String _cameraId;
-  final List<String> _childrenIds;
-  final List<String> _skeletonsIds;
-  final String _skinId;
-  final String jointName;
-  final List<num> matrix;
-  final List<String> _meshesIds;
-  final List<num> rotation;
-  final List<num> scale;
-  final List<num> translation;
+class Node extends GltfChildOfRootProperty {
+  final int _cameraIndex;
+  final List<int> _childrenIndices;
+  final int _skinIndex;
+  final Matrix4 matrix;
+  final int _meshIndex;
+  final Vector3 translation;
+  final Quaternion rotation;
+  final Vector3 scale;
+  final List<double> weights;
 
-  Camera camera;
-  Skin skin;
-  final List<Node> children = <Node>[];
-  final List<Node> skeletons = <Node>[];
-  final List<Mesh> meshes = <Mesh>[];
+  Camera _camera;
+  List<Node> _children;
+  Mesh _mesh;
+  Node _parent;
+  Skin _skin;
 
-  Node parent;
+  bool isJoint = false;
 
   Node._(
-      this._cameraId,
-      this._childrenIds,
-      this._skeletonsIds,
-      this._skinId,
-      this.jointName,
+      this._cameraIndex,
+      this._childrenIndices,
+      this._skinIndex,
       this.matrix,
-      this._meshesIds,
+      this._meshIndex,
+      this.translation,
       this.rotation,
       this.scale,
-      this.translation,
+      this.weights,
       String name,
       Map<String, Object> extensions,
       Object extras)
       : super(name, extensions, extras);
 
+  @override
   String toString([_]) => super.toString({
-        CAMERA: _cameraId,
-        CHILDREN: _childrenIds,
-        SKELETONS: _skeletonsIds,
-        SKIN: _skinId,
-        JOINT_NAME: jointName,
-        MATRIX: matrix,
-        MESHES: _meshesIds,
+        CAMERA: _cameraIndex,
+        CHILDREN: _childrenIndices,
+        SKIN: _skinIndex,
+        MATRIX: matrix?.storage.toString(),
+        MESH: _meshIndex,
         ROTATION: rotation,
         SCALE: scale,
-        TRANSLATION: translation
+        TRANSLATION: translation,
+        WEIGHTS: weights
       });
 
   static Node fromMap(Map<String, Object> map, Context context) {
-    if (context.validate) checkMembers(map, NODE_MEMBERS, context);
-
-    final childrenIds = getStringList(map, CHILDREN, context, def: <String>[]);
-    if (context.validate && childrenIds != null) {
-      removeDuplicates(childrenIds, context, CHILDREN);
+    if (context.validate) {
+      checkMembers(map, NODE_MEMBERS, context);
     }
 
-    final skeletonsIds = getStringList(map, SKELETONS, context);
-    if (context.validate && skeletonsIds != null) {
-      removeDuplicates(skeletonsIds, context, SKELETONS);
+    Matrix4 matrix;
+    if (map.containsKey(MATRIX)) {
+      final matrixList =
+          getFloatList(map, MATRIX, context, lengthsList: const [16]);
+      if (matrixList != null) {
+        matrix = new Matrix4.fromList(matrixList);
+      }
     }
 
-    final meshesIds = getStringList(map, MESHES, context);
-    if (context.validate && meshesIds != null) {
-      removeDuplicates(meshesIds, context, MESHES);
+    Vector3 translation;
+    if (map.containsKey(TRANSLATION)) {
+      final translationList =
+          getFloatList(map, TRANSLATION, context, lengthsList: const [3]);
+      if (translationList != null) {
+        translation = new Vector3.array(translationList);
+      }
     }
 
-    final defMat = <num>[
-      1.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      1.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      1.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      1.0
-    ];
-    final defRot = <num>[0.0, 0.0, 0.0, 1.0];
-    final defScale = <num>[1.0, 1.0, 1.0];
-    final defTrans = <num>[0.0, 0.0, 0.0];
+    Quaternion rotation;
+    if (map.containsKey(ROTATION)) {
+      final rotationList = getFloatList(map, ROTATION, context,
+          lengthsList: const [4], min: -1.0, max: 1.0);
+      if (rotationList != null) {
+        rotation = new Quaternion(
+            rotationList[0], rotationList[1], rotationList[2], rotationList[3]);
+        if (context.validate && (rotation.length - 1.0).abs() > 0.000005) {
+          context.addIssue(SemanticError.nodeRotationNonUnit, name: ROTATION);
+        }
+      }
+    }
+
+    Vector3 scale;
+    if (map.containsKey(SCALE)) {
+      final scaleList =
+          getFloatList(map, SCALE, context, lengthsList: const [3]);
+      if (scaleList != null) {
+        scale = new Vector3.array(scaleList);
+      }
+    }
+
+    final cameraIndex = getIndex(map, CAMERA, context, req: false);
+    final childrenIndices = getIndicesList(map, CHILDREN, context);
+    final meshIndex = getIndex(map, MESH, context, req: false);
+    final skinIndex = getIndex(map, SKIN, context, req: false);
+    final weightsList = getFloatList(map, WEIGHTS, context);
+
+    if (context.validate) {
+      if (meshIndex == -1) {
+        if (skinIndex != -1) {
+          context.addIssue(SchemaError.unsatisfiedDependency,
+              name: SKIN, args: [MESH]);
+        }
+
+        if (weightsList != null) {
+          context.addIssue(SchemaError.unsatisfiedDependency,
+              name: WEIGHTS, args: [MESH]);
+        }
+      }
+
+      if (matrix != null) {
+        if (translation != null || rotation != null || scale != null) {
+          context.addIssue(SemanticError.nodeMatrixTrs, name: MATRIX);
+        }
+
+        if (matrix.isIdentity()) {
+          context.addIssue(SemanticError.nodeDefaultMatrix, name: MATRIX);
+        } else if (!isTrsDecomposable(matrix)) {
+          context.addIssue(SemanticError.nodeNonTrsMatrix, name: MATRIX);
+        }
+      }
+    }
 
     return new Node._(
-        getId(map, CAMERA, context, req: false),
-        childrenIds,
-        skeletonsIds,
-        getId(map, SKIN, context, req: false),
-        getId(map, JOINT_NAME, context, req: false),
-        getNumList(map, MATRIX, context,
-            minItems: 16, maxItems: 16, def: defMat),
-        meshesIds,
-        getNumList(map, ROTATION, context,
-            minItems: 4, maxItems: 4, def: defRot),
-        getNumList(map, SCALE, context,
-            minItems: 3, maxItems: 3, def: defScale),
-        getNumList(map, TRANSLATION, context,
-            minItems: 3, maxItems: 3, def: defTrans),
+        cameraIndex,
+        childrenIndices,
+        skinIndex,
+        matrix,
+        meshIndex,
+        translation,
+        rotation,
+        scale,
+        weightsList,
         getName(map, context),
         getExtensions(map, Node, context),
         getExtras(map));
   }
 
-  void link(Gltf gltf, Context context) {
-    // TODO: skinning-related checks
+  Camera get camera => _camera;
+  List<Node> get children => _children;
+  Mesh get mesh => _mesh;
+  Node get parent => _parent;
+  Skin get skin => _skin;
 
-    camera = gltf.cameras[_cameraId];
-    skin = gltf.skins[_skinId];
+  @override
+  void link(Gltf gltf, Context context) {
+    _camera = gltf.cameras[_cameraIndex];
+    _skin = gltf.skins[_skinIndex];
+    _mesh = gltf.meshes[_meshIndex];
 
     if (context.validate) {
-      if (_cameraId != null && camera == null) {
-        context.addIssue(GltfError.UNRESOLVED_REFERENCE,
-            name: CAMERA, args: [_cameraId]);
+      if (_cameraIndex != -1 && _camera == null) {
+        context.addIssue(LinkError.unresolvedReference,
+            name: CAMERA, args: [_cameraIndex]);
       }
-      if (_skinId != null && skin == null) {
-        context.addIssue(GltfError.UNRESOLVED_REFERENCE,
-            name: SKIN, args: [_skinId]);
+
+      if (_skinIndex != -1 && _skin == null) {
+        context.addIssue(LinkError.unresolvedReference,
+            name: SKIN, args: [_skinIndex]);
+      }
+
+      if (_meshIndex != -1) {
+        if (_mesh == null) {
+          context.addIssue(LinkError.unresolvedReference,
+              name: MESH, args: [_meshIndex]);
+        } else {
+          if (weights != null &&
+              _mesh.primitives != null &&
+              _mesh.primitives[0].targets?.length != weights.length) {
+            context.addIssue(LinkError.nodeWeightsInvalid,
+                name: WEIGHTS,
+                args: [weights.length, mesh.primitives[0].targets?.length]);
+          }
+
+          if (_skin != null &&
+              !mesh.primitives.any((primitive) => primitive.jointsCount > 0)) {
+            context.addIssue(LinkError.nodeSkinWithNonSkinnedMesh);
+          }
+        }
       }
     }
 
-    resolveList/*<Node>*/(_childrenIds, children, gltf.nodes, CHILDREN, context,
-        (node, id) {
-      if (node.parent != null) {
-        context.addIssue(GltfError.NODE_PARENT_OVERRIDE,
-            name: CHILDREN, args: [id]);
-      }
-      node.parent = this;
-    });
-    resolveList/*<Node>*/(
-        _skeletonsIds, skeletons, gltf.nodes, SKELETONS, context);
-    resolveList/*<Mesh>*/(_meshesIds, meshes, gltf.meshes, MESHES, context);
+    if (_childrenIndices != null) {
+      _children = new List<Node>(_childrenIndices.length);
+
+      resolveNodeList(
+          _childrenIndices, _children, gltf.nodes, CHILDREN, context,
+          (node, nodeIndex, index) {
+        if (node._parent != null) {
+          context.addIssue(LinkError.nodeParentOverride,
+              index: index, args: [nodeIndex]);
+        }
+        node._parent = this;
+      });
+    }
   }
 }

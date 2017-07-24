@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,36 +16,38 @@
  */
 
 import 'dart:io';
+import 'dart:mirrors';
 import 'package:gltf/src/errors.dart';
 
 void main() {
-  final file = new File("ISSUES.md");
-  final sb = new StringBuffer();
+  final sb = new StringBuffer('# glTF 2.0 Validation Issues\n');
 
-  sb
-    ..writeln("# glTF 1.0.1 Validation Issues")
-    ..writeln("## Errors")
-    ..writeln("| No | Name | Message |")
-    ..writeln("|:-:|------------|-------------|");
+  var total = 0;
+  void processErrorClass(Type type) {
+    final errorClassMirror = reflectClass(type);
+    sb
+      ..writeln('## ${errorClassMirror.reflectedType}')
+      ..writeln('| No | Name | Message |')
+      ..writeln('|:---:|------------|-------------|');
 
-  final args = ["%1", "%2", "%3"];
-  int i = 1;
-  GltfError.messages.forEach((name, message) {
-    sb.writeln("| $i. | $name | ${message(args)} |");
-    i++;
-  });
-  sb.writeln("");
+    var i = 0;
+    final args = ['%1', '%2', '%3', '%4'];
+    for (final symbol in errorClassMirror.staticMembers.keys) {
+      final Object issueType = errorClassMirror.getField(symbol).reflectee;
+      if (issueType is IssueType) {
+        sb.writeln('|${++i}|${issueType.code}|${issueType.message(args)}|');
+      }
+    }
+    total += i;
+  }
 
-  sb
-    ..writeln("## Warnings")
-    ..writeln("| No | Name | Message |")
-    ..writeln("|:-:|------------|-------------|");
+  processErrorClass(IoError);
+  processErrorClass(SchemaError);
+  processErrorClass(SemanticError);
+  processErrorClass(LinkError);
+  processErrorClass(DataError);
+  processErrorClass(GlbError);
 
-  i = 1;
-  GltfWarning.messages.forEach((name, message) {
-    sb.writeln("| $i. | $name | ${message(args)} |");
-    i++;
-  });
-
-  file.writeAsStringSync(sb.toString(), flush: true);
+  new File('ISSUES.md').writeAsStringSync(sb.toString(), flush: true);
+  print('Total number of issues: $total');
 }

@@ -1,0 +1,11 @@
+{
+    "asset": {
+        "version": "2.0"
+    },
+    "images": [
+        {
+            "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQYV2P4z/AfAAQAAf+I0P3MAAAAAElFTkSuQmCC",
+            "mimeType": "image/jpeg"
+        }
+    ]
+}

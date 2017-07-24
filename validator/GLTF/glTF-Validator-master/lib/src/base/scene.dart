@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,38 +15,45 @@
  * # limitations under the License.
  */
 
-library gltf.core.scene;
+library gltf.base.scene;
 
 import 'gltf_property.dart';
 
-class Scene extends GltfChildOfRootProperty implements Linkable {
-  final List<String> _nodesIds;
-  final List<Node> nodes = <Node>[];
+class Scene extends GltfChildOfRootProperty {
+  final List<int> _nodesIndices;
+  List<Node> nodes;
 
-  Scene._(this._nodesIds, String name, Map<String, Object> extensions,
+  Scene._(this._nodesIndices, String name, Map<String, Object> extensions,
       Object extras)
       : super(name, extensions, extras);
 
-  String toString([_]) => super.toString({NODES: _nodesIds});
+  @override
+  String toString([_]) => super.toString({NODES: _nodesIndices});
 
   static Scene fromMap(Map<String, Object> map, Context context) {
-    if (context.validate) checkMembers(map, SCENE_MEMBERS, context);
-
-    final nodesIds = getStringList(map, NODES, context, def: <String>[]);
-    if (context.validate && nodesIds != null) {
-      removeDuplicates(nodesIds, context, NODES);
+    if (context.validate) {
+      checkMembers(map, SCENE_MEMBERS, context);
     }
 
-    return new Scene._(nodesIds, getName(map, context),
+    final nodesIndices = getIndicesList(map, NODES, context);
+
+    return new Scene._(nodesIndices, getName(map, context),
         getExtensions(map, Scene, context), getExtras(map));
   }
 
+  @override
   void link(Gltf gltf, Context context) {
-    resolveList/*<Node>*/(_nodesIds, nodes, gltf.nodes, NODES, context,
-        (node, id) {
+    if (_nodesIndices == null) {
+      return;
+    }
+
+    nodes = new List<Node>(_nodesIndices.length);
+
+    resolveNodeList(_nodesIndices, nodes, gltf.nodes, NODES, context,
+        (node, nodeIndex, index) {
       if (node.parent != null) {
-        context
-            .addIssue(GltfError.SCENE_NON_ROOT_NODE, name: NODES, args: [id]);
+        context.addIssue(LinkError.sceneNonRootNode,
+            index: index, args: [nodeIndex]);
       }
     });
   }

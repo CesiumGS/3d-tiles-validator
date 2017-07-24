@@ -1,5 +1,7 @@
 'use strict';
 var Cesium = require('cesium');
+var path = require('path');
+var fs = require('fs');
 
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
@@ -11,7 +13,8 @@ module.exports = {
     createI3dm : createI3dm,
     createPnts : createPnts,
     createCmpt : createCmpt,
-    createGlb : createGlb
+    createGlb : createGlb,
+    createValidGLB : createValidGLB
 };
 
 function createB3dm(options) {
@@ -26,7 +29,7 @@ function createB3dm(options) {
     var featureTableBinary = getBufferPadded(options.featureTableBinary);
     var batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
     var batchTableBinary = getBufferPadded(options.batchTableBinary);
-    var glb = getBufferPadded(defaultValue(options.glb, createGlb()));
+    var glb = getBufferPadded(defaultValue(options.glb, createValidGLB()));
 
     if (options.unalignedFeatureTableBinary) {
         featureTableJsonBuffer = Buffer.concat([featureTableJsonBuffer, Buffer.from(' ')]);
@@ -97,7 +100,7 @@ function createI3dm(options) {
     var featureTableBinary = getBufferPadded(options.featureTableBinary);
     var batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
     var batchTableBinary = getBufferPadded(options.batchTableBinary);
-    var glb = getBufferPadded(defaultValue(options.glb, createGlb()));
+    var glb = getBufferPadded(defaultValue(options.glb, createValidGLB()));
 
     var gltfFormat = 1;
     if (typeof glb === 'string') {
@@ -238,5 +241,17 @@ function createGlb() {
     glb.write('gltf', 0); // magic
     glb.writeUInt32LE(2, 4); // version
     glb.writeUInt32LE(28, 8); // byteLength
+    return glb;
+}
+
+function createValidGLB() { // version 2.0
+    var glbfilepath_Box = path.join(__dirname, '../data/Tileset/Box.glb');
+        
+    var filehandle = fs.openSync(glbfilepath_Box, 'r');
+    const stats = fs.statSync(glbfilepath_Box);
+    const fileSizeInBytes = stats.size;
+    var glb = new Buffer(fileSizeInBytes);
+    fs.readSync(filehandle, glb, 0, glb.length, 0);
+    fs.closeSync(filehandle);
     return glb;
 }

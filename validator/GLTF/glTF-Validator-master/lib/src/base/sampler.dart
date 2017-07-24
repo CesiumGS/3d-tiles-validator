@@ -1,5 +1,5 @@
 /*
- * # Copyright (c) 2016 The Khronos Group Inc.
+ * # Copyright (c) 2016-2017 The Khronos Group Inc.
  * # Copyright (c) 2016 Alexey Knyazev
  * #
  * # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  * # limitations under the License.
  */
 
-library gltf.core.sampler;
+library gltf.base.sampler;
 
-import 'gltf_property.dart';
+import 'package:gltf/src/base/gltf_property.dart';
 import 'package:gltf/src/gl.dart' as gl;
 
 class Sampler extends GltfChildOfRootProperty {
@@ -30,6 +30,7 @@ class Sampler extends GltfChildOfRootProperty {
       Map<String, Object> extensions, Object extras)
       : super(name, extensions, extras);
 
+  @override
   String toString([_]) => super.toString({
         MAG_FILTER: magFilter,
         MIN_FILTER: minFilter,
@@ -38,31 +39,15 @@ class Sampler extends GltfChildOfRootProperty {
       });
 
   static Sampler fromMap(Map<String, Object> map, Context context) {
-    if (context.validate) checkMembers(map, SAMPLER_MEMBERS, context);
-
-    const List<int> magFiltersEnum = const <int>[gl.NEAREST, gl.LINEAR];
-
-    const List<int> minFiltersEnum = const <int>[
-      gl.NEAREST,
-      gl.LINEAR,
-      gl.NEAREST_MIPMAP_NEAREST,
-      gl.LINEAR_MIPMAP_NEAREST,
-      gl.NEAREST_MIPMAP_LINEAR,
-      gl.LINEAR_MIPMAP_LINEAR
-    ];
-
-    const List<int> wrapFiltersEnum = const <int>[
-      gl.CLAMP_TO_EDGE,
-      gl.MIRRORED_REPEAT,
-      gl.REPEAT
-    ];
+    if (context.validate) {
+      checkMembers(map, SAMPLER_MEMBERS, context);
+    }
 
     return new Sampler._(
-        getInt(map, MAG_FILTER, context, list: magFiltersEnum, def: gl.NEAREST),
-        getInt(map, MIN_FILTER, context,
-            list: minFiltersEnum, def: gl.NEAREST_MIPMAP_LINEAR),
-        getInt(map, WRAP_S, context, list: wrapFiltersEnum, def: gl.REPEAT),
-        getInt(map, WRAP_T, context, list: wrapFiltersEnum, def: gl.REPEAT),
+        getUint(map, MAG_FILTER, context, list: MAG_FILTERS),
+        getUint(map, MIN_FILTER, context, list: MIN_FILTERS),
+        getUint(map, WRAP_S, context, list: wrapFiltersEnum, def: gl.REPEAT),
+        getUint(map, WRAP_T, context, list: wrapFiltersEnum, def: gl.REPEAT),
         getName(map, context),
         getExtensions(map, Sampler, context),
         getExtras(map));
