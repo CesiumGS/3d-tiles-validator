@@ -14,7 +14,6 @@ var boxInsideBox = utility.boxInsideBox;
 var boxInsideSphere = utility.boxInsideSphere;
 var Matrix4 = Cesium.Matrix4;
 var Cartesian3 = Cesium.Cartesian3;
-var CesiumMath = Cesium.Math;
 var Matrix3 = Cesium.Matrix3;
 var defined = Cesium.defined;
 
@@ -121,24 +120,21 @@ function validateTileHierarchy(root, tilesetDirectory) {
             }
         }
 
-        if (defined(parent)) {
-            if(!defined(content)) {
-                var tileBox = tile.boundingVolume.box;
-                var parentBox = parent.boundingVolume.box;
-                var tileTransform = Matrix4.IDENTITY;
-                if(defined(tile.transform)) {
-                    tileTransform = tile.transform;
-                }
-                var parentTransform = Matrix4.IDENTITY;
-                if(defined(parent.transform)) {
-                    parentTransform = parent.transform;
-                }
-                var type = 'BoxinBox';
-
-                if(defined(tileBox) && defined(parentBox)&& !checkBoundingVolume(tileBox, parentBox, tileTransform, parentTransform, type)) {
-                    return 'tile box [' + tileBox + '] is not within parent box [' + parentBox + ']';
-                }
+        if (defined(parent) && !defined(content) && defined(tile.boundingVolume) && defined(parent.boundingVolume)) {
+            var tileBV = tile.boundingVolume;
+            var parentBV = parent.boundingVolume;
+            var tileTransform = Matrix4.IDENTITY;
+            if(defined(tile.transform)) {
+                tileTransform = tile.transform;
             }
+            var parentTransform = Matrix4.IDENTITY;
+            if(defined(parent.transform)) {
+                parentTransform = parent.transform;
+            }
+
+            if(defined(tileBV) && defined(parentBV) && !checkBoundingVolume(tileBV, parentBV, tileTransform, parentTransform, 'BoxinBox')) {
+                return 'tile box [' + tileBV.box + '] is not within parent box [' + parentBV.box + ']';
+            }    
         }
 
         if (defined(tile.refine)) {
@@ -196,8 +192,8 @@ function checkBoundingVolume(tileBV, parentBV, tileTransform, parentTransform, t
     var returnBool;
     switch(type) {
         case "BoxinBox":
-            var transformed_tileBox = getTransformedBox(tileBV, tileTransform);
-            var transformed_parentBox = getTransformedBox(parentBV, parentTransform);
+            var transformed_tileBox = getTransformedBox(tileBV.box, tileTransform);
+            var transformed_parentBox = getTransformedBox(parentBV.box, parentTransform);
             returnBool = boxInsideBox(transformed_tileBox, transformed_parentBox);
             break;
         default: 

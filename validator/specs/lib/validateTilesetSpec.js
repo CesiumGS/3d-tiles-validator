@@ -21,12 +21,18 @@ var sampleTileset = {
                     region: [-1.3197209591796106, 0.6988424218, -1.31968, 0.698874, 0, 20]
                 },
                 geometricError: 50,
+                content: {
+                    geometricError: 20
+                },
                 children: [
                     {
                         boundingVolume: {
                             region: [-1.3197209591796106, 0.6988424218, -1.31968, 0.698874, 0, 10]
                         },
-                        geometricError: 0
+                        geometricError: 0,
+                        content: {
+                            geometricError: 10
+                        }
                     }
                 ]
             },
@@ -34,7 +40,10 @@ var sampleTileset = {
                 boundingVolume: {
                     region: [-1.31968, 0.6988424218, -1.3196390408203893, 0.698874, 0, 20]
                 },
-                geometricError: 0
+                geometricError: 0,
+                content: {
+                    geometricError: 20
+                }
             }
         ]
     }
@@ -266,7 +275,7 @@ describe('validateTileset', function() {
                 0, 0, 0, 0
             ]
         }
-        var tileset = createContentlessSampleTileset(parentBoundingVolume, childBoundingVolume, childTransform);
+        var tileset = createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, undefined);
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBeUndefined();
@@ -298,7 +307,7 @@ describe('validateTileset', function() {
                 0, 0, 0, 1
             ]
         }
-        var tileset = createContentlessSampleTileset(parentBoundingVolume, childBoundingVolume, childTransform);
+        var tileset = createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, undefined);
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('tile box [' + childBoundingVolume.box + '] is not within parent box [' + parentBoundingVolume.box + ']');
@@ -331,13 +340,14 @@ function createSampleTileset(tileBoundingVolume, contentBoundingVolume) {
     return sampleTileset;
 }
 
-function createContentlessSampleTileset(parentBoundingVolume, childBoundingVolume, childTransform) {
+function createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, parentTransform) {
     var sampleTileset = {
         asset: {
             version: '1.0'
         },
         geometricError: 500,
         root: {
+            transform: parentTransform,
             boundingVolume: parentBoundingVolume,
             geometricError: 100,
             refine: 'ADD',
