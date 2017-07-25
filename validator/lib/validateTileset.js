@@ -12,7 +12,10 @@ var regionInsideRegion = utility.regionInsideRegion;
 var sphereInsideSphere = utility.sphereInsideSphere;
 var boxInsideBox = utility.boxInsideBox;
 var boxInsideSphere = utility.boxInsideSphere;
-
+var Matrix4 = Cesium.Matrix4;
+var Cartesian3 = Cesium.Cartesian3;
+var CesiumMath = Cesium.Math;
+var Matrix3 = Cesium.Matrix3;
 var defined = Cesium.defined;
 
 module.exports = validateTileset;
@@ -118,6 +121,26 @@ function validateTileHierarchy(root, tilesetDirectory) {
             }
         }
 
+        if (defined(parent)) {
+            if(!defined(content)) {
+                var tileBox = tile.boundingVolume.box;
+                var parentBox = parent.boundingVolume.box;
+                var tileTransform = Matrix4.IDENTITY;
+                if(defined(tile.transform)) {
+                    tileTransform = tile.transform;
+                }
+                var parentTransform = Matrix4.IDENTITY;
+                if(defined(parent.transform)) {
+                    parentTransform = parent.transform;
+                }
+                var type = 'BoxinBox';
+
+                if(defined(tileBox) && defined(parentBox)&& !checkBoundingVolume(tileBox, parentBox, tileTransform, parentTransform, type)) {
+                    return 'tile box [' + tileBox + '] is not within parent box [' + parentBox + ']';
+                }
+            }
+        }
+
         if (defined(tile.refine)) {
             if (tile.refine !== 'ADD' && tile.refine !== 'REPLACE') {
                 return 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
@@ -167,4 +190,39 @@ function validateTileHierarchy(root, tilesetDirectory) {
             }
             return message;
         });
+}
+
+function checkBoundingVolume(tileBox, parentBox, tileTransform, parentTransform, type) {
+    var returnBool;
+    switch(type) {
+        case "BoxinBox":
+            var transformed_tileBox = getTransformedBox(tileBox, tileTransform);
+            var transformed_parentBox = getTransformedBox(parentBox, parentTransform);
+            returnBool = boxInsideBox(transformed_tileBox, transformed_parentBox);
+            break;
+        default: 
+            returnBool = false;
+            break;
+    }
+
+    return returnBool;
+}
+
+function getTransformedBox(box, transform) {
+    var scratchMatrix = new Matrix3();
+    var scratchScale = new Cartesian3();
+    var scratchHalfAxes = new Matrix3();
+    var scratchCenter = new Cartesian3();
+
+    var center = Cartesian3.fromElements(box[0], box[1], box[2], scratchCenter);
+    var halfAxes = Matrix3.fromArray(box, 3, scratchHalfAxes);
+
+    // Find the transformed center and halfAxes
+    center = Matrix4.multiplyByPoint(transform, center, center);
+    var rotationScale = Matrix4.getRotation(transform, scratchMatrix);
+    halfAxes = Matrix3.multiply(rotationScale, halfAxes, halfAxes);
+
+    // Return a Box array
+    var returnBox = [center[0], center[1], center[2], halfAxes[0], halfAxes[3], halfAxes[6], halfAxes[1], halfAxes[4], halfAxes[7], halfAxes[2], halfAxes[5], halfAxes[8]];
+    return returnBox;
 }
