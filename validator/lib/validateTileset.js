@@ -192,12 +192,12 @@ function validateTileHierarchy(root, tilesetDirectory) {
         });
 }
 
-function checkBoundingVolume(tileBox, parentBox, tileTransform, parentTransform, type) {
+function checkBoundingVolume(tileBV, parentBV, tileTransform, parentTransform, type) {
     var returnBool;
     switch(type) {
         case "BoxinBox":
-            var transformed_tileBox = getTransformedBox(tileBox, tileTransform);
-            var transformed_parentBox = getTransformedBox(parentBox, parentTransform);
+            var transformed_tileBox = getTransformedBox(tileBV, tileTransform);
+            var transformed_parentBox = getTransformedBox(parentBV, parentTransform);
             returnBool = boxInsideBox(transformed_tileBox, transformed_parentBox);
             break;
         default: 
