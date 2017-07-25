@@ -212,6 +212,153 @@ describe('validate pnts', function() {
         expect(validatePnts(pnts)).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
     });
 
+    // test for pnts with normal
+    it('returns error for normals with non-unit length when NORMAL is defined [Test using feature table JSON]', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                NORMAL : [
+                    0, 1, 0,
+                    0, 0, 1,
+                    1, 0, 0,
+                    0, 2, 0]
+            }
+        });
+        expect(validatePnts(pnts)).toBe('normal defined in NORMAL must be of length 1.0');
+    });
+
+    it('returns error for normals with non-unit length when NORMAL is defined [Test using feature table Binary]', function() {
+        var positionArray = new Float32Array([
+            0, 0, 0,
+            1, 0, 0,
+            0, 0, 1,
+            0, 1, 0
+        ]);
+        var positionBinary = Buffer.from(positionArray.buffer);
+
+        var normalArray = new Float32Array([
+            0, 1, 0,
+            0, 0, 1,
+            1, 0, 0,
+            0, 2, 0
+        ]);
+        var normalBinary = Buffer.from(normalArray.buffer);
+
+        var combinedBinary = Buffer.concat([positionBinary, normalBinary]);
+
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : {
+                    byteOffset : 0
+                },
+                NORMAL : {
+                    byteOffset : 48,
+                    componentType : 'FLOAT'
+                }
+            },
+            featureTableBinary : combinedBinary
+        });
+        expect(validatePnts(pnts)).toBe('normal defined in NORMAL must be of length 1.0');
+    });
+
+    it('succeeds for normals with unit length when NORMAL is defined', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                NORMAL : [
+                    0, 1, 0,
+                    0, 0, 1,
+                    1, 0, 0,
+                    0, 1, 0]
+            }
+        });
+        expect(validatePnts(pnts)).toBeUndefined();
+    });
+
+    it('returns error for normals with non-unit length when NORMAL_OCT16P is defined [Test using feature table JSON]', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    1, 0, 1],
+                NORMAL_OCT16P : [
+                    128, 255,
+                    128, 255,
+                    128, 255,
+                    255, 255]
+            }
+        });
+        expect(validatePnts(pnts)).toBe('normal defined in NORMAL_OCT16P must be of length 1.0');
+    });
+
+    it('returns error for normals with non-unit length when NORMAL_OCT16P is defined [Test using feature table Binary]', function() {
+        var positionArray = new Float32Array([
+            0, 0, 0,
+            65535, 0, 0,
+            0, 0, 65535,
+            65535, 0, 65535
+        ]);
+        var positionBinary = Buffer.from(positionArray.buffer);
+
+        var normalOct16PArray = new Uint8Array([
+            128, 255,
+            128, 255,
+            128, 255,
+            255, 255
+        ]);
+        var normalOct16PBinary = Buffer.from(normalOct16PArray.buffer);
+
+        var combinedBinary = Buffer.concat([positionBinary, normalOct16PBinary]);
+
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : {
+                    byteOffset : 0
+                },
+                NORMAL_OCT16P : {
+                    byteOffset : 48,
+                    componentType : 'UNSIGNED_BYTE'
+                }
+            },
+            featureTableBinary : combinedBinary
+        });
+        expect(validatePnts(pnts)).toBe('normal defined in NORMAL_OCT16P must be of length 1.0');
+    });
+
+    it('succeeds for normals with unit length when NORMAL_OCT16P is defined', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    1, 0, 1],
+                NORMAL_OCT16P : [
+                    128, 255,
+                    128, 255,
+                    128, 255,
+                    128, 255]
+            }
+        });
+        expect(validatePnts(pnts)).toBeUndefined();
+    });
+
     it('succeeds for valid pnts', function() {
         var pnts = createPnts({
             featureTableJson : {
