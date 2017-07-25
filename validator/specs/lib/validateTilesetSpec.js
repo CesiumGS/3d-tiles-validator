@@ -260,7 +260,7 @@ describe('validateTileset', function() {
           }), done).toResolve();
     });
 
-    it('returns error message when content\'s center is within tile\'s boundingVolume, but content\'s sphere type boundingVolume is not', function(done) {
+    it('returns error message when content\'s bounding sphere\'s center is within the tile\'s bounding box but it\'s radius extends beyond', function(done) {
         var tileBoundingVolume = {
             box: [
                 0, 0, 0,
@@ -279,7 +279,7 @@ describe('validateTileset', function() {
           }), done).toResolve();
     });
 
-    it('returns error message when content\'s center is outside tile\'s box type boundingVolume, and content\'s sphere type boundingVolume is partially inside tile\'s boundingVolume', function(done) {
+    it('returns error message when content\'s bounding sphere\'s center is outside tile\'s bounding box and the volumes intersect', function(done) {
         var tileBoundingVolume = {
             box: [
                 0, 0, 0,
@@ -298,7 +298,7 @@ describe('validateTileset', function() {
           }), done).toResolve();
     });
 
-    it('succeeds when content\'s sphere type boundingVolume is within tile\'s box type boundingVolume', function(done) {
+    it('succeeds when content\'s bounding sphere is within tile\'s bounding box', function(done) {
         var tileBoundingVolume = {
             box: [
                 0, 0, 0,

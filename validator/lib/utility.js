@@ -6,7 +6,7 @@ var CesiumMath = Cesium.Math;
 var Matrix3 = Cesium.Matrix3;
 var Matrix4 = Cesium.Matrix4;
 var Plane = Cesium.Plane;
-var Sphere = Cesium.BoundingSphere;
+var BoundingSphere = Cesium.BoundingSphere;
 
 module.exports = {
     typeToComponentsLength : typeToComponentsLength,
@@ -90,7 +90,7 @@ function boxInsideBox(boxInner, boxOuter) {
     var halfAxesOuter = Matrix3.fromArray(boxOuter, 3, scratchOuterHalfAxes);
     var transformOuter = Matrix4.fromRotationTranslation(halfAxesOuter, centerOuter);
 
-    var cube = createSampleCube();
+    var cube = createUnitCube();
 
     var transformInnerInverse = Matrix4.inverse(transformOuter, transformOuter);
     var EPSILON8 = CesiumMath.EPSILON8;
@@ -118,7 +118,7 @@ function boxInsideSphere(box, sphere) {
     var radiusSphere = sphere[3];
     var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
 
-    var cube = createSampleCube();
+    var cube = createUnitCube();
 
     for (var i = 0; i < 8; i++) {
         cube[i] = Matrix4.multiplyByPoint(transformBox, cube[i], cube[i]);
@@ -138,7 +138,7 @@ function sphereInsideBox(sphere, box) {
     var radiusSphere = sphere[3];
     var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
 
-    var cube = createSampleCube();
+    var cube = createUnitCube();
 
     var i;
     for (i = 0; i < 8; i++) {
@@ -155,7 +155,7 @@ function sphereInsideBox(sphere, box) {
 
     var boundingSphere = new Cesium.BoundingSphere(centerSphere, radiusSphere);
     for (i = 0; i < 6; i++) {
-        var intersection = Sphere.intersectPlane(boundingSphere, face[i]);
+        var intersection = BoundingSphere.intersectPlane(boundingSphere, face[i]);
         if (intersection !== Cesium.Intersect.INSIDE) {
             return false;
         }
@@ -178,7 +178,7 @@ function planeFromPoints(point1, point2, point3) {
     return plane;
 }
 
-function createSampleCube() {
+function createUnitCube() {
     var cube = new Array(8);
     cube[0] = new Cartesian3(-1, -1, -1);
     cube[1] = new Cartesian3(-1, -1, 1);
