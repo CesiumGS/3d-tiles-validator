@@ -230,7 +230,7 @@ function validateI3dm(content) {
         normal = featureTable.getPropertyArray('NORMAL_UP_OCT32P', componentDatatype, 1);
         normLength = normal.length;
         for (i = 0; i < normLength; i +=2 ) {
-            octDecodeWithoutNormalization(normal[i], normal[i+1], normalVec);
+            octDecodeWithoutNormalization(normal[i], normal[i+1], 65536, normalVec);
             magnitude = Cartesian3.magnitude(normalVec);
             if (Math.abs(magnitude - 1.0) > Cesium.Math.EPSILON2) {
                 return 'normal defined in NORMAL_UP_OCT32P must be of length 1.0';
@@ -256,7 +256,7 @@ function validateI3dm(content) {
         normal = featureTable.getPropertyArray('NORMAL_RIGHT_OCT32P', componentDatatype, 1);
         normLength = normal.length;
         for (i = 0; i < normLength; i +=2 ) {
-            normalVec = octDecodeWithoutNormalization(normal[i], normal[i+1], normalVec);
+            normalVec = octDecodeWithoutNormalization(normal[i], normal[i+1], 65536, normalVec);
             magnitude = Cartesian3.magnitude(normalVec);
             if (Math.abs(magnitude - 1.0) > Cesium.Math.EPSILON2) {
                 return 'normal defined in NORMAL_RIGHT_OCT32P must be of length 1.0';

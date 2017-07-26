@@ -358,15 +358,15 @@ describe('validate i3dm', function() {
                     0, 0, 1,
                     0, 1, 0],
                 NORMAL_UP_OCT32P : [
-                    128, 255,
-                    128, 255,
-                    128, 255,
-                    191, 191],
+                    32768, 65535,
+                    32768, 65535,
+                    32768, 65535,
+                    49151, 49151],
                 NORMAL_RIGHT_OCT32P : [
-                    255, 128,
-                    255, 128,
-                    255, 128,
-                    255, 128]
+                    65535, 32768,
+                    65535, 32768,
+                    65535, 32768,
+                    65535, 32768]
             }
         });
         expect(validateI3dm(i3dm)).toBe('normal defined in NORMAL_UP_OCT32P must be of length 1.0');
@@ -381,19 +381,19 @@ describe('validate i3dm', function() {
         ]);
         var positionBinary = Buffer.from(positionArray.buffer);
 
-        var normalUpArray = new Uint8Array([
-            128, 255,
-            128, 255,
-            128, 255,
-            191, 191
+        var normalUpArray = new Uint16Array([
+            32768, 65535,
+            32768, 65535,
+            32768, 65535,
+            49151, 49151
         ]);
         var normalUpBinary = Buffer.from(normalUpArray.buffer);
 
-        var normalRightArray = new Uint8Array([
-            255, 128,
-            255, 128,
-            255, 128,
-            255, 128
+        var normalRightArray = new Uint16Array([
+            65535, 32768,
+            65535, 32768,
+            65535, 32768,
+            65535, 32768
         ]);
         var normalRightBinary = Buffer.from(normalRightArray.buffer);
 
@@ -406,12 +406,10 @@ describe('validate i3dm', function() {
                     byteOffset : 0
                 },
                 NORMAL_UP_OCT32P : {
-                    byteOffset : 48,
-                    componentType : 'UNSIGNED_BYTE'
+                    byteOffset : 48
                 },
                 NORMAL_RIGHT_OCT32P : {
-                    byteOffset : 56,
-                    componentType : 'UNSIGNED_BYTE'
+                    byteOffset : 64
                 }
             },
             featureTableBinary : combinedBinary
@@ -429,15 +427,15 @@ describe('validate i3dm', function() {
                     0, 0, 1,
                     0, 1, 0],
                 NORMAL_UP_OCT32P : [
-                    128, 255,
-                    128, 255,
-                    128, 255,
-                    128, 255],
+                    32768, 65535,
+                    32768, 65535,
+                    32768, 65535,
+                    32768, 65535],
                 NORMAL_RIGHT_OCT32P : [
-                    191, 191,
-                    255, 128,
-                    255, 128,
-                    255, 128]
+                    49151, 49151,
+                    65535, 32768,
+                    65535, 32768,
+                    65535, 32768]
             }
         });
         expect(validateI3dm(i3dm)).toBe('normal defined in NORMAL_RIGHT_OCT32P must be of length 1.0');
@@ -452,19 +450,19 @@ describe('validate i3dm', function() {
         ]);
         var positionBinary = Buffer.from(positionArray.buffer);
 
-        var normalUpArray = new Uint8Array([
-            128, 255,
-            128, 255,
-            128, 255,
-            128, 255
+        var normalUpArray = new Uint16Array([
+            32768, 65535,
+            32768, 65535,
+            32768, 65535,
+            32768, 65535
         ]);
         var normalUpBinary = Buffer.from(normalUpArray.buffer);
 
-        var normalRightArray = new Uint8Array([
-            255, 128,
-            255, 128,
-            255, 128,
-            191, 191
+        var normalRightArray = new Uint16Array([
+            65535, 32768,
+            65535, 32768,
+            65535, 32768,
+            49151, 49151
         ]);
         var normalRightBinary = Buffer.from(normalRightArray.buffer);
 
@@ -477,12 +475,10 @@ describe('validate i3dm', function() {
                     byteOffset : 0
                 },
                 NORMAL_UP_OCT32P : {
-                    byteOffset : 48,
-                    componentType : 'UNSIGNED_BYTE'
+                    byteOffset : 48
                 },
                 NORMAL_RIGHT_OCT32P : {
-                    byteOffset : 56,
-                    componentType : 'UNSIGNED_BYTE'
+                    byteOffset : 64
                 }
             },
             featureTableBinary : combinedBinary
@@ -500,15 +496,15 @@ describe('validate i3dm', function() {
                     0, 0, 1,
                     0, 1, 0],
                 NORMAL_UP_OCT32P : [
-                    128, 255,
-                    128, 255,
-                    128, 255,
-                    128, 255],
+                    32768, 65535,
+                    32768, 65535,
+                    32768, 65535,
+                    32768, 65535],
                 NORMAL_RIGHT_OCT32P : [
-                    255, 128,
-                    255, 128,
-                    255, 128,
-                    255, 128]
+                    65535, 32768,
+                    65535, 32768,
+                    65535, 32768,
+                    65535, 32768]
             }
         });
         expect(validateI3dm(i3dm)).toBeUndefined();

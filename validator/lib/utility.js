@@ -192,11 +192,7 @@ function createUnitCube() {
     return cube;
 }
 
-function octDecodeWithoutNormalization(x, y, result) {
-    return octDecodeInRangeWithoutNormalization(x, y, 255, result);
-}
-
-function octDecodeInRangeWithoutNormalization(x, y, rangeMax, result) {
+function octDecodeWithoutNormalization(x, y, rangeMax, result) {
     result.x = CesiumMath.fromSNorm(x, rangeMax);
     result.y = CesiumMath.fromSNorm(y, rangeMax);
     result.z = 1.0 - (Math.abs(result.x) + Math.abs(result.y));
