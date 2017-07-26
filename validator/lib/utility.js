@@ -5,6 +5,8 @@ var Cartesian3 = Cesium.Cartesian3;
 var CesiumMath = Cesium.Math;
 var Matrix3 = Cesium.Matrix3;
 var Matrix4 = Cesium.Matrix4;
+var Plane = Cesium.Plane;
+var BoundingSphere = Cesium.BoundingSphere;
 
 module.exports = {
     typeToComponentsLength : typeToComponentsLength,
@@ -12,6 +14,7 @@ module.exports = {
     isBufferValidUtf8 : isBufferValidUtf8,
     regionInsideRegion : regionInsideRegion,
     sphereInsideSphere : sphereInsideSphere,
+    sphereInsideBox : sphereInsideBox,
     boxInsideBox : boxInsideBox,
     boxInsideSphere : boxInsideSphere
 };
@@ -87,15 +90,7 @@ function boxInsideBox(boxInner, boxOuter) {
     var halfAxesOuter = Matrix3.fromArray(boxOuter, 3, scratchOuterHalfAxes);
     var transformOuter = Matrix4.fromRotationTranslation(halfAxesOuter, centerOuter);
 
-    var cube = new Array(8);
-    cube[0] = new Cartesian3(-1, -1, -1);
-    cube[1] = new Cartesian3(-1, -1, 1);
-    cube[2] = new Cartesian3(1, -1, 1);
-    cube[3] = new Cartesian3(1, -1, -1);
-    cube[4] = new Cartesian3(-1, 1, -1);
-    cube[5] = new Cartesian3(-1, 1, 1);
-    cube[6] = new Cartesian3(1, 1, 1);
-    cube[7] = new Cartesian3(1, 1, -1);
+    var cube = createUnitCube();
 
     var transformInnerInverse = Matrix4.inverse(transformOuter, transformOuter);
     var EPSILON8 = CesiumMath.EPSILON8;
@@ -123,15 +118,7 @@ function boxInsideSphere(box, sphere) {
     var radiusSphere = sphere[3];
     var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
 
-    var cube = new Array(8);
-    cube[0] = new Cartesian3(-1, -1, -1);
-    cube[1] = new Cartesian3(-1, -1, 1);
-    cube[2] = new Cartesian3(1, -1, 1);
-    cube[3] = new Cartesian3(1, -1, -1);
-    cube[4] = new Cartesian3(-1, 1, -1);
-    cube[5] = new Cartesian3(-1, 1, 1);
-    cube[6] = new Cartesian3(1, 1, 1);
-    cube[7] = new Cartesian3(1, 1, -1);
+    var cube = createUnitCube();
 
     for (var i = 0; i < 8; i++) {
         cube[i] = Matrix4.multiplyByPoint(transformBox, cube[i], cube[i]);
@@ -141,4 +128,65 @@ function boxInsideSphere(box, sphere) {
         }
     }
     return true;
+}
+
+function sphereInsideBox(sphere, box) {
+    var centerBox = Cartesian3.fromElements(box[0], box[1], box[2], scratchBoxCenter);
+    var halfAxesBox = Matrix3.fromArray(box, 3, scratchBoxHalfAxes);
+    var transformBox = Matrix4.fromRotationTranslation(halfAxesBox, centerBox);
+
+    var radiusSphere = sphere[3];
+    var centerSphere = Cartesian3.unpack(sphere, 0, scratchSphereCenter);
+
+    var cube = createUnitCube();
+
+    var i;
+    for (i = 0; i < 8; i++) {
+        cube[i] = Matrix4.multiplyByPoint(transformBox, cube[i], cube[i]);
+    }
+
+    var face = new Array(6);
+    face[0] = planeFromPoints(cube[0], cube[1], cube[2]);
+    face[1] = planeFromPoints(cube[2], cube[6], cube[7]);
+    face[2] = planeFromPoints(cube[6], cube[5], cube[4]);
+    face[3] = planeFromPoints(cube[5], cube[1], cube[0]);
+    face[4] = planeFromPoints(cube[6], cube[2], cube[1]);
+    face[5] = planeFromPoints(cube[0], cube[3], cube[7]);
+
+    var boundingSphere = new Cesium.BoundingSphere(centerSphere, radiusSphere);
+    for (i = 0; i < 6; i++) {
+        var intersection = BoundingSphere.intersectPlane(boundingSphere, face[i]);
+        if (intersection !== Cesium.Intersect.INSIDE) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function planeFromPoints(point1, point2, point3) {
+    var a = new Cartesian3();
+    var b = new Cartesian3();
+    var c = new Cartesian3();
+    var normal = new Cartesian3();
+
+    Cartesian3.subtract(point2, point1, a);
+    Cartesian3.subtract(point3, point2, b);
+    Cartesian3.cross(a, b, c);
+    Cartesian3.normalize(c, normal);
+
+    var plane = new Plane.fromPointNormal(point1, normal);
+    return plane;
+}
+
+function createUnitCube() {
+    var cube = new Array(8);
+    cube[0] = new Cartesian3(-1, -1, -1);
+    cube[1] = new Cartesian3(-1, -1, 1);
+    cube[2] = new Cartesian3(1, -1, 1);
+    cube[3] = new Cartesian3(1, -1, -1);
+    cube[4] = new Cartesian3(-1, 1, -1);
+    cube[5] = new Cartesian3(-1, 1, 1);
+    cube[6] = new Cartesian3(1, 1, 1);
+    cube[7] = new Cartesian3(1, 1, -1);
+    return cube;
 }

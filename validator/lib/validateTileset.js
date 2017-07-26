@@ -15,6 +15,7 @@ var boxInsideSphere = utility.boxInsideSphere;
 var Matrix4 = Cesium.Matrix4;
 var Cartesian3 = Cesium.Cartesian3;
 var Matrix3 = Cesium.Matrix3;
+var sphereInsideBox = utility.sphereInsideBox;
 var defined = Cesium.defined;
 
 module.exports = validateTileset;
@@ -225,6 +226,16 @@ function checkBoundingVolume(tileBV, parentBV, tileTransform, parentTransform) {
             var transformed_parentSphere = getTransformedSphere(parentBV.sphere, parentTransform);
             if (boxInsideSphere(transformed_tileBox, transformed_parentSphere) !== true) {
                 returnString = 'box [' + tileBV.box + '] is not within sphere [' + parentBV.sphere + ']';
+                return returnString;
+            } else {
+                return returnString;
+            }
+        } else if (defined(tileBV.sphere) && defined(parentBV.box)) {
+            // Sphere in Box
+            var transformed_tileSphere = getTransformedSphere(tileBV.sphere, tileTransform);
+            var transformed_parentBox = getTransformedBox(parentBV.box, parentTransform);
+            if (sphereInsideBox(transformed_tileSphere, transformed_parentBox) !== true) {
+                returnString = 'sphere [' + tileBV.sphere + '] is not within box [' + parentBV.box + ']';
                 return returnString;
             } else {
                 return returnString;
