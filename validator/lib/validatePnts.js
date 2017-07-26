@@ -206,53 +206,32 @@ function validatePnts(content) {
     var normalVec;
     var normLength;
     var magnitude;
-    //var isOctEncoded16P = false;
-    //console.log(featureTableJson);
     if (defined(featureTableJson.NORMAL)) {
         featureTable.featuresLength = pointsLength * 3;
         componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL.componentType, 'FLOAT', 3));
         normal = featureTable.getPropertyArray('NORMAL', componentDatatype, 1);
         normLength = normal.length;
-        for(i=0; i<normLength; i+=3) {
+        for (i = 0; i < normLength; i += 3) {
             normalVec = Cartesian3.fromElements(normal[i], normal[i+1], normal[i+2]);
             magnitude = Cartesian3.magnitude(normalVec);
-            if(magnitude !== 1.0) {
+            if (Math.abs(magnitude - 1.0) > Cesium.Math.EPSILON4) {
                 return 'normal defined in NORMAL must be of length 1.0';
             }
         }
     } else if (defined(featureTableJson.NORMAL_OCT16P)) {
         featureTable.featuresLength = pointsLength * 2;
-        //isOctEncoded16P = true;
         componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL_OCT16P.componentType, 'UNSIGNED_SHORT', 2));
         normal = featureTable.getPropertyArray('NORMAL_OCT16P', componentDatatype, 1);
-        //console.log(normal);
         normLength = normal.length;
-        for(i=0; i<normLength; i+=2) {
-            normalVec = Cartesian2.fromElements(normal[i], normal[i+1]);
-            var normalVec3 = octDecode(normalVec);
-            magnitude = Cartesian3.magnitude(normalVec3);
-            if(Math.abs(1.0 - magnitude) > Cesium.Math.EPSILON4) {
+        for (i = 0; i < normLength; i +=2 ) {
+            var normalVec2 = Cartesian2.fromElements(normal[i], normal[i+1]);
+            normalVec = octDecode(normalVec2);
+            magnitude = Cartesian3.magnitude(normalVec);
+            if (Math.abs(magnitude - 1.0) > Cesium.Math.EPSILON4) {
                 return 'normal defined in NORMAL_OCT16P must be of length 1.0';
             }
         }
     }
-
-    // if (defined(normal)) {
-    //     var normLength = normal.length;
-    //     for(i=0; i<normLength; i+=3)
-    //     {
-    //         normalVec = Cartesian3.fromElements(normal[i], normal[i+1], normal[i+2]);
-    //         var magnitude = Cartesian3.magnitude(normalVec);
-    //         console.log(normalVec);
-    //         console.log(magnitude);
-    //         if(magnitude !== 1.0) {
-    //             if (isOctEncoded16P) {
-    //                 //return 'normal defined in NORMAL_OCT16P must be of length 1.0';
-    //             }
-    //             //return 'normal defined in NORMAL must be of length 1.0';
-    //         }
-    //     }
-    // }
 
     var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, pointsLength, featureTableSemantics);
     if (defined(featureTableMessage)) {
@@ -277,7 +256,7 @@ function octDecode(encoded) {
         v.x = (1.0 - Math.abs(v.y)) * signNotZero(v.x);
         v.y = (1.0 - Math.abs(v.x)) * signNotZero(v.y);
     }
-    return v;//Cartesian3.normalize(v, new Cartesian3());
+    return v;
 }
 
 function signNotZero(value) {

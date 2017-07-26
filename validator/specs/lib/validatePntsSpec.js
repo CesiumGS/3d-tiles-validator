@@ -308,9 +308,9 @@ describe('validate pnts', function() {
     it('returns error for normals with non-unit length when NORMAL_OCT16P is defined [Test using feature table Binary]', function() {
         var positionArray = new Float32Array([
             0, 0, 0,
-            65535, 0, 0,
-            0, 0, 65535,
-            65535, 0, 65535
+            1, 0, 0,
+            0, 0, 1,
+            1, 0, 1
         ]);
         var positionBinary = Buffer.from(positionArray.buffer);
 
