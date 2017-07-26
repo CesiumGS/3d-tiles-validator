@@ -213,7 +213,7 @@ describe('validate pnts', function() {
     });
 
     // test for pnts with normal
-    it('returns error for normals with non-unit length when NORMAL is defined [Test using feature table JSON]', function() {
+    it('returns error message for normals with non-unit length when NORMAL is defined [Test using feature table JSON]', function() {
         var pnts = createPnts({
             featureTableJson : {
                 POINTS_LENGTH : 4,
@@ -232,7 +232,7 @@ describe('validate pnts', function() {
         expect(validatePnts(pnts)).toBe('normal defined in NORMAL must be of length 1.0');
     });
 
-    it('returns error for normals with non-unit length when NORMAL is defined [Test using feature table Binary]', function() {
+    it('returns error message for normals with non-unit length when NORMAL is defined [Test using feature table Binary]', function() {
         var positionArray = new Float32Array([
             0, 0, 0,
             1, 0, 0,
@@ -286,7 +286,7 @@ describe('validate pnts', function() {
         expect(validatePnts(pnts)).toBeUndefined();
     });
 
-    it('returns error for normals with non-unit length when NORMAL_OCT16P is defined [Test using feature table JSON]', function() {
+    it('returns error message for normals with non-unit length when NORMAL_OCT16P is defined [Test using feature table JSON]', function() {
         var pnts = createPnts({
             featureTableJson : {
                 POINTS_LENGTH : 4,
@@ -305,7 +305,7 @@ describe('validate pnts', function() {
         expect(validatePnts(pnts)).toBe('normal defined in NORMAL_OCT16P must be of length 1.0');
     });
 
-    it('returns error for normals with non-unit length when NORMAL_OCT16P is defined [Test using feature table Binary]', function() {
+    it('returns error message for normals with non-unit length when NORMAL_OCT16P is defined [Test using feature table Binary]', function() {
         var positionArray = new Float32Array([
             0, 0, 0,
             1, 0, 0,

@@ -3,6 +3,7 @@ var Cesium = require('cesium');
 var bufferToJson = require('../lib/bufferToJson');
 var validateBatchTable = require('../lib/validateBatchTable');
 var validateFeatureTable = require('../lib/validateFeatureTable');
+var utility = require('../lib/utility');
 
 var batchTableSchema = require('../specs/data/schema/batchTable.schema.json');
 var featureTableSchema = require('../specs/data/schema/featureTable.schema.json');
@@ -13,6 +14,7 @@ var Cartesian3 = Cesium.Cartesian3;
 var Cartesian2 = Cesium.Cartesian2;
 var Cesium3DTileFeatureTable = Cesium.Cesium3DTileFeatureTable;
 var ComponentDatatype = Cesium.ComponentDatatype;
+var octDecode = utility.octDecode;
 
 module.exports = validatePnts;
 
@@ -201,7 +203,6 @@ function validatePnts(content) {
         }
     }
 
-    // check for unit length normal
     var normal;
     var normalVec;
     var normLength;
@@ -242,23 +243,4 @@ function validatePnts(content) {
     if (defined(batchTableMessage)) {
         return batchTableMessage;
     }
-}
-
-function octDecode(encoded) {
-    var range = 255.0;
-    if (encoded.x === 0.0 && encoded.y === 0.0) {
-        return new Cartesian3(0.0, 0.0, 0.0);
-    }
-    encoded.x = encoded.x / range * 2.0 - 1.0;
-    encoded.y = encoded.x / range * 2.0 - 1.0;
-    var v = new Cartesian3(encoded.x, encoded.y, 1.0 - Math.abs(encoded.x) - Math.abs(encoded.y));
-    if (v.z < 0.0) {
-        v.x = (1.0 - Math.abs(v.y)) * signNotZero(v.x);
-        v.y = (1.0 - Math.abs(v.x)) * signNotZero(v.y);
-    }
-    return v;
-}
-
-function signNotZero(value) {
-    return value >= 0.0 ? 1.0 : -1.0;
 }

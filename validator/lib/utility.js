@@ -13,7 +13,8 @@ module.exports = {
     regionInsideRegion : regionInsideRegion,
     sphereInsideSphere : sphereInsideSphere,
     boxInsideBox : boxInsideBox,
-    boxInsideSphere : boxInsideSphere
+    boxInsideSphere : boxInsideSphere,
+    octDecode : octDecode
 };
 
 function typeToComponentsLength(type) {
@@ -141,4 +142,23 @@ function boxInsideSphere(box, sphere) {
         }
     }
     return true;
+}
+
+function octDecode(encoded) {
+    var range = 255.0;
+    if (encoded.x === 0.0 && encoded.y === 0.0) {
+        return new Cartesian3(0.0, 0.0, 0.0);
+    }
+    encoded.x = encoded.x / range * 2.0 - 1.0;
+    encoded.y = encoded.x / range * 2.0 - 1.0;
+    var v = new Cartesian3(encoded.x, encoded.y, 1.0 - Math.abs(encoded.x) - Math.abs(encoded.y));
+    if (v.z < 0.0) {
+        v.x = (1.0 - Math.abs(v.y)) * signNotZero(v.x);
+        v.y = (1.0 - Math.abs(v.x)) * signNotZero(v.y);
+    }
+    return v;
+}
+
+function signNotZero(value) {
+    return value >= 0.0 ? 1.0 : -1.0;
 }
