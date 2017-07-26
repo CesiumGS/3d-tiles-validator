@@ -12,6 +12,7 @@ var regionInsideRegion = utility.regionInsideRegion;
 var sphereInsideSphere = utility.sphereInsideSphere;
 var boxInsideBox = utility.boxInsideBox;
 var boxInsideSphere = utility.boxInsideSphere;
+var sphereInsideBox = utility.sphereInsideBox;
 
 var defined = Cesium.defined;
 
@@ -115,6 +116,10 @@ function validateTileHierarchy(root, tilesetDirectory) {
 
             if (defined(contentBox) && defined(tileSphere) && !boxInsideSphere(contentBox, tileSphere)) {
                 return 'content box [' + contentBox + '] is not within tile sphere [' + tileSphere + ']';
+            }
+
+            if (defined(contentSphere) && defined(tileBox) && !sphereInsideBox(contentSphere, tileBox)) {
+                return 'content sphere [' + contentSphere + '] is not within tile box [' + tileBox + ']';
             }
         }
 
