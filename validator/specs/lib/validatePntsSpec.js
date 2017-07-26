@@ -296,10 +296,10 @@ describe('validate pnts', function() {
                     0, 0, 1,
                     1, 0, 1],
                 NORMAL_OCT16P : [
-                    128, 255,
-                    128, 255,
-                    128, 255,
-                    255, 255]
+                    191, 191,
+                    191, 191,
+                    191, 191,
+                    191, 191]
             }
         });
         expect(validatePnts(pnts)).toBe('normal defined in NORMAL_OCT16P must be of length 1.0');
@@ -315,10 +315,10 @@ describe('validate pnts', function() {
         var positionBinary = Buffer.from(positionArray.buffer);
 
         var normalOct16PArray = new Uint8Array([
-            128, 255,
-            128, 255,
-            128, 255,
-            255, 255
+            191, 191,
+            191, 191,
+            191, 191,
+            191, 191
         ]);
         var normalOct16PBinary = Buffer.from(normalOct16PArray.buffer);
 
@@ -351,8 +351,8 @@ describe('validate pnts', function() {
                     1, 0, 1],
                 NORMAL_OCT16P : [
                     128, 255,
-                    128, 255,
-                    128, 255,
+                    255, 128,
+                    128, 128,
                     128, 255]
             }
         });

@@ -11,10 +11,9 @@ var featureTableSchema = require('../specs/data/schema/featureTable.schema.json'
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 var Cartesian3 = Cesium.Cartesian3;
-var Cartesian2 = Cesium.Cartesian2;
 var Cesium3DTileFeatureTable = Cesium.Cesium3DTileFeatureTable;
 var ComponentDatatype = Cesium.ComponentDatatype;
-var octDecode = utility.octDecode;
+var octDecodeWithoutNormalization = utility.octDecodeWithoutNormalization;
 
 module.exports = validatePnts;
 
@@ -204,7 +203,7 @@ function validatePnts(content) {
     }
 
     var normal;
-    var normalVec;
+    var normalVec = new Cartesian3();
     var normLength;
     var magnitude;
     if (defined(featureTableJson.NORMAL)) {
@@ -215,7 +214,7 @@ function validatePnts(content) {
         for (i = 0; i < normLength; i += 3) {
             normalVec = Cartesian3.fromElements(normal[i], normal[i+1], normal[i+2]);
             magnitude = Cartesian3.magnitude(normalVec);
-            if (Math.abs(magnitude - 1.0) > Cesium.Math.EPSILON4) {
+            if (Math.abs(magnitude - 1.0) > Cesium.Math.EPSILON2) {
                 return 'normal defined in NORMAL must be of length 1.0';
             }
         }
@@ -225,10 +224,10 @@ function validatePnts(content) {
         normal = featureTable.getPropertyArray('NORMAL_OCT16P', componentDatatype, 1);
         normLength = normal.length;
         for (i = 0; i < normLength; i +=2 ) {
-            var normalVec2 = Cartesian2.fromElements(normal[i], normal[i+1]);
-            normalVec = octDecode(normalVec2);
+            octDecodeWithoutNormalization(normal[i], normal[i+1], normalVec);
+            //console.log(normalVec);
             magnitude = Cartesian3.magnitude(normalVec);
-            if (Math.abs(magnitude - 1.0) > Cesium.Math.EPSILON4) {
+            if (Math.abs(magnitude - 1.0) > Cesium.Math.EPSILON2) {
                 return 'normal defined in NORMAL_OCT16P must be of length 1.0';
             }
         }
