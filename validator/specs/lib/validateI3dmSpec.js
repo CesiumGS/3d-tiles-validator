@@ -182,7 +182,6 @@ describe('validate i3dm', function() {
         expect(validateI3dm(i3dm)).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
     });
 
-    //normal length check
     it('returns error message for normals with non-unit length when NORMAL_UP is defined [Test using feature table JSON]', function() {
         var i3dm = createI3dm({
             featureTableJson : {
@@ -349,7 +348,6 @@ describe('validate i3dm', function() {
         expect(validateI3dm(i3dm)).toBeUndefined();
     });
 
-    // OCT
     it('returns error message for normals with non-unit length when NORMAL_UP_OCT32P is defined [Test using feature table JSON]', function() {
         var i3dm = createI3dm({
             featureTableJson : {
