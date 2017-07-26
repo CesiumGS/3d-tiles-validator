@@ -29,7 +29,7 @@ var whiteTranslucentMaterial = new Material({
 });
 
 var texturedMaterial = new Material({
-    diffuse : 'data/wood_red.png',
+    diffuse : 'data/wood_red.jpg',
     ambient : [0.2, 0.0, 0.0, 1.0]
 });
 
