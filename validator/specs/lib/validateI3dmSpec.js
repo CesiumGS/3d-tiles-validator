@@ -510,6 +510,54 @@ describe('validate i3dm', function() {
         expect(validateI3dm(i3dm)).toBeUndefined();
     });
 
+    it('returns error message when NORMAL_UP and NORMAL_RIGHT are not mutually orthogonal', function() {
+        var i3dm = createI3dm({
+            featureTableJson : {
+                INSTANCES_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                NORMAL_UP : [
+                    0, 1, 0,
+                    0, 1, 0,
+                    0, 1, 0,
+                    0, 1, 0],
+                NORMAL_RIGHT : [
+                    1, 0, 0,
+                    1, 0, 0,
+                    1, 0, 0,
+                    0, 1, 0]
+            }
+        });
+        expect(validateI3dm(i3dm)).toBe('up and right normals must be mutually orthogonal');
+    });
+
+    it('returns error message when NORMAL_UP_OCT32P and NORMAL_RIGHT_OCT32P are not mutually orthogonal', function() {
+        var i3dm = createI3dm({
+            featureTableJson : {
+                INSTANCES_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                NORMAL_UP_OCT32P : [
+                    32768, 65535,
+                    32768, 65535,
+                    32768, 65535,
+                    32768, 65535],
+                NORMAL_RIGHT_OCT32P : [
+                    65535, 32768,
+                    65535, 32768,
+                    65535, 32768,
+                    32768, 65535]
+            }
+        });
+        expect(validateI3dm(i3dm)).toBe('up and right normals must be mutually orthogonal');
+    });
+
     it('succeeds for valid i3dm', function() {
         var i3dm = createI3dm({
             featureTableJson : {
