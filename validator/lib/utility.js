@@ -149,19 +149,6 @@ function octDecodeWithoutNormalization(x, y, result) {
 }
 
 function octDecodeInRangeWithoutNormalization(x, y, rangeMax, result) {
-    // var range = 255.0;
-    // if (encoded.x === 0.0 && encoded.y === 0.0) {
-    //     return new Cartesian3(0.0, 0.0, 0.0);
-    // }
-    // encoded.x = encoded.x / range * 2.0 - 1.0;
-    // encoded.y = encoded.x / range * 2.0 - 1.0;
-    // var v = new Cartesian3(encoded.x, encoded.y, 1.0 - Math.abs(encoded.x) - Math.abs(encoded.y));
-    // if (v.z < 0.0) {
-    //     v.x = (1.0 - Math.abs(v.y)) * signNotZero(v.x);
-    //     v.y = (1.0 - Math.abs(v.x)) * signNotZero(v.y);
-    // }
-    // return v;
-
     result.x = CesiumMath.fromSNorm(x, rangeMax);
     result.y = CesiumMath.fromSNorm(y, rangeMax);
     result.z = 1.0 - (Math.abs(result.x) + Math.abs(result.y));
@@ -175,33 +162,3 @@ function octDecodeInRangeWithoutNormalization(x, y, rangeMax, result) {
 
     return result;
 }
-
-// function acomp(enc) {
-//     var v = new Cartesian2();
-//     var e = new Cartesian3(0,0,1);
-//     //ac.octEncodeInRange(Cartesian3.normalize(e,e), 255, v);
-//     fun(Cartesian3.normalize(e,e), 255, v);
-//     console.log(v);
-// }
-
-// function fun (vector,rangeMax,result) {
-//     result.x = vector.x / (Math.abs(vector.x) + Math.abs(vector.y) + Math.abs(vector.z));
-//         result.y = vector.y / (Math.abs(vector.x) + Math.abs(vector.y) + Math.abs(vector.z));
-//         if (vector.z < 0) {
-//             var x = result.x;
-//             var y = result.y;
-//             result.x = (1.0 - Math.abs(y)) * CesiumMath.signNotZero(x);
-//             result.y = (1.0 - Math.abs(x)) * CesiumMath.signNotZero(y);
-//         }
-
-//         result.x = CesiumMath.toSNorm(result.x, rangeMax);
-//         result.y = CesiumMath.toSNorm(result.y, rangeMax);
-
-//         return result;
-// }
-
-// function signNotZero(value) {
-//     return value >= 0.0 ? 1.0 : -1.0;
-// }
-
-

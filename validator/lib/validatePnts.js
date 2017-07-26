@@ -225,7 +225,6 @@ function validatePnts(content) {
         normLength = normal.length;
         for (i = 0; i < normLength; i +=2 ) {
             octDecodeWithoutNormalization(normal[i], normal[i+1], normalVec);
-            //console.log(normalVec);
             magnitude = Cartesian3.magnitude(normalVec);
             if (Math.abs(magnitude - 1.0) > Cesium.Math.EPSILON2) {
                 return 'normal defined in NORMAL_OCT16P must be of length 1.0';

@@ -212,7 +212,6 @@ describe('validate pnts', function() {
         expect(validatePnts(pnts)).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
     });
 
-    // test for pnts with normal
     it('returns error message for normals with non-unit length when NORMAL is defined [Test using feature table JSON]', function() {
         var pnts = createPnts({
             featureTableJson : {

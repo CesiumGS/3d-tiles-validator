@@ -254,31 +254,7 @@ describe('validate i3dm', function() {
         expect(validateI3dm(i3dm)).toBe('normal defined in NORMAL_UP must be of length 1.0');
     });
 
-    it('succeeds for normals with unit length when NORMAL_UP is defined', function() {
-        var i3dm = createI3dm({
-            featureTableJson : {
-                INSTANCES_LENGTH : 4,
-                POSITION : [
-                    0, 0, 0,
-                    1, 0, 0,
-                    0, 0, 1,
-                    0, 1, 0],
-                NORMAL_UP : [
-                    0, 1, 0,
-                    0, 1, 0,
-                    0, 1, 0,
-                    0, 1, 0],
-                NORMAL_RIGHT : [
-                    1, 0, 0,
-                    1, 0, 0,
-                    1, 0, 0,
-                    1, 0, 0]
-            }
-        });
-        expect(validateI3dm(i3dm)).toBeUndefined();
-    });
-
-        it('returns error message for normals with non-unit length when NORMAL_RIGHT is defined [Test using feature table JSON]', function() {
+    it('returns error message for normals with non-unit length when NORMAL_RIGHT is defined [Test using feature table JSON]', function() {
         var i3dm = createI3dm({
             featureTableJson : {
                 INSTANCES_LENGTH : 4,
@@ -349,7 +325,7 @@ describe('validate i3dm', function() {
         expect(validateI3dm(i3dm)).toBe('normal defined in NORMAL_RIGHT must be of length 1.0');
     });
 
-    it('succeeds for normals with unit length when NORMAL_RIGHT is defined', function() {
+    it('succeeds for normals with unit length when NORMAL_UP and NORMAL_RIGHT are defined', function() {
         var i3dm = createI3dm({
             featureTableJson : {
                 INSTANCES_LENGTH : 4,
@@ -368,6 +344,173 @@ describe('validate i3dm', function() {
                     1, 0, 0,
                     1, 0, 0,
                     1, 0, 0]
+            }
+        });
+        expect(validateI3dm(i3dm)).toBeUndefined();
+    });
+
+    // OCT
+    it('returns error message for normals with non-unit length when NORMAL_UP_OCT32P is defined [Test using feature table JSON]', function() {
+        var i3dm = createI3dm({
+            featureTableJson : {
+                INSTANCES_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                NORMAL_UP_OCT32P : [
+                    128, 255,
+                    128, 255,
+                    128, 255,
+                    191, 191],
+                NORMAL_RIGHT_OCT32P : [
+                    255, 128,
+                    255, 128,
+                    255, 128,
+                    255, 128]
+            }
+        });
+        expect(validateI3dm(i3dm)).toBe('normal defined in NORMAL_UP_OCT32P must be of length 1.0');
+    });
+
+    it('returns error message for normals with non-unit length when NORMAL_UP_OCT32P is defined [Test using feature table Binary]', function() {
+        var positionArray = new Float32Array([
+            0, 0, 0,
+            1, 0, 0,
+            0, 0, 1,
+            0, 1, 0
+        ]);
+        var positionBinary = Buffer.from(positionArray.buffer);
+
+        var normalUpArray = new Uint8Array([
+            128, 255,
+            128, 255,
+            128, 255,
+            191, 191
+        ]);
+        var normalUpBinary = Buffer.from(normalUpArray.buffer);
+
+        var normalRightArray = new Uint8Array([
+            255, 128,
+            255, 128,
+            255, 128,
+            255, 128
+        ]);
+        var normalRightBinary = Buffer.from(normalRightArray.buffer);
+
+        var combinedBinary = Buffer.concat([positionBinary, normalUpBinary, normalRightBinary]);
+
+        var i3dm = createI3dm({
+            featureTableJson : {
+                INSTANCES_LENGTH : 4,
+                POSITION : {
+                    byteOffset : 0
+                },
+                NORMAL_UP_OCT32P : {
+                    byteOffset : 48,
+                    componentType : 'UNSIGNED_BYTE'
+                },
+                NORMAL_RIGHT_OCT32P : {
+                    byteOffset : 56,
+                    componentType : 'UNSIGNED_BYTE'
+                }
+            },
+            featureTableBinary : combinedBinary
+        });
+        expect(validateI3dm(i3dm)).toBe('normal defined in NORMAL_UP_OCT32P must be of length 1.0');
+    });
+
+    it('returns error message for normals with non-unit length when NORMAL_RIGHT_OCT32P is defined [Test using feature table JSON]', function() {
+        var i3dm = createI3dm({
+            featureTableJson : {
+                INSTANCES_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                NORMAL_UP_OCT32P : [
+                    128, 255,
+                    128, 255,
+                    128, 255,
+                    128, 255],
+                NORMAL_RIGHT_OCT32P : [
+                    191, 191,
+                    255, 128,
+                    255, 128,
+                    255, 128]
+            }
+        });
+        expect(validateI3dm(i3dm)).toBe('normal defined in NORMAL_RIGHT_OCT32P must be of length 1.0');
+    });
+
+    it('returns error message for normals with non-unit length when NORMAL_RIGHT_OCT32P is defined [Test using feature table Binary]', function() {
+        var positionArray = new Float32Array([
+            0, 0, 0,
+            1, 0, 0,
+            0, 0, 1,
+            0, 1, 0
+        ]);
+        var positionBinary = Buffer.from(positionArray.buffer);
+
+        var normalUpArray = new Uint8Array([
+            128, 255,
+            128, 255,
+            128, 255,
+            128, 255
+        ]);
+        var normalUpBinary = Buffer.from(normalUpArray.buffer);
+
+        var normalRightArray = new Uint8Array([
+            255, 128,
+            255, 128,
+            255, 128,
+            191, 191
+        ]);
+        var normalRightBinary = Buffer.from(normalRightArray.buffer);
+
+        var combinedBinary = Buffer.concat([positionBinary, normalUpBinary, normalRightBinary]);
+
+        var i3dm = createI3dm({
+            featureTableJson : {
+                INSTANCES_LENGTH : 4,
+                POSITION : {
+                    byteOffset : 0
+                },
+                NORMAL_UP_OCT32P : {
+                    byteOffset : 48,
+                    componentType : 'UNSIGNED_BYTE'
+                },
+                NORMAL_RIGHT_OCT32P : {
+                    byteOffset : 56,
+                    componentType : 'UNSIGNED_BYTE'
+                }
+            },
+            featureTableBinary : combinedBinary
+        });
+        expect(validateI3dm(i3dm)).toBe('normal defined in NORMAL_RIGHT_OCT32P must be of length 1.0');
+    });
+
+    it('succeeds for normals with unit length when NORMAL_UP_OCT32P and NORMAL_RIGHT_OCT32P are defined', function() {
+        var i3dm = createI3dm({
+            featureTableJson : {
+                INSTANCES_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                NORMAL_UP_OCT32P : [
+                    128, 255,
+                    128, 255,
+                    128, 255,
+                    128, 255],
+                NORMAL_RIGHT_OCT32P : [
+                    255, 128,
+                    255, 128,
+                    255, 128,
+                    255, 128]
             }
         });
         expect(validateI3dm(i3dm)).toBeUndefined();
