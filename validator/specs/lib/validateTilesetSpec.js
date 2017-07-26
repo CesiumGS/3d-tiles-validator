@@ -470,4 +470,4 @@ function createParentChildTileset(parentBoundingVolume, childBoundingVolume, chi
         }
     };
     return sampleTileset;
-} 
+}
