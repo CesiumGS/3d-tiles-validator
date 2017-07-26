@@ -98,21 +98,19 @@ function validateTileHierarchy(root, tilesetDirectory) {
         if (defined(content) && defined(content.boundingVolume)) {
             var contentBV = content.boundingVolume;
             var tileBV = tile.boundingVolume;
-
-            if (!checkBoundingVolume(contentBV, tileBV, Matrix4.IDENTITY, Matrix4.IDENTITY, 'RegioninRegion')) {
-                return 'content region [' + contentBV.region + '] is not within tile region + [' + tileBV.region + ']';
+            var tileTransform = Matrix4.IDENTITY;
+            if(defined(tile.transform)) {
+                tileTransform = tile.transform;
             }
-
-            if (!checkBoundingVolume(contentBV, tileBV, Matrix4.IDENTITY, Matrix4.IDENTITY, 'SphereinSphere')) {
-                return 'content sphere [' + contentBV.sphere + '] is not within tile sphere + [' + tileBV.sphere + ']';
+            var contentTransform = Matrix4.IDENTITY;
+            if(defined(content.transform)) {
+                contentTransform = content.transform;
             }
+            var message = undefined;
 
-            if (!checkBoundingVolume(contentBV, tileBV, Matrix4.IDENTITY, Matrix4.IDENTITY, 'BoxinBox')) {
-                return 'content box [' + contentBV.box + '] is not within tile box [' + tileBV.box + ']';
-            }
-
-            if (!checkBoundingVolume(contentBV, tileBV, Matrix4.IDENTITY, Matrix4.IDENTITY, 'BoxinSphere')) {
-                return 'content box [' + contentBV.box + '] is not within tile sphere [' + tileBV.sphere + ']';
+            message = checkBoundingVolume(contentBV, tileBV, contentTransform, tileTransform);
+            if(defined(message)) {
+                return 'content bounding volume is not within tile bounding volume: ' + message;
             }
         }
 
@@ -127,9 +125,11 @@ function validateTileHierarchy(root, tilesetDirectory) {
             if(defined(parent.transform)) {
                 parentTransform = parent.transform;
             }
+            var message = undefined;
 
-            if(defined(tileBV) && defined(parentBV) && !checkBoundingVolume(tileBV, parentBV, tileTransform, parentTransform, 'BoxinBox')) {
-                return 'tile box [' + tileBV.box + '] is not within parent box [' + parentBV.box + ']';
+            message = checkBoundingVolume(tileBV, parentBV, tileTransform, parentTransform);
+            if(defined(message)) {
+                return 'child bounding volume is not within parent bounding volume: ' + message;
             }
         }
 
@@ -184,52 +184,58 @@ function validateTileHierarchy(root, tilesetDirectory) {
         });
 }
 
-function checkBoundingVolume(tileBV, parentBV, tileTransform, parentTransform, type) {
-    var returnBool;
-    switch(type) {
-        case 'BoxinBox':
-            if(defined(tileBV.box) && defined(parentBV.box)) {
-                var transformed_tileBox = getTransformedBox(tileBV.box, tileTransform);
-                var transformed_parentBox = getTransformedBox(parentBV.box, parentTransform);
-                returnBool = boxInsideBox(transformed_tileBox, transformed_parentBox);
-            } else {
-                returnBool = true;
-            }
-            break;
-        case 'SphereinSphere':
-            if(defined(tileBV.sphere) && defined(parentBV.sphere)) {
-                var transformed_tileSphere = getTransformedSphere(tileBV.sphere, tileTransform);
-                var transformed_parentSphere = getTransformedSphere(parentBV.sphere, parentTransform);
-                returnBool = sphereInsideSphere(transformed_tileSphere, transformed_parentSphere);
-            } else {
-                returnBool = true;
-            }
-            break;
-        case 'RegioninRegion':
-            if(defined(tileBV.region) && defined(parentBV.region)) {
-                // Region does not update with transform
-                var transformed_tileRegion = tileBV.region;
-                var transformed_parentRegion = parentBV.region;
-                returnBool = regionInsideRegion(transformed_tileRegion, transformed_parentRegion);
-            } else {
-                returnBool = true;
-            }
-            break;
-        case 'BoxinSphere':
-            if(defined(tileBV.box) && defined(parentBV.sphere)) {
-                var transformed_tileBox = getTransformedBox(tileBV.box, tileTransform);
-                var transformed_parentSphere = getTransformedSphere(parentBV.sphere, parentTransform);
-                returnBool = boxInsideSphere(transformed_tileBox, transformed_parentSphere);
-            } else {
-                returnBool = true;
-            }
-            break;
-        default:
-            returnBool = false;
-            break;
-    }
+function checkBoundingVolume(tileBV, parentBV, tileTransform, parentTransform) {
+    var returnString = undefined;
 
-    return returnBool;
+    if (defined(tileBV) && defined(parentBV) && (defined(tileBV.box) || defined(tileBV.sphere) || defined(tileBV.region)) && (defined(parentBV.box) || defined(parentBV.sphere) || defined(parentBV.region))) {
+        if (defined(tileBV.box) && defined(parentBV.box)) {
+            // Box in Box check
+            var transformed_tileBox = getTransformedBox(tileBV.box, tileTransform);
+            var transformed_parentBox = getTransformedBox(parentBV.box, parentTransform);
+            if (boxInsideBox(transformed_tileBox, transformed_parentBox) !== true) {
+                returnString = 'box [' + tileBV.box + '] is not within box [' + parentBV.box + ']';
+                return returnString;
+            } else {
+                return returnString;
+            }
+        } else if (defined(tileBV.sphere) && defined(parentBV.sphere)) {
+            // Sphere in Sphere
+            var transformed_tileSphere = getTransformedSphere(tileBV.sphere, tileTransform);
+            var transformed_parentSphere = getTransformedSphere(parentBV.sphere, parentTransform);
+            if (sphereInsideSphere(transformed_tileSphere, transformed_parentSphere) !== true) {
+                returnString = 'sphere [' + tileBV.sphere + '] is not within sphere [' + parentBV.sphere + ']';
+                return returnString;
+            } else {
+                return returnString;
+            }
+        } else if (defined(tileBV.region)&& defined(parentBV.region)) {
+            // Region in Region
+            // Region does not update with transform
+            var transformed_tileRegion = tileBV.region;
+            var transformed_parentRegion = parentBV.region;
+            if (regionInsideRegion(transformed_tileRegion, transformed_parentRegion) !== true) {
+                returnString = 'region [' + tileBV.region + '] is not within region [' + parentBV.region + ']';
+                return returnString;
+            } else {
+                return returnString;
+            }
+        } else if (defined(tileBV.box) && defined(parentBV.sphere)) {
+            // Box in Sphere
+            var transformed_tileBox = getTransformedBox(tileBV.box, tileTransform);
+            var transformed_parentSphere = getTransformedSphere(parentBV.sphere, parentTransform);
+            if (boxInsideSphere(transformed_tileBox, transformed_parentSphere) !== true) {
+                returnString = 'box [' + tileBV.box + '] is not within sphere [' + parentBV.sphere + ']';
+                return returnString;
+            } else {
+                return returnString;
+            }
+        } else {
+            // Add more test cases here!
+            return returnString;
+        }
+    } else {
+        return returnString;
+    }
 }
 
 function getTransformedBox(box, transform) {

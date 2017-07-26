@@ -160,7 +160,7 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']');
+                expect(message).toBe('content bounding volume is not within tile bounding volume: ' + 'box [' + contentBoundingVolume.box + '] is not within box [' + tileBoundingVolume.box + ']');
             }), done).toResolve();
     });
 
@@ -184,7 +184,7 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']');
+                expect(message).toBe('content bounding volume is not within tile bounding volume: ' + 'box [' + contentBoundingVolume.box + '] is not within box [' + tileBoundingVolume.box + ']');
             }), done).toResolve();
     });
 
@@ -227,7 +227,7 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile sphere [' + tileBoundingVolume.sphere + ']');
+                expect(message).toBe('content bounding volume is not within tile bounding volume: ' + 'box [' + contentBoundingVolume.box + '] is not within sphere [' + tileBoundingVolume.sphere + ']');
             }), done).toResolve();
     });
 
@@ -282,7 +282,7 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    it('fails when child\'s box type boundingVolume is not completely within it\'s parents\'s box type boundingVolume', function(done) {
+    it('returns error message when when child\'s box type boundingVolume is not completely within it\'s parents\'s box type boundingVolume [aligned bounding volumes]', function(done) {
         var parentBoundingVolume = {
             box: [
                 0, 0, 0,
@@ -295,7 +295,7 @@ describe('validateTileset', function() {
             box: [
                 0, 0, 0,
                 1, 0, 0,
-                5, 1, 0,
+                0, 1, 0,
                 0, 0, 1
             ]
         };
@@ -310,7 +310,39 @@ describe('validateTileset', function() {
         var tileset = createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, undefined);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('tile box [' + childBoundingVolume.box + '] is not within parent box [' + parentBoundingVolume.box + ']');
+                expect(message).toBe('child bounding volume is not within parent bounding volume: ' + 'box [' + childBoundingVolume.box + '] is not within box [' + parentBoundingVolume.box + ']');
+            }), done).toResolve();
+    });
+
+    it('returns error message when when child\'s box type boundingVolume is not completely within it\'s parents\'s box type boundingVolume [unaligned bounding volumes]', function(done) {
+        var parentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var childBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var childTransform = {
+            transform: [
+                0.87, 0.5, 0, 0,
+                -0.5, 0.87, 0, 0,
+                0, 0 , 1, 0,
+                0, 0, 0, 0
+            ]
+        }
+        var tileset = createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, undefined);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('child bounding volume is not within parent bounding volume: ' + 'box [' + childBoundingVolume.box + '] is not within box [' + parentBoundingVolume.box + ']');
             }), done).toResolve();
     });
 
