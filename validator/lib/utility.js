@@ -16,7 +16,8 @@ module.exports = {
     sphereInsideSphere : sphereInsideSphere,
     sphereInsideBox : sphereInsideBox,
     boxInsideBox : boxInsideBox,
-    boxInsideSphere : boxInsideSphere
+    boxInsideSphere : boxInsideSphere,
+    boxInsideRegion : boxInsideRegion
 };
 
 function typeToComponentsLength(type) {
@@ -161,6 +162,15 @@ function sphereInsideBox(sphere, box) {
         }
     }
     return true;
+}
+
+function boxInsideRegion(box, region) {
+    var rectangle = new Cesium.Rectangle(region[0], region[1], region[2], region[3]);//(west, south, east, north)
+    var regionToBox;
+    regionToBox = new Cesium.OrientedBoundingBox.fromRectangle(rectangle, region[4], region[5], Cesium.Ellipsoid.WGS84, regionToBox);
+    var regionArray = [regionToBox.center.x, regionToBox.center.y, regionToBox.center.z];
+    Matrix3.pack(regionToBox.halfAxes, regionArray, 3);
+    return boxInsideBox(box, regionArray);
 }
 
 function planeFromPoints(point1, point2, point3) {

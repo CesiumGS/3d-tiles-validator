@@ -317,6 +317,58 @@ describe('validateTileset', function() {
           }), done).toResolve();
     });
 
+    it('returns error message when content\'s bounding box is not within tile\'s bounding region', function(done) {
+        var tileBoundingVolume = {
+            region: [
+                -0.0005682966577418737,
+                0.8987233516605286,
+                0.00011646582098558159,
+                0.8990603398325034,
+                0,
+                241.6
+            ]
+        };
+        var contentBoundingVolume = {
+            box: [
+                3978487, -898.801, 4968644,
+                3.0780368263502283, 1362.4730866469401, 0,
+                -840.7214558607861, 0.1899319426713088, 668.6751606523277,
+                75.26864619525807, -0.01700434798522856, 94.63484328905488
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile region [' + tileBoundingVolume.region + ']');
+          }), done).toResolve();
+    });
+
+    it('succeeds when content\'s bounding box is within tile\'s bounding region', function(done) {
+        var tileBoundingVolume = {
+            region: [
+                -0.0005682966577418737,
+                0.8987233516605286,
+                0.00011646582098558159,
+                0.8990603398325034,
+                0,
+                241.6
+            ]
+        };
+        var contentBoundingVolume = {
+            box: [
+                3978487, -898.801, 4968644,
+                0.030, 136.2473, 0,
+                -84.0721, 0.0189, 66.8675,
+                7.5268, -0.0017, 9.4634
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBeUndefined();
+          }), done).toResolve();
+    });
+
     it('succeeds for valid tileset', function(done) {
         expect(validateTileset(sampleTileset)
             .then(function(message) {
