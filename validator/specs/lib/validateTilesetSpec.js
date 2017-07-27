@@ -421,6 +421,98 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
+    it('returns error message when content\'s bounding region is not within tile\'s bounding sphere', function(done) {
+        var tileBoundingVolume = {
+            sphere: [
+                3978487, -898.801, 4968644, 1363
+            ]
+        };
+        var contentBoundingVolume = {
+            region: [
+                -0.0005682966577418737,
+                0.8987233516605286,
+                0.00011646582098558159,
+                0.8990603398325034,
+                0,
+                241.6
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('content region [' + contentBoundingVolume.region + '] is not within tile sphere [' + tileBoundingVolume.sphere + ']');
+          }), done).toResolve();
+    });
+
+    it('succeeds when content\'s bounding region is within tile\'s bounding sphere', function(done) {
+        var tileBoundingVolume = {
+            sphere: [
+                3978487, -898.801, 4968644, 2000
+            ]
+        };
+        var contentBoundingVolume = {
+            region: [
+                -0.0005682966577418737,
+                0.8987233516605286,
+                0.00011646582098558159,
+                0.8990603398325034,
+                0,
+                241.6
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBeUndefined();
+            }), done).toResolve();
+    });
+
+    it('returns error message when content\'s bounding sphere is not within tile\'s bounding region', function(done) {
+        var tileBoundingVolume = {
+            region: [
+                -0.0005682966577418737,
+                0.8987233516605286,
+                0.00011646582098558159,
+                0.8990603398325034,
+                0,
+                241.6
+            ]
+        };
+        var contentBoundingVolume = {
+            sphere: [
+                3978487, -898.801, 4968644, 140
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('content sphere [' + contentBoundingVolume.sphere + '] is not within tile region [' + tileBoundingVolume.region + ']');
+          }), done).toResolve();
+    });
+
+    it('succeeds when content\'s bounding sphere is within tile\'s bounding region', function(done) {
+        var tileBoundingVolume = {
+            region: [
+                -0.0005682966577418737,
+                0.8987233516605286,
+                0.00011646582098558159,
+                0.8990603398325034,
+                0,
+                241.6
+            ]
+        };
+        var contentBoundingVolume = {
+            sphere: [
+                3978487, -898.801, 4968644, 110
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBeUndefined();
+            }), done).toResolve();
+    });
+
     it('succeeds for valid tileset', function(done) {
         expect(validateTileset(sampleTileset)
             .then(function(message) {

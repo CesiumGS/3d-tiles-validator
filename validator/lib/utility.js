@@ -180,19 +180,19 @@ function regionInsideBox(region, box) {
 
 function sphereInsideRegion(sphere, region) {
     var regionToBox = boxFromRegion(region);
-    return boxInsideBox(sphere, regionToBox);
+    return sphereInsideBox(sphere, regionToBox);
 }
 
 function regionInsideSphere(region, sphere) {
     var regionToBox = boxFromRegion(region);
-    return boxInsideBox(regionToBox, sphere);
+    return boxInsideSphere(regionToBox, sphere);
 }
 
 function boxFromRegion(region) {
     var rectangle = new Cesium.Rectangle(region[0], region[1], region[2], region[3]);
-    var obb;
-    obb = new OrientedBoundingBox.fromRectangle(rectangle, region[4], region[5], Cesium.Ellipsoid.WGS84, obb);
-    var regionArray = [obb.center.x, obb.center.y, obb.center.z];
+    var obb = new OrientedBoundingBox.fromRectangle(rectangle, region[4], region[5], Cesium.Ellipsoid.WGS84);
+    var regionArray = [];
+    Cartesian3.pack(obb.center, regionArray, 0);
     Matrix3.pack(obb.halfAxes, regionArray, 3);
     return regionArray;
 }

@@ -126,18 +126,22 @@ function validateTileHierarchy(root, tilesetDirectory) {
                 return 'content sphere [' + contentSphere + '] is not within tile box [' + tileBox + ']';
             }
 
+            // transform the box before the check
             if (defined(contentBox) && defined(tileRegion) && !boxInsideRegion(contentBox, tileRegion)) {
                 return 'content box [' + contentBox + '] is not within tile region [' + tileRegion + ']';
             }
 
+            // transform the box before the check
             if (defined(contentRegion) && defined(tileBox) && !regionInsideBox(contentRegion, tileBox)) {
                 return 'content region [' + contentRegion + '] is not within tile box [' + tileBox + ']';
             }
 
+            // transform the sphere before the check
             if (defined(contentSphere) && defined(tileRegion) && !sphereInsideRegion(contentSphere, tileRegion)) {
                 return 'content sphere [' + contentSphere + '] is not within tile region [' + tileRegion + ']';
             }
 
+            // transform the sphere before the check
             if (defined(contentRegion) && defined(tileSphere) && !regionInsideSphere(contentRegion, tileSphere)) {
                 return 'content region [' + contentRegion + '] is not within tile sphere [' + tileSphere + ']';
             }
