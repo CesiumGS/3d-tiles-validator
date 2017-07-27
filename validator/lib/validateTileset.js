@@ -10,6 +10,9 @@ var validateTile = require('../lib/validateTile');
 
 var regionInsideRegion = utility.regionInsideRegion;
 var sphereInsideSphere = utility.sphereInsideSphere;
+var boxInsideBox = utility.boxInsideBox;
+var boxInsideSphere = utility.boxInsideSphere;
+var sphereInsideBox = utility.sphereInsideBox;
 
 var defined = Cesium.defined;
 
@@ -94,8 +97,10 @@ function validateTileHierarchy(root, tilesetDirectory) {
         if (defined(content) && defined(content.boundingVolume)) {
             var contentRegion = content.boundingVolume.region;
             var contentSphere = content.boundingVolume.sphere;
+            var contentBox = content.boundingVolume.box;
             var tileRegion = tile.boundingVolume.region;
             var tileSphere = tile.boundingVolume.sphere;
+            var tileBox = tile.boundingVolume.box;
 
             if (defined(contentRegion) && defined(tileRegion) && !regionInsideRegion(contentRegion, tileRegion)) {
                 return 'content region [' + contentRegion + '] is not within tile region + [' + tileRegion + ']';
@@ -103,6 +108,18 @@ function validateTileHierarchy(root, tilesetDirectory) {
 
             if (defined(contentSphere) && defined(tileSphere) && !sphereInsideSphere(contentSphere, tileSphere)) {
                 return 'content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']';
+            }
+
+            if (defined(contentBox) && defined(tileBox) && !boxInsideBox(contentBox, tileBox)) {
+                return 'content box [' + contentBox + '] is not within tile box [' + tileBox + ']';
+            }
+
+            if (defined(contentBox) && defined(tileSphere) && !boxInsideSphere(contentBox, tileSphere)) {
+                return 'content box [' + contentBox + '] is not within tile sphere [' + tileSphere + ']';
+            }
+
+            if (defined(contentSphere) && defined(tileBox) && !sphereInsideBox(contentSphere, tileBox)) {
+                return 'content sphere [' + contentSphere + '] is not within tile box [' + tileBox + ']';
             }
         }
 
