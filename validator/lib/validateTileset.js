@@ -101,11 +101,11 @@ function validateTileHierarchy(root, tilesetDirectory) {
             var tileBV = tile.boundingVolume;
             var tileTransform = Matrix4.IDENTITY;
             if(defined(tile.transform)) {
-                tileTransform = tile.transform;
+                tileTransform = Matrix4.fromArray(tile.transform);
             }
             var contentTransform = Matrix4.IDENTITY;
             if(defined(content.transform)) {
-                contentTransform = content.transform;
+                contentTransform = Matrix4.fromArray(content.transform);
             }
             var message = undefined;
 
@@ -120,11 +120,11 @@ function validateTileHierarchy(root, tilesetDirectory) {
             var parentBV = parent.boundingVolume;
             var tileTransform = Matrix4.IDENTITY;
             if(defined(tile.transform)) {
-                tileTransform = tile.transform;
+                tileTransform = Matrix4.fromArray(tile.transform);
             }
             var parentTransform = Matrix4.IDENTITY;
             if(defined(parent.transform)) {
-                parentTransform = parent.transform;
+                parentTransform = Matrix4.fromArray(parent.transform);
             }
             var message = undefined;
 
