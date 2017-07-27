@@ -7,6 +7,7 @@ var Matrix3 = Cesium.Matrix3;
 var Matrix4 = Cesium.Matrix4;
 var Plane = Cesium.Plane;
 var BoundingSphere = Cesium.BoundingSphere;
+var OrientedBoundingBox = Cesium.OrientedBoundingBox;
 
 module.exports = {
     typeToComponentsLength : typeToComponentsLength,
@@ -17,7 +18,10 @@ module.exports = {
     sphereInsideBox : sphereInsideBox,
     boxInsideBox : boxInsideBox,
     boxInsideSphere : boxInsideSphere,
-    boxInsideRegion : boxInsideRegion
+    boxInsideRegion : boxInsideRegion,
+    regionInsideBox : regionInsideBox,
+    sphereInsideRegion : sphereInsideRegion,
+    regionInsideSphere : regionInsideSphere
 };
 
 function typeToComponentsLength(type) {
@@ -165,12 +169,32 @@ function sphereInsideBox(sphere, box) {
 }
 
 function boxInsideRegion(box, region) {
-    var rectangle = new Cesium.Rectangle(region[0], region[1], region[2], region[3]);//(west, south, east, north)
-    var regionToBox;
-    regionToBox = new Cesium.OrientedBoundingBox.fromRectangle(rectangle, region[4], region[5], Cesium.Ellipsoid.WGS84, regionToBox);
-    var regionArray = [regionToBox.center.x, regionToBox.center.y, regionToBox.center.z];
-    Matrix3.pack(regionToBox.halfAxes, regionArray, 3);
-    return boxInsideBox(box, regionArray);
+    var regionToBox = boxFromRegion(region);
+    return boxInsideBox(box, regionToBox);
+}
+
+function regionInsideBox(region, box) {
+    var regionToBox = boxFromRegion(region);
+    return boxInsideBox(regionToBox, box);
+}
+
+function sphereInsideRegion(sphere, region) {
+    var regionToBox = boxFromRegion(region);
+    return boxInsideBox(sphere, regionToBox);
+}
+
+function regionInsideSphere(region, sphere) {
+    var regionToBox = boxFromRegion(region);
+    return boxInsideBox(regionToBox, sphere);
+}
+
+function boxFromRegion(region) {
+    var rectangle = new Cesium.Rectangle(region[0], region[1], region[2], region[3]);
+    var obb;
+    obb = new OrientedBoundingBox.fromRectangle(rectangle, region[4], region[5], Cesium.Ellipsoid.WGS84, obb);
+    var regionArray = [obb.center.x, obb.center.y, obb.center.z];
+    Matrix3.pack(obb.halfAxes, regionArray, 3);
+    return regionArray;
 }
 
 function planeFromPoints(point1, point2, point3) {

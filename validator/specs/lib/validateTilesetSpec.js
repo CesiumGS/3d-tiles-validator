@@ -369,6 +369,58 @@ describe('validateTileset', function() {
           }), done).toResolve();
     });
 
+    it('returns error message when content\'s bounding region is not within tile\'s bounding box', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                3978487, -898.801, 4968644,
+                0.30780368263502283, 1362.4730866469401, 0,
+                -840.7214558607861, 0.1899319426713088, 668.6751606523277,
+                75.26864619525807, -0.01700434798522856, 94.63484328905488
+            ]
+        };
+        var contentBoundingVolume = {
+            region: [
+                -0.0005682966577418737,
+                0.8987233516605286,
+                0.00011646582098558159,
+                0.8990603398325034,
+                0,
+                241.6
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBe('content region [' + contentBoundingVolume.region + '] is not within tile box [' + tileBoundingVolume.box + ']');
+          }), done).toResolve();
+    });
+
+    it('succeeds when content\'s bounding region is within tile\'s bounding box', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                3978487, -898.801, 4968644,
+                3.0780368263502283, 13624.730866469401, 0,
+                -8407.214558607861, 1.899319426713088, 6686.751606523277,
+                752.6864619525807, -0.1700434798522856, 946.3484328905488
+            ]
+        };
+        var contentBoundingVolume = {
+            region: [
+                -0.0005682966577418737,
+                0.8987233516605286,
+                0.00011646582098558159,
+                0.8990603398325034,
+                0,
+                241.6
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBeUndefined();
+            }), done).toResolve();
+    });
+
     it('succeeds for valid tileset', function(done) {
         expect(validateTileset(sampleTileset)
             .then(function(message) {
