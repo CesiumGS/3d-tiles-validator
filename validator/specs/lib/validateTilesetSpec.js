@@ -257,7 +257,7 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']');
-          }), done).toResolve();
+            }), done).toResolve();
     });
 
     it('returns error message when content\'s bounding sphere\'s center is within the tile\'s bounding box but it\'s radius extends beyond', function(done) {
@@ -276,7 +276,7 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']');
-          }), done).toResolve();
+            }), done).toResolve();
     });
 
     it('returns error message when content\'s bounding sphere\'s center is outside tile\'s bounding box and the volumes intersect', function(done) {
@@ -295,7 +295,7 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']');
-          }), done).toResolve();
+            }), done).toResolve();
     });
 
     it('succeeds when content\'s bounding sphere is within tile\'s bounding box', function(done) {
@@ -314,7 +314,7 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBeUndefined();
-          }), done).toResolve();
+            }), done).toResolve();
     });
 
     it('returns error message when content\'s bounding box is not within tile\'s bounding region', function(done) {
@@ -340,7 +340,7 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile region [' + tileBoundingVolume.region + ']');
-          }), done).toResolve();
+            }), done).toResolve();
     });
 
     it('succeeds when content\'s bounding box is within tile\'s bounding region', function(done) {
@@ -366,7 +366,7 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBeUndefined();
-          }), done).toResolve();
+            }), done).toResolve();
     });
 
     it('returns error message when content\'s bounding region is not within tile\'s bounding box', function(done) {
@@ -392,7 +392,7 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('content region [' + contentBoundingVolume.region + '] is not within tile box [' + tileBoundingVolume.box + ']');
-          }), done).toResolve();
+            }), done).toResolve();
     });
 
     it('succeeds when content\'s bounding region is within tile\'s bounding box', function(done) {
@@ -441,7 +441,7 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('content region [' + contentBoundingVolume.region + '] is not within tile sphere [' + tileBoundingVolume.sphere + ']');
-          }), done).toResolve();
+            }), done).toResolve();
     });
 
     it('succeeds when content\'s bounding region is within tile\'s bounding sphere', function(done) {
@@ -487,7 +487,7 @@ describe('validateTileset', function() {
         expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBe('content sphere [' + contentBoundingVolume.sphere + '] is not within tile region [' + tileBoundingVolume.region + ']');
-          }), done).toResolve();
+            }), done).toResolve();
     });
 
     it('succeeds when content\'s bounding sphere is within tile\'s bounding region', function(done) {
