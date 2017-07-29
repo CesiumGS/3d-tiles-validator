@@ -41,6 +41,54 @@ var featureTableSemantics = {
 };
 
 describe('validate feature table', function() {
+    it('returns errror message when featuretable property have overlapping binaries', function() {
+        var featureTableJson = {
+            POSITION : {
+                byteOffset : 0
+            },
+            NORMAL_UP_OCT32P : {
+                byteOffset : 23
+            },
+            SCALE : {
+                byteOffset : 32
+            },
+            BATCH_ID : {
+                byteOffset : 40
+            },
+            BATCH_LENGTH : 2,
+            RTC_CENTER : [0, 0, 0],
+            EAST_NORTH_UP : true
+        };
+        var featureTableBinary = Buffer.alloc(44);
+        var featuresLength = 2;
+        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
+        expect(message).toBeDefined();
+    });
+
+    it('succeeds when featuretable property do not have overlapping binaries', function() {
+        var featureTableJson = {
+            POSITION : {
+                byteOffset : 0
+            },
+            NORMAL_UP_OCT32P : {
+                byteOffset : 24
+            },
+            SCALE : {
+                byteOffset : 32
+            },
+            BATCH_ID : {
+                byteOffset : 40
+            },
+            BATCH_LENGTH : 2,
+            RTC_CENTER : [0, 0, 0],
+            EAST_NORTH_UP : true
+        };
+        var featureTableBinary = Buffer.alloc(44);
+        var featuresLength = 2;
+        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
+        expect(message).toBeUndefined();
+    });
+
     it('returns error message when seeing unexpected feature table property', function() {
         var featureTableJson = {
             INVALID : 0

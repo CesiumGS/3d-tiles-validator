@@ -22,6 +22,11 @@ module.exports = validateFeatureTable;
  * @returns {String} An error message if validation fails, otherwise undefined.
  */
 function validateFeatureTable(schema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics) {
+    var message = checkPropertyOverlapping(featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
+    if (defined(message)) {
+        return message;
+    }
+
     for (var name in featureTableJson) {
         if (featureTableJson.hasOwnProperty(name)) {
             var property = featureTableJson[name];
@@ -42,13 +47,14 @@ function validateFeatureTable(schema, featureTableJson, featureTableBinary, feat
                 if (typeof byteOffset !== 'number') {
                     return 'Feature table binary property "' + name + '" byteOffset must be a number.';
                 }
-                if (defined(componentTypeOptions) && defined(componentTypeOptions) && componentTypeOptions.indexOf(componentType) === -1) {
+                if (defined(componentTypeOptions) && componentTypeOptions.indexOf(componentType) === -1) {
                     return 'Feature table binary property "' + name + '" has invalid componentType "' + componentType + '".';
                 }
                 if (byteOffset % componentByteLength > 0) {
                     return 'Feature table binary property "' + name + '" must be aligned to a ' + componentByteLength + '-byte boundary.';
                 }
                 var propertyByteLength = componentsLength * componentByteLength * itemsLength;
+                
                 if (byteOffset + propertyByteLength > featureTableBinary.length) {
                     return 'Feature table binary property "' + name + '" exceeds feature table binary byte length.';
                 }
@@ -84,4 +90,65 @@ function validateFeatureTable(schema, featureTableJson, featureTableBinary, feat
     if (!validSchema) {
         return 'Feature table JSON failed schema validation: ' + ajv.errorsText();
     }
+}
+
+function checkPropertyOverlapping(featureTableJson, featureTableBinary, featuresLength, featureTableSemantics) {
+    function PropertyInfo(propertyName, currentByteOffset, totalOccupiedBytes, nextByteOffset) {
+        this.propertyName = propertyName;
+        this.currentByteOffset = currentByteOffset;
+        this.totalOccupiedBytes = totalOccupiedBytes;
+        this.nextByteOffset = nextByteOffset;
+    }
+    var count = 0;
+    var arrayOfProperties = [];
+    var returnMessage = undefined;
+    
+    for (var name in featureTableJson) {
+        var property = featureTableJson[name];
+        var definition = featureTableSemantics[name];
+        if (!defined(definition)) {
+            return returnMessage;
+        }
+        var byteOffset = property.byteOffset;
+        var componentType = defaultValue(property.componentType, definition.componentType);
+        var componentTypeOptions = definition.componentTypeOptions;
+        var type = definition.type;
+        var componentsLength = typeToComponentsLength(type);
+        var componentByteLength = componentTypeToByteLength(componentType);
+        var itemsLength = definition.global ? 1 : featuresLength;
+        var propertyByteLength = componentsLength * componentByteLength * itemsLength;
+
+        // console.log('name: ' + name);
+        // console.log('byte offset: ' + byteOffset);
+        // console.log('componentType: ' + componentType);
+        // console.log('type: ' + type);
+        // console.log('componentsLength: ' + componentsLength);
+        // console.log('componentByteLength: ' + componentByteLength)
+        // console.log('itemsLength: ' + itemsLength)
+        // console.log('propertyByteLength: ' + propertyByteLength)
+        // console.log('');
+
+        if (defined(byteOffset)) {
+            var newProperty = new PropertyInfo(name, 1, 1, 1);
+            newProperty.currentByteOffset = byteOffset;
+            newProperty.totalOccupiedBytes = propertyByteLength;
+            newProperty.nextByteOffset = byteOffset + propertyByteLength;
+            arrayOfProperties.push(newProperty);
+        }
+        count++;
+    }
+
+    // Return if only one property
+    if (count == 1) {
+        return returnMessage;
+    }
+
+    // Check overlap
+    for (var i = 0; i < (arrayOfProperties.length - 1); ++i) {
+        if (arrayOfProperties[i].nextByteOffset > arrayOfProperties[i+1].currentByteOffset) {
+            returnMessage = 'binary of property \"' + arrayOfProperties[i].propertyName + '\" overlapps with \"' + arrayOfProperties[i+1].propertyName + '\".';
+            return returnMessage;
+        }
+    }
+    return returnMessage;
 }
