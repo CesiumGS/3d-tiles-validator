@@ -118,16 +118,6 @@ function checkPropertyOverlapping(featureTableJson, featureTableBinary, features
         var itemsLength = definition.global ? 1 : featuresLength;
         var propertyByteLength = componentsLength * componentByteLength * itemsLength;
 
-        // console.log('name: ' + name);
-        // console.log('byte offset: ' + byteOffset);
-        // console.log('componentType: ' + componentType);
-        // console.log('type: ' + type);
-        // console.log('componentsLength: ' + componentsLength);
-        // console.log('componentByteLength: ' + componentByteLength)
-        // console.log('itemsLength: ' + itemsLength)
-        // console.log('propertyByteLength: ' + propertyByteLength)
-        // console.log('');
-
         if (defined(byteOffset)) {
             var newProperty = new PropertyInfo(name, 1, 1, 1);
             newProperty.currentByteOffset = byteOffset;
@@ -144,11 +134,35 @@ function checkPropertyOverlapping(featureTableJson, featureTableBinary, features
     }
 
     // Check overlap
-    for (var i = 0; i < (arrayOfProperties.length - 1); ++i) {
-        if (arrayOfProperties[i].nextByteOffset > arrayOfProperties[i+1].currentByteOffset) {
-            returnMessage = 'binary of property \"' + arrayOfProperties[i].propertyName + '\" overlapps with \"' + arrayOfProperties[i+1].propertyName + '\".';
-            return returnMessage;
+    for (var i = 0; i < arrayOfProperties.length; ++i) {
+        returnMessage = checkOverlap(arrayOfProperties, i);
+        if(defined(returnMessage)) {
+            break;
         }
     }
     return returnMessage;
+}
+
+function checkOverlap(arrayOfProperties, index) {
+    var tempPropertyName = arrayOfProperties[index].propertyName;
+    var tempCurrentByteOffset = arrayOfProperties[index].currentByteOffset;
+    var tempNextByteOffset = arrayOfProperties[index].nextByteOffset;
+    var message = undefined;
+
+    for(var i = 0; i < arrayOfProperties.length; ++i) {
+        if (i == index) {
+            continue;
+        }
+        if (tempCurrentByteOffset < arrayOfProperties[i].currentByteOffset && tempNextByteOffset > arrayOfProperties[i].currentByteOffset) {
+            message = 'binary of property \"' + tempPropertyName + '\" overlapps with \"' + arrayOfProperties[i].propertyName + '\".';
+            break;
+        } else if (tempCurrentByteOffset > arrayOfProperties[i].currentByteOffset && tempCurrentByteOffset < arrayOfProperties[i].nextByteOffset) {
+            message = 'binary of property \"' + tempPropertyName + '\" overlapps with \"' + arrayOfProperties[i].propertyName + '\".';
+            break;
+        } else if (tempCurrentByteOffset == arrayOfProperties[i].currentByteOffset) {
+            message = 'binary of property \"' + tempPropertyName + '\" overlapps with \"' + arrayOfProperties[i].propertyName + '\".';
+            break;
+        }
+    }
+    return message;
 }
