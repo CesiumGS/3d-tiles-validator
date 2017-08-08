@@ -257,4 +257,125 @@ describe('validate pnts', function() {
         });
         expect(validatePnts(pnts)).toBeUndefined();
     });
+
+    it('returns error message when RGBA is out of range [Test using feature table JSON]', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                RGBA : [
+                    255, 0, 0, 0,
+                    0, 255, 0, 0,
+                    0, 255, 255, 0,
+                    256, 0, 0, 0]
+            }
+        });
+        expect(validatePnts(pnts)).toBe('values in RGBA must be in the range 0-255 inclusive');
+    });
+
+    it('returns error message when RGBA is out of range [Test using feature table Binary]', function() {
+        var positionArray = new Float32Array([
+            0, 0, 0,
+            1, 0, 0,
+            0, 0, 1,
+            0, 1, 0
+        ]);
+        var positionBinary = Buffer.from(positionArray.buffer);
+
+        var rgbaArray = new Uint8Array([
+            255, 0, 0, 0,
+            0, 255, 0, 0,
+            0, 255, 255, 0,
+            255, 0, 0, 0
+        ]);
+        var rgbaBinary = Buffer.from(rgbaArray.buffer);
+
+        var combinedBinary = Buffer.concat([positionBinary, rgbaBinary]);
+
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : {
+                    byteOffset : 0
+                },
+                RGBA : {
+                    byteOffset : 48
+                }
+            },
+            featureTableBinary : combinedBinary
+        });
+        expect(validatePnts(pnts)).toBe('values in RGBA must be in the range 0-255 inclusive');
+    });
+
+    it('returns error message when RGB is out of range [Test using feature table JSON]', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                RGB : [
+                    255, 0, 0,
+                    0, 255, 0,
+                    0, 255, 255,
+                    256, 0, 0]
+            }
+        });
+        expect(validatePnts(pnts)).toBe('values in RGB must be in the range 0-255 inclusive');
+    });
+
+    it('returns error message when RGB is out of range [Test using feature table Binary]', function() {
+        var positionArray = new Float32Array([
+            0, 0, 0,
+            1, 0, 0,
+            0, 0, 1,
+            0, 1, 0
+        ]);
+        var positionBinary = Buffer.from(positionArray.buffer);
+
+        var rgbArray = new Uint8Array([
+            255, 0, 0,
+            0, 255, 0,
+            0, 255, 255,
+            255, 0, 0
+        ]);
+        var rgbBinary = Buffer.from(rgbArray.buffer);
+
+        var combinedBinary = Buffer.concat([positionBinary, rgbBinary]);
+
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : {
+                    byteOffset : 0
+                },
+                RGB : {
+                    byteOffset : 48
+                }
+            },
+            featureTableBinary : combinedBinary
+        });
+        expect(validatePnts(pnts)).toBe('values in RGB must be in the range 0-255 inclusive');
+    });
+
+    it('returns error message when CONSTANT_RGBA is out of range', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                CONSTANT_RGBA : [256, 0, 0, 1]
+            }
+        });
+        expect(validatePnts(pnts)).toBe('values in CONSTANT_RGBA must be in the range 0-255 inclusive');
+    });
 });

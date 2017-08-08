@@ -183,16 +183,48 @@ function validatePnts(content) {
         return 'Feature table property BATCH_LENGTH must be less than or equal to POINTS_LENGTH.';
     }
 
+    var featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
+    featureTable.featuresLength = pointsLength;
+    var i;
+    var componentDatatype;
+
     if (defined(featureTableJson.BATCH_ID)) {
-        var featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
-        featureTable.featuresLength = pointsLength;
-        var componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.BATCH_ID.componentType, 'UNSIGNED_SHORT'));
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.BATCH_ID.componentType, 'UNSIGNED_SHORT'));
         var batchIds = featureTable.getPropertyArray('BATCH_ID', componentDatatype, 1);
         var length = batchIds.length;
-        for (var i = 0; i < length; i++) {
+        for (i = 0; i < length; i++) {
             if (batchIds[i] >= featureTableJson.BATCH_LENGTH) {
                 return 'All the BATCH_IDs must have values less than feature table property BATCH_LENGTH.';
             }
+        }
+    }
+
+    if (defined(featureTableJson.RGBA)) {
+        featureTable.featuresLength = pointsLength * 4;
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGBA.componentType, 'UNSIGNED_SHORT', 4)); // UNSIGNED_BYTE
+        var rgba = featureTable.getPropertyArray('RGBA', componentDatatype, 1);
+        var max = Math.max(...rgba);
+        var min = Math.min(...rgba);
+        if (min < 0 || max > 255) {
+            return 'values in RGBA must be in the range 0-255 inclusive';
+        }
+    } else if (defined(featureTableJson.RGB)) {
+        featureTable.featuresLength = pointsLength * 3;
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB.componentType, 'UNSIGNED_SHORT', 3)); // UNSIGNED_BYTE
+        var rgb = featureTable.getPropertyArray('RGB', componentDatatype, 1);
+        var max = Math.max(...rgb);
+        var min = Math.min(...rgb);
+        if (min < 0 || max > 255) {
+            return 'values in RGB must be in the range 0-255 inclusive';
+        }
+    } else if (defined(featureTableJson.RGB565)) {
+        console.log('rgb365');
+    } else if (defined(featureTableJson.CONSTANT_RGBA)) {
+        var rgba = featureTableJson.CONSTANT_RGBA;
+        var max = Math.max(...rgba);
+        var min = Math.min(...rgba);
+        if (min < 0 || max > 255) {
+            return 'values in CONSTANT_RGBA must be in the range 0-255 inclusive';
         }
     }
 
