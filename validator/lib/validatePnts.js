@@ -206,7 +206,7 @@ function validatePnts(content) {
         var max = Math.max(...rgba);
         var min = Math.min(...rgba);
         if (min < 0 || max > 255) {
-            return 'values in RGBA must be in the range 0-255 inclusive';
+            return 'values of RGBA must be in the range 0-255 inclusive';
         }
     } else if (defined(featureTableJson.RGB)) {
         featureTable.featuresLength = pointsLength * 3;
@@ -215,16 +215,24 @@ function validatePnts(content) {
         var max = Math.max(...rgb);
         var min = Math.min(...rgb);
         if (min < 0 || max > 255) {
-            return 'values in RGB must be in the range 0-255 inclusive';
+            return 'values of RGB must be in the range 0-255 inclusive';
         }
     } else if (defined(featureTableJson.RGB565)) {
-        console.log('rgb365');
+        featureTable.featuresLength = pointsLength;
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB565.componentType, 'UNSIGNED_INT', 1)); // UNSIGNED_BYTE
+        var rgb565 = featureTable.getPropertyArray('RGB565', componentDatatype, 1);
+        //console.log(rgb565);
+        var max = Math.max(...rgb565);
+        var min = Math.min(...rgb565);
+        if (min < 0 || max > 65535) {
+            return 'value of RGB565 must be in the range 0-65535 inclusive';
+        }
     } else if (defined(featureTableJson.CONSTANT_RGBA)) {
         var rgba = featureTableJson.CONSTANT_RGBA;
         var max = Math.max(...rgba);
         var min = Math.min(...rgba);
         if (min < 0 || max > 255) {
-            return 'values in CONSTANT_RGBA must be in the range 0-255 inclusive';
+            return 'values of CONSTANT_RGBA must be in the range 0-255 inclusive';
         }
     }
 
