@@ -154,4 +154,87 @@ describe('validate batch table', function() {
         var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
         expect(message).toBeUndefined();
     });
+
+    // TESTS FOR BATCH TABLE HIERARCHY VALIDATION
+    it('returns error message if in a batch table hierarchy, a class\'s instance has more elements than class\'s length property', function() {
+        var batchTableJson = {
+            HIERARCHY : {
+                classes : [
+                {
+                    name : 'Wall',
+                    length : 6,
+                    instances : {
+                        wall_color : ['blue', 'pink', 'green', 'lime', 'black', 'brown'],
+                        wall_windows : [2, 4, 4, 2, 0, 3]
+                    }
+                },
+                {
+                    name : 'Building',
+                    length : 3,
+                    instances : {
+                        building_name : ['building_0', 'building_1', 'building_2'],
+                        building_id : [0, 1, 2],
+                        building_address : ['10 Main St', '12 Main St', '14 Main St', '16 Main St']
+                    }
+                },
+                {
+                    name : 'Block',
+                    length : 1,
+                    instances : {
+                        block_lat_long : [[0.12, 0.543]],
+                        block_district : ['central']
+                    }
+                }
+                ],
+                instancesLength : 10,
+                classIds : [0, 0, 0, 0, 0, 0, 1, 1, 1, 2],
+                parentIds : [6, 6, 7, 7, 8, 8, 9, 9, 9, 9]
+            }
+        };
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 9;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('instance building_address of class Building must have 3 elements');
+    });
+
+    it('succeeds for a valid batch table hierarchy', function() {
+        var batchTableJson = {
+            HIERARCHY : {
+                classes : [
+                {
+                    name : 'Wall',
+                    length : 6,
+                    instances : {
+                        wall_color : ['blue', 'pink', 'green', 'lime', 'black', 'brown'],
+                        wall_windows : [2, 4, 4, 2, 0, 3]
+                    }
+                },
+                {
+                    name : 'Building',
+                    length : 3,
+                    instances : {
+                        building_name : ['building_0', 'building_1', 'building_2'],
+                        building_id : [0, 1, 2],
+                        building_address : ['10 Main St', '12 Main St', '14 Main St']
+                    }
+                },
+                {
+                    name : 'Block',
+                    length : 1,
+                    instances : {
+                        block_lat_long : [[0.12, 0.543]],
+                        block_district : ['central']
+                    }
+                }
+                ],
+                instancesLength : 10,
+                classIds : [0, 0, 0, 0, 0, 0, 1, 1, 1, 2],
+                parentIds : [6, 6, 7, 7, 8, 8, 9, 9, 9, 9]
+            }
+        };
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 9;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBeUndefined();
+    });
 });

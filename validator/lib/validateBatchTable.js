@@ -58,7 +58,23 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                     return 'Batch table binary property "' + name + '" exceeds batch table binary byte length.';
                 }
             } else if (name === 'HIERARCHY') {
-                // TODO : validate batch table hierarchy
+                var tree = batchTableJson['HIERARCHY'];
+                // CHECK if instance has more elements than class\'s length property
+                var classes = tree['classes'];
+                for (var className in classes) {
+                    if (defined(className)) {
+                        var length = classes[className]['length'];
+                        var instances = classes[className]['instances'];
+                        for (var instanceName in instances) {
+                            if(defined(instanceName)) {
+                                var instance = instances[instanceName];
+                                if (instance.length !== length) {
+                                    return 'instance ' + instanceName + ' of class ' + classes[className]['name'] + ' must have ' + length + ' elements';
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 if (!Array.isArray(property)) {
                     return 'Batch table property "' + name + '" must be an array.';
