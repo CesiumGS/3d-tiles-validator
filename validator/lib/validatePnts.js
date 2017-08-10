@@ -185,14 +185,13 @@ function validatePnts(content) {
 
     var featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
     featureTable.featuresLength = pointsLength;
-    var i;
     var componentDatatype;
 
     if (defined(featureTableJson.BATCH_ID)) {
         componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.BATCH_ID.componentType, 'UNSIGNED_SHORT'));
         var batchIds = featureTable.getPropertyArray('BATCH_ID', componentDatatype, 1);
         var length = batchIds.length;
-        for (i = 0; i < length; i++) {
+        for (var i = 0; i < length; i++) {
             if (batchIds[i] >= featureTableJson.BATCH_LENGTH) {
                 return 'All the BATCH_IDs must have values less than feature table property BATCH_LENGTH.';
             }
@@ -201,7 +200,7 @@ function validatePnts(content) {
 
     if (defined(featureTableJson.RGBA)) {
         featureTable.featuresLength = pointsLength * 4;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGBA.componentType, 'UNSIGNED_SHORT', 4)); // UNSIGNED_BYTE
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGBA.componentType, 'UNSIGNED_SHORT', 4));
         var rgba = featureTable.getPropertyArray('RGBA', componentDatatype, 1);
         var max = Math.max(...rgba);
         var min = Math.min(...rgba);
@@ -210,7 +209,7 @@ function validatePnts(content) {
         }
     } else if (defined(featureTableJson.RGB)) {
         featureTable.featuresLength = pointsLength * 3;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB.componentType, 'UNSIGNED_SHORT', 3)); // UNSIGNED_BYTE
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB.componentType, 'UNSIGNED_SHORT', 3));
         var rgb = featureTable.getPropertyArray('RGB', componentDatatype, 1);
         var max = Math.max(...rgb);
         var min = Math.min(...rgb);
@@ -219,7 +218,7 @@ function validatePnts(content) {
         }
     } else if (defined(featureTableJson.RGB565)) {
         featureTable.featuresLength = pointsLength;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB565.componentType, 'UNSIGNED_INT', 1)); // UNSIGNED_BYTE
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB565.componentType, 'UNSIGNED_INT', 1));
         var rgb565 = featureTable.getPropertyArray('RGB565', componentDatatype, 1);
         var max = Math.max(...rgb565);
         var min = Math.min(...rgb565);
