@@ -221,7 +221,6 @@ function validatePnts(content) {
         featureTable.featuresLength = pointsLength;
         componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB565.componentType, 'UNSIGNED_INT', 1)); // UNSIGNED_BYTE
         var rgb565 = featureTable.getPropertyArray('RGB565', componentDatatype, 1);
-        //console.log(rgb565);
         var max = Math.max(...rgb565);
         var min = Math.min(...rgb565);
         if (min < 0 || max > 65535) {

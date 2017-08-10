@@ -1,9 +1,7 @@
 'use strict';
 var validatePnts = require('../../lib/validatePnts');
 var specUtility = require('./specUtility.js');
-//var Cesium = require('cesium');
 
-//var Color = Cesium.Color;
 var createPnts = specUtility.createPnts;
 
 describe('validate pnts', function() {
@@ -366,45 +364,7 @@ describe('validate pnts', function() {
         expect(validatePnts(pnts)).toBe('values of RGB must be in the range 0-255 inclusive');
     });
 
-    it('returns error message when CONSTANT_RGBA is out of range', function() {
-        var pnts = createPnts({
-            featureTableJson : {
-                POINTS_LENGTH : 4,
-                POSITION : [
-                    0, 0, 0,
-                    1, 0, 0,
-                    0, 0, 1,
-                    0, 1, 0],
-                CONSTANT_RGBA : [256, 0, 0, 1]
-            }
-        });
-        expect(validatePnts(pnts)).toBe('values of CONSTANT_RGBA must be in the range 0-255 inclusive');
-    });
-
     it('returns error message when RGB565 is out of range [Test using feature table JSON]', function() {
-        // var col = [
-        //     255, 0, 0,
-        //     0, 255, 0,
-        //     0, 0, 255,
-        //     256, 0, 0];
-
-        // var color565 = [];
-        // for (var i=0; i<4; i++) {
-        //     var colrgb = [col[i*3], col[i*3+1], col[i*3+2]];
-        //     console.log('colrgb: '+colrgb);
-        //     var col565 = getRGB565(colrgb);
-        //     console.log('col565: '+col565);
-        //     color565.push(col565);
-        //     console.log(getRGB(col565));
-        // }
-        // console.log(color565);
-///
-        // var col = [0, 255, 0];
-        // var color565 = getRGB565(col);
-        // console.log('565: '+color565);
-        // var colrgb = getRGB(color565);
-        // console.log('rgb: '+colrgb);
-
         var pnts = createPnts({
             featureTableJson : {
                 POINTS_LENGTH : 4,
@@ -447,43 +407,19 @@ describe('validate pnts', function() {
         });
         expect(validatePnts(pnts)).toBe('value of RGB565 must be in the range 0-65535 inclusive');
     });
+
+    it('returns error message when CONSTANT_RGBA is out of range', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                CONSTANT_RGBA : [256, 0, 0, 1]
+            }
+        });
+        expect(validatePnts(pnts)).toBe('values of CONSTANT_RGBA must be in the range 0-255 inclusive');
+    });
 });
-
-// function getRGB565(color) {
-//     var SHIFT_LEFT_11 = 2048.0;
-//     var SHIFT_LEFT_5 = 32.0;
-//     var r = Math.floor(color[0] * 31); // 5 bits
-//     console.log('r= '+r);
-//     var g = Math.floor(color[1] * 63); // 6 bits
-//     console.log('g= '+g);
-//     var b = Math.floor(color[2] * 31); // 5 bits
-//     console.log('b= '+b);
-//     var packedColor = (r * SHIFT_LEFT_11) + (g * SHIFT_LEFT_5) + b;
-//     // var buffer = Buffer.alloc(2);
-//     // buffer.writeUInt16LE(packedColor);
-//     return packedColor;
-// }
-
-// function getRGB(compressed) {
-//     var SHIFT_RIGHT_11 = 1.0 / 2048.0;
-//     var SHIFT_RIGHT_5 = 1.0 / 32.0;
-//     var SHIFT_LEFT_11 = 2048.0;
-//     var SHIFT_LEFT_5 = 32.0;
-//     var NORMALIZE_6 = 1.0 / 64.0;
-//     var NORMALIZE_5 = 1.0 / 32.0;
-
-//     var r = Math.floor(compressed * SHIFT_RIGHT_11);
-//     console.log('r= '+r);
-//     compressed -= r * SHIFT_LEFT_11;
-//     console.log('comp= '+compressed);
-//     var g = Math.floor(compressed * SHIFT_RIGHT_5);
-//     console.log('g= '+g);
-//     compressed -= g * SHIFT_LEFT_5;
-//     console.log('comp= '+compressed);
-//     var b = compressed;
-//     console.log('b= '+b);
-//     console.log('comp= '+compressed);
-//     var rgb = [r * NORMALIZE_5, g * NORMALIZE_6, b * NORMALIZE_5];
-//     console.log('rgb= '+rgb);
-//     return rgb;
-// }
