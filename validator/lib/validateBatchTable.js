@@ -59,11 +59,13 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                 }
             } else if (name === 'HIERARCHY') {
                 var tree = batchTableJson['HIERARCHY'];
-                // CHECK if instance has more elements than class\'s length property
+                var totalLength = 0;
+                // CHECK - error if instance has more elements than class\'s length property
                 var classes = tree['classes'];
                 for (var className in classes) {
                     if (defined(className)) {
                         var length = classes[className]['length'];
+                        totalLength += length;
                         var instances = classes[className]['instances'];
                         for (var instanceName in instances) {
                             if(defined(instanceName)) {
@@ -74,6 +76,37 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                             }
                         }
                     }
+                }
+                // CHECK - instancesLength must be equal to sum of length property of all classes
+                var instancesLength = tree['instancesLength'];
+                if (instancesLength !== totalLength) {
+                    return 'instancesLength must be equal to '+totalLength;
+                }
+
+                var classIdsLength = tree['classIds'].length;
+                if (classIdsLength !== instancesLength) {
+                    return 'length of classIds array must be equal to '+instancesLength;
+                }
+
+                var parentIdsLength = tree['parentIds'].length;
+                var parentCounts = tree['parentCounts'];
+                if (defined(parentCounts)) {
+                    var parentCountsLength = parentCounts.length;
+                    if (parentCountsLength !== instancesLength) {
+                        return 'length of parentCounts array must be equal to '+instancesLength;
+                    }
+                    var sumValues = 0;
+                    for (var value in parentCounts) {
+                        if (defined(value)) {
+                            sumValues += parentCounts[value];
+                        }
+                    }
+                    if (parentIdsLength !== sumValues) {
+                        return 'length of parentIds array must be equal to '+sumValues;
+                    }
+                }
+                else if (parentIdsLength !== instancesLength) {
+                        return 'length of parentIds array must be equal to '+instancesLength;
                 }
             } else {
                 if (!Array.isArray(property)) {
