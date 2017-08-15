@@ -59,8 +59,8 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                 }
             } else if (name === 'HIERARCHY') {
                 var tree = batchTableJson['HIERARCHY'];
+
                 var totalLength = 0;
-                // CHECK - error if instance has more elements than class\'s length property
                 var classes = tree['classes'];
                 for (var className in classes) {
                     if (defined(className)) {
@@ -77,7 +77,7 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                         }
                     }
                 }
-                // CHECK - instancesLength must be equal to sum of length property of all classes
+
                 var instancesLength = tree['instancesLength'];
                 if (instancesLength !== totalLength) {
                     return 'instancesLength must be equal to '+totalLength;
@@ -88,7 +88,18 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                     return 'length of classIds array must be equal to '+instancesLength;
                 }
 
-                var parentIdsLength = tree['parentIds'].length;
+                for (var classId in tree['classIds']) {
+                    if (defined(classId)) {
+                        var classIdValue = tree['classIds'][classId];
+                        if (classIdValue < 0 || classIdValue > classes.length-1) {
+                            return 'classIds must be between 0-'+(classes.length-1);
+                        }
+                    }
+                }
+
+                var value;
+                var parentIds = tree['parentIds'];
+                var parentIdsLength = parentIds.length;
                 var parentCounts = tree['parentCounts'];
                 if (defined(parentCounts)) {
                     var parentCountsLength = parentCounts.length;
@@ -96,17 +107,31 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                         return 'length of parentCounts array must be equal to '+instancesLength;
                     }
                     var sumValues = 0;
-                    for (var value in parentCounts) {
+                    for (value in parentCounts) {
                         if (defined(value)) {
-                            sumValues += parentCounts[value];
+                            var pcValue = parentCounts[value];
+                            if(pcValue < 0 || pcValue > instancesLength-1) {
+                                return 'parentCounts values must be between 0-'+(instancesLength-1);
+                            }
+                            sumValues += pcValue;
                         }
                     }
-                    if (parentIdsLength !== sumValues) {
+                    if (defined(parentIds) && parentIdsLength !== sumValues) {
                         return 'length of parentIds array must be equal to '+sumValues;
                     }
                 }
-                else if (parentIdsLength !== instancesLength) {
+                else if (defined(parentIds)){
+                    if (parentIdsLength !== instancesLength) {
                         return 'length of parentIds array must be equal to '+instancesLength;
+                    }
+                    for (value in parentIds) {
+                        if (defined(value)) {
+                            var pidValue = parentIds[value];
+                            if(pidValue < 0 || pidValue > instancesLength-1) {
+                                return 'parentIds must be between 0-'+(instancesLength-1);
+                            }
+                        }
+                    }
                 }
             } else {
                 if (!Array.isArray(property)) {

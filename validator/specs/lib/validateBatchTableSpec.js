@@ -193,7 +193,7 @@ describe('validate batch table', function() {
     });
 
     // TESTS FOR BATCH TABLE HIERARCHY VALIDATION
-    it('returns error message if in a batch table hierarchy, a class\'s instance has more elements than class\'s length property', function() {
+    it('returns error message if a class\'s instance has more elements than class\'s length property [batch table hierarchy]', function() {
         var batchTableJson = clone(batchTableHierarchy, true);
         batchTableJson['HIERARCHY']['classes'][1]['instances']['address'].push('105 Main St');
         var batchTableBinary = Buffer.alloc(0);
@@ -202,7 +202,7 @@ describe('validate batch table', function() {
         expect(message).toBe('instance address of class Building must have 3 elements');
     });
 
-    it('returns error message if instancesLength is not equal to sum of length property of all classes', function() {
+    it('returns error message if instancesLength is not equal to sum of length property of all classes [batch table hierarchy]', function() {
         var batchTableJson = clone(batchTableHierarchy, true);
         batchTableJson['HIERARCHY']['instancesLength'] = 11;
         var batchTableBinary = Buffer.alloc(0);
@@ -211,13 +211,40 @@ describe('validate batch table', function() {
         expect(message).toBe('instancesLength must be equal to 12');
     });
 
-    it('returns error message if length of classIds array is not equal to instancesLength', function() {
+    it('returns error message if length of classIds array is not equal to instancesLength [batch table hierarchy]', function() {
         var batchTableJson = clone(batchTableHierarchy, true);
         batchTableJson['HIERARCHY']['classIds'].pop();
         var batchTableBinary = Buffer.alloc(0);
         var featuresLength = 12;
         var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
         expect(message).toBe('length of classIds array must be equal to 12');
+    });
+
+    it('returns error message if classIds are not between 0-(classes.length-1) [batch table hierarchy]', function() {
+        var batchTableJson = clone(batchTableHierarchy, true);
+        batchTableJson['HIERARCHY']['classIds'][0] = 3;
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 12;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('classIds must be between 0-2');
+    });
+
+    it('returns error message if length of parentCounts array is not equal to instancesLength', function() {
+        var batchTableJson = clone(batchTableHierarchy, true);
+        batchTableJson['HIERARCHY']['parentCounts'].pop();
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 12;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('length of parentCounts array must be equal to 12');
+    });
+
+    it('returns error message if parentCounts values are not between 0-(instancesLength-1)', function() {
+        var batchTableJson = clone(batchTableHierarchy, true);
+        batchTableJson['HIERARCHY']['parentCounts'][0] = 12;
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 12;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('parentCounts values must be between 0-11');
     });
 
     it('returns error message if length of parentIds array is not equal to instancesLength when parentCounts is not defined', function() {
@@ -230,15 +257,6 @@ describe('validate batch table', function() {
         expect(message).toBe('length of parentIds array must be equal to 12');
     });
 
-    it('returns error message if length of parentCounts array is not equal to instancesLength', function() {
-        var batchTableJson = clone(batchTableHierarchy, true);
-        batchTableJson['HIERARCHY']['parentCounts'].pop();
-        var batchTableBinary = Buffer.alloc(0);
-        var featuresLength = 12;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBe('length of parentCounts array must be equal to 12');
-    });
-
     it('returns error message if length of parentIds array is not equal to the sum of values of parentCounts array', function() {
         var batchTableJson = clone(batchTableHierarchy, true);
         batchTableJson['HIERARCHY']['parentIds'] = [6, 6, 10, 11, 7, 11, 7, 8, 8, 10, 10];
@@ -246,6 +264,16 @@ describe('validate batch table', function() {
         var featuresLength = 12;
         var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
         expect(message).toBe('length of parentIds array must be equal to 12');
+    });
+
+    it('returns error message if parentIds are not between 0-(instancesLength-1)', function() {
+        var batchTableJson = clone(batchTableHierarchy, true);
+        batchTableJson['HIERARCHY']['parentCounts'] = undefined;
+        batchTableJson['HIERARCHY']['parentIds'][0] = 12;
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 12;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('parentIds must be between 0-11');
     });
 
     it('succeeds for a valid batch table hierarchy', function() {
