@@ -136,6 +136,52 @@ describe('validate pnts', function() {
         expect(validatePnts(pnts)).toBe('Feature table property BATCH_LENGTH must be less than or equal to POINTS_LENGTH.');
     });
 
+    it('returns error message if any BATCH_ID is greater than BATCH_LENGTH [Test using feature table JSON]: ', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 3,
+                POSITION : [1, 0, 0, 0, 1, 0, 0, 0, 1],
+                BATCH_ID : [0, 1, 2],
+                BATCH_LENGTH : 2
+            }
+        });
+        expect(validatePnts(pnts)).toBe('All the BATCH_IDs must have values less than feature table property BATCH_LENGTH.');
+    });
+
+    it('returns error message if any BATCH_ID is greater than BATCH_LENGTH [Test using feature table binary]: ', function() {
+        var positionArray = new Float32Array([
+            1.0, 0.0, 0.0,
+            0.0, 1.0, 0.0,
+            0.0, 0.0, 1.0
+        ]);
+        var positionBinary = Buffer.from(positionArray.buffer);
+
+        var batchIdArray = new Uint8Array([
+            0,
+            1,
+            2
+        ]);
+        var batchIdBinary = Buffer.from(batchIdArray.buffer);
+
+        var combinedBinary = Buffer.concat([positionBinary, batchIdBinary]);
+
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 3,
+                BATCH_LENGTH : 2,
+                POSITION : {
+                    byteOffset : 0
+                },
+                BATCH_ID : {
+                    byteOffset : 36,
+                    componentType : 'UNSIGNED_BYTE'
+                }
+            },
+            featureTableBinary : combinedBinary
+        });
+        expect(validatePnts(pnts)).toBe('All the BATCH_IDs must have values less than feature table property BATCH_LENGTH.');
+    });
+
     it('returns error message if feature table is invalid', function() {
         var pnts = createPnts({
             featureTableJson : {
@@ -163,7 +209,6 @@ describe('validate pnts', function() {
                 }
             }
         });
-
         expect(validatePnts(pnts)).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
     });
 

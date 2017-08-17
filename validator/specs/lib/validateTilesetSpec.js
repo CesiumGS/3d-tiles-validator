@@ -41,47 +41,47 @@ var sampleTileset = {
 };
 
 describe('validateTileset', function() {
-    fit('returns error message when the geometricError is not defined', function(done) {
+    it('returns error message when the geometricError is not defined', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.root.children[0].geometricError;
         expect(validateTileset(tileset)
             .then(function(message) {
-                var str = 'Each tile must define geometricError';
-                expect(message.slice(0, str.length)).toBe(str);
+                var err = 'Each tile must define geometricError';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
-    fit('returns error message when the geometricError is less than 0.0', function(done) {
+    it('returns error message when the geometricError is less than 0.0', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.root.children[0].geometricError = -1;
         expect(validateTileset(tileset)
             .then(function(message) {
-                var str = 'geometricError must be greater than or equal to 0.0';
-                expect(message.slice(0, str.length)).toBe(str);
+                var err = 'geometricError must be greater than or equal to 0.0';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
-    fit('returns error message when child has geometricError greater than parent', function(done) {
+    it('returns error message when child has geometricError greater than parent', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.root.children[0].geometricError = 80;
         expect(validateTileset(tileset)
             .then(function(message) {
-                var str = 'Child has geometricError greater than parent';
-                expect(message.slice(0, str.length)).toBe(str);
+                var err = 'Child has geometricError greater than parent';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
-    fit('returns error message when refine property of tile has incorrect value', function(done) {
+    it('returns error message when refine property of tile has incorrect value', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.root.children[0].refine = 'NEW';
         expect(validateTileset(tileset)
             .then(function(message) {
-                var str = 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
-                expect(message.slice(0, str.length)).toBe(str);
+                var err = 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
-    fit('returns error message when the top-level geometricError is missing', function(done) {
+    it('returns error message when the top-level geometricError is missing', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.geometricError;
         expect(validateTileset(tileset)
@@ -90,17 +90,17 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    fit('returns error message when refine property is not defined in root tile', function(done) {
+    it('returns error message when refine property is not defined in root tile', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.root.refine;
         expect(validateTileset(tileset)
             .then(function(message) {
-                var str = 'Tileset must define refine property in root tile';
-                expect(message.slice(0, str.length)).toBe(str);
+                var err = 'Tileset must define refine property in root tile';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
-    fit('returns error message when the top-level asset is missing', function(done) {
+    it('returns error message when the top-level asset is missing', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.asset;
         expect(validateTileset(tileset)
@@ -109,7 +109,7 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    fit('returns error message when asset.version property is missing', function(done) {
+    it('returns error message when asset.version property is missing', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.asset.version;
         expect(validateTileset(tileset)
@@ -118,7 +118,7 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    fit('returns error message when asset.version property value is incorrect', function(done) {
+    it('returns error message when asset.version property value is incorrect', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.asset.version = '0.0';
         expect(validateTileset(tileset)
@@ -127,20 +127,236 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    fit('returns error message when the up-axis is not X, Y, or Z', function(done) {
+    it('returns error message when the up-axis is not X, Y, or Z', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.asset.gltfUpAxis = 'A';
         expect(validateTileset(tileset)
             .then(function(message) {
-                var str = 'gltfUpAxis should either be "X", "Y", or "Z".';
-                expect(message.slice(0, str.length)).toBe(str);
+                var err = 'gltfUpAxis should either be "X", "Y", or "Z".';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
-    fit('succeeds for valid tileset', function(done) {
-        expect(validateTileset(sampleTileset)
+    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s box type boundingVolume [invalid aligned bounding boxes]', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                0, 0, 0,
+                7.0955, 0, 0,
+                0, 3.1405, 0,
+                0, 0, 5.0375
+            ]
+        };
+        var contentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                7.0955, 0, 0,
+                0, 3.1405, 0,
+                0, 0, 5.04
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                var err = 'content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
+            }), done).toResolve();
+    });
+
+    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s box type boundingVolume [invalid unaligned bounding boxes]', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var contentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 1, 0,
+                1, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                var err = 'content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
+            }), done).toResolve();
+    });
+
+    it('succeeds when a content\'s box type boundingVolume is within it\'s tile\'s box type boundingVolume [valid bounding boxes]', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var contentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                0.5, 0.5, 0,
+                0.5, 0.5, 0,
+                0, 0, 1
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBeUndefined();
+            }), done).toResolve();
+    });
+
+    it('returns error message when content\'s box type boundingVolume is not within it\'s tile\'s sphere type boundingVolume', function(done) {
+        var tileBoundingVolume = {
+            sphere: [0, 0, 0, 1]
+        };
+        var contentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 0.5, 0,
+                0, 0, 0.7
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                var err = 'content box [' + contentBoundingVolume.box + '] is not within tile sphere [' + tileBoundingVolume.sphere + ']';
+                expect(message.slice(0, err.length)).toBe(err);
+            }), done).toResolve();
+    });
+
+    it('succeeds when content\'s box type boundingVolume is within it\'s tile\'s sphere type boundingVolume', function(done) {
+        var tileBoundingVolume = {
+            sphere: [0, 0, 0, 1]
+        };
+        var contentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                0.5, 0, 0,
+                0, 0.5, 0,
+                0, 0, 0.5
+            ]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBeUndefined();
+            }), done).toResolve();
+    });
+
+    it('returns error message when content\'s sphere type boundingVolume is entirely outside tile\'s box type boundingVolume', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                0, 0, 0,
+                7, 0, 0,
+                0, 3, 0,
+                0, 0, 5
+            ]
+        };
+        var contentBoundingVolume = {
+            sphere: [10, 10, 10, 1]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                var err = 'content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
+          }), done).toResolve();
+    });
+
+    it('returns error message when content\'s bounding sphere\'s center is within the tile\'s bounding box but it\'s radius extends beyond', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var contentBoundingVolume = {
+            sphere: [0, 0, 0, 1.1]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                var err = 'content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
+          }), done).toResolve();
+    });
+
+    it('returns error message when content\'s bounding sphere\'s center is outside tile\'s bounding box and the volumes intersect', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                0, 0, 0,
+                7, 0, 0,
+                0, 3, 0,
+                0, 0, 5
+            ]
+        };
+        var contentBoundingVolume = {
+            sphere: [0, 5, 0, 3]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                var err = 'content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
+          }), done).toResolve();
+    });
+
+    it('succeeds when content\'s bounding sphere is within tile\'s bounding box', function(done) {
+        var tileBoundingVolume = {
+            box: [
+                0, 0, 0,
+                7, 0, 0,
+                0, 3, 0,
+                0, 0, 5
+            ]
+        };
+        var contentBoundingVolume = {
+            sphere: [0, 0, 0, 2]
+        };
+        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        expect(validateTileset(tileset)
             .then(function(message) {
                 expect(message).toBeUndefined();
           }), done).toResolve();
     });
+
+    it('succeeds for valid tileset', function(done) {
+        expect(validateTileset(sampleTileset)
+            .then(function(message) {
+                expect(message).toBeUndefined();
+            }), done).toResolve();
+    });
 });
+
+function createSampleTileset(tileBoundingVolume, contentBoundingVolume) {
+    var sampleTileset = {
+        asset: {
+            version: '1.0'
+        },
+        geometricError: 500,
+        root: {
+            transform: [
+                96.86356343768793, 24.848542777253734, 0, 0,
+                -15.986465724980844, 62.317780594908875, 76.5566922962899, 0,
+                19.02322243409411, -74.15554020821229, 64.3356267137516, 0,
+                1215107.7612304366, -4736682.902037748, 4081926.095098698, 1
+            ],
+            boundingVolume: tileBoundingVolume,
+            geometricError: 100,
+            refine: 'ADD',
+            content: {
+                boundingVolume: contentBoundingVolume
+            }
+        }
+    };
+    return sampleTileset;
+}
