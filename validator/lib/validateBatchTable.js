@@ -132,17 +132,17 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                         }
                     }
                 }
-                // CIRCULAR DEPENDENCY CHECK
+
                 if (defined(parentIds)) {
                     var valid = [];
                     var i;
-                    for (i=0; i<instancesLength; i++) {
+                    for (i = 0; i < instancesLength; i++) {
                         valid[i] = false;
                     }
                     var parentArray = [];
                     if (defined(parentCounts)) {
                         var currentIndex = 0;
-                        for (i=0; i<instancesLength; i++) {
+                        for (i = 0; i < instancesLength; i++) {
                             var numParents = parentCounts[i];
                             var parentsOfi = [];
                             if (numParents > 0) {
@@ -153,7 +153,7 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                         }
                     }
                     else {
-                        for (i=0; i<instancesLength; i++) {
+                        for (i = 0; i < instancesLength; i++) {
                             if (parentIds[i] !== i) {
                                 parentArray.push([parentIds[i]]);
                             }
@@ -162,7 +162,7 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                             }
                         }
                     }
-                    for (i=0; i<instancesLength; i++) {
+                    for (i = 0; i < instancesLength; i++) {
                         var l = parentArray[i].length;
                         if (!valid[i] && l !== 0) {
                             var stack = [];
@@ -198,7 +198,7 @@ function cyclicDependencyCheck(currentInstance, stack, parentArray, parentCounts
     stack.push(currentInstance);
     var length = parentArray[currentInstance].length;
     var fail = false;
-    for (var i=0; i<length && !fail; i++) {
+    for (var i = 0; i < length && !fail; i++) {
         var instance = parentArray[currentInstance][i];
         var ind = stack.indexOf(instance);
         if (ind !== -1) {
