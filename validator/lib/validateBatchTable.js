@@ -59,7 +59,6 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                 }
             } else if (name === 'HIERARCHY') {
                 var tree = batchTableJson['HIERARCHY'];
-
                 var totalLength = 0;
                 var classes = tree['classes'];
                 for (var className in classes) {
@@ -133,6 +132,47 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
                         }
                     }
                 }
+                // CIRCULAR DEPENDENCY CHECK
+                if (defined(parentIds)) {
+                    var valid = [];
+                    var i;
+                    for (i=0; i<instancesLength; i++) {
+                        valid[i] = false;
+                    }
+                    var parentArray = [];
+                    if (defined(parentCounts)) {
+                        var currentIndex = 0;
+                        for (i=0; i<instancesLength; i++) {
+                            var numParents = parentCounts[i];
+                            var parentsOfi = [];
+                            if (numParents > 0) {
+                                parentsOfi = parentIds.slice(currentIndex, currentIndex+numParents);
+                            }
+                            parentArray.push(parentsOfi);
+                            currentIndex += numParents;
+                        }
+                    }
+                    else {
+                        for (i=0; i<instancesLength; i++) {
+                            if (parentIds[i] !== i) {
+                                parentArray.push([parentIds[i]]);
+                            }
+                            else {
+                                parentArray.push([]);
+                            }
+                        }
+                    }
+                    for (i=0; i<instancesLength; i++) {
+                        var l = parentArray[i].length;
+                        if (!valid[i] && l !== 0) {
+                            var stack = [];
+                            var fail = cyclicDependencyCheck(i, stack, parentArray, parentCounts, valid);
+                            if (fail) {
+                                return 'cyclic dependencies not allowed';
+                            }
+                        }
+                    }
+                }
             } else {
                 if (!Array.isArray(property)) {
                     return 'Batch table property "' + name + '" must be an array.';
@@ -149,4 +189,28 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
     if (!validSchema) {
         return 'Batch table JSON failed schema validation: ' + ajv.errorsText();
     }
+}
+
+function cyclicDependencyCheck(currentInstance, stack, parentArray, parentCounts, valid) {
+    if (valid[currentInstance]) {
+        return false;
+    }
+    stack.push(currentInstance);
+    var length = parentArray[currentInstance].length;
+    var fail = false;
+    for (var i=0; i<length && !fail; i++) {
+        var instance = parentArray[currentInstance][i];
+        var ind = stack.indexOf(instance);
+        if (ind !== -1) {
+            fail = true;
+            return true;
+        }
+        fail = cyclicDependencyCheck(instance, stack, parentArray, parentCounts, valid);
+        stack = [];
+    }
+    if (fail) {
+        return true;
+    }
+    valid[currentInstance] = true;
+    return false;
 }

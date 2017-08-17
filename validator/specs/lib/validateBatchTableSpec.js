@@ -229,7 +229,7 @@ describe('validate batch table', function() {
         expect(message).toBe('classIds must be between 0-2');
     });
 
-    it('returns error message if length of parentCounts array is not equal to instancesLength', function() {
+    it('returns error message if length of parentCounts array is not equal to instancesLength [batch table hierarchy]', function() {
         var batchTableJson = clone(batchTableHierarchy, true);
         batchTableJson['HIERARCHY']['parentCounts'].pop();
         var batchTableBinary = Buffer.alloc(0);
@@ -238,7 +238,7 @@ describe('validate batch table', function() {
         expect(message).toBe('length of parentCounts array must be equal to 12');
     });
 
-    it('returns error message if parentCounts values are not between 0-(instancesLength-1)', function() {
+    it('returns error message if parentCounts values are not between 0-(instancesLength-1) [batch table hierarchy]', function() {
         var batchTableJson = clone(batchTableHierarchy, true);
         batchTableJson['HIERARCHY']['parentCounts'][0] = 12;
         var batchTableBinary = Buffer.alloc(0);
@@ -247,7 +247,7 @@ describe('validate batch table', function() {
         expect(message).toBe('parentCounts values must be between 0-11');
     });
 
-    it('returns error message if length of parentIds array is not equal to instancesLength when parentCounts is not defined', function() {
+    it('returns error message if length of parentIds array is not equal to instancesLength when parentCounts is not defined [batch table hierarchy]', function() {
         var batchTableJson = clone(batchTableHierarchy, true);
         batchTableJson['HIERARCHY']['parentCounts'] = undefined;
         batchTableJson['HIERARCHY']['parentIds'].pop();
@@ -257,7 +257,7 @@ describe('validate batch table', function() {
         expect(message).toBe('length of parentIds array must be equal to 12');
     });
 
-    it('returns error message if length of parentIds array is not equal to the sum of values of parentCounts array', function() {
+    it('returns error message if length of parentIds array is not equal to the sum of values of parentCounts array [batch table hierarchy]', function() {
         var batchTableJson = clone(batchTableHierarchy, true);
         batchTableJson['HIERARCHY']['parentIds'] = [6, 6, 10, 11, 7, 11, 7, 8, 8, 10, 10];
         var batchTableBinary = Buffer.alloc(0);
@@ -266,7 +266,7 @@ describe('validate batch table', function() {
         expect(message).toBe('length of parentIds array must be equal to 12');
     });
 
-    it('returns error message if parentIds are not between 0-(instancesLength-1)', function() {
+    it('returns error message if parentIds are not between 0-(instancesLength-1) [batch table hierarchy]', function() {
         var batchTableJson = clone(batchTableHierarchy, true);
         batchTableJson['HIERARCHY']['parentCounts'] = undefined;
         batchTableJson['HIERARCHY']['parentIds'][0] = 12;
@@ -276,11 +276,61 @@ describe('validate batch table', function() {
         expect(message).toBe('parentIds must be between 0-11');
     });
 
-    it('succeeds for a valid batch table hierarchy', function() {
+    it('succeeds for a valid batch table hierarchy [batch table hierarchy]', function() {
         var batchTableJson = clone(batchTableHierarchy, true);
         var batchTableBinary = Buffer.alloc(0);
         var featuresLength = 12;
         var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
         expect(message).toBeUndefined();
+    });
+
+    it('returns error message for cyclic dependencies [batch table hierarchy] [0]', function() {
+        var batchTableJson = clone(batchTableHierarchy, true);
+        batchTableJson['HIERARCHY']['parentCounts'] = [1, 3, 2, 1, 1, 1, 1, 1, 1, 0, 1, 0];
+        batchTableJson['HIERARCHY']['parentIds'] = [6, 6, 10, 11, 7, 11, 7, 8, 8, 10, 10, 9, 1];
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 12;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('cyclic dependencies not allowed');
+    });
+
+    it('returns error message for cyclic dependencies [batch table hierarchy] [1]', function() {
+        var batchTableJson = clone(batchTableHierarchy, true);
+        batchTableJson['HIERARCHY']['parentCounts'] = [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        batchTableJson['HIERARCHY']['parentIds'] = [1, 0];
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 12;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('cyclic dependencies not allowed');
+    });
+
+    it('returns error message for cyclic dependencies when parentCounts is not defined [batch table hierarchy] [0]', function() {
+        var batchTableJson = clone(batchTableHierarchy, true);
+        batchTableJson['HIERARCHY']['parentCounts'] = undefined;
+        batchTableJson['HIERARCHY']['parentIds'] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 12;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBeUndefined();
+    });
+
+    it('returns error message for cyclic dependencies when parentCounts is not defined [batch table hierarchy] [1]', function() {
+        var batchTableJson = clone(batchTableHierarchy, true);
+        batchTableJson['HIERARCHY']['parentCounts'] = undefined;
+        batchTableJson['HIERARCHY']['parentIds'] = [0, 2, 2, 4, 5, 6, 6, 6, 8, 9, 10, 11];
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 12;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBeUndefined();
+    });
+
+    it('returns error message for cyclic dependencies when parentCounts is not defined [batch table hierarchy] [2]', function() {
+        var batchTableJson = clone(batchTableHierarchy, true);
+        batchTableJson['HIERARCHY']['parentCounts'] = undefined;
+        batchTableJson['HIERARCHY']['parentIds'] = [0, 2, 3, 1, 5, 6, 6, 6, 8, 9, 10, 11];
+        var batchTableBinary = Buffer.alloc(0);
+        var featuresLength = 12;
+        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+        expect(message).toBe('cyclic dependencies not allowed');
     });
 });
