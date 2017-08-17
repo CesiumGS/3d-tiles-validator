@@ -33,24 +33,19 @@ function validateTileset(tileset, tilesetDirectory) {
 
 function validateTopLevel(tileset) {
     if (!defined(tileset.geometricError)) {
-        return 'Tileset must declare its geometricError as a top-level property.';
+        return errorMessage('Tileset must declare its geometricError as a top-level property.', undefined);
     }
 
     if (!defined(tileset.root.refine)) {
-        var tempTileset = tileset;
-        delete tempTileset.root.children;
-        var stringJson = JSON.stringify(tempTileset.root, undefined, 4);
-        console.log('Error in tile:');
-        console.log(stringJson);
-        return 'Tileset must define refine property in root tile';
+        return errorMessage('Tileset must define refine property in root tile', tileset.root);
     }
 
     if (!defined(tileset.asset)) {
-        return 'Tileset must declare its asset as a top-level property.';
+        return errorMessage('Tileset must declare its asset as a top-level property.', undefined);
     }
 
     if (!defined(tileset.asset.version)) {
-        return 'Tileset must declare a version in its asset property';
+        return errorMessage('Tileset must declare a version in its asset property', undefined);
     }
 
     if (tileset.asset.version !== '1.0') {
@@ -60,12 +55,8 @@ function validateTopLevel(tileset) {
     var gltfUpAxis = tileset.asset.gltfUpAxis;
     if (defined(gltfUpAxis)) {
             if (gltfUpAxis !== 'X' && gltfUpAxis !== 'Y' && gltfUpAxis !== 'Z') {
-            var tempTileset = tileset;
-            delete tempTileset.root;
-            var stringJson = JSON.stringify(tempTileset, undefined, 4);
-            console.log('Error in tile:');
-            console.log(stringJson);
-            return 'gltfUpAxis should either be "X", "Y", or "Z".';
+            delete tileset.root;
+            return errorMessage('gltfUpAxis should either be "X", "Y", or "Z".', tileset);
         }
     }
 }
@@ -86,30 +77,15 @@ function validateTileHierarchy(root, tilesetDirectory) {
         var content = tile.content;
 
         if (!defined(tile.geometricError)) {
-            var tempJson = tile;
-            delete tempJson.children;
-            var stringJson = JSON.stringify(tempJson, undefined, 4);
-            console.log('Error in tile:');
-            console.log(stringJson);
-            return 'Each tile must define geometricError';
+            return errorMessage('Each tile must define geometricError', tile);
         }
 
         if (tile.geometricError < 0.0) {
-            var tempJson = tile;
-            delete tempJson.children;
-            var stringJson = JSON.stringify(tempJson, undefined, 4);
-            console.log('Error in tile:');
-            console.log(stringJson);
-            return 'geometricError must be greater than or equal to 0.0';
+            return errorMessage('geometricError must be greater than or equal to 0.0', tile);
         }
 
         if (defined(parent) && (tile.geometricError > parent.geometricError)) {
-            var tempJson = tile;
-            delete tempJson.children;
-            var stringJson = JSON.stringify(tempJson, undefined, 4);
-            console.log('Error in tile:');
-            console.log(stringJson);
-            return 'Child has geometricError greater than parent';
+            return errorMessage('Child has geometricError greater than parent', tile);
         }
 
         if (defined(content) && defined(content.url)) {
@@ -123,32 +99,17 @@ function validateTileHierarchy(root, tilesetDirectory) {
             var tileSphere = tile.boundingVolume.sphere;
 
             if (defined(contentRegion) && defined(tileRegion) && !regionInsideRegion(contentRegion, tileRegion)) {
-                var tempJson = tile.content;
-                delete tempJson.children;
-                var stringJson = JSON.stringify(tempJson, undefined, 4);
-                console.log('Error in tile:');
-                console.log(stringJson);
-                return 'content region [' + contentRegion + '] is not within tile region + [' + tileRegion + ']';
+                return errorMessage('content region [' + contentRegion + '] is not within tile region + [' + tileRegion + ']', tile.content);
             }
 
             if (defined(contentSphere) && defined(tileSphere) && !sphereInsideSphere(contentSphere, tileSphere)) {
-                var tempJson = tile.content;
-                delete tempJson.children;
-                var stringJson = JSON.stringify(tempJson, undefined, 4);
-                console.log('Error in tile:');
-                console.log(stringJson);
-                return 'content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']';
+                return errorMessage('content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']', tile.content);
             }
         }
 
         if (defined(tile.refine)) {
             if (tile.refine !== 'ADD' && tile.refine !== 'REPLACE') {
-                var tempJson = tile;
-                delete tempJson.children;
-                var stringJson = JSON.stringify(tempJson, undefined, 4);
-                console.log('Error in tile:');
-                console.log(stringJson);
-                return 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
+                return errorMessage('Refine property in tile must have either "ADD" or "REPLACE" as its value.', tile);
             }
         }
 
@@ -195,4 +156,15 @@ function validateTileHierarchy(root, tilesetDirectory) {
             }
             return message;
         });
+}
+
+function errorMessage(originalMessage, tile) {
+    if (defined(tile)) {
+        delete tile.children;
+        var stringJson = JSON.stringify(tile, undefined, 4);
+        var newMessage = originalMessage + ' \n ' + stringJson;
+        return newMessage;
+    } else {
+        return originalMessage;
+    }
 }

@@ -41,43 +41,47 @@ var sampleTileset = {
 };
 
 describe('validateTileset', function() {
-    it('returns error message when the geometricError is not defined', function(done) {
+    fit('returns error message when the geometricError is not defined', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.root.children[0].geometricError;
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Each tile must define geometricError');
+                var str = 'Each tile must define geometricError';
+                expect(message.slice(0, str.length)).toBe(str);
             }), done).toResolve();
     });
 
-    it('returns error message when the geometricError is less than 0.0', function(done) {
+    fit('returns error message when the geometricError is less than 0.0', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.root.children[0].geometricError = -1;
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('geometricError must be greater than or equal to 0.0');
+                var str = 'geometricError must be greater than or equal to 0.0';
+                expect(message.slice(0, str.length)).toBe(str);
             }), done).toResolve();
     });
 
-    it('returns error message when child has geometricError greater than parent', function(done) {
+    fit('returns error message when child has geometricError greater than parent', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.root.children[0].geometricError = 80;
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Child has geometricError greater than parent');
+                var str = 'Child has geometricError greater than parent';
+                expect(message.slice(0, str.length)).toBe(str);
             }), done).toResolve();
     });
 
-    it('returns error message when refine property of tile has incorrect value', function(done) {
+    fit('returns error message when refine property of tile has incorrect value', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.root.children[0].refine = 'NEW';
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Refine property in tile must have either "ADD" or "REPLACE" as its value.');
+                var str = 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
+                expect(message.slice(0, str.length)).toBe(str);
             }), done).toResolve();
     });
 
-    it('returns error message when the top-level geometricError is missing', function(done) {
+    fit('returns error message when the top-level geometricError is missing', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.geometricError;
         expect(validateTileset(tileset)
@@ -86,16 +90,17 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    it('returns error message when refine property is not defined in root tile', function(done) {
+    fit('returns error message when refine property is not defined in root tile', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.root.refine;
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Tileset must define refine property in root tile');
+                var str = 'Tileset must define refine property in root tile';
+                expect(message.slice(0, str.length)).toBe(str);
             }), done).toResolve();
     });
 
-    it('returns error message when the top-level asset is missing', function(done) {
+    fit('returns error message when the top-level asset is missing', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.asset;
         expect(validateTileset(tileset)
@@ -104,7 +109,7 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    it('returns error message when asset.version property is missing', function(done) {
+    fit('returns error message when asset.version property is missing', function(done) {
         var tileset = clone(sampleTileset, true);
         delete tileset.asset.version;
         expect(validateTileset(tileset)
@@ -113,7 +118,7 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    it('returns error message when asset.version property value is incorrect', function(done) {
+    fit('returns error message when asset.version property value is incorrect', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.asset.version = '0.0';
         expect(validateTileset(tileset)
@@ -122,16 +127,17 @@ describe('validateTileset', function() {
             }), done).toResolve();
     });
 
-    it('returns error message when the up-axis is not X, Y, or Z', function(done) {
+    fit('returns error message when the up-axis is not X, Y, or Z', function(done) {
         var tileset = clone(sampleTileset, true);
         tileset.asset.gltfUpAxis = 'A';
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('gltfUpAxis should either be "X", "Y", or "Z".');
+                var str = 'gltfUpAxis should either be "X", "Y", or "Z".';
+                expect(message.slice(0, str.length)).toBe(str);
             }), done).toResolve();
     });
 
-    it('succeeds for valid tileset', function(done) {
+    fit('succeeds for valid tileset', function(done) {
         expect(validateTileset(sampleTileset)
             .then(function(message) {
                 expect(message).toBeUndefined();
