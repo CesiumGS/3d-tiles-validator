@@ -101,13 +101,13 @@ function checkPropertyOverlapping(featureTableJson, featureTableBinary, features
     }
     var count = 0;
     var arrayOfProperties = [];
-    var returnMessage = undefined;
+    var message = undefined;
     
     for (var name in featureTableJson) {
         var property = featureTableJson[name];
         var definition = featureTableSemantics[name];
         if (!defined(definition)) {
-            return returnMessage;
+            return message;
         }
         var byteOffset = property.byteOffset;
         var componentType = defaultValue(property.componentType, definition.componentType);
@@ -119,10 +119,7 @@ function checkPropertyOverlapping(featureTableJson, featureTableBinary, features
         var propertyByteLength = componentsLength * componentByteLength * itemsLength;
 
         if (defined(byteOffset)) {
-            var newProperty = new PropertyInfo(name, 1, 1, 1);
-            newProperty.currentByteOffset = byteOffset;
-            newProperty.totalOccupiedBytes = propertyByteLength;
-            newProperty.nextByteOffset = byteOffset + propertyByteLength;
+            var newProperty = new PropertyInfo(name, byteOffset, propertyByteLength, byteOffset + propertyByteLength);
             arrayOfProperties.push(newProperty);
         }
         count++;
@@ -130,17 +127,17 @@ function checkPropertyOverlapping(featureTableJson, featureTableBinary, features
 
     // Return if only one property
     if (count == 1) {
-        return returnMessage;
+        return message;
     }
 
     // Check overlap
     for (var i = 0; i < arrayOfProperties.length; ++i) {
-        returnMessage = checkOverlap(arrayOfProperties, i);
-        if(defined(returnMessage)) {
+        message = checkOverlap(arrayOfProperties, i);
+        if (defined(message)) {
             break;
         }
     }
-    return returnMessage;
+    return message;
 }
 
 function checkOverlap(arrayOfProperties, index) {
