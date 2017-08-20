@@ -211,8 +211,11 @@ function validatePnts(content) {
     });
     console.log(temp);
     // incorrect promise handeling
+    // Trying to resove the promise returned by validateBatchTable
     var batchTableMessage = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, batchLength);
     message = Promise.resolve(batchTableMessage).then(function(data) {
+        // checking if the validateBatchTable returned a error string in the message or returned undefined
+        //and taking action on it.
         if (defined(data)) {
             Promise.resolve(data);
         }
