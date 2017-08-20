@@ -200,23 +200,7 @@ function validatePnts(content) {
         return Promise.resolve(message);
     }
 
-<<<<<<< HEAD
-    if (defined(featureTableJson.BATCH_ID)) {
-        var featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
-        featureTable.featuresLength = pointsLength;
-        var componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.BATCH_ID.componentType, 'UNSIGNED_SHORT'));
-        var batchIds = featureTable.getPropertyArray('BATCH_ID', componentDatatype, 1);
-        var length = batchIds.length;
-        for (var i = 0; i < length; i++) {
-            if (batchIds[i] >= featureTableJson.BATCH_LENGTH) {
-                return 'All the BATCH_IDs must have values less than feature table property BATCH_LENGTH.';
-            }
-        }
-    }
-
-=======
     // incorrect promise handeling
->>>>>>> 88ce503... Conversion to Promise in progress
     var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, pointsLength, featureTableSemantics);
     var temp = 'yo';
     Promise.resolve(featureTableMessage).then(function(data) {
