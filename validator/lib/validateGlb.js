@@ -28,18 +28,18 @@ function validateGlb(glb) {
         var message = 'Invalid Glb version: ' + version + '. Version must be 2.';
         return Promise.resolve(message);
     }
-    
+
     if (fileExist.sync(gltfValidatorPath)) {
         var filehandle = fs.openSync(glbfilepath, 'w+');
         fs.writeSync(filehandle, glb, 0, glb.length, 0);
         fs.closeSync(filehandle);
         return new Promise(function (resolve, reject) {
-            var child = childProcess.execFile(gltfValidatorPath, [glbfilepath]);
+            var child = childProcess.spawn(gltfValidatorPath, [glbfilepath]);
             var message = undefined;
             child.stdout.on('data', function(data) {
                 message += data.toString();
             });
-            child.once('exit', function (code) {
+            child.on('exit', function (code) {
                 if (code == 0) {
                     message = undefined;
                     resolve(message);

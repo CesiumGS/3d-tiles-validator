@@ -10,7 +10,8 @@ describe('validate Glb', function() {
         glb.writeUInt32LE(1, 4);  // version
 
         expect (validateGlb(glb).then(function(message) {
-            expect(message).toBeDefined();
+            var version = glb.readUInt32LE(4);
+            expect(message).toBe('Invalid Glb version: ' + version + '. Version must be 2.');
         }), done).toResolve();
     });
 
@@ -26,7 +27,6 @@ describe('validate Glb', function() {
         
         expect (validateGlb(glb).then(function(message) {
             expect(message).toBeDefined();
-            console.log(message);
         }), done).toResolve();
     }, 10000); // Change timeout to 10 seconds
 

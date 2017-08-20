@@ -7,6 +7,7 @@ var validateGlb = require('../lib/validateGlb');
 
 var batchTableSchema = require('../specs/data/schema/batchTable.schema.json');
 var featureTableSchema = require('../specs/data/schema/featureTable.schema.json');
+var Promise = require('bluebird');
 
 var defined = Cesium.defined;
 
@@ -28,8 +29,10 @@ var featureTableSemantics = {
  */
 function validateB3dm(content) {
     var headerByteLength = 28;
+    var message;
     if (content.length < headerByteLength) {
-        return 'Header must be 28 bytes.';
+        message = 'Header must be 28 bytes.';
+        return Promise.resolve(message);
     }
 
     var magic = content.toString('utf8', 0, 4);
@@ -40,16 +43,20 @@ function validateB3dm(content) {
     var batchTableJsonByteLength = content.readUInt32LE(20);
     var batchTableBinaryByteLength = content.readUInt32LE(24);
 
+
     if (magic !== 'b3dm') {
-        return 'Invalid magic: ' + magic;
+        message = 'Invalid magic: ' + magic;
+        return Promise.resolve(message);
     }
 
     if (version !== 1) {
-        return 'Invalid version: ' + version + '. Version must be 1.';
+        message = 'Invalid version: ' + version + '. Version must be 1.';
+        return Promise.resolve(message);
     }
 
     if (byteLength !== content.length) {
-        return 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
+        message = 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
+        return Promise.resolve(message);
     }
 
     // Legacy header #1: [batchLength] [batchTableByteLength]
@@ -59,9 +66,11 @@ function validateB3dm(content) {
     // Accordingly its first byte will be either 0x22 or 0x67, and so the minimum uint32 expected is 0x22000000 = 570425344 = 570MB. It is unlikely that the batch table JSON will exceed this length.
     // The check for the second legacy format is similar, except it checks 'batchTableBinaryByteLength' instead
     if (batchTableJsonByteLength >= 570425344) {
-        return 'Header is using the legacy format [batchLength] [batchTableByteLength]. The new format is [featureTableJsonByteLength] [featureTableBinaryByteLength] [batchTableJsonByteLength] [batchTableBinaryByteLength].';
+        message = 'Header is using the legacy format [batchLength] [batchTableByteLength]. The new format is [featureTableJsonByteLength] [featureTableBinaryByteLength] [batchTableJsonByteLength] [batchTableBinaryByteLength].';
+        return Promise.resolve(message);
     } else if (batchTableBinaryByteLength >= 570425344) {
-        return 'Header is using the legacy format [batchTableJsonByteLength] [batchTableBinaryByteLength] [batchLength]. The new format is [featureTableJsonByteLength] [featureTableBinaryByteLength] [batchTableJsonByteLength] [batchTableBinaryByteLength].';
+        message = 'Header is using the legacy format [batchTableJsonByteLength] [batchTableBinaryByteLength] [batchLength]. The new format is [featureTableJsonByteLength] [featureTableBinaryByteLength] [batchTableJsonByteLength] [batchTableBinaryByteLength].';
+        return Promise.resolve(message);
     }
 
     var featureTableJsonByteOffset = headerByteLength;
@@ -72,19 +81,23 @@ function validateB3dm(content) {
     var glbByteLength = Math.max(byteLength - glbByteOffset, 0);
 
     if (featureTableBinaryByteOffset % 8 > 0) {
-        return 'Feature table binary must be aligned to an 8-byte boundary.';
+        message = 'Feature table binary must be aligned to an 8-byte boundary.';
+        return Promise.resolve(message);
     }
 
     if (batchTableBinaryByteOffset % 8 > 0) {
-        return 'Batch table binary must be aligned to an 8-byte boundary.';
+        message = 'Batch table binary must be aligned to an 8-byte boundary.';
+        return Promise.resolve(message);
     }
 
     if (glbByteOffset % 8 > 0) {
-        return 'Glb must be aligned to an 8-byte boundary.';
+        message = 'Glb must be aligned to an 8-byte boundary.';
+        return Promise.resolve(message);
     }
 
     if (headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + glbByteLength > byteLength) {
-        return 'Feature table, batch table, and glb byte lengths exceed the tile\'s byte length.';
+        message = 'Feature table, batch table, and glb byte lengths exceed the tile\'s byte length.';
+        return Promise.resolve(message);
     }
 
     var featureTableJsonBuffer = content.slice(featureTableJsonByteOffset, featureTableBinaryByteOffset);
@@ -99,32 +112,66 @@ function validateB3dm(content) {
     try {
         featureTableJson = bufferToJson(featureTableJsonBuffer);
     } catch(error) {
-        return 'Feature table JSON could not be parsed: ' + error.message;
+        message = 'Feature table JSON could not be parsed: ' + error.message;
+        return Promise.resolve(message);
     }
 
     try {
         batchTableJson = bufferToJson(batchTableJsonBuffer);
     } catch(error) {
-        return 'Batch table JSON could not be parsed: ' + error.message;
+        message = 'Batch table JSON could not be parsed: ' + error.message;
+        return Promise.resolve(message);
     }
 
     var featuresLength = featureTableJson.BATCH_LENGTH;
     if (!defined(featuresLength)) {
-        return 'Feature table must contain a BATCH_LENGTH property.';
+        message = 'Feature table must contain a BATCH_LENGTH property.';
+        return Promise.resolve(message);
     }
 
-    var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-    if (defined(featureTableMessage)) {
-        return featureTableMessage;
-    }
+    // need to properly handle promise
+    console.log('the execution should reach here!');
+    expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+        console.log('message outside FT: ' + message);    
+        if (defined(message)) {
+            console.log('message inside FT: ' + message);
+            return Promise.resolve(message);
+        }
+    }));
+    // var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
+    // if (defined(featureTableMessage)) {
+    //     return featureTableMessage;
+    // }
 
-    var batchTableMessage = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-    if (defined(batchTableMessage)) {
-        return batchTableMessage;
-    }
+    console.log('the execution should not reach here!');
+    expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+        console.log('message outside BT: ' + message);    
+        if (defined(message)) {
+            console.log('message inside BT: ' + message);
+            return Promise.resolve(message);
+        }
+    }));
+    // var batchTableMessage = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+    // if (defined(batchTableMessage)) {
+    //     return batchTableMessage;
+    // }
 
-    var glbMessage = validateGlb(glbBuffer);
-    if (defined(glbMessage)) {
-        return glbMessage;
+    console.log('the execution should not reach here!');
+    expect (validateGlb(glbBuffer).then(function(message) {
+        console.log('message outside VGLB: ' + message);
+        if (defined(message)) {
+            console.log('message inside VLGB: ' + message);
+            return Promise.resolve(message);
+        }     
+    }));
+    // var glbMessage = validateGlb(glbBuffer);
+    // if (defined(glbMessage)) {
+    //     return glbMessage;
+    // }
+
+    console.log('the execution should not reach here!');
+    if (!defined(message)) {
+        console.log('before the final return');
+        return Promise.resolve(message);
     }
 }

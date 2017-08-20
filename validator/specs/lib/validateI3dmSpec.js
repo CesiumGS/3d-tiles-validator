@@ -52,7 +52,7 @@ describe('validate i3dm', function() {
 
     it('returns error message if the byte lengths in the header exceed the tile\'s byte length', function() {
         var i3dm = createI3dm();
-        i3dm.writeUInt32LE(128, 12);
+        i3dm.writeUInt32LE(i3dm.readUInt32LE(8), 24);
         expect(validateI3dm(i3dm)).toBe('Feature table, batch table, and glb byte lengths exceed the tile\'s byte length.');
     });
 
@@ -182,17 +182,20 @@ describe('validate i3dm', function() {
         expect(validateI3dm(i3dm)).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
     });
 
-    it('succeeds for valid i3dm', function() {
+    it('succeeds for valid i3dm', function(done) {
         var i3dm = createI3dm({
             featureTableJson : {
                 INSTANCES_LENGTH : 1,
                 POSITION : [0, 0, 0]
             }
         });
-        expect(validateI3dm(i3dm)).toBeUndefined();
+
+        expect (validateI3dm(i3dm).then(function(message) {
+            expect(message).toBeUndefined();
+        }), done).toResolve();
     });
 
-    it('succeeds for valid i3dm with a feature table binary', function() {
+    it('succeeds for valid i3dm with a feature table binary', function(done) {
         var i3dm = createI3dm({
             featureTableJson : {
                 INSTANCES_LENGTH : {
@@ -204,10 +207,13 @@ describe('validate i3dm', function() {
             },
             featureTableBinary : Buffer.alloc(16)
         });
-        expect(validateI3dm(i3dm)).toBeUndefined();
+
+        expect (validateI3dm(i3dm).then(function(message) {
+            expect(message).toBeUndefined();
+        }), done).toResolve();
     });
 
-    it('succeeds for valid i3dm with a batch table', function() {
+    it('succeeds for valid i3dm with a batch table', function(done) {
         var i3dm = createI3dm({
             featureTableJson : {
                 INSTANCES_LENGTH : 1,
@@ -225,6 +231,9 @@ describe('validate i3dm', function() {
             },
             batchTableBinary : Buffer.alloc(4)
         });
-        expect(validateI3dm(i3dm)).toBeUndefined();
+
+        expect (validateI3dm(i3dm).then(function(message) {
+            expect(message).toBeUndefined();
+        }), done).toResolve();
     });
 });

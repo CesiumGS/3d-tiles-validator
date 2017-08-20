@@ -3,7 +3,7 @@ var batchTableSchema = require('../data/schema/batchTable.schema.json');
 var validateBatchTable = require('../../lib/validateBatchTable');
 
 describe('validate batch table', function() {
-    it('returns error message if byteOffset is not a number', function() {
+    it('returns error message if byteOffset is not a number', function(done) {
         var batchTableJson = {
             height : {
                 byteOffset : '0',
@@ -13,11 +13,12 @@ describe('validate batch table', function() {
         };
         var batchTableBinary = Buffer.alloc(4);
         var featuresLength = 1;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBe('Batch table binary property "height" byteOffset must be a number.');
+        expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+            expect(message).toBe('Batch table binary property "height" byteOffset must be a number.');
+        }), done).toResolve();
     });
 
-    it('returns error message if type is undefined', function() {
+    it('returns error message if type is undefined', function(done) {
         var batchTableJson = {
             height : {
                 byteOffset : 0,
@@ -26,11 +27,12 @@ describe('validate batch table', function() {
         };
         var batchTableBinary = Buffer.alloc(4);
         var featuresLength = 1;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBe('Batch table binary property "height" must have a type.');
+        expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+            expect(message).toBe('Batch table binary property "height" must have a type.');
+        }), done).toResolve();
     });
 
-    it('returns error message if type is invalid', function() {
+    it('returns error message if type is invalid', function(done) {
         var batchTableJson = {
             height : {
                 byteOffset : 0,
@@ -40,11 +42,12 @@ describe('validate batch table', function() {
         };
         var batchTableBinary = Buffer.alloc(4);
         var featuresLength = 1;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBe('Batch table binary property "height" has invalid type "INVALID".');
+        expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+            expect(message).toBe('Batch table binary property "height" has invalid type "INVALID".');
+        }), done).toResolve();
     });
 
-    it('returns error message if componentType is undefined', function() {
+    it('returns error message if componentType is undefined', function(done) {
         var batchTableJson = {
             height : {
                 byteOffset : 0,
@@ -53,11 +56,12 @@ describe('validate batch table', function() {
         };
         var batchTableBinary = Buffer.alloc(4);
         var featuresLength = 1;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBe('Batch table binary property "height" must have a componentType.');
+        expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+            expect(message).toBe('Batch table binary property "height" must have a componentType.');
+        }), done).toResolve();
     });
 
-    it('returns error message if componentType is invalid', function() {
+    it('returns error message if componentType is invalid', function(done) {
         var batchTableJson = {
             height : {
                 byteOffset : 0,
@@ -67,11 +71,12 @@ describe('validate batch table', function() {
         };
         var batchTableBinary = Buffer.alloc(4);
         var featuresLength = 1;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBe('Batch table binary property "height" has invalid componentType "INVALID".');
+        expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+            expect(message).toBe('Batch table binary property "height" has invalid componentType "INVALID".');
+        }), done).toResolve();
     });
 
-    it('returns error message if binary property is not aligned', function() {
+    it('returns error message if binary property is not aligned', function(done) {
         var batchTableJson = {
             height : {
                 byteOffset : 2,
@@ -81,11 +86,12 @@ describe('validate batch table', function() {
         };
         var batchTableBinary = Buffer.alloc(6);
         var featuresLength = 1;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBe('Batch table binary property "height" must be aligned to a 4-byte boundary.');
+        expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+            expect(message).toBe('Batch table binary property "height" must be aligned to a 4-byte boundary.');
+        }), done).toResolve();
     });
 
-    it('returns error message if binary property exceeds batch table binary byte length', function() {
+    it('returns error message if binary property exceeds batch table binary byte length', function(done) {
         var batchTableJson = {
             height : {
                 byteOffset : 4,
@@ -95,31 +101,34 @@ describe('validate batch table', function() {
         };
         var batchTableBinary = Buffer.alloc(11);
         var featuresLength = 2;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
+        expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+            expect(message).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
+        }), done).toResolve();
     });
 
-    it('returns error message if JSON property is not an array ', function() {
+    it('returns error message if JSON property is not an array ', function(done) {
         var batchTableJson = {
             height : 0
         };
         var batchTableBinary = Buffer.alloc(0);
         var featuresLength = 1;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBe('Batch table property "height" must be an array.');
+        expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+            expect(message).toBe('Batch table property "height" must be an array.');
+        }), done).toResolve();
     });
 
-    it('returns error message if the property\'s array length does not equal features length', function() {
+    it('returns error message if the property\'s array length does not equal features length', function(done) {
         var batchTableJson = {
             height : [1, 2, 3, 4]
         };
         var batchTableBinary = Buffer.alloc(0);
         var featuresLength = 3;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBe('Batch table property "height" array length must equal features length 3.');
+        expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+            expect(message).toBe('Batch table property "height" array length must equal features length 3.');
+        }), done).toResolve();
     });
 
-    it('validates batch table', function() {
+    it('validates batch table', function(done) {
         var batchTableJson = {
             height : [1, 2, 3, 4],
             name : ['name1', 'name2', 'name3', 'name4'],
@@ -127,11 +136,12 @@ describe('validate batch table', function() {
         };
         var batchTableBinary = Buffer.alloc(0);
         var featuresLength = 4;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBeUndefined();
+        expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+            expect(message).toBeUndefined();
+        }), done).toResolve();
     });
 
-    it('validates batch table binary', function() {
+    it('validates batch table binary', function(done) {
         var batchTableJson = {
             height : {
                 byteOffset : 0,
@@ -151,7 +161,8 @@ describe('validate batch table', function() {
         };
         var batchTableBinary = Buffer.alloc(22);
         var featuresLength = 3;
-        var message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-        expect(message).toBeUndefined();
+        expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
+            expect(message).toBeUndefined();
+        }), done).toResolve();
     });
 });

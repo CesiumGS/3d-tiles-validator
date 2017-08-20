@@ -3,6 +3,7 @@ var Cesium = require('cesium');
 var bufferToJson = require('../lib/bufferToJson');
 var validateBatchTable = require('../lib/validateBatchTable');
 var validateFeatureTable = require('../lib/validateFeatureTable');
+var Promise = require('bluebird');
 
 var batchTableSchema = require('../specs/data/schema/batchTable.schema.json');
 var featureTableSchema = require('../specs/data/schema/featureTable.schema.json');
@@ -95,9 +96,11 @@ var featureTableSemantics = {
  * @returns {String} An error message if validation fails, otherwise undefined.
  */
 function validatePnts(content) {
+    var message;
     var headerByteLength = 28;
     if (content.length < headerByteLength) {
-        return 'Header must be 28 bytes.';
+        message = 'Header must be 28 bytes.';
+        return Promise.resolve(message);
     }
 
     var magic = content.toString('utf8', 0, 4);
@@ -109,15 +112,18 @@ function validatePnts(content) {
     var batchTableBinaryByteLength = content.readUInt32LE(24);
 
     if (magic !== 'pnts') {
-        return 'Invalid magic: ' + magic;
+        message = 'Invalid magic: ' + magic;
+        return Promise.resolve(message);
     }
 
     if (version !== 1) {
-        return 'Invalid version: ' + version + '. Version must be 1.';
+        message = 'Invalid version: ' + version + '. Version must be 1.';
+        return Promise.resolve(message);
     }
 
     if (byteLength !== content.length) {
-        return 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
+        message = 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
+        return Promise.resolve(message);
     }
 
     var featureTableJsonByteOffset = headerByteLength;
@@ -126,15 +132,18 @@ function validatePnts(content) {
     var batchTableBinaryByteOffset = batchTableJsonByteOffset + batchTableJsonByteLength;
 
     if (featureTableBinaryByteOffset % 8 > 0) {
-        return 'Feature table binary must be aligned to an 8-byte boundary.';
+        message = 'Feature table binary must be aligned to an 8-byte boundary.';
+        return Promise.resolve(message);
     }
 
     if (batchTableBinaryByteOffset % 8 > 0) {
-        return 'Batch table binary must be aligned to an 8-byte boundary.';
+        message = 'Batch table binary must be aligned to an 8-byte boundary.';
+        return Promise.resolve(message);
     }
 
     if (headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength > byteLength) {
-        return 'Feature table and batch table exceed the tile\'s byte length.';
+        message = 'Feature table and batch table exceed the tile\'s byte length.';
+        return Promise.resolve(message);
     }
 
     var featureTableJsonBuffer = content.slice(featureTableJsonByteOffset, featureTableBinaryByteOffset);
@@ -148,41 +157,50 @@ function validatePnts(content) {
     try {
         featureTableJson = bufferToJson(featureTableJsonBuffer);
     } catch(error) {
-        return 'Feature table JSON could not be parsed: ' + error.message;
+        message = 'Feature table JSON could not be parsed: ' + error.message;
+        return Promise.resolve(message);
     }
 
     try {
         batchTableJson = bufferToJson(batchTableJsonBuffer);
     } catch(error) {
-        return 'Batch table JSON could not be parsed: ' + error.message;
+        message = 'Batch table JSON could not be parsed: ' + error.message;
+        return Promise.resolve(message);
     }
 
     var batchLength = defaultValue(featureTableJson.BATCH_LENGTH, 0);
     var pointsLength = featureTableJson.POINTS_LENGTH;
     if (!defined(pointsLength)) {
-        return 'Feature table must contain a POINTS_LENGTH property.';
+        message = 'Feature table must contain a POINTS_LENGTH property.';
+        return Promise.resolve(message);
     }
 
     if (!defined(featureTableJson.POSITION) && !defined(featureTableJson.POSITION_QUANTIZED)) {
-        return 'Feature table must contain either the POSITION or POSITION_QUANTIZED property.';
+        message = 'Feature table must contain either the POSITION or POSITION_QUANTIZED property.';
+        return Promise.resolve(message);
     }
 
     if (defined(featureTableJson.POSITION_QUANTIZED) && (!defined(featureTableJson.QUANTIZED_VOLUME_OFFSET) || !defined(featureTableJson.QUANTIZED_VOLUME_SCALE))) {
-        return 'Feature table properties QUANTIZED_VOLUME_OFFSET and QUANTIZED_VOLUME_SCALE are required when POSITION_QUANTIZED is present.';
+        message = 'Feature table properties QUANTIZED_VOLUME_OFFSET and QUANTIZED_VOLUME_SCALE are required when POSITION_QUANTIZED is present.';
+        return Promise.resolve(message);
     }
 
     if (defined(featureTableJson.BATCH_ID) && !defined(featureTableJson.BATCH_LENGTH)) {
-        return 'Feature table property BATCH_LENGTH is required when BATCH_ID is present.';
+        message = 'Feature table property BATCH_LENGTH is required when BATCH_ID is present.';
+        return Promise.resolve(message);
     }
 
     if (!defined(featureTableJson.BATCH_ID) && defined(featureTableJson.BATCH_LENGTH)) {
-        return 'Feature table property BATCH_ID is required when BATCH_LENGTH is present.';
+        message = 'Feature table property BATCH_ID is required when BATCH_LENGTH is present.';
+        return Promise.resolve(message);
     }
 
     if (batchLength > pointsLength) {
-        return 'Feature table property BATCH_LENGTH must be less than or equal to POINTS_LENGTH.';
+        message = 'Feature table property BATCH_LENGTH must be less than or equal to POINTS_LENGTH.';
+        return Promise.resolve(message);
     }
 
+<<<<<<< HEAD
     if (defined(featureTableJson.BATCH_ID)) {
         var featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
         featureTable.featuresLength = pointsLength;
@@ -196,13 +214,28 @@ function validatePnts(content) {
         }
     }
 
+=======
+    // incorrect promise handeling
+>>>>>>> 88ce503... Conversion to Promise in progress
     var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, pointsLength, featureTableSemantics);
-    if (defined(featureTableMessage)) {
-        return featureTableMessage;
-    }
-
+    var temp = 'yo';
+    Promise.resolve(featureTableMessage).then(function(data) {
+        if (defined(data)) {
+            temp = data;
+            console.log('temp: ' + temp);
+        }
+    });
+    console.log(temp);
+    // incorrect promise handeling
     var batchTableMessage = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, batchLength);
-    if (defined(batchTableMessage)) {
-        return batchTableMessage;
+    message = Promise.resolve(batchTableMessage).then(function(data) {
+        if (defined(data)) {
+            Promise.resolve(data);
+        }
+    });
+
+    console.log(message);
+    if (!defined(message)) {
+        return Promise.resolve(message);
     }
 }

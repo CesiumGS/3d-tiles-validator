@@ -41,17 +41,18 @@ var featureTableSemantics = {
 };
 
 describe('validate feature table', function() {
-    it('returns error message when seeing unexpected feature table property', function() {
+    it('returns error message when seeing unexpected feature table property', function(done) {
         var featureTableJson = {
             INVALID : 0
         };
         var featureTableBinary = Buffer.alloc(4);
         var featuresLength = 1;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBe('Invalid feature table property "INVALID".');
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBe('Invalid feature table property "INVALID".');
+        }), done).toResolve();
     });
 
-    it('returns error message if byteOffset is not a number', function() {
+    it('returns error message if byteOffset is not a number', function(done) {
         var featureTableJson = {
             POSITION : {
                 byteOffset : '0'
@@ -59,11 +60,12 @@ describe('validate feature table', function() {
         };
         var featureTableBinary = Buffer.alloc(4);
         var featuresLength = 1;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBe('Feature table binary property "POSITION" byteOffset must be a number.');
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBe('Feature table binary property "POSITION" byteOffset must be a number.');
+        }), done).toResolve();
     });
 
-    it('returns error message if componentType is not one of possible options', function() {
+    it('returns error message if componentType is not one of possible options', function(done) {
         var featureTableJson = {
             BATCH_ID : {
                 byteOffset : 0,
@@ -72,11 +74,12 @@ describe('validate feature table', function() {
         };
         var featureTableBinary = Buffer.alloc(2);
         var featuresLength = 1;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBe('Feature table binary property "BATCH_ID" has invalid componentType "INVALID".');
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBe('Feature table binary property "BATCH_ID" has invalid componentType "INVALID".');
+        }), done).toResolve();
     });
 
-    it('returns error message if binary property is not aligned', function() {
+    it('returns error message if binary property is not aligned', function(done) {
         var featureTableJson = {
             POSITION : {
                 byteOffset : 1
@@ -84,11 +87,12 @@ describe('validate feature table', function() {
         };
         var featureTableBinary = Buffer.alloc(4);
         var featuresLength = 1;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBe('Feature table binary property "POSITION" must be aligned to a 4-byte boundary.');
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBe('Feature table binary property "POSITION" must be aligned to a 4-byte boundary.');
+        }), done).toResolve();
     });
 
-    it('returns error message if binary property exceeds feature table binary byte length', function() {
+    it('returns error message if binary property exceeds feature table binary byte length', function(done) {
         var featureTableJson = {
             POSITION : {
                 byteOffset : 4
@@ -96,71 +100,78 @@ describe('validate feature table', function() {
         };
         var featureTableBinary = Buffer.alloc(15);
         var featuresLength = 1;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBe('Feature table binary property "POSITION" exceeds feature table binary byte length.');
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBe('Feature table binary property "POSITION" exceeds feature table binary byte length.');
+        }), done).toResolve();
     });
 
-    it('returns error message if boolean property is not a boolean', function() {
+    it('returns error message if boolean property is not a boolean', function(done) {
         var featureTableJson = {
             EAST_NORTH_UP : 0
         };
         var featureTableBinary = Buffer.alloc(0);
         var featuresLength = 1;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBe('Feature table property "EAST_NORTH_UP" must be a boolean.');
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBe('Feature table property "EAST_NORTH_UP" must be a boolean.');
+        }), done).toResolve();
     });
 
-    it('returns error message if scalar global property is not a number', function() {
+    it('returns error message if scalar global property is not a number', function(done) {
         var featureTableJson = {
             BATCH_LENGTH : [0]
         };
         var featureTableBinary = Buffer.alloc(0);
         var featuresLength = 1;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBe('Feature table property "BATCH_LENGTH" must be a number.');
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBe('Feature table property "BATCH_LENGTH" must be a number.');
+        }), done).toResolve();
     });
 
-    it('returns error message if property is not an array', function() {
+    it('returns error message if property is not an array', function(done) {
         var featureTableJson = {
             RTC_CENTER : 0
         };
         var featureTableBinary = Buffer.alloc(0);
         var featuresLength = 1;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBe('Feature table property "RTC_CENTER" must be an array.');
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBe('Feature table property "RTC_CENTER" must be an array.');
+        }), done).toResolve();
     });
 
-    it('returns error message if property array length is incorrect (1)', function() {
+    it('returns error message if property array length is incorrect (1)', function(done) {
         var featureTableJson = {
             RTC_CENTER : [0, 0, 0, 0]
         };
         var featureTableBinary = Buffer.alloc(0);
         var featuresLength = 1;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBe('Feature table property "RTC_CENTER" must be an array of length 3.');
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBe('Feature table property "RTC_CENTER" must be an array of length 3.');
+        }), done).toResolve();
     });
 
-    it('returns error message if property array length is incorrect (2)', function() {
+    it('returns error message if property array length is incorrect (2)', function(done) {
         var featureTableJson = {
             POSITION : [0, 0, 0, 0, 0]
         };
         var featureTableBinary = Buffer.alloc(0);
         var featuresLength = 2;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBe('Feature table property "POSITION" must be an array of length 6.');
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBe('Feature table property "POSITION" must be an array of length 6.');
+        }), done).toResolve();
     });
 
-    it('returns error message if property array does not contain numbers', function() {
+    it('returns error message if property array does not contain numbers', function(done) {
         var featureTableJson = {
             POSITION : [0, 0, 0, '0', 0, 0]
         };
         var featureTableBinary = Buffer.alloc(0);
         var featuresLength = 2;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBe('Feature table property "POSITION" array must contain numbers only.');
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBe('Feature table property "POSITION" array must contain numbers only.');
+        }), done).toResolve();
     });
 
-    it('validates feature table', function() {
+    it('validates feature table', function(done) {
         var featureTableJson = {
             POSITION : [0, 0, 0, 0, 0, 0],
             NORMAL_UP_OCT32P : [0, 0, 0, 0],
@@ -172,11 +183,12 @@ describe('validate feature table', function() {
         };
         var featureTableBinary = Buffer.alloc(0);
         var featuresLength = 2;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBeUndefined();
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBeUndefined();
+        }), done).toResolve();
     });
 
-    it('validates feature table binary', function() {
+    it('validates feature table binary', function(done) {
         var featureTableJson = {
             POSITION : {
                 byteOffset : 0
@@ -196,7 +208,8 @@ describe('validate feature table', function() {
         };
         var featureTableBinary = Buffer.alloc(44);
         var featuresLength = 2;
-        var message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-        expect(message).toBeUndefined();
+        expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
+            expect(message).toBeUndefined();
+        }), done).toResolve();
     });
 });

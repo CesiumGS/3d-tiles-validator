@@ -3,6 +3,7 @@ var Cesium = require('cesium');
 var validateB3dm = require('../lib/validateB3dm');
 var validateI3dm = require('../lib/validateI3dm');
 var validatePnts = require('../lib/validatePnts');
+var Promise = require('bluebird');
 
 var defined = Cesium.defined;
 
@@ -16,8 +17,10 @@ module.exports = validateCmpt;
  */
 function validateCmpt(content) {
     var headerByteLength = 16;
+    var message;
     if (content.length < headerByteLength) {
-        return 'Header must be 16 bytes.';
+        message = 'Header must be 16 bytes.';
+        return Promise.resolve(message);
     }
 
     var magic = content.toString('utf8', 0, 4);
@@ -26,31 +29,35 @@ function validateCmpt(content) {
     var tilesLength = content.readUInt32LE(12);
 
     if (magic !== 'cmpt') {
-        return 'Invalid magic: ' + magic;
+        message = 'Invalid magic: ' + magic;
+        return Promise.resolve(message);
     }
 
     if (version !== 1) {
-        return 'Invalid version: ' + version + '. Version must be 1.';
+        message = 'Invalid version: ' + version + '. Version must be 1.';
+        return Promise.resolve(message);
     }
 
     if (byteLength !== content.length) {
-        return 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
+        message = 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
+        return Promise.resolve(message);
     }
 
     var byteOffset = headerByteLength;
     for (var i = 0; i < tilesLength; ++i) {
         if (byteOffset + 12 > byteLength) {
-            return 'Cannot read byte length from inner tile, exceeds cmpt tile\'s byte length.';
+            message = 'Cannot read byte length from inner tile, exceeds cmpt tile\'s byte length.'
+            return Promise.resolve(message);
         }
         if (byteOffset % 8 > 0) {
-            return 'Inner tile must be aligned to an 8-byte boundary';
+            message = 'Inner tile must be aligned to an 8-byte boundary'
+            return Promise.resolve(message);
         }
 
         var innerTileMagic = content.toString('utf8', byteOffset, byteOffset + 4);
         var innerTileByteLength = content.readUInt32LE(byteOffset + 8);
         var innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
 
-        var message;
         if (innerTileMagic === 'b3dm') {
             message = validateB3dm(innerTile);
         } else if (innerTileMagic === 'i3dm') {
@@ -60,13 +67,20 @@ function validateCmpt(content) {
         } else if (innerTileMagic === 'cmpt') {
             message = validateCmpt(innerTile);
         } else {
-            return 'Invalid inner tile magic: ' + innerTileMagic;
+            message = 'Invalid inner tile magic: ' + innerTileMagic;
+            return Promise.resolve(message);
         }
 
-        if (defined(message)) {
-            return 'Error in inner ' + innerTileMagic + ' tile: ' + message;
+        // incorrect promise handeling
+        if (message.then.defined !== undefined) {
+            var err = 'Error in inner ' + innerTileMagic + ' tile: ' + message
+            return Promise.resolve(err);
         }
 
         byteOffset += innerTileByteLength;
+    }
+    
+    if (!defined(message)) {
+        return Promise.resolve(message);
     }
 }

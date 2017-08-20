@@ -16,19 +16,25 @@ describe('isTile', function() {
         expect(validateTile(Buffer.from('xxxx'))).toBe('Invalid magic: xxxx');
     });
 
-    it('validates b3dm', function() {
-        expect(validateTile(createB3dm())).toBeUndefined();
+    it('validates b3dm', function(done) {
+        expect (validateTile(createB3dm()).then(function(message) {
+            expect(message).toBeUndefined();
+        }), done).toResolve();
     });
 
-    it('validates i3dm', function() {
-        expect(validateTile(createI3dm())).toBeUndefined();
+    it('validates i3dm', function(done) {
+        expect (validateTile(createI3dm()).then(function(message) {
+            expect(message).toBeUndefined();
+        }), done).toResolve();
     });
 
     it('validates pnts', function() {
         expect(validateTile(createPnts())).toBeUndefined();
     });
 
-    it('validates cmpt', function() {
-        expect(validateTile(createCmpt())).toBeUndefined();
+    it('validates cmpt', function(done) {
+        expect (validateTile(createCmpt()).then(function(message) {
+            expect(message).toBeUndefined();
+        }), done).toResolve();
     });
 });
