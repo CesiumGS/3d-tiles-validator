@@ -2,7 +2,6 @@
 var Ajv = require('ajv');
 var Cesium = require('cesium');
 var utility = require('./utility');
-var Promise = require('bluebird');
 
 var componentTypeToByteLength = utility.componentTypeToByteLength;
 var typeToComponentsLength = utility.typeToComponentsLength;
@@ -23,14 +22,12 @@ module.exports = validateFeatureTable;
  * @returns {String} An error message if validation fails, otherwise undefined.
  */
 function validateFeatureTable(schema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics) {
-    var message;
     for (var name in featureTableJson) {
         if (featureTableJson.hasOwnProperty(name)) {
             var property = featureTableJson[name];
             var definition = featureTableSemantics[name];
             if (!defined(definition)) {
-                message = 'Invalid feature table property "' + name + '".';
-                return Promise.resolve(message);
+                return 'Invalid feature table property "' + name + '".';
             }
             var byteOffset = property.byteOffset;
             var componentType = defaultValue(property.componentType, definition.componentType);
@@ -43,47 +40,38 @@ function validateFeatureTable(schema, featureTableJson, featureTableBinary, feat
 
             if (defined(byteOffset)) {
                 if (typeof byteOffset !== 'number') {
-                    message = 'Feature table binary property "' + name + '" byteOffset must be a number.';
-                    return Promise.resolve(message);
+                    return 'Feature table binary property "' + name + '" byteOffset must be a number.';
                 }
                 if (defined(componentTypeOptions) && defined(componentTypeOptions) && componentTypeOptions.indexOf(componentType) === -1) {
-                    message = 'Feature table binary property "' + name + '" has invalid componentType "' + componentType + '".';
-                    return Promise.resolve(message);
+                    return 'Feature table binary property "' + name + '" has invalid componentType "' + componentType + '".';
                 }
                 if (byteOffset % componentByteLength > 0) {
-                    message = 'Feature table binary property "' + name + '" must be aligned to a ' + componentByteLength + '-byte boundary.';
-                    return Promise.resolve(message);
+                    return 'Feature table binary property "' + name + '" must be aligned to a ' + componentByteLength + '-byte boundary.';
                 }
                 var propertyByteLength = componentsLength * componentByteLength * itemsLength;
                 if (byteOffset + propertyByteLength > featureTableBinary.length) {
-                    message = 'Feature table binary property "' + name + '" exceeds feature table binary byte length.';
-                    return Promise.resolve(message);
+                    return 'Feature table binary property "' + name + '" exceeds feature table binary byte length.';
                 }
             } else if (type === 'boolean') {
                 if (typeof property !== 'boolean') {
-                    message = 'Feature table property "' + name + '" must be a boolean.';
-                    return Promise.resolve(message);
+                    return 'Feature table property "' + name + '" must be a boolean.';
                 }
             } else {
                 var arrayLength = componentsLength * itemsLength;
                 if (definition.global && arrayLength === 1) {
                     if (typeof property !== 'number') {
-                        message = 'Feature table property "' + name + '" must be a number.';
-                        return Promise.resolve(message);
+                        return 'Feature table property "' + name + '" must be a number.';
                     }
                 } else {
                     if (!Array.isArray(property)) {
-                        message = 'Feature table property "' + name + '" must be an array.';
-                        return Promise.resolve(message);
+                        return 'Feature table property "' + name + '" must be an array.';
                     }
                     if (property.length !== arrayLength) {
-                        message = 'Feature table property "' + name + '" must be an array of length ' + arrayLength + '.';
-                        return Promise.resolve(message);
+                        return 'Feature table property "' + name + '" must be an array of length ' + arrayLength + '.';
                     }
                     for (var i = 0; i < arrayLength; ++i) {
                         if (typeof property[i] !== 'number') {
-                            message = 'Feature table property "' + name + '" array must contain numbers only.';
-                            return Promise.resolve(message);
+                            return 'Feature table property "' + name + '" array must contain numbers only.';
                         }
                     }
                 }
@@ -94,11 +82,6 @@ function validateFeatureTable(schema, featureTableJson, featureTableBinary, feat
     var ajv = new Ajv();
     var validSchema = ajv.validate(schema, featureTableJson);
     if (!validSchema) {
-        message = 'Feature table JSON failed schema validation: ' + ajv.errorsText();
-        return Promise.resolve(message);
-    }
-
-    if (!defined(message)) {
-        return Promise.resolve(message);
+        return 'Feature table JSON failed schema validation: ' + ajv.errorsText();
     }
 }

@@ -1,5 +1,4 @@
 'use strict';
-var Promise = require('bluebird');
 var path = require('path');
 
 module.exports = isTile;
@@ -12,8 +11,8 @@ module.exports = isTile;
  */
 function isTile(filePath) {
     var extension = path.extname(filePath);
-    return Promise.resolve(extension === '.b3dm' ||
-                        extension === '.i3dm' ||
-                        extension === '.pnts' ||
-                        extension === '.cmpt');
+    return extension === '.b3dm' ||
+            extension === '.i3dm' ||
+            extension === '.pnts' ||
+            extension === '.cmpt';
 }

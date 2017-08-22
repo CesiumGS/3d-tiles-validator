@@ -129,49 +129,30 @@ function validateB3dm(content) {
         return Promise.resolve(message);
     }
 
-    // need to properly handle promise
-    console.log('the execution should reach here!');
-    expect (validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics).then(function(message) {
-        console.log('message outside FT: ' + message);    
-        if (defined(message)) {
-            console.log('message inside FT: ' + message);
-            return Promise.resolve(message);
-        }
-    }));
-    // var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
-    // if (defined(featureTableMessage)) {
-    //     return featureTableMessage;
-    // }
+    message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
+    if (defined(message)) {
+        return Promise.resolve(message);
+    }
+
+    message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+    if (defined(message)) {
+        return Promise.resolve(message);
+    }
 
     console.log('the execution should not reach here!');
-    expect (validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength).then(function(message) {
-        console.log('message outside BT: ' + message);    
-        if (defined(message)) {
-            console.log('message inside BT: ' + message);
-            return Promise.resolve(message);
-        }
-    }));
-    // var batchTableMessage = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
-    // if (defined(batchTableMessage)) {
-    //     return batchTableMessage;
-    // }
-
-    console.log('the execution should not reach here!');
-    expect (validateGlb(glbBuffer).then(function(message) {
+    validateGlb(glbBuffer).then(function(message) {
         console.log('message outside VGLB: ' + message);
         if (defined(message)) {
             console.log('message inside VLGB: ' + message);
             return Promise.resolve(message);
         }     
-    }));
+    });
     // var glbMessage = validateGlb(glbBuffer);
     // if (defined(glbMessage)) {
     //     return glbMessage;
     // }
 
-    console.log('the execution should not reach here!');
-    if (!defined(message)) {
-        console.log('before the final return');
-        return Promise.resolve(message);
-    }
+    // if (!defined(message)) {
+    //     return Promise.resolve(message);
+    // }
 }

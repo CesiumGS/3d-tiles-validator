@@ -200,28 +200,16 @@ function validatePnts(content) {
         return Promise.resolve(message);
     }
 
-    // incorrect promise handeling
-    var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, pointsLength, featureTableSemantics);
-    var temp = 'yo';
-    Promise.resolve(featureTableMessage).then(function(data) {
-        if (defined(data)) {
-            temp = data;
-            console.log('temp: ' + temp);
-        }
-    });
-    console.log(temp);
-    // incorrect promise handeling
-    // Trying to resove the promise returned by validateBatchTable
-    var batchTableMessage = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, batchLength);
-    message = Promise.resolve(batchTableMessage).then(function(data) {
-        // checking if the validateBatchTable returned a error string in the message or returned undefined
-        //and taking action on it.
-        if (defined(data)) {
-            Promise.resolve(data);
-        }
-    });
+    message = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, pointsLength, featureTableSemantics);
+    if (defined(message)) {
+        return Promise.resolve(message);
+    }
 
-    console.log(message);
+    message = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, batchLength);
+    if (defined(message)) {
+        return Promise.resolve(message);
+    }
+
     if (!defined(message)) {
         return Promise.resolve(message);
     }

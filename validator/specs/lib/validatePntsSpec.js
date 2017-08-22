@@ -246,7 +246,6 @@ describe('validate pnts', function() {
             },
             batchTableBinary : Buffer.alloc(4)
         });
-        expect(validatePnts(pnts)).toBeUndefined();
         expect (validatePnts(pnts).then(function(message) {
             expect(message).toBeUndefined();
         }), done).toResolve();

@@ -179,7 +179,7 @@ describe('validate b3dm', function() {
         }), done).toResolve();
     });
 
-    it('succeeds for valid b3dm with a batch table', function(done) {
+   it('succeeds for valid b3dm with a batch table', function(done) {
         var b3dm = createB3dm({
             featureTableJson : {
                 BATCH_LENGTH : 1

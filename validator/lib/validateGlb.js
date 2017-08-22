@@ -23,9 +23,10 @@ var glbfilepath = path.join(os.tmpdir(), 'temp_glb_file.glb');
  */
 function validateGlb(glb) {
     var version = glb.readUInt32LE(4);
+    var message;
 
     if (version !== 2) {
-        var message = 'Invalid Glb version: ' + version + '. Version must be 2.';
+        message = 'Invalid Glb version: ' + version + '. Version must be 2.';
         return Promise.resolve(message);
     }
 
@@ -35,7 +36,6 @@ function validateGlb(glb) {
         fs.closeSync(filehandle);
         return new Promise(function (resolve, reject) {
             var child = childProcess.spawn(gltfValidatorPath, [glbfilepath]);
-            var message = undefined;
             child.stdout.on('data', function(data) {
                 message += data.toString();
             });

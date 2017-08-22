@@ -5,6 +5,7 @@ var utility = require('../lib/utility');
 var validateBatchTable = require('../lib/validateBatchTable');
 var validateFeatureTable = require('../lib/validateFeatureTable');
 var validateGlb = require('../lib/validateGlb');
+var Promise = require('bluebird');
 
 var batchTableSchema = require('../specs/data/schema/batchTable.schema.json');
 var featureTableSchema = require('../specs/data/schema/featureTable.schema.json');
@@ -96,8 +97,11 @@ var featureTableSemantics = {
  */
 function validateI3dm(content) {
     var headerByteLength = 32;
+    var message;
+
     if (content.length < headerByteLength) {
-        return 'Header must be 32 bytes.';
+        message = 'Header must be 32 bytes.';;
+        return Promise.resolve(message);
     }
 
     var magic = content.toString('utf8', 0, 4);
@@ -110,15 +114,18 @@ function validateI3dm(content) {
     var gltfFormat = content.readUInt32LE(28);
 
     if (magic !== 'i3dm') {
-        return 'Invalid magic: ' + magic;
+        message = 'Invalid magic: ' + magic;;
+        return Promise.resolve(message);
     }
 
     if (version !== 1) {
-        return 'Invalid version: ' + version + '. Version must be 1.';
+        message = 'Invalid version: ' + version + '. Version must be 1.';
+        return Promise.resolve(message);
     }
 
     if (byteLength !== content.length) {
-        return 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
+        message = 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
+        return Promise.resolve(message);
     }
 
     if (gltfFormat > 1) {
@@ -133,20 +140,24 @@ function validateI3dm(content) {
     var glbByteLength = Math.max(byteLength - glbByteOffset, 0);
 
     if (featureTableBinaryByteOffset % 8 > 0) {
-        return 'Feature table binary must be aligned to an 8-byte boundary.';
+        message = 'Feature table binary must be aligned to an 8-byte boundary.';;
+        return Promise.resolve(message);
     }
 
     if (batchTableBinaryByteOffset % 8 > 0) {
-        return 'Batch table binary must be aligned to an 8-byte boundary.';
+        message = 'Batch table binary must be aligned to an 8-byte boundary.';
+        return Promise.resolve(message);
     }
 
     var embeddedGlb = (gltfFormat === 1);
     if (embeddedGlb && glbByteOffset % 8 > 0) {
-        return 'Glb must be aligned to an 8-byte boundary.';
+        message = 'Glb must be aligned to an 8-byte boundary.';
+        return Promise.resolve(message);
     }
 
     if (headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + glbByteLength > byteLength) {
-        return 'Feature table, batch table, and glb byte lengths exceed the tile\'s byte length.';
+        message = 'Feature table, batch table, and glb byte lengths exceed the tile\'s byte length.';
+        return Promise.resolve(message);
     }
 
     var featureTableJsonBuffer = content.slice(featureTableJsonByteOffset, featureTableBinaryByteOffset);
@@ -161,62 +172,74 @@ function validateI3dm(content) {
     try {
         featureTableJson = bufferToJson(featureTableJsonBuffer);
     } catch(error) {
-        return 'Feature table JSON could not be parsed: ' + error.message;
+        message = 'Feature table JSON could not be parsed: ' + error.message;
+        return Promise.resolve(message);
     }
 
     try {
         batchTableJson = bufferToJson(batchTableJsonBuffer);
     } catch(error) {
-        return 'Batch table JSON could not be parsed: ' + error.message;
+        message = 'Batch table JSON could not be parsed: ' + error.message;
+        return Promise.resolve(message);
     }
 
     var featuresLength = featureTableJson.INSTANCES_LENGTH;
     if (!defined(featuresLength)) {
-        return 'Feature table must contain an INSTANCES_LENGTH property.';
+        message = 'Feature table must contain an INSTANCES_LENGTH property.';
+        return Promise.resolve(message);
     }
 
     if (!defined(featureTableJson.POSITION) && !defined(featureTableJson.POSITION_QUANTIZED)) {
-        return 'Feature table must contain either the POSITION or POSITION_QUANTIZED property.';
+        message = 'Feature table must contain either the POSITION or POSITION_QUANTIZED property.';
+        return Promise.resolve(message);
     }
 
     if (defined(featureTableJson.NORMAL_UP) && !defined(featureTableJson.NORMAL_RIGHT)) {
-        return 'Feature table property NORMAL_RIGHT is required when NORMAL_UP is present.';
+        message = 'Feature table property NORMAL_RIGHT is required when NORMAL_UP is present.';
+        return Promise.resolve(message);
     }
 
     if (defined(!featureTableJson.NORMAL_UP) && defined(featureTableJson.NORMAL_RIGHT)) {
-        return 'Feature table property NORMAL_UP is required when NORMAL_RIGHT is present.';
+        message = 'Feature table property NORMAL_UP is required when NORMAL_RIGHT is present.';
+        return Promise.resolve(message);
     }
 
     if (defined(featureTableJson.NORMAL_UP_OCT32P) && !defined(featureTableJson.NORMAL_RIGHT_OCT32P)) {
-        return 'Feature table property NORMAL_RIGHT_OCT32P is required when NORMAL_UP_OCT32P is present.';
+        message = 'Feature table property NORMAL_RIGHT_OCT32P is required when NORMAL_UP_OCT32P is present.';
+        return Promise.resolve(message);
     }
 
     if (defined(!featureTableJson.NORMAL_UP_OCT32P) && defined(featureTableJson.NORMAL_RIGHT_OCT32P)) {
-        return 'Feature table property NORMAL_UP_OCT32P is required when NORMAL_RIGHT_OCT32P is present.';
+        message = 'Feature table property NORMAL_UP_OCT32P is required when NORMAL_RIGHT_OCT32P is present.';
+        return Promise.resolve(message);
     }
 
     if (defined(featureTableJson.POSITION_QUANTIZED) && (!defined(featureTableJson.QUANTIZED_VOLUME_OFFSET) || !defined(featureTableJson.QUANTIZED_VOLUME_SCALE))) {
-        return 'Feature table properties QUANTIZED_VOLUME_OFFSET and QUANTIZED_VOLUME_SCALE are required when POSITION_QUANTIZED is present.';
+        message = 'Feature table properties QUANTIZED_VOLUME_OFFSET and QUANTIZED_VOLUME_SCALE are required when POSITION_QUANTIZED is present.';
+        return Promise.resolve(message);
     }
 
     var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
     if (defined(featureTableMessage)) {
-        return featureTableMessage;
+        return Promise.resolve(featureTableMessage);
     }
 
     var batchTableMessage = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
     if (defined(batchTableMessage)) {
-        return batchTableMessage;
+        return Promise.resolve(batchTableMessage);
     }
 
+    // solve this problem
+    // incorrect promise handeling
     if (embeddedGlb) {
         var glbMessage = validateGlb(glbBuffer);
         if (defined(glbMessage)) {
-            return glbMessage;
+            return Promise.resolve(glbMessage);
         }
     } else {
         if (!isBufferValidUtf8(glbBuffer)) {
-            return 'Gltf url is not a valid utf-8 string';
+            message = 'Gltf url is not a valid utf-8 string';
+            return Promise.resolve(message);
         }
     }
 }
