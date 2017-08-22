@@ -28,8 +28,10 @@ describe('isTile', function() {
         }), done).toResolve();
     });
 
-    it('validates pnts', function() {
-        expect(validateTile(createPnts())).toBeUndefined();
+    it('validates pnts', function(done) {
+        expect (validateTile(createPnts()).then(function(message) {
+            expect(message).toBeUndefined();
+        }), done).toResolve();
     });
 
     it('validates cmpt', function(done) {

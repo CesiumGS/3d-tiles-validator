@@ -139,20 +139,5 @@ function validateB3dm(content) {
         return Promise.resolve(message);
     }
 
-    console.log('the execution should not reach here!');
-    validateGlb(glbBuffer).then(function(message) {
-        console.log('message outside VGLB: ' + message);
-        if (defined(message)) {
-            console.log('message inside VLGB: ' + message);
-            return Promise.resolve(message);
-        }     
-    });
-    // var glbMessage = validateGlb(glbBuffer);
-    // if (defined(glbMessage)) {
-    //     return glbMessage;
-    // }
-
-    // if (!defined(message)) {
-    //     return Promise.resolve(message);
-    // }
+    return validateGlb(glbBuffer);
 }

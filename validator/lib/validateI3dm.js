@@ -229,13 +229,8 @@ function validateI3dm(content) {
         return Promise.resolve(batchTableMessage);
     }
 
-    // solve this problem
-    // incorrect promise handeling
     if (embeddedGlb) {
-        var glbMessage = validateGlb(glbBuffer);
-        if (defined(glbMessage)) {
-            return Promise.resolve(glbMessage);
-        }
+        return validateGlb(glbBuffer);
     } else {
         if (!isBufferValidUtf8(glbBuffer)) {
             message = 'Gltf url is not a valid utf-8 string';
