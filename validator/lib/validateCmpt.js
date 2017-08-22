@@ -58,6 +58,7 @@ function validateCmpt(content) {
         var innerTileByteLength = content.readUInt32LE(byteOffset + 8);
         var innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
 
+        //How to return in this case?
         if (innerTileMagic === 'b3dm') {
             message = validateB3dm(innerTile);
         } else if (innerTileMagic === 'i3dm') {
@@ -71,7 +72,7 @@ function validateCmpt(content) {
             return Promise.resolve(message);
         }
 
-        // incorrect promise handeling
+        // Want to return if the above functions return an error
         if (message.then.defined !== undefined) {
             var err = 'Error in inner ' + innerTileMagic + ' tile: ' + message
             return Promise.resolve(err);
