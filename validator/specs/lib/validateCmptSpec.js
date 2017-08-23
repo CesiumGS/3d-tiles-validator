@@ -8,13 +8,13 @@ var createPnts = specUtility.createPnts;
 var createCmpt = specUtility.createCmpt;
 
 describe('validate cmpt', function() {
-    fit ('returns error message if the cmpt buffer\'s byte length is less than its header length', function(done) {
+    it('returns error message if the cmpt buffer\'s byte length is less than its header length', function(done) {
         expect (validateCmpt(Buffer.alloc(0)).then(function(message) {
             expect(message).toBe('Header must be 16 bytes.');
         }), done).toResolve();
     });
 
-    fit ('returns error message if the cmpt has invalid magic', function(done) {
+    it('returns error message if the cmpt has invalid magic', function(done) {
         var cmpt = createCmpt();
         cmpt.write('xxxx', 0);
         expect (validateCmpt(cmpt).then(function(message) {
@@ -22,7 +22,7 @@ describe('validate cmpt', function() {
         }), done).toResolve();
     });
 
-    fit ('returns error message if the cmpt has an invalid version', function(done) {
+    it('returns error message if the cmpt has an invalid version', function(done) {
         var cmpt = createCmpt();
         cmpt.writeUInt32LE(10, 4);
         expect (validateCmpt(cmpt).then(function(message) {
@@ -30,7 +30,7 @@ describe('validate cmpt', function() {
         }), done).toResolve();
     });
 
-    fit ('returns error message if the cmpt has wrong byteLength', function(done) {
+    it('returns error message if the cmpt has wrong byteLength', function(done) {
         var cmpt = createCmpt();
         cmpt.writeUInt32LE(0, 8);
         expect (validateCmpt(cmpt).then(function(message) {
@@ -39,7 +39,7 @@ describe('validate cmpt', function() {
         }), done).toResolve();
     });
 
-    fit ('returns error message if an inner tile\'s byteLength cannot be read', function(done) {
+    it('returns error message if an inner tile\'s byteLength cannot be read', function(done) {
         var cmpt = Buffer.alloc(16);
         cmpt.write('cmpt', 0);      // magic
         cmpt.writeUInt32LE(1, 4);   // version
@@ -50,7 +50,7 @@ describe('validate cmpt', function() {
         }), done).toResolve();
     });
 
-    fit ('returns error message if inner tile is not aligned to an 8-byte boundary', function(done) {
+    it('returns error message if inner tile is not aligned to an 8-byte boundary', function(done) {
         var i3dm = createI3dm({
             unalignedByteLength : true
         });
@@ -61,7 +61,7 @@ describe('validate cmpt', function() {
         }), done).toResolve();
     });
 
-    fit ('returns error message if inner tile fails validation (1)', function(done) {
+    it('returns error message if inner tile fails validation (1)', function(done) {
         var i3dm = createI3dm();
         var b3dm = createB3dm({
             unalignedFeatureTableBinary : true
@@ -72,7 +72,7 @@ describe('validate cmpt', function() {
         }), done).toResolve();
     });
 
-    fit ('returns error message if inner tile fails validation (2)', function(done) {
+    it('returns error message if inner tile fails validation (2)', function(done) {
         var pnts = createPnts();
         var i3dm = createI3dm();
         var b3dm = createB3dm({
@@ -81,11 +81,11 @@ describe('validate cmpt', function() {
         var cmptInner = createCmpt([b3dm, i3dm]);
         var cmpt = createCmpt([pnts, cmptInner]);
         expect (validateCmpt(cmpt).then(function(message) {
-            expect(message).toBe('Error in inner cmpt tile: Error in inner b3dm tile: Feature table binary must be aligned to an 8-byte boundary.');
+            expect(message).toBe('Error in inner cmpt tile: Inner tile must be aligned to an 8-byte boundary');
         }), done).toResolve();
     });
 
-    fit ('returns error message if inner tile magic is invalid', function(done) {
+    it('returns error message if inner tile magic is invalid', function(done) {
         var i3dm = createI3dm();
         var b3dm = createB3dm();
         b3dm.write('xxxx', 0);
@@ -95,13 +95,13 @@ describe('validate cmpt', function() {
         }), done).toResolve();
     });
 
-    fit ('validates cmpt with no inner tiles', function(done) {
+    it('validates cmpt with no inner tiles', function(done) {
         expect (validateCmpt(createCmpt()).then(function(message) {
             expect(message).toBeUndefined();
         }), done).toResolve();
     });
 
-    fit ('validates cmpt with inner tiles', function(done) {
+    it('validates cmpt with inner tiles', function(done) {
         var pnts = createPnts();
         var i3dm = createI3dm();
         var b3dm = createB3dm();
@@ -110,7 +110,7 @@ describe('validate cmpt', function() {
         }), done).toResolve();
     });
 
-    fit ('validates cmpt with inner composite tiles', function(done) {
+    it('validates cmpt with inner composite tiles', function(done) {
         var pnts = createPnts();
         var i3dm = createI3dm();
         var b3dm = createB3dm();

@@ -5,7 +5,7 @@ var specUtility = require('./specUtility.js');
 var createPnts = specUtility.createPnts;
 
 describe('validate pnts', function() {
-    it ('returns error message if the pnts buffer\'s byte length is less than its header length', function(done) {
+    it('returns error message if the pnts buffer\'s byte length is less than its header length', function(done) {
         expect (validatePnts(Buffer.alloc(0)).then(function(message) {
             expect(message).toBe('Header must be 28 bytes.');
         }), done).toResolve();

@@ -5,7 +5,7 @@ var specUtility = require('./specUtility.js');
 var createI3dm = specUtility.createI3dm;
 
 describe('validate i3dm', function() {
-    it ('returns error message if the i3dm buffer\'s byte length is less than its header length', function(done) {
+    it('returns error message if the i3dm buffer\'s byte length is less than its header length', function(done) {
         expect (validateI3dm(Buffer.alloc(0)).then(function(message) {
             expect(message).toBe('Header must be 32 bytes.');
         }), done).toResolve();

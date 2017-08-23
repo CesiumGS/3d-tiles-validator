@@ -7,7 +7,7 @@ var createB3dmLegacy1 = specUtility.createB3dmLegacy1;
 var createB3dmLegacy2 = specUtility.createB3dmLegacy2;
 
 describe('validate b3dm', function() {
-    it ('returns error message if the b3dm buffer\'s byte length is less than its header length', function(done) {
+    it('returns error message if the b3dm buffer\'s byte length is less than its header length', function(done) {
         expect (validateB3dm(Buffer.alloc(0)).then(function(message) {
             expect(message).toBe('Header must be 28 bytes.');
         }), done).toResolve();

@@ -44,96 +44,53 @@ function validateCmpt(content) {
     }
 
     var byteOffset = headerByteLength;
-    return new Promise(function (resolve, reject) {
-        for (var i = 0; i < tilesLength; ++i) {
-            if (byteOffset + 12 > byteLength) {
-                message = 'Cannot read byte length from inner tile, exceeds cmpt tile\'s byte length.'
-                resolve(message);
-            }
-            if (byteOffset % 8 > 0) {
-                message = 'Inner tile must be aligned to an 8-byte boundary'
-                resolve(message);
-            }
+    var PromiseArray = [];
+    for (var i = 0; i < tilesLength; ++i) {
+        if (byteOffset + 12 > byteLength) {
+            message = 'Cannot read byte length from inner tile, exceeds cmpt tile\'s byte length.'
+            return Promise.resolve(message);
+        }
+        if (byteOffset % 8 > 0) {
+            message = 'Inner tile must be aligned to an 8-byte boundary'
+            return Promise.resolve(message);
+        }
 
-            var innerTileMagic = content.toString('utf8', byteOffset, byteOffset + 4);
-            var innerTileByteLength = content.readUInt32LE(byteOffset + 8);
-            var innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
+        var innerTileMagic = content.toString('utf8', byteOffset, byteOffset + 4);
+        var innerTileByteLength = content.readUInt32LE(byteOffset + 8);
+        var innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
 
-            //How to return in this case?
-            var returnedPromise;
-            if (innerTileMagic === 'b3dm') {
-                returnedPromise = validateB3dm(innerTile);
-                console.log('we are in validateB3dm');
-            } else if (innerTileMagic === 'i3dm') {
-                returnedPromise = validateI3dm(innerTile);
-                console.log('we are in validateI3dm');
-            } else if (innerTileMagic === 'pnts') {
-                returnedPromise = validatePnts(innerTile);
-                console.log('we are in validatePnts');
-            } else if (innerTileMagic === 'cmpt') {
-                returnedPromise = validateCmpt(innerTile);
-                console.log('we are in validateCmpt');
-            } else {
-                message = 'Invalid inner tile magic: ' + innerTileMagic;
-                resolve(message);
-            }
+        if (innerTileMagic === 'b3dm') {
+            PromiseArray.push(validateB3dm(innerTile));
+        } else if (innerTileMagic === 'i3dm') {
+            PromiseArray.push(validateI3dm(innerTile));
+        } else if (innerTileMagic === 'pnts') {
+            PromiseArray.push(validatePnts(innerTile));
+        } else if (innerTileMagic === 'cmpt') {
+            PromiseArray.push(validateCmpt(innerTile));
+        } else {
+            message = 'Invalid inner tile magic: ' + innerTileMagic;
+            return Promise.resolve(message);
+        }
+        byteOffset += innerTileByteLength;
+    }
 
-            // Want to return if the above functions return an error
-            returnedPromise.then(function(message) {
-                console.log('message: ' + message);
-                if (defined(message)) {
-                    message = `Error in inner ` + innerTileMagic + ` tile: ` + message;
-                    resolve(message);
+    return Promise.all(PromiseArray).then(function(results) {
+        var combinedMessage = '';
+        byteOffset = headerByteLength;
+            for (var i = 0; i < tilesLength; ++i) {
+                var innerTileMagic = content.toString('utf8', byteOffset, byteOffset + 4);
+                var innerTileByteLength = content.readUInt32LE(byteOffset + 8);
+                if (defined(results[i])) {
+                    message = `Error in inner ` + innerTileMagic + ` tile: ` + results[i];
+                    combinedMessage += message;
+                    if ((i+1) !==  tilesLength) { combinedMessage += ', '}
                 }
-            });
-
-            // if (message.then.defined !== undefined) {
-            //     var err = 'Error in inner ' + innerTileMagic + ' tile: ' + message
-            //     return Promise.resolve(err);
-            // }
-            console.log('we are here!');
-            byteOffset += innerTileByteLength;
+                byteOffset += innerTileByteLength;
+            }
+        if (combinedMessage !== '') {
+            return combinedMessage;
+        } else {
+            return undefined;
         }
     });
-
-    // for (var i = 0; i < tilesLength; ++i) {
-    //     if (byteOffset + 12 > byteLength) {
-    //         message = 'Cannot read byte length from inner tile, exceeds cmpt tile\'s byte length.'
-    //         return Promise.resolve(message);
-    //     }
-    //     if (byteOffset % 8 > 0) {
-    //         message = 'Inner tile must be aligned to an 8-byte boundary'
-    //         return Promise.resolve(message);
-    //     }
-
-    //     var innerTileMagic = content.toString('utf8', byteOffset, byteOffset + 4);
-    //     var innerTileByteLength = content.readUInt32LE(byteOffset + 8);
-    //     var innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
-
-    //     //How to return in this case?
-    //     if (innerTileMagic === 'b3dm') {
-    //         message = validateB3dm(innerTile);
-    //     } else if (innerTileMagic === 'i3dm') {
-    //         message = validateI3dm(innerTile);
-    //     } else if (innerTileMagic === 'pnts') {
-    //         message = validatePnts(innerTile);
-    //     } else if (innerTileMagic === 'cmpt') {
-    //         message = validateCmpt(innerTile);
-    //     } else {
-    //         message = 'Invalid inner tile magic: ' + innerTileMagic;
-    //         return Promise.resolve(message);
-    //     }
-
-    //     // Want to return if the above functions return an error
-    //     if (message.then.defined !== undefined) {
-    //         var err = 'Error in inner ' + innerTileMagic + ' tile: ' + message
-    //         return Promise.resolve(err);
-    //     }
-
-    //     byteOffset += innerTileByteLength;
-    // }
-    
-    // if (!defined(message)) {
-    //     return Promise.resolve(message);
-    // }
 }

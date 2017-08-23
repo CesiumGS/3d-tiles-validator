@@ -5,7 +5,7 @@ var path = require('path');
 var fs = require('fs');
 
 describe('validate Glb', function() {
-    it ('returns error message when Glb version is incorrect', function(done) {
+    it('returns error message when Glb version is incorrect', function(done) {
         var glb = specUtility.createGlb();
         glb.writeUInt32LE(1, 4);  // version
 
@@ -15,7 +15,7 @@ describe('validate Glb', function() {
         }), done).toResolve();
     });
 
-    it ('returns error when GLTF gets incorrect binary tileset', function(done) {
+    it('returns error when GLTF gets incorrect binary tileset', function(done) {
         var glbfilepath_Box = path.join(__dirname, '../data/Tileset/IncorrectGLB.glb');
         
         var filehandle = fs.openSync(glbfilepath_Box, 'r');
@@ -30,7 +30,7 @@ describe('validate Glb', function() {
         }), done).toResolve();
     }, 10000); // Change timeout to 10 seconds
 
-    it ('GLTF test passes for correct binary tileset', function(done) {
+    it('GLTF test passes for correct binary tileset', function(done) {
         var glbfilepath_Box = path.join(__dirname, '../data/Tileset/Box.glb');
         
         var filehandle = fs.openSync(glbfilepath_Box, 'r');
