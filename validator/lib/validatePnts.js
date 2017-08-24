@@ -202,30 +202,30 @@ function validatePnts(content) {
         }
     }
 
-    var normal;
-    var normalVec = new Cartesian3();
+    var normalArray;
+    var normal = new Cartesian3();
     var normLength;
     var magnitude;
     if (defined(featureTableJson.NORMAL)) {
-        featureTable.featuresLength = pointsLength * 3;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL.componentType, 'FLOAT', 3));
-        normal = featureTable.getPropertyArray('NORMAL', componentDatatype, 1);
-        normLength = normal.length;
+        featureTable.featuresLength = pointsLength;
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL.componentType, 'FLOAT'));
+        normalArray = featureTable.getPropertyArray('NORMAL', componentDatatype, 3);
+        normLength = normalArray.length;
         for (i = 0; i < normLength; i += 3) {
-            normalVec = Cartesian3.fromElements(normal[i], normal[i+1], normal[i+2]);
-            magnitude = Cartesian3.magnitude(normalVec);
+            Cartesian3.unpack(normalArray, i, normal);
+            magnitude = Cartesian3.magnitude(normal);
             if (Math.abs(magnitude - 1.0) > Cesium.Math.EPSILON2) {
                 return 'normal defined in NORMAL must be of length 1.0';
             }
         }
     } else if (defined(featureTableJson.NORMAL_OCT16P)) {
-        featureTable.featuresLength = pointsLength * 2;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL_OCT16P.componentType, 'UNSIGNED_SHORT', 2));
-        normal = featureTable.getPropertyArray('NORMAL_OCT16P', componentDatatype, 1);
-        normLength = normal.length;
+        featureTable.featuresLength = pointsLength;
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL_OCT16P.componentType, 'UNSIGNED_SHORT'));
+        normalArray = featureTable.getPropertyArray('NORMAL_OCT16P', componentDatatype, 2);
+        normLength = normalArray.length;
         for (i = 0; i < normLength; i +=2 ) {
-            octDecodeWithoutNormalization(normal[i], normal[i+1], 255, normalVec);
-            magnitude = Cartesian3.magnitude(normalVec);
+            octDecodeWithoutNormalization(normalArray[i], normalArray[i+1], 255, normal);
+            magnitude = Cartesian3.magnitude(normal);
             if (Math.abs(magnitude - 1.0) > Cesium.Math.EPSILON2) {
                 return 'normal defined in NORMAL_OCT16P must be of length 1.0';
             }
