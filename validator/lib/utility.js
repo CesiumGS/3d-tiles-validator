@@ -197,8 +197,7 @@ function octDecodeWithoutNormalization(x, y, rangeMax, result) {
     result.y = CesiumMath.fromSNorm(y, rangeMax);
     result.z = 1.0 - (Math.abs(result.x) + Math.abs(result.y));
 
-    if (result.z < 0.0)
-    {
+    if (result.z < 0.0) {
         var oldVX = result.x;
         result.x = (1.0 - Math.abs(result.y)) * CesiumMath.signNotZero(oldVX);
         result.y = (1.0 - Math.abs(oldVX)) * CesiumMath.signNotZero(result.y);

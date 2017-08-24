@@ -205,66 +205,65 @@ function validateI3dm(content) {
     }
 
     var featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
-    var normalUp, normalRight;
+    var normalUpArray, normalRightArray;
     var octUp = false;
     var octRight = false;
     var componentDatatype;
     var i;
 
     if (defined(featureTableJson.NORMAL_UP)) {
-        featureTable.featuresLength = featuresLength * 3;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL_UP.componentType, 'FLOAT', 3));
-        normalUp = featureTable.getPropertyArray('NORMAL_UP', componentDatatype, 1);
+        featureTable.featuresLength = featuresLength;
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL_UP.componentType, 'FLOAT'));
+        normalUpArray = featureTable.getPropertyArray('NORMAL_UP', componentDatatype, 3);
     } else if (defined(featureTableJson.NORMAL_UP_OCT32P)) {
         octUp = true;
-        featureTable.featuresLength = featuresLength * 2;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL_UP_OCT32P.componentType, 'UNSIGNED_SHORT', 2));
-        normalUp = featureTable.getPropertyArray('NORMAL_UP_OCT32P', componentDatatype, 1);
+        featureTable.featuresLength = featuresLength;
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL_UP_OCT32P.componentType, 'UNSIGNED_SHORT'));
+        normalUpArray = featureTable.getPropertyArray('NORMAL_UP_OCT32P', componentDatatype, 2);
     }
 
     if (defined(featureTableJson.NORMAL_RIGHT)) {
-        featureTable.featuresLength = featuresLength * 3;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL_RIGHT.componentType, 'FLOAT', 3));
-        normalRight = featureTable.getPropertyArray('NORMAL_RIGHT', componentDatatype, 1);
+        featureTable.featuresLength = featuresLength;
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL_RIGHT.componentType, 'FLOAT'));
+        normalRightArray = featureTable.getPropertyArray('NORMAL_RIGHT', componentDatatype, 3);
     } else if (defined(featureTableJson.NORMAL_RIGHT_OCT32P)) {
         octRight = true;
-        featureTable.featuresLength = featuresLength * 2;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL_RIGHT_OCT32P.componentType, 'UNSIGNED_SHORT', 2));
-        normalRight = featureTable.getPropertyArray('NORMAL_RIGHT_OCT32P', componentDatatype, 1);
+        featureTable.featuresLength = featuresLength;
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.NORMAL_RIGHT_OCT32P.componentType, 'UNSIGNED_SHORT'));
+        normalRightArray = featureTable.getPropertyArray('NORMAL_RIGHT_OCT32P', componentDatatype, 2);
     }
 
-    if(defined(normalUp) && defined(normalRight)) {
-        for(i = 0; i < featuresLength; i++) {
-            var normalUpVec3 = new Cartesian3();
-            if(octUp) {
-                octDecodeWithoutNormalization(normalUp[i*2], normalUp[i*2+1], 65535, normalUpVec3);
+    var normalUp = new Cartesian3();
+    var normalRight = new Cartesian3();
+    if (defined(normalUpArray) && defined(normalRightArray)) {
+        for (i = 0; i < featuresLength; i++) {
+            if (octUp) {
+                octDecodeWithoutNormalization(normalUpArray[i*2], normalUpArray[i*2+1], 65535, normalUp);
             } else {
-                Cartesian3.fromElements(normalUp[i*3], normalUp[i*3+1], normalUp[i*3+2], normalUpVec3);
+                Cartesian3.unpack(normalUpArray, i*3, normalUp);
+            }
+            if (octRight) {
+                octDecodeWithoutNormalization(normalRightArray[i*2], normalRightArray[i*2+1], 65535, normalRight);
+            } else {
+                Cartesian3.unpack(normalRightArray, i*3, normalRight);
             }
 
-            var normalRightVec3 = new Cartesian3();
-            if(octRight) {
-                octDecodeWithoutNormalization(normalRight[i*2], normalRight[i*2+1], 65535, normalRightVec3);
-            } else {
-                Cartesian3.fromElements(normalRight[i*3], normalRight[i*3+1], normalRight[i*3+2], normalRightVec3);
-            }
-
-            var normalUpMagnitude = Cartesian3.magnitude(normalUpVec3);
-            if(Math.abs(normalUpMagnitude - 1.0) > Cesium.Math.EPSILON2) {
-                if(octUp) {
+            var normalUpMagnitude = Cartesian3.magnitude(normalUp);
+            if (Math.abs(normalUpMagnitude - 1.0) > Cesium.Math.EPSILON2) {
+                if (octUp) {
                     return 'normal defined in NORMAL_UP_OCT32P must be of length 1.0';
                 }
                 return 'normal defined in NORMAL_UP must be of length 1.0';
             }
-            var normalRightMagnitude = Cartesian3.magnitude(normalRightVec3);
-            if(Math.abs(normalRightMagnitude - 1.0) > Cesium.Math.EPSILON2) {
-                if(octRight) {
+            var normalRightMagnitude = Cartesian3.magnitude(normalRight);
+            if (Math.abs(normalRightMagnitude - 1.0) > Cesium.Math.EPSILON2) {
+                if (octRight) {
                     return 'normal defined in NORMAL_RIGHT_OCT32P must be of length 1.0';
                 }
                 return 'normal defined in NORMAL_RIGHT must be of length 1.0';
             }
 
-            var dotProd = Cartesian3.dot(normalUpVec3,normalRightVec3);
+            var dotProd = Cartesian3.dot(normalUp,normalRight);
             if (Math.abs(dotProd) > Cesium.Math.EPSILON4) {
                 return 'up and right normals must be mutually orthogonal';
             }
@@ -287,6 +286,6 @@ function validateI3dm(content) {
             return glbMessage;
         }
     } else if (!isBufferValidUtf8(glbBuffer)) {
-            return 'Gltf url is not a valid utf-8 string';
+        return 'Gltf url is not a valid utf-8 string';
     }
 }
