@@ -7,6 +7,10 @@ var Matrix3 = Cesium.Matrix3;
 var Matrix4 = Cesium.Matrix4;
 var Plane = Cesium.Plane;
 var BoundingSphere = Cesium.BoundingSphere;
+var ComponentDatatype = Cesium.ComponentDatatype;
+var WebGLConstants = Cesium.WebGLConstants;
+var getStringFromTypedArray = Cesium.getStringFromTypedArray;
+var defined = Cesium.defined;
 
 module.exports = {
     typeToComponentsLength : typeToComponentsLength,
@@ -16,7 +20,8 @@ module.exports = {
     sphereInsideSphere : sphereInsideSphere,
     sphereInsideBox : sphereInsideBox,
     boxInsideBox : boxInsideBox,
-    boxInsideSphere : boxInsideSphere
+    boxInsideSphere : boxInsideSphere,
+    validateGlbBatchID: validateGlbBatchID
 };
 
 function typeToComponentsLength(type) {
@@ -189,4 +194,53 @@ function createUnitCube() {
     cube[6] = new Cartesian3(1, 1, 1);
     cube[7] = new Cartesian3(1, 1, -1);
     return cube;
+}
+
+function validateGlbBatchID(glbBuffer) {
+    var message;
+    var headerView = ComponentDatatype.createArrayBufferView(WebGLConstants.UNSIGNED_INT, glbBuffer.buffer, glbBuffer.byteOffset, 5);
+ 
+    var length = headerView[2];
+    var byteOffset = 12;
+    var gltf;
+    var binaryBuffer;
+    while (byteOffset < length) {
+        var chunkHeaderView = ComponentDatatype.createArrayBufferView(WebGLConstants.UNSIGNED_INT, glbBuffer.buffer, glbBuffer.byteOffset + byteOffset, 2);
+        var chunkLength = chunkHeaderView[0];
+        var chunkType = chunkHeaderView[1];
+        byteOffset += 8;
+        var chunkBuffer = glbBuffer.subarray(byteOffset, chunkLength + byteOffset);
+        byteOffset += chunkLength;
+        // Load JSON chunk
+        if (chunkType === 0x4E4F534A) {
+            var jsonString = getStringFromTypedArray(chunkBuffer);
+            gltf = JSON.parse(jsonString);
+        }
+        // Load Binary chunk
+        else if (chunkType === 0x004E4942) {
+            // Clone just the binary chunk so the underlying buffer can be freed
+            binaryBuffer = new Uint8Array(chunkBuffer);
+        }
+    }
+    if (defined(gltf) && defined(binaryBuffer)) {
+        var buffers = gltf.buffers;
+        if (defined(buffers) && buffers.length > 0) {
+            var buffer = buffers[0];
+            buffer.extras = {
+                _pipeline: {
+                    source: binaryBuffer
+                }
+            }
+        }
+    }
+    //return gltf;
+    console.log('gltf: ');
+    console.log(gltf);
+    console.log();
+    console.log('meshes: ');
+    console.log(gltf.meshes[0]);
+    console.log();
+    console.log('meshes.primitive: ');
+    console.log(gltf.meshes[0].primitives);
+    return message;
 }

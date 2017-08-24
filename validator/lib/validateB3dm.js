@@ -4,11 +4,12 @@ var bufferToJson = require('../lib/bufferToJson');
 var validateBatchTable = require('../lib/validateBatchTable');
 var validateFeatureTable = require('../lib/validateFeatureTable');
 var validateGlb = require('../lib/validateGlb');
-
+var utility = require('./utility');
 var batchTableSchema = require('../specs/data/schema/batchTable.schema.json');
 var featureTableSchema = require('../specs/data/schema/featureTable.schema.json');
 
 var defined = Cesium.defined;
+var validateGlbBatchID = utility.validateGlbBatchID;
 
 module.exports = validateB3dm;
 
@@ -126,5 +127,11 @@ function validateB3dm(content) {
     var glbMessage = validateGlb(glbBuffer);
     if (defined(glbMessage)) {
         return glbMessage;
+    }
+
+    //validate batch_ID
+    var message = validateGlbBatchID(glbBuffer);
+    if (defined(message)) {
+        return message;
     }
 }

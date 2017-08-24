@@ -1,6 +1,8 @@
 'use strict';
 var validateB3dm = require('../../lib/validateB3dm');
 var specUtility = require('./specUtility.js');
+var path = require('path');
+var fs = require('fs');
 
 var createB3dm = specUtility.createB3dm;
 var createB3dmLegacy1 = specUtility.createB3dmLegacy1;
@@ -124,6 +126,20 @@ describe('validate b3dm', function() {
         });
 
         expect(validateB3dm(b3dm)).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
+    });
+
+    //unit test
+    fit('succeeds for valid b3dm with _BATCHID less than BATCH_LENGTH - 1 ', function() {
+        var b3dmToGlbFilePath = path.join(__dirname, '../data/Tileset/extractedGlbToB3dmV2.b3dm');
+        
+        var filehandle = fs.openSync(b3dmToGlbFilePath, 'r');
+        const stats = fs.statSync(b3dmToGlbFilePath);
+        const fileSizeInBytes = stats.size;
+        var b3dm = new Buffer(fileSizeInBytes);
+        fs.readSync(filehandle, b3dm, 0, b3dm.length, 0);
+        fs.closeSync(filehandle);
+
+        expect(validateB3dm(b3dm)).toBeUndefined();
     });
 
     it('succeeds for valid b3dm with BATCH_LENGTH 0 and no batch table', function() {
