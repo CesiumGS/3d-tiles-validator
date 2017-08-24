@@ -36,7 +36,7 @@ function validateTileset(tileset, tilesetDirectory) {
 
 function validateTopLevel(tileset) {
     if (!defined(tileset.geometricError)) {
-        return errorMessage('Tileset must declare its geometricError as a top-level property.', undefined);
+        return 'Tileset must declare its geometricError as a top-level property.';
     }
 
     if (!defined(tileset.root.refine)) {
@@ -44,11 +44,11 @@ function validateTopLevel(tileset) {
     }
 
     if (!defined(tileset.asset)) {
-        return errorMessage('Tileset must declare its asset as a top-level property.', undefined);
+        return 'Tileset must declare its asset as a top-level property.';
     }
 
     if (!defined(tileset.asset.version)) {
-        return errorMessage('Tileset must declare a version in its asset property', undefined);
+        return 'Tileset must declare a version in its asset property';
     }
 
     if (tileset.asset.version !== '1.0') {
@@ -104,23 +104,23 @@ function validateTileHierarchy(root, tilesetDirectory) {
             var tileBox = tile.boundingVolume.box;
 
             if (defined(contentRegion) && defined(tileRegion) && !regionInsideRegion(contentRegion, tileRegion)) {
-                return errorMessage('content region [' + contentRegion + '] is not within tile region + [' + tileRegion + ']', tile.content);
+                return errorMessage('content region [' + contentRegion + '] is not within tile region + [' + tileRegion + ']', tile);
             }
 
             if (defined(contentSphere) && defined(tileSphere) && !sphereInsideSphere(contentSphere, tileSphere)) {
-                return errorMessage('content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']', tile.content);
+                return errorMessage('content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']', tile);
             }
 
             if (defined(contentBox) && defined(tileBox) && !boxInsideBox(contentBox, tileBox)) {
-                return errorMessage('content box [' + contentBox + '] is not within tile box [' + tileBox + ']', tile.content);
+                return errorMessage('content box [' + contentBox + '] is not within tile box [' + tileBox + ']', tile);
             }
 
             if (defined(contentBox) && defined(tileSphere) && !boxInsideSphere(contentBox, tileSphere)) {
-                return errorMessage('content box [' + contentBox + '] is not within tile sphere [' + tileSphere + ']', tile.content);
+                return errorMessage('content box [' + contentBox + '] is not within tile sphere [' + tileSphere + ']', tile);
             }
 
             if (defined(contentSphere) && defined(tileBox) && !sphereInsideBox(contentSphere, tileBox)) {
-                return errorMessage('content sphere [' + contentSphere + '] is not within tile box [' + tileBox + ']', tile.content);
+                return errorMessage('content sphere [' + contentSphere + '] is not within tile box [' + tileBox + ']', tile);
             }
         }
 
@@ -176,12 +176,8 @@ function validateTileHierarchy(root, tilesetDirectory) {
 }
 
 function errorMessage(originalMessage, tile) {
-    if (defined(tile)) {
-        delete tile.children;
-        var stringJson = JSON.stringify(tile, undefined, 4);
-        var newMessage = originalMessage + ' \n ' + stringJson;
-        return newMessage;
-    } else {
-        return originalMessage;
-    }
+    delete tile.children;
+    var stringJson = JSON.stringify(tile, undefined, 4);
+    var newMessage = originalMessage + ' \n ' + stringJson;
+    return newMessage;
 }

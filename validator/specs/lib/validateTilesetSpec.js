@@ -46,8 +46,8 @@ describe('validateTileset', function() {
         delete tileset.root.children[0].geometricError;
         expect(validateTileset(tileset)
             .then(function(message) {
-                var err = 'Each tile must define geometricError';
-                expect(message.slice(0, err.length)).toBe(err);
+                var error = 'Each tile must define geometricError';
+                expect(message.slice(0, error.length)).toBe(error);
             }), done).toResolve();
     });
 
