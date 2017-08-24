@@ -199,18 +199,18 @@ function validatePnts(content) {
     }
 
     if (defined(featureTableJson.RGBA)) {
-        featureTable.featuresLength = pointsLength * 4;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGBA.componentType, 'UNSIGNED_SHORT', 4));
-        var rgba = featureTable.getPropertyArray('RGBA', componentDatatype, 1);
+        featureTable.featuresLength = pointsLength;
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGBA.componentType, 'UNSIGNED_SHORT'));
+        var rgba = featureTable.getPropertyArray('RGBA', componentDatatype, 4);
         var max = Math.max(...rgba);
         var min = Math.min(...rgba);
         if (min < 0 || max > 255) {
             return 'values of RGBA must be in the range 0-255 inclusive';
         }
     } else if (defined(featureTableJson.RGB)) {
-        featureTable.featuresLength = pointsLength * 3;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB.componentType, 'UNSIGNED_SHORT', 3));
-        var rgb = featureTable.getPropertyArray('RGB', componentDatatype, 1);
+        featureTable.featuresLength = pointsLength;
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB.componentType, 'UNSIGNED_SHORT'));
+        var rgb = featureTable.getPropertyArray('RGB', componentDatatype, 3);
         var max = Math.max(...rgb);
         var min = Math.min(...rgb);
         if (min < 0 || max > 255) {
@@ -218,7 +218,7 @@ function validatePnts(content) {
         }
     } else if (defined(featureTableJson.RGB565)) {
         featureTable.featuresLength = pointsLength;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB565.componentType, 'UNSIGNED_INT', 1));
+        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB565.componentType, 'UNSIGNED_INT'));
         var rgb565 = featureTable.getPropertyArray('RGB565', componentDatatype, 1);
         var max = Math.max(...rgb565);
         var min = Math.min(...rgb565);

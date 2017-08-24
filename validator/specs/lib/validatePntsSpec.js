@@ -311,6 +311,25 @@ describe('validate pnts', function() {
         expect(validatePnts(pnts)).toBe('values of RGBA must be in the range 0-255 inclusive');
     });
 
+    it('succeeds when RGBA is within the range', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                RGBA : [
+                    255, 0, 0, 0,
+                    0, 255, 0, 0,
+                    0, 255, 255, 0,
+                    255, 0, 0, 0]
+            }
+        });
+        expect(validatePnts(pnts)).toBeUndefined();
+    });
+
     it('returns error message when RGB is out of range [Test using feature table JSON]', function() {
         var pnts = createPnts({
             featureTableJson : {
@@ -364,6 +383,25 @@ describe('validate pnts', function() {
         expect(validatePnts(pnts)).toBe('values of RGB must be in the range 0-255 inclusive');
     });
 
+    it('succeeds when RGB is within the range', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                RGB : [
+                    255, 0, 0,
+                    0, 255, 0,
+                    0, 255, 255,
+                    255, 0, 0]
+            }
+        });
+        expect(validatePnts(pnts)).toBeUndefined();
+    });
+
     it('returns error message when RGB565 is out of range [Test using feature table JSON]', function() {
         var pnts = createPnts({
             featureTableJson : {
@@ -408,6 +446,21 @@ describe('validate pnts', function() {
         expect(validatePnts(pnts)).toBe('value of RGB565 must be in the range 0-65535 inclusive');
     });
 
+    it('succeeds when RGB565 is within the range', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                RGB565 : [0, 1, 65535, 400]
+            }
+        });
+        expect(validatePnts(pnts)).toBeUndefined();
+    });
+
     it('returns error message when CONSTANT_RGBA is out of range', function() {
         var pnts = createPnts({
             featureTableJson : {
@@ -421,5 +474,20 @@ describe('validate pnts', function() {
             }
         });
         expect(validatePnts(pnts)).toBe('values of CONSTANT_RGBA must be in the range 0-255 inclusive');
+    });
+
+    it('succeeds when CONSTANT_RGBA is within the range', function() {
+        var pnts = createPnts({
+            featureTableJson : {
+                POINTS_LENGTH : 4,
+                POSITION : [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 1,
+                    0, 1, 0],
+                CONSTANT_RGBA : [255, 0, 0, 1]
+            }
+        });
+        expect(validatePnts(pnts)).toBeUndefined();
     });
 });
