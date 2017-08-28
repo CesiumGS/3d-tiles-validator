@@ -81,15 +81,15 @@ function validateTileHierarchy(root, tilesetDirectory) {
         var content = tile.content;
 
         if (!defined(tile.geometricError)) {
-            return 'Each tile must define geometricError';
+            return errorMessage('Each tile must define geometricError', tile);
         }
 
         if (tile.geometricError < 0.0) {
-            return 'geometricError must be greater than or equal to 0.0';
+            return errorMessage('geometricError must be greater than or equal to 0.0', tile);
         }
 
         if (defined(parent) && (tile.geometricError > parent.geometricError)) {
-            return 'Child has geometricError greater than parent';
+            return errorMessage('Child has geometricError greater than parent', tile);
         }
 
         if (defined(content) && defined(content.url)) {
@@ -107,7 +107,7 @@ function validateTileHierarchy(root, tilesetDirectory) {
             innerTransform = Matrix4.IDENTITY;
             message = checkBoundingVolume(content.boundingVolume, tile.boundingVolume, innerTransform, outerTransform);
             if (defined(message)) {
-                return 'content bounding volume is not within tile bounding volume: ' + message;
+                return errorMessage('content bounding volume is not within tile bounding volume: ' + message, tile);
             }
         }
 
@@ -122,13 +122,13 @@ function validateTileHierarchy(root, tilesetDirectory) {
             }
             message = checkBoundingVolume(tile.boundingVolume, parent.boundingVolume, innerTransform, outerTransform);
             if (defined(message)) {
-                return 'child bounding volume is not within parent bounding volume: ' + message;
+                return errorMessage('child bounding volume is not within parent bounding volume: ' + message, tile);
             }
         }
 
         if (defined(tile.refine)) {
             if (tile.refine !== 'ADD' && tile.refine !== 'REPLACE') {
-                return 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
+                return errorMessage('Refine property in tile must have either "ADD" or "REPLACE" as its value.', tile);
             }
         }
 
@@ -261,4 +261,11 @@ function getTransformedSphere(sphere, transform) {
     // Return a Sphere array
     var returnSphere = [center.x, center.y, center.z, radius];
     return returnSphere;
+}
+
+function errorMessage(originalMessage, tile) {
+    delete tile.children;
+    var stringJson = JSON.stringify(tile, undefined, 4);
+    var newMessage = originalMessage + ' \n ' + stringJson;
+    return newMessage;
 }
