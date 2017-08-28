@@ -40,7 +40,7 @@ function validateTopLevel(tileset) {
     }
 
     if (!defined(tileset.root.refine)) {
-        return errorMessage('Tileset must define refine property in root tile', tileset.root);
+        return 'Tileset must define refine property in root tile';
     }
 
     if (!defined(tileset.asset)) {
@@ -57,9 +57,8 @@ function validateTopLevel(tileset) {
 
     var gltfUpAxis = tileset.asset.gltfUpAxis;
     if (defined(gltfUpAxis)) {
-            if (gltfUpAxis !== 'X' && gltfUpAxis !== 'Y' && gltfUpAxis !== 'Z') {
-            delete tileset.root;
-            return errorMessage('gltfUpAxis should either be "X", "Y", or "Z".', tileset);
+        if (gltfUpAxis !== 'X' && gltfUpAxis !== 'Y' && gltfUpAxis !== 'Z') {
+            return 'gltfUpAxis should either be "X", "Y", or "Z".';
         }
     }
 }
