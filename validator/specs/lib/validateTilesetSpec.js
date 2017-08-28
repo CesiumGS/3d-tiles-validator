@@ -21,12 +21,18 @@ var sampleTileset = {
                     region: [-1.3197209591796106, 0.6988424218, -1.31968, 0.698874, 0, 20]
                 },
                 geometricError: 50,
+                content: {
+                    geometricError: 20
+                },
                 children: [
                     {
                         boundingVolume: {
                             region: [-1.3197209591796106, 0.6988424218, -1.31968, 0.698874, 0, 10]
                         },
-                        geometricError: 0
+                        geometricError: 0,
+                        content: {
+                            geometricError: 10
+                        }
                     }
                 ]
             },
@@ -34,7 +40,10 @@ var sampleTileset = {
                 boundingVolume: {
                     region: [-1.31968, 0.6988424218, -1.3196390408203893, 0.698874, 0, 20]
                 },
-                geometricError: 0
+                geometricError: 0,
+                content: {
+                    geometricError: 20
+                }
             }
         ]
     }
@@ -157,7 +166,7 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                var err = 'content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                var err = 'content bounding volume is not within tile bounding volume: box [' + contentBoundingVolume.box + '] is not within box [' + tileBoundingVolume.box + ']';
                 expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
@@ -182,7 +191,7 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                var err = 'content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                var err = 'content bounding volume is not within tile bounding volume: box [' + contentBoundingVolume.box + '] is not within box [' + tileBoundingVolume.box + ']';
                 expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
@@ -226,7 +235,7 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                var err = 'content box [' + contentBoundingVolume.box + '] is not within tile sphere [' + tileBoundingVolume.sphere + ']';
+                var err = 'content bounding volume is not within tile bounding volume: box [' + contentBoundingVolume.box + '] is not within sphere [' + tileBoundingVolume.sphere + ']';
                 expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
@@ -265,7 +274,7 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                var err = 'content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                var err = 'content bounding volume is not within tile bounding volume: sphere [' + contentBoundingVolume.sphere + '] is not within box [' + tileBoundingVolume.box + ']';
                 expect(message.slice(0, err.length)).toBe(err);
           }), done).toResolve();
     });
@@ -285,7 +294,7 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                var err = 'content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                var err = 'content bounding volume is not within tile bounding volume: sphere [' + contentBoundingVolume.sphere + '] is not within box [' + tileBoundingVolume.box + ']';
                 expect(message.slice(0, err.length)).toBe(err);
           }), done).toResolve();
     });
@@ -305,7 +314,7 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                var err = 'content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                var err = 'content bounding volume is not within tile bounding volume: sphere [' + contentBoundingVolume.sphere + '] is not within box [' + tileBoundingVolume.box + ']';
                 expect(message.slice(0, err.length)).toBe(err);
           }), done).toResolve();
     });
@@ -329,6 +338,104 @@ describe('validateTileset', function() {
           }), done).toResolve();
     });
 
+    it('succeeds when child\'s box type boundingVolume is completely within it\'s parents\'s box type boundingVolume', function(done) {
+        var parentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var childBoundingVolume = {
+            box: [
+                0, 0, 0,
+                0.5, 0, 0,
+                0, 0.5, 0,
+                0, 0, 0.5
+            ]
+        };
+        var childTransform = {
+            transform: [
+                0.87, 0.5, 0, 0,
+                -0.5, 0.87, 0, 0,
+                0, 0 , 1, 0,
+                0, 0, 0, 0
+            ]
+        };
+        var tileset = createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, undefined);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                expect(message).toBeUndefined();
+            }), done).toResolve();
+    });
+
+    it('returns error message when when child\'s box type boundingVolume is not completely within it\'s parents\'s box type boundingVolume [aligned bounding volumes]', function(done) {
+        var parentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var childBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var childTransform = {
+            transform: [
+                4, 0, 0, 0,
+                0, 4, 0, 0,
+                0, 0 , 4, 0,
+                0, 0, 0, 1
+            ]
+        };
+        var tileset = createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, undefined);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                var err = 'child bounding volume is not within parent bounding volume: ' + 'box [' + childBoundingVolume.box + '] is not within box [' + parentBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
+            }), done).toResolve();
+    });
+
+    it('returns error message when when child\'s box type boundingVolume is not completely within it\'s parents\'s box type boundingVolume [unaligned bounding volumes]', function(done) {
+        var parentBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var childBoundingVolume = {
+            box: [
+                0, 0, 0,
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]
+        };
+        var childTransform = {
+            transform: [
+                0.87, 0.5, 0, 0,
+                -0.5, 0.87, 0, 0,
+                0, 0 , 1, 0,
+                0, 0, 0, 0
+            ]
+        };
+        var tileset = createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, undefined);
+        expect(validateTileset(tileset)
+            .then(function(message) {
+                var err = 'child bounding volume is not within parent bounding volume: ' + 'box [' + childBoundingVolume.box + '] is not within box [' + parentBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
+            }), done).toResolve();
+    });
+
     it('succeeds for valid tileset', function(done) {
         expect(validateTileset(sampleTileset)
             .then(function(message) {
@@ -344,18 +451,36 @@ function createSampleTileset(tileBoundingVolume, contentBoundingVolume) {
         },
         geometricError: 500,
         root: {
-            transform: [
-                96.86356343768793, 24.848542777253734, 0, 0,
-                -15.986465724980844, 62.317780594908875, 76.5566922962899, 0,
-                19.02322243409411, -74.15554020821229, 64.3356267137516, 0,
-                1215107.7612304366, -4736682.902037748, 4081926.095098698, 1
-            ],
             boundingVolume: tileBoundingVolume,
             geometricError: 100,
             refine: 'ADD',
             content: {
                 boundingVolume: contentBoundingVolume
             }
+        }
+    };
+    return sampleTileset;
+}
+
+function createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, parentTransform) {
+    var sampleTileset = {
+        asset: {
+            version: '1.0'
+        },
+        geometricError: 500,
+        root: {
+            transform: parentTransform,
+            boundingVolume: parentBoundingVolume,
+            geometricError: 100,
+            refine: 'ADD',
+            children: [
+                {
+                    transform: childTransform.transform, 
+                    boundingVolume: childBoundingVolume,
+                    geometricError: 50,
+                    refine: 'ADD'
+                }
+            ]
         }
     };
     return sampleTileset;
