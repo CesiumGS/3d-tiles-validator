@@ -79,15 +79,15 @@ function validateTileHierarchy(root, tilesetDirectory) {
         var content = tile.content;
 
         if (!defined(tile.geometricError)) {
-            return 'Each tile must define geometricError';
+            return errorMessage('Each tile must define geometricError', tile);
         }
 
         if (tile.geometricError < 0.0) {
-            return 'geometricError must be greater than or equal to 0.0';
+            return errorMessage('geometricError must be greater than or equal to 0.0', tile);
         }
 
         if (defined(parent) && (tile.geometricError > parent.geometricError)) {
-            return 'Child has geometricError greater than parent';
+            return errorMessage('Child has geometricError greater than parent', tile);
         }
 
         if (defined(content) && defined(content.url)) {
@@ -103,29 +103,29 @@ function validateTileHierarchy(root, tilesetDirectory) {
             var tileBox = tile.boundingVolume.box;
 
             if (defined(contentRegion) && defined(tileRegion) && !regionInsideRegion(contentRegion, tileRegion)) {
-                return 'content region [' + contentRegion + '] is not within tile region + [' + tileRegion + ']';
+                return errorMessage('content region [' + contentRegion + '] is not within tile region + [' + tileRegion + ']', tile);
             }
 
             if (defined(contentSphere) && defined(tileSphere) && !sphereInsideSphere(contentSphere, tileSphere)) {
-                return 'content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']';
+                return errorMessage('content sphere [' + contentSphere + '] is not within tile sphere + [' + tileSphere + ']', tile);
             }
 
             if (defined(contentBox) && defined(tileBox) && !boxInsideBox(contentBox, tileBox)) {
-                return 'content box [' + contentBox + '] is not within tile box [' + tileBox + ']';
+                return errorMessage('content box [' + contentBox + '] is not within tile box [' + tileBox + ']', tile);
             }
 
             if (defined(contentBox) && defined(tileSphere) && !boxInsideSphere(contentBox, tileSphere)) {
-                return 'content box [' + contentBox + '] is not within tile sphere [' + tileSphere + ']';
+                return errorMessage('content box [' + contentBox + '] is not within tile sphere [' + tileSphere + ']', tile);
             }
 
             if (defined(contentSphere) && defined(tileBox) && !sphereInsideBox(contentSphere, tileBox)) {
-                return 'content sphere [' + contentSphere + '] is not within tile box [' + tileBox + ']';
+                return errorMessage('content sphere [' + contentSphere + '] is not within tile box [' + tileBox + ']', tile);
             }
         }
 
         if (defined(tile.refine)) {
             if (tile.refine !== 'ADD' && tile.refine !== 'REPLACE') {
-                return 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
+                return errorMessage('Refine property in tile must have either "ADD" or "REPLACE" as its value.', tile);
             }
         }
 
@@ -172,4 +172,11 @@ function validateTileHierarchy(root, tilesetDirectory) {
             }
             return message;
         });
+}
+
+function errorMessage(originalMessage, tile) {
+    delete tile.children;
+    var stringJson = JSON.stringify(tile, undefined, 4);
+    var newMessage = originalMessage + ' \n ' + stringJson;
+    return newMessage;
 }

@@ -46,7 +46,8 @@ describe('validateTileset', function() {
         delete tileset.root.children[0].geometricError;
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Each tile must define geometricError');
+                var error = 'Each tile must define geometricError';
+                expect(message.slice(0, error.length)).toBe(error);
             }), done).toResolve();
     });
 
@@ -55,7 +56,8 @@ describe('validateTileset', function() {
         tileset.root.children[0].geometricError = -1;
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('geometricError must be greater than or equal to 0.0');
+                var err = 'geometricError must be greater than or equal to 0.0';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
@@ -64,7 +66,8 @@ describe('validateTileset', function() {
         tileset.root.children[0].geometricError = 80;
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Child has geometricError greater than parent');
+                var err = 'Child has geometricError greater than parent';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
@@ -73,7 +76,8 @@ describe('validateTileset', function() {
         tileset.root.children[0].refine = 'NEW';
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Refine property in tile must have either "ADD" or "REPLACE" as its value.');
+                var err = 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
@@ -91,7 +95,8 @@ describe('validateTileset', function() {
         delete tileset.root.refine;
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('Tileset must define refine property in root tile');
+                var err = 'Tileset must define refine property in root tile';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
@@ -127,7 +132,8 @@ describe('validateTileset', function() {
         tileset.asset.gltfUpAxis = 'A';
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('gltfUpAxis should either be "X", "Y", or "Z".');
+                var err = 'gltfUpAxis should either be "X", "Y", or "Z".';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
@@ -151,7 +157,8 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']');
+                var err = 'content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
@@ -175,7 +182,8 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']');
+                var err = 'content box [' + contentBoundingVolume.box + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
@@ -218,7 +226,8 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('content box [' + contentBoundingVolume.box + '] is not within tile sphere [' + tileBoundingVolume.sphere + ']');
+                var err = 'content box [' + contentBoundingVolume.box + '] is not within tile sphere [' + tileBoundingVolume.sphere + ']';
+                expect(message.slice(0, err.length)).toBe(err);
             }), done).toResolve();
     });
 
@@ -256,7 +265,8 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']');
+                var err = 'content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
           }), done).toResolve();
     });
 
@@ -275,7 +285,8 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']');
+                var err = 'content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
           }), done).toResolve();
     });
 
@@ -294,7 +305,8 @@ describe('validateTileset', function() {
         var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
         expect(validateTileset(tileset)
             .then(function(message) {
-                expect(message).toBe('content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']');
+                var err = 'content sphere [' + contentBoundingVolume.sphere + '] is not within tile box [' + tileBoundingVolume.box + ']';
+                expect(message.slice(0, err.length)).toBe(err);
           }), done).toResolve();
     });
 
