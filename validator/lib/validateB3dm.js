@@ -130,8 +130,10 @@ function validateB3dm(content) {
     }
 
     //validate batch_ID
-    var message = validateGlbBatchID(glbBuffer);
-    if (defined(message)) {
-        return message;
+    if (featuresLength > 0) {
+        var message = validateGlbBatchID(glbBuffer, featuresLength);
+        if (defined(message)) {
+            return message;
+        }
     }
 }

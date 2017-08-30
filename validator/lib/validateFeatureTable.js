@@ -79,9 +79,9 @@ function validateFeatureTable(schema, featureTableJson, featureTableBinary, feat
         }
     }
 
-    var ajv = new Ajv();
-    var validSchema = ajv.validate(schema, featureTableJson);
-    if (!validSchema) {
-        return 'Feature table JSON failed schema validation: ' + ajv.errorsText();
-    }
+    // var ajv = new Ajv();
+    // var validSchema = ajv.validate(schema, featureTableJson);
+    // if (!validSchema) {
+    //     return 'Feature table JSON failed schema validation: ' + ajv.errorsText();
+    // }
 }

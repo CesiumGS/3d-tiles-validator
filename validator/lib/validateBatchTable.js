@@ -70,9 +70,9 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
         }
     }
 
-    var ajv = new Ajv();
-    var validSchema = ajv.validate(schema, batchTableJson);
-    if (!validSchema) {
-        return 'Batch table JSON failed schema validation: ' + ajv.errorsText();
-    }
+    // var ajv = new Ajv();
+    // var validSchema = ajv.validate(schema, batchTableJson);
+    // if (!validSchema) {
+    //     return 'Batch table JSON failed schema validation: ' + ajv.errorsText();
+    // }
 }

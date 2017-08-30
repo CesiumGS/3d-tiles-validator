@@ -196,10 +196,10 @@ function createUnitCube() {
     return cube;
 }
 
-function validateGlbBatchID(glbBuffer) {
+function validateGlbBatchID(glbBuffer, batchLength) {
     var message;
     var headerView = ComponentDatatype.createArrayBufferView(WebGLConstants.UNSIGNED_INT, glbBuffer.buffer, glbBuffer.byteOffset, 5);
- 
+
     var length = headerView[2];
     var byteOffset = 12;
     var gltf;
@@ -230,17 +230,72 @@ function validateGlbBatchID(glbBuffer) {
                 _pipeline: {
                     source: binaryBuffer
                 }
+            };
+        }
+    }
+
+    var meshList = [];
+    var accessorsList = [];
+    var bufferViewList = [];
+    var bufferList = [];
+
+    for (var i = 0; i < gltf.meshes.length; ++i) {
+        meshList.push(gltf.meshes[i]);
+    }
+
+    for (var j = 0; j < gltf.accessors.length; ++j) {
+        accessorsList.push(gltf.accessors[j]);
+    }
+
+    for (var k = 0; k < gltf.bufferViews.length; ++k) {
+        bufferViewList.push(gltf.bufferViews[k]);
+    }
+
+    for (var p = 0; p < gltf.buffers.length; ++p)
+    {
+        bufferList.push(gltf.buffers[p].extras._pipeline.source);
+    }
+
+    for (var l = 0; l < meshList.length; ++l) {
+        for(var m = 0; m < meshList[l].primitives.length; ++m) {
+            message = validateMeshBatchID(meshList[l].primitives[m].attributes._BATCHID, accessorsList, bufferViewList, bufferList, batchLength);
+            if (defined(message)) {
+                return message;
             }
         }
     }
-    //return gltf;
-    console.log('gltf: ');
-    console.log(gltf);
-    console.log();
-    console.log('meshes: ');
-    console.log(gltf.meshes[0]);
-    console.log();
-    console.log('meshes.primitive: ');
-    console.log(gltf.meshes[0].primitives);
+    return message;
+}
+
+function getComponentSize(type) {
+    var value;
+    switch (type) {
+        case 'VEC3':
+            value = 3;
+            break;
+        case 'VEC2':
+            value = 2;
+            break;
+        case 'SCALAR':
+            value = 1;
+            break;
+    }
+    return value;
+}
+
+function validateMeshBatchID(meshBatchID, accessorsList, bufferViewList, bufferList, batchLength) {
+    var message;
+    var componentByteLength = Cesium.ComponentDatatype.getSizeInBytes(accessorsList[meshBatchID].componentType) * accessorsList[meshBatchID].count * getComponentSize(accessorsList[meshBatchID].type);
+    var accessorByteOffset = accessorsList[meshBatchID].byteOffset;
+    var bufferNumber = bufferViewList[accessorsList[meshBatchID].bufferView].buffer;
+    var bufferViewByteOffset = bufferViewList[accessorsList[meshBatchID].bufferView].byteOffset;
+    var startOffset = bufferViewByteOffset + accessorByteOffset;
+    var endOffset = startOffset + componentByteLength;
+
+    for (var i = startOffset; i < endOffset; ++i) {
+        if (bufferList[bufferNumber][i] >= batchLength) {
+            message = 'BatchID cannot be greator than or equal to Batch Length';
+        }
+    }
     return message;
 }
