@@ -198,28 +198,22 @@ function validatePnts(content) {
         }
     }
 
-    if (defined(featureTableJson.RGBA)) {
-        featureTable.featuresLength = pointsLength;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGBA.componentType, 'UNSIGNED_SHORT'));
-        var rgba = featureTable.getPropertyArray('RGBA', componentDatatype, 4);
+    if (defined(featureTableJson.RGBA) && !defined(featureTableJson.RGBA.ByteOffset)) {
+        var rgba = featureTableJson.RGBA;
         var max = Math.max(...rgba);
         var min = Math.min(...rgba);
         if (min < 0 || max > 255) {
             return 'values of RGBA must be in the range 0-255 inclusive';
         }
-    } else if (defined(featureTableJson.RGB)) {
-        featureTable.featuresLength = pointsLength;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB.componentType, 'UNSIGNED_SHORT'));
-        var rgb = featureTable.getPropertyArray('RGB', componentDatatype, 3);
+    } else if (defined(featureTableJson.RGB) && !defined(featureTableJson.RGB.ByteOffset)) {
+        var rgb = featureTableJson.RGB;
         var max = Math.max(...rgb);
         var min = Math.min(...rgb);
         if (min < 0 || max > 255) {
             return 'values of RGB must be in the range 0-255 inclusive';
         }
-    } else if (defined(featureTableJson.RGB565)) {
-        featureTable.featuresLength = pointsLength;
-        componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.RGB565.componentType, 'UNSIGNED_INT'));
-        var rgb565 = featureTable.getPropertyArray('RGB565', componentDatatype, 1);
+    } else if (defined(featureTableJson.RGB565) && !defined(featureTableJson.RGB565.ByteOffset)) {
+        var rgb565 = featureTableJson.RGB565;
         var max = Math.max(...rgb565);
         var min = Math.min(...rgb565);
         if (min < 0 || max > 65535) {
