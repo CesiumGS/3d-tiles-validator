@@ -277,7 +277,6 @@ describe('validate pnts', function() {
         expect(validatePnts(pnts)).toBe('values of RGBA must be in the range 0-255 inclusive');
     });
 
-
     it('succeeds when RGBA is within the range', function() {
         var pnts = createPnts({
             featureTableJson : {
