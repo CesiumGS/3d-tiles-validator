@@ -116,6 +116,18 @@ var argv = yargs
         }
     })
     .command('upgrade', 'Upgrades the input tileset to the latest version of the 3D Tiles spec. Embedded glTF models will be upgraded to glTF 2.0.')
+    .command('adjust', 'Adjusts the regions of a tileset', {
+        'longitudeOffset': {
+            default: '0.0',
+            description: 'Longitude offset.',
+            type: 'number'
+        },
+        'latitudeOffset': {
+            default: '0.0',
+            description: 'Latitude offset.',
+            type: 'number'
+        }
+    })
     .demand(1)
     .recommendCommands()
     .strict()
@@ -137,7 +149,8 @@ runCommand(command, input, output, force, argv)
         console.timeEnd('Total');
     })
     .catch(function(error) {
-        console.log(error.message);
+        console.log(error);
+        //console.log(error.message);
     });
 
 function runCommand(command, input, output, force, argv) {
@@ -150,6 +163,8 @@ function runCommand(command, input, output, force, argv) {
     } else if (command === 'combine') {
         return processStage(input, output, force, command, argv);
     } else if (command === 'upgrade') {
+        return processStage(input, output, force, command, argv);
+    } else if (command === 'adjust') {
         return processStage(input, output, force, command, argv);
     } else if (command === 'b3dmToGlb') {
         return readB3dmWriteGlb(input, output, force);
@@ -271,6 +286,11 @@ function getStage(stageName, argv) {
             break;
         case 'combine':
             stage.rootJson = argv.rootJson;
+            break;
+        case 'adjust':
+            stage.longitudeOffset = argv.longitudeOffset;
+            stage.latitudeOffset = argv.latitudeOffset;
+            break;
     }
     return stage;
 }

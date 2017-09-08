@@ -7,6 +7,7 @@ var combineTileset = require('./combineTileset');
 var getWorkingDirectory = require('./getWorkingDirectory');
 var gzipTileset = require('./gzipTileset');
 var upgradeTileset = require('./upgradeTileset');
+var adjustTilesetRegions = require('./adjustTilesetRegions');
 
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
@@ -123,6 +124,8 @@ function getStageFunction(stageName, stageOptions) {
             return combineTileset;
         case 'upgrade':
             return upgradeTileset;
+        case 'adjust':
+            return adjustTilesetRegions;
         default:
             return undefined;
     }
