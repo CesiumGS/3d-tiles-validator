@@ -5,11 +5,10 @@ var child_process = require('child_process');
 var fsExtra = require('fs-extra');
 var gulp = require('gulp');
 var Jasmine = require('jasmine');
-var JasmineSpecReporter = require('jasmine-spec-reporter');
+var jasmineSpecReporter = require('jasmine-spec-reporter');
 var open = require('open');
 var path = require('path');
 var Promise = require('bluebird');
-var request = require('request');
 var yargs = require('yargs');
 
 var defined = Cesium.defined;
@@ -26,7 +25,7 @@ var specFiles = ['**/*.js', '!node_modules/**', '!coverage/**'];
 gulp.task('test', function (done) {
     var jasmine = new Jasmine();
     jasmine.loadConfigFile('specs/jasmine.json');
-    jasmine.addReporter(new JasmineSpecReporter({
+    jasmine.addReporter(new jasmineSpecReporter.SpecReporter({
         displaySuccessfulSpec: !defined(argv.suppressPassed) || !argv.suppressPassed
     }));
     jasmine.execute();
@@ -66,31 +65,6 @@ gulp.task('coverage', function () {
         stdio: [process.stdin, process.stdout, process.stderr]
     });
     open('coverage/lcov-report/index.html');
-});
-
-function copyModule(module) {
-    var tsName = module + '.d.ts';
-    var srcUrl = 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/' + module + '/' + tsName;
-    var desPath = path.join('TypeScriptDefinitions', tsName);
-
-    request.get({
-        url: srcUrl
-    }, function (error, response) {
-        if (defined(error)) {
-            console.log(error);
-            return;
-        }
-        if (response.statusCode >= 200 && response.statusCode < 300) {
-            fsExtra.outputFileSync(desPath, response.body);
-        }
-    });
-}
-
-gulp.task('update-ts-definitions', function () {
-    fsExtra.removeSync('TypeScriptDefinitions');
-    var packageJson = fsExtra.readJSONSync('./package.json');
-    Object.keys(packageJson.dependencies).forEach(copyModule);
-    Object.keys(packageJson.devDependencies).forEach(copyModule);
 });
 
 gulp.task('jsDoc', function() {

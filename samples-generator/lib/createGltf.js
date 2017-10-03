@@ -343,7 +343,7 @@ function getLoadImageFunction(image) {
         var extension = path.extname(imagePath);
         return fsExtra.readFile(imagePath)
             .then(function(buffer) {
-                image.uri = 'data:' + mime.lookup(extension) + ';base64,' + buffer.toString('base64');
+                image.uri = 'data:' + mime.getType(extension) + ';base64,' + buffer.toString('base64');
             });
     };
 }
