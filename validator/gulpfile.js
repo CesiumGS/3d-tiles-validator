@@ -5,7 +5,7 @@ var child_process = require('child_process');
 var fsExtra = require('fs-extra');
 var gulp = require('gulp');
 var Jasmine = require('jasmine');
-var JasmineSpecReporter = require('jasmine-spec-reporter');
+var jasmineSpecReporter = require('jasmine-spec-reporter');
 var open = require('open');
 var path = require('path');
 var Promise = require('bluebird');
@@ -26,7 +26,7 @@ var specFiles = ['**/*.js', '!node_modules/**', '!coverage/**'];
 gulp.task('test', function (done) {
     var jasmine = new Jasmine();
     jasmine.loadConfigFile('specs/jasmine.json');
-    jasmine.addReporter(new JasmineSpecReporter({
+    jasmine.addReporter(new jasmineSpecReporter.SpecReporter({
         displaySuccessfulSpec: !defined(argv.suppressPassed) || !argv.suppressPassed
     }));
     jasmine.execute();

@@ -33,7 +33,6 @@
   "devDependencies": {
     "eslint": "^4.1.1",
     "eslint-config-cesium": "^2.0.0",
-    "fs-extra": "^4.0.2",
     "gulp": "^3.9.1",
     "jasmine": "^2.6.0",
     "jasmine-spec-reporter": "^4.1.0",
