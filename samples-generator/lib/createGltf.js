@@ -17,6 +17,7 @@ var processGltf = gltfPipeline.Pipeline.processJSON;
 
 module.exports = createGltf;
 
+var sizeOfUint8 = 1;
 var sizeOfUint16 = 2;
 var sizeOfFloat32 = 4;
 
@@ -50,8 +51,12 @@ function createGltf(options) {
     var positions = mesh.positions;
     var normals = mesh.normals;
     var uvs = mesh.uvs;
+    var vertexColors = mesh.vertexColors;
     var indices = mesh.indices;
     var views = mesh.views;
+
+    // If all the vertex colors are 0 then the mesh does not have vertex colors
+    var hasVertexColors = !vertexColors.every(function(element) {return element === 0});
 
     // Get the center position in WGS84 coordinates
     var center;
@@ -93,13 +98,24 @@ function createGltf(options) {
         uvsBuffer.writeFloatLE(uvs[i], i * sizeOfFloat32);
     }
 
+    var vertexColorsMinMax;
+    var vertexColorsBuffer = Buffer.alloc(0);
+    if (hasVertexColors) {
+        vertexColorsMinMax = getMinMax(vertexColors, 4);
+        var vertexColorsLength = vertexColors.length;
+        vertexColorsBuffer = Buffer.alloc(vertexColorsLength, sizeOfUint8);
+        for (i = 0; i < vertexColorsLength; ++i) {
+            vertexColorsBuffer.writeUInt8(vertexColors[i], i);
+        }
+    }
+
     var indicesLength = indices.length;
     var indexBuffer = Buffer.alloc(indicesLength * sizeOfUint16);
     for (i = 0; i < indicesLength; ++i) {
         indexBuffer.writeUInt16LE(indices[i], i * sizeOfUint16);
     }
 
-    var vertexBuffer = Buffer.concat([positionsBuffer, normalsBuffer, uvsBuffer]);
+    var vertexBuffer = Buffer.concat([positionsBuffer, normalsBuffer, uvsBuffer, vertexColorsBuffer]);
     var vertexBufferByteOffset = 0;
     var vertexBufferByteLength = vertexBuffer.byteLength;
     var vertexCount = mesh.getVertexCount();
@@ -118,6 +134,11 @@ function createGltf(options) {
     byteOffset += normalsBuffer.length;
     var uvsByteOffset = byteOffset;
     byteOffset += uvsBuffer.length;
+
+    var vertexColorsByteOffset = byteOffset;
+    if (hasVertexColors) {
+        byteOffset += vertexColorsBuffer.length;
+    }
 
     var indexAccessors = {};
     var materials = {};
@@ -198,12 +219,18 @@ function createGltf(options) {
             }
         };
 
+        var attributes = {
+            POSITION : 'accessor_position',
+            NORMAL : 'accessor_normal',
+            TEXCOORD_0 : 'accessor_uv'
+        };
+
+        if (hasVertexColors) {
+            attributes.COLOR_0 = 'accessor_vertexColor';
+        }
+
         primitives.push({
-            attributes : {
-                POSITION : 'accessor_position',
-                NORMAL : 'accessor_normal',
-                TEXCOORD_0 : 'accessor_uv'
-            },
+            attributes : attributes,
             indices : accessorName,
             material : materialName,
             mode : 4 // TRIANGLES
@@ -242,6 +269,20 @@ function createGltf(options) {
             max : uvsMinMax.max
         }
     };
+
+    if (hasVertexColors) {
+        vertexAccessors.accessor_vertexColor = {
+            bufferView : 'bufferView_vertex',
+            byteOffset : vertexColorsByteOffset,
+            byteStride : 0,
+            componentType : 5121, // UNSIGNED_BYTE
+            count : vertexCount,
+            type : 'VEC4',
+            min : vertexColorsMinMax.min,
+            max : vertexColorsMinMax.max,
+            normalized : true
+        };
+    }
 
     var accessors = combine(vertexAccessors, indexAccessors);
 

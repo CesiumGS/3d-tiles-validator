@@ -221,6 +221,7 @@ var promises = [
     createBatchedDeprecated2(),
     createBatchedGltfZUp(),
     createBatchedExpiration(),
+    createBatchedWithVertexColors(),
     // Point Cloud
     createPointCloudRGB(),
     createPointCloudRGBA(),
@@ -487,6 +488,17 @@ function createBatchedExpiration() {
         }
     };
     return saveBatchedTileset('BatchedExpiration', undefined, tilesetOptions);
+}
+
+function createBatchedWithVertexColors() {
+    var buildingOptions = clone(buildingTemplate);
+    buildingOptions.diffuseType = 'color';
+    var tileOptions = {
+        buildingOptions : buildingOptions,
+        useVertexColors : true,
+        khrMaterialsCommon : true
+    };
+    return saveBatchedTileset('BatchedWithVertexColors', tileOptions);
 }
 
 function createPointCloudRGB() {
