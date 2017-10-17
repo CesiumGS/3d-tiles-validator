@@ -25,8 +25,7 @@ var sizeOfFloat = 4;
 var sizeOfUint16 = 2;
 
 var whiteOpaqueMaterial = new Material({
-    diffuse : [1.0, 1.0, 1.0, 1.0],
-    ambient : [0.2, 0.2, 0.2, 1.0]
+    baseColor : [1.0, 1.0, 1.0, 1.0]
 });
 
 /**

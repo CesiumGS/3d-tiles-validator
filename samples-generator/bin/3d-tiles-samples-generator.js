@@ -55,7 +55,7 @@ var buildingTemplate = {
     tileWidth : tileWidth,
     averageWidth : 8.0,
     averageHeight : 10.0,
-    diffuseType : 'white',
+    baseColorType : 'white',
     translucencyType : 'opaque',
     longitude : longitude,
     latitude : latitude
@@ -330,7 +330,7 @@ function createBatchedTranslucentOpaqueMix() {
 
 function createBatchedTextured() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'textured';
+    buildingOptions.baseColorType = 'textured';
     var tileOptions = {
         buildingOptions : buildingOptions
     };
@@ -339,7 +339,7 @@ function createBatchedTextured() {
 
 function createBatchedCompressedTextures() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'textured';
+    buildingOptions.baseColorType = 'textured';
     var tileOptions = {
         buildingOptions : buildingOptions,
         textureCompressionOptions : [{
@@ -355,7 +355,7 @@ function createBatchedCompressedTextures() {
 
 function createBatchedColors() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'color';
+    buildingOptions.baseColorType = 'color';
     var tileOptions = {
         buildingOptions : buildingOptions
     };
@@ -364,7 +364,7 @@ function createBatchedColors() {
 
 function createBatchedColorsTranslucent() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'color';
+    buildingOptions.baseColorType = 'color';
     buildingOptions.translucencyType = 'translucent';
     var tileOptions = {
         buildingOptions : buildingOptions
@@ -374,7 +374,7 @@ function createBatchedColorsTranslucent() {
 
 function createBatchedColorsMix() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'color';
+    buildingOptions.baseColorType = 'color';
     buildingOptions.translucencyType = 'mix';
     var tileOptions = {
         buildingOptions : buildingOptions
