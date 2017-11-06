@@ -23,23 +23,23 @@
     "node": ">=4.0.0"
   },
   "dependencies": {
-    "bluebird": "^3.5.0",
-    "cesium": "^1.37",
+    "bluebird": "^3.5.1",
+    "cesium": "^1.39",
     "fs-extra": "^4.0.2",
     "gltf-pipeline": "^1.0.2",
     "mime": "^2.0.3",
     "simplex-noise": "^2.3.0"
   },
   "devDependencies": {
-    "eslint": "^4.1.1",
-    "eslint-config-cesium": "^2.0.0",
+    "eslint": "^4.10.0",
+    "eslint-config-cesium": "^2.0.1",
     "gulp": "^3.9.1",
-    "jasmine": "^2.6.0",
-    "jasmine-spec-reporter": "^4.1.0",
-    "nyc": "^11.0.3",
+    "jasmine": "^2.8.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nyc": "^11.3.0",
     "open": "^0.0.5",
-    "requirejs": "^2.3.3",
-    "yargs": "^9.0.1"
+    "requirejs": "^2.3.5",
+    "yargs": "^10.0.3"
   },
   "scripts": {
     "eslint": "eslint \"./**/*.js\" --cache --quiet",
