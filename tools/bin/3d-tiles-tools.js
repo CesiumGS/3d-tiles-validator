@@ -115,6 +115,15 @@ var argv = yargs
             type: 'string'
         }
     })
+    .command('rtcToTransform', 'Remove the CESIUM_RTC extension from tiles and use a tileset transform instead.', {
+        'r': {
+            alias: 'rootJson',
+            default: 'tileset.json',
+            description: 'Relative path to the root tileset.json file.',
+            normalize: true,
+            type: 'string'
+        }
+    })
     .command('upgrade', 'Upgrades the input tileset to the latest version of the 3D Tiles spec. Embedded glTF models will be upgraded to glTF 2.0.')
     .demand(1)
     .recommendCommands()
@@ -148,6 +157,8 @@ function runCommand(command, input, output, force, argv) {
     } else if (command === 'ungzip') {
         return processStage(input, output, force, command, argv);
     } else if (command === 'combine') {
+        return processStage(input, output, force, command, argv);
+    } else if (command === 'rtcToTransform') {
         return processStage(input, output, force, command, argv);
     } else if (command === 'upgrade') {
         return processStage(input, output, force, command, argv);
@@ -271,6 +282,10 @@ function getStage(stageName, argv) {
             break;
         case 'combine':
             stage.rootJson = argv.rootJson;
+            break;
+        case 'rtcToTransform':
+            stage.rootJson = argv.rootJson;
+            break;
     }
     return stage;
 }

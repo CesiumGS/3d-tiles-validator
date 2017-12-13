@@ -54,7 +54,7 @@ function combineTileset(options) {
             // If the root json is originally gzipped, save the output json as gzipped
             var writeRootJsonPromise = isGzippedFile(rootJsonFile)
                 .then(function (gzipped) {
-                    var data = getJsonBufferPadded(json, gzipped);
+                    var data = getJsonBufferPadded(json);
                     if (gzipped) {
                         data = zlib.gzipSync(data);
                     }

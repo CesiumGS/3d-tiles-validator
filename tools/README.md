@@ -64,6 +64,24 @@ node ./bin/3d-tiles-tools.js combine -i ./specs/data/TilesetOfTilesets/ -o ./out
 |`-r`, `--rootJson`|Relative path to the root tileset.json file.|No, default `tileset.json`|
 |`-f`, `--force`|Overwrite output file if it exists.| No, default `false` |
 
+### rtcToTransform
+
+Remove the CESIUM_RTC extension from tiles and use a tileset transform instead.
+
+```
+node ./bin/3d-tiles-tools.js rtcToTransform ./specs/data/TilesetOfTilesets/ ./output/TilesetOfTilesets-transform/
+```
+```
+node ./bin/3d-tiles-tools.js combine -i ./specs/data/TilesetOfTilesets/ -o ./output/TilesetOfTilesets-transform/
+```
+
+|Flag|Description|Required|
+|----|-----------|--------|
+|`-i`, `--input`|Input directory of the tileset.| :white_check_mark: Yes|
+|`-o`, `--output`|Output directory of the processed tileset.|No|
+|`-r`, `--rootJson`|Relative path to the root tileset.json file.|No, default `tileset.json`|
+|`-f`, `--force`|Overwrite output file if it exists.| No, default `false` |
+
 ### upgrade
 
 Upgrades the input tileset to the latest version of the 3D Tiles spec. Embedded glTF models will be upgraded to glTF 2.0.
