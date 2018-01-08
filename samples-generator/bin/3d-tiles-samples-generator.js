@@ -275,6 +275,7 @@ var promises = [
     createTilesetWithViewerRequestVolume(),
     createTilesetReplacementWithViewerRequestVolume(),
     createTilesetSubtreeExpiration(),
+    createTilesetInvalid(),
     // Samples
     createDiscreteLOD(),
     createTreeBillboards(),
@@ -2202,6 +2203,37 @@ function createTilesetSubtreeExpiration() {
         saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true),
         saveTilesetJson(subtreePath, subtreeJson, prettyJson)
     ]);
+}
+
+function createTilesetInvalid() {
+    // Create a tileset with one root tile and four child tiles
+    var tilesetName = 'TilesetInvalid';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0',
+            tilesetVersion : '1.2.3'
+        },
+        properties : undefined,
+        geometricError : largeGeometricError,
+        root : {
+            boundingVolume : {
+                region : parentRegion
+            },
+            geometricError : smallGeometricError,
+            refine : 'ADD',
+            content : {
+                url : 'does_not_exist.b3dm',
+                boundingVolume : {
+                    region : parentContentRegion
+                }
+            }
+        }
+    };
+
+    return saveTilesetJson(tilesetPath, tilesetJson, prettyJson);
 }
 
 function createDiscreteLOD() {
