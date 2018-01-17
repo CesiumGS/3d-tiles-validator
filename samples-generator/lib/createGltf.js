@@ -56,7 +56,7 @@ function createGltf(options) {
     var views = mesh.views;
 
     // If all the vertex colors are 0 then the mesh does not have vertex colors
-    var hasVertexColors = !vertexColors.every(function(element) {return element === 0});
+    var hasVertexColors = !vertexColors.every(function(element) {return element === 0;});
 
     // Get the center position in WGS84 coordinates
     var center;
