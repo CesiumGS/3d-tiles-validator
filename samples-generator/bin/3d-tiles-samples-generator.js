@@ -2224,7 +2224,7 @@ function createTilesetPoints() {
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     var pointsLength = 1000;
-    var parentTileWidth = 20.0;
+    var parentTileWidth = 10.0;
     var parentTileHalfWidth = parentTileWidth / 2.0;
     var parentGeometricError = 1.732 * parentTileWidth; // Diagonal of the point cloud box
     var parentMatrix = wgs84Transform(longitude, latitude, parentTileHalfWidth);
@@ -2243,7 +2243,7 @@ function createTilesetPoints() {
 
     var childrenJson = [];
     var childTiles = [];
-    var childTileWidth = 10.0;
+    var childTileWidth = 5.0;
     var childTileHalfWidth = childTileWidth / 2.0;
     var childGeometricError = 1.732 * childTileWidth; // Diagonal of the point cloud box
     var childCenters = [
