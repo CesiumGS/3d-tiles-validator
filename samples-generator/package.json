@@ -31,6 +31,7 @@
     "simplex-noise": "^2.3.0"
   },
   "devDependencies": {
+    "cloc": "^2.3.3",
     "eslint": "^4.10.0",
     "eslint-config-cesium": "^2.0.1",
     "gulp": "^3.9.1",
@@ -45,7 +46,8 @@
     "eslint": "eslint \"./**/*.js\" --cache --quiet",
     "test": "gulp test",
     "test-watch": "gulp test-watch",
-    "coverage": "gulp coverage"
+    "coverage": "gulp coverage",
+    "cloc": "gulp cloc"
   },
   "bin": {
     "3d-tiles-samples-generator": "./bin/3d-tiles-samples-generator"
