@@ -30,6 +30,7 @@ var scratchMatrix = new Matrix4();
  * @param {Boolean} [options.relativeToCenter=false] Use the Cesium_RTC extension.
  * @param {Boolean} [options.khrMaterialsCommon=false] Save glTF with the KHR_materials_common extension.
  * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
+ * @param {Boolean} [options.useVertexColors=false] Bake materials as vertex colors.
  * @param {Boolean} [options.deprecated1=false] Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic.
  * @param {Boolean} [options.deprecated2=false] Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic.
  * @param {Object|Object[]} [options.textureCompressionOptions] Options for compressing textures in the glTF.
@@ -48,6 +49,7 @@ function createBuildingsTile(options) {
     var relativeToCenter = options.relativeToCenter;
     var khrMaterialsCommon = options.khrMaterialsCommon;
     var quantization = options.quantization;
+    var useVertexColors = options.useVertexColors;
     var deprecated1 = options.deprecated1;
     var deprecated2 = options.deprecated2;
     var textureCompressionOptions = options.textureCompressionOptions;
@@ -62,6 +64,9 @@ function createBuildingsTile(options) {
         var mesh = Mesh.createCube();
         mesh.transform(transform);
         mesh.material = building.material;
+        if (useVertexColors) {
+            mesh.transferMaterialToVertexColors();
+        }
         meshes[i] = mesh;
     }
 

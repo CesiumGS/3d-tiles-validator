@@ -15,6 +15,10 @@ module.exports = Mesh;
 var sizeOfUint16 = 2;
 var sizeOfFloat32 = 4;
 
+var whiteOpaqueMaterial = new Material({
+    diffuse : [1.0, 1.0, 1.0, 1.0]
+});
+
 /**
  * Stores the vertex attributes and indices describing a mesh.
  *
@@ -23,6 +27,7 @@ var sizeOfFloat32 = 4;
  * @param {Number[]} options.positions A packed array of floats representing the mesh positions.
  * @param {Number[]} options.normals A packed array of floats representing the mesh normals.
  * @param {Number[]} options.uvs A packed array of floats representing the mesh UVs.
+ * @param {Number[]} options.vertexColors A packed array of integers representing the vertex colors.
  * @param {Number[]} [options.batchIds] An array of integers representing the batch ids.
  * @param {Material} [options.material] A material to apply to the mesh.
  * @param {MeshView[]} [options.views] An array of MeshViews.
@@ -34,6 +39,7 @@ function Mesh(options) {
     this.positions = options.positions;
     this.normals = options.normals;
     this.uvs = options.uvs;
+    this.vertexColors = options.vertexColors;
     this.batchIds = options.batchIds;
     this.material = options.material;
     this.views = options.views;
@@ -131,6 +137,23 @@ Mesh.prototype.setPositionsRelativeToCenter = function() {
 };
 
 /**
+ * Bake materials as vertex colors. Use the default white opaque material.
+ */
+Mesh.prototype.transferMaterialToVertexColors = function() {
+    var material = this.material;
+    this.material = whiteOpaqueMaterial;
+    var vertexCount = this.getVertexCount();
+    var vertexColors = new Array(vertexCount * 4);
+    this.vertexColors = vertexColors;
+    for (var i = 0; i < vertexCount; ++i) {
+        vertexColors[i * 4 + 0] = Math.floor(material.diffuse[0] * 255);
+        vertexColors[i * 4 + 1] = Math.floor(material.diffuse[1] * 255);
+        vertexColors[i * 4 + 2] = Math.floor(material.diffuse[2] * 255);
+        vertexColors[i * 4 + 3] = Math.floor(material.diffuse[3] * 255);
+    }
+};
+
+/**
  * Batch multiple meshes into a single mesh. Assumes the input meshes do not already have batch ids.
  *
  * @param {Mesh[]} meshes The meshes that will be batched together.
@@ -140,6 +163,7 @@ Mesh.batch = function(meshes) {
     var batchedPositions = [];
     var batchedNormals = [];
     var batchedUvs = [];
+    var batchedVertexColors = [];
     var batchedBatchIds = [];
     var batchedIndices = [];
 
@@ -153,6 +177,7 @@ Mesh.batch = function(meshes) {
         var positions = mesh.positions;
         var normals = mesh.normals;
         var uvs = mesh.uvs;
+        var vertexColors = mesh.vertexColors;
         var vertexCount = mesh.getVertexCount();
 
         // Generate batch ids for this mesh
@@ -161,6 +186,7 @@ Mesh.batch = function(meshes) {
         batchedPositions = batchedPositions.concat(positions);
         batchedNormals = batchedNormals.concat(normals);
         batchedUvs = batchedUvs.concat(uvs);
+        batchedVertexColors = batchedVertexColors.concat(vertexColors);
         batchedBatchIds = batchedBatchIds.concat(batchIds);
 
         // Generate indices and mesh views
@@ -191,6 +217,7 @@ Mesh.batch = function(meshes) {
         positions : batchedPositions,
         normals : batchedNormals,
         uvs : batchedUvs,
+        vertexColors : batchedVertexColors,
         batchIds : batchedBatchIds,
         views : views
     });
@@ -207,6 +234,7 @@ Mesh.clone = function(mesh) {
         positions :  mesh.positions.slice(),
         normals : mesh.normals.slice(),
         uvs : mesh.uvs.slice(),
+        vertexColors : mesh.vertexColors.slice(),
         indices : mesh.indices.slice(),
         material : mesh.material
     });
@@ -222,11 +250,13 @@ Mesh.createCube = function() {
     var positions = [-0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5];
     var normals = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0];
     var uvs = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
+    var vertexColors = new Array(24 * 4).fill(0);
     return new Mesh({
         indices : indices,
         positions : positions,
         normals : normals,
-        uvs : uvs
+        uvs : uvs,
+        vertexColors : vertexColors
     });
 };
 
@@ -277,11 +307,13 @@ Mesh.fromGltf = function(gltf) {
     var positions = getAccessor(gltf, gltf.accessors[gltfPrimitive.attributes.POSITION]);
     var normals = getAccessor(gltf, gltf.accessors[gltfPrimitive.attributes.NORMAL]);
     var uvs = new Array(positions.length / 3 * 2).fill(0);
+    var vertexColors = new Array(positions.length / 3 * 4).fill(0);
     return new Mesh({
         indices : indices,
         positions : positions,
         normals : normals,
         uvs : uvs,
+        vertexColors : vertexColors,
         material : material
     });
 };

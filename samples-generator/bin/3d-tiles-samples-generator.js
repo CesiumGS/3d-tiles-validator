@@ -221,6 +221,7 @@ var promises = [
     createBatchedDeprecated2(),
     createBatchedGltfZUp(),
     createBatchedExpiration(),
+    createBatchedWithVertexColors(),
     // Point Cloud
     createPointCloudRGB(),
     createPointCloudRGBA(),
@@ -275,6 +276,7 @@ var promises = [
     createTilesetWithViewerRequestVolume(),
     createTilesetReplacementWithViewerRequestVolume(),
     createTilesetSubtreeExpiration(),
+    createTilesetPoints(),
     // Samples
     createDiscreteLOD(),
     createTreeBillboards(),
@@ -487,6 +489,17 @@ function createBatchedExpiration() {
         }
     };
     return saveBatchedTileset('BatchedExpiration', undefined, tilesetOptions);
+}
+
+function createBatchedWithVertexColors() {
+    var buildingOptions = clone(buildingTemplate);
+    buildingOptions.diffuseType = 'color';
+    var tileOptions = {
+        buildingOptions : buildingOptions,
+        useVertexColors : true,
+        khrMaterialsCommon : true
+    };
+    return saveBatchedTileset('BatchedWithVertexColors', tileOptions);
 }
 
 function createPointCloudRGB() {
@@ -831,7 +844,7 @@ function createCompositeOfInstanced() {
         var tilesetDirectory = path.join(outputDirectory, 'Composite', 'CompositeOfInstanced');
         var copyPath = path.join(tilesetDirectory, path.basename(instancesUrl));
         return fsExtra.copy(instancesUrl, copyPath);
-    })
+    });
 }
 
 function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions) {
@@ -2202,6 +2215,103 @@ function createTilesetSubtreeExpiration() {
         saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true),
         saveTilesetJson(subtreePath, subtreeJson, prettyJson)
     ]);
+}
+
+function createTilesetPoints() {
+    // Create a tileset with one root tile and eight child tiles
+    var tilesetName = 'TilesetPoints';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+
+    var pointsLength = 1000;
+    var parentTileWidth = 10.0;
+    var parentTileHalfWidth = parentTileWidth / 2.0;
+    var parentGeometricError = 1.732 * parentTileWidth; // Diagonal of the point cloud box
+    var parentMatrix = wgs84Transform(longitude, latitude, parentTileHalfWidth);
+    var parentTransform = Matrix4.pack(parentMatrix, new Array(16));
+    var parentBoxLocal = [
+        0.0, 0.0, 0.0, // center
+        parentTileHalfWidth, 0.0, 0.0,   // width
+        0.0, parentTileHalfWidth, 0.0,   // depth
+        0.0, 0.0, parentTileHalfWidth    // height
+    ];
+    var parentTile = createPointCloudTile({
+        tileWidth : parentTileWidth * 2.0,
+        pointsLength : pointsLength,
+        relativeToCenter : false
+    }).pnts;
+
+    var childrenJson = [];
+    var childTiles = [];
+    var childTileWidth = 5.0;
+    var childTileHalfWidth = childTileWidth / 2.0;
+    var childGeometricError = 1.732 * childTileWidth; // Diagonal of the point cloud box
+    var childCenters = [
+        [-childTileHalfWidth, -childTileHalfWidth, -childTileHalfWidth],
+        [-childTileHalfWidth, childTileHalfWidth, childTileHalfWidth],
+        [-childTileHalfWidth, -childTileHalfWidth, childTileHalfWidth],
+        [-childTileHalfWidth, childTileHalfWidth, -childTileHalfWidth],
+        [childTileHalfWidth, -childTileHalfWidth, -childTileHalfWidth],
+        [childTileHalfWidth, childTileHalfWidth, -childTileHalfWidth],
+        [childTileHalfWidth, -childTileHalfWidth, childTileHalfWidth],
+        [childTileHalfWidth, childTileHalfWidth, childTileHalfWidth]
+    ];
+
+    var i;
+    for (i = 0; i < 8; ++i) {
+        var childCenter = childCenters[i];
+        var childTransform = Matrix4.fromTranslation(Cartesian3.unpack(childCenter));
+        childTiles.push(createPointCloudTile({
+            tileWidth : childTileWidth * 2.0,
+            transform : childTransform,
+            pointsLength : pointsLength,
+            relativeToCenter : false
+        }).pnts);
+        var childBoxLocal = [
+            childCenter[0], childCenter[1], childCenter[2],
+            childTileHalfWidth, 0.0, 0.0,   // width
+            0.0, childTileHalfWidth, 0.0,   // depth
+            0.0, 0.0, childTileHalfWidth    // height
+        ];
+        childrenJson.push({
+            boundingVolume : {
+                box : childBoxLocal
+            },
+            geometricError : 0.0,
+            content : {
+                url : i + '.pnts'
+            }
+        });
+    }
+
+    var tilesetJson = {
+        asset : {
+            version : '0.0'
+        },
+        properties : undefined,
+        geometricError : parentGeometricError,
+        root : {
+            boundingVolume : {
+                box : parentBoxLocal
+            },
+            transform : parentTransform,
+            geometricError : childGeometricError,
+            refine : 'ADD',
+            content : {
+                url : 'parent.pnts'
+            },
+            children : childrenJson
+        }
+    };
+
+    var promises = [];
+    promises.push(saveTile(path.join(tilesetDirectory, 'parent.pnts'), parentTile, gzip));
+    for (i = 0; i < 8; ++i) {
+        promises.push(saveTile(path.join(tilesetDirectory, i + '.pnts'), childTiles[i], gzip));
+    }
+    promises.push(saveTilesetJson(tilesetPath, tilesetJson, prettyJson));
+
+    return Promise.all(promises);
 }
 
 function createDiscreteLOD() {
