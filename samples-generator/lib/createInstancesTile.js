@@ -3,7 +3,6 @@ var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
 var path = require('path');
 var createI3dm = require('./createI3dm');
-var optimizeGltf = require('./optimizeGltf');
 
 var AttributeCompression = Cesium.AttributeCompression;
 var Cartesian2 = Cesium.Cartesian2;
@@ -140,14 +139,10 @@ function createInstancesTile(options) {
     }
 
     var gltfOptions = {
-        textureCompressionOptions : textureCompressionOptions,
-        preserve : true
+        textureCompressionOptions : textureCompressionOptions
     };
 
     return fsExtra.readFile(url)
-        .then(function(glb) {
-            return optimizeGltf(glb, gltfOptions);
-        })
         .then(function(glb) {
             glb = embed ? glb : undefined;
             url = path.basename(url);

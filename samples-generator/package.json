@@ -26,7 +26,7 @@
     "bluebird": "^3.5.1",
     "cesium": "^1.39",
     "fs-extra": "^4.0.2",
-    "gltf-pipeline": "^1.0.2",
+    "gltf-pipeline": "AnalyticalGraphicsInc/gltf-pipeline#2.0",
     "mime": "^2.0.3",
     "simplex-noise": "^2.3.0"
   },

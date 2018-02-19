@@ -31,7 +31,6 @@ var metersToLongitude = util.metersToLongitude;
 var metersToLatitude = util.metersToLatitude;
 var wgs84Transform = util.wgs84Transform;
 
-var optimizeForCesium = true;
 var relativeToCenter = true;
 var prettyJson = true;
 var gzip = false;
@@ -127,7 +126,6 @@ var parentTileOptions = {
     buildingOptions : parentOptions,
     createBatchTable : true,
     transform : buildingsTransform,
-    optimizeForCesium : optimizeForCesium,
     relativeToCenter : relativeToCenter
 };
 
@@ -145,7 +143,6 @@ var llTileOptions = {
     buildingOptions : llOptions,
     createBatchTable : true,
     transform : llTransform,
-    optimizeForCesium : optimizeForCesium,
     relativeToCenter : relativeToCenter
 };
 
@@ -161,7 +158,6 @@ var lrTileOptions = {
     buildingOptions : lrOptions,
     createBatchTable : true,
     transform : lrTransform,
-    optimizeForCesium : optimizeForCesium,
     relativeToCenter : relativeToCenter
 };
 
@@ -177,7 +173,6 @@ var urTileOptions = {
     buildingOptions : urOptions,
     createBatchTable : true,
     transform : urTransform,
-    optimizeForCesium : optimizeForCesium,
     relativeToCenter : relativeToCenter
 };
 
@@ -193,7 +188,6 @@ var ulTileOptions = {
     buildingOptions : ulOptions,
     createBatchTable : true,
     transform : ulTransform,
-    optimizeForCesium : optimizeForCesium,
     relativeToCenter : relativeToCenter
 };
 
@@ -208,14 +202,13 @@ var promises = [
     createBatchedColorsTranslucent(),
     createBatchedColorsMix(),
     createBatchedTextured(),
-    createBatchedCompressedTextures(),
+    //createBatchedCompressedTextures(),
     createBatchedWithBoundingSphere(),
     createBatchedWithTransformBox(),
     createBatchedWithTransformSphere(),
     createBatchedWithTransformRegion(),
     createBatchedNoBatchIds(),
-    createBatchedWithKHRMaterialsCommon(),
-    createBatchedWithQuantization(),
+    //createBatchedWithQuantization(),
     createBatchedWGS84(),
     createBatchedDeprecated1(),
     createBatchedDeprecated2(),
@@ -252,7 +245,7 @@ var promises = [
     createInstancedRedMaterial(),
     createInstancedWithBatchIds(),
     createInstancedTextured(),
-    createInstancedCompressedTextures(),
+    //createInstancedCompressedTextures(),
     createInstancedGltfZUp(),
     // Composite
     createComposite(),
@@ -267,7 +260,7 @@ var promises = [
     createTileset(),
     createTilesetEmptyRoot(),
     createTilesetOfTilesets(),
-    createTilesetWithExternalResources(),
+    //createTilesetWithExternalResources(),
     createTilesetRefinementMix(),
     createTilesetReplacement1(),
     createTilesetReplacement2(),
@@ -279,13 +272,15 @@ var promises = [
     createTilesetPoints(),
     // Samples
     createDiscreteLOD(),
-    createTreeBillboards(),
+    //createTreeBillboards()
     createRequestVolume(),
     createExpireTileset()
 ];
 
 Promise.all(promises)
     .then(function() {
+        fsExtra.remove('C:/Code/3d-tiles-samples/localTilesets/output');
+        fsExtra.copy(outputDirectory, 'C:/Code/3d-tiles-samples/localTilesets/output');
         console.log('Done');
     });
 
@@ -434,13 +429,6 @@ function createBatchedNoBatchIds() {
     return saveBatchedTileset('BatchedNoBatchIds', tileOptions);
 }
 
-function createBatchedWithKHRMaterialsCommon() {
-    var tileOptions = {
-        khrMaterialsCommon : true
-    };
-    return saveBatchedTileset('BatchedWithKHRMaterialsCommon', tileOptions);
-}
-
 function createBatchedWithQuantization() {
     var tileOptions = {
         quantization : true
@@ -493,11 +481,10 @@ function createBatchedExpiration() {
 
 function createBatchedWithVertexColors() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'color';
+    buildingOptions.baseColorType = 'color';
     var tileOptions = {
         buildingOptions : buildingOptions,
-        useVertexColors : true,
-        khrMaterialsCommon : true
+        useVertexColors : true
     };
     return saveBatchedTileset('BatchedWithVertexColors', tileOptions);
 }
@@ -765,7 +752,6 @@ function createComposite() {
     var b3dmOptions = {
         buildingOptions : buildingTemplate,
         transform : buildingsTransform,
-        optimizeForCesium : optimizeForCesium,
         relativeToCenter : relativeToCenter
     };
 
@@ -787,13 +773,13 @@ function createCompositeOfComposite() {
         tileWidth : instancesTileWidth,
         transform : instancesTransform,
         instancesLength : instancesLength,
-        modelSize : instancesModelSize
+        modelSize : instancesModelSize,
+        eastNorthUp : true
     };
 
     var b3dmOptions = {
         buildingOptions : buildingTemplate,
         transform : buildingsTransform,
-        optimizeForCesium : optimizeForCesium,
         relativeToCenter : relativeToCenter
     };
 
@@ -919,7 +905,6 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions = defaultValue(tileOptions, {});
     tileOptions.buildingOptions = defaultValue(tileOptions.buildingOptions, buildingTemplate);
     tileOptions.transform = defaultValue(tileOptions.transform, buildingsTransform);
-    tileOptions.optimizeForCesium = optimizeForCesium;
     tileOptions.relativeToCenter = defaultValue(tileOptions.relativeToCenter, relativeToCenter);
 
     tilesetOptions = defaultValue(tilesetOptions, {});
@@ -976,7 +961,6 @@ function createHierarchy() {
     return createBatchTableHierarchy({
         directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchy'),
         transform : buildingsTransform,
-        optimizeForCesium : optimizeForCesium,
         gzip : gzip,
         prettyJson : prettyJson
     });
@@ -987,7 +971,6 @@ function createHierarchyMultipleParents() {
         directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyMultipleParents'),
         transform : buildingsTransform,
         multipleParents : true,
-        optimizeForCesium : optimizeForCesium,
         gzip : gzip,
         prettyJson : prettyJson
     });
@@ -998,7 +981,6 @@ function createHierarchyNoParents() {
         directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyNoParents'),
         transform : buildingsTransform,
         noParents : true,
-        optimizeForCesium : optimizeForCesium,
         gzip : gzip,
         prettyJson : prettyJson
     });
@@ -1010,7 +992,6 @@ function createHierarchyBinary() {
         transform : buildingsTransform,
         batchTableBinary : true,
         multipleParents : true,
-        optimizeForCesium : optimizeForCesium,
         gzip : gzip,
         prettyJson : prettyJson
     });
@@ -1873,7 +1854,6 @@ function createTilesetWithTransforms() {
     var buildingsOptions = {
         buildingOptions : buildingTemplate,
         transform : Matrix4.IDENTITY,
-        optimizeForCesium : optimizeForCesium,
         relativeToCenter : false
     };
 

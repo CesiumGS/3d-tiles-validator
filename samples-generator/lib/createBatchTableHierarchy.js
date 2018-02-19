@@ -37,7 +37,6 @@ var whiteOpaqueMaterial = new Material({
  * @param {Boolean} [options.noParents=false] Don't set any instance parents.
  * @param {Boolean} [options.multipleParents=false] Set multiple parents to some instances.
  * @param {Matrix4] [options.transform=Matrix4.IDENTITY] The tile transform.
- * @param {Boolean} [options.optimizeForCesium=false] Optimize the glTF for Cesium by using the sun as a default light source.
  * @param {Boolean} [options.gzip=false] Gzip the saved tile.
  * @param {Boolean} [options.prettyJson=true] Whether to prettify the JSON.
  * @returns {Promise} A promise that resolves when the tileset is saved.
@@ -134,8 +133,7 @@ function createBatchTableHierarchy(options) {
         }
         var batchedMesh = Mesh.batch(clonedMeshes);
         return createGltf({
-            mesh : batchedMesh,
-            optimizeForCesium : options.optimizeForCesium
+            mesh : batchedMesh
         });
     }).then(function(glb) {
         var b3dm = createB3dm({

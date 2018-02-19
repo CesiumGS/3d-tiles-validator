@@ -16,7 +16,7 @@ var sizeOfUint16 = 2;
 var sizeOfFloat32 = 4;
 
 var whiteOpaqueMaterial = new Material({
-    diffuse : [1.0, 1.0, 1.0, 1.0]
+    baseColor : [1.0, 1.0, 1.0, 1.0]
 });
 
 /**
@@ -146,10 +146,10 @@ Mesh.prototype.transferMaterialToVertexColors = function() {
     var vertexColors = new Array(vertexCount * 4);
     this.vertexColors = vertexColors;
     for (var i = 0; i < vertexCount; ++i) {
-        vertexColors[i * 4 + 0] = Math.floor(material.diffuse[0] * 255);
-        vertexColors[i * 4 + 1] = Math.floor(material.diffuse[1] * 255);
-        vertexColors[i * 4 + 2] = Math.floor(material.diffuse[2] * 255);
-        vertexColors[i * 4 + 3] = Math.floor(material.diffuse[3] * 255);
+        vertexColors[i * 4 + 0] = Math.floor(material.baseColor[0] * 255);
+        vertexColors[i * 4 + 1] = Math.floor(material.baseColor[1] * 255);
+        vertexColors[i * 4 + 2] = Math.floor(material.baseColor[2] * 255);
+        vertexColors[i * 4 + 3] = Math.floor(material.baseColor[3] * 255);
     }
 };
 
@@ -300,7 +300,7 @@ function getAccessor(gltf, accessor) {
  * @returns {Mesh} The mesh.
  */
 Mesh.fromGltf = function(gltf) {
-    var gltfPrimitive = gltf.meshes[Object.keys(gltf.meshes)[0]].primitives[0];
+    var gltfPrimitive = gltf.meshes[0].primitives[0];
     var gltfMaterial = gltf.materials[gltfPrimitive.material];
     var material = Material.fromGltf(gltfMaterial);
     var indices = getAccessor(gltf, gltf.accessors[gltfPrimitive.indices]);
