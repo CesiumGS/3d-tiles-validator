@@ -30,7 +30,7 @@ function createTilesetJsonSingle(options) {
 
     var tilesetJson = {
         asset : {
-            version : '0.0',
+            version : '1.0',
             gltfUpAxis : options.gltfUpAxis // If undefined, implicitly 'Y'
         },
         properties : options.properties,
