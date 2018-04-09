@@ -359,8 +359,8 @@ function getNormalsOctEncoded(normals) {
     var buffer = Buffer.alloc(pointsLength * 2 * sizeOfUint8);
     for (var i = 0; i < pointsLength; ++i) {
         var encodedNormal = AttributeCompression.octEncode(normals[i], scratchEncoded);
-        buffer.writeUInt8(encodedNormal.x, i * 2);
-        buffer.writeUInt8(encodedNormal.y, i * 2 + 1);
+        buffer.writeInt8(encodedNormal.x, i * 2);
+        buffer.writeInt8(encodedNormal.y, i * 2 + 1);
     }
     return {
         buffer : buffer,

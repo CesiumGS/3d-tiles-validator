@@ -288,13 +288,13 @@ function getOrientationsOctEncoded(instancesLength) {
     for (var i = 0; i < instancesLength; ++i) {
         var normalUp = getNormal();
         var encodedNormalUp = AttributeCompression.octEncodeInRange(normalUp, 65535, scratchEncoded);
-        normalsUpBuffer.writeUInt16LE(encodedNormalUp.x, (i * 2) * sizeOfUint16);
-        normalsUpBuffer.writeUInt16LE(encodedNormalUp.y, (i * 2 + 1) * sizeOfUint16);
+        normalsUpBuffer.writeInt16LE(encodedNormalUp.x, (i * 2) * sizeOfUint16);
+        normalsUpBuffer.writeInt16LE(encodedNormalUp.y, (i * 2 + 1) * sizeOfUint16);
 
         var normalRight = getOrthogonalNormal(normalUp);
         var encodedNormalRight = AttributeCompression.octEncodeInRange(normalRight, 65535, scratchEncoded);
-        normalsRightBuffer.writeUInt16LE(encodedNormalRight.x, (i * 2) * sizeOfUint16);
-        normalsRightBuffer.writeUInt16LE(encodedNormalRight.y, (i * 2 + 1) * sizeOfUint16);
+        normalsRightBuffer.writeInt16LE(encodedNormalRight.x, (i * 2) * sizeOfUint16);
+        normalsRightBuffer.writeInt16LE(encodedNormalRight.y, (i * 2 + 1) * sizeOfUint16);
     }
 
     return [{
