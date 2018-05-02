@@ -18,6 +18,8 @@ module.exports = createTilesetJsonSingle;
  * @param {Object} [options.sphere] Bounding sphere of the tile.
  * @param {Matrix4} [options.transform=Matrix4.IDENTITY] The tile transform.
  * @param {Object} [options.properties] An object containing the min and max values for each property in the batch table.
+ * @param {Array} [options.extensionsUsed] An array containing names of extensions used in the tileset.
+ * @param {Array} [options.extensionsRequired] An array containing names of extensions required by the tileset.
  * @param {String} [options.gltfUpAxis] Specifies the up-axis of embedded glTF models.
  * @param {Object} [options.expire] Tile expiration options.
  *
@@ -34,6 +36,8 @@ function createTilesetJsonSingle(options) {
             gltfUpAxis : options.gltfUpAxis // If undefined, implicitly 'Y'
         },
         properties : options.properties,
+        extensionsUsed : options.extensionsUsed,
+        extensionsRequired : options.extensionsRequired,
         geometricError : options.geometricError,
         root : {
             transform : transformArray,

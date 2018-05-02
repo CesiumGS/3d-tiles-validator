@@ -1,5 +1,6 @@
 'use strict';
 var Cesium = require('cesium');
+var draco3d = require('draco3d');
 var SimplexNoise = require('simplex-noise');
 var createPnts = require('./createPnts');
 
@@ -8,9 +9,11 @@ var Cartesian2 = Cesium.Cartesian2;
 var Cartesian3 = Cesium.Cartesian3;
 var CesiumMath = Cesium.Math;
 var Color = Cesium.Color;
+var ComponentDatatype = Cesium.ComponentDatatype;
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 var Matrix4 = Cesium.Matrix4;
+var WebGLConstants = Cesium.WebGLConstants;
 
 module.exports = createPointCloudTile;
 
@@ -21,6 +24,8 @@ var sizeOfFloat32 = 4;
 
 CesiumMath.setRandomNumberSeed(0);
 var simplex = new SimplexNoise(CesiumMath.nextRandomNumber);
+
+var encoderModule = draco3d.createEncoderModule({});
 
 /**
  * Creates a pnts tile that represents a point cloud.
@@ -33,6 +38,8 @@ var simplex = new SimplexNoise(CesiumMath.nextRandomNumber);
  * @param {String} [options.color='random'] Determines the method for generating point colors. Possible values are 'random', 'gradient', 'noise'.
  * @param {String} [options.shape='box'] The shape of the point cloud. Possible values are 'sphere', 'box'.
  * @param {Boolean} [options.generateNormals=false] Generate per-point normals.
+ * @param {Boolean} [options.draco=false] Use draco encoding.
+ * @param [String[]] [options.dracoSemantics] An array of semantics to draco encode. If undefined, all semantics are encoded.
  * @param {Boolean} [options.octEncodeNormals=false] Apply oct16p encoding on the point normals.
  * @param {Boolean} [options.quantizePositions=false] Quantize point positions so each x, y, z takes up 16 bits rather than 32 bits.
  * @param {Boolean} [options.batched=false] Group points together with batch ids and generate per-batch metadata. Good for differentiating different sections of a point cloud. Not compatible with perPointProperties.
@@ -54,12 +61,18 @@ function createPointCloudTile(options) {
     var color = defaultValue(options.color, 'random');
     var shape = defaultValue(options.shape, 'box');
     var generateNormals = defaultValue(options.generateNormals, false);
-    var octEncodeNormals = defaultValue(options.octEncodeNormals, false);
-    var quantizePositions = defaultValue(options.quantizePositions, false);
+    var draco = defaultValue(options.draco, false);
+    var dracoSemantics = options.dracoSemantics;
+    var octEncodeNormals = defaultValue(options.octEncodeNormals, false) && !draco;
+    var quantizePositions = defaultValue(options.quantizePositions, false) && !draco;
     var batched = defaultValue(options.batched, false);
     var perPointProperties = defaultValue(options.perPointProperties, false);
     var relativeToCenter = defaultValue(options.relativeToCenter, true);
     var time = defaultValue(options.time, 0.0);
+
+    if (colorMode === 'rgb565' && draco) {
+        colorMode = 'rgb';
+    }
 
     var radius = tileWidth / 2.0;
     var center = Matrix4.getTranslation(transform, new Cartesian3());
@@ -99,31 +112,95 @@ function createPointCloudTile(options) {
     var colors = points.colors;
     var noiseValues = points.noiseValues;
 
-    var attributes = [positions];
+    var featureTableProperties = [positions];
     if (defined(colors)) {
-        attributes.push(colors);
+        featureTableProperties.push(colors);
     }
     if (generateNormals) {
-        attributes.push(normals);
+        featureTableProperties.push(normals);
     }
     if (batched) {
-        attributes.push(batchIds);
+        featureTableProperties.push(batchIds);
     }
 
-    var i;
-    var attribute;
-    var byteOffset = 0;
-    var attributesLength = attributes.length;
-    for (i = 0; i < attributesLength; ++i) {
-        attribute = attributes[i];
-        var byteAlignment = attribute.byteAlignment;
-        byteOffset = Math.ceil(byteOffset / byteAlignment) * byteAlignment; // Round up to the required alignment
-        attribute.byteOffset = byteOffset;
-        byteOffset += attribute.buffer.length;
+    var batchTableProperties = [];
+    if (perPointProperties) {
+        batchTableProperties = getPerPointBatchTableProperties(pointsLength, noiseValues);
     }
 
     var featureTableJson = {};
-    var featureTableBinary = Buffer.alloc(byteOffset);
+    var featureTableBinary = Buffer.alloc(0);
+
+    var batchTableJson = {};
+    var batchTableBinary = Buffer.alloc(0);
+
+    var extensionsUsed;
+
+    var dracoBuffer;
+    var dracoFeatureTableJson;
+    var dracoBatchTableJson;
+
+    if (draco) {
+        var dracoResults = dracoEncode(pointsLength, dracoSemantics, featureTableProperties, batchTableProperties);
+        dracoBuffer = dracoResults.buffer;
+        dracoFeatureTableJson = dracoResults.dracoFeatureTableJson;
+        dracoBatchTableJson = dracoResults.dracoBatchTableJson;
+        featureTableBinary = Buffer.concat([featureTableBinary, dracoBuffer]);
+        if (defined(dracoFeatureTableJson)) {
+            featureTableJson.extensions = {
+                '3DTILES_draco_point_compression' : dracoFeatureTableJson
+            };
+        }
+        if (defined(dracoBatchTableJson)) {
+            batchTableJson.extensions = {
+                '3DTILES_draco_point_compression' : dracoBatchTableJson
+            };
+        }
+        extensionsUsed = ['3DTILES_draco_point_compression'];
+    }
+
+    var i;
+    var property;
+    var name;
+    var componentType;
+    var byteOffset;
+    var byteAlignment;
+    var padding;
+
+    for (i = 0; i < featureTableProperties.length; ++i) {
+        property = featureTableProperties[i];
+        name = property.propertyName;
+        componentType = property.componentType;
+        byteOffset = 0;
+        if (!(defined(dracoFeatureTableJson) && defined(dracoFeatureTableJson.properties[name]))) {
+            byteAlignment = ComponentDatatype.getSizeInBytes(ComponentDatatype[componentType]);
+            byteOffset = Math.ceil(featureTableBinary.length / byteAlignment) * byteAlignment; // Round up to the required alignment
+            padding = Buffer.alloc(byteOffset - featureTableBinary.length);
+            featureTableBinary = Buffer.concat([featureTableBinary, padding, property.buffer]);
+        }
+        featureTableJson[name] = {
+            byteOffset : byteOffset,
+            componentType : name === 'BATCH_ID' ? componentType : undefined
+        };
+    }
+
+    for (i = 0; i < batchTableProperties.length; ++i) {
+        property = batchTableProperties[i];
+        name = property.propertyName;
+        componentType = property.componentType;
+        byteOffset = 0;
+        if (!(defined(dracoBatchTableJson) && defined(dracoBatchTableJson.properties[name]))) {
+            byteAlignment = ComponentDatatype.getSizeInBytes(ComponentDatatype[componentType]);
+            byteOffset = Math.ceil(batchTableBinary.length / byteAlignment) * byteAlignment; // Round up to the required alignment
+            padding = Buffer.alloc(byteOffset - batchTableBinary.length);
+            batchTableBinary = Buffer.concat([batchTableBinary, padding, property.buffer]);
+        }
+        batchTableJson[name] = {
+            byteOffset : byteOffset,
+            componentType : componentType,
+            type : property.type
+        };
+    }
 
     featureTableJson.POINTS_LENGTH = pointsLength;
 
@@ -140,30 +217,10 @@ function createPointCloudTile(options) {
     }
 
     if (batched) {
+        var batchTable = getBatchTableForBatchedPoints(batchIds.batchLength);
+        batchTableJson = batchTable.json;
+        batchTableBinary = batchTable.binary;
         featureTableJson.BATCH_LENGTH = batchIds.batchLength;
-    }
-
-    for (i = 0; i < attributesLength; ++i) {
-        attribute = attributes[i];
-        featureTableJson[attribute.propertyName] = {
-            byteOffset : attribute.byteOffset,
-            componentType : attribute.componentType // Only defined for batchIds
-        };
-        attribute.buffer.copy(featureTableBinary, attribute.byteOffset);
-    }
-
-    var batchTable;
-    var batchTableJson;
-    var batchTableBinary;
-
-    if (batched) {
-        batchTable = getBatchTableForBatchedPoints(batchIds.batchLength);
-        batchTableJson = batchTable.json;
-        batchTableBinary = batchTable.binary;
-    } else if (perPointProperties) {
-        batchTable = getBatchTableForPerPointProperties(pointsLength, noiseValues);
-        batchTableJson = batchTable.json;
-        batchTableBinary = batchTable.binary;
     }
 
     var pnts = createPnts({
@@ -175,7 +232,170 @@ function createPointCloudTile(options) {
 
     return {
         pnts : pnts,
-        batchTableJson : batchTableJson
+        batchTableJson : batchTableJson,
+        extensionsUsed : extensionsUsed
+    };
+}
+
+function getAddAttributeFunctionName(componentDatatype) {
+    switch (componentDatatype) {
+        case WebGLConstants.UNSIGNED_BYTE:
+            return 'AddUInt8Attribute';
+        case WebGLConstants.BYTE:
+            return 'AddInt8Attribute';
+        case WebGLConstants.UNSIGNED_SHORT:
+            return 'AddUInt16Attribute';
+        case WebGLConstants.SHORT:
+            return 'AddInt16Attribute';
+        case WebGLConstants.UNSIGNED_INT:
+            return 'AddUInt32Attribute';
+        case WebGLConstants.INT:
+            return 'AddInt32Attribute';
+        case WebGLConstants.FLOAT:
+            return 'AddFloatAttribute';
+    }
+}
+
+function numberOfComponentsForType(type) {
+    switch (type) {
+        case 'SCALAR':
+            return 1;
+        case 'VEC2':
+            return 2;
+        case 'VEC3':
+            return 3;
+        case 'VEC4':
+            return 4;
+    }
+}
+
+function getDracoType(name) {
+    switch (name) {
+        case 'POSITION':
+            return encoderModule.POSITION;
+        case 'NORMAL':
+            return encoderModule.NORMAL;
+        case 'RGB':
+        case 'RGBA':
+            return encoderModule.COLOR;
+        default:
+            return encoderModule.GENERIC;
+    }
+}
+
+function dracoEncodeProperties(pointsLength, properties, preserveOrder) {
+    var i;
+    var encoder = new encoderModule.Encoder();
+    var pointCloudBuilder = new encoderModule.PointCloudBuilder();
+    var pointCloud = new encoderModule.PointCloud();
+
+    var attributeIds = {};
+
+    var length = properties.length;
+    for (i = 0; i < length; ++i) {
+        var property = properties[i];
+        var componentDatatype = ComponentDatatype[property.componentType];
+        var typedArray = ComponentDatatype.createArrayBufferView(componentDatatype, property.buffer.buffer);
+        var numberOfComponents = numberOfComponentsForType(property.type);
+        var addAttributeFunctionName = getAddAttributeFunctionName(componentDatatype);
+        var name = property.propertyName;
+        var dracoType = getDracoType(name);
+        attributeIds[name] = pointCloudBuilder[addAttributeFunctionName](pointCloud, dracoType, pointsLength, numberOfComponents, typedArray);
+    }
+
+    var dracoCompressionSpeed = 7;
+    var dracoPositionBits = 14;
+    var dracoNormalBits = 8;
+    var dracoColorBits = 8;
+    var dracoGenericBits =  12;
+
+    encoder.SetSpeedOptions(dracoCompressionSpeed);
+    encoder.SetAttributeQuantization(encoderModule.POSITION, dracoPositionBits);
+    encoder.SetAttributeQuantization(encoderModule.NORMAL, dracoNormalBits);
+    encoder.SetAttributeQuantization(encoderModule.COLOR, dracoColorBits);
+    encoder.SetAttributeQuantization(encoderModule.GENERIC, dracoGenericBits);
+
+    if (preserveOrder) {
+        encoder.SetEncodingMethod(encoderModule.POINT_CLOUD_SEQUENTIAL_ENCODING);
+    }
+
+    var encodedDracoDataArray = new encoderModule.DracoInt8Array();
+
+    var encodedLength = encoder.EncodePointCloudToDracoBuffer(pointCloud, false, encodedDracoDataArray);
+    if (encodedLength <= 0) {
+        throw 'Error: Encoding Failed.';
+    }
+
+    var encodedData = Buffer.alloc(encodedLength);
+    for (i = 0; i < encodedLength; i++) {
+        encodedData[i] = encodedDracoDataArray.GetValue(i);
+    }
+
+    return {
+        buffer : encodedData,
+        attributeIds : attributeIds
+    };
+}
+
+function getPropertyByName(properties, name) {
+    return properties.find(function(element) {
+        return element.propertyName === name;
+    });
+}
+
+function dracoEncode(pointsLength, dracoSemantics, featureTableProperties, batchTableProperties) {
+    var dracoProperties = [];
+    if (!defined(dracoSemantics)) {
+        dracoProperties = dracoProperties.concat(featureTableProperties);
+    } else {
+        for (var i = 0; i < dracoSemantics.length; ++i) {
+            dracoProperties.push(getPropertyByName(featureTableProperties, dracoSemantics[i]));
+        }
+    }
+    dracoProperties = dracoProperties.concat(batchTableProperties);
+
+    // Check if normals are being encoded.
+    // Currently the octahedron transform for normals only works if preserveOrder is true.
+    // See https://github.com/google/draco/issues/383
+    var encodeNormals = defined(getPropertyByName(dracoProperties, 'NORMAL'));
+    var hasUncompressedAttributes =  dracoProperties.length < (featureTableProperties.length + batchTableProperties.length);
+    var preserveOrder = encodeNormals || hasUncompressedAttributes;
+
+    var dracoResults = dracoEncodeProperties(pointsLength, dracoProperties, preserveOrder);
+    var dracoBuffer = dracoResults.buffer;
+    var dracoAttributeIds = dracoResults.attributeIds;
+
+    var dracoFeatureTableJson = {
+        properties : {},
+        byteOffset : 0,
+        byteLength : dracoBuffer.length
+    };
+    var dracoBatchTableJson = {
+        properties : {}
+    };
+
+    for (var name in dracoAttributeIds) {
+        if (dracoAttributeIds.hasOwnProperty(name)) {
+            if (defined(getPropertyByName(featureTableProperties, name))) {
+                dracoFeatureTableJson.properties[name] = dracoAttributeIds[name];
+            }
+            if (defined(getPropertyByName(batchTableProperties, name))) {
+                dracoBatchTableJson.properties[name] = dracoAttributeIds[name];
+            }
+        }
+    }
+
+    if (Object.keys(dracoFeatureTableJson).length === 0) {
+        dracoFeatureTableJson = undefined;
+    }
+    if (Object.keys(dracoBatchTableJson).length === 0) {
+        dracoBatchTableJson = undefined;
+    }
+
+    return {
+        buffer : dracoBuffer,
+        dracoFeatureTableJson : dracoFeatureTableJson,
+        dracoBatchTableJson : dracoBatchTableJson
     };
 }
 
@@ -264,7 +484,7 @@ function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shape
         } else {
             normal = Cartesian3.normalize(position, new Cartesian3());
         }
-        var batchId = getBatchId(unitPosition);
+        var batchId = getBatchId(position);
         var color = colorFunction(unitPosition);
         var noise = getNoise(unitPosition, time);
 
@@ -309,7 +529,8 @@ function getPositions(positions) {
     return {
         buffer : buffer,
         propertyName : 'POSITION',
-        byteAlignment : sizeOfFloat32
+        componentType : 'FLOAT',
+        type : 'VEC3'
     };
 }
 
@@ -332,7 +553,8 @@ function getPositionsQuantized(positions, radius) {
     return {
         buffer : buffer,
         propertyName : 'POSITION_QUANTIZED',
-        byteAlignment : sizeOfUint16
+        componentType : 'UNSIGNED_SHORT',
+        type : 'VEC3'
     };
 }
 
@@ -348,7 +570,8 @@ function getNormals(normals) {
     return {
         buffer : buffer,
         propertyName : 'NORMAL',
-        byteAlignment : sizeOfFloat32
+        componentType : 'FLOAT',
+        type : 'VEC3'
     };
 }
 
@@ -365,7 +588,8 @@ function getNormalsOctEncoded(normals) {
     return {
         buffer : buffer,
         propertyName : 'NORMAL_OCT16P',
-        byteAlignment : sizeOfUint8
+        componentType : 'UNSIGNED_BYTE',
+        type : 'VEC2'
     };
 }
 
@@ -379,7 +603,6 @@ function getBatchIds(batchIds) {
     }
 
     var buffer;
-    var byteAlignment;
     var componentType;
     if (batchLength <= 256) {
         buffer = Buffer.alloc(pointsLength * sizeOfUint8);
@@ -387,28 +610,25 @@ function getBatchIds(batchIds) {
             buffer.writeUInt8(batchIds[i], i * sizeOfUint8);
         }
         componentType = 'UNSIGNED_BYTE';
-        byteAlignment = sizeOfUint8;
     } else if (batchLength <= 65536) {
         buffer = Buffer.alloc(pointsLength * sizeOfUint16);
         for (i = 0; i < pointsLength; ++i) {
             buffer.writeUInt16LE(batchIds[i], i * sizeOfUint16);
         }
         componentType = 'UNSIGNED_SHORT';
-        byteAlignment = sizeOfUint16;
     } else {
         buffer = Buffer.alloc(pointsLength * sizeOfUint32);
         for (i = 0; i < pointsLength; ++i) {
             buffer.writeUInt32LE(batchIds[i], i * sizeOfUint32);
         }
         componentType = 'UNSIGNED_INT';
-        byteAlignment = sizeOfUint32;
     }
 
     return {
         buffer : buffer,
         propertyName : 'BATCH_ID',
-        byteAlignment : byteAlignment,
         componentType : componentType,
+        type : 'SCALAR',
         batchLength : batchLength
     };
 }
@@ -428,7 +648,8 @@ function getColorsRGB(colors) {
     return {
         buffer : buffer,
         propertyName : 'RGB',
-        byteAlignment : sizeOfUint8
+        componentType : 'UNSIGNED_BYTE',
+        type : 'VEC3'
     };
 }
 
@@ -449,7 +670,8 @@ function getColorsRGBA(colors) {
     return {
         buffer : buffer,
         propertyName : 'RGBA',
-        byteAlignment : sizeOfUint8
+        componentType : 'UNSIGNED_BYTE',
+        type : 'VEC4'
     };
 }
 
@@ -467,7 +689,8 @@ function getColorsRGB565(colors) {
     return {
         buffer : buffer,
         propertyName : 'RGB565',
-        byteAlignment : sizeOfUint16
+        componentType : 'UNSIGNED_SHORT',
+        type : 'SCALAR'
     };
 }
 
@@ -508,29 +731,11 @@ function getBatchTableForBatchedPoints(batchLength) {
     };
 }
 
-function getBatchTableForPerPointProperties(pointsLength, noiseValues) {
+function getPerPointBatchTableProperties(pointsLength, noiseValues) {
     // Create some sample per-point properties. Each point will have a temperature, secondary color, and id.
     var temperaturesBuffer = Buffer.alloc(pointsLength * sizeOfFloat32);
     var secondaryColorBuffer = Buffer.alloc(pointsLength * 3 * sizeOfFloat32);
     var idBuffer = Buffer.alloc(pointsLength * sizeOfUint16);
-
-    var batchTableJson = {
-        temperature : {
-            byteOffset : 0,
-            componentType : 'FLOAT',
-            type : 'SCALAR'
-        },
-        secondaryColor : {
-            byteOffset : temperaturesBuffer.length,
-            componentType : 'FLOAT',
-            type : 'VEC3'
-        },
-        id : {
-            byteOffset : temperaturesBuffer.length + secondaryColorBuffer.length,
-            componentType : 'UNSIGNED_SHORT',
-            type : 'SCALAR'
-        }
-    };
 
     for (var i = 0; i < pointsLength; ++i) {
         var temperature = noiseValues[i];
@@ -542,11 +747,24 @@ function getBatchTableForPerPointProperties(pointsLength, noiseValues) {
         idBuffer.writeUInt16LE(i, i * sizeOfUint16);
     }
 
-    // No need for padding with these sample properties
-    var batchTableBinary = Buffer.concat([temperaturesBuffer, secondaryColorBuffer, idBuffer]);
-
-    return {
-        json : batchTableJson,
-        binary : batchTableBinary
-    };
+    return [
+        {
+            buffer : temperaturesBuffer,
+            propertyName : 'temperature',
+            componentType : 'FLOAT',
+            type: 'SCALAR'
+        },
+        {
+            buffer : secondaryColorBuffer,
+            propertyName : 'secondaryColor',
+            componentType : 'FLOAT',
+            type : 'VEC3'
+        },
+        {
+            buffer : idBuffer,
+            propertyName : 'id',
+            componentType : 'UNSIGNED_SHORT',
+            type : 'SCALAR'
+        }
+    ];
 }
