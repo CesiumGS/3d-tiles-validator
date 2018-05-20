@@ -1192,7 +1192,7 @@ function createTilesetOfTilesets() {
             boundingVolume : {
                 region : parentRegion
             },
-            geometricError : smallGeometricError,
+            geometricError : largeGeometricError,
             refine : 'ADD',
             content : {
                 url : 'tileset2.json'
@@ -1204,7 +1204,7 @@ function createTilesetOfTilesets() {
         asset : {
             version : '1.0'
         },
-        geometricError : smallGeometricError,
+        geometricError : largeGeometricError,
         root : {
             boundingVolume : {
                 region : parentRegion
@@ -1219,7 +1219,7 @@ function createTilesetOfTilesets() {
                     boundingVolume : {
                         region : llRegion
                     },
-                    geometricError : 0.0,
+                    geometricError : smallGeometricError,
                     content : {
                         url : 'tileset3/tileset3.json'
                     }
@@ -1259,7 +1259,7 @@ function createTilesetOfTilesets() {
         asset : {
             version : '1.0'
         },
-        geometricError : 0.0,
+        geometricError : smallGeometricError,
         root : {
             boundingVolume : {
                 region : llRegion
