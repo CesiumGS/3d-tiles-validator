@@ -39,7 +39,7 @@ var encoderModule = draco3d.createEncoderModule({});
  * @param {String} [options.shape='box'] The shape of the point cloud. Possible values are 'sphere', 'box'.
  * @param {Boolean} [options.generateNormals=false] Generate per-point normals.
  * @param {Boolean} [options.draco=false] Use draco encoding.
- * @param [String[]] [options.dracoSemantics] An array of semantics to draco encode. If undefined, all semantics are encoded.
+ * @param {String[]} [options.dracoSemantics] An array of semantics to draco encode. If undefined, all semantics are encoded.
  * @param {Boolean} [options.octEncodeNormals=false] Apply oct16p encoding on the point normals.
  * @param {Boolean} [options.quantizePositions=false] Quantize point positions so each x, y, z takes up 16 bits rather than 32 bits.
  * @param {Boolean} [options.batched=false] Group points together with batch ids and generate per-batch metadata. Good for differentiating different sections of a point cloud. Not compatible with perPointProperties.
@@ -330,6 +330,11 @@ function dracoEncodeProperties(pointsLength, properties, preserveOrder) {
     for (i = 0; i < encodedLength; i++) {
         encodedData[i] = encodedDracoDataArray.GetValue(i);
     }
+
+    encoderModule.destroy(encoder);
+    encoderModule.destroy(pointCloudBuilder);
+    encoderModule.destroy(pointCloud);
+    encoderModule.destroy(encodedDracoDataArray);
 
     return {
         buffer : encodedData,

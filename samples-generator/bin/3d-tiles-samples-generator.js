@@ -23,7 +23,6 @@ var CesiumMath = Cesium.Math;
 var clone = Cesium.clone;
 var defaultValue = Cesium.defaultValue;
 var defined  = Cesium.defined;
-var JulianDate = Cesium.JulianDate;
 var Matrix4 = Cesium.Matrix4;
 var Quaternion = Cesium.Quaternion;
 
