@@ -1038,7 +1038,6 @@ function savePointCloudTimeDynamic(name, options) {
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
     var useTransform = defaultValue(options.transform, false);
     var directory = path.join(outputDirectory, 'PointCloud', name);
-    var czmlPath = path.join(directory, 'frames.czml');
 
     var transform = pointCloudTransform;
     var relativeToCenter = true;
@@ -1049,78 +1048,26 @@ function savePointCloudTimeDynamic(name, options) {
     }
 
     var pointCloudOptions = {
-        tileWidth : pointCloudTileWidth,
-        pointsLength : pointsLength,
-        perPointProperties : true,
-        transform : transform,
-        relativeToCenter : relativeToCenter,
-        color : 'noise',
-        shape : 'box',
-        draco : options.draco
+        tileWidth: pointCloudTileWidth,
+        pointsLength: pointsLength,
+        perPointProperties: true,
+        transform: transform,
+        relativeToCenter: relativeToCenter,
+        color: 'noise',
+        shape: 'box',
+        draco: options.draco
     };
 
-    var czml = [{
-        id : 'document',
-        version : '1.0',
-        clock : {
-            interval : undefined,
-            currentTime : undefined,
-            multiplier : 1,
-            range : 'LOOP_STOP',
-            step : 'SYSTEM_CLOCK_MULTIPLIER'
-        }
-    }, {
-        id : 'Time Dynamic Point Cloud',
-        properties : {
-            frames : []
-        }
-    }];
-
     var tilePromises = [];
-
-    var framesLength = 5;
-    var frameDuration = 0.5;
-    var frameLongitudeSpacing = 0.000003;
-    var totalDuration = framesLength * frameDuration;
-    var startDate = JulianDate.fromDate(new Date(2018, 6, 19, 11, 18, 0));
-    var endDate = JulianDate.addSeconds(startDate, totalDuration, new JulianDate());
-
-    var epoch = startDate.toString();
-    var clock = czml[0].clock;
-    clock.interval = epoch + '/' + endDate.toString();
-    clock.currentTime = epoch;
-
-    var frames = czml[1].properties.frames;
-
     for (var i = 0; i < 5; ++i) {
         var tileOptions = clone(pointCloudOptions);
         tileOptions.time = i * 0.1; // Seed for noise
         var pnts = createPointCloudTile(tileOptions).pnts;
-        var tilePathRelative = 'frames' + '/' + i + '.pnts';
-        var tilePath = path.join(directory, 'frames', i + '.pnts');
+        var tilePath = path.join(directory, i + '.pnts');
         tilePromises.push(saveTile(tilePath, pnts, gzip));
-        var frameStartDate = JulianDate.addSeconds(startDate, i * frameDuration, new JulianDate());
-        var frameEndDate = JulianDate.addSeconds(frameStartDate, frameDuration, new JulianDate());
-
-        if (useTransform) {
-            transform = Matrix4.toArray(wgs84Transform(longitude + i * frameLongitudeSpacing, latitude, pointCloudRadius));
-        } else {
-            transform = undefined;
-        }
-
-        frames.push({
-            interval : frameStartDate.toString() + '/' + frameEndDate.toString(),
-            object : {
-                uri : tilePathRelative,
-                transform : transform
-            }
-        })
     }
 
-    return Promise.all([
-        fsExtra.outputJson(czmlPath, czml),
-        Promise.all(tilePromises)
-    ]);
+    return Promise.all(tilePromises);
 }
 
 function createHierarchy() {
