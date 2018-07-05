@@ -42,7 +42,7 @@ function createTilesetJsonSingle(options) {
             boundingVolume : boundingVolume,
             geometricError : 0.0,
             content : {
-                url : options.tileName
+                uri : options.tileName
             }
         }
     };

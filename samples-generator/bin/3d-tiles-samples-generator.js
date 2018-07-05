@@ -4,6 +4,8 @@ var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
 var path = require('path');
 var Promise = require('bluebird');
+var dataUri = require('datauri').promise;
+
 var createBatchTableHierarchy = require('../lib/createBatchTableHierarchy');
 var createBuildingsTile = require('../lib/createBuildingsTile');
 var createB3dm = require('../lib/createB3dm');
@@ -35,7 +37,7 @@ var relativeToCenter = true;
 var prettyJson = true;
 var gzip = false;
 
-var outputDirectory = 'output';
+var outputDirectory = './output/';
 
 var longitude = -1.31968;
 var latitude = 0.698874;
@@ -207,6 +209,7 @@ var promises = [
     createBatchedWithTransformBox(),
     createBatchedWithTransformSphere(),
     createBatchedWithTransformRegion(),
+    createBatchedWithRtcCenter(),
     createBatchedNoBatchIds(),
     //createBatchedWithQuantization(),
     createBatchedWGS84(),
@@ -215,6 +218,7 @@ var promises = [
     createBatchedGltfZUp(),
     createBatchedExpiration(),
     createBatchedWithVertexColors(),
+    createBatchedWithDataURI(),
     // Point Cloud
     createPointCloudRGB(),
     createPointCloudRGBA(),
@@ -256,6 +260,7 @@ var promises = [
     createHierarchyMultipleParents(),
     createHierarchyNoParents(),
     createHierarchyBinary(),
+    createHierarchyExtension(),
     // Tilesets
     createTileset(),
     createTilesetEmptyRoot(),
@@ -277,12 +282,9 @@ var promises = [
     createExpireTileset()
 ];
 
-Promise.all(promises)
-    .then(function() {
-        fsExtra.remove('C:/Code/3d-tiles-samples/localTilesets/output');
-        fsExtra.copy(outputDirectory, 'C:/Code/3d-tiles-samples/localTilesets/output');
-        console.log('Done');
-    });
+return fsExtra.emptyDir(outputDirectory).then(function () {
+    return Promise.all(promises);
+});
 
 function createBatchedWithBatchTable() {
     var tileOptions = {
@@ -412,7 +414,7 @@ function createBatchedWithTransformSphere() {
 
 function createBatchedWithTransformRegion() {
     var tileOptions = {
-        transform : Matrix4.IDENTITY,
+        transform: Matrix4.IDENTITY,
         relativeToCenter : false
     };
     var tilesetOptions = {
@@ -420,6 +422,19 @@ function createBatchedWithTransformRegion() {
         transform : buildingsTransform
     };
     return saveBatchedTileset('BatchedWithTransformRegion', tileOptions, tilesetOptions);
+}
+
+function createBatchedWithRtcCenter() {
+    var tileOptions = {
+        transform: Matrix4.IDENTITY,
+        relativeToCenter: false,
+        rtcCenterPosition: [0.1, 0.2, 0.3]
+    };
+    var tilesetOptions = {
+        region: smallRegion,
+        transform: buildingsTransform
+    };
+    return saveBatchedTileset('BatchedWithRtcCenter', tileOptions, tilesetOptions);
 }
 
 function createBatchedNoBatchIds() {
@@ -487,6 +502,12 @@ function createBatchedWithVertexColors() {
         useVertexColors : true
     };
     return saveBatchedTileset('BatchedWithVertexColors', tileOptions);
+}
+
+function createBatchedWithDataURI() {
+    return saveBatchedTileset('BatchedWithContentUri', undefined, {
+        contentDataUri : true
+    });
 }
 
 function createPointCloudRGB() {
@@ -919,6 +940,17 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
             var b3dm = result.b3dm;
             var batchTableJson = result.batchTableJson;
             tilesetOptions.properties = getProperties(batchTableJson);
+
+            if (tilesetOptions.contentDataUri) {
+                return saveTile(tilePath, b3dm, gzip).then(function() {
+                    return dataUri(tilePath).then(function (content) {
+                        // TODO delete b3dm file
+                        tilesetOptions.tileName = content;
+                        return saveTilesetJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson);
+                    });
+                });
+            }
+
             var tilesetJson = createTilesetJsonSingle(tilesetOptions);
             return Promise.all([
                 saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
@@ -962,7 +994,8 @@ function createHierarchy() {
         directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchy'),
         transform : buildingsTransform,
         gzip : gzip,
-        prettyJson : prettyJson
+        prettyJson : prettyJson,
+        legacy : true
     });
 }
 
@@ -972,7 +1005,8 @@ function createHierarchyMultipleParents() {
         transform : buildingsTransform,
         multipleParents : true,
         gzip : gzip,
-        prettyJson : prettyJson
+        prettyJson : prettyJson,
+        legacy : true
     });
 }
 
@@ -982,7 +1016,8 @@ function createHierarchyNoParents() {
         transform : buildingsTransform,
         noParents : true,
         gzip : gzip,
-        prettyJson : prettyJson
+        prettyJson : prettyJson,
+        legacy : true
     });
 }
 
@@ -993,7 +1028,17 @@ function createHierarchyBinary() {
         batchTableBinary : true,
         multipleParents : true,
         gzip : gzip,
-        prettyJson : prettyJson
+        prettyJson : prettyJson,
+        legacy : true
+    });
+}
+
+function createHierarchyExtension() {
+    return createBatchTableHierarchy({
+        directory: path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyExtension'),
+        transform: buildingsTransform,
+        gzip: gzip,
+        prettyJson: prettyJson
     });
 }
 
