@@ -1522,7 +1522,7 @@ function createTilesetRefinementMix() {
             geometricError : smallGeometricError,
             refine : 'ADD',
             content : {
-                url : 'parent.b3dm',
+                uri : 'parent.b3dm',
                 boundingVolume : {
                     region : parentContentRegion
                 }
@@ -1535,7 +1535,7 @@ function createTilesetRefinementMix() {
                     geometricError : smallGeometricError,
                     refine : 'REPLACE',
                     content : {
-                        url : 'parent.b3dm'
+                        uri : 'parent.b3dm'
                     },
                     children : [
                         {
@@ -1545,7 +1545,7 @@ function createTilesetRefinementMix() {
                             geometricError : 0.0,
                             refine : 'ADD',
                             content : {
-                                url : 'll.b3dm'
+                                uri : 'll.b3dm'
                             }
                         },
                         {
@@ -1555,7 +1555,7 @@ function createTilesetRefinementMix() {
                             geometricError : 0.0,
                             refine : 'REPLACE',
                             content : {
-                                url : 'ur.b3dm'
+                                uri : 'ur.b3dm'
                             }
                         }
                     ]
@@ -1567,7 +1567,7 @@ function createTilesetRefinementMix() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'parent.b3dm'
+                        uri : 'parent.b3dm'
                     },
                     children : [
                         {
@@ -1577,7 +1577,7 @@ function createTilesetRefinementMix() {
                             geometricError : 0.0,
                             refine : 'ADD',
                             content : {
-                                url : 'ul.b3dm'
+                                uri : 'ul.b3dm'
                             }
                         },
                         {
@@ -1587,7 +1587,7 @@ function createTilesetRefinementMix() {
                             geometricError : 0.0,
                             refine : 'REPLACE',
                             content : {
-                                url : 'lr.b3dm'
+                                uri : 'lr.b3dm'
                             }
                         }
                     ]
@@ -1625,7 +1625,7 @@ function createTilesetReplacement1() {
             geometricError : smallGeometricError,
             refine : 'REPLACE',
             content : {
-                url : 'parent.b3dm',
+                uri : 'parent.b3dm',
                 boundingVolume : {
                     region : parentContentRegion
                 }
@@ -1644,7 +1644,7 @@ function createTilesetReplacement1() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'll.b3dm'
+                                uri : 'll.b3dm'
                             }
                         },
                         {
@@ -1653,7 +1653,7 @@ function createTilesetReplacement1() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'ur.b3dm'
+                                uri : 'ur.b3dm'
                             }
                         }
                     ]
@@ -1671,7 +1671,7 @@ function createTilesetReplacement1() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'lr.b3dm'
+                                uri : 'lr.b3dm'
                             }
                         },
                         {
@@ -1680,7 +1680,7 @@ function createTilesetReplacement1() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'ul.b3dm'
+                                uri : 'ul.b3dm'
                             }
                         }
                     ]
@@ -1717,7 +1717,7 @@ function createTilesetReplacement2() {
             geometricError : smallGeometricError,
             refine : 'REPLACE',
             content : {
-                url : 'parent.b3dm',
+                uri : 'parent.b3dm',
                 boundingVolume : {
                     region : parentContentRegion
                 }
@@ -1743,7 +1743,7 @@ function createTilesetReplacement2() {
                                     },
                                     geometricError : 0.0,
                                     content : {
-                                        url : 'ur.b3dm'
+                                        uri : 'ur.b3dm'
                                     }
                                 }
                             ]
@@ -1754,7 +1754,7 @@ function createTilesetReplacement2() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'll.b3dm'
+                                uri : 'll.b3dm'
                             }
                         }
                     ]
@@ -1791,7 +1791,7 @@ function createTilesetReplacement3() {
             geometricError : smallGeometricError,
             refine : 'REPLACE',
             content : {
-                url : 'parent.b3dm',
+                uri : 'parent.b3dm',
                 boundingVolume : {
                     region : parentContentRegion
                 }
@@ -1804,7 +1804,7 @@ function createTilesetReplacement3() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'tileset2.json'
+                        uri : 'tileset2.json'
                     }
                 }
             ]
@@ -1829,7 +1829,7 @@ function createTilesetReplacement3() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -1838,7 +1838,7 @@ function createTilesetReplacement3() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -1847,7 +1847,7 @@ function createTilesetReplacement3() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -1856,7 +1856,7 @@ function createTilesetReplacement3() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -1915,7 +1915,7 @@ function createTilesetWithTransforms() {
             geometricError : instancesGeometricError,
             refine : 'ADD',
             content : {
-                url : buildingsTileName
+                uri : buildingsTileName
             },
             children : [
                 {
@@ -1925,7 +1925,7 @@ function createTilesetWithTransforms() {
                     transform : childTransform,
                     geometricError : 0.0,
                     content : {
-                        url : instancesTileName
+                        uri : instancesTileName
                     }
                 }
             ]
@@ -1991,7 +1991,7 @@ function createTilesetWithViewerRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -2000,7 +2000,7 @@ function createTilesetWithViewerRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -2009,7 +2009,7 @@ function createTilesetWithViewerRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -2018,7 +2018,7 @@ function createTilesetWithViewerRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 },
                 {
@@ -2031,7 +2031,7 @@ function createTilesetWithViewerRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'points.pnts'
+                        uri : 'points.pnts'
                     }
                 }
             ]
@@ -2076,7 +2076,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
                     geometricError : smallGeometricError,
                     refine : 'REPLACE',
                     content : {
-                        url : 'parent.b3dm',
+                        uri : 'parent.b3dm',
                         boundingVolume : {
                             region : parentContentRegion
                         }
@@ -2091,7 +2091,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'll.b3dm'
+                                uri : 'll.b3dm'
                             }
                         },
                         {
@@ -2103,7 +2103,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'lr.b3dm'
+                                uri : 'lr.b3dm'
                             }
                         },
                         {
@@ -2115,7 +2115,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'ur.b3dm'
+                                uri : 'ur.b3dm'
                             }
                         },
                         {
@@ -2127,7 +2127,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'ul.b3dm'
+                                uri : 'ul.b3dm'
                             }
                         }
                     ]
@@ -2163,7 +2163,7 @@ function createTilesetSubtreeExpiration() {
                 boundingVolume : {
                     region : parentContentRegion
                 },
-                url : 'parent.b3dm'
+                uri : 'parent.b3dm'
             },
             children : [
                 {
@@ -2175,7 +2175,7 @@ function createTilesetSubtreeExpiration() {
                     },
                     geometricError : smallGeometricError,
                     content : {
-                        url : 'subtree.json'
+                        uri : 'subtree.json'
                     }
                 }
             ]
@@ -2201,7 +2201,7 @@ function createTilesetSubtreeExpiration() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -2210,7 +2210,7 @@ function createTilesetSubtreeExpiration() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -2219,7 +2219,7 @@ function createTilesetSubtreeExpiration() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -2228,7 +2228,7 @@ function createTilesetSubtreeExpiration() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -2303,7 +2303,7 @@ function createTilesetPoints() {
             },
             geometricError : 0.0,
             content : {
-                url : i + '.pnts'
+                uri : i + '.pnts'
             }
         });
     }
@@ -2322,7 +2322,7 @@ function createTilesetPoints() {
             geometricError : childGeometricError,
             refine : 'ADD',
             content : {
-                url : 'parent.pnts'
+                uri : 'parent.pnts'
             },
             children : childrenJson
         }
@@ -2379,7 +2379,7 @@ function createDiscreteLOD() {
             geometricError : dragonMediumGeometricError,
             refine : 'REPLACE',
             content : {
-                url : 'dragon_low.b3dm'
+                uri : 'dragon_low.b3dm'
             },
             children : [
                 {
@@ -2388,7 +2388,7 @@ function createDiscreteLOD() {
                     },
                     geometricError : dragonHighGeometricError,
                     content : {
-                        url : 'dragon_medium.b3dm'
+                        uri : 'dragon_medium.b3dm'
                     },
                     children : [
                         {
@@ -2397,7 +2397,7 @@ function createDiscreteLOD() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'dragon_high.b3dm'
+                                uri : 'dragon_high.b3dm'
                             }
                         }
                     ]
@@ -2469,7 +2469,7 @@ function createTreeBillboards() {
             geometricError : treeGeometricError,
             refine : 'REPLACE',
             content : {
-                url : 'tree_billboard.i3dm'
+                uri : 'tree_billboard.i3dm'
             },
             children : [
                 {
@@ -2478,7 +2478,7 @@ function createTreeBillboards() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'tree.i3dm'
+                        uri : 'tree.i3dm'
                     }
                 }
             ]
@@ -2570,7 +2570,7 @@ function createRequestVolume() {
                     },
                     geometricError : smallGeometricError,
                     content : {
-                        url : 'city/tileset.json'
+                        uri : 'city/tileset.json'
                     }
                 },
                 {
@@ -2580,7 +2580,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : buildingTileName
+                        uri : buildingTileName
                     }
                 },
                 {
@@ -2593,7 +2593,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : pointCloudTileName
+                        uri : pointCloudTileName
                     }
                 }
             ]
@@ -2619,7 +2619,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -2628,7 +2628,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -2637,7 +2637,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -2646,7 +2646,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -2736,7 +2736,7 @@ function createExpireTileset() {
             geometricError : 0.0,
             refine : 'ADD',
             content : {
-                url : pointCloudTileName
+                uri : pointCloudTileName
             }
         }
     };
