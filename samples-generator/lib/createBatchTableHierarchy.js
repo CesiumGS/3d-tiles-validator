@@ -57,7 +57,7 @@ function createBatchTableHierarchy(options) {
 
     var batchTableBinary;
     if (useBatchTableBinary) {
-        batchTableBinary = createBatchTableBinary(batchTableJson);  // Modifies the json in place
+        batchTableBinary = createBatchTableBinary(batchTableJson, options);  // Modifies the json in place
     }
 
     // Mesh urls listed in the same order as features in the classIds arrays
@@ -176,7 +176,7 @@ function createUInt16Buffer(values) {
     return buffer;
 }
 
-function createBatchTableBinary(batchTable) {
+function createBatchTableBinary(batchTable, options) {
     var byteOffset = 0;
     var buffers = [];
 
@@ -201,7 +201,10 @@ function createBatchTableBinary(batchTable) {
     // Convert regular batch table properties to binary
     var propertyName;
     for (propertyName in batchTable) {
-        if (batchTable.hasOwnProperty(propertyName) && propertyName !== 'HIERARCHY') {
+        if (batchTable.hasOwnProperty(propertyName)
+                && propertyName !== 'HIERARCHY'
+                && propertyName !== 'extensions'
+                && propertyName !== 'extras') {
             if (typeof batchTable[propertyName][0] === 'number') {
                 batchTable[propertyName] = createBinaryProperty(batchTable[propertyName], 'FLOAT', 'SCALAR');
             }
@@ -209,7 +212,7 @@ function createBatchTableBinary(batchTable) {
     }
 
     // Convert instance properties to binary
-    var hierarchy = batchTable.HIERARCHY;
+    var hierarchy = options.legacy ? batchTable.HIERARCHY : batchTable.extensions['3DTILES_batch_table_hierarchy'];
     var classes = hierarchy.classes;
     var classesLength = classes.length;
     for (var i = 0; i < classesLength; ++i) {
