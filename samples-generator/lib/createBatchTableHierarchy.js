@@ -40,7 +40,7 @@ var whiteOpaqueMaterial = new Material({
  * @param {Boolean} [options.noParents=false] Don't set any instance parents.
  * @param {Boolean} [options.multipleParents=false] Set multiple parents to some instances.
  * @param {Boolean} [options.legacy=false] Generate the batch table hierarchy as part of the base tileset JSON file, now deprecated.
- * @param {Matrix4] [options.transform=Matrix4.IDENTITY] The tile transform.
+ * @param {Matrix4} [options.transform=Matrix4.IDENTITY] The tile transform.
  * @param {Boolean} [options.gzip=false] Gzip the saved tile.
  * @param {Boolean} [options.prettyJson=true] Whether to prettify the JSON.
  * @returns {Promise} A promise that resolves when the tileset is saved.
