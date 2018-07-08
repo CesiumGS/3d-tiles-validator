@@ -212,7 +212,6 @@ var promises = [
     createBatchedWithBoundingSphere(),
     createBatchedWithTransformBox(),
     createBatchedWithTransformSphere(),
-    createBatchedWithTransformRegion(),
     createBatchedNoBatchIds(),
     createBatchedWithKHRMaterialsCommon(),
     createBatchedWithQuantization(),
@@ -413,18 +412,6 @@ function createBatchedWithTransformSphere() {
         transform : buildingsTransform
     };
     return saveBatchedTileset('BatchedWithTransformSphere', tileOptions, tilesetOptions);
-}
-
-function createBatchedWithTransformRegion() {
-    var tileOptions = {
-        transform : Matrix4.IDENTITY,
-        relativeToCenter : false
-    };
-    var tilesetOptions = {
-        region : smallRegion,
-        transform : buildingsTransform
-    };
-    return saveBatchedTileset('BatchedWithTransformRegion', tileOptions, tilesetOptions);
 }
 
 function createBatchedNoBatchIds() {
