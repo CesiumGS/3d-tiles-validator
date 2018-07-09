@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "cloc": "^2.3.3",
+    "datauri": "^1.1.0",
     "eslint": "^4.10.0",
     "eslint-config-cesium": "^2.0.1",
     "gulp": "^3.9.1",

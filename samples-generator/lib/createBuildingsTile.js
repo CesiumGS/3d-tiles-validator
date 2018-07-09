@@ -7,6 +7,7 @@ var Mesh = require('./Mesh');
 
 var combine = Cesium.combine;
 var defaultValue = Cesium.defaultValue;
+var defined = Cesium.defined;
 var Matrix4 = Cesium.Matrix4;
 
 module.exports = createBuildingsTile;
@@ -27,6 +28,7 @@ var scratchMatrix = new Matrix4();
  * @param {Boolean} [options.createBatchTableBinary=false] Create a batch table binary for the b3dm tile.
  * @param {Matrix4} [options.transform=Matrix4.IDENTITY] A transform to bake into the tile, for example a transform into WGS84.
  * @param {Boolean} [options.relativeToCenter=false] Use the Cesium_RTC extension.
+ * @param {Object}  [options.rtcCenterPosition] If defined, sets RTC_CENTER attribute in the feature table.
  * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
  * @param {Boolean} [options.useVertexColors=false] Bake materials as vertex colors.
  * @param {Boolean} [options.deprecated1=false] Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic.
@@ -44,6 +46,7 @@ function createBuildingsTile(options) {
     var createBatchTableBinary = defaultValue(options.createBatchTableBinary, false) && useBatchIds;
     var tileTransform = defaultValue(options.transform, Matrix4.IDENTITY);
     var relativeToCenter = options.relativeToCenter;
+    var rtcCenterPosition = options.rtcCenterPosition;
     var quantization = options.quantization;
     var useVertexColors = options.useVertexColors;
     var deprecated1 = options.deprecated1;
@@ -84,8 +87,12 @@ function createBuildingsTile(options) {
     }
 
     var featureTableJson = {
-        BATCH_LENGTH : batchLength
+        BATCH_LENGTH: batchLength
     };
+
+    if (defined(rtcCenterPosition)) {
+        featureTableJson.RTC_CENTER = rtcCenterPosition;
+    }
 
     return createGltf({
         mesh : batchedMesh,

@@ -7,12 +7,15 @@ var Matrix4 = Cesium.Matrix4;
 
 module.exports = createTilesetJsonSingle;
 
+var defaultTilesetVersion = '1.0';
+
 /**
  * Create a tileset JSON for a single tile.
  *
  * @param {Object} options Object with the following properties:
- * @param {String} options.tileName Relative path to the tile.
+ * @param {String} options.contentUri The content URI of the root tile. This may be a relative filepath or a data URI.
  * @param {Number} options.geometricError Geometric error of the tile.
+ * @param {String} options.versionNumber The 3D Tiles version number string.
  * @param {Object} [options.region] Bounding region of the tile.
  * @param {Object} [options.box] Bounding box of the tile.
  * @param {Object} [options.sphere] Bounding sphere of the tile.
@@ -30,7 +33,7 @@ function createTilesetJsonSingle(options) {
 
     var tilesetJson = {
         asset : {
-            version : '0.0',
+            version: defaultValue(options.versionNumber, defaultTilesetVersion),
             gltfUpAxis : options.gltfUpAxis // If undefined, implicitly 'Y'
         },
         properties : options.properties,
@@ -42,7 +45,7 @@ function createTilesetJsonSingle(options) {
             boundingVolume : boundingVolume,
             geometricError : 0.0,
             content : {
-                url : options.tileName
+                uri : options.contentUri
             }
         }
     };

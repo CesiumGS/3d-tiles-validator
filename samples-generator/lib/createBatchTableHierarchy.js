@@ -3,9 +3,11 @@ var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
 var path = require('path');
 var Promise = require('bluebird');
+
 var createB3dm = require('./createB3dm');
 var createGltf = require('./createGltf');
 var createTilesetJsonSingle = require('./createTilesetJsonSingle');
+var Extensions = require('./Extensions');
 var getBufferPadded = require('./getBufferPadded');
 var Material = require('./Material');
 var Mesh = require('./Mesh');
@@ -29,14 +31,16 @@ var whiteOpaqueMaterial = new Material({
 });
 
 /**
- * Create a tileset that uses a batch table hierarchy.
+ * Create a tileset that uses a batch table hierarchy,
+ * by default using the 3DTILES_batch_table_hierarchy extension.
  *
  * @param {Object} options An object with the following properties:
  * @param {String} options.directory Directory in which to save the tileset.
  * @param {Boolean} [options.batchTableBinary=false] Create a batch table binary for the b3dm tile.
  * @param {Boolean} [options.noParents=false] Don't set any instance parents.
  * @param {Boolean} [options.multipleParents=false] Set multiple parents to some instances.
- * @param {Matrix4] [options.transform=Matrix4.IDENTITY] The tile transform.
+ * @param {Boolean} [options.legacy=false] Generate the batch table hierarchy as part of the base Batch Table, now deprecated.
+ * @param {Matrix4} [options.transform=Matrix4.IDENTITY] The tile transform.
  * @param {Boolean} [options.gzip=false] Gzip the saved tile.
  * @param {Boolean} [options.prettyJson=true] Whether to prettify the JSON.
  * @returns {Promise} A promise that resolves when the tileset is saved.
@@ -49,11 +53,11 @@ function createBatchTableHierarchy(options) {
     var transform = defaultValue(options.transform, Matrix4.IDENTITY);
 
     var instances = createInstances(noParents, multipleParents);
-    var batchTableJson = createBatchTable(instances);
+    var batchTableJson = createBatchTableJson(instances, options);
 
     var batchTableBinary;
     if (useBatchTableBinary) {
-        batchTableBinary = createBatchTableBinary(batchTableJson);  // Modifies the json in place
+        batchTableBinary = createBatchTableBinary(batchTableJson, options);  // Modifies the json in place
     }
 
     // Mesh urls listed in the same order as features in the classIds arrays
@@ -87,9 +91,9 @@ function createBatchTableHierarchy(options) {
         Matrix4.fromTranslationQuaternionRotationScale(buildingPositions[2], yUpToZUp , scale)
     ];
 
-    var tileName = 'tile.b3dm';
+    var contentUri = 'tile.b3dm';
     var directory = options.directory;
-    var tilePath = path.join(directory, tileName);
+    var tilePath = path.join(directory, contentUri);
     var tilesetJsonPath = path.join(directory, 'tileset.json');
 
     var buildingsLength = 3;
@@ -105,11 +109,16 @@ function createBatchTableHierarchy(options) {
     ];
 
     var tilesetJson = createTilesetJsonSingle({
-        tileName : tileName,
+        contentUri : contentUri,
         geometricError : geometricError,
         box : box,
         transform : transform
     });
+
+    if (!options.legacy) {
+        Extensions.addExtensionsUsed(tilesetJson, '3DTILES_batch_table_hierarchy');
+        Extensions.addExtensionsRequired(tilesetJson, '3DTILES_batch_table_hierarchy');
+    }
 
     var featureTableJson = {
         BATCH_LENGTH : batchLength
@@ -167,7 +176,7 @@ function createUInt16Buffer(values) {
     return buffer;
 }
 
-function createBatchTableBinary(batchTable) {
+function createBatchTableBinary(batchTable, options) {
     var byteOffset = 0;
     var buffers = [];
 
@@ -192,7 +201,10 @@ function createBatchTableBinary(batchTable) {
     // Convert regular batch table properties to binary
     var propertyName;
     for (propertyName in batchTable) {
-        if (batchTable.hasOwnProperty(propertyName) && propertyName !== 'HIERARCHY') {
+        if (batchTable.hasOwnProperty(propertyName)
+                && propertyName !== 'HIERARCHY'
+                && propertyName !== 'extensions'
+                && propertyName !== 'extras') {
             if (typeof batchTable[propertyName][0] === 'number') {
                 batchTable[propertyName] = createBinaryProperty(batchTable[propertyName], 'FLOAT', 'SCALAR');
             }
@@ -200,7 +212,7 @@ function createBatchTableBinary(batchTable) {
     }
 
     // Convert instance properties to binary
-    var hierarchy = batchTable.HIERARCHY;
+    var hierarchy = options.legacy ? batchTable.HIERARCHY : batchTable.extensions['3DTILES_batch_table_hierarchy'];
     var classes = hierarchy.classes;
     var classesLength = classes.length;
     for (var i = 0; i < classesLength; ++i) {
@@ -230,7 +242,7 @@ function createBatchTableBinary(batchTable) {
     return Buffer.concat(buffers);
 }
 
-function createBatchTable(instances) {
+function createBatchTableJson(instances, options) {
     // Create batch table from the instances' regular properties
     var batchTable = {};
     var instancesLength = instances.length;
@@ -249,8 +261,13 @@ function createBatchTable(instances) {
         }
     }
 
-    // Add HIERARCHY object
-    batchTable.HIERARCHY = createHierarchy(instances);
+    var hierarchy = createHierarchy(instances);
+    if (options.legacy) {
+        // Add HIERARCHY object
+        batchTable.HIERARCHY = hierarchy;
+    } else {
+        Extensions.addExtension(batchTable, '3DTILES_batch_table_hierarchy', hierarchy);
+    }
 
     return batchTable;
 }
