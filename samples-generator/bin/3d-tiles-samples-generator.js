@@ -4,7 +4,7 @@ var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
 var path = require('path');
 var Promise = require('bluebird');
-var dataUri = require('datauri').promise;
+var DataUri = require('datauri');
 
 var createBatchTableHierarchy = require('../lib/createBatchTableHierarchy');
 var createBuildingsTile = require('../lib/createBuildingsTile');
@@ -220,7 +220,7 @@ var promises = [
     createBatchedGltfZUp(),
     createBatchedExpiration(),
     createBatchedWithVertexColors(),
-    createBatchedWithDataURI(),
+    createBatchedWithContentDataUri(),
     // Point Cloud
     createPointCloudRGB(),
     createPointCloudRGBA(),
@@ -258,8 +258,8 @@ var promises = [
     createCompositeOfComposite(),
     createCompositeOfInstanced(),
     // Hierarchy
-    createHierarchyExtension(),
-    createLegacyHierarchy(),
+    createHierarchy(),
+    createHierarchyLegacy(),
     createHierarchyMultipleParents(),
     createHierarchyNoParents(),
     createHierarchyBinary(),
@@ -284,9 +284,10 @@ var promises = [
     createExpireTileset()
 ];
 
-return fsExtra.emptyDir(outputDirectory).then(function () {
-    return Promise.all(promises);
-});
+return fsExtra.emptyDir(outputDirectory)
+    .then(function () {
+        return Promise.all(promises);
+    });
 
 function createBatchedWithBatchTable() {
     var tileOptions = {
@@ -506,8 +507,8 @@ function createBatchedWithVertexColors() {
     return saveBatchedTileset('BatchedWithVertexColors', tileOptions);
 }
 
-function createBatchedWithDataURI() {
-    return saveBatchedTileset('BatchedWithContentUri', undefined, {
+function createBatchedWithContentDataUri() {
+    return saveBatchedTileset('BatchedWithContentDataUri', undefined, {
         contentDataUri : true
     });
 }
@@ -858,12 +859,12 @@ function createCompositeOfInstanced() {
 
 function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions) {
     var tilesetDirectory = path.join(outputDirectory, 'Composite', tilesetName);
-    var tileName = lowercase(tilesetName) + '.cmpt';
-    var tilePath = path.join(tilesetDirectory, tileName);
+    var contentUri = lowercase(tilesetName) + '.cmpt';
+    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tilesetOptions = defaultValue(tilesetOptions, {});
-    tilesetOptions.tileName = tileName;
+    tilesetOptions.contentUri = contentUri;
     tilesetOptions.geometricError = compositeGeometricError;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
         tilesetOptions.region = compositeRegion;
@@ -882,8 +883,8 @@ function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions) {
 
 function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
     var tilesetDirectory = path.join(outputDirectory, 'Instanced', tilesetName);
-    var tileName = lowercase(tilesetName) + '.i3dm';
-    var tilePath = path.join(tilesetDirectory, tileName);
+    var contentUri = lowercase(tilesetName) + '.i3dm';
+    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tileOptions = defaultValue(tileOptions, {});
@@ -895,7 +896,7 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions.eastNorthUp = defaultValue(tileOptions.eastNorthUp, true);
 
     tilesetOptions = defaultValue(tilesetOptions, {});
-    tilesetOptions.tileName = tileName;
+    tilesetOptions.contentUri = contentUri;
     tilesetOptions.geometricError = instancesGeometricError;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
         tilesetOptions.region = instancesRegion;
@@ -921,8 +922,8 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
 
 function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     var tilesetDirectory = path.join(outputDirectory, 'Batched', tilesetName);
-    var tileName = lowercase(tilesetName) + '.b3dm';
-    var tilePath = path.join(tilesetDirectory, tileName);
+    var contentUri = lowercase(tilesetName) + '.b3dm';
+    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tileOptions = defaultValue(tileOptions, {});
@@ -931,7 +932,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions.relativeToCenter = defaultValue(tileOptions.relativeToCenter, relativeToCenter);
 
     tilesetOptions = defaultValue(tilesetOptions, {});
-    tilesetOptions.tileName = tileName;
+    tilesetOptions.contentUri = contentUri;
     tilesetOptions.geometricError = smallGeometricError;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
         tilesetOptions.region = smallRegion;
@@ -944,13 +945,10 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
             tilesetOptions.properties = getProperties(batchTableJson);
 
             if (tilesetOptions.contentDataUri) {
-                return saveTile(tilePath, b3dm, gzip).then(function() {
-                    return dataUri(tilePath).then(function (content) {
-                        // TODO delete b3dm file
-                        tilesetOptions.tileName = content;
-                        return saveTilesetJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson);
-                    });
-                });
+                var dataUri = new DataUri();
+                dataUri.format('.b3dm', b3dm);
+                tilesetOptions.contentUri = dataUri.content;
+                return saveTilesetJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson);
             }
 
             var tilesetJson = createTilesetJsonSingle(tilesetOptions);
@@ -963,8 +961,8 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
 
 function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     var tilesetDirectory = path.join(outputDirectory, 'PointCloud', tilesetName);
-    var tileName = lowercase(tilesetName) + '.pnts';
-    var tilePath = path.join(tilesetDirectory, tileName);
+    var contentUri = lowercase(tilesetName) + '.pnts';
+    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tileOptions = defaultValue(tileOptions, {});
@@ -977,7 +975,7 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     var batchTableJson = result.batchTableJson;
 
     tilesetOptions = defaultValue(tilesetOptions, {});
-    tilesetOptions.tileName = tileName;
+    tilesetOptions.contentUri = contentUri;
     tilesetOptions.properties = getProperties(batchTableJson);
     tilesetOptions.geometricError = pointCloudGeometricError;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
@@ -991,16 +989,16 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     ]);
 }
 
-function createHierarchyExtension() {
+function createHierarchy() {
     return createBatchTableHierarchy({
-        directory: path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyExtension'),
+        directory: path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchy'),
         transform: buildingsTransform,
         gzip: gzip,
         prettyJson: prettyJson
     });
 }
 
-function createLegacyHierarchy() {
+function createHierarchyLegacy() {
     return createBatchTableHierarchy({
         directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyLegacy'),
         transform : buildingsTransform,
@@ -1083,7 +1081,7 @@ function createTileset() {
             geometricError : smallGeometricError,
             refine : 'ADD',
             content : {
-                url : 'parent.b3dm',
+                uri : 'parent.b3dm',
                 boundingVolume : {
                     region : parentContentRegion
                 }
@@ -1095,7 +1093,7 @@ function createTileset() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -1104,7 +1102,7 @@ function createTileset() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -1113,7 +1111,7 @@ function createTileset() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -1122,7 +1120,7 @@ function createTileset() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -1159,7 +1157,7 @@ function createTilesetEmptyRoot() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -1168,7 +1166,7 @@ function createTilesetEmptyRoot() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -1177,7 +1175,7 @@ function createTilesetEmptyRoot() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -1186,7 +1184,7 @@ function createTilesetEmptyRoot() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -1220,7 +1218,7 @@ function createTilesetOfTilesets() {
             geometricError : smallGeometricError,
             refine : 'ADD',
             content : {
-                url : 'tileset2.json'
+                uri : 'tileset2.json'
             }
         }
     };
@@ -1237,7 +1235,7 @@ function createTilesetOfTilesets() {
             geometricError : smallGeometricError,
             refine : 'ADD',
             content : {
-                url : 'parent.b3dm'
+                uri : 'parent.b3dm'
             },
             children : [
                 {
@@ -1246,7 +1244,7 @@ function createTilesetOfTilesets() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'tileset3/tileset3.json'
+                        uri : 'tileset3/tileset3.json'
                     }
                 },
                 {
@@ -1255,7 +1253,7 @@ function createTilesetOfTilesets() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -1264,7 +1262,7 @@ function createTilesetOfTilesets() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -1273,7 +1271,7 @@ function createTilesetOfTilesets() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -1292,7 +1290,7 @@ function createTilesetOfTilesets() {
             geometricError : 0.0,
             refine : 'ADD',
             content : {
-                url : 'll.b3dm'
+                uri : 'll.b3dm'
             }
         }
     };
@@ -1355,7 +1353,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'tileset2/tileset2.json'
+                        uri : 'tileset2/tileset2.json'
                     }
                 },
                 {
@@ -1365,7 +1363,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'external.b3dm'
+                        uri : 'external.b3dm'
                     },
                     transform : transforms[0]
                 },
@@ -1376,7 +1374,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'external.i3dm'
+                        uri : 'external.i3dm'
                     },
                     transform : transforms[1]
                 },
@@ -1387,7 +1385,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'embed.i3dm'
+                        uri : 'embed.i3dm'
                     },
                     transform : transforms[2]
                 }
@@ -1414,7 +1412,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'external.b3dm'
+                        uri : 'external.b3dm'
                     },
                     transform : transforms[3]
                 },
@@ -1425,7 +1423,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'external.i3dm'
+                        uri : 'external.i3dm'
                     },
                     transform : transforms[4]
                 },
@@ -1436,7 +1434,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'embed.i3dm'
+                        uri : 'embed.i3dm'
                     },
                     transform : transforms[5]
                 }
@@ -1462,7 +1460,7 @@ function createTilesetWithExternalResources() {
                 createI3dm({
                     featureTableJson : featureTableJson,
                     featureTableBinary : featureTableBinary,
-                    url : 'textured_box_separate/textured_box.glb'
+                    uri : 'textured_box_separate/textured_box.glb'
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,
@@ -1475,7 +1473,7 @@ function createTilesetWithExternalResources() {
                 createI3dm({
                     featureTableJson : featureTableJson,
                     featureTableBinary : featureTableBinary,
-                    url : '../textured_box_separate/textured_box.glb'
+                    uri : '../textured_box_separate/textured_box.glb'
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,

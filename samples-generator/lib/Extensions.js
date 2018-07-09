@@ -3,9 +3,9 @@ var Cesium = require('cesium');
 
 var defined = Cesium.defined;
 
-var Extensions = {};
-
 module.exports = Extensions;
+
+function Extensions() { }
 
 /**
  * Add an extension to the list of extensions used for a tileset JSON.
@@ -13,13 +13,13 @@ module.exports = Extensions;
  * @param {String} extensionName The name of the extension to add.
  */
 Extensions.addExtensionsUsed = function(tilesetJson, extensionName) {
-    var extensionsRequired = tilesetJson.extensionsUsed;
+    var extensionsUsed = tilesetJson.extensionsUsed;
 
-    if (!defined(extensionsRequired)) {
-        extensionsRequired = tilesetJson.extensionsUsed = [];
+    if (!defined(extensionsUsed)) {
+        extensionsUsed = tilesetJson.extensionsUsed = [];
     }
 
-    extensionsRequired.push(extensionName);
+    extensionsUsed.push(extensionName);
 };
 
 /**
@@ -43,11 +43,11 @@ Extensions.addExtensionsRequired = function(tilesetJson, extensionName) {
  * @param {String} extensionName The name of the extension to add.
  * @param {*} extension The contents of the extension.
  */
-Extensions.addExtension = function(objectJson, extensionName, extension) {
-    var extensions = objectJson.extensions;
+Extensions.addExtension = function(tilesetJson, extensionName, extension) {
+    var extensions = tilesetJson.extensions;
 
     if (!defined(extensions)) {
-        extensions = objectJson.extensions = {};
+        extensions = tilesetJson.extensions = {};
     }
 
     extensions[extensionName] = extension;

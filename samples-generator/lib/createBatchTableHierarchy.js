@@ -39,7 +39,7 @@ var whiteOpaqueMaterial = new Material({
  * @param {Boolean} [options.batchTableBinary=false] Create a batch table binary for the b3dm tile.
  * @param {Boolean} [options.noParents=false] Don't set any instance parents.
  * @param {Boolean} [options.multipleParents=false] Set multiple parents to some instances.
- * @param {Boolean} [options.legacy=false] Generate the batch table hierarchy as part of the base tileset JSON file, now deprecated.
+ * @param {Boolean} [options.legacy=false] Generate the batch table hierarchy as part of the base Batch Table, now deprecated.
  * @param {Matrix4} [options.transform=Matrix4.IDENTITY] The tile transform.
  * @param {Boolean} [options.gzip=false] Gzip the saved tile.
  * @param {Boolean} [options.prettyJson=true] Whether to prettify the JSON.
@@ -91,9 +91,9 @@ function createBatchTableHierarchy(options) {
         Matrix4.fromTranslationQuaternionRotationScale(buildingPositions[2], yUpToZUp , scale)
     ];
 
-    var tileName = 'tile.b3dm';
+    var contentUri = 'tile.b3dm';
     var directory = options.directory;
-    var tilePath = path.join(directory, tileName);
+    var tilePath = path.join(directory, contentUri);
     var tilesetJsonPath = path.join(directory, 'tileset.json');
 
     var buildingsLength = 3;
@@ -109,7 +109,7 @@ function createBatchTableHierarchy(options) {
     ];
 
     var tilesetJson = createTilesetJsonSingle({
-        tileName : tileName,
+        contentUri : contentUri,
         geometricError : geometricError,
         box : box,
         transform : transform
@@ -242,13 +242,6 @@ function createBatchTableBinary(batchTable, options) {
     return Buffer.concat(buffers);
 }
 
-/**
- * Create batch table JSON with batch table hierarchy.
- *
- * @param {Array<Object>} instances List of objects defining building instances
- * @param {Object} options An option object with the following properties:
- * @param {Boolean} [options.legacy=false] Generate the batch table hierarchy as part of the base tileset JSON file, now deprecated.
- */
 function createBatchTableJson(instances, options) {
     // Create batch table from the instances' regular properties
     var batchTable = {};
