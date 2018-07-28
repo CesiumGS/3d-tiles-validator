@@ -1,8 +1,6 @@
 'use strict';
 var Cesium = require('cesium');
-var fsExtra = require('fs-extra');
 var gltfPipeline = require('gltf-pipeline');
-var mime = require('mime');
 var path = require('path');
 var Promise = require('bluebird');
 var getBufferPadded = require('./getBufferPadded');
@@ -27,10 +25,8 @@ var sizeOfFloat32 = 4;
  * @param {Object} options An object with the following properties:
  * @param {Mesh} options.mesh The mesh.
  * @param {Boolean} [options.useBatchIds=true] Modify the glTF to include the batchId vertex attribute.
- * @param {Boolean} [options.relativeToCenter=false] Use the Cesium_RTC extension.
- * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
+ * @param {Boolean} [options.relativeToCenter=false] Set the RTC_CENTER attribute in the feature table.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
- * @param {Object|Object[]} [options.textureCompressionOptions] Options for compressing textures in the glTF.
  * @param {String} [options.upAxis='Y'] Specifies the up-axis for the glTF model.
  *
  * @returns {Promise} A promise that resolves with the binary glTF buffer.
@@ -38,10 +34,7 @@ var sizeOfFloat32 = 4;
 function createGltf(options) {
     var useBatchIds = defaultValue(options.useBatchIds, true);
     var relativeToCenter = defaultValue(options.relativeToCenter, false);
-    var quantization = defaultValue(options.quantization, false);
     var deprecated = defaultValue(options.deprecated, false);
-    var textureCompressionOptions = options.textureCompressionOptions;
-    var upAxis = defaultValue(options.upAxis, 'Y');
 
     var mesh = options.mesh;
     var positions = mesh.positions;
@@ -55,23 +48,14 @@ function createGltf(options) {
     // If all the vertex colors are 0 then the mesh does not have vertex colors
     var useVertexColors = !vertexColors.every(function(element) {return element === 0;});
 
-    // Get the center position in WGS84 coordinates
-    var center;
     if (relativeToCenter) {
-        center = mesh.getCenter();
         mesh.setPositionsRelativeToCenter();
     }
 
-    var rootMatrix;
-    if (upAxis === 'Y') {
-        // Models are z-up, so add a z-up to y-up transform.
-        // The glTF spec defines the y-axis as up, so this is the default behavior.
-        // In Cesium a y-up to z-up transform is applied later so that the glTF and 3D Tiles coordinate systems are consistent
-        rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
-    } else if (upAxis === 'Z') {
-        // No conversion needed - models are already z-up
-        rootMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-    }
+    // Models are z-up, so add a z-up to y-up transform.
+    // The glTF spec defines the y-axis as up, so this is the default behavior.
+    // In Cesium a y-up to z-up transform is applied later so that the glTF and 3D Tiles coordinate systems are consistent
+    var rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
 
     var i;
     var view;
@@ -411,15 +395,6 @@ function createGltf(options) {
         }],
         textures : textures
     };
-
-    if (relativeToCenter) {
-        gltf.extensionsUsed = ['CESIUM_RTC'];
-        gltf.extensions = {
-            CESIUM_RTC : {
-                center : Cartesian3.pack(center, new Array(3))
-            }
-        };
-    }
 
     var gltfOptions = {
         resourceDirectory : rootDirectory

@@ -27,7 +27,7 @@ var scratchMatrix = new Matrix4();
  * @param {Boolean} [options.createBatchTableExtra=false] Add additional test properties to the batch table.
  * @param {Boolean} [options.createBatchTableBinary=false] Create a batch table binary for the b3dm tile.
  * @param {Matrix4} [options.transform=Matrix4.IDENTITY] A transform to bake into the tile, for example a transform into WGS84.
- * @param {Boolean} [options.relativeToCenter=false] Use the Cesium_RTC extension.
+ * @param {Boolean} [options.relativeToCenter=false] Set the RTC_CENTER attribute in the feature table.
  * @param {Object}  [options.rtcCenterPosition] If defined, sets RTC_CENTER attribute in the feature table.
  * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
  * @param {Boolean} [options.useVertexColors=false] Bake materials as vertex colors.
@@ -92,6 +92,8 @@ function createBuildingsTile(options) {
 
     if (defined(rtcCenterPosition)) {
         featureTableJson.RTC_CENTER = rtcCenterPosition;
+    } else if (relativeToCenter) {
+        featureTableJson.RTC_CENTER = mesh.getCenter();
     }
 
     return createGltf({
