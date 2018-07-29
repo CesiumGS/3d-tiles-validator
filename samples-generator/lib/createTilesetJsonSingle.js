@@ -32,7 +32,7 @@ function createTilesetJsonSingle(options) {
 
     var tilesetJson = {
         asset : {
-            version: defaultValue(options.versionNumber, defaultTilesetVersion)
+            version : defaultValue(options.versionNumber, defaultTilesetVersion)
         },
         properties : options.properties,
         geometricError : options.geometricError,

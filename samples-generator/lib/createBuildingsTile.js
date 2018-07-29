@@ -82,7 +82,7 @@ function createBuildingsTile(options) {
     }
 
     var featureTableJson = {
-        BATCH_LENGTH: batchLength
+        BATCH_LENGTH : batchLength
     };
 
     if (defined(rtcCenterPosition)) {

@@ -393,7 +393,7 @@ function createBatchedWithTransformSphere() {
 
 function createBatchedWithTransformRegion() {
     var tileOptions = {
-        transform: Matrix4.IDENTITY,
+        transform : Matrix4.IDENTITY,
         relativeToCenter : false
     };
     var tilesetOptions = {
@@ -405,13 +405,13 @@ function createBatchedWithTransformRegion() {
 
 function createBatchedWithRtcCenter() {
     var tileOptions = {
-        transform: Matrix4.IDENTITY,
-        relativeToCenter: false,
-        rtcCenterPosition: [0.1, 0.2, 0.3]
+        transform : Matrix4.IDENTITY,
+        relativeToCenter : false,
+        rtcCenterPosition : [0.1, 0.2, 0.3]
     };
     var tilesetOptions = {
-        region: smallRegion,
-        transform: buildingsTransform
+        region : smallRegion,
+        transform : buildingsTransform
     };
     return saveBatchedTileset('BatchedWithRtcCenter', tileOptions, tilesetOptions);
 }
@@ -926,10 +926,10 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
 
 function createHierarchy() {
     return createBatchTableHierarchy({
-        directory: path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchy'),
-        transform: buildingsTransform,
-        gzip: gzip,
-        prettyJson: prettyJson
+        directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchy'),
+        transform : buildingsTransform,
+        gzip : gzip,
+        prettyJson : prettyJson
     });
 }
 
