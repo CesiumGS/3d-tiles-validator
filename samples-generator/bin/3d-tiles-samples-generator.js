@@ -35,7 +35,6 @@ var metersToLongitude = util.metersToLongitude;
 var metersToLatitude = util.metersToLatitude;
 var wgs84Transform = util.wgs84Transform;
 
-var relativeToCenter = true;
 var prettyJson = true;
 var gzip = false;
 
@@ -131,7 +130,7 @@ var parentTileOptions = {
     buildingOptions : parentOptions,
     createBatchTable : true,
     transform : buildingsTransform,
-    relativeToCenter : relativeToCenter
+    relativeToCenter : true
 };
 
 var childrenRegion = [longitude - longitudeExtent, latitude - latitudeExtent, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, smallHeight];
@@ -148,7 +147,7 @@ var llTileOptions = {
     buildingOptions : llOptions,
     createBatchTable : true,
     transform : llTransform,
-    relativeToCenter : relativeToCenter
+    relativeToCenter : true
 };
 
 var lrRegion = [longitude, latitude - latitudeExtent, longitude + longitudeExtent, latitude, 0.0, smallHeight];
@@ -163,7 +162,7 @@ var lrTileOptions = {
     buildingOptions : lrOptions,
     createBatchTable : true,
     transform : lrTransform,
-    relativeToCenter : relativeToCenter
+    relativeToCenter : true
 };
 
 var urRegion = [longitude, latitude, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, smallHeight];
@@ -178,7 +177,7 @@ var urTileOptions = {
     buildingOptions : urOptions,
     createBatchTable : true,
     transform : urTransform,
-    relativeToCenter : relativeToCenter
+    relativeToCenter : true
 };
 
 var ulRegion = [longitude - longitudeExtent, latitude, longitude, latitude + latitudeExtent, 0.0, smallHeight];
@@ -193,7 +192,7 @@ var ulTileOptions = {
     buildingOptions : ulOptions,
     createBatchTable : true,
     transform : ulTransform,
-    relativeToCenter : relativeToCenter
+    relativeToCenter : true
 };
 
 var promises = [
@@ -280,10 +279,7 @@ var promises = [
     createExpireTileset()
 ];
 
-return fsExtra.emptyDir(outputDirectory)
-    .then(function () {
-        return Promise.all(promises);
-    });
+return Promise.all(promises);
 
 function createBatchedWithBatchTable() {
     var tileOptions = {
@@ -333,22 +329,6 @@ function createBatchedTextured() {
         buildingOptions : buildingOptions
     };
     return saveBatchedTileset('BatchedTextured', tileOptions);
-}
-
-function createBatchedCompressedTextures() {
-    var buildingOptions = clone(buildingTemplate);
-    buildingOptions.baseColorType = 'textured';
-    var tileOptions = {
-        buildingOptions : buildingOptions,
-        textureCompressionOptions : [{
-            format : 'dxt1',
-            quality : 10
-        }, {
-            format : 'etc1',
-            quality : 10
-        }]
-    };
-    return saveBatchedTileset('BatchedCompressedTextures', tileOptions);
 }
 
 function createBatchedColors() {
@@ -718,20 +698,6 @@ function createInstancedTextured() {
     return saveInstancedTileset('InstancedTextured', tileOptions);
 }
 
-function createInstancedCompressedTextures() {
-    var tileOptions = {
-        uri : instancesTexturedUri,
-        textureCompressionOptions : [{
-            format : 'dxt1',
-            quality : 10
-        }, {
-            format : 'etc1',
-            quality : 10
-        }]
-    };
-    return saveInstancedTileset('InstancedCompressedTextures', tileOptions);
-}
-
 function createComposite() {
     var i3dmOptions = {
         uri : instancesUri,
@@ -745,7 +711,7 @@ function createComposite() {
     var b3dmOptions = {
         buildingOptions : buildingTemplate,
         transform : buildingsTransform,
-        relativeToCenter : relativeToCenter
+        relativeToCenter : true
     };
 
     return Promise.all([
@@ -773,7 +739,7 @@ function createCompositeOfComposite() {
     var b3dmOptions = {
         buildingOptions : buildingTemplate,
         transform : buildingsTransform,
-        relativeToCenter : relativeToCenter
+        relativeToCenter : true
     };
 
     return Promise.all([
@@ -898,7 +864,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions = defaultValue(tileOptions, {});
     tileOptions.buildingOptions = defaultValue(tileOptions.buildingOptions, buildingTemplate);
     tileOptions.transform = defaultValue(tileOptions.transform, buildingsTransform);
-    tileOptions.relativeToCenter = defaultValue(tileOptions.relativeToCenter, relativeToCenter);
+    tileOptions.relativeToCenter = defaultValue(tileOptions.relativeToCenter, true);
 
     tilesetOptions = defaultValue(tilesetOptions, {});
     tilesetOptions.contentUri = contentUri;
@@ -1886,8 +1852,7 @@ function createTilesetWithTransforms() {
 
     var buildingsOptions = {
         buildingOptions : buildingTemplate,
-        transform : Matrix4.IDENTITY,
-        relativeToCenter : false
+        transform : Matrix4.IDENTITY
     };
 
     var tilesetJson = {
@@ -1958,7 +1923,6 @@ function createTilesetWithViewerRequestVolume() {
         tileWidth : pointCloudTileWidth,
         pointsLength : pointsLength,
         transform : Matrix4.IDENTITY,
-        relativeToCenter : false,
         shape : 'sphere'
     };
 

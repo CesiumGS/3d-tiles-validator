@@ -25,7 +25,7 @@ var sizeOfFloat32 = 4;
  * @param {Object} options An object with the following properties:
  * @param {Mesh} options.mesh The mesh.
  * @param {Boolean} [options.useBatchIds=true] Modify the glTF to include the batchId vertex attribute.
- * @param {Boolean} [options.relativeToCenter=false] Set the RTC_CENTER attribute in the feature table.
+ * @param {Boolean} [options.relativeToCenter=false] Set mesh positions relative to center.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
  *
  * @returns {Promise} A promise that resolves with the binary glTF buffer.

@@ -28,7 +28,7 @@ var scratchMatrix = new Matrix4();
  * @param {Boolean} [options.createBatchTableExtra=false] Add additional test properties to the batch table.
  * @param {Boolean} [options.createBatchTableBinary=false] Create a batch table binary for the b3dm tile.
  * @param {Matrix4} [options.transform=Matrix4.IDENTITY] A transform to bake into the tile, for example a transform into WGS84.
- * @param {Boolean} [options.relativeToCenter=false] Set the RTC_CENTER attribute in the feature table.
+ * @param {Boolean} [options.relativeToCenter=false] Set mesh positions relative to center.
  * @param {Number[]} [options.rtcCenterPosition] If defined, sets RTC_CENTER attribute in the feature table.
  * @param {Boolean} [options.useVertexColors=false] Bake materials as vertex colors.
  * @param {Boolean} [options.deprecated1=false] Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic.
@@ -48,7 +48,6 @@ function createBuildingsTile(options) {
     var useVertexColors = options.useVertexColors;
     var deprecated1 = options.deprecated1;
     var deprecated2 = options.deprecated2;
-    var textureCompressionOptions = options.textureCompressionOptions;
     var buildingsLength = buildings.length;
     var batchLength = useBatchIds ? buildingsLength : 0;
 
@@ -89,17 +88,16 @@ function createBuildingsTile(options) {
     if (defined(rtcCenterPosition)) {
         featureTableJson.RTC_CENTER = rtcCenterPosition;
     } else if (relativeToCenter) {
-        featureTableJson.RTC_CENTER = Cartesian3.pack(mesh.getCenter(), new Array(3));
+        featureTableJson.RTC_CENTER = Cartesian3.pack(batchedMesh.getCenter(), new Array(3));
     }
 
     return createGltf({
         mesh : batchedMesh,
         useBatchIds : useBatchIds,
         relativeToCenter : relativeToCenter,
-        deprecated : deprecated1 || deprecated2,
-        textureCompressionOptions : textureCompressionOptions
+        deprecated : deprecated1 || deprecated2
     }).then(function(glb) {
-        var b3dm =  createB3dm({
+        var b3dm = createB3dm({
             glb : glb,
             featureTableJson : featureTableJson,
             batchTableJson : batchTableJson,
