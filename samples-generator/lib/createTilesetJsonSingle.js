@@ -21,7 +21,6 @@ var defaultTilesetVersion = '1.0';
  * @param {Object} [options.sphere] Bounding sphere of the tile.
  * @param {Matrix4} [options.transform=Matrix4.IDENTITY] The tile transform.
  * @param {Object} [options.properties] An object containing the min and max values for each property in the batch table.
- * @param {String} [options.gltfUpAxis] Specifies the up-axis of embedded glTF models.
  * @param {Object} [options.expire] Tile expiration options.
  *
  * @returns {Object} The tileset JSON.
@@ -33,8 +32,7 @@ function createTilesetJsonSingle(options) {
 
     var tilesetJson = {
         asset : {
-            version: defaultValue(options.versionNumber, defaultTilesetVersion),
-            gltfUpAxis : options.gltfUpAxis // If undefined, implicitly 'Y'
+            version: defaultValue(options.versionNumber, defaultTilesetVersion)
         },
         properties : options.properties,
         geometricError : options.geometricError,

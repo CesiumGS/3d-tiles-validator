@@ -104,7 +104,6 @@ var instancesTileWidth = tileWidth;
 var instancesUri = 'data/box.glb'; // Model's center is at the origin (and for below)
 var instancesRedUri = 'data/red_box.glb';
 var instancesTexturedUri = 'data/textured_box.glb';
-var instancesZUpUri = 'data/box-z-up.glb';
 var instancesModelSize = 20.0;
 var instancesHeight = instancesModelSize + 10.0; // Just a little extra padding at the top for aiding Cesium tests
 var instancesTransform = wgs84Transform(longitude, latitude, instancesModelSize / 2.0);
@@ -217,7 +216,6 @@ var promises = [
     createBatchedWGS84(),
     createBatchedDeprecated1(),
     createBatchedDeprecated2(),
-    createBatchedGltfZUp(),
     createBatchedExpiration(),
     createBatchedWithVertexColors(),
     createBatchedWithContentDataUri(),
@@ -251,7 +249,6 @@ var promises = [
     createInstancedRedMaterial(),
     createInstancedWithBatchIds(),
     createInstancedTextured(),
-    createInstancedGltfZUp(),
     // Composite
     createComposite(),
     createCompositeOfComposite(),
@@ -475,16 +472,6 @@ function createBatchedDeprecated2() {
         deprecated2 : true
     };
     return saveBatchedTileset('BatchedDeprecated2', tileOptions);
-}
-
-function createBatchedGltfZUp() {
-    var tileOptions = {
-        gltfUpAxis : 'Z'
-    };
-    var tilesetOptions = {
-        gltfUpAxis : 'Z'
-    };
-    return saveBatchedTileset('BatchedGltfZUp', tileOptions, tilesetOptions);
 }
 
 function createBatchedExpiration() {
@@ -750,16 +737,6 @@ function createInstancedCompressedTextures() {
         }]
     };
     return saveInstancedTileset('InstancedCompressedTextures', tileOptions);
-}
-
-function createInstancedGltfZUp() {
-    var tileOptions = {
-        uri : instancesZUpUri
-    };
-    var tilesetOptions = {
-        gltfUpAxis : 'Z'
-    };
-    return saveInstancedTileset('InstancedGltfZUp', tileOptions, tilesetOptions);
 }
 
 function createComposite() {

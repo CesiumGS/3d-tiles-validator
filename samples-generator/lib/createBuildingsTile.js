@@ -5,6 +5,7 @@ var createBuildings = require('./createBuildings');
 var createGltf = require('./createGltf');
 var Mesh = require('./Mesh');
 
+var Cartesian3 = Cesium.Cartesian3;
 var combine = Cesium.combine;
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
@@ -28,13 +29,10 @@ var scratchMatrix = new Matrix4();
  * @param {Boolean} [options.createBatchTableBinary=false] Create a batch table binary for the b3dm tile.
  * @param {Matrix4} [options.transform=Matrix4.IDENTITY] A transform to bake into the tile, for example a transform into WGS84.
  * @param {Boolean} [options.relativeToCenter=false] Set the RTC_CENTER attribute in the feature table.
- * @param {Object}  [options.rtcCenterPosition] If defined, sets RTC_CENTER attribute in the feature table.
- * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
+ * @param {Number[]} [options.rtcCenterPosition] If defined, sets RTC_CENTER attribute in the feature table.
  * @param {Boolean} [options.useVertexColors=false] Bake materials as vertex colors.
  * @param {Boolean} [options.deprecated1=false] Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic.
  * @param {Boolean} [options.deprecated2=false] Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic.
- * @param {Object|Object[]} [options.textureCompressionOptions] Options for compressing textures in the glTF.
- * @param {String} [options.gltfUpAxis='Y'] Specifies the up-axis for the glTF model.
  *
  * @returns {Promise} A promise that resolves with the b3dm buffer and batch table JSON.
  */
@@ -52,7 +50,6 @@ function createBuildingsTile(options) {
     var deprecated1 = options.deprecated1;
     var deprecated2 = options.deprecated2;
     var textureCompressionOptions = options.textureCompressionOptions;
-    var gltfUpAxis = options.gltfUpAxis;
     var buildingsLength = buildings.length;
     var batchLength = useBatchIds ? buildingsLength : 0;
 
@@ -93,7 +90,7 @@ function createBuildingsTile(options) {
     if (defined(rtcCenterPosition)) {
         featureTableJson.RTC_CENTER = rtcCenterPosition;
     } else if (relativeToCenter) {
-        featureTableJson.RTC_CENTER = mesh.getCenter();
+        featureTableJson.RTC_CENTER = Cartesian3.pack(mesh.getCenter(), new Array(3));
     }
 
     return createGltf({
@@ -102,8 +99,7 @@ function createBuildingsTile(options) {
         relativeToCenter : relativeToCenter,
         quantization : quantization,
         deprecated : deprecated1 || deprecated2,
-        textureCompressionOptions : textureCompressionOptions,
-        upAxis : gltfUpAxis
+        textureCompressionOptions : textureCompressionOptions
     }).then(function(glb) {
         var b3dm =  createB3dm({
             glb : glb,

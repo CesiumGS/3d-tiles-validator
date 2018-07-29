@@ -27,7 +27,6 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.useBatchIds=true] Modify the glTF to include the batchId vertex attribute.
  * @param {Boolean} [options.relativeToCenter=false] Set the RTC_CENTER attribute in the feature table.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
- * @param {String} [options.upAxis='Y'] Specifies the up-axis for the glTF model.
  *
  * @returns {Promise} A promise that resolves with the binary glTF buffer.
  */
