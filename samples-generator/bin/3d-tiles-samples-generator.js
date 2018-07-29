@@ -2,6 +2,7 @@
 'use strict';
 var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
+var gltfPipeline = require('gltf-pipeline');
 var path = require('path');
 var Promise = require('bluebird');
 var DataUri = require('datauri');
@@ -15,10 +16,11 @@ var createInstancesTile = require('../lib/createInstancesTile');
 var createPointCloudTile = require('../lib/createPointCloudTile');
 var createTilesetJsonSingle = require('../lib/createTilesetJsonSingle');
 var getProperties = require('../lib/getProperties');
-var modifyGltfPaths = require('../lib/modifyGltfPaths');
 var saveTile = require('../lib/saveTile');
 var saveTilesetJson = require('../lib/saveTilesetJson');
 var util = require('../lib/utility');
+
+var processGlb = gltfPipeline.processGlb;
 
 var Cartesian3 = Cesium.Cartesian3;
 var CesiumMath = Cesium.Math;
@@ -99,10 +101,10 @@ var pointCloudSphereLocal = [0.0, 0.0, 0.0, pointCloudRadius];
 var instancesLength = 25;
 var instancesGeometricError = 70.0; // Estimated
 var instancesTileWidth = tileWidth;
-var instancesUrl = 'data/box.glb'; // Model's center is at the origin (and for below)
-var instancesRedUrl = 'data/red_box.glb';
-var instancesTexturedUrl = 'data/textured_box.glb';
-var instancesZUpUrl = 'data/box-z-up.glb';
+var instancesUri = 'data/box.glb'; // Model's center is at the origin (and for below)
+var instancesRedUri = 'data/red_box.glb';
+var instancesTexturedUri = 'data/textured_box.glb';
+var instancesZUpUri = 'data/box-z-up.glb';
 var instancesModelSize = 20.0;
 var instancesHeight = instancesModelSize + 10.0; // Just a little extra padding at the top for aiding Cesium tests
 var instancesTransform = wgs84Transform(longitude, latitude, instancesModelSize / 2.0);
@@ -206,14 +208,12 @@ var promises = [
     createBatchedColorsTranslucent(),
     createBatchedColorsMix(),
     createBatchedTextured(),
-    //createBatchedCompressedTextures(),
     createBatchedWithBoundingSphere(),
     createBatchedWithTransformBox(),
     createBatchedWithTransformSphere(),
     createBatchedWithTransformRegion(),
     createBatchedWithRtcCenter(),
     createBatchedNoBatchIds(),
-    //createBatchedWithQuantization(),
     createBatchedWGS84(),
     createBatchedDeprecated1(),
     createBatchedDeprecated2(),
@@ -251,7 +251,6 @@ var promises = [
     createInstancedRedMaterial(),
     createInstancedWithBatchIds(),
     createInstancedTextured(),
-    //createInstancedCompressedTextures(),
     createInstancedGltfZUp(),
     // Composite
     createComposite(),
@@ -267,7 +266,7 @@ var promises = [
     createTileset(),
     createTilesetEmptyRoot(),
     createTilesetOfTilesets(),
-    //createTilesetWithExternalResources(),
+    createTilesetWithExternalResources(),
     createTilesetRefinementMix(),
     createTilesetReplacement1(),
     createTilesetReplacement2(),
@@ -279,7 +278,7 @@ var promises = [
     createTilesetPoints(),
     // Samples
     createDiscreteLOD(),
-    //createTreeBillboards()
+    createTreeBillboards(),
     createRequestVolume(),
     createExpireTileset()
 ];
@@ -720,7 +719,7 @@ function createInstancedWithTransform() {
 
 function createInstancedRedMaterial() {
     var tileOptions = {
-        url : instancesRedUrl
+        uri : instancesRedUri
     };
     return saveInstancedTileset('InstancedRedMaterial', tileOptions);
 }
@@ -734,14 +733,14 @@ function createInstancedWithBatchIds() {
 
 function createInstancedTextured() {
     var tileOptions = {
-        url : instancesTexturedUrl
+        uri : instancesTexturedUri
     };
     return saveInstancedTileset('InstancedTextured', tileOptions);
 }
 
 function createInstancedCompressedTextures() {
     var tileOptions = {
-        url : instancesTexturedUrl,
+        uri : instancesTexturedUri,
         textureCompressionOptions : [{
             format : 'dxt1',
             quality : 10
@@ -755,7 +754,7 @@ function createInstancedCompressedTextures() {
 
 function createInstancedGltfZUp() {
     var tileOptions = {
-        url : instancesZUpUrl
+        uri : instancesZUpUri
     };
     var tilesetOptions = {
         gltfUpAxis : 'Z'
@@ -765,7 +764,7 @@ function createInstancedGltfZUp() {
 
 function createComposite() {
     var i3dmOptions = {
-        url : instancesUrl,
+        uri : instancesUri,
         tileWidth : instancesTileWidth,
         transform : instancesTransform,
         instancesLength : instancesLength,
@@ -793,7 +792,7 @@ function createComposite() {
 
 function createCompositeOfComposite() {
     var i3dmOptions = {
-        url : instancesUrl,
+        uri : instancesUri,
         tileWidth : instancesTileWidth,
         transform : instancesTransform,
         instancesLength : instancesLength,
@@ -822,7 +821,7 @@ function createCompositeOfComposite() {
 
 function createCompositeOfInstanced() {
     var i3dmOptions1 = {
-        url : instancesUrl,
+        uri : instancesUri,
         tileWidth : instancesTileWidth,
         transform : instancesTransform,
         instancesLength : instancesLength,
@@ -832,7 +831,7 @@ function createCompositeOfInstanced() {
     };
 
     var i3dmOptions2 = {
-        url : instancesUrl,
+        uri : instancesUri,
         tileWidth : instancesTileWidth,
         transform : instancesTransform,
         instancesLength : instancesLength,
@@ -852,8 +851,8 @@ function createCompositeOfInstanced() {
         return saveCompositeTileset('CompositeOfInstanced', [i3dm1, i3dm2], [i3dm1BatchTable, i3dm2BatchTable]);
     }).then(function() {
         var tilesetDirectory = path.join(outputDirectory, 'Composite', 'CompositeOfInstanced');
-        var copyPath = path.join(tilesetDirectory, path.basename(instancesUrl));
-        return fsExtra.copy(instancesUrl, copyPath);
+        var copyPath = path.join(tilesetDirectory, path.basename(instancesUri));
+        return fsExtra.copy(instancesUri, copyPath);
     });
 }
 
@@ -888,7 +887,7 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tileOptions = defaultValue(tileOptions, {});
-    tileOptions.url = defaultValue(tileOptions.url, instancesUrl);
+    tileOptions.uri = defaultValue(tileOptions.uri, instancesUri);
     tileOptions.tileWidth = instancesTileWidth;
     tileOptions.transform = defaultValue(tileOptions.transform, instancesTransform);
     tileOptions.instancesLength = instancesLength;
@@ -913,8 +912,8 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
                 saveTile(tilePath, i3dm, gzip)
             ];
             if (tileOptions.embed === false) {
-                var copyPath = path.join(tilesetDirectory, path.basename(tileOptions.url));
-                promises.push(fsExtra.copy(tileOptions.url, copyPath));
+                var copyPath = path.join(tilesetDirectory, path.basename(tileOptions.uri));
+                promises.push(fsExtra.copy(tileOptions.uri, copyPath));
             }
             return Promise.all(promises);
         });
@@ -1304,6 +1303,22 @@ function createTilesetOfTilesets() {
         });
 }
 
+function modifyImageUri(glb, resourceDirectory, newResourceDirectory) {
+    var gltfOptions = {
+        resourceDirectory : resourceDirectory,
+        customStages : [
+            function(gltf) {
+                gltf.images[0].uri = newResourceDirectory + gltf.images[0].uri;
+                return gltf;
+            }
+        ]
+    };
+    return processGlb(glb, gltfOptions)
+        .then(function(results) {
+            return results.glb;
+        })
+}
+
 function createTilesetWithExternalResources() {
     // Create a tileset that references an external tileset where tiles reference external resources
     var tilesetName = 'TilesetWithExternalResources';
@@ -1453,9 +1468,15 @@ function createTilesetWithExternalResources() {
 
     return fsExtra.readFile(glbPath)
         .then(function(glb) {
+            return Promise.all([
+                modifyImageUri(glb, glbBasePath, 'textured_box_separate/'),
+                modifyImageUri(glb, glbBasePath, '../textured_box_separate/')
+            ])
+        })
+        .then(function(glbs) {
             var tiles = [
                 createB3dm({
-                    glb : modifyGltfPaths(glb, 'textured_box_separate/')
+                    glb : glbs[0]
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,
@@ -1465,10 +1486,10 @@ function createTilesetWithExternalResources() {
                 createI3dm({
                     featureTableJson : featureTableJson,
                     featureTableBinary : featureTableBinary,
-                    glb : modifyGltfPaths(glb, 'textured_box_separate/')
+                    glb : glbs[0]
                 }),
                 createB3dm({
-                    glb : modifyGltfPaths(glb, '../textured_box_separate/')
+                    glb : glbs[1]
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,
@@ -1478,7 +1499,7 @@ function createTilesetWithExternalResources() {
                 createI3dm({
                     featureTableJson : featureTableJson,
                     featureTableBinary : featureTableBinary,
-                    glb : modifyGltfPaths(glb, '../textured_box_separate/')
+                    glb : glbs[1]
                 })
             ];
             return Promise.map(tiles, function(tile, index) {
@@ -1888,7 +1909,7 @@ function createTilesetWithTransforms() {
         tileWidth : instancesTileWidth,
         transform : Matrix4.IDENTITY,
         instancesLength : instancesLength,
-        url : instancesUrl,
+        uri : instancesUri,
         modelSize : instancesModelSize,
         eastNorthUp : false
     };
@@ -2446,11 +2467,11 @@ function createTreeBillboards() {
     };
 
     var treeOptions = clone(options);
-    treeOptions.url = glbPaths[0];
+    treeOptions.uri = glbPaths[0];
     treeOptions.transform = wgs84Transform(longitude, latitude, 0.0); // Detailed model's base is at the origin
 
     var billboardOptions = clone(options);
-    billboardOptions.url = glbPaths[1];
+    billboardOptions.uri = glbPaths[1];
     billboardOptions.transform = wgs84Transform(longitude, latitude, treesHeight / 2.0); // Billboard model is centered about the origin
 
     var optionsArray = [treeOptions, billboardOptions];

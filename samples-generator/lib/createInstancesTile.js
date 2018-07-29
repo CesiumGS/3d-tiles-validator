@@ -22,7 +22,7 @@ var sizeOfFloat32 = 4;
  * Creates a i3dm tile that represents a set of instances.
  *
  * @param {Object} options Object with the following properties:
- * @param {Object} options.url Url to the instanced binary glTF model.
+ * @param {Object} options.uri Uri to the instanced binary glTF model.
  * @param {Number} [options.tileWidth=200.0] The width of the tile in meters.
  * @param {Matrix4} [options.transform=Matrix4.IDENTITY] A transform to bake into the tile, for example a transform into WGS84.
  * @param {Number} [options.instancesLength=25] The number of instances.
@@ -50,7 +50,7 @@ function createInstancesTile(options) {
     var tileWidth = defaultValue(options.tileWidth, 200.0);
     var transform = defaultValue(options.transform, Matrix4.IDENTITY);
     var instancesLength = defaultValue(options.instancesLength, 25);
-    var url = options.url;
+    var uri = options.uri;
     var embed = defaultValue(options.embed, true);
     var modelSize = defaultValue(options.modelSize, 20.0);
     var createBatchTable = defaultValue(options.createBatchTable, true);
@@ -142,17 +142,17 @@ function createInstancesTile(options) {
         textureCompressionOptions : textureCompressionOptions
     };
 
-    return fsExtra.readFile(url)
+    return fsExtra.readFile(uri)
         .then(function(glb) {
             glb = embed ? glb : undefined;
-            url = path.basename(url);
+            uri = path.basename(uri);
             var i3dm = createI3dm({
                 featureTableJson : featureTableJson,
                 featureTableBinary : featureTableBinary,
                 batchTableJson : batchTableJson,
                 batchTableBinary : batchTableBinary,
                 glb : glb,
-                url : url
+                uri : uri
             });
             return {
                 i3dm : i3dm,
