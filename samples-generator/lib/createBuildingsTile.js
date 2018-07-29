@@ -45,7 +45,6 @@ function createBuildingsTile(options) {
     var tileTransform = defaultValue(options.transform, Matrix4.IDENTITY);
     var relativeToCenter = options.relativeToCenter;
     var rtcCenterPosition = options.rtcCenterPosition;
-    var quantization = options.quantization;
     var useVertexColors = options.useVertexColors;
     var deprecated1 = options.deprecated1;
     var deprecated2 = options.deprecated2;
@@ -97,7 +96,6 @@ function createBuildingsTile(options) {
         mesh : batchedMesh,
         useBatchIds : useBatchIds,
         relativeToCenter : relativeToCenter,
-        quantization : quantization,
         deprecated : deprecated1 || deprecated2,
         textureCompressionOptions : textureCompressionOptions
     }).then(function(glb) {

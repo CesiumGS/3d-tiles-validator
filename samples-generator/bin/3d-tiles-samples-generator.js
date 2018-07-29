@@ -443,13 +443,6 @@ function createBatchedNoBatchIds() {
     return saveBatchedTileset('BatchedNoBatchIds', tileOptions);
 }
 
-function createBatchedWithQuantization() {
-    var tileOptions = {
-        quantization : true
-    };
-    return saveBatchedTileset('BatchedWithQuantization', tileOptions);
-}
-
 function createBatchedWGS84() {
     // Only for testing - vertices are defined directly in WGS84 causing visual artifacts due to lack of precision.
     var tileOptions = {
