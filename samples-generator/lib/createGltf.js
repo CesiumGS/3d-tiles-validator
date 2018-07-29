@@ -2,10 +2,8 @@
 var Cesium = require('cesium');
 var gltfPipeline = require('gltf-pipeline');
 var path = require('path');
-var Promise = require('bluebird');
 var getBufferPadded = require('./getBufferPadded');
 
-var Cartesian3 = Cesium.Cartesian3;
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 
@@ -109,9 +107,10 @@ function createGltf(options) {
     var batchIdsMinMax;
     var batchIdsBuffer = Buffer.alloc(0);
     var batchIdSemantic = deprecated ? 'BATCHID' : '_BATCHID';
+    var batchIdsLength;
     if (useBatchIds) {
         batchIdsMinMax = getMinMax(batchIds, 1);
-        var batchIdsLength = batchIds.length;
+        batchIdsLength = batchIds.length;
         batchIdsBuffer = Buffer.alloc(batchIdsLength * sizeOfFloat32);
         for (i = 0; i < batchIdsLength; ++i) {
             batchIdsBuffer.writeFloatLE(batchIds[i], i * sizeOfFloat32);
@@ -223,7 +222,7 @@ function createGltf(options) {
         if (defined(baseColorTexture)) {
             material.pbrMetallicRoughness.baseColorTexture = {
                 index : 0
-            }
+            };
         }
 
         materials.push(material);

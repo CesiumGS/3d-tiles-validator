@@ -1252,7 +1252,7 @@ function modifyImageUri(glb, resourceDirectory, newResourceDirectory) {
     return processGlb(glb, gltfOptions)
         .then(function(results) {
             return results.glb;
-        })
+        });
 }
 
 function createTilesetWithExternalResources() {
@@ -1407,7 +1407,7 @@ function createTilesetWithExternalResources() {
             return Promise.all([
                 modifyImageUri(glb, glbBasePath, 'textured_box_separate/'),
                 modifyImageUri(glb, glbBasePath, '../textured_box_separate/')
-            ])
+            ]);
         })
         .then(function(glbs) {
             var tiles = [
