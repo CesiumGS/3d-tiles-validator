@@ -434,17 +434,27 @@ function createBatchedWGS84() {
 function createBatchedDeprecated1() {
     // Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic
     var tileOptions = {
-        deprecated1 : true
+        deprecated1 : true,
+        transform : Matrix4.IDENTITY,
+        relativeToCenter : false
     };
-    return saveBatchedTileset('BatchedDeprecated1', tileOptions);
+    var tilesetOptions = {
+        transform : buildingsTransform
+    };
+    return saveBatchedTileset('BatchedDeprecated1', tileOptions, tilesetOptions);
 }
 
 function createBatchedDeprecated2() {
     // Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic
     var tileOptions = {
-        deprecated2 : true
+        deprecated2 : true,
+        transform : Matrix4.IDENTITY,
+        relativeToCenter : false
     };
-    return saveBatchedTileset('BatchedDeprecated2', tileOptions);
+    var tilesetOptions = {
+        transform : buildingsTransform
+    };
+    return saveBatchedTileset('BatchedDeprecated2', tileOptions, tilesetOptions);
 }
 
 function createBatchedExpiration() {
