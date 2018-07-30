@@ -38,7 +38,7 @@ var wgs84Transform = util.wgs84Transform;
 var prettyJson = true;
 var gzip = false;
 
-var outputDirectory = './output/';
+var outputDirectory = 'output';
 
 var versionNumber = '1.0';
 

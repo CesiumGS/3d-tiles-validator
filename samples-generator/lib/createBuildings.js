@@ -51,11 +51,8 @@ var redMaterial = new Material({
  * @returns {Building[]} An array of buildings.
  */
 function createBuildings(options) {
-    // Set the random number seed before creating each set of buildings so that the generated buildings are the same between runs
-    var seed = defaultValue(options.seed, 2);
-    CesiumMath.setRandomNumberSeed(seed);
-
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
+    var seed = defaultValue(options.seed, 11);
     var numberOfBuildings = defaultValue(options.numberOfBuildings, 10);
     var tileWidth = defaultValue(options.tileWidth, 200.0);
     var averageWidth = defaultValue(options.averageWidth, 4.0);
@@ -65,10 +62,21 @@ function createBuildings(options) {
     var centerLongitude = defaultValue(options.longitude, -1.31968);
     var centerLatitude = defaultValue(options.latitude, 0.698874);
 
+    // Set the random number seed before creating materials
+    CesiumMath.setRandomNumberSeed(seed);
+    var materials = new Array(numberOfBuildings);
+    for (i = 0; i < numberOfBuildings; ++i) {
+        // For Cesium testing purposes make the first building red
+        var useRedMaterial = (baseColorType === 'color') && (translucencyType === 'opaque') && i === 0;
+        var randomMaterial = getMaterial(baseColorType, translucencyType, i, numberOfBuildings);
+        materials[i] = useRedMaterial ? redMaterial : randomMaterial;
+    }
+
+    // Set the random number seed before creating buildings so that the generated buildings are the same between runs
+    CesiumMath.setRandomNumberSeed(seed);
     var buildings = new Array(numberOfBuildings);
     for (var i = 0; i < numberOfBuildings; ++i) {
         // Create buildings with the z-axis as up
-        var material = getMaterial(baseColorType, translucencyType, i, numberOfBuildings);
         var width = Math.max(averageWidth + (CesiumMath.nextRandomNumber() - 0.5) * 8.0, 1.0);
         var depth = Math.max(width + (CesiumMath.nextRandomNumber() - 0.5) * 4.0, 1.0);
         var height = Math.max(averageHeight + (CesiumMath.nextRandomNumber() - 0.5) * 8.0, 1.0);
@@ -79,13 +87,10 @@ function createBuildings(options) {
         var rangeX = CesiumMath.nextRandomNumber() - 0.5;
         var rangeY = CesiumMath.nextRandomNumber() - 0.5;
 
-        // For Cesium testing purposes, always place one building in the center of the tile and make it red
+        // For Cesium testing purposes always place one building in the center of the tile
         if (i === 0) {
             rangeX = 0.0;
             rangeY = 0.0;
-            if ((baseColorType === 'color') && (translucencyType === 'opaque')) {
-                material = redMaterial;
-            }
         }
 
         var x = rangeX * tileWidth;
@@ -106,7 +111,7 @@ function createBuildings(options) {
 
         buildings[i] = new Building({
             matrix : matrix,
-            material : material,
+            material : materials[i],
             longitude : longitude,
             latitude : latitude,
             height : height
