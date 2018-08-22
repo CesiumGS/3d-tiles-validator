@@ -1312,8 +1312,7 @@ function createTilesetWithExternalResources() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0',
-            tilesetVersion : '1.2.3'
+            version : '1.0'
         },
         geometricError : smallGeometricError,
         root : {
