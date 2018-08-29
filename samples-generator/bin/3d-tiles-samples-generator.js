@@ -1017,6 +1017,9 @@ function createTileset() {
             version : versionNumber,
             tilesetVersion : '1.2.3'
         },
+        extras : {
+            name : 'Sample Tileset'
+        },
         properties : undefined,
         geometricError : largeGeometricError,
         root : {
@@ -1048,6 +1051,9 @@ function createTileset() {
                     geometricError : 0.0,
                     content : {
                         uri : 'lr.b3dm'
+                    },
+                    extras : {
+                        id : 'Special Tile'
                     }
                 },
                 {
