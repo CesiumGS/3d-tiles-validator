@@ -1,21 +1,17 @@
 'use strict';
 var Cesium = require('cesium');
-var fsExtra = require('fs-extra');
 var gltfPipeline = require('gltf-pipeline');
-var mime = require('mime');
 var path = require('path');
-var Promise = require('bluebird');
+var getBufferPadded = require('./getBufferPadded');
 
-var Cartesian3 = Cesium.Cartesian3;
-var combine = Cesium.combine;
 var defaultValue = Cesium.defaultValue;
+var defined = Cesium.defined;
 
-var addPipelineExtras = gltfPipeline.addPipelineExtras;
-var getBinaryGltf = gltfPipeline.getBinaryGltf;
-var loadGltfUris = gltfPipeline.loadGltfUris;
-var processGltf = gltfPipeline.Pipeline.processJSON;
+var gltfToGlb = gltfPipeline.gltfToGlb;
 
 module.exports = createGltf;
+
+var rootDirectory = path.join(__dirname, '../');
 
 var sizeOfUint8 = 1;
 var sizeOfUint16 = 2;
@@ -27,56 +23,51 @@ var sizeOfFloat32 = 4;
  * @param {Object} options An object with the following properties:
  * @param {Mesh} options.mesh The mesh.
  * @param {Boolean} [options.useBatchIds=true] Modify the glTF to include the batchId vertex attribute.
- * @param {Boolean} [options.optimizeForCesium=false] Optimize the glTF for Cesium by using the sun as a default light source.
- * @param {Boolean} [options.relativeToCenter=false] Use the Cesium_RTC extension.
- * @param {Boolean} [options.khrMaterialsCommon=false] Save glTF with the KHR_materials_common extension.
- * @param {Boolean} [options.quantization=false] Save glTF with quantized attributes.
+ * @param {Boolean} [options.relativeToCenter=false] Set mesh positions relative to center.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
- * @param {Object|Object[]} [options.textureCompressionOptions] Options for compressing textures in the glTF.
- * @param {String} [options.upAxis='Y'] Specifies the up-axis for the glTF model.
  *
  * @returns {Promise} A promise that resolves with the binary glTF buffer.
  */
 function createGltf(options) {
     var useBatchIds = defaultValue(options.useBatchIds, true);
-    var optimizeForCesium = defaultValue(options.optimizeForCesium, false);
     var relativeToCenter = defaultValue(options.relativeToCenter, false);
-    var khrMaterialsCommon = defaultValue(options.khrMaterialsCommon, false);
-    var quantization = defaultValue(options.quantization, false);
     var deprecated = defaultValue(options.deprecated, false);
-    var textureCompressionOptions = options.textureCompressionOptions;
-    var upAxis = defaultValue(options.upAxis, 'Y');
 
     var mesh = options.mesh;
     var positions = mesh.positions;
     var normals = mesh.normals;
     var uvs = mesh.uvs;
     var vertexColors = mesh.vertexColors;
+    var batchIds = mesh.batchIds;
     var indices = mesh.indices;
     var views = mesh.views;
 
     // If all the vertex colors are 0 then the mesh does not have vertex colors
-    var hasVertexColors = !vertexColors.every(function(element) {return element === 0;});
+    var useVertexColors = !vertexColors.every(function(element) {return element === 0;});
 
-    // Get the center position in WGS84 coordinates
-    var center;
     if (relativeToCenter) {
-        center = mesh.getCenter();
         mesh.setPositionsRelativeToCenter();
     }
 
-    var rootMatrix;
-    if (upAxis === 'Y') {
-        // Models are z-up, so add a z-up to y-up transform.
-        // The glTF spec defines the y-axis as up, so this is the default behavior.
-        // In Cesium a y-up to z-up transform is applied later so that the glTF and 3D Tiles coordinate systems are consistent
-        rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
-    } else if (upAxis === 'Z') {
-        // No conversion needed - models are already z-up
-        rootMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-    }
+    // Models are z-up, so add a z-up to y-up transform.
+    // The glTF spec defines the y-axis as up, so this is the default behavior.
+    // In Cesium a y-up to z-up transform is applied later so that the glTF and 3D Tiles coordinate systems are consistent
+    var rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
 
     var i;
+    var view;
+    var material;
+    var viewsLength = views.length;
+    var useUvs = false;
+    for (i = 0; i < viewsLength; ++i) {
+        view = views[i];
+        material = view.material;
+        if (typeof material.baseColor === 'string') {
+            useUvs = true;
+            break;
+        }
+    }
+
     var positionsMinMax = getMinMax(positions, 3);
     var positionsLength = positions.length;
     var positionsBuffer = Buffer.alloc(positionsLength * sizeOfFloat32);
@@ -91,21 +82,38 @@ function createGltf(options) {
         normalsBuffer.writeFloatLE(normals[i], i * sizeOfFloat32);
     }
 
-    var uvsMinMax = getMinMax(uvs, 2);
-    var uvsLength = uvs.length;
-    var uvsBuffer = Buffer.alloc(uvsLength * sizeOfFloat32);
-    for (i = 0; i < uvsLength; ++i) {
-        uvsBuffer.writeFloatLE(uvs[i], i * sizeOfFloat32);
+    var uvsMinMax;
+    var uvsBuffer = Buffer.alloc(0);
+    if (useUvs) {
+        uvsMinMax = getMinMax(uvs, 2);
+        var uvsLength = uvs.length;
+        uvsBuffer = Buffer.alloc(uvsLength * sizeOfFloat32);
+        for (i = 0; i < uvsLength; ++i) {
+            uvsBuffer.writeFloatLE(uvs[i], i * sizeOfFloat32);
+        }
     }
 
     var vertexColorsMinMax;
     var vertexColorsBuffer = Buffer.alloc(0);
-    if (hasVertexColors) {
+    if (useVertexColors) {
         vertexColorsMinMax = getMinMax(vertexColors, 4);
         var vertexColorsLength = vertexColors.length;
         vertexColorsBuffer = Buffer.alloc(vertexColorsLength, sizeOfUint8);
         for (i = 0; i < vertexColorsLength; ++i) {
             vertexColorsBuffer.writeUInt8(vertexColors[i], i);
+        }
+    }
+
+    var batchIdsMinMax;
+    var batchIdsBuffer = Buffer.alloc(0);
+    var batchIdSemantic = deprecated ? 'BATCHID' : '_BATCHID';
+    var batchIdsLength;
+    if (useBatchIds) {
+        batchIdsMinMax = getMinMax(batchIds, 1);
+        batchIdsLength = batchIds.length;
+        batchIdsBuffer = Buffer.alloc(batchIdsLength * sizeOfFloat32);
+        for (i = 0; i < batchIdsLength; ++i) {
+            batchIdsBuffer.writeFloatLE(batchIds[i], i * sizeOfFloat32);
         }
     }
 
@@ -115,418 +123,284 @@ function createGltf(options) {
         indexBuffer.writeUInt16LE(indices[i], i * sizeOfUint16);
     }
 
-    var vertexBuffer = Buffer.concat([positionsBuffer, normalsBuffer, uvsBuffer, vertexColorsBuffer]);
-    var vertexBufferByteOffset = 0;
-    var vertexBufferByteLength = vertexBuffer.byteLength;
     var vertexCount = mesh.getVertexCount();
 
-    var indexBufferByteOffset = vertexBufferByteLength;
-    var indexBufferByteLength = indexBuffer.byteLength;
-
-    var buffer = Buffer.concat([vertexBuffer, indexBuffer]);
+    var vertexBuffer = getBufferPadded(Buffer.concat([positionsBuffer, normalsBuffer, uvsBuffer, vertexColorsBuffer, batchIdsBuffer]));
+    var buffer = getBufferPadded(Buffer.concat([vertexBuffer, indexBuffer]));
     var bufferUri = 'data:application/octet-stream;base64,' + buffer.toString('base64');
     var byteLength = buffer.byteLength;
 
-    var byteOffset = 0;
-    var positionsByteOffset = byteOffset;
-    byteOffset += positionsBuffer.length;
-    var normalsByteOffset = byteOffset;
-    byteOffset += normalsBuffer.length;
-    var uvsByteOffset = byteOffset;
-    byteOffset += uvsBuffer.length;
-
-    var vertexColorsByteOffset = byteOffset;
-    if (hasVertexColors) {
-        byteOffset += vertexColorsBuffer.length;
-    }
-
-    var indexAccessors = {};
-    var materials = {};
+    var indexAccessors = [];
+    var materials = [];
     var primitives = [];
-    var images = {};
-    var samplers = {};
-    var textures = {};
 
-    var viewsLength = views.length;
+    var images;
+    var samplers;
+    var textures;
+
+    var bufferViewIndex = 0;
+    var positionsBufferViewIndex = bufferViewIndex++;
+    var normalsBufferViewIndex = bufferViewIndex++;
+    var uvsBufferViewIndex = useUvs ? bufferViewIndex++ : 0;
+    var vertexColorsBufferViewIndex = useVertexColors ? bufferViewIndex++ : 0;
+    var batchIdsBufferViewIndex = useBatchIds ? bufferViewIndex++ : 0;
+    var indexBufferViewIndex = bufferViewIndex++;
+
+    var byteOffset = 0;
+    var positionsBufferByteOffset = byteOffset;
+    byteOffset += positionsBuffer.length;
+    var normalsBufferByteOffset = byteOffset;
+    byteOffset += normalsBuffer.length;
+    var uvsBufferByteOffset = byteOffset;
+    byteOffset += useUvs ? uvsBuffer.length : 0;
+    var vertexColorsBufferByteOffset = byteOffset;
+    byteOffset += useVertexColors ? vertexColorsBuffer.length : 0;
+    var batchIdsBufferByteOffset = byteOffset;
+    byteOffset += useBatchIds ? batchIdsBuffer.length : 0;
+
+    // Start index buffer at the padded byte offset
+    byteOffset = vertexBuffer.length;
+    var indexBufferByteOffset = byteOffset;
+    byteOffset += indexBuffer.length;
+
     for (i = 0; i < viewsLength; ++i) {
-        var view = views[i];
-        var material = view.material;
-        var accessorName = 'accessor_index_' + i;
-        var materialName = 'material_' + i;
+        view = views[i];
+        material = view.material;
         var indicesMinMax = getMinMax(indices, 1, view.indexOffset, view.indexCount);
-        indexAccessors[accessorName] = {
-            bufferView : 'bufferView_index',
+        indexAccessors.push({
+            bufferView : indexBufferViewIndex,
             byteOffset : sizeOfUint16 * view.indexOffset,
-            byteStride : 0,
             componentType : 5123, // UNSIGNED_SHORT
             count : view.indexCount,
             type : 'SCALAR',
             min : indicesMinMax.min,
             max : indicesMinMax.max
-        };
+        });
 
-        var ambient = material.ambient;
-        var diffuse = material.diffuse;
-        var emission = material.emission;
-        var specular = material.specular;
-        var shininess = material.shininess;
+        var baseColor = material.baseColor;
+        var baseColorFactor = baseColor;
+        var baseColorTexture;
         var transparent = false;
 
-        if (typeof diffuse === 'string') {
-            images.image_diffuse = {
-                uri : diffuse
-            };
-            samplers.sampler_diffuse = {
-                magFilter : 9729, // LINEAR
-                minFilter : 9729, // LINEAR
-                wrapS : 10497, // REPEAT
-                wrapT : 10497 // REPEAT
-            };
-            textures.texture_diffuse = {
-                format : 6408, // RGBA
-                internalFormat : 6408, // RGBA
-                sampler : 'sampler_diffuse',
-                source : 'image_diffuse',
-                target : 3553, // TEXTURE_2D
-                type : 5121 // UNSIGNED_BYTE
-            };
-
-            diffuse = 'texture_diffuse';
+        if (typeof baseColor === 'string') {
+            if (!defined(images)) {
+                images = [];
+                textures = [];
+                samplers = [{
+                    magFilter : 9729, // LINEAR
+                    minFilter : 9729, // LINEAR
+                    wrapS : 10497, // REPEAT
+                    wrapT : 10497 // REPEAT
+                }];
+            }
+            baseColorFactor = [1.0, 1.0, 1.0, 1.0];
+            baseColorTexture = baseColor;
+            images.push({
+                uri : baseColor
+            });
+            textures.push({
+                sampler : 0,
+                source : images.length - 1
+            });
         } else {
-            transparent = diffuse[3] < 1.0;
+            transparent = baseColor[3] < 1.0;
         }
 
         var doubleSided = transparent;
-        var technique = (shininess > 0.0) ? 'PHONG' : 'LAMBERT';
+        var alphaMode = transparent ? 'BLEND' : 'OPAQUE';
 
-        materials[materialName] = {
-            extensions : {
-                KHR_materials_common : {
-                    technique : technique,
-                    transparent : transparent,
-                    doubleSided : doubleSided,
-                    values : {
-                        ambient : ambient,
-                        diffuse : diffuse,
-                        emission : emission,
-                        specular : specular,
-                        shininess : shininess,
-                        transparency : 1.0,
-                        transparent : transparent,
-                        doubleSided : doubleSided
-                    }
-                }
-            }
+        material = {
+            pbrMetallicRoughness : {
+                baseColorFactor : baseColorFactor,
+                roughnessFactor : 1.0,
+                metallicFactor : 0.0
+            },
+            alphaMode : alphaMode,
+            doubleSided : doubleSided
         };
+
+        if (defined(baseColorTexture)) {
+            material.pbrMetallicRoughness.baseColorTexture = {
+                index : 0
+            };
+        }
+
+        materials.push(material);
 
         var attributes = {
-            POSITION : 'accessor_position',
-            NORMAL : 'accessor_normal',
-            TEXCOORD_0 : 'accessor_uv'
+            POSITION : positionsBufferViewIndex,
+            NORMAL : normalsBufferViewIndex
         };
 
-        if (hasVertexColors) {
-            attributes.COLOR_0 = 'accessor_vertexColor';
+        if (useUvs) {
+            attributes.TEXCOORD_0 = uvsBufferViewIndex;
+        }
+
+        if (useVertexColors) {
+            attributes.COLOR_0 = vertexColorsBufferViewIndex;
+        }
+
+        if (useBatchIds) {
+            attributes[batchIdSemantic] = batchIdsBufferViewIndex;
         }
 
         primitives.push({
             attributes : attributes,
-            indices : accessorName,
-            material : materialName,
+            indices : indexBufferViewIndex + i,
+            material : i,
             mode : 4 // TRIANGLES
         });
     }
 
-    var vertexAccessors = {
-        accessor_position : {
-            bufferView : 'bufferView_vertex',
-            byteOffset : positionsByteOffset,
-            byteStride : 0,
+    var vertexAccessors = [
+        {
+            bufferView : positionsBufferViewIndex,
+            byteOffset : 0,
             componentType : 5126, // FLOAT
             count : vertexCount,
             type : 'VEC3',
             min : positionsMinMax.min,
             max : positionsMinMax.max
         },
-        accessor_normal : {
-            bufferView : 'bufferView_vertex',
-            byteOffset : normalsByteOffset,
-            byteStride : 0,
+        {
+            bufferView : normalsBufferViewIndex,
+            byteOffset : 0,
             componentType : 5126, // FLOAT
             count : vertexCount,
             type : 'VEC3',
             min : normalsMinMax.min,
             max : normalsMinMax.max
-        },
-        accessor_uv : {
-            bufferView : 'bufferView_vertex',
-            byteOffset : uvsByteOffset,
-            byteStride : 0,
+        }
+    ];
+
+    if (useUvs) {
+        vertexAccessors.push({
+            bufferView : uvsBufferViewIndex,
+            byteOffset : 0,
             componentType : 5126, // FLOAT
             count : vertexCount,
             type : 'VEC2',
             min : uvsMinMax.min,
             max : uvsMinMax.max
-        }
-    };
+        });
+    }
 
-    if (hasVertexColors) {
-        vertexAccessors.accessor_vertexColor = {
-            bufferView : 'bufferView_vertex',
-            byteOffset : vertexColorsByteOffset,
-            byteStride : 0,
+    if (useVertexColors) {
+        vertexAccessors.push({
+            bufferView : vertexColorsBufferViewIndex,
+            byteOffset : 0,
             componentType : 5121, // UNSIGNED_BYTE
             count : vertexCount,
             type : 'VEC4',
             min : vertexColorsMinMax.min,
             max : vertexColorsMinMax.max,
             normalized : true
-        };
+        });
     }
 
-    var accessors = combine(vertexAccessors, indexAccessors);
+    if (useBatchIds) {
+        vertexAccessors.push({
+            bufferView : batchIdsBufferViewIndex,
+            byteOffset : 0,
+            componentType : 5126, // FLOAT
+            count : batchIdsLength,
+            type : 'SCALAR',
+            min : batchIdsMinMax.min,
+            max : batchIdsMinMax.max
+        });
+    }
+
+    var accessors = vertexAccessors.concat(indexAccessors);
+
+    var bufferViews = [
+        {
+            buffer : 0,
+            byteLength : positionsBuffer.length,
+            byteOffset : positionsBufferByteOffset,
+            target : 34962 // ARRAY_BUFFER
+        },
+        {
+            buffer : 0,
+            byteLength : normalsBuffer.length,
+            byteOffset : normalsBufferByteOffset,
+            target : 34962 // ARRAY_BUFFER
+        }
+    ];
+
+    if (useUvs) {
+        bufferViews.push({
+            buffer : 0,
+            byteLength : uvsBuffer.length,
+            byteOffset : uvsBufferByteOffset,
+            target : 34962 // ARRAY_BUFFER
+        });
+    }
+
+    if (useVertexColors) {
+        bufferViews.push({
+            buffer : 0,
+            byteLength : vertexColorsBuffer.length,
+            byteOffset : vertexColorsBufferByteOffset,
+            target : 34962 // ARRAY_BUFFER
+        });
+    }
+
+    if (useBatchIds) {
+        bufferViews.push({
+            buffer : 0,
+            byteLength : batchIdsBuffer.length,
+            byteOffset : batchIdsBufferByteOffset,
+            target : 34962 // ARRAY_BUFFER
+        });
+    }
+
+    bufferViews.push({
+        buffer : 0,
+        byteLength : indexBuffer.length,
+        byteOffset : indexBufferByteOffset,
+        target : 34963 // ELEMENT_ARRAY_BUFFER
+    });
 
     var gltf = {
         accessors : accessors,
         asset : {
             generator : '3d-tiles-samples-generator',
-            version : '1.0',
-            profile : {
-                api : 'WebGL',
-                version : '1.0'
-            }
+            version : '2.0'
         },
-        buffers : {
-            buffer : {
-                byteLength : byteLength,
-                uri : bufferUri
-            }
-        },
-        bufferViews : {
-            bufferView_vertex : {
-                buffer : 'buffer',
-                byteLength : vertexBufferByteLength,
-                byteOffset : vertexBufferByteOffset,
-                target : 34962 // ARRAY_BUFFER
-            },
-            bufferView_index : {
-                buffer : 'buffer',
-                byteLength : indexBufferByteLength,
-                byteOffset : indexBufferByteOffset,
-                target : 34963 // ELEMENT_ARRAY_BUFFER
-            }
-        },
-        extensionsUsed : ['KHR_materials_common'],
+        buffers : [{
+            byteLength : byteLength,
+            uri : bufferUri
+        }],
+        bufferViews : bufferViews,
         images : images,
         materials : materials,
-        meshes : {
-            mesh : {
+        meshes : [
+            {
                 primitives : primitives
             }
-        },
-        nodes : {
-            rootNode : {
+        ],
+        nodes : [
+            {
                 matrix : rootMatrix,
-                meshes : ['mesh'],
+                mesh : 0,
                 name : 'rootNode'
             }
-        },
+        ],
         samplers : samplers,
-        scene : 'scene',
-        scenes : {
-            scene : {
-                nodes : ['rootNode']
-            }
-        },
+        scene : 0,
+        scenes : [{
+            nodes : [0]
+        }],
         textures : textures
     };
 
-    var kmcOptions;
-    if (khrMaterialsCommon) {
-        kmcOptions = {
-            technique : 'LAMBERT',
-            doubleSided : false
-        };
-    }
-
     var gltfOptions = {
-        optimizeForCesium : optimizeForCesium,
-        kmcOptions : kmcOptions,
-        preserve : true, // Don't apply extra optimizations to the glTF
-        quantize : quantization,
-        compressTextureCoordinates : quantization,
-        encodeNormals : quantization,
-        textureCompressionOptions : textureCompressionOptions
+        resourceDirectory : rootDirectory
     };
-
-    return loadImages(gltf)
-        .then(function() {
-            // Run through the gltf-pipeline to generate techniques and shaders for the glTF
-            return processGltf(gltf, gltfOptions)
-                .then(function(gltf) {
-                    if (useBatchIds) {
-                        modifyGltfWithBatchIds(gltf, mesh, deprecated);
-                    }
-                    if (relativeToCenter) {
-                        modifyGltfWithRelativeToCenter(gltf, center);
-                    }
-                    if (optimizeForCesium) {
-                        modifyGltfForCesium(gltf);
-                    }
-                    return convertToBinaryGltf(gltf);
-                });
+    return gltfToGlb(gltf, gltfOptions)
+        .then(function(results) {
+            return results.glb;
         });
-}
-
-function getLoadImageFunction(image) {
-    return function() {
-        var imagePath = image.uri;
-        var extension = path.extname(imagePath);
-        return fsExtra.readFile(imagePath)
-            .then(function(buffer) {
-                image.uri = 'data:' + mime.getType(extension) + ';base64,' + buffer.toString('base64');
-            });
-    };
-}
-
-function loadImages(gltf) {
-    var imagePromises = [];
-    var images = gltf.images;
-    for (var id in images) {
-        if (images.hasOwnProperty(id)) {
-            var image = images[id];
-            imagePromises.push(getLoadImageFunction(image)());
-        }
-    }
-    return Promise.all(imagePromises);
-}
-
-function convertToBinaryGltf(gltf) {
-    addPipelineExtras(gltf);
-    return loadGltfUris(gltf)
-        .then(function(gltf) {
-            return getBinaryGltf(gltf, true, true).glb;
-        });
-}
-
-function modifyGltfWithBatchIds(gltf, mesh, deprecated) {
-    var i;
-    var batchIds = mesh.batchIds;
-    var batchIdsMinMax = getMinMax(batchIds, 1);
-    var batchIdsLength = batchIds.length;
-    var batchIdsBuffer = Buffer.alloc(batchIdsLength * sizeOfUint16);
-    for (i = 0; i < batchIdsLength; ++i) {
-        batchIdsBuffer.writeUInt16LE(batchIds[i], i * sizeOfUint16);
-    }
-    var batchIdsBufferUri = 'data:application/octet-stream;base64,' + batchIdsBuffer.toString('base64');
-    var batchIdSemantic = deprecated ? 'BATCHID' : '_BATCHID';
-
-    gltf.accessors.accessor_batchId = {
-        bufferView : 'bufferView_batchId',
-        byteOffset : 0,
-        byteStride : 0,
-        componentType : 5123, // UNSIGNED_SHORT
-        count : batchIdsLength,
-        type : 'SCALAR',
-        min : batchIdsMinMax.min,
-        max : batchIdsMinMax.max
-    };
-
-    gltf.bufferViews.bufferView_batchId = {
-        buffer : 'buffer_batchId',
-        byteLength : batchIdsBuffer.length,
-        byteOffset : 0,
-        target : 34962 // ARRAY_BUFFER
-    };
-
-    gltf.buffers.buffer_batchId = {
-        byteLength : batchIdsBuffer.length,
-        uri : batchIdsBufferUri
-    };
-
-    var meshes = gltf.meshes;
-    for (var meshId in meshes) {
-        if (meshes.hasOwnProperty(meshId)) {
-            var primitives = meshes[meshId].primitives;
-            var length = primitives.length;
-            for (i = 0; i < length; ++i) {
-                var primitive = primitives[i];
-                primitive.attributes[batchIdSemantic] = 'accessor_batchId';
-            }
-        }
-    }
-
-    var programs = gltf.programs;
-    for (var programId in programs) {
-        if (programs.hasOwnProperty(programId)) {
-            var program = programs[programId];
-            program.attributes.push('a_batchId');
-        }
-    }
-
-    var techniques = gltf.techniques;
-    for (var techniqueId in techniques) {
-        if (techniques.hasOwnProperty(techniqueId)) {
-            var technique = techniques[techniqueId];
-            technique.attributes.a_batchId = 'batchId';
-            technique.parameters.batchId = {
-                semantic : batchIdSemantic,
-                type : 5123 // UNSIGNED_SHORT
-            };
-        }
-    }
-
-    var shaders = gltf.shaders;
-    for (var shaderId in shaders) {
-        if (shaders.hasOwnProperty(shaderId)) {
-            var shader = shaders[shaderId];
-            if (shader.type === 35633) { // Is a vertex shader
-                var uriHeader = 'data:text/plain;base64,';
-                var shaderEncoded = shader.uri.substring(uriHeader.length);
-                var shaderText = Buffer.from(shaderEncoded, 'base64');
-                shaderText = 'attribute float a_batchId;\n' + shaderText;
-                shaderEncoded = Buffer.from(shaderText).toString('base64');
-                shader.uri = uriHeader + shaderEncoded;
-            }
-        }
-    }
-}
-
-function modifyGltfWithRelativeToCenter(gltf, center) {
-    gltf.extensionsUsed = defaultValue(gltf.extensionsUsed, []);
-    gltf.extensions = defaultValue(gltf.extensions, {});
-
-    gltf.extensionsUsed.push('CESIUM_RTC');
-    gltf.extensions.CESIUM_RTC = {
-        center : Cartesian3.pack(center, new Array(3))
-    };
-
-    var techniques = gltf.techniques;
-    for (var techniqueId in techniques) {
-        if (techniques.hasOwnProperty(techniqueId)) {
-            var technique = techniques[techniqueId];
-            var parameters = technique.parameters;
-            for (var parameterId in parameters) {
-                if (parameters.hasOwnProperty(parameterId)) {
-                    if (parameterId === 'modelViewMatrix') {
-                        var parameter = parameters[parameterId];
-                        parameter.semantic = 'CESIUM_RTC_MODELVIEW';
-                    }
-                }
-            }
-        }
-    }
-}
-
-function modifyGltfForCesium(gltf) {
-    // Add diffuse semantic to support colorBlendMode in Cesium
-    var techniques = gltf.techniques;
-    for (var techniqueId in techniques) {
-        if (techniques.hasOwnProperty(techniqueId)) {
-            var technique = techniques[techniqueId];
-            technique.parameters.diffuse.semantic = '_3DTILESDIFFUSE';
-        }
-    }
 }
 
 function getMinMax(array, components, start, length) {

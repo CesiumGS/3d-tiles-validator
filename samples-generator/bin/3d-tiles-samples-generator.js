@@ -2,8 +2,11 @@
 'use strict';
 var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
+var gltfPipeline = require('gltf-pipeline');
 var path = require('path');
 var Promise = require('bluebird');
+var DataUri = require('datauri');
+
 var createBatchTableHierarchy = require('../lib/createBatchTableHierarchy');
 var createBuildingsTile = require('../lib/createBuildingsTile');
 var createB3dm = require('../lib/createB3dm');
@@ -13,10 +16,11 @@ var createInstancesTile = require('../lib/createInstancesTile');
 var createPointCloudTile = require('../lib/createPointCloudTile');
 var createTilesetJsonSingle = require('../lib/createTilesetJsonSingle');
 var getProperties = require('../lib/getProperties');
-var modifyGltfPaths = require('../lib/modifyGltfPaths');
 var saveTile = require('../lib/saveTile');
 var saveTilesetJson = require('../lib/saveTilesetJson');
 var util = require('../lib/utility');
+
+var processGlb = gltfPipeline.processGlb;
 
 var Cartesian3 = Cesium.Cartesian3;
 var CesiumMath = Cesium.Math;
@@ -31,12 +35,12 @@ var metersToLongitude = util.metersToLongitude;
 var metersToLatitude = util.metersToLatitude;
 var wgs84Transform = util.wgs84Transform;
 
-var optimizeForCesium = true;
-var relativeToCenter = true;
 var prettyJson = true;
 var gzip = false;
 
 var outputDirectory = 'output';
+
+var versionNumber = '1.0';
 
 var longitude = -1.31968;
 var latitude = 0.698874;
@@ -55,7 +59,7 @@ var buildingTemplate = {
     tileWidth : tileWidth,
     averageWidth : 8.0,
     averageHeight : 10.0,
-    diffuseType : 'white',
+    baseColorType : 'white',
     translucencyType : 'opaque',
     longitude : longitude,
     latitude : latitude
@@ -96,10 +100,9 @@ var pointCloudSphereLocal = [0.0, 0.0, 0.0, pointCloudRadius];
 var instancesLength = 25;
 var instancesGeometricError = 70.0; // Estimated
 var instancesTileWidth = tileWidth;
-var instancesUrl = 'data/box.glb'; // Model's center is at the origin (and for below)
-var instancesRedUrl = 'data/red_box.glb';
-var instancesTexturedUrl = 'data/textured_box.glb';
-var instancesZUpUrl = 'data/box-z-up.glb';
+var instancesUri = 'data/box.glb'; // Model's center is at the origin (and for below)
+var instancesRedUri = 'data/red_box.glb';
+var instancesTexturedUri = 'data/textured_box.glb';
 var instancesModelSize = 20.0;
 var instancesHeight = instancesModelSize + 10.0; // Just a little extra padding at the top for aiding Cesium tests
 var instancesTransform = wgs84Transform(longitude, latitude, instancesModelSize / 2.0);
@@ -127,8 +130,7 @@ var parentTileOptions = {
     buildingOptions : parentOptions,
     createBatchTable : true,
     transform : buildingsTransform,
-    optimizeForCesium : optimizeForCesium,
-    relativeToCenter : relativeToCenter
+    relativeToCenter : true
 };
 
 var childrenRegion = [longitude - longitudeExtent, latitude - latitudeExtent, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, smallHeight];
@@ -145,8 +147,7 @@ var llTileOptions = {
     buildingOptions : llOptions,
     createBatchTable : true,
     transform : llTransform,
-    optimizeForCesium : optimizeForCesium,
-    relativeToCenter : relativeToCenter
+    relativeToCenter : true
 };
 
 var lrRegion = [longitude, latitude - latitudeExtent, longitude + longitudeExtent, latitude, 0.0, smallHeight];
@@ -161,8 +162,7 @@ var lrTileOptions = {
     buildingOptions : lrOptions,
     createBatchTable : true,
     transform : lrTransform,
-    optimizeForCesium : optimizeForCesium,
-    relativeToCenter : relativeToCenter
+    relativeToCenter : true
 };
 
 var urRegion = [longitude, latitude, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, smallHeight];
@@ -177,8 +177,7 @@ var urTileOptions = {
     buildingOptions : urOptions,
     createBatchTable : true,
     transform : urTransform,
-    optimizeForCesium : optimizeForCesium,
-    relativeToCenter : relativeToCenter
+    relativeToCenter : true
 };
 
 var ulRegion = [longitude - longitudeExtent, latitude, longitude, latitude + latitudeExtent, 0.0, smallHeight];
@@ -193,8 +192,7 @@ var ulTileOptions = {
     buildingOptions : ulOptions,
     createBatchTable : true,
     transform : ulTransform,
-    optimizeForCesium : optimizeForCesium,
-    relativeToCenter : relativeToCenter
+    relativeToCenter : true
 };
 
 var promises = [
@@ -208,20 +206,18 @@ var promises = [
     createBatchedColorsTranslucent(),
     createBatchedColorsMix(),
     createBatchedTextured(),
-    createBatchedCompressedTextures(),
     createBatchedWithBoundingSphere(),
     createBatchedWithTransformBox(),
     createBatchedWithTransformSphere(),
     createBatchedWithTransformRegion(),
+    createBatchedWithRtcCenter(),
     createBatchedNoBatchIds(),
-    createBatchedWithKHRMaterialsCommon(),
-    createBatchedWithQuantization(),
     createBatchedWGS84(),
     createBatchedDeprecated1(),
     createBatchedDeprecated2(),
-    createBatchedGltfZUp(),
     createBatchedExpiration(),
     createBatchedWithVertexColors(),
+    createBatchedWithContentDataUri(),
     // Point Cloud
     createPointCloudRGB(),
     createPointCloudRGBA(),
@@ -252,14 +248,13 @@ var promises = [
     createInstancedRedMaterial(),
     createInstancedWithBatchIds(),
     createInstancedTextured(),
-    createInstancedCompressedTextures(),
-    createInstancedGltfZUp(),
     // Composite
     createComposite(),
     createCompositeOfComposite(),
     createCompositeOfInstanced(),
     // Hierarchy
     createHierarchy(),
+    createHierarchyLegacy(),
     createHierarchyMultipleParents(),
     createHierarchyNoParents(),
     createHierarchyBinary(),
@@ -284,10 +279,7 @@ var promises = [
     createExpireTileset()
 ];
 
-Promise.all(promises)
-    .then(function() {
-        console.log('Done');
-    });
+return Promise.all(promises);
 
 function createBatchedWithBatchTable() {
     var tileOptions = {
@@ -332,32 +324,16 @@ function createBatchedTranslucentOpaqueMix() {
 
 function createBatchedTextured() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'textured';
+    buildingOptions.baseColorType = 'textured';
     var tileOptions = {
         buildingOptions : buildingOptions
     };
     return saveBatchedTileset('BatchedTextured', tileOptions);
 }
 
-function createBatchedCompressedTextures() {
-    var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'textured';
-    var tileOptions = {
-        buildingOptions : buildingOptions,
-        textureCompressionOptions : [{
-            format : 'dxt1',
-            quality : 10
-        }, {
-            format : 'etc1',
-            quality : 10
-        }]
-    };
-    return saveBatchedTileset('BatchedCompressedTextures', tileOptions);
-}
-
 function createBatchedColors() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'color';
+    buildingOptions.baseColorType = 'color';
     var tileOptions = {
         buildingOptions : buildingOptions
     };
@@ -366,7 +342,7 @@ function createBatchedColors() {
 
 function createBatchedColorsTranslucent() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'color';
+    buildingOptions.baseColorType = 'color';
     buildingOptions.translucencyType = 'translucent';
     var tileOptions = {
         buildingOptions : buildingOptions
@@ -376,7 +352,7 @@ function createBatchedColorsTranslucent() {
 
 function createBatchedColorsMix() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'color';
+    buildingOptions.baseColorType = 'color';
     buildingOptions.translucencyType = 'mix';
     var tileOptions = {
         buildingOptions : buildingOptions
@@ -427,25 +403,24 @@ function createBatchedWithTransformRegion() {
     return saveBatchedTileset('BatchedWithTransformRegion', tileOptions, tilesetOptions);
 }
 
+function createBatchedWithRtcCenter() {
+    var tileOptions = {
+        transform : Matrix4.IDENTITY,
+        relativeToCenter : false,
+        rtcCenterPosition : [0.1, 0.2, 0.3]
+    };
+    var tilesetOptions = {
+        region : smallRegion,
+        transform : buildingsTransform
+    };
+    return saveBatchedTileset('BatchedWithRtcCenter', tileOptions, tilesetOptions);
+}
+
 function createBatchedNoBatchIds() {
     var tileOptions = {
         useBatchIds : false
     };
     return saveBatchedTileset('BatchedNoBatchIds', tileOptions);
-}
-
-function createBatchedWithKHRMaterialsCommon() {
-    var tileOptions = {
-        khrMaterialsCommon : true
-    };
-    return saveBatchedTileset('BatchedWithKHRMaterialsCommon', tileOptions);
-}
-
-function createBatchedWithQuantization() {
-    var tileOptions = {
-        quantization : true
-    };
-    return saveBatchedTileset('BatchedWithQuantization', tileOptions);
 }
 
 function createBatchedWGS84() {
@@ -459,27 +434,27 @@ function createBatchedWGS84() {
 function createBatchedDeprecated1() {
     // Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic
     var tileOptions = {
-        deprecated1 : true
+        deprecated1 : true,
+        transform : Matrix4.IDENTITY,
+        relativeToCenter : false
     };
-    return saveBatchedTileset('BatchedDeprecated1', tileOptions);
+    var tilesetOptions = {
+        transform : buildingsTransform
+    };
+    return saveBatchedTileset('BatchedDeprecated1', tileOptions, tilesetOptions);
 }
 
 function createBatchedDeprecated2() {
     // Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic
     var tileOptions = {
-        deprecated2 : true
-    };
-    return saveBatchedTileset('BatchedDeprecated2', tileOptions);
-}
-
-function createBatchedGltfZUp() {
-    var tileOptions = {
-        gltfUpAxis : 'Z'
+        deprecated2 : true,
+        transform : Matrix4.IDENTITY,
+        relativeToCenter : false
     };
     var tilesetOptions = {
-        gltfUpAxis : 'Z'
+        transform : buildingsTransform
     };
-    return saveBatchedTileset('BatchedGltfZUp', tileOptions, tilesetOptions);
+    return saveBatchedTileset('BatchedDeprecated2', tileOptions, tilesetOptions);
 }
 
 function createBatchedExpiration() {
@@ -493,13 +468,18 @@ function createBatchedExpiration() {
 
 function createBatchedWithVertexColors() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.diffuseType = 'color';
+    buildingOptions.baseColorType = 'color';
     var tileOptions = {
         buildingOptions : buildingOptions,
-        useVertexColors : true,
-        khrMaterialsCommon : true
+        useVertexColors : true
     };
     return saveBatchedTileset('BatchedWithVertexColors', tileOptions);
+}
+
+function createBatchedWithContentDataUri() {
+    return saveBatchedTileset('BatchedWithContentDataUri', undefined, {
+        contentDataUri : true
+    });
 }
 
 function createPointCloudRGB() {
@@ -709,7 +689,7 @@ function createInstancedWithTransform() {
 
 function createInstancedRedMaterial() {
     var tileOptions = {
-        url : instancesRedUrl
+        uri : instancesRedUri
     };
     return saveInstancedTileset('InstancedRedMaterial', tileOptions);
 }
@@ -723,38 +703,14 @@ function createInstancedWithBatchIds() {
 
 function createInstancedTextured() {
     var tileOptions = {
-        url : instancesTexturedUrl
+        uri : instancesTexturedUri
     };
     return saveInstancedTileset('InstancedTextured', tileOptions);
 }
 
-function createInstancedCompressedTextures() {
-    var tileOptions = {
-        url : instancesTexturedUrl,
-        textureCompressionOptions : [{
-            format : 'dxt1',
-            quality : 10
-        }, {
-            format : 'etc1',
-            quality : 10
-        }]
-    };
-    return saveInstancedTileset('InstancedCompressedTextures', tileOptions);
-}
-
-function createInstancedGltfZUp() {
-    var tileOptions = {
-        url : instancesZUpUrl
-    };
-    var tilesetOptions = {
-        gltfUpAxis : 'Z'
-    };
-    return saveInstancedTileset('InstancedGltfZUp', tileOptions, tilesetOptions);
-}
-
 function createComposite() {
     var i3dmOptions = {
-        url : instancesUrl,
+        uri : instancesUri,
         tileWidth : instancesTileWidth,
         transform : instancesTransform,
         instancesLength : instancesLength,
@@ -765,8 +721,7 @@ function createComposite() {
     var b3dmOptions = {
         buildingOptions : buildingTemplate,
         transform : buildingsTransform,
-        optimizeForCesium : optimizeForCesium,
-        relativeToCenter : relativeToCenter
+        relativeToCenter : true
     };
 
     return Promise.all([
@@ -783,18 +738,18 @@ function createComposite() {
 
 function createCompositeOfComposite() {
     var i3dmOptions = {
-        url : instancesUrl,
+        uri : instancesUri,
         tileWidth : instancesTileWidth,
         transform : instancesTransform,
         instancesLength : instancesLength,
-        modelSize : instancesModelSize
+        modelSize : instancesModelSize,
+        eastNorthUp : true
     };
 
     var b3dmOptions = {
         buildingOptions : buildingTemplate,
         transform : buildingsTransform,
-        optimizeForCesium : optimizeForCesium,
-        relativeToCenter : relativeToCenter
+        relativeToCenter : true
     };
 
     return Promise.all([
@@ -812,7 +767,7 @@ function createCompositeOfComposite() {
 
 function createCompositeOfInstanced() {
     var i3dmOptions1 = {
-        url : instancesUrl,
+        uri : instancesUri,
         tileWidth : instancesTileWidth,
         transform : instancesTransform,
         instancesLength : instancesLength,
@@ -822,7 +777,7 @@ function createCompositeOfInstanced() {
     };
 
     var i3dmOptions2 = {
-        url : instancesUrl,
+        uri : instancesUri,
         tileWidth : instancesTileWidth,
         transform : instancesTransform,
         instancesLength : instancesLength,
@@ -842,19 +797,19 @@ function createCompositeOfInstanced() {
         return saveCompositeTileset('CompositeOfInstanced', [i3dm1, i3dm2], [i3dm1BatchTable, i3dm2BatchTable]);
     }).then(function() {
         var tilesetDirectory = path.join(outputDirectory, 'Composite', 'CompositeOfInstanced');
-        var copyPath = path.join(tilesetDirectory, path.basename(instancesUrl));
-        return fsExtra.copy(instancesUrl, copyPath);
+        var copyPath = path.join(tilesetDirectory, path.basename(instancesUri));
+        return fsExtra.copy(instancesUri, copyPath);
     });
 }
 
 function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions) {
     var tilesetDirectory = path.join(outputDirectory, 'Composite', tilesetName);
-    var tileName = lowercase(tilesetName) + '.cmpt';
-    var tilePath = path.join(tilesetDirectory, tileName);
+    var contentUri = lowercase(tilesetName) + '.cmpt';
+    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tilesetOptions = defaultValue(tilesetOptions, {});
-    tilesetOptions.tileName = tileName;
+    tilesetOptions.contentUri = contentUri;
     tilesetOptions.geometricError = compositeGeometricError;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
         tilesetOptions.region = compositeRegion;
@@ -873,12 +828,12 @@ function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions) {
 
 function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
     var tilesetDirectory = path.join(outputDirectory, 'Instanced', tilesetName);
-    var tileName = lowercase(tilesetName) + '.i3dm';
-    var tilePath = path.join(tilesetDirectory, tileName);
+    var contentUri = lowercase(tilesetName) + '.i3dm';
+    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tileOptions = defaultValue(tileOptions, {});
-    tileOptions.url = defaultValue(tileOptions.url, instancesUrl);
+    tileOptions.uri = defaultValue(tileOptions.uri, instancesUri);
     tileOptions.tileWidth = instancesTileWidth;
     tileOptions.transform = defaultValue(tileOptions.transform, instancesTransform);
     tileOptions.instancesLength = instancesLength;
@@ -886,7 +841,7 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions.eastNorthUp = defaultValue(tileOptions.eastNorthUp, true);
 
     tilesetOptions = defaultValue(tilesetOptions, {});
-    tilesetOptions.tileName = tileName;
+    tilesetOptions.contentUri = contentUri;
     tilesetOptions.geometricError = instancesGeometricError;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
         tilesetOptions.region = instancesRegion;
@@ -903,8 +858,8 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
                 saveTile(tilePath, i3dm, gzip)
             ];
             if (tileOptions.embed === false) {
-                var copyPath = path.join(tilesetDirectory, path.basename(tileOptions.url));
-                promises.push(fsExtra.copy(tileOptions.url, copyPath));
+                var copyPath = path.join(tilesetDirectory, path.basename(tileOptions.uri));
+                promises.push(fsExtra.copy(tileOptions.uri, copyPath));
             }
             return Promise.all(promises);
         });
@@ -912,18 +867,17 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
 
 function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     var tilesetDirectory = path.join(outputDirectory, 'Batched', tilesetName);
-    var tileName = lowercase(tilesetName) + '.b3dm';
-    var tilePath = path.join(tilesetDirectory, tileName);
+    var contentUri = lowercase(tilesetName) + '.b3dm';
+    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tileOptions = defaultValue(tileOptions, {});
     tileOptions.buildingOptions = defaultValue(tileOptions.buildingOptions, buildingTemplate);
     tileOptions.transform = defaultValue(tileOptions.transform, buildingsTransform);
-    tileOptions.optimizeForCesium = optimizeForCesium;
-    tileOptions.relativeToCenter = defaultValue(tileOptions.relativeToCenter, relativeToCenter);
+    tileOptions.relativeToCenter = defaultValue(tileOptions.relativeToCenter, true);
 
     tilesetOptions = defaultValue(tilesetOptions, {});
-    tilesetOptions.tileName = tileName;
+    tilesetOptions.contentUri = contentUri;
     tilesetOptions.geometricError = smallGeometricError;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
         tilesetOptions.region = smallRegion;
@@ -934,6 +888,14 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
             var b3dm = result.b3dm;
             var batchTableJson = result.batchTableJson;
             tilesetOptions.properties = getProperties(batchTableJson);
+
+            if (tilesetOptions.contentDataUri) {
+                var dataUri = new DataUri();
+                dataUri.format('.b3dm', b3dm);
+                tilesetOptions.contentUri = dataUri.content;
+                return saveTilesetJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson);
+            }
+
             var tilesetJson = createTilesetJsonSingle(tilesetOptions);
             return Promise.all([
                 saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
@@ -944,8 +906,8 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
 
 function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     var tilesetDirectory = path.join(outputDirectory, 'PointCloud', tilesetName);
-    var tileName = lowercase(tilesetName) + '.pnts';
-    var tilePath = path.join(tilesetDirectory, tileName);
+    var contentUri = lowercase(tilesetName) + '.pnts';
+    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tileOptions = defaultValue(tileOptions, {});
@@ -958,7 +920,7 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     var batchTableJson = result.batchTableJson;
 
     tilesetOptions = defaultValue(tilesetOptions, {});
-    tilesetOptions.tileName = tileName;
+    tilesetOptions.contentUri = contentUri;
     tilesetOptions.properties = getProperties(batchTableJson);
     tilesetOptions.geometricError = pointCloudGeometricError;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
@@ -976,9 +938,18 @@ function createHierarchy() {
     return createBatchTableHierarchy({
         directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchy'),
         transform : buildingsTransform,
-        optimizeForCesium : optimizeForCesium,
         gzip : gzip,
         prettyJson : prettyJson
+    });
+}
+
+function createHierarchyLegacy() {
+    return createBatchTableHierarchy({
+        directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyLegacy'),
+        transform : buildingsTransform,
+        gzip : gzip,
+        prettyJson : prettyJson,
+        legacy : true
     });
 }
 
@@ -987,7 +958,6 @@ function createHierarchyMultipleParents() {
         directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyMultipleParents'),
         transform : buildingsTransform,
         multipleParents : true,
-        optimizeForCesium : optimizeForCesium,
         gzip : gzip,
         prettyJson : prettyJson
     });
@@ -998,7 +968,6 @@ function createHierarchyNoParents() {
         directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyNoParents'),
         transform : buildingsTransform,
         noParents : true,
-        optimizeForCesium : optimizeForCesium,
         gzip : gzip,
         prettyJson : prettyJson
     });
@@ -1010,7 +979,6 @@ function createHierarchyBinary() {
         transform : buildingsTransform,
         batchTableBinary : true,
         multipleParents : true,
-        optimizeForCesium : optimizeForCesium,
         gzip : gzip,
         prettyJson : prettyJson
     });
@@ -1046,8 +1014,11 @@ function createTileset() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0',
+            version : versionNumber,
             tilesetVersion : '1.2.3'
+        },
+        extras : {
+            name : 'Sample Tileset'
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -1058,7 +1029,7 @@ function createTileset() {
             geometricError : smallGeometricError,
             refine : 'ADD',
             content : {
-                url : 'parent.b3dm',
+                uri : 'parent.b3dm',
                 boundingVolume : {
                     region : parentContentRegion
                 }
@@ -1070,7 +1041,7 @@ function createTileset() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -1079,7 +1050,10 @@ function createTileset() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
+                    },
+                    extras : {
+                        id : 'Special Tile'
                     }
                 },
                 {
@@ -1088,7 +1062,7 @@ function createTileset() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -1097,7 +1071,7 @@ function createTileset() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -1117,7 +1091,7 @@ function createTilesetEmptyRoot() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         properties : undefined,
         geometricError : smallGeometricError,
@@ -1134,7 +1108,7 @@ function createTilesetEmptyRoot() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -1143,7 +1117,7 @@ function createTilesetEmptyRoot() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -1152,7 +1126,7 @@ function createTilesetEmptyRoot() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -1161,7 +1135,7 @@ function createTilesetEmptyRoot() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -1184,9 +1158,26 @@ function createTilesetOfTilesets() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         properties : undefined,
+        geometricError : largeGeometricError,
+        root : {
+            boundingVolume : {
+                region : parentRegion
+            },
+            geometricError : largeGeometricError,
+            refine : 'ADD',
+            content : {
+                uri : 'tileset2.json'
+            }
+        }
+    };
+
+    var tileset2Json = {
+        asset : {
+            version : versionNumber
+        },
         geometricError : largeGeometricError,
         root : {
             boundingVolume : {
@@ -1195,33 +1186,16 @@ function createTilesetOfTilesets() {
             geometricError : smallGeometricError,
             refine : 'ADD',
             content : {
-                url : 'tileset2.json'
-            }
-        }
-    };
-
-    var tileset2Json = {
-        asset : {
-            version : '1.0'
-        },
-        geometricError : smallGeometricError,
-        root : {
-            boundingVolume : {
-                region : parentRegion
-            },
-            geometricError : smallGeometricError,
-            refine : 'ADD',
-            content : {
-                url : 'parent.b3dm'
+                uri : 'parent.b3dm'
             },
             children : [
                 {
                     boundingVolume : {
                         region : llRegion
                     },
-                    geometricError : 0.0,
+                    geometricError : smallGeometricError,
                     content : {
-                        url : 'tileset3/tileset3.json'
+                        uri : 'tileset3/tileset3.json'
                     }
                 },
                 {
@@ -1230,7 +1204,7 @@ function createTilesetOfTilesets() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -1239,7 +1213,7 @@ function createTilesetOfTilesets() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -1248,7 +1222,7 @@ function createTilesetOfTilesets() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -1257,9 +1231,9 @@ function createTilesetOfTilesets() {
 
     var tileset3Json = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
-        geometricError : 0.0,
+        geometricError : smallGeometricError,
         root : {
             boundingVolume : {
                 region : llRegion
@@ -1267,7 +1241,7 @@ function createTilesetOfTilesets() {
             geometricError : 0.0,
             refine : 'ADD',
             content : {
-                url : 'll.b3dm'
+                uri : 'll.b3dm'
             }
         }
     };
@@ -1278,6 +1252,22 @@ function createTilesetOfTilesets() {
                 saveTilesetJson(tileset2Path, tileset2Json, prettyJson),
                 saveTilesetJson(tileset3Path, tileset3Json, prettyJson)
             ]);
+        });
+}
+
+function modifyImageUri(glb, resourceDirectory, newResourceDirectory) {
+    var gltfOptions = {
+        resourceDirectory : resourceDirectory,
+        customStages : [
+            function(gltf) {
+                gltf.images[0].uri = newResourceDirectory + gltf.images[0].uri;
+                return gltf;
+            }
+        ]
+    };
+    return processGlb(glb, gltfOptions)
+        .then(function(results) {
+            return results.glb;
         });
 }
 
@@ -1312,7 +1302,7 @@ function createTilesetWithExternalResources() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         geometricError : smallGeometricError,
         root : {
@@ -1329,7 +1319,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'tileset2/tileset2.json'
+                        uri : 'tileset2/tileset2.json'
                     }
                 },
                 {
@@ -1339,7 +1329,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'external.b3dm'
+                        uri : 'external.b3dm'
                     },
                     transform : transforms[0]
                 },
@@ -1350,7 +1340,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'external.i3dm'
+                        uri : 'external.i3dm'
                     },
                     transform : transforms[1]
                 },
@@ -1361,7 +1351,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'embed.i3dm'
+                        uri : 'embed.i3dm'
                     },
                     transform : transforms[2]
                 }
@@ -1371,7 +1361,7 @@ function createTilesetWithExternalResources() {
 
     var tileset2Json = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         geometricError : smallGeometricError,
         root : {
@@ -1388,7 +1378,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'external.b3dm'
+                        uri : 'external.b3dm'
                     },
                     transform : transforms[3]
                 },
@@ -1399,7 +1389,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'external.i3dm'
+                        uri : 'external.i3dm'
                     },
                     transform : transforms[4]
                 },
@@ -1410,7 +1400,7 @@ function createTilesetWithExternalResources() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'embed.i3dm'
+                        uri : 'embed.i3dm'
                     },
                     transform : transforms[5]
                 }
@@ -1429,32 +1419,38 @@ function createTilesetWithExternalResources() {
 
     return fsExtra.readFile(glbPath)
         .then(function(glb) {
+            return Promise.all([
+                modifyImageUri(glb, glbBasePath, 'textured_box_separate/'),
+                modifyImageUri(glb, glbBasePath, '../textured_box_separate/')
+            ]);
+        })
+        .then(function(glbs) {
             var tiles = [
                 createB3dm({
-                    glb : modifyGltfPaths(glb, 'textured_box_separate/')
+                    glb : glbs[0]
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,
                     featureTableBinary : featureTableBinary,
-                    url : 'textured_box_separate/textured_box.glb'
+                    uri : 'textured_box_separate/textured_box.glb'
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,
                     featureTableBinary : featureTableBinary,
-                    glb : modifyGltfPaths(glb, 'textured_box_separate/')
+                    glb : glbs[0]
                 }),
                 createB3dm({
-                    glb : modifyGltfPaths(glb, '../textured_box_separate/')
+                    glb : glbs[1]
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,
                     featureTableBinary : featureTableBinary,
-                    url : '../textured_box_separate/textured_box.glb'
+                    uri : '../textured_box_separate/textured_box.glb'
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,
                     featureTableBinary : featureTableBinary,
-                    glb : modifyGltfPaths(glb, '../textured_box_separate/')
+                    glb : glbs[1]
                 })
             ];
             return Promise.map(tiles, function(tile, index) {
@@ -1485,7 +1481,7 @@ function createTilesetRefinementMix() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -1496,7 +1492,7 @@ function createTilesetRefinementMix() {
             geometricError : smallGeometricError,
             refine : 'ADD',
             content : {
-                url : 'parent.b3dm',
+                uri : 'parent.b3dm',
                 boundingVolume : {
                     region : parentContentRegion
                 }
@@ -1509,7 +1505,7 @@ function createTilesetRefinementMix() {
                     geometricError : smallGeometricError,
                     refine : 'REPLACE',
                     content : {
-                        url : 'parent.b3dm'
+                        uri : 'parent.b3dm'
                     },
                     children : [
                         {
@@ -1519,7 +1515,7 @@ function createTilesetRefinementMix() {
                             geometricError : 0.0,
                             refine : 'ADD',
                             content : {
-                                url : 'll.b3dm'
+                                uri : 'll.b3dm'
                             }
                         },
                         {
@@ -1529,7 +1525,7 @@ function createTilesetRefinementMix() {
                             geometricError : 0.0,
                             refine : 'REPLACE',
                             content : {
-                                url : 'ur.b3dm'
+                                uri : 'ur.b3dm'
                             }
                         }
                     ]
@@ -1541,7 +1537,7 @@ function createTilesetRefinementMix() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'parent.b3dm'
+                        uri : 'parent.b3dm'
                     },
                     children : [
                         {
@@ -1551,7 +1547,7 @@ function createTilesetRefinementMix() {
                             geometricError : 0.0,
                             refine : 'ADD',
                             content : {
-                                url : 'ul.b3dm'
+                                uri : 'ul.b3dm'
                             }
                         },
                         {
@@ -1561,7 +1557,7 @@ function createTilesetRefinementMix() {
                             geometricError : 0.0,
                             refine : 'REPLACE',
                             content : {
-                                url : 'lr.b3dm'
+                                uri : 'lr.b3dm'
                             }
                         }
                     ]
@@ -1588,7 +1584,7 @@ function createTilesetReplacement1() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -1599,7 +1595,7 @@ function createTilesetReplacement1() {
             geometricError : smallGeometricError,
             refine : 'REPLACE',
             content : {
-                url : 'parent.b3dm',
+                uri : 'parent.b3dm',
                 boundingVolume : {
                     region : parentContentRegion
                 }
@@ -1618,7 +1614,7 @@ function createTilesetReplacement1() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'll.b3dm'
+                                uri : 'll.b3dm'
                             }
                         },
                         {
@@ -1627,7 +1623,7 @@ function createTilesetReplacement1() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'ur.b3dm'
+                                uri : 'ur.b3dm'
                             }
                         }
                     ]
@@ -1645,7 +1641,7 @@ function createTilesetReplacement1() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'lr.b3dm'
+                                uri : 'lr.b3dm'
                             }
                         },
                         {
@@ -1654,7 +1650,7 @@ function createTilesetReplacement1() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'ul.b3dm'
+                                uri : 'ul.b3dm'
                             }
                         }
                     ]
@@ -1680,7 +1676,7 @@ function createTilesetReplacement2() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -1691,7 +1687,7 @@ function createTilesetReplacement2() {
             geometricError : smallGeometricError,
             refine : 'REPLACE',
             content : {
-                url : 'parent.b3dm',
+                uri : 'parent.b3dm',
                 boundingVolume : {
                     region : parentContentRegion
                 }
@@ -1717,7 +1713,7 @@ function createTilesetReplacement2() {
                                     },
                                     geometricError : 0.0,
                                     content : {
-                                        url : 'ur.b3dm'
+                                        uri : 'ur.b3dm'
                                     }
                                 }
                             ]
@@ -1728,7 +1724,7 @@ function createTilesetReplacement2() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'll.b3dm'
+                                uri : 'll.b3dm'
                             }
                         }
                     ]
@@ -1754,7 +1750,7 @@ function createTilesetReplacement3() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -1765,7 +1761,7 @@ function createTilesetReplacement3() {
             geometricError : smallGeometricError,
             refine : 'REPLACE',
             content : {
-                url : 'parent.b3dm',
+                uri : 'parent.b3dm',
                 boundingVolume : {
                     region : parentContentRegion
                 }
@@ -1778,7 +1774,7 @@ function createTilesetReplacement3() {
                     geometricError : smallGeometricError,
                     refine : 'ADD',
                     content : {
-                        url : 'tileset2.json'
+                        uri : 'tileset2.json'
                     }
                 }
             ]
@@ -1787,7 +1783,7 @@ function createTilesetReplacement3() {
 
     var tileset2Json = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         geometricError : smallGeometricError,
         root : {
@@ -1803,7 +1799,7 @@ function createTilesetReplacement3() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -1812,7 +1808,7 @@ function createTilesetReplacement3() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -1821,7 +1817,7 @@ function createTilesetReplacement3() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -1830,7 +1826,7 @@ function createTilesetReplacement3() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -1864,21 +1860,19 @@ function createTilesetWithTransforms() {
         tileWidth : instancesTileWidth,
         transform : Matrix4.IDENTITY,
         instancesLength : instancesLength,
-        url : instancesUrl,
+        uri : instancesUri,
         modelSize : instancesModelSize,
         eastNorthUp : false
     };
 
     var buildingsOptions = {
         buildingOptions : buildingTemplate,
-        transform : Matrix4.IDENTITY,
-        optimizeForCesium : optimizeForCesium,
-        relativeToCenter : false
+        transform : Matrix4.IDENTITY
     };
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         properties : undefined,
         geometricError : smallGeometricError,
@@ -1890,7 +1884,7 @@ function createTilesetWithTransforms() {
             geometricError : instancesGeometricError,
             refine : 'ADD',
             content : {
-                url : buildingsTileName
+                uri : buildingsTileName
             },
             children : [
                 {
@@ -1900,7 +1894,7 @@ function createTilesetWithTransforms() {
                     transform : childTransform,
                     geometricError : 0.0,
                     content : {
-                        url : instancesTileName
+                        uri : instancesTileName
                     }
                 }
             ]
@@ -1944,13 +1938,12 @@ function createTilesetWithViewerRequestVolume() {
         tileWidth : pointCloudTileWidth,
         pointsLength : pointsLength,
         transform : Matrix4.IDENTITY,
-        relativeToCenter : false,
         shape : 'sphere'
     };
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         geometricError : largeGeometricError,
         root : {
@@ -1966,7 +1959,7 @@ function createTilesetWithViewerRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -1975,7 +1968,7 @@ function createTilesetWithViewerRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -1984,7 +1977,7 @@ function createTilesetWithViewerRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -1993,7 +1986,7 @@ function createTilesetWithViewerRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 },
                 {
@@ -2006,7 +1999,7 @@ function createTilesetWithViewerRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'points.pnts'
+                        uri : 'points.pnts'
                     }
                 }
             ]
@@ -2033,7 +2026,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -2051,7 +2044,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
                     geometricError : smallGeometricError,
                     refine : 'REPLACE',
                     content : {
-                        url : 'parent.b3dm',
+                        uri : 'parent.b3dm',
                         boundingVolume : {
                             region : parentContentRegion
                         }
@@ -2066,7 +2059,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'll.b3dm'
+                                uri : 'll.b3dm'
                             }
                         },
                         {
@@ -2078,7 +2071,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'lr.b3dm'
+                                uri : 'lr.b3dm'
                             }
                         },
                         {
@@ -2090,7 +2083,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'ur.b3dm'
+                                uri : 'ur.b3dm'
                             }
                         },
                         {
@@ -2102,7 +2095,7 @@ function createTilesetReplacementWithViewerRequestVolume() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'ul.b3dm'
+                                uri : 'ul.b3dm'
                             }
                         }
                     ]
@@ -2124,7 +2117,7 @@ function createTilesetSubtreeExpiration() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -2138,7 +2131,7 @@ function createTilesetSubtreeExpiration() {
                 boundingVolume : {
                     region : parentContentRegion
                 },
-                url : 'parent.b3dm'
+                uri : 'parent.b3dm'
             },
             children : [
                 {
@@ -2150,7 +2143,7 @@ function createTilesetSubtreeExpiration() {
                     },
                     geometricError : smallGeometricError,
                     content : {
-                        url : 'subtree.json'
+                        uri : 'subtree.json'
                     }
                 }
             ]
@@ -2159,7 +2152,7 @@ function createTilesetSubtreeExpiration() {
 
     var subtreeJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         properties : undefined,
         geometricError : smallGeometricError,
@@ -2176,7 +2169,7 @@ function createTilesetSubtreeExpiration() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -2185,7 +2178,7 @@ function createTilesetSubtreeExpiration() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -2194,7 +2187,7 @@ function createTilesetSubtreeExpiration() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -2203,7 +2196,7 @@ function createTilesetSubtreeExpiration() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -2278,14 +2271,14 @@ function createTilesetPoints() {
             },
             geometricError : 0.0,
             content : {
-                url : i + '.pnts'
+                uri : i + '.pnts'
             }
         });
     }
 
     var tilesetJson = {
         asset : {
-            version : '0.0'
+            version : versionNumber
         },
         properties : undefined,
         geometricError : parentGeometricError,
@@ -2297,7 +2290,7 @@ function createTilesetPoints() {
             geometricError : childGeometricError,
             refine : 'ADD',
             content : {
-                url : 'parent.pnts'
+                uri : 'parent.pnts'
             },
             children : childrenJson
         }
@@ -2343,7 +2336,7 @@ function createDiscreteLOD() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         geometricError : dragonLowGeometricError,
         root : {
@@ -2354,7 +2347,7 @@ function createDiscreteLOD() {
             geometricError : dragonMediumGeometricError,
             refine : 'REPLACE',
             content : {
-                url : 'dragon_low.b3dm'
+                uri : 'dragon_low.b3dm'
             },
             children : [
                 {
@@ -2363,7 +2356,7 @@ function createDiscreteLOD() {
                     },
                     geometricError : dragonHighGeometricError,
                     content : {
-                        url : 'dragon_medium.b3dm'
+                        uri : 'dragon_medium.b3dm'
                     },
                     children : [
                         {
@@ -2372,7 +2365,7 @@ function createDiscreteLOD() {
                             },
                             geometricError : 0.0,
                             content : {
-                                url : 'dragon_high.b3dm'
+                                uri : 'dragon_high.b3dm'
                             }
                         }
                     ]
@@ -2423,18 +2416,18 @@ function createTreeBillboards() {
     };
 
     var treeOptions = clone(options);
-    treeOptions.url = glbPaths[0];
+    treeOptions.uri = glbPaths[0];
     treeOptions.transform = wgs84Transform(longitude, latitude, 0.0); // Detailed model's base is at the origin
 
     var billboardOptions = clone(options);
-    billboardOptions.url = glbPaths[1];
+    billboardOptions.uri = glbPaths[1];
     billboardOptions.transform = wgs84Transform(longitude, latitude, treesHeight / 2.0); // Billboard model is centered about the origin
 
     var optionsArray = [treeOptions, billboardOptions];
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         geometricError : treeBillboardGeometricError,
         root : {
@@ -2444,7 +2437,7 @@ function createTreeBillboards() {
             geometricError : treeGeometricError,
             refine : 'REPLACE',
             content : {
-                url : 'tree_billboard.i3dm'
+                uri : 'tree_billboard.i3dm'
             },
             children : [
                 {
@@ -2453,7 +2446,7 @@ function createTreeBillboards() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'tree.i3dm'
+                        uri : 'tree.i3dm'
                     }
                 }
             ]
@@ -2529,7 +2522,7 @@ function createRequestVolume() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         geometricError : buildingGeometricError,
         root : {
@@ -2545,7 +2538,7 @@ function createRequestVolume() {
                     },
                     geometricError : smallGeometricError,
                     content : {
-                        url : 'city/tileset.json'
+                        uri : 'city/tileset.json'
                     }
                 },
                 {
@@ -2555,7 +2548,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : buildingTileName
+                        uri : buildingTileName
                     }
                 },
                 {
@@ -2568,7 +2561,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : pointCloudTileName
+                        uri : pointCloudTileName
                     }
                 }
             ]
@@ -2577,7 +2570,7 @@ function createRequestVolume() {
 
     var cityTilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         properties : undefined,
         geometricError : smallGeometricError,
@@ -2594,7 +2587,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'll.b3dm'
+                        uri : 'll.b3dm'
                     }
                 },
                 {
@@ -2603,7 +2596,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'lr.b3dm'
+                        uri : 'lr.b3dm'
                     }
                 },
                 {
@@ -2612,7 +2605,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ur.b3dm'
+                        uri : 'ur.b3dm'
                     }
                 },
                 {
@@ -2621,7 +2614,7 @@ function createRequestVolume() {
                     },
                     geometricError : 0.0,
                     content : {
-                        url : 'ul.b3dm'
+                        uri : 'ul.b3dm'
                     }
                 }
             ]
@@ -2697,7 +2690,7 @@ function createExpireTileset() {
 
     var tilesetJson = {
         asset : {
-            version : '1.0'
+            version : versionNumber
         },
         geometricError : pointCloudGeometricError,
         root : {
@@ -2711,7 +2704,7 @@ function createExpireTileset() {
             geometricError : 0.0,
             refine : 'ADD',
             content : {
-                url : pointCloudTileName
+                uri : pointCloudTileName
             }
         }
     };
