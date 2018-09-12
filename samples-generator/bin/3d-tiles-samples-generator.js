@@ -1158,7 +1158,8 @@ function createTilesetOfTilesets() {
 
     var tilesetJson = {
         asset : {
-            version : versionNumber
+            version : versionNumber,
+            tilesetVersion : '1.2.3'
         },
         properties : undefined,
         geometricError : largeGeometricError,
@@ -1166,7 +1167,7 @@ function createTilesetOfTilesets() {
             boundingVolume : {
                 region : parentRegion
             },
-            geometricError : largeGeometricError,
+            geometricError : smallGeometricError,
             refine : 'ADD',
             content : {
                 uri : 'tileset2.json'
@@ -1193,7 +1194,7 @@ function createTilesetOfTilesets() {
                     boundingVolume : {
                         region : llRegion
                     },
-                    geometricError : smallGeometricError,
+                    geometricError : 0.0,
                     content : {
                         uri : 'tileset3/tileset3.json'
                     }
