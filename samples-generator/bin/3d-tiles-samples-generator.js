@@ -976,14 +976,13 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     var result = createPointCloudTile(tileOptions);
     var pnts = result.pnts;
     var batchTableJson = result.batchTableJson;
-    var extensionsUsed = result.extensionsUsed;
+    var extensions = result.extensions;
 
     tilesetOptions = defaultValue(tilesetOptions, {});
     tilesetOptions.contentUri = contentUri;
     tilesetOptions.properties = getProperties(batchTableJson);
     tilesetOptions.geometricError = pointCloudGeometricError;
-    tilesetOptions.extensionsUsed = extensionsUsed;
-    tilesetOptions.extensionsRequired = extensionsUsed;
+    tilesetOptions.extensions = extensions;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
         tilesetOptions.sphere = pointCloudSphere;
     }

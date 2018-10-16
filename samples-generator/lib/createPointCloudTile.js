@@ -3,6 +3,7 @@ var Cesium = require('cesium');
 var draco3d = require('draco3d');
 var SimplexNoise = require('simplex-noise');
 var createPnts = require('./createPnts');
+var Extensions = require('./Extensions');
 
 var AttributeCompression = Cesium.AttributeCompression;
 var Cartesian2 = Cesium.Cartesian2;
@@ -134,7 +135,7 @@ function createPointCloudTile(options) {
     var batchTableJson = {};
     var batchTableBinary = Buffer.alloc(0);
 
-    var extensionsUsed;
+    var extensions = {};
 
     var dracoBuffer;
     var dracoFeatureTableJson;
@@ -146,17 +147,16 @@ function createPointCloudTile(options) {
         dracoFeatureTableJson = dracoResults.dracoFeatureTableJson;
         dracoBatchTableJson = dracoResults.dracoBatchTableJson;
         featureTableBinary = Buffer.concat([featureTableBinary, dracoBuffer]);
+
         if (defined(dracoFeatureTableJson)) {
-            featureTableJson.extensions = {
-                '3DTILES_draco_point_compression' : dracoFeatureTableJson
-            };
+            Extensions.addExtension(featureTableJson, '3DTILES_draco_point_compression', dracoFeatureTableJson);
         }
         if (defined(dracoBatchTableJson)) {
-            batchTableJson.extensions = {
-                '3DTILES_draco_point_compression' : dracoBatchTableJson
-            };
+            Extensions.addExtension(batchTableJson, '3DTILES_draco_point_compression', dracoBatchTableJson);
         }
-        extensionsUsed = ['3DTILES_draco_point_compression'];
+
+        Extensions.addExtensionsRequired(extensions, '3DTILES_draco_point_compression');
+        Extensions.addExtensionsUsed(extensions, '3DTILES_draco_point_compression');
     }
 
     var i;
@@ -233,7 +233,7 @@ function createPointCloudTile(options) {
     return {
         pnts : pnts,
         batchTableJson : batchTableJson,
-        extensionsUsed : extensionsUsed
+        extensions : extensions
     };
 }
 
@@ -323,7 +323,7 @@ function dracoEncodeProperties(pointsLength, properties, preserveOrder) {
 
     var encodedLength = encoder.EncodePointCloudToDracoBuffer(pointCloud, false, encodedDracoDataArray);
     if (encodedLength <= 0) {
-        throw 'Error: Encoding Failed.';
+        throw 'Error: Draco encoding failed.';
     }
 
     var encodedData = Buffer.alloc(encodedLength);
