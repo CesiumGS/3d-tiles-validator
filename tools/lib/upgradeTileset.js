@@ -1,5 +1,6 @@
 'use strict';
 var Cesium = require('cesium');
+var fsExtra = require('fs-extra');
 var GltfPipeline = require('gltf-pipeline');
 var path = require('path');
 var Promise = require('bluebird');
@@ -25,6 +26,7 @@ var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 var Matrix4 = Cesium.Matrix4;
 
+var ForEach = GltfPipeline.ForEach;
 var glbToGltf = GltfPipeline.glbToGltf;
 var gltfToGlb = GltfPipeline.gltfToGlb;
 var processGlb = GltfPipeline.processGlb;
@@ -221,19 +223,52 @@ function getChangeUpAxisFunction(gltfUpAxis) {
     }
 }
 
+function editShaders(gltf) {
+    ForEach.shader(gltf, function(shader) {
+        var source = shader.extras._pipeline.source;
+        shader.extras._pipeline.source = source.replace('dot(prevDir, nextDir) < .99999', 'false');
+    });
+}
+
+function add3DTilesDiffuse(gltf) {
+    ForEach.technique(gltf, function(technique) {
+        if (technique.name.indexOf('Polyline') === -1) {
+            ForEach.techniqueUniform(technique, function(uniform, uniformName) {
+                if (uniformName === 'u_color' || uniformName === 'u_tex') {
+                    uniform.semantic = '_3DTILESDIFFUSE';
+                }
+            })
+        }
+    });
+}
+
 function upgradeB3dm(file, contents, options) {
     var b3dm = extractB3dm(contents);
     transferBatchTableHierarchy(b3dm, options);
     var gltfOptions = {
         resourceDirectory: path.dirname(file),
         logger: options.logger,
+        //separate: true,
         customStages: [
             getTransferRtcCenterFunction(b3dm),
-            getChangeUpAxisFunction(options.gltfUpAxis)
+            getChangeUpAxisFunction(options.gltfUpAxis),
+            editShaders,
+            add3DTilesDiffuse
         ]
     };
     return processGlb(b3dm.glb, gltfOptions)
         .then(function(results) {
+            // var outputDirectory = 'C:/Code/3d-tiles-samples/localTilesets/Plant-Upgraded-Resources/';
+            // var separateResources = results.separateResources;
+            // for (var name in separateResources) {
+            //     if (separateResources.hasOwnProperty(name)) {
+            //         if (path.extname(name) === '.glsl') {
+            //             var content = separateResources[name];
+            //             var filepath = outputDirectory + name;
+            //             fsExtra.outputFileSync(filepath, content);
+            //         }
+            //     }
+            // }
             b3dm.glb = results.glb;
             return createB3dm(b3dm);
         });
