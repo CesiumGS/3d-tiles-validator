@@ -278,6 +278,7 @@ var promises = [
     createTilesetReplacementWithViewerRequestVolume(),
     createTilesetSubtreeExpiration(),
     createTilesetPoints(),
+    createTilesetUniform(),
     // Samples
     createDiscreteLOD(),
     createTreeBillboards(),
@@ -2401,6 +2402,144 @@ function createTilesetPoints() {
     promises.push(saveTilesetJson(tilesetPath, tilesetJson, prettyJson));
 
     return Promise.all(promises);
+}
+
+function createTilesetUniform() {
+    var tilesetName = 'TilesetUniform';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var tileset2Path = path.join(tilesetDirectory, 'tileset2.json');
+
+    // Only subdivide the middle tile in level 1. Helps reduce tileset size.
+    var subdivideCallback = function(level, x, y) {
+        return level === 0 || (level === 1 && x === 1 && y === 1);
+    };
+
+    var results = createUniformTileset(3, 3, subdivideCallback);
+    var tileOptions = results.tileOptions;
+    var tileNames = results.tileNames;
+    var tilesetJson = results.tilesetJson;
+
+    // Insert an external tileset
+    var externalTile1 = clone(tilesetJson.root, true);
+    delete externalTile1.transform;
+    delete externalTile1.refine;
+    delete externalTile1.children;
+    externalTile1.content.uri = 'tileset2.json';
+
+    var externalTile2 = clone(tilesetJson.root, true);
+    delete externalTile2.transform;
+    delete externalTile2.refine;
+    delete externalTile2.content;
+
+    var tileset2Json = clone(tilesetJson, true);
+    tileset2Json.root = externalTile2;
+    tilesetJson.root.children = [externalTile1];
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true)
+        .then(function() {
+            saveTilesetJson(tileset2Path, tileset2Json, prettyJson);
+        });
+}
+
+function createUniformTileset(depth, divisions, subdivideCallback) {
+    depth = Math.max(depth, 1);
+    divisions = Math.max(divisions, 1);
+
+    var tileOptions = [];
+    var tileNames = [];
+
+    var tilesetJson = {
+        asset : {
+            version : versionNumber
+        },
+        properties : undefined,
+        geometricError : largeGeometricError
+    };
+
+    divideTile(0, 0, 0, divisions, depth, tilesetJson, tileOptions, tileNames, subdivideCallback);
+
+    return {
+        tilesetJson : tilesetJson,
+        tileOptions : tileOptions,
+        tileNames : tileNames
+    };
+}
+
+function divideTile(level, x, y, divisions, depth, parent, tileOptions, tileNames, subdivideCallback) {
+    var uri = level + '_' + x + '_' + y + '.b3dm';
+    var tilesPerAxis = Math.pow(divisions, level);
+
+    var buildingsLength = divisions * divisions;
+    var buildingsPerAxis = Math.sqrt(buildingsLength);
+
+    var tileWidthMeters = tileWidth / tilesPerAxis;
+    var tileLongitudeExtent = longitudeExtent / tilesPerAxis;
+    var tileLatitudeExtent = latitudeExtent / tilesPerAxis;
+    var tileHeightMeters = tileWidthMeters / (buildingsPerAxis * 3);
+
+    var xOffset = -tileWidth / 2.0 + (x + 0.5) * tileWidthMeters;
+    var yOffset = -tileWidth / 2.0 + (y + 0.5) * tileWidthMeters;
+    var transform = Matrix4.fromTranslation(new Cartesian3(xOffset, yOffset, 0));
+
+    var west = longitude - longitudeExtent / 2.0 + x * tileLongitudeExtent;
+    var south = latitude - latitudeExtent / 2.0 + y * tileLatitudeExtent;
+    var east = west + tileLongitudeExtent;
+    var north = south + tileLatitudeExtent;
+    var tileLongitude = west + (east - west) / 2.0;
+    var tileLatitude = south + (north - south) / 2.0;
+    var region = [west, south, east, north, 0, tileHeightMeters];
+
+    var isLeaf = (level === depth - 1);
+    var isRoot = (level === 0);
+    var subdivide = !isLeaf && (!defined(subdivideCallback) || subdivideCallback(level, x, y));
+    var geometricError = isLeaf ? 0.0 : largeGeometricError / Math.pow(2, level + 1);
+    var children = subdivide ? [] : undefined;
+
+    var tileJson = {
+        boundingVolume : {
+            region : region
+        },
+        geometricError : geometricError,
+        content : {
+            uri : uri
+        },
+        children : children
+    };
+
+    if (isRoot) {
+        parent.root = tileJson;
+        tileJson.transform = Matrix4.pack(buildingsTransform, new Array(16));
+        tileJson.refine = 'REPLACE';
+    } else {
+        parent.children.push(tileJson);
+    }
+
+    tileOptions.push({
+        buildingOptions : {
+            uniform : true,
+            numberOfBuildings : buildingsLength,
+            tileWidth : tileWidthMeters,
+            longitude : tileLongitude,
+            latitude : tileLatitude
+        },
+        createBatchTable : true,
+        transform : transform
+    });
+
+    tileNames.push(uri);
+
+    var nextLevel = level + 1;
+    var nextX = divisions * x;
+    var nextY = divisions * y;
+
+    if (subdivide) {
+        for (var i = 0; i < divisions; ++i) {
+            for (var j = 0; j < divisions; ++j) {
+                divideTile(nextLevel, nextX + i, nextY + j, divisions, depth, tileJson, tileOptions, tileNames, subdivideCallback);
+            }
+        }
+    }
 }
 
 function createDiscreteLOD() {

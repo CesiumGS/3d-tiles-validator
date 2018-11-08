@@ -38,6 +38,7 @@ var redMaterial = new Material({
  * Creates a set of buildings that will be converted to a b3dm tile.
  *
  * @param {Object} [options] Object with the following properties:
+ * @param {Boolean} [options.uniform=false] Whether to create uniformly sized and spaced buildings.
  * @param {Number} [options.numberOfBuildings=10] The number of buildings to create.
  * @param {Number} [options.tileWidth=200.0] The width of the tile in meters. Buildings are placed randomly in this area.
  * @param {Number} [options.averageWidth=4.0] Average building width in meters around which random widths and depths are generated.
@@ -46,21 +47,79 @@ var redMaterial = new Material({
  * @param {String} [options.translucencyType='opaque'] Specifies the type of translucency to apply to the tile. Possible values are 'opaque', 'translucent', 'mix'.
  * @param {Number} [options.longitude=-1.31968] The center longitude of the tile. Used to generate metadata for the batch table.
  * @param {Number} [options.latitude=0.698874] The center latitude of the tile. Used to generate metadata for the batch table.
- * @param {Number} [options.seed=2] The random seed to use.
+ * @param {Number} [options.seed=11] The random seed to use.
  *
  * @returns {Building[]} An array of buildings.
  */
 function createBuildings(options) {
-    options = defaultValue(options, defaultValue.EMPTY_OBJECT);
-    var seed = defaultValue(options.seed, 11);
-    var numberOfBuildings = defaultValue(options.numberOfBuildings, 10);
-    var tileWidth = defaultValue(options.tileWidth, 200.0);
-    var averageWidth = defaultValue(options.averageWidth, 4.0);
-    var averageHeight = defaultValue(options.averageHeight, 5.0);
-    var baseColorType = defaultValue(options.baseColorType, 'white');
-    var translucencyType = defaultValue(options.translucencyType, 'opaque');
-    var centerLongitude = defaultValue(options.longitude, -1.31968);
-    var centerLatitude = defaultValue(options.latitude, 0.698874);
+    options = defaultValue(options, {});
+    options.seed = defaultValue(options.seed, 11);
+    options.numberOfBuildings = defaultValue(options.numberOfBuildings, 10);
+    options.tileWidth = defaultValue(options.tileWidth, 200.0);
+    options.averageWidth = defaultValue(options.averageWidth, 4.0);
+    options.averageHeight = defaultValue(options.averageHeight, 5.0);
+    options.baseColorType = defaultValue(options.baseColorType, 'white');
+    options.translucencyType = defaultValue(options.translucencyType, 'opaque');
+    options.longitude = defaultValue(options.longitude, -1.31968);
+    options.latitude = defaultValue(options.latitude, 0.698874);
+
+    if (options.uniform) {
+        return createUniformBuildings(options);
+    }
+    return createRandomBuildings(options);
+}
+
+function createUniformBuildings(options) {
+    var numberOfBuildings = options.numberOfBuildings;
+    var tileWidth = options.tileWidth;
+    var centerLongitude = options.longitude;
+    var centerLatitude = options.latitude;
+
+    var buildingsPerAxis = Math.sqrt(numberOfBuildings);
+    var buildingWidth = tileWidth / (buildingsPerAxis * 3);
+    var buildings = [];
+
+    for (var i = 0; i < buildingsPerAxis; ++i) {
+        for (var j = 0; j < buildingsPerAxis; ++j) {
+            var x = buildingWidth * 1.5 + i * buildingWidth * 3.0 - tileWidth / 2.0;
+            var y = buildingWidth * 1.5 + j * buildingWidth * 3.0 - tileWidth / 2.0;
+            var z = buildingWidth / 2.0;
+            var rangeX = x / tileWidth - 0.5;
+            var rangeY = y / tileWidth - 0.5;
+
+            var translation = Cartesian3.fromElements(x, y, z, scratchTranslation);
+            var rotation = Quaternion.clone(Quaternion.IDENTITY, scratchRotation);
+            var scale = Cartesian3.fromElements(buildingWidth, buildingWidth, buildingWidth, scratchScale);
+            var matrix = Matrix4.fromTranslationQuaternionRotationScale(translation, rotation, scale, new Matrix4());
+
+            var longitudeExtent = metersToLongitude(tileWidth, centerLatitude);
+            var latitudeExtent = metersToLatitude(tileWidth, centerLongitude);
+            var longitude = centerLongitude + rangeX * longitudeExtent;
+            var latitude = centerLatitude + rangeY * latitudeExtent;
+
+            buildings.push(new Building({
+                matrix : matrix,
+                material : whiteOpaqueMaterial,
+                longitude : longitude,
+                latitude : latitude,
+                height : buildingWidth
+            }));
+        }
+    }
+
+    return buildings;
+}
+
+function createRandomBuildings(options) {
+    var seed = options.seed;
+    var numberOfBuildings = options.numberOfBuildings;
+    var tileWidth = options.tileWidth;
+    var averageWidth = options.averageWidth;
+    var averageHeight = options.averageHeight;
+    var baseColorType = options.baseColorType;
+    var translucencyType = options.translucencyType;
+    var centerLongitude = options.longitude;
+    var centerLatitude = options.latitude;
 
     // Set the random number seed before creating materials
     CesiumMath.setRandomNumberSeed(seed);
