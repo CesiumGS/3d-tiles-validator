@@ -21,6 +21,7 @@ var defaultTilesetVersion = '1.0';
  * @param {Object} [options.sphere] Bounding sphere of the tile.
  * @param {Matrix4} [options.transform=Matrix4.IDENTITY] The tile transform.
  * @param {Object} [options.properties] An object containing the min and max values for each property in the batch table.
+ * @param {Object} [options.extensions] An object containing extensionsUsed, extensionsRequired, and extensions properties.
  * @param {Object} [options.expire] Tile expiration options.
  *
  * @returns {Object} The tileset JSON.
@@ -29,12 +30,16 @@ function createTilesetJsonSingle(options) {
     var transform = defaultValue(options.transform, Matrix4.IDENTITY);
     var transformArray = (defined(transform) && !Matrix4.equals(transform, Matrix4.IDENTITY)) ? Matrix4.pack(transform, new Array(16)) : undefined;
     var boundingVolume = getBoundingVolume(options.region, options.box, options.sphere);
+    var extensions = defaultValue(options.extensions, defaultValue.EMPTY_OBJECT);
 
     var tilesetJson = {
         asset : {
             version : defaultValue(options.versionNumber, defaultTilesetVersion)
         },
         properties : options.properties,
+        extensionsUsed : extensions.extensionsUsed,
+        extensionsRequired : extensions.extensionsRequired,
+        extensions : extensions.extensions,
         geometricError : options.geometricError,
         root : {
             transform : transformArray,

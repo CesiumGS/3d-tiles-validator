@@ -232,6 +232,12 @@ var promises = [
     createPointCloudBatched(),
     createPointCloudWithPerPointProperties(),
     createPointCloudWithTransform(),
+    createPointCloudDraco(),
+    createPointCloudDracoPartial(),
+    createPointCloudDracoBatched(),
+    createPointCloudTimeDynamic(),
+    createPointCloudTimeDynamicWithTransforms(),
+    createPointCloudTimeDynamicDraco(),
     // Instanced
     createInstancedWithBatchTable(),
     createInstancedWithoutBatchTable(),
@@ -594,6 +600,58 @@ function createPointCloudWithTransform() {
     return savePointCloudTileset('PointCloudWithTransform', tileOptions, tilesetOptions);
 }
 
+function createPointCloudDraco() {
+    var tileOptions = {
+        colorMode : 'rgb',
+        shape : 'sphere',
+        generateNormals : true,
+        perPointProperties : true,
+        draco : true
+    };
+    return savePointCloudTileset('PointCloudDraco', tileOptions);
+}
+
+function createPointCloudDracoPartial() {
+    var tileOptions = {
+        colorMode : 'rgb',
+        shape : 'sphere',
+        generateNormals : true,
+        perPointProperties : true,
+        draco : true,
+        dracoSemantics : ['POSITION']
+    };
+    return savePointCloudTileset('PointCloudDracoPartial', tileOptions);
+}
+
+function createPointCloudDracoBatched() {
+    var tileOptions = {
+        colorMode : 'rgb',
+        shape : 'sphere',
+        generateNormals : true,
+        batched : true,
+        draco : true
+    };
+    return savePointCloudTileset('PointCloudDracoBatched', tileOptions);
+}
+
+function createPointCloudTimeDynamic() {
+    return savePointCloudTimeDynamic('PointCloudTimeDynamic');
+}
+
+function createPointCloudTimeDynamicWithTransforms() {
+    var options = {
+        transform : true
+    };
+    return savePointCloudTimeDynamic('PointCloudTimeDynamicWithTransform', options);
+}
+
+function createPointCloudTimeDynamicDraco() {
+    var options = {
+        draco : true
+    };
+    return savePointCloudTimeDynamic('PointCloudTimeDynamicDraco', options);
+}
+
 function createInstancedWithBatchTable() {
     var tileOptions = {
         createBatchTable : true
@@ -918,11 +976,13 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     var result = createPointCloudTile(tileOptions);
     var pnts = result.pnts;
     var batchTableJson = result.batchTableJson;
+    var extensions = result.extensions;
 
     tilesetOptions = defaultValue(tilesetOptions, {});
     tilesetOptions.contentUri = contentUri;
     tilesetOptions.properties = getProperties(batchTableJson);
     tilesetOptions.geometricError = pointCloudGeometricError;
+    tilesetOptions.extensions = extensions;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
         tilesetOptions.sphere = pointCloudSphere;
     }
@@ -932,6 +992,42 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
         saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
         saveTile(tilePath, pnts, gzip)
     ]);
+}
+
+function savePointCloudTimeDynamic(name, options) {
+    options = defaultValue(options, defaultValue.EMPTY_OBJECT);
+    var useTransform = defaultValue(options.transform, false);
+    var directory = path.join(outputDirectory, 'PointCloud', name);
+
+    var transform = pointCloudTransform;
+    var relativeToCenter = true;
+
+    if (useTransform) {
+        transform = Matrix4.IDENTITY;
+        relativeToCenter = false;
+    }
+
+    var pointCloudOptions = {
+        tileWidth: pointCloudTileWidth,
+        pointsLength: pointsLength,
+        perPointProperties: true,
+        transform: transform,
+        relativeToCenter: relativeToCenter,
+        color: 'noise',
+        shape: 'box',
+        draco: options.draco
+    };
+
+    var tilePromises = [];
+    for (var i = 0; i < 5; ++i) {
+        var tileOptions = clone(pointCloudOptions);
+        tileOptions.time = i * 0.1; // Seed for noise
+        var pnts = createPointCloudTile(tileOptions).pnts;
+        var tilePath = path.join(directory, i + '.pnts');
+        tilePromises.push(saveTile(tilePath, pnts, gzip));
+    }
+
+    return Promise.all(tilePromises);
 }
 
 function createHierarchy() {
