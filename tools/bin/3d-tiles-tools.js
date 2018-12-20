@@ -319,10 +319,9 @@ function readGlbWriteI3dm(inputPath, outputPath, force) {
                             byteOffset : 0
                         }
                     };
-                    var featureTableJsonBuffer = getJsonBufferPadded(featureTable);
                     var featureTableBinaryBuffer = getBufferPadded(Buffer.alloc(12, 0)); // [0, 0, 0]
 
-                    return fsExtra.outputFile(outputPath, glbToI3dm(glb, featureTableJsonBuffer, featureTableBinaryBuffer));
+                    return fsExtra.outputFile(outputPath, glbToI3dm(glb, featureTable, featureTableBinaryBuffer));
                 });
         });
 }
