@@ -1,15 +1,15 @@
 <p align="center"><img src="figures/Cesium3DTiles.png" /></p>
 
-# 3D Tiles Tools
+Validator and sample data for [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles/blob/master/README.md) tilesets.
 
-Upcoming tools for [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles/blob/master/README.md) tilesets:
-* Manipulating tilesets, e.g., extracting glTF, gzipping, etc.  See [tools/README.md](https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/blob/master/tools/README.md).
-* Validating that a tileset conforms to the specification.  See [validator/README.md](https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/blob/master/validator/README.md).
-* Generate the sample tilesets in [3d-tiles-samples](https://github.com/AnalyticalGraphicsInc/3d-tiles-samples) and [Cesium](https://github.com/AnalyticalGraphicsInc/cesium).  See [samples-generator/README.md](https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/blob/master/samples-generator/README.md).
-
-See the [roadmap](https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/issues/1).
+| Tool | Description |
+| :--- | :--- |
+| [3D Tiles Validator](./validator/) | Open source Node.js library and command-line tools for validating that a tileset conforms to the 3D Tiles specification. |
+| [3D Tiles Samples](./samples-generator/) | Open source command-line tools for generating sample 3D Tiles in [3d-tiles-samples](https://github.com/AnalyticalGraphicsInc/3d-tiles-samples) |
 
 Created by the <a href="http://cesiumjs.org/">Cesium team</a> and University of Pennsylvania students.
+
+To generate new 3D tilesets, see [Cesium ion](https://cesium.com/ion/).
 
 ## Contributions
 
