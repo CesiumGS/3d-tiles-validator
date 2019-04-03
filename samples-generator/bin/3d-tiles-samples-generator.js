@@ -196,94 +196,96 @@ var ulTileOptions = {
 };
 
 var promises = [
-    // Batched
-    createBatchedWithBatchTable(),
-    createBatchedWithoutBatchTable(),
-    createBatchedWithBatchTableBinary(),
-    createBatchedTranslucent(),
-    createBatchedTranslucentOpaqueMix(),
-    createBatchedColors(),
-    createBatchedColorsTranslucent(),
-    createBatchedColorsMix(),
-    createBatchedTextured(),
-    createBatchedWithBoundingSphere(),
-    createBatchedWithTransformBox(),
-    createBatchedWithTransformSphere(),
-    createBatchedWithTransformRegion(),
-    createBatchedWithRtcCenter(),
-    createBatchedNoBatchIds(),
-    createBatchedWGS84(),
-    createBatchedDeprecated1(),
-    createBatchedDeprecated2(),
-    createBatchedExpiration(),
-    createBatchedWithVertexColors(),
-    createBatchedWithContentDataUri(),
-    // Point Cloud
-    createPointCloudRGB(),
-    createPointCloudRGBA(),
-    createPointCloudRGB565(),
-    createPointCloudConstantColor(),
-    createPointCloudNoColor(),
-    createPointCloudWGS84(),
-    createPointCloudQuantized(),
-    createPointCloudNormals(),
-    createPointCloudNormalsOctEncoded(),
-    createPointCloudQuantizedOctEncoded(),
-    createPointCloudBatched(),
-    createPointCloudWithPerPointProperties(),
-    createPointCloudWithTransform(),
-    createPointCloudDraco(),
-    createPointCloudDracoPartial(),
-    createPointCloudDracoBatched(),
-    createPointCloudTimeDynamic(),
-    createPointCloudTimeDynamicWithTransforms(),
-    createPointCloudTimeDynamicDraco(),
-    // Instanced
-    createInstancedWithBatchTable(),
-    createInstancedWithoutBatchTable(),
-    createInstancedWithBatchTableBinary(),
-    createInstancedGltfExternal(),
-    createInstancedOrientation(),
-    createInstancedOct32POrientation(),
-    createInstancedQuantizedOct32POrientation(),
-    createInstancedQuantized(),
-    createInstancedScaleNonUniform(),
-    createInstancedScale(),
-    createInstancedRTC(),
-    createInstancedWithTransform(),
-    createInstancedRedMaterial(),
-    createInstancedWithBatchIds(),
-    createInstancedTextured(),
-    // Composite
-    createComposite(),
-    createCompositeOfComposite(),
-    createCompositeOfInstanced(),
-    // Hierarchy
-    createHierarchy(),
-    createHierarchyLegacy(),
-    createHierarchyMultipleParents(),
-    createHierarchyNoParents(),
-    createHierarchyBinary(),
-    // Tilesets
-    createTileset(),
-    createTilesetEmptyRoot(),
-    createTilesetOfTilesets(),
-    createTilesetWithExternalResources(),
-    createTilesetRefinementMix(),
-    createTilesetReplacement1(),
-    createTilesetReplacement2(),
-    createTilesetReplacement3(),
-    createTilesetWithTransforms(),
-    createTilesetWithViewerRequestVolume(),
-    createTilesetReplacementWithViewerRequestVolume(),
-    createTilesetSubtreeExpiration(),
-    createTilesetPoints(),
-    createTilesetUniform(),
-    // Samples
-    createDiscreteLOD(),
-    createTreeBillboards(),
-    createRequestVolume(),
-    createExpireTileset()
+    // // Batched
+    // createBatchedWithBatchTable(),
+    // createBatchedWithoutBatchTable(),
+    // createBatchedWithBatchTableBinary(),
+    // createBatchedTranslucent(),
+    // createBatchedTranslucentOpaqueMix(),
+    // createBatchedColors(),
+    // createBatchedColorsTranslucent(),
+    // createBatchedColorsMix(),
+    // createBatchedTextured(),
+    // createBatchedWithBoundingSphere(),
+    // createBatchedWithTransformBox(),
+    // createBatchedWithTransformSphere(),
+    // createBatchedWithTransformRegion(),
+    // createBatchedWithRtcCenter(),
+    // createBatchedNoBatchIds(),
+    // createBatchedWGS84(),
+    // createBatchedDeprecated1(),
+    // createBatchedDeprecated2(),
+    // createBatchedExpiration(),
+    // createBatchedWithVertexColors(),
+    // createBatchedWithContentDataUri(),
+    // // Point Cloud
+    // createPointCloudRGB(),
+    // createPointCloudRGBA(),
+    // createPointCloudRGB565(),
+    // createPointCloudConstantColor(),
+    // createPointCloudNoColor(),
+    // createPointCloudWGS84(),
+    // createPointCloudQuantized(),
+    // createPointCloudNormals(),
+    // createPointCloudNormalsOctEncoded(),
+    // createPointCloudQuantizedOctEncoded(),
+    // createPointCloudBatched(),
+    // createPointCloudWithPerPointProperties(),
+    // createPointCloudWithTransform(),
+    // createPointCloudDraco(),
+    // createPointCloudDracoPartial(),
+    // createPointCloudDracoBatched(),
+    // createPointCloudTimeDynamic(),
+    // createPointCloudTimeDynamicWithTransforms(),
+    // createPointCloudTimeDynamicDraco(),
+    // // Instanced
+    // createInstancedWithBatchTable(),
+    // createInstancedWithoutBatchTable(),
+    // createInstancedWithBatchTableBinary(),
+    // createInstancedGltfExternal(),
+    // createInstancedOrientation(),
+    // createInstancedOct32POrientation(),
+    // createInstancedQuantizedOct32POrientation(),
+    // createInstancedQuantized(),
+    // createInstancedScaleNonUniform(),
+    // createInstancedScale(),
+    // createInstancedRTC(),
+    // createInstancedWithTransform(),
+    // createInstancedRedMaterial(),
+    // createInstancedWithBatchIds(),
+    // createInstancedTextured(),
+    // // Composite
+    // createComposite(),
+    // createCompositeOfComposite(),
+    // createCompositeOfInstanced(),
+    // // Hierarchy
+    // createHierarchy(),
+    // createHierarchyLegacy(),
+    // createHierarchyMultipleParents(),
+    // createHierarchyNoParents(),
+    // createHierarchyBinary(),
+    // // Tilesets
+    // createTileset(),
+    // createTilesetEmptyRoot(),
+    // createTilesetOfTilesets(),
+    // createTilesetWithExternalResources(),
+    // createTilesetRefinementMix(),
+    // createTilesetReplacement1(),
+    // createTilesetReplacement2(),
+    // createTilesetReplacement3(),
+    // createTilesetWithTransforms(),
+    // createTilesetWithViewerRequestVolume(),
+    // createTilesetReplacementWithViewerRequestVolume(),
+    // createTilesetSubtreeExpiration(),
+    // createTilesetPoints(),
+    // createTilesetUniform(),
+    createTilesetUniformB3dm(),
+    //createTilesetUniformEmpty(), // make sure to not set content uri. Also delete b3dms from folder
+    // // Samples
+    // createDiscreteLOD(),
+    // createTreeBillboards(),
+    // createRequestVolume(),
+    // createExpireTileset()
 ];
 
 return Promise.all(promises);
@@ -2442,6 +2444,33 @@ function createTilesetUniform() {
         });
 }
 
+function createTilesetUniformB3dm() {
+    var tilesetName = 'TilesetUniformB3dm';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+
+    var results = createUniformTileset(3, 3);
+    var tileOptions = results.tileOptions;
+    var tileNames = results.tileNames;
+    var tilesetJson = results.tilesetJson;
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true);
+}
+
+function createTilesetUniformEmpty() {
+    var tilesetName = 'TilesetUniformEmpty';
+    var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+
+    var results = createUniformTileset(3, 3);
+    var tileOptions = results.tileOptions;
+    var tileNames = results.tileNames;
+    var tilesetJson = results.tilesetJson;
+
+    return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true);
+}
+
+
 function createUniformTileset(depth, divisions, subdivideCallback) {
     depth = Math.max(depth, 1);
     divisions = Math.max(divisions, 1);
@@ -2500,20 +2529,23 @@ function divideTile(level, x, y, divisions, depth, parent, tileOptions, tileName
         boundingVolume : {
             region : region
         },
-        geometricError : geometricError,
-        content : {
-            uri : uri
-        },
+        geometricError : geometricError / 10.0,
         children : children
+    };
+
+    tileJson.content = {
+        uri : uri
     };
 
     if (isRoot) {
         parent.root = tileJson;
-        tileJson.transform = Matrix4.pack(buildingsTransform, new Array(16));
-        tileJson.refine = 'REPLACE';
+        //tileJson.transform = Matrix4.pack(buildingsTransform, new Array(16));
+        tileJson.refine = 'ADD';
     } else {
         parent.children.push(tileJson);
     }
+
+    var tileTransform = Matrix4.multiply(buildingsTransform, transform, new Matrix4());
 
     tileOptions.push({
         buildingOptions : {
@@ -2524,7 +2556,8 @@ function divideTile(level, x, y, divisions, depth, parent, tileOptions, tileName
             latitude : tileLatitude
         },
         createBatchTable : true,
-        transform : transform
+        relativeToCenter : true,
+        transform : tileTransform
     });
 
     tileNames.push(uri);
