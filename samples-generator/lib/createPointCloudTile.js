@@ -420,6 +420,11 @@ function getPosition(i, pointsLength) {
 
 function boxFunction(i, pointsLength, radius) {
     var position = getPosition(i, pointsLength);
+
+    if (i >= 700) {
+        position.z -= 0.3;
+    }
+
     Cartesian3.multiplyByScalar(position, radius, position);
     return position;
 }
@@ -433,8 +438,16 @@ function sphereFunction(i, pointsLength, radius) { //eslint-disable-line no-unus
     return new Cartesian3(x, y, z);
 }
 
-function randomFunction(position) { //eslint-disable-line no-unused-vars
-    return Color.fromRandom();
+function randomFunction(i, position) { //eslint-disable-line no-unused-vars
+    if (i >= 700) {
+        return Color.fromRandom({
+            red: 0
+        });
+    } else {
+        return Color.fromRandom({
+            blue: 0
+        });
+    }
 }
 
 function gradientFunction(position) {
@@ -490,7 +503,7 @@ function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shape
             normal = Cartesian3.normalize(position, new Cartesian3());
         }
         var batchId = getBatchId(position);
-        var color = colorFunction(unitPosition);
+        var color = colorFunction(i, unitPosition);
         var noise = getNoise(unitPosition, time);
 
         Matrix4.multiplyByPoint(transform, position, position);
@@ -738,37 +751,35 @@ function getBatchTableForBatchedPoints(batchLength) {
 
 function getPerPointBatchTableProperties(pointsLength, noiseValues) {
     // Create some sample per-point properties. Each point will have a temperature, secondary color, and id.
-    var temperaturesBuffer = Buffer.alloc(pointsLength * sizeOfFloat32);
-    var secondaryColorBuffer = Buffer.alloc(pointsLength * 3 * sizeOfFloat32);
-    var idBuffer = Buffer.alloc(pointsLength * sizeOfUint16);
+    var classificationBuffer = Buffer.alloc(pointsLength * sizeOfUint8);
+    var asBuiltBuffer = Buffer.alloc(pointsLength * sizeOfUint8);
 
     for (var i = 0; i < pointsLength; ++i) {
-        var temperature = noiseValues[i];
-        var secondaryColor = [CesiumMath.nextRandomNumber(), 0.0, 0.0];
-        temperaturesBuffer.writeFloatLE(temperature, i * sizeOfFloat32);
-        secondaryColorBuffer.writeFloatLE(secondaryColor[0], (i * 3) * sizeOfFloat32);
-        secondaryColorBuffer.writeFloatLE(secondaryColor[1], (i * 3 + 1) * sizeOfFloat32);
-        secondaryColorBuffer.writeFloatLE(secondaryColor[2], (i * 3 + 2) * sizeOfFloat32);
-        idBuffer.writeUInt16LE(i, i * sizeOfUint16);
+        var asBuilt = 0; // NOT AS-BUILT
+        if (i < 200) {
+            asBuilt = 1; // AS-BUILT
+        }
+        asBuiltBuffer.writeUInt8(asBuilt, i * sizeOfUint8);
+        var classification = 0; // OLD
+        if (i >= 700) {
+            classification = 2; // NEW
+        } else if (i >= 500) {
+            classification = 1; // OLD AND REPLACED
+        }
+        classificationBuffer.writeUInt8(classification, i * sizeOfUint8);
     }
 
     return [
         {
-            buffer : temperaturesBuffer,
-            propertyName : 'temperature',
-            componentType : 'FLOAT',
+            buffer : classificationBuffer,
+            propertyName : 'Classification',
+            componentType : 'UNSIGNED_BYTE',
             type: 'SCALAR'
         },
         {
-            buffer : secondaryColorBuffer,
-            propertyName : 'secondaryColor',
-            componentType : 'FLOAT',
-            type : 'VEC3'
-        },
-        {
-            buffer : idBuffer,
-            propertyName : 'id',
-            componentType : 'UNSIGNED_SHORT',
+            buffer : asBuiltBuffer,
+            propertyName : 'AsBuilt',
+            componentType : 'UNSIGNED_BYTE',
             type : 'SCALAR'
         }
     ];
