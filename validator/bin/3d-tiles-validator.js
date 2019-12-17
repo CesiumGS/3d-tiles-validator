@@ -39,12 +39,12 @@ if (extension === '') {
 if (isTile(filePath)) {
     promise = readTile(filePath)
         .then(function(content) {
-            return validateTile(content);
+            return validateTile(content, filePath);
         });
 } else {
     promise = readTileset(filePath)
         .then(function(tileset) {
-            return validateTileset(tileset, path.dirname(filePath));
+            return validateTileset(tileset, filePath, path.dirname(filePath));
         });
 }
 

@@ -27,13 +27,12 @@ module.exports = validateTileset;
  * @param {String} tilesetDirectory The directory that all paths in the tileset JSON are relative to.
  * @return {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
  */
-function validateTileset(tileset, tilesetDirectory) {
+function validateTileset(tileset, filePath, tilesetDirectory) {
     var message = validateTopLevel(tileset);
     if (defined(message)) {
         return Promise.resolve(message);
     }
-
-    return Promise.resolve(validateTileHierarchy(tileset.root, tilesetDirectory));
+    return Promise.resolve(validateTileHierarchy(tileset.root, filePath, tilesetDirectory));
 }
 
 function validateTopLevel(tileset) {
@@ -65,7 +64,7 @@ function validateTopLevel(tileset) {
     }
 }
 
-function validateTileHierarchy(root, tilesetDirectory) {
+function validateTileHierarchy(root, filePath, tilesetDirectory) {
     var contentPaths = [];
 
     var stack = [];
@@ -94,6 +93,9 @@ function validateTileHierarchy(root, tilesetDirectory) {
 
         if (defined(content) && defined(content.url)) {
             contentPaths.push(path.join(tilesetDirectory, content.url));
+        }
+        if (defined(content) && defined(content.uri)) {
+            contentPaths.push(path.join(tilesetDirectory, content.uri));
         }
 
         var outerTransform;
@@ -144,23 +146,35 @@ function validateTileHierarchy(root, tilesetDirectory) {
         }
     }
 
-    return Promise.map(contentPaths, function(contentPath) {
+    let completed = 0;
+    const numContentPaths = contentPaths.length;
+    let reportProgress = function() {
+        completed++;
+        if (completed % 32 == 0) {
+            console.log(`[${filePath}] ${100 * completed / numContentPaths}% done`);
+        }
+    };
+    console.log(`Validating ${filePath} - ${numContentPaths} sub tiles`);
+    return Promise.map(contentPaths, function (contentPath) {
+        //console.log("Validating " + contentPath);
         if (isTile(contentPath)) {
             return readTile(contentPath)
-                .then(function(content) {
-                    return validateTile(content);
+                .then(function (content) {
+                    let result = validateTile(content, contentPath);
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     return 'Could not read file: ' + error.message;
-                });
+                })
+                .finally(reportProgress);
         }
         return readTileset(contentPath)
             .then(function(tileset) {
-                return validateTileset(tileset, path.dirname(contentPath));
+                return validateTileset(tileset, contentPath, path.dirname(contentPath));
             })
             .catch(function(error) {
                 return 'Could not read file: ' + error.message;
-            });
+            })
+            .finally(reportProgress);
     })
         .then(function(messages) {
             var message = '';

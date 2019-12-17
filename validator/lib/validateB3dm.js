@@ -26,7 +26,7 @@ var featureTableSemantics = {
  * @param {Buffer} content A buffer containing the contents of a b3dm tile.
  * @returns {String} An error message if validation fails, otherwise undefined.
  */
-function validateB3dm(content) {
+function validateB3dm(content, filePath) {
     var headerByteLength = 28;
     if (content.length < headerByteLength) {
         return 'Header must be 28 bytes.';
@@ -123,7 +123,7 @@ function validateB3dm(content) {
         return batchTableMessage;
     }
 
-    var glbMessage = validateGlb(glbBuffer);
+    var glbMessage = validateGlb(glbBuffer, filePath + ".glb");
     if (defined(glbMessage)) {
         return glbMessage;
     }
