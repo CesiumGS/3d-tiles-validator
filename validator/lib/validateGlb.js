@@ -39,9 +39,11 @@ function validateGlb(glb, filePath) {
         // You can convert it to JSON to see its internal structure. 
         if (result.issues.numErrors > 0) {
             let validationText = JSON.stringify(result, null, '  ');
-            //fs.writeFile(`${filePath}_report.json`, validationText, (err) => {
-            //    if (err) { throw err; }
-            //});
+            if (argv.writeReports) {
+                fs.writeFile(`${filePath}_report.json`, validationText, (err) => {
+                    if (err) { throw err; }
+                });
+            }
             return validationText;
         }
         return;
