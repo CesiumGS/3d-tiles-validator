@@ -12,7 +12,7 @@ var validateTileset = require('../lib/validateTileset');
 var defined = Cesium.defined;
 
 var args = process.argv.slice(2);
-var argv = yargs
+global.argv = yargs
     .usage('Usage: node $0 -i <path>')
     .help('h')
     .alias('h', 'help')
@@ -23,6 +23,12 @@ var argv = yargs
             normalize: true,
             demandOption: true,
             type: 'string'
+        },
+        'r': {
+            alias: 'writeReports',
+            description: 'Write glTF error reports next to the glTF file in question.',
+            default: false,
+            type: 'boolean'
         }
     })
     .recommendCommands()
@@ -39,12 +45,12 @@ if (extension === '') {
 if (isTile(filePath)) {
     promise = readTile(filePath)
         .then(function(content) {
-            return validateTile(content);
+            return validateTile(content, filePath);
         });
 } else {
     promise = readTileset(filePath)
         .then(function(tileset) {
-            return validateTileset(tileset, path.dirname(filePath));
+            return validateTileset(tileset, filePath, path.dirname(filePath));
         });
 }
 

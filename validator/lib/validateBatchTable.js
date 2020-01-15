@@ -1,10 +1,12 @@
 'use strict';
-var Ajv = require('ajv');
+var djv = require('djv');
 var Cesium = require('cesium');
 var utility = require('./utility');
 
 var componentTypeToByteLength = utility.componentTypeToByteLength;
 var typeToComponentsLength = utility.typeToComponentsLength;
+var extrasSchema = require('../specs/data/schema/extras.schema.json');
+var extensionSchema = require('../specs/data/schema/extension.schema.json');
 
 var defined = Cesium.defined;
 
@@ -70,9 +72,12 @@ function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLe
         }
     }
 
-    var ajv = new Ajv();
-    var validSchema = ajv.validate(schema, batchTableJson);
-    if (!validSchema) {
-        return 'Batch table JSON failed schema validation: ' + ajv.errorsText();
+    const env = new djv({ version: 'draft-04' });
+    env.addSchema('extras.schema.json', extrasSchema);
+    env.addSchema('extension.schema.json', extensionSchema);
+    env.addSchema('batchTable.schema.json', schema);
+    var validSchema = env.validate('batchTable.schema.json', batchTableJson);
+    if (validSchema !== undefined) {
+        return 'Batch table JSON failed schema validation: ' + validSchema;
     }
 }

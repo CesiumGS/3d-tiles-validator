@@ -1,5 +1,5 @@
 'use strict';
-var Ajv = require('ajv');
+var djv = require('djv');
 var Cesium = require('cesium');
 var utility = require('./utility');
 
@@ -8,6 +8,8 @@ var typeToComponentsLength = utility.typeToComponentsLength;
 
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
+var extrasSchema = require('../specs/data/schema/extras.schema.json');
+var extensionSchema = require('../specs/data/schema/extension.schema.json');
 
 module.exports = validateFeatureTable;
 
@@ -79,9 +81,12 @@ function validateFeatureTable(schema, featureTableJson, featureTableBinary, feat
         }
     }
 
-    var ajv = new Ajv();
-    var validSchema = ajv.validate(schema, featureTableJson);
-    if (!validSchema) {
-        return 'Feature table JSON failed schema validation: ' + ajv.errorsText();
+    const env = new djv({ version: 'draft-04' });
+    env.addSchema('extras.schema.json', extrasSchema);
+    env.addSchema('extension.schema.json', extensionSchema);
+    env.addSchema('featureTable.schema.json', schema);
+    var validSchema = env.validate('featureTable.schema.json', featureTableJson);
+    if (validSchema !== undefined) {
+        return 'Feature table JSON failed schema validation: ' + validSchema;
     }
 }

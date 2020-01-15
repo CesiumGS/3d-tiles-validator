@@ -14,7 +14,7 @@ module.exports = validateCmpt;
  * @param {Buffer} content A buffer containing the contents of a cmpt tile.
  * @returns {String} An error message if validation fails, otherwise undefined.
  */
-function validateCmpt(content) {
+function validateCmpt(content, filePath) {
     var headerByteLength = 16;
     if (content.length < headerByteLength) {
         return 'Header must be 16 bytes.';

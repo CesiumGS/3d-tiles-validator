@@ -94,7 +94,7 @@ var featureTableSemantics = {
  * @param {Buffer} content A buffer containing the contents of an i3dm tile.
  * @returns {String} An error message if validation fails, otherwise undefined.
  */
-function validateI3dm(content) {
+function validateI3dm(content, filePath) {
     var headerByteLength = 32;
     if (content.length < headerByteLength) {
         return 'Header must be 32 bytes.';
