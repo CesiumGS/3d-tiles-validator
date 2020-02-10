@@ -160,7 +160,7 @@ function validateTileHierarchy(root, filePath, tilesetDirectory) {
         if (isTile(contentPath)) {
             return readTile(contentPath)
                 .then(function (content) {
-                    let result = validateTile(content, contentPath);
+                    return validateTile(content, contentPath);
                 })
                 .catch(function (error) {
                     return 'Could not read file: ' + error.message;
