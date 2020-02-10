@@ -17,6 +17,11 @@ var featureTableSemantics = {
         global : true,
         type : 'SCALAR',
         componentType : 'UNSIGNED_INT'
+    },
+    RTC_CENTER: {
+        global: true,
+        type: 'VEC3',
+        componentType: 'FLOAT'
     }
 };
 
