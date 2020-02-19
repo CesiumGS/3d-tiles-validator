@@ -125,7 +125,7 @@ function createRandomBuildings(options) {
     CesiumMath.setRandomNumberSeed(seed);
     var materials = new Array(numberOfBuildings);
     for (i = 0; i < numberOfBuildings; ++i) {
-        // For Cesium testing purposes make the first building red
+        // For CesiumJS testing purposes make the first building red
         var useRedMaterial = (baseColorType === 'color') && (translucencyType === 'opaque') && i === 0;
         var randomMaterial = getMaterial(baseColorType, translucencyType, i, numberOfBuildings);
         materials[i] = useRedMaterial ? redMaterial : randomMaterial;
@@ -146,7 +146,7 @@ function createRandomBuildings(options) {
         var rangeX = CesiumMath.nextRandomNumber() - 0.5;
         var rangeY = CesiumMath.nextRandomNumber() - 0.5;
 
-        // For Cesium testing purposes always place one building in the center of the tile
+        // For CesiumJS testing purposes, always place one building in the center of the tile and make it red
         if (i === 0) {
             rangeX = 0.0;
             rangeY = 0.0;
