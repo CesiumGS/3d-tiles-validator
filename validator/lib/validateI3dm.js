@@ -183,7 +183,7 @@ function validateI3dm(content, filePath) {
         return 'Feature table property NORMAL_RIGHT is required when NORMAL_UP is present.';
     }
 
-    if (defined(!featureTableJson.NORMAL_UP) && defined(featureTableJson.NORMAL_RIGHT)) {
+    if (!defined(featureTableJson.NORMAL_UP) && defined(featureTableJson.NORMAL_RIGHT)) {
         return 'Feature table property NORMAL_UP is required when NORMAL_RIGHT is present.';
     }
 
@@ -191,7 +191,7 @@ function validateI3dm(content, filePath) {
         return 'Feature table property NORMAL_RIGHT_OCT32P is required when NORMAL_UP_OCT32P is present.';
     }
 
-    if (defined(!featureTableJson.NORMAL_UP_OCT32P) && defined(featureTableJson.NORMAL_RIGHT_OCT32P)) {
+    if (!defined(featureTableJson.NORMAL_UP_OCT32P) && defined(featureTableJson.NORMAL_RIGHT_OCT32P)) {
         return 'Feature table property NORMAL_UP_OCT32P is required when NORMAL_RIGHT_OCT32P is present.';
     }
 
