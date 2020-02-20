@@ -5,6 +5,7 @@
 /tools
 /.idea
 .eslintrc.json
+.gitattributes
 .npmignore
 .travis.yml
 gulpfile.js

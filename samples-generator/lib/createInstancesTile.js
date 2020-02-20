@@ -3,7 +3,6 @@ var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
 var path = require('path');
 var createI3dm = require('./createI3dm');
-var optimizeGltf = require('./optimizeGltf');
 
 var AttributeCompression = Cesium.AttributeCompression;
 var Cartesian2 = Cesium.Cartesian2;
@@ -23,7 +22,7 @@ var sizeOfFloat32 = 4;
  * Creates a i3dm tile that represents a set of instances.
  *
  * @param {Object} options Object with the following properties:
- * @param {Object} options.url Url to the instanced binary glTF model.
+ * @param {Object} options.uri Uri to the instanced binary glTF model.
  * @param {Number} [options.tileWidth=200.0] The width of the tile in meters.
  * @param {Matrix4} [options.transform=Matrix4.IDENTITY] A transform to bake into the tile, for example a transform into WGS84.
  * @param {Number} [options.instancesLength=25] The number of instances.
@@ -39,7 +38,6 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.uniformScales=false] Generate uniform scales for the instances.
  * @param {Boolean} [options.nonUniformScales=false] Generate non-uniform scales for the instances.
  * @param {Boolean} [options.batchIds=false] Generate batch ids for the instances. Not required even if createBatchTable is true.
- * @param {Object|Object[]} [options.textureCompressionOptions] Options for compressing textures in the glTF.
  *
  * @returns {Promise} A promise that resolves with the i3dm buffer and batch table JSON.
  */
@@ -51,7 +49,7 @@ function createInstancesTile(options) {
     var tileWidth = defaultValue(options.tileWidth, 200.0);
     var transform = defaultValue(options.transform, Matrix4.IDENTITY);
     var instancesLength = defaultValue(options.instancesLength, 25);
-    var url = options.url;
+    var uri = options.uri;
     var embed = defaultValue(options.embed, true);
     var modelSize = defaultValue(options.modelSize, 20.0);
     var createBatchTable = defaultValue(options.createBatchTable, true);
@@ -64,7 +62,6 @@ function createInstancesTile(options) {
     var uniformScales = defaultValue(options.uniformScales, false);
     var nonUniformScales = defaultValue(options.nonUniformScales, false);
     var batchIds = defaultValue(options.batchIds, false);
-    var textureCompressionOptions = options.textureCompressionOptions;
 
     var featureTableJson = {};
     featureTableJson.INSTANCES_LENGTH = instancesLength;
@@ -139,25 +136,17 @@ function createInstancesTile(options) {
         }
     }
 
-    var gltfOptions = {
-        textureCompressionOptions : textureCompressionOptions,
-        preserve : true
-    };
-
-    return fsExtra.readFile(url)
-        .then(function(glb) {
-            return optimizeGltf(glb, gltfOptions);
-        })
+    return fsExtra.readFile(uri)
         .then(function(glb) {
             glb = embed ? glb : undefined;
-            url = path.basename(url);
+            uri = path.basename(uri);
             var i3dm = createI3dm({
                 featureTableJson : featureTableJson,
                 featureTableBinary : featureTableBinary,
                 batchTableJson : batchTableJson,
                 batchTableBinary : batchTableBinary,
                 glb : glb,
-                url : url
+                uri : uri
             });
             return {
                 i3dm : i3dm,

@@ -4,49 +4,52 @@
   "license": "Apache-2.0",
   "description": "Tools for generating sample 3D Tiles tilesets.",
   "author": {
-    "name": "Analytical Graphics, Inc. and Contributors",
-    "url": "https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/graphs/contributors"
+    "name": "Cesium GS, Inc. and Contributors",
+    "url": "https://github.com/CesiumGS/3d-tiles-validator/graphs/contributors"
   },
   "keywords": [
     "3D Tiles"
   ],
-  "homepage": "https://github.com/AnalyticalGraphicsInc/3d-tiles-tools",
+  "homepage": "https://github.com/CesiumGS/3d-tiles-validator",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AnalyticalGraphicsInc/3d-tiles-tools.git"
+    "url": "https://github.com/CesiumGS/3d-tiles-validator.git"
   },
   "bugs": {
-    "url": "https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/issues"
+    "url": "https://github.com/CesiumGS/3d-tiles-validator/issues"
   },
   "main": "index.js",
   "engines": {
     "node": ">=4.0.0"
   },
   "dependencies": {
-    "bluebird": "^3.5.0",
-    "cesium": "^1.33",
-    "fs-extra": "^3.0.1",
-    "gltf-pipeline": "^0.1.0-alpha14",
-    "mime": "^1.3.6",
+    "bluebird": "^3.5.1",
+    "cesium": "^1.39",
+    "draco3d": "^1.3.3",
+    "fs-extra": "^4.0.2",
+    "gltf-pipeline": "^2.0.0",
+    "mime": "^2.0.3",
     "simplex-noise": "^2.3.0"
   },
   "devDependencies": {
-    "eslint": "^4.1.1",
-    "eslint-config-cesium": "^2.0.0",
-    "fs-extra": "^3.0.1",
+    "cloc": "^2.3.3",
+    "datauri": "^1.1.0",
+    "eslint": "^4.10.0",
+    "eslint-config-cesium": "^2.0.1",
     "gulp": "^3.9.1",
-    "jasmine": "^2.6.0",
-    "jasmine-spec-reporter": "^4.1.0",
-    "nyc": "^11.0.3",
+    "jasmine": "^2.8.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nyc": "^11.3.0",
     "open": "^0.0.5",
-    "requirejs": "^2.3.3",
-    "yargs": "^8.0.1"
+    "requirejs": "^2.3.5",
+    "yargs": "^10.0.3"
   },
   "scripts": {
     "eslint": "eslint \"./**/*.js\" --cache --quiet",
     "test": "gulp test",
     "test-watch": "gulp test-watch",
-    "coverage": "gulp coverage"
+    "coverage": "gulp coverage",
+    "cloc": "gulp cloc"
   },
   "bin": {
     "3d-tiles-samples-generator": "./bin/3d-tiles-samples-generator"
