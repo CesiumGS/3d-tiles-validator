@@ -1,6 +1,6 @@
 'use strict';
 var Cesium = require('cesium');
-var createB3dm = require('./createB3dm');
+var b3dm = require('./createB3dm');
 var createBuildings = require('./createBuildings');
 var createGltf = require('./createGltf');
 var Mesh = require('./Mesh');
@@ -43,6 +43,10 @@ function createBuildingsTile(options) {
     var createBatchTableExtra = defaultValue(options.createBatchTableExtra, false) && useBatchIds;
     var createBatchTableBinary = defaultValue(options.createBatchTableBinary, false) && useBatchIds;
     var tileTransform = defaultValue(options.transform, Matrix4.IDENTITY);
+    var useGltf = defaultValue(options.useGltf, false);
+    var useGlb = defaultValue(options.useGlb, false);
+    var useB3dm = defaultValue(options.useB3dm, !useGltf && !useGlb);
+
     var relativeToCenter = options.relativeToCenter;
     var rtcCenterPosition = options.rtcCenterPosition;
     var useVertexColors = options.useVertexColors;
@@ -91,22 +95,36 @@ function createBuildingsTile(options) {
         featureTableJson.RTC_CENTER = Cartesian3.pack(batchedMesh.getCenter(), new Array(3));
     }
 
-    return createGltf({
+    var gltfOptions = {
         mesh : batchedMesh,
         useBatchIds : useBatchIds,
         relativeToCenter : relativeToCenter,
-        deprecated : deprecated1 || deprecated2
-    }).then(function(glb) {
-        var b3dm = createB3dm({
-            glb : glb,
+        deprecated : deprecated1 || deprecated2,
+        useGltf : useGltf,
+        useGlb : useGlb
+    };
+
+    return createGltf(gltfOptions).then(function(glbOrGltf) {
+        var b3dmOptions = {
+            glbOrGltf : glbOrGltf,
             featureTableJson : featureTableJson,
             batchTableJson : batchTableJson,
             batchTableBinary : batchTableBinary,
             deprecated1 : deprecated1,
             deprecated2 : deprecated2
-        });
+        };
+
+        // TODO: If gltfOptions.useGlb, create a gltf and then convert to glb
+        if (gltfOptions.useGltf) {
+            return b3dm.createB3dmGltf(b3dmOptions, glbOrGltf);
+        }
+
+        else if (gltfOptions.useGlb) {
+            throw new Error({message: 'Not implemented.'});
+        }
+
         return {
-            b3dm : b3dm,
+            b3dm : b3dm.createB3dm(b3dmOptions),
             batchTableJson : batchTableJson
         };
     });

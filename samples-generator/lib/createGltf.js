@@ -1,4 +1,5 @@
 'use strict';
+var Promise = require('bluebird');
 var Cesium = require('cesium');
 var gltfPipeline = require('gltf-pipeline');
 var path = require('path');
@@ -394,9 +395,15 @@ function createGltf(options) {
         textures : textures
     };
 
+    if (options.useGltf) {
+        // eslint-disable-next-line no-unused-vars
+        return new Promise(function(resolve, unused) { resolve(gltf); });
+    }
+
     var gltfOptions = {
         resourceDirectory : rootDirectory
     };
+
     return gltfToGlb(gltf, gltfOptions)
         .then(function(results) {
             return results.glb;

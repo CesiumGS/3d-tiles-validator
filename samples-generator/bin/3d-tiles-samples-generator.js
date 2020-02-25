@@ -196,6 +196,9 @@ var ulTileOptions = {
 };
 
 var promises = [
+    // CESIUM_3dtiles_batch_table
+    createBatchedWithBatchTableGltf(),
+
     // Batched
     createBatchedWithBatchTable(),
     createBatchedWithoutBatchTable(),
@@ -287,6 +290,16 @@ var promises = [
 ];
 
 return Promise.all(promises);
+
+function createBatchedWithBatchTableGltf() {
+    var tileOptions = {
+        createBatchTable : true,
+        createBatchTableExtra : true,
+        useGltf: true,
+        gltfExtensionNames : ['CESIUM_3dtiles_batch_table']
+    };
+    return saveBatchedTileset('BatchedWithBatchTable_gltf', tileOptions);
+}
 
 function createBatchedWithBatchTable() {
     var tileOptions = {
@@ -926,9 +939,6 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
 
 function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     var tilesetDirectory = path.join(outputDirectory, 'Batched', tilesetName);
-    var contentUri = lowercase(tilesetName) + '.b3dm';
-    var tilePath = path.join(tilesetDirectory, contentUri);
-    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tileOptions = defaultValue(tileOptions, {});
     tileOptions.buildingOptions = defaultValue(tileOptions.buildingOptions, buildingTemplate);
@@ -936,30 +946,84 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions.relativeToCenter = defaultValue(tileOptions.relativeToCenter, true);
 
     tilesetOptions = defaultValue(tilesetOptions, {});
+
+
+    var useGltf = defaultValue(tileOptions.useGltf, false);
+    var useGlb = defaultValue(tileOptions.useGlb, false);
+
+    // b3dm by default only if useGlb or useGltf is not specified
+    var useB3dm = defaultValue(tileOptions.useB3dm, !useGltf && !useGlb);
+
+    var mutualExclusivity = 0;
+    mutualExclusivity += useGltf ? 1 : 0;
+    mutualExclusivity += useGlb ? 1 : 0;
+    mutualExclusivity += useB3dm ? 1 : 0;
+
+    if (mutualExclusivity !== 1) {
+        throw new Error({message: 'useGltf=' + useGltf + ', useGlb=' + useGlb + 'useB3dm=' + useB3dm + '. Only supply one value for output format'});
+    }
+
+    var ext = '';
+
+    if (useGlb) {
+        ext = '.glb';
+    }
+
+    if (useGltf) {
+        ext = '.gltf';
+    }
+
+    if (useB3dm) {
+        ext = '.b3dm';
+    }
+
+    var contentUri = lowercase(tilesetName) + ext;
     tilesetOptions.contentUri = contentUri;
     tilesetOptions.geometricError = smallGeometricError;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
         tilesetOptions.region = smallRegion;
     }
 
+    var tilePath = path.join(tilesetDirectory, contentUri);
+    var tilesetPath = (useB3dm) ? path.join(tilesetDirectory, 'tileset.json') : null;
+
     return createBuildingsTile(tileOptions)
         .then(function(result) {
-            var b3dm = result.b3dm;
-            var batchTableJson = result.batchTableJson;
-            tilesetOptions.properties = getProperties(batchTableJson);
 
-            if (tilesetOptions.contentDataUri) {
-                var dataUri = new DataUri();
-                dataUri.format('.b3dm', b3dm);
-                tilesetOptions.contentUri = dataUri.content;
-                return saveTilesetJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson);
+            // TODO: This should be cleaner
+            // writing a GLTF or GLB
+            if (defined(result) && !defined(result.b3dmData))  {
+                // GLB
+                if (result instanceof Buffer) {
+                    throw new Error({message: 'Not supported yet.'});
+                }
+
+                // GLTF
+                else {
+                    return Promise.all([saveTilesetJson(tilePath, result, prettyJson)]);
+                }
             }
 
-            var tilesetJson = createTilesetJsonSingle(tilesetOptions);
-            return Promise.all([
-                saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
-                saveTile(tilePath, b3dm, gzip)
-            ]);
+            // old .b3dm
+            else {
+                // TODO: Detect the type of object or remember the setting above and write a plain gltf if necessary or glb
+                var b3dm = result.b3dm;
+                var batchTableJson = result.batchTableJson;
+                tilesetOptions.properties = getProperties(batchTableJson);
+
+                if (tilesetOptions.contentDataUri) {
+                    var dataUri = new DataUri();
+                    dataUri.format('.b3dm', b3dm);
+                    tilesetOptions.contentUri = dataUri.content;
+                    return saveTilesetJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson);
+                }
+
+                var tilesetJson = createTilesetJsonSingle(tilesetOptions);
+                return Promise.all([
+                    saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
+                    saveTile(tilePath, b3dm, gzip)
+                ]);
+            }
         });
 }
 

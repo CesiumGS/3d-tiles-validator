@@ -1,11 +1,13 @@
 'use strict';
 var Cesium = require('cesium');
+var defined = Cesium.defined;
 var getBufferPadded = require('./getBufferPadded');
 var getJsonBufferPadded = require('./getJsonBufferPadded');
 
+var cesium3dTilesBatch = 'CESIUM_3dtiles_batch_table';
 var defaultValue = Cesium.defaultValue;
 
-module.exports = createB3dm;
+module.exports = {createB3dm: createB3dm , createB3dmGltf: createB3dmGltf };
 
 /**
  * Create a Batched 3D Model (b3dm) tile from a binary glTF and per-feature metadata.
@@ -21,7 +23,7 @@ module.exports = createB3dm;
  * @returns {Buffer} The generated b3dm tile buffer.
  */
 function createB3dm(options) {
-    var glb = options.glb;
+    var glb = options.glbOrGltf;
     var defaultFeatureTable = {
         BATCH_LENGTH : 0
     };
@@ -44,6 +46,44 @@ function createB3dm(options) {
     }
 
     return createB3dmCurrent(glb, featureTableJsonBuffer, featureTableBinary, batchTableJsonBuffer, batchTableBinary);
+}
+
+function createB3dmGltf(options, gltf) {
+    gltf['extensionsUsed'] = [cesium3dTilesBatch];
+
+    if (!defined(gltf['extensionsUsed'])) {
+        gltf['extensionsUsed'] = [];
+    }
+
+    if (!defined(gltf['extensions'])) {
+        gltf['extensions'] = {};
+    }
+
+
+    // update extensions
+    gltf['extensions'][cesium3dTilesBatch] = {
+        batchTables: []
+    };
+
+    // TODO: Support multiple batchTableJsons,
+    if (defined(options.batchTableJson)) {
+        var batchAttributes = Object.keys(options['batchTableJson']);
+        var batchLength = batchAttributes.length > 0  ? options.batchTableJson[batchAttributes[0]] : 0;
+        var newBatchTable = {batchLength: batchLength, properties: {}};
+
+        for (var i = 0; i < batchAttributes.length; ++i) {
+            var values = options.batchTableJson[batchAttributes[i]];
+            newBatchTable.properties[batchAttributes[i]] = {
+                values: values
+            };
+        }
+
+        gltf.extensions[cesium3dTilesBatch].batchTables.push(newBatchTable);
+        return gltf;
+    }
+
+    // update the accessors
+
 }
 
 function createB3dmCurrent(glb, featureTableJson, featureTableBinary, batchTableJson, batchTableBinary) {
