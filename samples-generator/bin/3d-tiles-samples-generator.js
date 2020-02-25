@@ -3,6 +3,7 @@
 var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
 var gltfPipeline = require('gltf-pipeline');
+var gltfToGlb = gltfPipeline.gltfToGlb;
 var path = require('path');
 var Promise = require('bluebird');
 var DataUri = require('datauri');
@@ -200,6 +201,9 @@ var promises = [
     createBatchedWithBatchTableGltf(),
     createBatchedWithBatchTableBinaryGltf(),
 
+    createBatchedWithBatchTableGlb(),
+    createBatchedWithBatchTableBinaryGlb(), // NOT working for some reason
+
     // Batched
     createBatchedWithBatchTable(),
     createBatchedWithoutBatchTable(),
@@ -308,6 +312,24 @@ function createBatchedWithBatchTableBinaryGltf() {
         useGltf: true
     };
     return saveBatchedTileset('BatchedWithBatchTableBinary_useGltf', tileOptions);
+}
+
+function createBatchedWithBatchTableGlb() {
+    var tileOptions = {
+        createBatchTable : true,
+        createBatchTableExtra : true,
+        useGlb: true
+    };
+    return saveBatchedTileset('BatchedWithBatchTable_glb', tileOptions);
+
+}
+function createBatchedWithBatchTableBinaryGlb() {
+    var tileOptions = {
+        createBatchTable : true,
+        createBatchTableBinary : true,
+        useGlb: true
+    };
+    return saveBatchedTileset('BatchedWithBatchTableBinary_useGlb', tileOptions);
 }
 
 // b3dm non gltf
@@ -1001,40 +1023,44 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     return createBuildingsTile(tileOptions)
         .then(function(result) {
 
-            // TODO: This should be cleaner
-            // writing a GLTF or GLB
-            if (defined(result) && !defined(result.b3dmData))  {
+            // GLB / GLTF / B3DM Detection for writing to disk
+            // TODO: Could be cleaner.
+
+            if (useGlb || useGltf)  {
                 // GLB
-                if (result instanceof Buffer) {
-                    throw new Error({message: 'Not supported yet.'});
+                if (useGlb) {
+                    // convert result to glb and write it out
+                    var rootDirectory = path.join(__dirname, '../');
+                    var gltfOptions = {
+                        resourceDirectory : rootDirectory
+                    };
+
+                    return gltfToGlb(result, gltfOptions).then(function(results) {
+                        return fsExtra.writeFile(tilePath, results.glb);
+                    });
                 }
 
                 // GLTF
-                else {
-                    return Promise.all([saveTilesetJson(tilePath, result, prettyJson)]);
-                }
+                return saveTilesetJson(tilePath, result, prettyJson);
             }
 
             // old .b3dm
-            else {
-                // TODO: Detect the type of object or remember the setting above and write a plain gltf if necessary or glb
-                var b3dm = result.b3dm;
-                var batchTableJson = result.batchTableJson;
-                tilesetOptions.properties = getProperties(batchTableJson);
+            var b3dm = result.b3dm;
+            var batchTableJson = result.batchTableJson;
+            tilesetOptions.properties = getProperties(batchTableJson);
 
-                if (tilesetOptions.contentDataUri) {
-                    var dataUri = new DataUri();
-                    dataUri.format('.b3dm', b3dm);
-                    tilesetOptions.contentUri = dataUri.content;
-                    return saveTilesetJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson);
-                }
-
-                var tilesetJson = createTilesetJsonSingle(tilesetOptions);
-                return Promise.all([
-                    saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
-                    saveTile(tilePath, b3dm, gzip)
-                ]);
+            if (tilesetOptions.contentDataUri) {
+                var dataUri = new DataUri();
+                dataUri.format('.b3dm', b3dm);
+                tilesetOptions.contentUri = dataUri.content;
+                return saveTilesetJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson);
             }
+
+            var tilesetJson = createTilesetJsonSingle(tilesetOptions);
+            return Promise.all([
+                saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
+                saveTile(tilePath, b3dm, gzip)
+            ]);
         });
 }
 

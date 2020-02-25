@@ -395,7 +395,7 @@ function createGltf(options) {
         textures : textures
     };
 
-    if (options.useGltf) {
+    if (options.deferGlbConversion) {
         // eslint-disable-next-line no-unused-vars
         return new Promise(function(resolve, unused) { resolve(gltf); });
     }

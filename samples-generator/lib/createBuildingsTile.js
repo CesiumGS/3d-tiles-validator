@@ -100,8 +100,10 @@ function createBuildingsTile(options) {
         useBatchIds : useBatchIds,
         relativeToCenter : relativeToCenter,
         deprecated : deprecated1 || deprecated2,
-        useGltf : useGltf,
-        useGlb : useGlb
+        useGlb: useGlb,
+        useGltf: useGltf,
+        deferGlbConversion: useGlb || useGltf // TODO: This is ugly, but allows us to refactor this
+                                              //       without breaking other functions that potentially always expect createGltf to return a .glb
     };
 
     return createGltf(gltfOptions).then(function(glbOrGltf) {
@@ -111,18 +113,14 @@ function createBuildingsTile(options) {
             batchTableJson : batchTableJson,
             batchTableBinary : batchTableBinary,
             deprecated1 : deprecated1,
-            deprecated2 : deprecated2
+            deprecated2 : deprecated2,
         };
 
-        // TODO: If gltfOptions.useGlb, create a gltf and then convert to glb
-        if (gltfOptions.useGltf) {
+        if (gltfOptions.useGltf || gltfOptions.useGlb) {
             return b3dm.createB3dmGltf(glbOrGltf, b3dmOptions, batchTableJsonAndBinary);
         }
 
-        else if (gltfOptions.useGlb) {
-            throw new Error({message: 'Not implemented.'});
-        }
-
+        // old style .b3dm
         return {
             b3dm : b3dm.createB3dm(b3dmOptions),
             batchTableJson : batchTableJson
