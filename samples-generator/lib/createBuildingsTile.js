@@ -17,6 +17,7 @@ var sizeOfUint8 = 1;
 var sizeOfDouble = 8;
 
 var scratchMatrix = new Matrix4();
+var batchTableJsonAndBinary;
 
 /**
  * Creates a b3dm tile that represents a set of buildings.
@@ -45,7 +46,6 @@ function createBuildingsTile(options) {
     var tileTransform = defaultValue(options.transform, Matrix4.IDENTITY);
     var useGltf = defaultValue(options.useGltf, false);
     var useGlb = defaultValue(options.useGlb, false);
-    var useB3dm = defaultValue(options.useB3dm, !useGltf && !useGlb);
 
     var relativeToCenter = options.relativeToCenter;
     var rtcCenterPosition = options.rtcCenterPosition;
@@ -79,7 +79,7 @@ function createBuildingsTile(options) {
             batchTableJson = combine(batchTableJson, batchTableExtra);
         }
         if (createBatchTableBinary) {
-            var batchTableJsonAndBinary = generateBatchTableBinary(buildings);
+            batchTableJsonAndBinary = generateBatchTableBinary(buildings);
             batchTableJson = combine(batchTableJson, batchTableJsonAndBinary.json);
             batchTableBinary = batchTableJsonAndBinary.binary;
         }
@@ -116,7 +116,7 @@ function createBuildingsTile(options) {
 
         // TODO: If gltfOptions.useGlb, create a gltf and then convert to glb
         if (gltfOptions.useGltf) {
-            return b3dm.createB3dmGltf(b3dmOptions, glbOrGltf);
+            return b3dm.createB3dmGltf(glbOrGltf, b3dmOptions, batchTableJsonAndBinary);
         }
 
         else if (gltfOptions.useGlb) {
@@ -179,13 +179,20 @@ function generateBatchTableBinary(buildings) {
 
     var batchTableJson = {
         cartographic : {
+            name : 'CartographicBuffer',
             byteOffset : 0,
-            componentType : 'DOUBLE',
-            type : 'VEC3'
+            byteLength : cartographicBuffer.length,
+            componentType : 0x1406, // TODO: Logical error, not sure what to do, 'DOUBLE' was here originally but GLTF only supports Floats
+            type : 'VEC3',
+            count : buildingsLength
         },
+
         code : {
+            name: 'Code',
             byteOffset : cartographicBuffer.length,
-            componentType : 'UNSIGNED_BYTE',
+            count: codeBuffer.length,
+            byteLength: codeBuffer.length,
+            componentType : 0x1401,
             type : 'SCALAR'
         }
     };

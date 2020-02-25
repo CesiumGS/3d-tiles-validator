@@ -48,7 +48,19 @@ function createB3dm(options) {
     return createB3dmCurrent(glb, featureTableJsonBuffer, featureTableBinary, batchTableJsonBuffer, batchTableBinary);
 }
 
-function createB3dmGltf(options, gltf) {
+function sortByByteOffset(a, b) {
+    if (a.byteOffset < b.byteOffset ){
+        return -1;
+    }
+
+    if (a.byteOffset < b.byteOffset) {
+        return 1;
+    }
+
+    return 0;
+}
+
+function createB3dmGltf(gltf, b3dmOptions, batchTableJsonAndBinary) {
     gltf['extensionsUsed'] = [cesium3dTilesBatch];
 
     if (!defined(gltf['extensionsUsed'])) {
@@ -65,14 +77,51 @@ function createB3dmGltf(options, gltf) {
         batchTables: []
     };
 
-    // TODO: Support multiple batchTableJsons,
-    if (defined(options.batchTableJson)) {
-        var batchAttributes = Object.keys(options['batchTableJson']);
-        var batchLength = batchAttributes.length > 0  ? options.batchTableJson[batchAttributes[0]] : 0;
+    var batchAttributes = Object.keys(b3dmOptions['batchTableJson']);
+    var newBufferIndex = gltf.buffers.length;
+    var i=0;
+
+    if (defined(b3dmOptions.batchTableBinary)) {
+        var binaryBatchAttributes = [];
+        for (var key in batchTableJsonAndBinary.json) {
+            if (batchTableJsonAndBinary.json.hasOwnProperty(key)) {
+                binaryBatchAttributes.push(batchTableJsonAndBinary.json[key]);
+            }
+        }
+
+        gltf.buffers.push({
+            byteLength: batchTableJsonAndBinary.binary.length,
+            uri: 'data:application/octet-stream;base64,' + batchTableJsonAndBinary.binary.toString('base64')
+        });
+
+        binaryBatchAttributes.sort(sortByByteOffset);
+
+        var bufferViewIndex = gltf.bufferViews.length;
+        for (i = 0; i < binaryBatchAttributes.length; ++i, ++bufferViewIndex) {
+            var batchAttribute = binaryBatchAttributes[i];
+            gltf.bufferViews.push({
+                buffer : newBufferIndex,
+                byteLength : batchAttribute.byteLength,
+                byteOffset : batchAttribute.byteOffset,
+                // TODO: target ?
+            });
+
+            gltf.accessors.push({
+                bufferView : bufferViewIndex,
+                byteOffset : 0,
+                componentType : batchAttribute.componentType,
+                type : batchAttribute.type,
+                count : batchAttribute.count,
+            });
+        }
+    }
+
+    if (defined(b3dmOptions.batchTableJson)) {
+        var batchLength = batchAttributes.length > 0  ? b3dmOptions.batchTableJson[batchAttributes[0]].length : 0;
         var newBatchTable = {batchLength: batchLength, properties: {}};
 
-        for (var i = 0; i < batchAttributes.length; ++i) {
-            var values = options.batchTableJson[batchAttributes[i]];
+        for (i = 0; i < batchAttributes.length; ++i) {
+            var values = b3dmOptions.batchTableJson[batchAttributes[i]];
             newBatchTable.properties[batchAttributes[i]] = {
                 values: values
             };
@@ -81,9 +130,6 @@ function createB3dmGltf(options, gltf) {
         gltf.extensions[cesium3dTilesBatch].batchTables.push(newBatchTable);
         return gltf;
     }
-
-    // update the accessors
-
 }
 
 function createB3dmCurrent(glb, featureTableJson, featureTableBinary, batchTableJson, batchTableBinary) {

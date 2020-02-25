@@ -198,6 +198,7 @@ var ulTileOptions = {
 var promises = [
     // CESIUM_3dtiles_batch_table
     createBatchedWithBatchTableGltf(),
+    createBatchedWithBatchTableBinaryGltf(),
 
     // Batched
     createBatchedWithBatchTable(),
@@ -295,11 +296,21 @@ function createBatchedWithBatchTableGltf() {
     var tileOptions = {
         createBatchTable : true,
         createBatchTableExtra : true,
-        useGltf: true,
-        gltfExtensionNames : ['CESIUM_3dtiles_batch_table']
+        useGltf: true
     };
     return saveBatchedTileset('BatchedWithBatchTable_gltf', tileOptions);
 }
+
+function createBatchedWithBatchTableBinaryGltf() {
+    var tileOptions = {
+        createBatchTable : true,
+        createBatchTableBinary : true,
+        useGltf: true
+    };
+    return saveBatchedTileset('BatchedWithBatchTableBinary_useGltf', tileOptions);
+}
+
+// b3dm non gltf
 
 function createBatchedWithBatchTable() {
     var tileOptions = {
