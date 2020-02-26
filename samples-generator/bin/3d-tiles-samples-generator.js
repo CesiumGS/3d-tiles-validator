@@ -202,7 +202,7 @@ var promises = [
     createBatchedWithBatchTableBinaryGltf(),
 
     createBatchedWithBatchTableGlb(),
-    createBatchedWithBatchTableBinaryGlb(), // NOT working for some reason
+    createBatchedWithBatchTableBinaryGlb(),
 
     // Batched
     createBatchedWithBatchTable(),
