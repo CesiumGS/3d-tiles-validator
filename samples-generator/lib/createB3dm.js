@@ -78,8 +78,20 @@ function createB3dmGltf(gltf, b3dmOptions, batchTableJsonAndBinary) {
     };
 
     var batchAttributes = Object.keys(b3dmOptions['batchTableJson']);
-    var newBufferIndex = gltf.buffers.length;
     var i=0;
+
+    // TODO: Ugly, but `cartographic` and `code` can show up in both
+    //       objects. Causing us to erroneously add those batch table attributes
+    //       as human readable values in the properties section, and create accessors
+    //       / bufferviews / a buffer for them.
+    //       Ideally we fix the input data, this is a temporary workaround.
+    for (i = batchAttributes.length - 1; i >= 0; --i) {
+        if (batchAttributes[i] in batchTableJsonAndBinary.json) {
+            batchAttributes.splice(i, 1);
+        }
+    }
+
+    var newBufferIndex = gltf.buffers.length;
 
     if (defined(b3dmOptions.batchTableBinary)) {
         var binaryBatchAttributes = [];
@@ -96,9 +108,12 @@ function createB3dmGltf(gltf, b3dmOptions, batchTableJsonAndBinary) {
 
         binaryBatchAttributes.sort(sortByByteOffset);
 
+        //var alreadyHasAccessorForBinary = new Set();
         var bufferViewIndex = gltf.bufferViews.length;
         for (i = 0; i < binaryBatchAttributes.length; ++i, ++bufferViewIndex) {
             var batchAttribute = binaryBatchAttributes[i];
+            //alreadyHasAccessorForBinary.add(batchAttribute.name);
+
             gltf.bufferViews.push({
                 buffer : newBufferIndex,
                 byteLength : batchAttribute.byteLength,
