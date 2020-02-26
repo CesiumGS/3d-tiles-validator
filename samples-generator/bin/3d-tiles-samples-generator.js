@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 'use strict';
+
+module.exports = {
+    createBatchedWithBatchTableGltf: createBatchedWithBatchTableGltf
+};
+
 var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
 var gltfPipeline = require('gltf-pipeline');

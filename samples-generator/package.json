@@ -37,7 +37,7 @@
     "eslint": "^4.10.0",
     "eslint-config-cesium": "^2.0.1",
     "gulp": "^3.9.1",
-    "jasmine": "^2.8.0",
+    "jasmine": "^3.5.0",
     "jasmine-spec-reporter": "^4.2.1",
     "nyc": "^11.3.0",
     "open": "^0.0.5",
