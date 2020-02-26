@@ -37,11 +37,11 @@ function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sha
     gltf['extensionsUsed'] = [cesium3dTilesBatch];
 
     if (!defined(humanAttributes) && !defined(binaryAttributes)) {
-        throw new Error({message: 'humanAttributes or binaryAttributes must be defined'});
+        throw new Error('humanAttributes or binaryAttributes must be defined');
     }
 
     if (defined(binaryAttributes) && !defined(sharedBinaryBuffer)) {
-        throw new Error({message: 'sharedBinaryBuffer must be defined if binaryAttributes is defined'});
+        throw new Error('sharedBinaryBuffer must be defined if binaryAttributes is defined');
     }
 
     if (!defined(gltf['extensionsUsed'])) {

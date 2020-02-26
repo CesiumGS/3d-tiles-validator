@@ -81,7 +81,6 @@ function createBuildingsTile(options) {
         }
         if (createBatchTableBinary) {
             batchTableJsonAndBinary = generateBatchTableBinary(buildings);
-            batchTableJson = combine(batchTableJson, batchTableJsonAndBinary.json);
             batchTableBinary = batchTableJsonAndBinary.binary;
         }
     }
@@ -136,6 +135,7 @@ function createBuildingsTile(options) {
         }
 
         // old style .b3dm
+        batchTableJson = combine(batchTableJson, batchTableJsonAndBinary.json);
         return {
             b3dm : createB3dm(b3dmOptions),
             batchTableJson : batchTableJson
