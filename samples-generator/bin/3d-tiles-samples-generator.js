@@ -10,7 +10,7 @@ var DataUri = require('datauri');
 
 var createBatchTableHierarchy = require('../lib/createBatchTableHierarchy');
 var createBuildingsTile = require('../lib/createBuildingsTile');
-var createB3dm = require('../lib/createB3dm');
+var b3dm = require('../lib/createB3dm');
 var createCmpt = require('../lib/createCmpt');
 var createI3dm = require('../lib/createI3dm');
 var createInstancesTile = require('../lib/createInstancesTile');
@@ -294,7 +294,10 @@ var promises = [
     createExpireTileset()
 ];
 
-return Promise.all(promises);
+return Promise.all(promises).catch(function(error) {
+    console.log(error.message);
+    console.log(error.stack);
+});
 
 function createBatchedWithBatchTableGltf() {
     var tileOptions = {
@@ -1036,6 +1039,11 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
                     };
 
                     return gltfToGlb(result, gltfOptions).then(function(results) {
+                        var directory = path.dirname(tilePath);
+                        if (!fsExtra.existsSync(directory)) {
+                            fsExtra.mkdir(directory);
+                        }
+
                         return fsExtra.writeFile(tilePath, results.glb);
                     });
                 }
@@ -1625,8 +1633,8 @@ function createTilesetWithExternalResources() {
         })
         .then(function(glbs) {
             var tiles = [
-                createB3dm({
-                    glb : glbs[0]
+                b3dm.createB3dm({
+                    glbOrGltf : glbs[0]
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,
@@ -1638,8 +1646,8 @@ function createTilesetWithExternalResources() {
                     featureTableBinary : featureTableBinary,
                     glb : glbs[0]
                 }),
-                createB3dm({
-                    glb : glbs[1]
+                b3dm.createB3dm({
+                    glbOrGltf : glbs[1]
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,
@@ -2714,11 +2722,11 @@ function createDiscreteLOD() {
     var tilesPromise = Promise.map(glbPaths, function(glbPath, index) {
         return fsExtra.readFile(glbPath)
             .then(function(glb) {
-                var b3dm = createB3dm({
-                    glb : glb
+                var data = b3dm.createB3dm({
+                    glbOrGltf : glb
                 });
                 var tilePath = path.join(tilesetDirectory, tileNames[index]);
-                return saveTile(tilePath, b3dm, gzip);
+                return saveTile(tilePath, data, gzip);
             });
     });
 
@@ -2970,8 +2978,8 @@ function createRequestVolume() {
 
     var buildingPromise = fsExtra.readFile(buildingGlbPath)
         .then(function(glb) {
-            return createB3dm({
-                glb : glb
+            return b3dm.createB3dm({
+                glbOrGltf : glb
             });
         })
         .then(function(b3dm) {

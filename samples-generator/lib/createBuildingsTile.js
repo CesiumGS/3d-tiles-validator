@@ -125,6 +125,9 @@ function createBuildingsTile(options) {
             b3dm : b3dm.createB3dm(b3dmOptions),
             batchTableJson : batchTableJson
         };
+    }).catch(function(e) {
+        console.log(e.message);
+        console.log(e.stack);
     });
 }
 

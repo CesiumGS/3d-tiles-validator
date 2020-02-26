@@ -26,8 +26,10 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.useBatchIds=true] Modify the glTF to include the batchId vertex attribute.
  * @param {Boolean} [options.relativeToCenter=false] Set mesh positions relative to center.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
+ * @param {Boolean} [options.deferGlbConversion=false] Do not attempt to convert to GLB
  *
  * @returns {Promise} A promise that resolves with the binary glTF buffer.
+ *                    Or, a promise tha tresolves with the JSON GLTF object if deferGlbConversion is true
  */
 function createGltf(options) {
     var useBatchIds = defaultValue(options.useBatchIds, true);
@@ -396,8 +398,7 @@ function createGltf(options) {
     };
 
     if (options.deferGlbConversion) {
-        // eslint-disable-next-line no-unused-vars
-        return new Promise(function(resolve, unused) { resolve(gltf); });
+        return Promise.resolve(gltf);
     }
 
     var gltfOptions = {
