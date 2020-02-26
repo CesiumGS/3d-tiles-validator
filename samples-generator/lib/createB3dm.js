@@ -108,11 +108,9 @@ function createB3dmGltf(gltf, b3dmOptions, batchTableJsonAndBinary) {
 
         binaryBatchAttributes.sort(sortByByteOffset);
 
-        //var alreadyHasAccessorForBinary = new Set();
         var bufferViewIndex = gltf.bufferViews.length;
         for (i = 0; i < binaryBatchAttributes.length; ++i, ++bufferViewIndex) {
             var batchAttribute = binaryBatchAttributes[i];
-            //alreadyHasAccessorForBinary.add(batchAttribute.name);
 
             gltf.bufferViews.push({
                 buffer : newBufferIndex,
