@@ -41,7 +41,6 @@
     "jasmine-spec-reporter": "^4.2.1",
     "nyc": "^11.3.0",
     "open": "^0.0.5",
-    "requirejs": "^2.3.5",
     "yargs": "^10.0.3"
   },
   "scripts": {
