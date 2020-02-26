@@ -1,6 +1,7 @@
 'use strict';
 var Cesium = require('cesium');
-var b3dm = require('./createB3dm');
+var createB3dm = require('./createB3dm');
+var create3dtilesBatchTableExt = require('./create3dtilesBatchTableExt');
 var createBuildings = require('./createBuildings');
 var createGltf = require('./createGltf');
 var Mesh = require('./Mesh');
@@ -103,26 +104,40 @@ function createBuildingsTile(options) {
         useGlb: useGlb,
         useGltf: useGltf,
         deferGlbConversion: useGlb || useGltf // TODO: This is ugly, but allows us to refactor this
-                                              //       without breaking other functions that potentially always expect createGltf to return a .glb
+                                              //       without breaking other functions that potentially always expect
+                                              //       createGltf to return a promise that resolves to a glb.
+                                              //       Instead, it returns a promise that resolves to a gltf
+                                              //       hence 'glbOrGltf'. We can do further post-processing on the gltf,
+                                              //       and convert it to a GLB when necessary later.
     };
 
     return createGltf(gltfOptions).then(function(glbOrGltf) {
         var b3dmOptions = {
-            glbOrGltf : glbOrGltf,
+            glb : glbOrGltf,
             featureTableJson : featureTableJson,
             batchTableJson : batchTableJson,
             batchTableBinary : batchTableBinary,
+            batchTableJsonAndBinary : batchTableJsonAndBinary,
             deprecated1 : deprecated1,
             deprecated2 : deprecated2,
         };
 
+        // `glbOrGltf` is a gltf if either of these flags are true
         if (gltfOptions.useGltf || gltfOptions.useGlb) {
-            return b3dm.createB3dmGltf(glbOrGltf, b3dmOptions, batchTableJsonAndBinary);
+            var binaryAttributes = defined(b3dmOptions.batchTableBinary) ? b3dmOptions.batchTableJsonAndBinary.json : undefined;
+            var binary = defined(b3dmOptions.batchTableBinary) ? b3dmOptions.batchTableJsonAndBinary.binary : undefined;
+
+            return create3dtilesBatchTableExt(
+                glbOrGltf,
+                b3dmOptions.batchTableJson,
+                binaryAttributes,
+                binary
+            );
         }
 
         // old style .b3dm
         return {
-            b3dm : b3dm.createB3dm(b3dmOptions),
+            b3dm : createB3dm(b3dmOptions),
             batchTableJson : batchTableJson
         };
     }).catch(function(e) {

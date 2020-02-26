@@ -15,7 +15,7 @@ var DataUri = require('datauri');
 
 var createBatchTableHierarchy = require('../lib/createBatchTableHierarchy');
 var createBuildingsTile = require('../lib/createBuildingsTile');
-var b3dm = require('../lib/createB3dm');
+var createB3dm = require('../lib/createB3dm');
 var createCmpt = require('../lib/createCmpt');
 var createI3dm = require('../lib/createI3dm');
 var createInstancesTile = require('../lib/createInstancesTile');
@@ -1025,20 +1025,18 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
         tilesetOptions.region = smallRegion;
     }
 
-    var tilePath = path.join(tilesetDirectory, contentUri);
+    var rootDirectory = path.join(__dirname, '../');
+    var tilePath = path.join(rootDirectory, tilesetDirectory, contentUri);
     var tilesetPath = (useB3dm) ? path.join(tilesetDirectory, 'tileset.json') : null;
 
     return createBuildingsTile(tileOptions)
         .then(function(result) {
 
             // GLB / GLTF / B3DM Detection for writing to disk
-            // TODO: Could be cleaner.
-
             if (useGlb || useGltf)  {
                 // GLB
                 if (useGlb) {
                     // convert result to glb and write it out
-                    var rootDirectory = path.join(__dirname, '../');
                     var gltfOptions = {
                         resourceDirectory : rootDirectory
                     };
@@ -1046,10 +1044,13 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
                     return gltfToGlb(result, gltfOptions).then(function(results) {
                         var directory = path.dirname(tilePath);
                         if (!fsExtra.existsSync(directory)) {
-                            fsExtra.mkdir(directory);
+                            fsExtra.mkdirSync(directory, { recursive: true });
                         }
 
-                        return fsExtra.writeFile(tilePath, results.glb);
+                        return fsExtra.writeFileSync(tilePath, results.glb);
+                    }).catch(function(e) {
+                        console.log(e.message);
+                        console.log(e.stack);
                     });
                 }
 
@@ -1638,8 +1639,8 @@ function createTilesetWithExternalResources() {
         })
         .then(function(glbs) {
             var tiles = [
-                b3dm.createB3dm({
-                    glbOrGltf : glbs[0]
+                createB3dm({
+                    glb : glbs[0]
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,
@@ -1651,8 +1652,8 @@ function createTilesetWithExternalResources() {
                     featureTableBinary : featureTableBinary,
                     glb : glbs[0]
                 }),
-                b3dm.createB3dm({
-                    glbOrGltf : glbs[1]
+                createB3dm({
+                    glb : glbs[1]
                 }),
                 createI3dm({
                     featureTableJson : featureTableJson,
@@ -2727,11 +2728,11 @@ function createDiscreteLOD() {
     var tilesPromise = Promise.map(glbPaths, function(glbPath, index) {
         return fsExtra.readFile(glbPath)
             .then(function(glb) {
-                var data = b3dm.createB3dm({
-                    glbOrGltf : glb
+                var b3dm = createB3dm({
+                    glb : glb
                 });
                 var tilePath = path.join(tilesetDirectory, tileNames[index]);
-                return saveTile(tilePath, data, gzip);
+                return saveTile(tilePath, b3dm, gzip);
             });
     });
 
@@ -2983,8 +2984,8 @@ function createRequestVolume() {
 
     var buildingPromise = fsExtra.readFile(buildingGlbPath)
         .then(function(glb) {
-            return b3dm.createB3dm({
-                glbOrGltf : glb
+            return createB3dm({
+                glb : glb
             });
         })
         .then(function(b3dm) {

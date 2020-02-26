@@ -4,7 +4,7 @@ var fsExtra = require('fs-extra');
 var path = require('path');
 var Promise = require('bluebird');
 
-var b3dm = require('./createB3dm');
+var createB3dm = require('./createB3dm');
 var createGltf = require('./createGltf');
 var createTilesetJsonSingle = require('./createTilesetJsonSingle');
 var Extensions = require('./Extensions');
@@ -145,15 +145,15 @@ function createBatchTableHierarchy(options) {
             mesh : batchedMesh
         });
     }).then(function(glb) {
-        var data = b3dm.createB3dm({
-            glbOrGltf : glb,
+        var b3dm = createB3dm({
+            glb : glb,
             featureTableJson : featureTableJson,
             batchTableJson : batchTableJson,
             batchTableBinary : batchTableBinary
         });
         return Promise.all([
             saveTilesetJson(tilesetJsonPath, tilesetJson, options.prettyJson),
-            saveTile(tilePath, data, options.gzip)
+            saveTile(tilePath, b3dm, options.gzip)
         ]);
     });
 }
