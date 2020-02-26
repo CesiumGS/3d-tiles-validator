@@ -137,6 +137,9 @@ function createB3dmGltf(gltf, b3dmOptions, batchTableJsonAndBinary) {
 
         for (i = 0; i < batchAttributes.length; ++i) {
             var values = b3dmOptions.batchTableJson[batchAttributes[i]];
+            // TODO: Should we hardcode a if batchAttributes[i] === 'id' here?
+            //       It could fail if we have an batch attribute named id that doesn't use
+            //       an implicit indexing structure (i.e 2, 4, 8, 1, 9, 30...);
             newBatchTable.properties[batchAttributes[i]] = {
                 values: values
             };
