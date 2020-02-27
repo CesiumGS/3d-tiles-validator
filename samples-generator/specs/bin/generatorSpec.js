@@ -7,7 +7,7 @@ var scriptPath = path.join(__dirname, '../../bin/3d-tiles-samples-generator.js')
 describe('3d-tiles-samples-generator', function () {
     it('runs', function (done) {
         var command = 'node';
-        var args = [scriptPath];
+        var args = [scriptPath, '--legacy'];
         var child = child_process.spawn(command, args);
         child.once('error', function (e) {
             fail(e);
