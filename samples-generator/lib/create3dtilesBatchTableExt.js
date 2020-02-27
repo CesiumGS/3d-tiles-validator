@@ -8,7 +8,7 @@ function sortByByteOffset(a, b) {
         return -1;
     }
 
-    if (a.byteOffset < b.byteOffset) {
+    if (a.byteOffset > b.byteOffset) {
         return 1;
     }
 
