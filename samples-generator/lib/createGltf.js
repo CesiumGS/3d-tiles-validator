@@ -1,5 +1,4 @@
 'use strict';
-var Promise = require('bluebird');
 var Cesium = require('cesium');
 var getBufferPadded = require('./getBufferPadded');
 var defaultValue = Cesium.defaultValue;
