@@ -23,7 +23,7 @@ var createPointCloudTile = require('../lib/createPointCloudTile');
 var createTilesetJsonSingle = require('../lib/createTilesetJsonSingle');
 var getProperties = require('../lib/getProperties');
 var saveTile = require('../lib/saveTile');
-var saveTilesetJson = require('../lib/saveTilesetJson');
+var saveJson = require('../lib/saveJson');
 var util = require('../lib/utility');
 
 var processGlb = gltfPipeline.processGlb;
@@ -934,7 +934,7 @@ function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions) {
     var tilesetJson = createTilesetJsonSingle(tilesetOptions);
 
     return Promise.all([
-        saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
+        saveJson(tilesetPath, tilesetJson, prettyJson),
         saveTile(tilePath, cmpt, gzip)
     ]);
 }
@@ -967,7 +967,7 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
             tilesetOptions.properties = getProperties(batchTableJson);
             var tilesetJson = createTilesetJsonSingle(tilesetOptions);
             var promises = [
-                saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
+                saveJson(tilesetPath, tilesetJson, prettyJson),
                 saveTile(tilePath, i3dm, gzip)
             ];
             if (tileOptions.embed === false) {
@@ -1038,7 +1038,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
                     });
                 }
 
-                return saveTilesetJson(tilePath, result, prettyJson);
+                return saveJson(tilePath, result, prettyJson);
             }
 
             // old .b3dm
@@ -1050,12 +1050,12 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
                 var dataUri = new DataUri();
                 dataUri.format('.b3dm', b3dm);
                 tilesetOptions.contentUri = dataUri.content;
-                return saveTilesetJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson);
+                return saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson);
             }
 
             var tilesetJson = createTilesetJsonSingle(tilesetOptions);
             return Promise.all([
-                saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
+                saveJson(tilesetPath, tilesetJson, prettyJson),
                 saveTile(tilePath, b3dm, gzip)
             ]);
         });
@@ -1088,7 +1088,7 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
 
     var tilesetJson = createTilesetJsonSingle(tilesetOptions);
     return Promise.all([
-        saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
+        saveJson(tilesetPath, tilesetJson, prettyJson),
         saveTile(tilePath, pnts, gzip)
     ]);
 }
@@ -1195,7 +1195,7 @@ function saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath,
         if (saveProperties) {
             tilesetJson.properties = getProperties(batchTables);
         }
-        return saveTilesetJson(tilesetPath, tilesetJson, prettyJson);
+        return saveJson(tilesetPath, tilesetJson, prettyJson);
     });
 }
 
@@ -1445,8 +1445,8 @@ function createTilesetOfTilesets() {
     return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true)
         .then(function() {
             return Promise.all([
-                saveTilesetJson(tileset2Path, tileset2Json, prettyJson),
-                saveTilesetJson(tileset3Path, tileset3Json, prettyJson)
+                saveJson(tileset2Path, tileset2Json, prettyJson),
+                saveJson(tileset3Path, tileset3Json, prettyJson)
             ]);
         });
 }
@@ -1655,8 +1655,8 @@ function createTilesetWithExternalResources() {
         })
         .then(function() {
             return Promise.all([
-                saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
-                saveTilesetJson(tileset2Path, tileset2Json, prettyJson),
+                saveJson(tilesetPath, tilesetJson, prettyJson),
+                saveJson(tileset2Path, tileset2Json, prettyJson),
                 fsExtra.copy(glbBasePath, glbCopyPath)
             ]);
         });
@@ -2031,7 +2031,7 @@ function createTilesetReplacement3() {
 
     return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true)
         .then(function() {
-            return saveTilesetJson(tileset2Path, tileset2Json, prettyJson);
+            return saveJson(tileset2Path, tileset2Json, prettyJson);
         });
 }
 
@@ -2106,7 +2106,7 @@ function createTilesetWithTransforms() {
         return Promise.all([
             saveTile(instancesTilePath, i3dm, gzip),
             saveTile(buildingsTilePath, b3dm, gzip),
-            saveTilesetJson(tilesetPath, tilesetJson, prettyJson)
+            saveJson(tilesetPath, tilesetJson, prettyJson)
         ]);
     });
 }
@@ -2401,7 +2401,7 @@ function createTilesetSubtreeExpiration() {
 
     return Promise.all([
         saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true),
-        saveTilesetJson(subtreePath, subtreeJson, prettyJson)
+        saveJson(subtreePath, subtreeJson, prettyJson)
     ]);
 }
 
@@ -2497,7 +2497,7 @@ function createTilesetPoints() {
     for (i = 0; i < 8; ++i) {
         promises.push(saveTile(path.join(tilesetDirectory, i + '.pnts'), childTiles[i], gzip));
     }
-    promises.push(saveTilesetJson(tilesetPath, tilesetJson, prettyJson));
+    promises.push(saveJson(tilesetPath, tilesetJson, prettyJson));
 
     return Promise.all(promises);
 }
@@ -2536,7 +2536,7 @@ function createTilesetUniform() {
 
     return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true)
         .then(function() {
-            saveTilesetJson(tileset2Path, tileset2Json, prettyJson);
+            saveJson(tileset2Path, tileset2Json, prettyJson);
         });
 }
 
@@ -2719,7 +2719,7 @@ function createDiscreteLOD() {
             });
     });
 
-    var tilesetPromise = saveTilesetJson(tilesetPath, tilesetJson, prettyJson);
+    var tilesetPromise = saveJson(tilesetPath, tilesetJson, prettyJson);
 
     return Promise.all([tilesPromise, tilesetPromise]);
 }
@@ -2800,7 +2800,7 @@ function createTreeBillboards() {
             });
     }).then(function(batchTables) {
         tilesetJson.properties = getProperties(batchTables);
-        return saveTilesetJson(tilesetPath, tilesetJson, prettyJson);
+        return saveJson(tilesetPath, tilesetJson, prettyJson);
     });
 }
 
@@ -2979,8 +2979,8 @@ function createRequestVolume() {
         cityTilePromises,
         buildingPromise,
         saveTile(pointCloudTilePath, pnts, gzip),
-        saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
-        saveTilesetJson(cityTilesetPath, cityTilesetJson, prettyJson)
+        saveJson(tilesetPath, tilesetJson, prettyJson),
+        saveJson(cityTilesetPath, cityTilesetJson, prettyJson)
     ]);
 }
 
@@ -3044,7 +3044,7 @@ function createExpireTileset() {
     };
 
     return Promise.all([
-        saveTilesetJson(tilesetPath, tilesetJson, prettyJson),
+        saveJson(tilesetPath, tilesetJson, prettyJson),
         Promise.all(tilePromises)
     ]);
 }

@@ -12,7 +12,7 @@ var getBufferPadded = require('./getBufferPadded');
 var Material = require('./Material');
 var Mesh = require('./Mesh');
 var saveTile = require('./saveTile');
-var saveTilesetJson = require('./saveTilesetJson');
+var saveJson = require('./saveJson');
 
 var Cartesian3 = Cesium.Cartesian3;
 var CesiumMath = Cesium.Math;
@@ -152,7 +152,7 @@ function createBatchTableHierarchy(options) {
             batchTableBinary : batchTableBinary
         });
         return Promise.all([
-            saveTilesetJson(tilesetJsonPath, tilesetJson, options.prettyJson),
+            saveJson(tilesetJsonPath, tilesetJson, options.prettyJson),
             saveTile(tilePath, b3dm, options.gzip)
         ]);
     });

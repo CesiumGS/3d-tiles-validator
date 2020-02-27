@@ -4,10 +4,10 @@ var fsExtra = require('fs-extra');
 
 var defaultValue = Cesium.defaultValue;
 
-module.exports = saveTilesetJson;
+module.exports = saveJson;
 
 /**
- * Save a tileset.json file to disk.
+ * Save a json file to disk.
  *
  * @param {String} path The path to save the tileset.json.
  * @param {Object} json The JSON.
@@ -15,7 +15,7 @@ module.exports = saveTilesetJson;
  *
  * @returns {Promise} A promise that resolves when the tileset.json is saved.
  */
-function saveTilesetJson(path, json, prettyJson) {
+function saveJson(path, json, prettyJson) {
     prettyJson = defaultValue(prettyJson, true);
     var options = {};
     if (prettyJson) {
