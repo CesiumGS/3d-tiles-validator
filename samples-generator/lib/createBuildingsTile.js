@@ -3,7 +3,12 @@ var Cesium = require('cesium');
 var createB3dm = require('./createB3dm');
 var create3dtilesBatchTableExt = require('./create3dtilesBatchTableExt');
 var createBuildings = require('./createBuildings');
+var path = require('path');
+var Promise = require('bluebird');
 var createGltf = require('./createGltf');
+var gltfPipeline = require('gltf-pipeline');
+var gltfToGlb = gltfPipeline.gltfToGlb;
+var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
 var Mesh = require('./Mesh');
 
 var Cartesian3 = Cesium.Cartesian3;
@@ -37,6 +42,7 @@ var batchTableJsonAndBinary;
  * @param {Boolean} [options.deprecated2=false] Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic.
  *
  * @returns {Promise} A promise that resolves with the b3dm buffer and batch table JSON.
+ *                      OR a promise that resolves with a GLTF
  */
 function createBuildingsTile(options) {
     var buildings = createBuildings(options.buildingOptions);
@@ -100,46 +106,43 @@ function createBuildingsTile(options) {
         useBatchIds : useBatchIds,
         relativeToCenter : relativeToCenter,
         deprecated : deprecated1 || deprecated2,
-        useGlb: useGlb,
-        useGltf: useGltf,
-        deferGlbConversion: useGlb || useGltf // TODO: This is ugly, but allows us to refactor this
-                                              //       without breaking other functions that potentially always expect
-                                              //       createGltf to return a promise that resolves to a glb.
-                                              //       Instead, it returns a promise that resolves to a gltf
-                                              //       hence 'glbOrGltf'. We can do further post-processing on the gltf,
-                                              //       and convert it to a GLB when necessary later.
     };
 
-    return createGltf(gltfOptions).then(function(glbOrGltf) {
-        var b3dmOptions = {
-            glb : glbOrGltf,
-            featureTableJson : featureTableJson,
-            batchTableJson : batchTableJson,
-            batchTableBinary : batchTableBinary,
-            batchTableJsonAndBinary : batchTableJsonAndBinary,
-            deprecated1 : deprecated1,
-            deprecated2 : deprecated2,
-        };
+    var gltf = createGltf(gltfOptions);
 
-        // `glbOrGltf` is a gltf if either of these flags are true
-        if (gltfOptions.useGltf || gltfOptions.useGlb) {
-            var binaryAttributes = defined(b3dmOptions.batchTableBinary) ? b3dmOptions.batchTableJsonAndBinary.json : undefined;
-            var binary = defined(b3dmOptions.batchTableBinary) ? b3dmOptions.batchTableJsonAndBinary.binary : undefined;
+    var b3dmOptions = {
+        featureTableJson : featureTableJson,
+        batchTableJson : batchTableJson,
+        batchTableBinary : batchTableBinary,
+        batchTableJsonAndBinary : batchTableJsonAndBinary,
+        deprecated1 : deprecated1,
+        deprecated2 : deprecated2,
+    };
 
-            return create3dtilesBatchTableExt(
-                glbOrGltf,
-                b3dmOptions.batchTableJson,
-                binaryAttributes,
-                binary
-            );
-        }
+    var binaryAttributes = defined(b3dmOptions.batchTableBinary) ? b3dmOptions.batchTableJsonAndBinary.json : undefined;
+    var binary = defined(b3dmOptions.batchTableBinary) ? b3dmOptions.batchTableJsonAndBinary.binary : undefined;
 
-        // old style .b3dm
+    if (useGltf || useGlb) {
+        gltf = create3dtilesBatchTableExt(gltf, b3dmOptions.batchTableJson, binaryAttributes, binary);
+    }
+
+    if (useGltf) {
+        return Promise.resolve(gltf);
+    }
+
+    if (useGlb) {
+        return gltfToGlb(gltf, gltfConversionOptions).then(function(glb) {
+            return Promise.resolve(glb.glb);
+        });
+    }
+
+    return gltfToGlb(gltf, gltfConversionOptions).then(function(glb) {
         batchTableJson = combine(batchTableJson, batchTableJsonAndBinary.json);
-        return {
+        b3dmOptions.glb = glb.glb;
+        return Promise.resolve({
             b3dm : createB3dm(b3dmOptions),
             batchTableJson : batchTableJson
-        };
+        });
     });
 }
 

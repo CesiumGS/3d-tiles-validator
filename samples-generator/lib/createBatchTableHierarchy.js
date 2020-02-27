@@ -5,7 +5,7 @@ var path = require('path');
 var Promise = require('bluebird');
 
 var createB3dm = require('./createB3dm');
-var createGltf = require('./createGltf');
+var createGlb = require('./createGlb');
 var createTilesetJsonSingle = require('./createTilesetJsonSingle');
 var Extensions = require('./Extensions');
 var getBufferPadded = require('./getBufferPadded');
@@ -141,7 +141,7 @@ function createBatchTableHierarchy(options) {
             }
         }
         var batchedMesh = Mesh.batch(clonedMeshes);
-        return createGltf({
+        return createGlb({
             mesh : batchedMesh
         });
     }).then(function(glb) {

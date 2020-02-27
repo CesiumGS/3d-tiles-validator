@@ -1027,11 +1027,8 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     return createBuildingsTile(tileOptions)
         .then(function(result) {
             if (useGlb) {
-                var gltfOptions = {resourceDirectory : rootDirectory};
                 return Promise.all([
-                    gltfToGlb(result, gltfOptions).then(function(results) {
-                        return fsExtra.outputFileSync(tilePath, results.glb);
-                    }),
+                    fsExtra.outputFile(tilePath, result),
                     saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson)
                 ]);
             }

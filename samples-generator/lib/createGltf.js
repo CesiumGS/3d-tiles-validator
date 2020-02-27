@@ -1,36 +1,28 @@
 'use strict';
 var Promise = require('bluebird');
 var Cesium = require('cesium');
-var gltfPipeline = require('gltf-pipeline');
-var path = require('path');
 var getBufferPadded = require('./getBufferPadded');
-
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 
-var gltfToGlb = gltfPipeline.gltfToGlb;
-
 module.exports = createGltf;
-
-var rootDirectory = path.join(__dirname, '../');
 
 var sizeOfUint8 = 1;
 var sizeOfUint16 = 2;
 var sizeOfFloat32 = 4;
 
 /**
- * Create a glTF from a Mesh.
+ * Create a gltf from a Mesh.
  *
  * @param {Object} options An object with the following properties:
  * @param {Mesh} options.mesh The mesh.
  * @param {Boolean} [options.useBatchIds=true] Modify the glTF to include the batchId vertex attribute.
  * @param {Boolean} [options.relativeToCenter=false] Set mesh positions relative to center.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
- * @param {Boolean} [options.deferGlbConversion=false] Do not attempt to convert to GLB
  *
- * @returns {Promise} A promise that resolves with the binary glTF buffer.
- *                    Or, a promise tha tresolves with the JSON GLTF object if deferGlbConversion is true
+ * @returns {Object} A GLTF object
  */
+
 function createGltf(options) {
     var useBatchIds = defaultValue(options.useBatchIds, true);
     var relativeToCenter = defaultValue(options.relativeToCenter, false);
@@ -397,18 +389,7 @@ function createGltf(options) {
         textures : textures
     };
 
-    if (options.deferGlbConversion) {
-        return Promise.resolve(gltf);
-    }
-
-    var gltfOptions = {
-        resourceDirectory : rootDirectory
-    };
-
-    return gltfToGlb(gltf, gltfOptions)
-        .then(function(results) {
-            return results.glb;
-        });
+    return gltf;
 }
 
 function getMinMax(array, components, start, length) {
