@@ -1022,23 +1022,25 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
 
     var rootDirectory = path.join(__dirname, '../');
     var tilePath = path.join(rootDirectory, tilesetDirectory, contentUri);
-    var tilesetPath = (useB3dm) ? path.join(tilesetDirectory, 'tileset.json') : null;
+    var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     return createBuildingsTile(tileOptions)
         .then(function(result) {
-
-            if (useGlb || useGltf)  {
-                if (useGlb) {
-                    var gltfOptions = {
-                        resourceDirectory : rootDirectory
-                    };
-
-                    return gltfToGlb(result, gltfOptions).then(function(results) {
+            if (useGlb) {
+                var gltfOptions = {resourceDirectory : rootDirectory};
+                return Promise.all([
+                    gltfToGlb(result, gltfOptions).then(function(results) {
                         return fsExtra.outputFileSync(tilePath, results.glb);
-                    });
-                }
+                    }),
+                    saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson)
+                ]);
+            }
 
-                return saveJson(tilePath, result, prettyJson);
+            else if (useGltf) {
+                return Promise.all([
+                    saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson),
+                    saveJson(tilePath, result, prettyJson)
+                ]);
             }
 
             // old .b3dm
