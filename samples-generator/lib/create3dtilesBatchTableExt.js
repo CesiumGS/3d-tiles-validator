@@ -34,8 +34,6 @@ function sortByByteOffset(a, b) {
  */
 
 function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sharedBinaryBuffer) {
-    gltf['extensionsUsed'] = [batchTableExtensionName];
-
     if (!defined(humanAttributes) && !defined(binaryAttributes)) {
         throw new Error('humanAttributes or binaryAttributes must be defined');
     }
@@ -44,15 +42,17 @@ function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sha
         throw new Error('sharedBinaryBuffer must be defined if binaryAttributes is defined');
     }
 
-    if (!defined(gltf['extensionsUsed'])) {
-        gltf['extensionsUsed'] = [];
+    if (!defined(gltf.extensionsUsed)) {
+        gltf.extensionsUsed = [];
+    } else {
+        gltf.extensionsUsed.push(batchTableExtensionName);
     }
 
     if (!defined(gltf.extensions)) {
         gltf.extensions = {};
     }
 
-    gltf['extensions'][batchTableExtensionName] = { batchTables: [] };
+    gltf.extensions[batchTableExtensionName] = { batchTables: [] };
 
     var humanAttributeNames = Object.keys(humanAttributes);
     var i = 0;
@@ -106,7 +106,7 @@ function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sha
                 count : batchAttribute.count,
             });
 
-            var batchTable = gltf.extensions.CESIUM_3dtiles_batch_table.batchTables[batchTableIndex].properties;
+            var batchTable = gltf.extensions[batchTableExtensionName].batchTables[batchTableIndex].properties;
             batchTable[batchAttribute.name] = {accessor: accessorBufferViewIndex};
         }
     }
