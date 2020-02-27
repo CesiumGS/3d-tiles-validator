@@ -48,14 +48,14 @@ function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sha
         gltf['extensionsUsed'] = [];
     }
 
-    if (!defined(gltf['extensions'])) {
-        gltf['extensions'] = {};
+    if (!defined(gltf.extensions)) {
+        gltf.extensions = {};
     }
 
     gltf['extensions'][batchTableExtensionName] = { batchTables: [] };
 
     var humanAttributeNames = Object.keys(humanAttributes);
-    var i=0;
+    var i = 0;
 
     var newBufferIndex = gltf.buffers.length;
     var batchTableIndex = 0; // TODO: This will change when we add multiple batch table support
