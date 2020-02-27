@@ -995,13 +995,8 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     // b3dm by default only if useGlb or useGltf is not specified
     var useB3dm = defaultValue(tileOptions.useB3dm, !useGltf && !useGlb);
 
-    var mutualExclusivity = 0;
-    mutualExclusivity += useGltf ? 1 : 0;
-    mutualExclusivity += useGlb ? 1 : 0;
-    mutualExclusivity += useB3dm ? 1 : 0;
-
-    if (mutualExclusivity !== 1) {
-        throw new Error({message: 'useGltf=' + useGltf + ', useGlb=' + useGlb + 'useB3dm=' + useB3dm + '. Only supply one value for output format'});
+    if (useGltf + useGlb + useB3dm !== 1) {
+        throw new Error('useGltf=' + useGltf + ', useGlb=' + useGlb + 'useB3dm=' + useB3dm + '. Only supply one value for output format');
     }
 
     var ext = '';
