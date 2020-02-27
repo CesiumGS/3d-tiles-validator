@@ -66,9 +66,6 @@ function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sha
 
         for (i = 0; i < humanAttributeNames.length; ++i) {
             var values = humanAttributes[humanAttributeNames[i]];
-            // TODO: Should we hardcode a if batchAttributes[i] === 'id' here?
-            //       It could fail if we have an batch attribute named id that doesn't use
-            //       an implicit indexing structure (i.e 2, 4, 8, 1, 9, 30...);
             newBatchTable.properties[humanAttributeNames[i]] = {
                 values: values
             };
