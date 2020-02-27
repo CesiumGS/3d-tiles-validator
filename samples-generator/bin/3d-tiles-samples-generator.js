@@ -196,14 +196,19 @@ var ulTileOptions = {
     relativeToCenter : true
 };
 
+var argv = require('yargs')
+    .help()
+    .option('gltf', { type: 'boolean', describe: 'Export sample as GLTF (using GLTF extensions)' })
+    .option('glb', { type: 'boolean', describe: 'Export sample as GLB (using GLTF extensions)' })
+    .option('legacy', { type: 'boolean', describe: 'Export sample using legacy format (.b3dm, .pnts, .i3dm etc)' })
+    .check(function(argv) {
+        if (argv.gltf + argv.glb + argv.legacy !== 1) {
+            throw new Error('--gltf, --glb, --legacy must be provided (Mutually exclusive)');
+        }
+        return true;
+    }).argv;
+
 var promises = [
-    // CESIUM_3dtiles_batch_table
-    createBatchedWithBatchTableGltf(),
-    createBatchedWithBatchTableBinaryGltf(),
-
-    createBatchedWithBatchTableGlb(),
-    createBatchedWithBatchTableBinaryGlb(),
-
     // Batched
     createBatchedWithBatchTable(),
     createBatchedWithoutBatchTable(),
@@ -298,44 +303,6 @@ return Promise.all(promises).catch(function(error) {
     console.log(error.message);
     console.log(error.stack);
 });
-
-function createBatchedWithBatchTableGltf() {
-    var tileOptions = {
-        createBatchTable : true,
-        createBatchTableExtra : true,
-        useGltf: true
-    };
-    return saveBatchedTileset('BatchedWithBatchTable_gltf', tileOptions);
-}
-
-function createBatchedWithBatchTableBinaryGltf() {
-    var tileOptions = {
-        createBatchTable : true,
-        createBatchTableBinary : true,
-        useGltf: true
-    };
-    return saveBatchedTileset('BatchedWithBatchTableBinary_useGltf', tileOptions);
-}
-
-function createBatchedWithBatchTableGlb() {
-    var tileOptions = {
-        createBatchTable : true,
-        createBatchTableExtra : true,
-        useGlb: true
-    };
-    return saveBatchedTileset('BatchedWithBatchTable_glb', tileOptions);
-
-}
-function createBatchedWithBatchTableBinaryGlb() {
-    var tileOptions = {
-        createBatchTable : true,
-        createBatchTableBinary : true,
-        useGlb: true
-    };
-    return saveBatchedTileset('BatchedWithBatchTableBinary_useGlb', tileOptions);
-}
-
-// b3dm non gltf
 
 function createBatchedWithBatchTable() {
     var tileOptions = {
@@ -984,27 +951,20 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     tilesetOptions = defaultValue(tilesetOptions, {});
 
 
-    var useGltf = defaultValue(tileOptions.useGltf, false);
-    var useGlb = defaultValue(tileOptions.useGlb, false);
-
-    // b3dm by default only if useGlb or useGltf is not specified
-    var useB3dm = defaultValue(tileOptions.useB3dm, !useGltf && !useGlb);
-
-    if (useGltf + useGlb + useB3dm !== 1) {
-        throw new Error('useGltf=' + useGltf + ', useGlb=' + useGlb + 'useB3dm=' + useB3dm + '. Only supply one value for output format');
-    }
-
     var ext = '';
 
-    if (useGlb) {
+    if (argv.glb) {
+        tileOptions.useGlb = true;
         ext = '.glb';
     }
 
-    if (useGltf) {
+    if (argv.gltf) {
+        tileOptions.useGltf = true;
         ext = '.gltf';
     }
 
-    if (useB3dm) {
+    if (argv.legacy) {
+        tileOptions.useLegacy = true;
         ext = '.b3dm';
     }
 
@@ -1021,14 +981,14 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
 
     return createBuildingsTile(tileOptions)
         .then(function(result) {
-            if (useGlb) {
+            if (argv.glb) {
                 return Promise.all([
                     fsExtra.outputFile(tilePath, result),
                     saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson)
                 ]);
             }
 
-            else if (useGltf) {
+            else if (argv.gltf) {
                 return Promise.all([
                     saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson),
                     saveJson(tilePath, result, prettyJson)
