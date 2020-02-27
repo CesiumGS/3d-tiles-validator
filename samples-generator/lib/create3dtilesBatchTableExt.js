@@ -1,7 +1,7 @@
 'use strict';
 var Cesium = require('cesium');
 var defined = Cesium.defined;
-var cesium3dTilesBatch = 'CESIUM_3dtiles_batch_table';
+var batchTableExtensionName = 'CESIUM_3dtiles_batch_table';
 
 function sortByByteOffset(a, b) {
     if (a.byteOffset < b.byteOffset ){
@@ -34,7 +34,7 @@ function sortByByteOffset(a, b) {
  */
 
 function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sharedBinaryBuffer) {
-    gltf['extensionsUsed'] = [cesium3dTilesBatch];
+    gltf['extensionsUsed'] = [batchTableExtensionName];
 
     if (!defined(humanAttributes) && !defined(binaryAttributes)) {
         throw new Error('humanAttributes or binaryAttributes must be defined');
@@ -52,7 +52,7 @@ function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sha
         gltf['extensions'] = {};
     }
 
-    gltf['extensions'][cesium3dTilesBatch] = { batchTables: [] };
+    gltf['extensions'][batchTableExtensionName] = { batchTables: [] };
 
     var humanAttributeNames = Object.keys(humanAttributes);
     var i=0;
@@ -74,7 +74,7 @@ function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sha
             };
         }
 
-        gltf.extensions[cesium3dTilesBatch].batchTables.push(newBatchTable);
+        gltf.extensions[batchTableExtensionName].batchTables.push(newBatchTable);
     }
 
     if (defined(binaryAttributes)) {
