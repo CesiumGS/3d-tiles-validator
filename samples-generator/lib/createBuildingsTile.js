@@ -201,7 +201,7 @@ function generateBatchTableBinaryLegacy(buildings) {
         cartographic : {
             byteOffset : 0,
             componentType : 'DOUBLE',
-            type : 'VEC3',
+            type : 'VEC3'
         },
 
         code : {
