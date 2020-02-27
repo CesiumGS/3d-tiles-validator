@@ -24,7 +24,7 @@ function sortByByteOffset(a, b) {
  *                                  section of the modified GLTF.
  * @param {Object} binaryAttributes Key value object, where each key corresponds to the name of the
  *                                  binary attribute, and the value in object with the following keys:
- *                                  'byteLength', 'byteOffset', 'componentType', 'type'
+ *                                  'byteLength', 'byteOffset', 'componentType', 'type', 'name'
  *
  * @param {Buffer} sharedBinaryBuffer Currently the samples generator only supports creating
  *                                    ONE additional Buffer with all the binary attributes inside of it.
@@ -58,6 +58,7 @@ function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sha
     var i=0;
 
     var newBufferIndex = gltf.buffers.length;
+    var batchTableIndex = 0; // TODO: This will change when we add multiple batch table support
 
     if (defined(humanAttributes)) {
         var batchLength = humanAttributeNames.length > 0 ? humanAttributes[humanAttributeNames[0]].length : 0;
@@ -89,8 +90,8 @@ function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sha
             uri: 'data:application/octet-stream;base64,' + sharedBinaryBuffer.toString('base64')
         });
 
-        var bufferViewIndex = gltf.bufferViews.length;
-        for (i = 0; i < sortedBinaryAttributes.length; ++i, ++bufferViewIndex) {
+        var accessorBufferViewIndex = gltf.bufferViews.length;
+        for (i = 0; i < sortedBinaryAttributes.length; ++i, ++accessorBufferViewIndex) {
             var batchAttribute = sortedBinaryAttributes[i];
 
             gltf.bufferViews.push({
@@ -101,12 +102,15 @@ function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sha
             });
 
             gltf.accessors.push({
-                bufferView : bufferViewIndex,
+                bufferView : accessorBufferViewIndex,
                 byteOffset : 0,
                 componentType : batchAttribute.componentType,
                 type : batchAttribute.type,
                 count : batchAttribute.count,
             });
+
+            var batchTable = gltf.extensions.CESIUM_3dtiles_batch_table.batchTables[batchTableIndex].properties;
+            batchTable[batchAttribute.name] = {accessor: accessorBufferViewIndex};
         }
     }
 

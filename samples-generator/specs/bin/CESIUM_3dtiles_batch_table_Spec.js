@@ -13,6 +13,7 @@ describe('CESIUM_3dtiles_batch_table.js', function() {
 
     var binaryBatchTableAttributes = {
         aToLInclusive: {
+            name: 'aToLInclusive',
             byteOffset: 0,
             byteLength: 12,
             count: 12,
@@ -21,6 +22,7 @@ describe('CESIUM_3dtiles_batch_table.js', function() {
         },
 
         mToZInclusive: {
+            name: 'mToZInclusive',
             byteOffset: 12,
             byteLength: 14,
             count: 14,
@@ -101,9 +103,15 @@ describe('CESIUM_3dtiles_batch_table.js', function() {
         expect(secondToLastBufferView.buffer).toBe(1);
         expect(secondToLastBufferView.byteLength).toBe(binaryBatchTableAttributes.aToLInclusive.byteLength);
         expect(secondToLastBufferView.byteOffset).toBe(binaryBatchTableAttributes.aToLInclusive.byteOffset);
-
         expect(lastBufferView.buffer).toBe(1);
         expect(lastBufferView.byteLength).toBe(binaryBatchTableAttributes.mToZInclusive.byteLength);
         expect(lastBufferView.byteOffset).toBe(binaryBatchTableAttributes.mToZInclusive.byteOffset);
+
+        // verify that references to the binary accessors are in `extensions: {...}`
+        var batchTableProperties = triangleGLTF.extensions.CESIUM_3dtiles_batch_table.batchTables[0].properties;
+        expect(binaryBatchTableAttributes.aToLInclusive.name in batchTableProperties).toBeTrue();
+        expect(binaryBatchTableAttributes.mToZInclusive.name in batchTableProperties).toBeTrue();
+        expect(batchTableProperties[binaryBatchTableAttributes.aToLInclusive.name].accessor).toBe(accesorsBeforeExtensionAdded);
+        expect(batchTableProperties[binaryBatchTableAttributes.mToZInclusive.name].accessor).toBe(accesorsBeforeExtensionAdded + 1);
     });
 });
