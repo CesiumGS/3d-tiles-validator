@@ -85,9 +85,12 @@ function createBuildingsTile(options) {
             var batchTableExtra = generateBatchTableExtra(buildings);
             batchTableJson = combine(batchTableJson, batchTableExtra);
         }
+
+        var useLegacyTable = !useGlb && !useGltf;
         if (createBatchTableBinary) {
-            batchTableJsonAndBinary = generateBatchTableBinary(buildings);
+            batchTableJsonAndBinary = (useLegacyTable) ? generateBatchTableBinaryLegacy(buildings) : generateBatchTableBinary(buildings);
             batchTableBinary = batchTableJsonAndBinary.binary;
+
         }
     }
 
@@ -186,6 +189,43 @@ function generateBatchTableExtra(buildings) {
     }
 
     return batchTable;
+}
+
+function generateBatchTableBinaryLegacy(buildings) {
+    var buildingsLength = buildings.length;
+    var cartographicBuffer = Buffer.alloc(buildingsLength * 3 * sizeOfDouble);
+    var codeBuffer = Buffer.alloc(buildingsLength * sizeOfUint8);
+
+    var batchTableJson = {
+        cartographic : {
+            byteOffset : 0,
+            componentType : 'DOUBLE',
+            type : 'VEC3',
+        },
+
+        code : {
+            byteOffset : cartographicBuffer.length,
+            componentType : 'UNSIGNED_BYTE',
+            type : 'SCALAR'
+        }
+    };
+
+    for (var i = 0; i < buildingsLength; ++i) {
+        var building = buildings[i];
+        var code = Math.max(i, 255);
+        cartographicBuffer.writeDoubleLE(building.longitude, (i * 3) * sizeOfDouble);
+        cartographicBuffer.writeDoubleLE(building.latitude, (i * 3 + 1) * sizeOfDouble);
+        cartographicBuffer.writeDoubleLE(building.height, (i * 3 + 2) * sizeOfDouble);
+        codeBuffer.writeUInt8(code, i);
+    }
+
+    // No need for padding with these sample properties
+    var batchTableBinary = Buffer.concat([cartographicBuffer, codeBuffer]);
+
+    return {
+        json : batchTableJson,
+        binary : batchTableBinary
+    };
 }
 
 function generateBatchTableBinary(buildings) {
