@@ -1027,29 +1027,17 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     return createBuildingsTile(tileOptions)
         .then(function(result) {
 
-            // GLB / GLTF / B3DM Detection for writing to disk
             if (useGlb || useGltf)  {
-                // GLB
                 if (useGlb) {
-                    // convert result to glb and write it out
                     var gltfOptions = {
                         resourceDirectory : rootDirectory
                     };
 
                     return gltfToGlb(result, gltfOptions).then(function(results) {
-                        var directory = path.dirname(tilePath);
-                        if (!fsExtra.existsSync(directory)) {
-                            fsExtra.mkdirSync(directory, { recursive: true });
-                        }
-
-                        return fsExtra.writeFileSync(tilePath, results.glb);
-                    }).catch(function(e) {
-                        console.log(e.message);
-                        console.log(e.stack);
+                        return fsExtra.outputFileSync(tilePath, results.glb);
                     });
                 }
 
-                // GLTF
                 return saveTilesetJson(tilePath, result, prettyJson);
             }
 
