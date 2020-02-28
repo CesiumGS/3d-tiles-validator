@@ -90,7 +90,7 @@ function createBuildingsTile(options) {
         if (createBatchTableBinary) {
             batchTableJsonAndBinary = (useLegacy) ? generateBatchTableBinaryLegacy(buildings) : generateBatchTableBinary(buildings);
             batchTableBinary = batchTableJsonAndBinary.binary;
-
+            batchTableJson = combine(batchTableJson, batchTableJsonAndBinary.json);
         }
     }
 
@@ -122,12 +122,11 @@ function createBuildingsTile(options) {
         deprecated2 : deprecated2,
     };
 
-    var binaryAttributes = defined(b3dmOptions.batchTableBinary) ? b3dmOptions.batchTableJsonAndBinary.json : undefined;
     var binary = defined(b3dmOptions.batchTableBinary) ? b3dmOptions.batchTableJsonAndBinary.binary : undefined;
 
     // don't add the BatchTableExt if there is no batchTableJson (e.g in the case of `createBatchedWithoutBatchTable`)
     if ((useGltf || useGlb) && defined(b3dmOptions.batchTableJson)) {
-        gltf = create3dtilesBatchTableExt(gltf, b3dmOptions.batchTableJson, binaryAttributes, binary);
+        gltf = create3dtilesBatchTableExt(gltf, b3dmOptions.batchTableJson, binary);
     }
 
     if (useGltf) {
@@ -141,7 +140,6 @@ function createBuildingsTile(options) {
     }
 
     return gltfToGlb(gltf, gltfConversionOptions).then(function(glb) {
-        batchTableJson = combine(batchTableJson, batchTableJsonAndBinary.json);
         b3dmOptions.glb = glb.glb;
         return Promise.resolve({
             b3dm : createB3dm(b3dmOptions),

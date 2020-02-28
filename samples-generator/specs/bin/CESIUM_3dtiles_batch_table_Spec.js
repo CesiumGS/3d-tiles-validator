@@ -4,14 +4,8 @@ var create3dtilesBatchTableExt = require ('../../lib/create3dtilesBatchTableExt'
 
 describe('CESIUM_3dtiles_batch_table.js', function() {
     var triangleGLTF = minimalTriangleGLTF;
-    var humanReadableBatchTableAttributes = {
-        cornerName: ['A', 'B', 'C'],
-        cornerAstroSign: ['Virgo', 'Scorpio', 'Gemini']
-    };
-
     var sharedBuffer = Buffer.from('abcdefghijklmnopqrstuvwxyz');
-
-    var binaryBatchTableAttributes = {
+    var batchTableAttributes = {
         aToLInclusive: {
             name: 'aToLInclusive',
             byteOffset: 0,
@@ -28,90 +22,87 @@ describe('CESIUM_3dtiles_batch_table.js', function() {
             count: 14,
             componentType: 0x1401,
             type: 'SCALAR'
-        }
+        },
+
+        cornerName: ['A', 'B', 'C'],
+        cornerAstroSign: ['Virgo', 'Scorpio', 'Gemini']
     };
 
-    var accesorsBeforeExtensionAdded = Object.keys(triangleGLTF.accessors).length;
-    var bufferViewsBeforeExtensionAdded = Object.keys(triangleGLTF.bufferViews).length;
-    var buffersBeforeExtensionAdded = Object.keys(triangleGLTF.buffers).length;
+    var oldAccessorLength = Object.keys(triangleGLTF.accessors).length;
+    var oldBufferViewLength = Object.keys(triangleGLTF.bufferViews).length;
+    var oldBufferLength = Object.keys(triangleGLTF.buffers).length;
+    var gltfWithExt = create3dtilesBatchTableExt(triangleGLTF, batchTableAttributes, sharedBuffer);
 
-    beforeEach(function() {
-        triangleGLTF = JSON.parse(JSON.stringify(minimalTriangleGLTF));
-    });
-
-    function commonHumanReadableAssertions(gltf) {
-        expect('extensionsUsed' in gltf).toBe(true);
-        expect('extensions' in gltf).toBe(true);
-        expect('CESIUM_3dtiles_batch_table' in gltf.extensions).toBe(true);
-        var batchTables =  gltf.extensions.CESIUM_3dtiles_batch_table.batchTables;
+    it('extensions used / extension keys are present', function() {
+        expect('extensionsUsed' in gltfWithExt).toBe(true);
+        expect('extensions' in gltfWithExt).toBe(true);
+        expect('CESIUM_3dtiles_batch_table' in gltfWithExt.extensions).toBe(true);
+        var batchTables =  gltfWithExt.extensions.CESIUM_3dtiles_batch_table.batchTables;
         expect(batchTables).toBeInstanceOf(Array);
-        expect(batchTables.length).toBe(1);
-
-        var table = batchTables[0];
-        expect(table.batchLength).toBe(humanReadableBatchTableAttributes.cornerName.length);
-        expect(table.properties).toBeInstanceOf(Object);
-        expect(table.properties.cornerName.values).toEqual(humanReadableBatchTableAttributes.cornerName);
-        expect(table.properties.cornerAstroSign.values).toEqual(humanReadableBatchTableAttributes.cornerAstroSign);
-    }
-
-    it('human readable values are directly embedded in properties, buffers / accessors / bufferviews left alone', function() {
-        create3dtilesBatchTableExt(triangleGLTF, humanReadableBatchTableAttributes);
-        commonHumanReadableAssertions(triangleGLTF);
-
-        expect(Object.keys(triangleGLTF.accessors).length).toBe(accesorsBeforeExtensionAdded);
-        expect(Object.keys(triangleGLTF.bufferViews).length).toBe(bufferViewsBeforeExtensionAdded);
-        expect(Object.keys(triangleGLTF.buffers).length).toBe(buffersBeforeExtensionAdded);
+        expect(batchTables.length).toBe(1); // Multiple Batch Table not Supported Yet
     });
 
-    it('human readable values are directly embedded in properties, binary data is stored in additional buffer', function() {
-        create3dtilesBatchTableExt(triangleGLTF, humanReadableBatchTableAttributes, binaryBatchTableAttributes, sharedBuffer);
-        commonHumanReadableAssertions(triangleGLTF);
+    it('has correct number of batch table attributes', function() {
+        var table =  gltfWithExt.extensions.CESIUM_3dtiles_batch_table.batchTables[0];
+        expect(table.batchLength).toBe(batchTableAttributes.cornerName.length);
+    });
 
-        // two accessors should have been added, one for each of the new binary batch table attributes
-        expect(Object.keys(triangleGLTF.accessors).length).toBe(accesorsBeforeExtensionAdded + 2);
-        // two bufferviews should have been added, one for each of the new binary batch table attributes
-        expect(Object.keys(triangleGLTF.bufferViews).length).toBe(bufferViewsBeforeExtensionAdded + 2);
-        // one buffer should have been added, containing the new buffer
-        expect(Object.keys(triangleGLTF.buffers).length).toBe(buffersBeforeExtensionAdded + 1);
+    it('human readable attributes are detected and left as-is in the ext section', function() {
+        var properties =  gltfWithExt.extensions.CESIUM_3dtiles_batch_table.batchTables[0].properties;
+        // human readable values are embedded directly
+        expect(properties.cornerName.values).toEqual(batchTableAttributes.cornerName);
+        expect(properties.cornerAstroSign.values).toEqual(batchTableAttributes.cornerAstroSign);
 
-        expect(triangleGLTF.buffers[1].byteLength).toEqual(sharedBuffer.length);
+        // binary values should only have an accessor key
+        // accessor ids are sorted by byteOffset, so aToL should be first
+        expect(Object.keys(properties.aToLInclusive).length).toEqual(1);
+        expect(Object.keys(properties.mToZInclusive).length).toEqual(1);
+        expect(properties.aToLInclusive.accessor).toEqual(oldAccessorLength);
+        expect(properties.mToZInclusive.accessor).toEqual(oldAccessorLength + 1);
+    });
+
+    it('buffers / accessors / bufferviews are updated with binary data', function() {
+        var accessors = gltfWithExt.accessors;
+        expect(accessors.length).toEqual(4);
+        expect(Object.keys(gltfWithExt.accessors).length).toBe(oldAccessorLength + 2);
+        expect(Object.keys(gltfWithExt.bufferViews).length).toBe(oldBufferViewLength + 2);
+        expect(Object.keys(gltfWithExt.buffers).length).toBe(oldBufferLength + 1);
+        expect(gltfWithExt.buffers[1].byteLength).toEqual(sharedBuffer.length);
 
         // verify the buffer was written correctly for the binary data
         var newBuffer = triangleGLTF.buffers[1];
         var decodedBase64 = Buffer.from(newBuffer.uri.replace('data:application/octet-stream;base64,', ''), 'base64');
         expect(decodedBase64).toEqual(sharedBuffer);
 
-        // verify the most recently pushed accessors both reference the most recently p
-        // bufferviews
-        var secondToLastAccessor = triangleGLTF.accessors[accesorsBeforeExtensionAdded];
-        var lastAccessor = triangleGLTF.accessors[accesorsBeforeExtensionAdded + 1];
-        expect(secondToLastAccessor.bufferView).toBe(bufferViewsBeforeExtensionAdded);
+        var secondToLastAccessor = gltfWithExt.accessors[oldAccessorLength];
+        var lastAccessor = gltfWithExt.accessors[oldAccessorLength + 1];
+        expect(secondToLastAccessor.bufferView).toBe(oldAccessorLength);
         expect(secondToLastAccessor.byteOffset).toBe(0);
-        expect(secondToLastAccessor.componentType).toBe(binaryBatchTableAttributes.aToLInclusive.componentType);
-        expect(secondToLastAccessor.type).toBe(binaryBatchTableAttributes.aToLInclusive.type);
-        expect(secondToLastAccessor.count).toBe(binaryBatchTableAttributes.aToLInclusive.count);
+        expect(secondToLastAccessor.componentType).toBe(batchTableAttributes.aToLInclusive.componentType);
+        expect(secondToLastAccessor.type).toBe(batchTableAttributes.aToLInclusive.type);
+        expect(secondToLastAccessor.count).toBe(batchTableAttributes.aToLInclusive.count);
 
-        expect(lastAccessor.bufferView).toBe(bufferViewsBeforeExtensionAdded + 1);
+        expect(lastAccessor.bufferView).toBe(oldAccessorLength + 1);
         expect(lastAccessor.byteOffset).toBe(0);
-        expect(lastAccessor.componentType).toBe(binaryBatchTableAttributes.mToZInclusive.componentType);
-        expect(lastAccessor.type).toBe(binaryBatchTableAttributes.mToZInclusive.type);
-        expect(lastAccessor.count).toBe(binaryBatchTableAttributes.mToZInclusive.count);
+        expect(lastAccessor.componentType).toBe(batchTableAttributes.mToZInclusive.componentType);
+        expect(lastAccessor.type).toBe(batchTableAttributes.mToZInclusive.type);
+        expect(lastAccessor.count).toBe(batchTableAttributes.mToZInclusive.count);
 
         // verify those bufferviews are both referencing `buffer 1`
-        var secondToLastBufferView = triangleGLTF.bufferViews[bufferViewsBeforeExtensionAdded];
-        var lastBufferView = triangleGLTF.bufferViews[bufferViewsBeforeExtensionAdded + 1];
+        var secondToLastBufferView = gltfWithExt.bufferViews[oldBufferViewLength];
+        var lastBufferView = gltfWithExt.bufferViews[oldBufferViewLength + 1];
         expect(secondToLastBufferView.buffer).toBe(1);
-        expect(secondToLastBufferView.byteLength).toBe(binaryBatchTableAttributes.aToLInclusive.byteLength);
-        expect(secondToLastBufferView.byteOffset).toBe(binaryBatchTableAttributes.aToLInclusive.byteOffset);
+        expect(secondToLastBufferView.byteLength).toBe(batchTableAttributes.aToLInclusive.byteLength);
+        expect(secondToLastBufferView.byteOffset).toBe(batchTableAttributes.aToLInclusive.byteOffset);
         expect(lastBufferView.buffer).toBe(1);
-        expect(lastBufferView.byteLength).toBe(binaryBatchTableAttributes.mToZInclusive.byteLength);
-        expect(lastBufferView.byteOffset).toBe(binaryBatchTableAttributes.mToZInclusive.byteOffset);
+        expect(lastBufferView.byteLength).toBe(batchTableAttributes.mToZInclusive.byteLength);
+        expect(lastBufferView.byteOffset).toBe(batchTableAttributes.mToZInclusive.byteOffset);
 
         // verify that references to the binary accessors are in `extensions: {...}`
-        var batchTableProperties = triangleGLTF.extensions.CESIUM_3dtiles_batch_table.batchTables[0].properties;
-        expect(binaryBatchTableAttributes.aToLInclusive.name in batchTableProperties).toBeTrue();
-        expect(binaryBatchTableAttributes.mToZInclusive.name in batchTableProperties).toBeTrue();
-        expect(batchTableProperties[binaryBatchTableAttributes.aToLInclusive.name].accessor).toBe(accesorsBeforeExtensionAdded);
-        expect(batchTableProperties[binaryBatchTableAttributes.mToZInclusive.name].accessor).toBe(accesorsBeforeExtensionAdded + 1);
+        var batchTableProperties = gltfWithExt.extensions.CESIUM_3dtiles_batch_table.batchTables[0].properties;
+        expect(batchTableAttributes.aToLInclusive.name in batchTableProperties).toBeTrue();
+        expect(batchTableAttributes.mToZInclusive.name in batchTableProperties).toBeTrue();
+        expect(batchTableProperties[batchTableAttributes.aToLInclusive.name].accessor).toBe(oldAccessorLength);
+        expect(batchTableProperties[batchTableAttributes.mToZInclusive.name].accessor).toBe(oldAccessorLength + 1);
     });
 });
