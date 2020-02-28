@@ -43,7 +43,7 @@ function create3dtilesBatchTableExt(gltf, humanAttributes, binaryAttributes, sha
     }
 
     if (!defined(gltf.extensionsUsed)) {
-        gltf.extensionsUsed = [];
+        gltf.extensionsUsed = [batchTableExtensionName];
     } else {
         gltf.extensionsUsed.push(batchTableExtensionName);
     }
