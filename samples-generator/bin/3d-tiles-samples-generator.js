@@ -454,6 +454,10 @@ function createBatchedWGS84() {
 }
 
 function createBatchedDeprecated1() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     // Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic
     var tileOptions = {
         deprecated1 : true,
@@ -467,6 +471,10 @@ function createBatchedDeprecated1() {
 }
 
 function createBatchedDeprecated2() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     // Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic
     var tileOptions = {
         deprecated2 : true,
