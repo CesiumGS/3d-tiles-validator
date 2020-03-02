@@ -960,6 +960,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     if (argv['3d-tiles-next']) {
         tileOptions.use3dTilesNext = true;
         tileOptions.useGlb = argv.glb;
+        tileOptions.versionNumber = 1.1;
         ext = (argv.glb) ? '.glb' : '.gltf';
     } else {
         ext = '.b3dm';
@@ -977,14 +978,15 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
 
     return createBuildingsTile(tileOptions)
         .then(function(result) {
-            if (argv['3d-tiles-next'] && argv.glb) {
-                return Promise.all([
-                    fsExtra.outputFile(tilePath, result),
-                    saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson)
-                ]);
-            }
+            if (argv['3d-tiles-next']) {
+                tilesetOptions.versionNumber = 1.1;
+                if (argv.glb) {
+                    return Promise.all([
+                        fsExtra.outputFile(tilePath, result),
+                        saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson)
+                    ]);
+                }
 
-            else if (argv['3d-tiles-next']) {
                 return Promise.all([
                     saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson),
                     saveJson(tilePath, result, prettyJson)
