@@ -972,8 +972,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
         tilesetOptions.region = smallRegion;
     }
 
-    var rootDirectory = path.join(__dirname, '../');
-    var tilePath = path.join(rootDirectory, tilesetDirectory, contentUri);
+    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     return createBuildingsTile(tileOptions)
