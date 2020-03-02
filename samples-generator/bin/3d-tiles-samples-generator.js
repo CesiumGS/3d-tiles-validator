@@ -198,12 +198,11 @@ var ulTileOptions = {
 
 var argv = require('yargs')
     .help()
-    .option('gltf', { type: 'boolean', describe: 'Export sample as GLTF (using GLTF extensions)' })
-    .option('glb', { type: 'boolean', describe: 'Export sample as GLB (using GLTF extensions)' })
-    .option('legacy', { type: 'boolean', describe: 'Export sample using legacy format (.b3dm, .pnts, .i3dm etc)' })
+    .option('3d-tiles-next', { type: 'boolean', describe: 'Export samples as 3D Tiles Next (.gltf). This flag is experimental and should not be used in production.'})
+    .option('glb', { type: 'boolean', describe: 'Export 3D Tiles Next in (.glb) form. Can only be used with --3d-tiles-next. This flag is experimental and should not be used in production.' })
     .check(function(argv) {
-        if (argv.gltf + argv.glb + argv.legacy !== 1) {
-            throw new Error('--gltf, --glb, --legacy must be provided (Mutually exclusive)');
+        if (argv.glb && !argv['3d-tiles-next']) {
+            throw new Error('--glb can only be used if --3d-tiles-next is also provided.');
         }
         return true;
     }).argv;
@@ -947,24 +946,14 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions.buildingOptions = defaultValue(tileOptions.buildingOptions, buildingTemplate);
     tileOptions.transform = defaultValue(tileOptions.transform, buildingsTransform);
     tileOptions.relativeToCenter = defaultValue(tileOptions.relativeToCenter, true);
-
     tilesetOptions = defaultValue(tilesetOptions, {});
 
-
     var ext = '';
-
-    if (argv.glb) {
-        tileOptions.useGlb = true;
-        ext = '.glb';
-    }
-
-    if (argv.gltf) {
-        tileOptions.useGltf = true;
-        ext = '.gltf';
-    }
-
-    if (argv.legacy) {
-        tileOptions.useLegacy = true;
+    if (argv['3d-tiles-next']) {
+        tileOptions.use3dTilesNext = true;
+        tileOptions.useGlb = argv.glb;
+        ext = (argv.glb) ? '.glb' : '.gltf';
+    } else {
         ext = '.b3dm';
     }
 
@@ -981,14 +970,14 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
 
     return createBuildingsTile(tileOptions)
         .then(function(result) {
-            if (argv.glb) {
+            if (argv['3d-tiles-next'] && argv.glb) {
                 return Promise.all([
                     fsExtra.outputFile(tilePath, result),
                     saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson)
                 ]);
             }
 
-            else if (argv.gltf) {
+            else if (argv['3d-tiles-next']) {
                 return Promise.all([
                     saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson),
                     saveJson(tilePath, result, prettyJson)

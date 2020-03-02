@@ -9,7 +9,7 @@ Clone this repo and install [Node.js](http://nodejs.org/).  From the root direct
 ```
 npm install
 
-node bin/3d-tiles-samples-generator.js --legacy
+node bin/3d-tiles-samples-generator.js
 ```
 
 This commands generates a set of tilesets and saves them in a folder called `output`. The `Batched`, `Composite`, `Instanced`, `PointCloud`, and `Tilesets` folders may be copied directly to CesiumJS's `Specs/Data/Cesium3DTiles/` folder for testing with CesiumJS. The tilesets in the `Samples` folder may be copied to the `tilesets` folder in `3d-tiles-samples`.
