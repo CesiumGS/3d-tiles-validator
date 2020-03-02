@@ -245,7 +245,7 @@ function generateBatchTableBinary3dTilesNext(buildings) {
             byteOffset : cartographicBuffer.length,
             count: codeBuffer.length,
             byteLength: codeBuffer.length,
-            componentType : 0x1401,
+            componentType : 0x1401, // UNSIGNED_BYTE
             type : 'SCALAR'
         }
     };
