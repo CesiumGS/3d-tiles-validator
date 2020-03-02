@@ -42,7 +42,7 @@ var batchTableJsonAndBinary;
  * @param {Boolean} [options.deprecated2=false] Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic.
  *
  * @returns {Promise} A promise that resolves with the b3dm buffer and batch table JSON.
- *                      OR a promise that resolves with a GLTF
+ *                      OR a promise that resolves with a glTF
  */
 function createBuildingsTile(options) {
     var buildings = createBuildings(options.buildingOptions);
@@ -124,7 +124,7 @@ function createBuildingsTile(options) {
 
     var binary = defined(b3dmOptions.batchTableBinary) ? b3dmOptions.batchTableJsonAndBinary.binary : undefined;
 
-    // don't add the BatchTableExt if there is no batchTableJson (e.g in the case of `createBatchedWithoutBatchTable`)
+    // Don't add the batch table extension if there is no batchTableJson (e.g in the case of `createBatchedWithoutBatchTable`)
     if ((useGltf || useGlb) && defined(b3dmOptions.batchTableJson)) {
         gltf = create3dtilesBatchTableExt(gltf, b3dmOptions.batchTableJson, binary);
     }
@@ -201,7 +201,6 @@ function generateBatchTableBinaryLegacy(buildings) {
             componentType : 'DOUBLE',
             type : 'VEC3'
         },
-
         code : {
             byteOffset : cartographicBuffer.length,
             componentType : 'UNSIGNED_BYTE',

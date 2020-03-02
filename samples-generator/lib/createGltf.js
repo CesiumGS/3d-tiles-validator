@@ -11,7 +11,7 @@ var sizeOfUint16 = 2;
 var sizeOfFloat32 = 4;
 
 /**
- * Create a gltf from a Mesh.
+ * Create a glTF from a Mesh.
  *
  * @param {Object} options An object with the following properties:
  * @param {Mesh} options.mesh The mesh.
@@ -19,7 +19,7 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.relativeToCenter=false] Set mesh positions relative to center.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
  *
- * @returns {Object} A GLTF object
+ * @returns {Object} A glTF object
  */
 
 function createGltf(options) {

@@ -17,7 +17,7 @@ function sortByByteOffset(a, b) {
 }
 
 function assertHumanReadableBatchTableValueArraysHaveIdenticalLength(humanBatchTables) {
-    if (humanBatchTables.length <= 0) {
+    if (humanBatchTables.length === 0) {
         return 0;
     }
 
@@ -65,7 +65,6 @@ function assertHumanReadableBatchTableValueArraysHaveIdenticalLength(humanBatchT
  *                                                   This function currently assumes that all of the binary batch attributes in
  *                                                   batchTableAttributes are directly referring to this buffer.
  */
-
 function create3dtilesBatchTableExt(gltf, batchTableAttributes, sharedBinaryBuffer) {
     Extensions.addExtensionsUsed(gltf, batchTableExtensionName);
     Extensions.addExtension(gltf, batchTableExtensionName, {
