@@ -20,7 +20,7 @@ var Matrix4 = Cesium.Matrix4;
 module.exports = createBuildingsTile;
 
 var sizeOfUint8 = 1;
-var sizeOfDouble = 8;
+var sizeOfFloat = 4;
 
 var scratchMatrix = new Matrix4();
 var batchTableJsonAndBinary;
@@ -191,7 +191,7 @@ function generateBatchTableExtra(buildings) {
 
 function generateBatchTableBinary(buildings) {
     var buildingsLength = buildings.length;
-    var cartographicBuffer = Buffer.alloc(buildingsLength * 3 * sizeOfDouble);
+    var cartographicBuffer = Buffer.alloc(buildingsLength * 3 * sizeOfFloat);
     var codeBuffer = Buffer.alloc(buildingsLength * sizeOfUint8);
 
     var batchTableJson = {
@@ -210,9 +210,9 @@ function generateBatchTableBinary(buildings) {
     for (var i = 0; i < buildingsLength; ++i) {
         var building = buildings[i];
         var code = Math.max(i, 255);
-        cartographicBuffer.writeDoubleLE(building.longitude, (i * 3) * sizeOfDouble);
-        cartographicBuffer.writeDoubleLE(building.latitude, (i * 3 + 1) * sizeOfDouble);
-        cartographicBuffer.writeDoubleLE(building.height, (i * 3 + 2) * sizeOfDouble);
+        cartographicBuffer.writeFloatLE(building.longitude, (i * 3) * sizeOfFloat);
+        cartographicBuffer.writeFloatLE(building.latitude, (i * 3 + 1) * sizeOfFloat);
+        cartographicBuffer.writeFloatLE(building.height, (i * 3 + 2) * sizeOfFloat);
         codeBuffer.writeUInt8(code, i);
     }
 
@@ -227,7 +227,7 @@ function generateBatchTableBinary(buildings) {
 
 function generateBatchTableBinary3dTilesNext(buildings) {
     var buildingsLength = buildings.length;
-    var cartographicBuffer = Buffer.alloc(buildingsLength * 3 * sizeOfDouble);
+    var cartographicBuffer = Buffer.alloc(buildingsLength * 3 * sizeOfFloat);
     var codeBuffer = Buffer.alloc(buildingsLength * sizeOfUint8);
 
     var batchTableJson = {
@@ -235,7 +235,7 @@ function generateBatchTableBinary3dTilesNext(buildings) {
             name : 'cartographic',
             byteOffset : 0,
             byteLength : cartographicBuffer.length,
-            componentType : 0x1406, // TODO: Logical error, not sure what to do, 'DOUBLE' was here originally but GLTF only supports Floats
+            componentType : 0x1406, // FLOAT
             type : 'VEC3',
             count : buildingsLength
         },
@@ -253,9 +253,9 @@ function generateBatchTableBinary3dTilesNext(buildings) {
     for (var i = 0; i < buildingsLength; ++i) {
         var building = buildings[i];
         var code = Math.max(i, 255);
-        cartographicBuffer.writeDoubleLE(building.longitude, (i * 3) * sizeOfDouble);
-        cartographicBuffer.writeDoubleLE(building.latitude, (i * 3 + 1) * sizeOfDouble);
-        cartographicBuffer.writeDoubleLE(building.height, (i * 3 + 2) * sizeOfDouble);
+        cartographicBuffer.writeFloatLE(building.longitude, (i * 3) * sizeOfFloat);
+        cartographicBuffer.writeFloatLE(building.latitude, (i * 3 + 1) * sizeOfFloat);
+        cartographicBuffer.writeFloatLE(building.height, (i * 3 + 2) * sizeOfFloat);
         codeBuffer.writeUInt8(code, i);
     }
 
