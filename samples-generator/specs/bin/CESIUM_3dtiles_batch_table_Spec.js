@@ -1,5 +1,8 @@
 'use strict';
-var minimalTriangleGLTF = require('./minimalTriangleGLTF');
+var fs = require('fs');
+var path = require('path');
+var trianglePath = path.join(__dirname, '..', 'data', 'triangle.gltf');
+var minimalTriangleGLTF = JSON.parse(fs.readFileSync(trianglePath, 'utf8'));
 var create3dtilesBatchTableExt = require ('../../lib/create3dtilesBatchTableExt');
 
 describe('CESIUM_3dtiles_batch_table.js', function() {
