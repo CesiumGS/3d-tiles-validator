@@ -232,7 +232,7 @@ function generateBatchTableBinary3dTilesNext(buildings) {
 
     var batchTableJson = {
         cartographic : {
-            name : 'CartographicBuffer',
+            name : 'cartographic',
             byteOffset : 0,
             byteLength : cartographicBuffer.length,
             componentType : 0x1406, // TODO: Logical error, not sure what to do, 'DOUBLE' was here originally but GLTF only supports Floats
@@ -241,7 +241,7 @@ function generateBatchTableBinary3dTilesNext(buildings) {
         },
 
         code : {
-            name: 'Code',
+            name: 'code',
             byteOffset : cartographicBuffer.length,
             count: codeBuffer.length,
             byteLength: codeBuffer.length,
