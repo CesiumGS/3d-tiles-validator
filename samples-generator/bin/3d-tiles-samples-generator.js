@@ -981,11 +981,19 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
         .then(function(result) {
             if (argv['3d-tiles-next']) {
                 tilesetOptions.versionNumber = 1.1;
+
                 if (argv.glb) {
+                    if (tilesetOptions.contentDataUri) {
+                        tilesetOptions.contentUri = 'data:model/gltf-binary;base64,' + Buffer.from(result).toString('base64');
+                    }
                     return Promise.all([
                         saveBinary(tilePath, result, tilesetOptions.gzip),
                         saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson)
                     ]);
+                }
+
+                if (tilesetOptions.contentDataUri) {
+                    tilesetOptions.contentUri = 'data:model/gltf+json;base64,' + Buffer.from(JSON.stringify(result)).toString('base64');
                 }
 
                 return Promise.all([
