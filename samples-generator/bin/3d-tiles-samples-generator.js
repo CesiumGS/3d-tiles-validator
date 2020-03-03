@@ -198,6 +198,7 @@ var ulTileOptions = {
 
 var argv = require('yargs')
     .help()
+    .strict()
     .option('3d-tiles-next', { type: 'boolean', describe: 'Export samples as 3D Tiles Next (.gltf). This flag is experimental and should not be used in production.'})
     .option('glb', { type: 'boolean', describe: 'Export 3D Tiles Next in (.glb) form. Can only be used with --3d-tiles-next. This flag is experimental and should not be used in production.' })
     .check(function(argv) {
