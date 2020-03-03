@@ -3,12 +3,12 @@ var fs = require('fs');
 var path = require('path');
 var nestingBoxPath = path.join(__dirname, '..', 'data', 'nestingBoxes.gltf');
 var originalNestingBoxGltf = JSON.parse(fs.readFileSync(nestingBoxPath, 'utf8'));
-var addRootTranslationNodeToGltf = require('../../lib/addRootTranslationNodeToGltf');
+var injectTranslationNodeToGltf = require('../../lib/injectTranslationNodeToGltf');
 
-describe('addRootTranslationNodeToGltf', function() {
+describe('injectTranslationNodeToGltfSpec', function() {
     var rtcCenter = [1, 2, 3];
     var rootNodeName = 'RTC_CENTER';
-    var nestingBoxesWithRootTranslationNode = addRootTranslationNodeToGltf(originalNestingBoxGltf, rootNodeName, rtcCenter);
+    var nestingBoxesWithRootTranslationNode = injectTranslationNodeToGltf(originalNestingBoxGltf, rootNodeName, rtcCenter);
     var lastNode = nestingBoxesWithRootTranslationNode.nodes[nestingBoxesWithRootTranslationNode.nodes.length - 1];
 
     it('root translation node is appended to gltf.nodes', function() {
@@ -25,7 +25,7 @@ describe('addRootTranslationNodeToGltf', function() {
     });
 
     it('gltf nodes with multiple root nodes / orphans are supported', function() {
-        var gltfWithComplexNodes = {                
+        var gltfWithComplexNodes = {
             nodes: [                        //  A-B-C       |--rtcCenter-|
                 {name: 'A', children: [3]}, //  |   |   ->  |     |      |
                 {name: 'B'},                //  D   E       A     B      C
@@ -35,10 +35,26 @@ describe('addRootTranslationNodeToGltf', function() {
             ]
         };
 
-        gltfWithComplexNodes = addRootTranslationNodeToGltf(gltfWithComplexNodes, rootNodeName, rtcCenter);
+        gltfWithComplexNodes = injectTranslationNodeToGltf(gltfWithComplexNodes, rootNodeName, rtcCenter);
         var complexRoot = gltfWithComplexNodes.nodes[gltfWithComplexNodes.nodes.length - 1];
         expect(gltfWithComplexNodes.nodes.length).toEqual(6);
         expect(complexRoot.children).toEqual([0, 1, 2]);
     });
 
+    it('injecting a translation node with a valid parentIndex', function() {
+        var gltfWithComplexNodes = {
+            nodes: [                              //  --A--         A
+                {name: 'A', children: [1, 2, 3]}, //  | | | ->      |
+                {name: 'B'},                      //  B C D      --rtc--
+                {name: 'C'},                      //             |  -  |
+                {name: 'D'},                      //             B  C  D
+            ]
+        };
+
+        gltfWithComplexNodes = injectTranslationNodeToGltf(gltfWithComplexNodes, rootNodeName, rtcCenter, 0);
+        var realRoot = gltfWithComplexNodes.nodes[0];
+        var injectedRoot = gltfWithComplexNodes.nodes[gltfWithComplexNodes.nodes.length - 1];
+        expect(injectedRoot.children).toEqual([1, 2, 3]);
+        expect(realRoot.children).toEqual([gltfWithComplexNodes.nodes.length - 1]);
+    });
 });
