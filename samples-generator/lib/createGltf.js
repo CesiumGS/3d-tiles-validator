@@ -102,8 +102,9 @@ function createGltf(options) {
 
     var batchIdsMinMax;
     var batchIdsBuffer = Buffer.alloc(0);
-    var batchIdSemantic = (deprecated) ? 'BATCHID' : '_BATCHID';
-    batchIdSemantic = (use3dTilesNext) ? batchIdSemantic + '_0' : batchIdSemantic;
+    var batchIdSemantic;
+    batchIdSemantic = deprecated ? 'BATCHID' : '_BATCHID';
+    batchIdSemantic = use3dTilesNext ? '_FEATURE_ID_0' : batchIdSemantic;
 
     var batchIdsLength;
     if (useBatchIds) {
