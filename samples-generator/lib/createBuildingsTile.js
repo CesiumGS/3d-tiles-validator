@@ -108,6 +108,7 @@ function createBuildingsTile(options) {
         useBatchIds : useBatchIds,
         relativeToCenter : relativeToCenter,
         deprecated : deprecated1 || deprecated2,
+        use3dTilesNext : use3dTilesNext
     };
 
     var gltf = createGltf(gltfOptions);

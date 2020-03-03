@@ -18,11 +18,13 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.useBatchIds=true] Modify the glTF to include the batchId vertex attribute.
  * @param {Boolean} [options.relativeToCenter=false] Set mesh positions relative to center.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
+ * @param {Boolean} [options.use3dTilesNext=false] Modify the GLTF to name batch ids with a numerical suffix
  *
  * @returns {Object} A glTF object
  */
 
 function createGltf(options) {
+    var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
     var useBatchIds = defaultValue(options.useBatchIds, true);
     var relativeToCenter = defaultValue(options.relativeToCenter, false);
     var deprecated = defaultValue(options.deprecated, false);
@@ -101,6 +103,8 @@ function createGltf(options) {
     var batchIdsMinMax;
     var batchIdsBuffer = Buffer.alloc(0);
     var batchIdSemantic = deprecated ? 'BATCHID' : '_BATCHID';
+    batchIdSemantic = use3dTilesNext ? batchIdSemantic + '_0' : batchIdSemantic;
+
     var batchIdsLength;
     if (useBatchIds) {
         batchIdsMinMax = getMinMax(batchIds, 1);
