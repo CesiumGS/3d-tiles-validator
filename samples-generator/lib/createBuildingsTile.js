@@ -6,6 +6,7 @@ var createBuildings = require('./createBuildings');
 var path = require('path');
 var Promise = require('bluebird');
 var createGltf = require('./createGltf');
+var addRootTranslationNodeToGltf = require('./addRootTranslationNodeToGltf');
 var gltfPipeline = require('gltf-pipeline');
 var gltfToGlb = gltfPipeline.gltfToGlb;
 var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
@@ -127,6 +128,7 @@ function createBuildingsTile(options) {
     // Don't add the batch table extension if there is no batchTableJson (e.g in the case of `createBatchedWithoutBatchTable`)
     if (use3dTilesNext && defined(b3dmOptions.batchTableJson)) {
         gltf = create3dtilesBatchTableExt(gltf, b3dmOptions.batchTableJson, binary);
+        gltf = addRootTranslationNodeToGltf(gltf, 'RTC_CENTER', featureTableJson.RTC_CENTER);
     }
 
     if (use3dTilesNext && !useGlb) {
