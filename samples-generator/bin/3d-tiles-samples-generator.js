@@ -528,6 +528,10 @@ function createPointCloudRGBA() {
 }
 
 function createPointCloudRGB565() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         colorMode : 'rgb565'
     };
@@ -535,6 +539,10 @@ function createPointCloudRGB565() {
 }
 
 function createPointCloudConstantColor() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         colorMode : 'constant'
     };
@@ -557,6 +565,10 @@ function createPointCloudWGS84() {
 }
 
 function createPointCloudQuantized() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         quantizePositions : true
     };
@@ -572,6 +584,10 @@ function createPointCloudNormals() {
 }
 
 function createPointCloudNormalsOctEncoded() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         generateNormals : true,
         octEncodeNormals : true,
@@ -581,6 +597,10 @@ function createPointCloudNormalsOctEncoded() {
 }
 
 function createPointCloudQuantizedOctEncoded() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         quantizePositions : true,
         generateNormals : true,
@@ -626,6 +646,10 @@ function createPointCloudWithTransform() {
 }
 
 function createPointCloudDraco() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         colorMode : 'rgb',
         shape : 'sphere',
@@ -637,6 +661,10 @@ function createPointCloudDraco() {
 }
 
 function createPointCloudDracoPartial() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         colorMode : 'rgb',
         shape : 'sphere',
@@ -649,6 +677,10 @@ function createPointCloudDracoPartial() {
 }
 
 function createPointCloudDracoBatched() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         colorMode : 'rgb',
         shape : 'sphere',
@@ -671,6 +703,10 @@ function createPointCloudTimeDynamicWithTransforms() {
 }
 
 function createPointCloudTimeDynamicDraco() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var options = {
         draco : true
     };
