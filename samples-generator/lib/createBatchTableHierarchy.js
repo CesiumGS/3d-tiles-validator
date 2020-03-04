@@ -47,6 +47,7 @@ var whiteOpaqueMaterial = new Material({
  */
 
 function createBatchTableHierarchy(options) {
+    var gzip = defaultValue(options.gzip, false);
     var useBatchTableBinary = defaultValue(options.batchTableBinary, false);
     var noParents = defaultValue(options.noParents, false);
     var multipleParents = defaultValue(options.multipleParents, false);
@@ -152,7 +153,7 @@ function createBatchTableHierarchy(options) {
             batchTableBinary : batchTableBinary
         });
         return Promise.all([
-            saveJson(tilesetJsonPath, tilesetJson, options.prettyJson),
+            saveJson(tilesetJsonPath, tilesetJson, options.prettyJson, gzip),
             saveBinary(tilePath, b3dm, options.gzip)
         ]);
     });

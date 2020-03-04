@@ -14,7 +14,7 @@ module.exports = saveJson;
  * @param {String} path The path to save the tileset.json.
  * @param {Object} json The JSON.
  * @param {Boolean} [prettyJson=true] Whether to prettify the JSON.
- * @param {Boolean} [useGzip=false] Whether to use GZIP or not
+ * @param {Boolean} [gzip=false] Whether to use GZIP or not
  *
  * @returns {Promise} A promise that resolves when the tileset.json is saved.
  */
