@@ -4,7 +4,6 @@ var createB3dm = require('./createB3dm');
 var createBatchTableExtension = require('./createBatchTableExtension');
 var createBuildings = require('./createBuildings');
 var path = require('path');
-var Promise = require('bluebird');
 var createGltf = require('./createGltf');
 var gltfPipeline = require('gltf-pipeline');
 var processGltf = gltfPipeline.processGltf;
@@ -149,8 +148,8 @@ function createBuildingsTile(options) {
         });
     }
 
-    return gltfToGlb(gltf, gltfConversionOptions).then(function(glb) {
-        b3dmOptions.glb = glb.glb;
+    return gltfToGlb(gltf, gltfConversionOptions).then(function(results) {
+        b3dmOptions.glb = results.glb;
         return {
             b3dm : createB3dm(b3dmOptions),
             batchTableJson : batchTableJson
