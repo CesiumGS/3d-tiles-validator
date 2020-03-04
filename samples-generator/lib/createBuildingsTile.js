@@ -7,6 +7,7 @@ var path = require('path');
 var Promise = require('bluebird');
 var createGltf = require('./createGltf');
 var gltfPipeline = require('gltf-pipeline');
+var processGltf = gltfPipeline.processGltf;
 var gltfToGlb = gltfPipeline.gltfToGlb;
 var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
 var Mesh = require('./Mesh');
@@ -131,9 +132,11 @@ function createBuildingsTile(options) {
     }
 
     if (use3dTilesNext && !useGlb) {
-        return Promise.resolve({
-            gltf : gltf,
-            batchTableJson : batchTableJson
+        return processGltf(gltf, gltfConversionOptions).then(function(results) {
+            return {
+                gltf : results.gltf,
+                batchTableJson : batchTableJson
+            };
         });
     }
 
