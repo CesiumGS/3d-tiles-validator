@@ -4,6 +4,7 @@ var draco3d = require('draco3d');
 var SimplexNoise = require('simplex-noise');
 var createPnts = require('./createPnts');
 var Extensions = require('./Extensions');
+var createGltfFromPnts = require('./createGltfFromPnts');
 
 var AttributeCompression = Cesium.AttributeCompression;
 var Cartesian2 = Cesium.Cartesian2;
@@ -223,6 +224,54 @@ function createPointCloudTile(options) {
         featureTableJson.BATCH_LENGTH = batchIds.batchLength;
     }
 
+    var gltf;
+    if (options.use3dTilesNext) {
+        var bufferAttributes = [
+        {
+            buffer: positions.buffer,
+            componentType: positions.componentType,
+            propertyName: positions.propertyName,
+            type: positions.type,
+            target: 0x8892,
+            min: positions.min,
+            max: positions.max
+        },
+        {
+            buffer: normals.buffer,
+            componentType: normals.componentType,
+            propertyName: normals.propertyName,
+            type: normals.type,
+            target: 0x8892,
+            min: normals.min,
+            max: normals.max
+        },
+        {
+            buffer: batchIds.buffer,
+            componentType: batchIds.componentType,
+            propertyName: batchIds.propertyName,
+            type: batchIds.type,
+            target: 0x8892,
+            min: batchIds.min,
+            max: batchIds.max
+        }
+    ];
+
+        if (defined(colors)) {
+            bufferAttributes.push({
+                buffer: colors.buffer,
+                componentType: colors.componentType,
+                propertyName: colors.propertyName,
+                type: colors.type,
+                target: 0x8892,
+                min: colors.min,
+                max: colors.max
+            });
+        }
+
+        // componentType needs to be converted from a string to an int
+        gltf = createGltfFromPnts(bufferAttributes);
+    }
+
     var pnts = createPnts({
         featureTableJson : featureTableJson,
         featureTableBinary : featureTableBinary,
@@ -231,6 +280,7 @@ function createPointCloudTile(options) {
     });
 
     return {
+        gltf : gltf,
         pnts : pnts,
         batchTableJson : batchTableJson,
         extensions : extensions
@@ -525,17 +575,30 @@ function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shape
 function getPositions(positions) {
     var pointsLength = positions.length;
     var buffer = Buffer.alloc(pointsLength * 3 * sizeOfFloat32);
+
+    var components = 3;
+    var minComp = new Array(components).fill(Number.POSITIVE_INFINITY);
+    var maxComp = new Array(components).fill(Number.NEGATIVE_INFINITY);
+
     for (var i = 0; i < pointsLength; ++i) {
         var position = positions[i];
         buffer.writeFloatLE(position.x, (i * 3) * sizeOfFloat32);
         buffer.writeFloatLE(position.y, (i * 3 + 1) * sizeOfFloat32);
         buffer.writeFloatLE(position.z, (i * 3 + 2) * sizeOfFloat32);
+        minComp[0] = Math.min(minComp[0], position.x);
+        minComp[1] = Math.min(minComp[1], position.y);
+        minComp[2] = Math.min(minComp[2], position.z);
+        maxComp[0] = Math.max(maxComp[0], position.x);
+        maxComp[1] = Math.max(maxComp[1], position.y);
+        maxComp[2] = Math.max(maxComp[2], position.z);
     }
     return {
         buffer : buffer,
         propertyName : 'POSITION',
         componentType : 'FLOAT',
-        type : 'VEC3'
+        type : 'VEC3',
+        min : minComp,
+        max : maxComp
     };
 }
 
@@ -546,6 +609,11 @@ function getPositionsQuantized(positions, radius) {
     var scale = max - min;
     var pointsLength = positions.length;
     var buffer = Buffer.alloc(pointsLength * 3 * sizeOfUint16);
+
+    var components = 3;
+    var minComp = new Array(components).fill(Number.POSITIVE_INFINITY);
+    var maxComp = new Array(components).fill(Number.NEGATIVE_INFINITY);
+
     for (var i = 0; i < pointsLength; ++i) {
         var position = positions[i];
         var x = (position.x - min) * range / scale;
@@ -554,29 +622,51 @@ function getPositionsQuantized(positions, radius) {
         buffer.writeUInt16LE(x, (i * 3) * sizeOfUint16);
         buffer.writeUInt16LE(y, (i * 3 + 1) * sizeOfUint16);
         buffer.writeUInt16LE(z, (i * 3 + 2) * sizeOfUint16);
+        minComp[0] = Math.min(minComp[0], x);
+        minComp[1] = Math.min(minComp[1], y);
+        minComp[2] = Math.min(minComp[2], z);
+        maxComp[0] = Math.max(maxComp[0], x);
+        maxComp[1] = Math.max(maxComp[1], y);
+        maxComp[2] = Math.max(maxComp[2], z);
     }
+
     return {
         buffer : buffer,
         propertyName : 'POSITION_QUANTIZED',
         componentType : 'UNSIGNED_SHORT',
-        type : 'VEC3'
+        type : 'VEC3',
+        min : minComp,
+        max : maxComp
     };
 }
 
 function getNormals(normals) {
     var pointsLength = normals.length;
     var buffer = Buffer.alloc(pointsLength * 3 * sizeOfFloat32);
+
+    var components = 3;
+    var minComp = new Array(components).fill(Number.POSITIVE_INFINITY);
+    var maxComp = new Array(components).fill(Number.NEGATIVE_INFINITY);
+
     for (var i = 0; i < pointsLength; ++i) {
         var normal = normals[i];
         buffer.writeFloatLE(normal.x, (i * 3) * sizeOfFloat32);
         buffer.writeFloatLE(normal.y, (i * 3 + 1) * sizeOfFloat32);
         buffer.writeFloatLE(normal.z, (i * 3 + 2) * sizeOfFloat32);
+        minComp[0] = Math.min(minComp[0], normal.x);
+        minComp[1] = Math.min(minComp[1], normal.y);
+        minComp[2] = Math.min(minComp[2], normal.z);
+        maxComp[0] = Math.max(maxComp[0], normal.x);
+        maxComp[1] = Math.max(maxComp[1], normal.y);
+        maxComp[2] = Math.max(maxComp[2], normal.z);
     }
     return {
         buffer : buffer,
         propertyName : 'NORMAL',
         componentType : 'FLOAT',
-        type : 'VEC3'
+        type : 'VEC3',
+        min : minComp,
+        max : maxComp
     };
 }
 
@@ -585,16 +675,27 @@ var scratchEncoded = new Cartesian2();
 function getNormalsOctEncoded(normals) {
     var pointsLength = normals.length;
     var buffer = Buffer.alloc(pointsLength * 2 * sizeOfUint8);
+
+    var components = 2;
+    var minComp = new Array(components).fill(Number.POSITIVE_INFINITY);
+    var maxComp = new Array(components).fill(Number.NEGATIVE_INFINITY);
+
     for (var i = 0; i < pointsLength; ++i) {
         var encodedNormal = AttributeCompression.octEncode(normals[i], scratchEncoded);
         buffer.writeUInt8(encodedNormal.x, i * 2);
         buffer.writeUInt8(encodedNormal.y, i * 2 + 1);
+        minComp[0] = Math.min(minComp[0], encodedNormal.x);
+        minComp[1] = Math.min(minComp[1], encodedNormal.y);
+        maxComp[0] = Math.max(maxComp[0], encodedNormal.x);
+        maxComp[1] = Math.max(maxComp[1], encodedNormal.y);
     }
     return {
         buffer : buffer,
         propertyName : 'NORMAL_OCT16P',
         componentType : 'UNSIGNED_BYTE',
-        type : 'VEC2'
+        type : 'VEC2',
+        min : minComp,
+        max : maxComp
     };
 }
 
@@ -607,23 +708,32 @@ function getBatchIds(batchIds) {
         batchLength = Math.max(batchIds[i] + 1, batchLength);
     }
 
+    var minComp = [Number.POSITIVE_INFINITY];
+    var maxComp = [Number.NEGATIVE_INFINITY];
+
     var buffer;
     var componentType;
     if (batchLength <= 256) {
         buffer = Buffer.alloc(pointsLength * sizeOfUint8);
         for (i = 0; i < pointsLength; ++i) {
             buffer.writeUInt8(batchIds[i], i * sizeOfUint8);
+            minComp[0] = Math.min(minComp[0], batchIds[i]);
+            maxComp[0] = Math.max(maxComp[0], batchIds[i]);
         }
         componentType = 'UNSIGNED_BYTE';
     } else if (batchLength <= 65536) {
         buffer = Buffer.alloc(pointsLength * sizeOfUint16);
         for (i = 0; i < pointsLength; ++i) {
+            minComp[0] = Math.min(minComp[0], batchIds[i]);
+            maxComp[0] = Math.max(maxComp[0], batchIds[i]);
             buffer.writeUInt16LE(batchIds[i], i * sizeOfUint16);
         }
         componentType = 'UNSIGNED_SHORT';
     } else {
         buffer = Buffer.alloc(pointsLength * sizeOfUint32);
         for (i = 0; i < pointsLength; ++i) {
+            minComp[0] = Math.min(minComp[0], batchIds[i]);
+            maxComp[0] = Math.max(maxComp[0], batchIds[i]);
             buffer.writeUInt32LE(batchIds[i], i * sizeOfUint32);
         }
         componentType = 'UNSIGNED_INT';
@@ -634,13 +744,20 @@ function getBatchIds(batchIds) {
         propertyName : 'BATCH_ID',
         componentType : componentType,
         type : 'SCALAR',
-        batchLength : batchLength
+        batchLength : batchLength,
+        min : minComp,
+        max : maxComp
     };
 }
 
 function getColorsRGB(colors) {
     var colorsLength = colors.length;
     var buffer = Buffer.alloc(colorsLength * 3);
+
+    var components = 3;
+    var minComp = new Array(components).fill(Number.POSITIVE_INFINITY);
+    var maxComp = new Array(components).fill(Number.NEGATIVE_INFINITY);
+
     for (var i = 0; i < colorsLength; ++i) {
         var color = colors[i];
         var r = Math.floor(color.red * 255);
@@ -649,18 +766,32 @@ function getColorsRGB(colors) {
         buffer.writeUInt8(r, i * 3);
         buffer.writeUInt8(g, i * 3 + 1);
         buffer.writeUInt8(b, i * 3 + 2);
+
+        minComp[0] = Math.min(minComp[0], r);
+        minComp[1] = Math.min(minComp[1], g);
+        minComp[2] = Math.min(minComp[2], b);
+        maxComp[0] = Math.max(maxComp[0], r);
+        maxComp[1] = Math.max(maxComp[1], g);
+        maxComp[2] = Math.max(maxComp[2], b);
     }
     return {
         buffer : buffer,
         propertyName : 'RGB',
         componentType : 'UNSIGNED_BYTE',
-        type : 'VEC3'
+        type : 'VEC3',
+        min : minComp,
+        max : maxComp
     };
 }
 
 function getColorsRGBA(colors) {
     var colorsLength = colors.length;
     var buffer = Buffer.alloc(colorsLength * 4);
+
+    var components = 4;
+    var minComp = new Array(components).fill(Number.POSITIVE_INFINITY);
+    var maxComp = new Array(components).fill(Number.NEGATIVE_INFINITY);
+
     for (var i = 0; i < colorsLength; ++i) {
         var color = colors[i];
         var r = Math.floor(color.red * 255);
@@ -671,31 +802,50 @@ function getColorsRGBA(colors) {
         buffer.writeUInt8(g, i * 4 + 1);
         buffer.writeUInt8(b, i * 4 + 2);
         buffer.writeUInt8(a, i * 4 + 3);
+
+        minComp[0] = Math.min(minComp[0], r);
+        minComp[1] = Math.min(minComp[1], g);
+        minComp[2] = Math.min(minComp[2], b);
+        minComp[2] = Math.min(minComp[3], a);
+        maxComp[0] = Math.max(maxComp[0], r);
+        maxComp[1] = Math.max(maxComp[1], g);
+        maxComp[2] = Math.max(maxComp[2], b);
+        maxComp[3] = Math.max(maxComp[3], a);
     }
     return {
         buffer : buffer,
         propertyName : 'RGBA',
         componentType : 'UNSIGNED_BYTE',
-        type : 'VEC4'
+        type : 'VEC4',
+        min : minComp,
+        max : maxComp
     };
 }
 
 function getColorsRGB565(colors) {
     var colorsLength = colors.length;
     var buffer = Buffer.alloc(colorsLength * sizeOfUint16);
+
+    var minComp = [Number.POSITIVE_INFINITY];
+    var maxComp = [Number.NEGATIVE_INFINITY];
+
     for (var i = 0; i < colorsLength; ++i) {
         var color = colors[i];
         var r = Math.floor(color.red * 31); // 5 bits
         var g = Math.floor(color.green * 63); // 6 bits
         var b = Math.floor(color.blue * 31); // 5 bits
         var packedColor = (r << 11) + (g << 5) + b;
+        minComp[0] = Math.min(minComp[0], packedColor);
+        maxComp[0] = Math.max(maxComp[0], packedColor);
         buffer.writeUInt16LE(packedColor, i * sizeOfUint16);
     }
     return {
         buffer : buffer,
         propertyName : 'RGB565',
         componentType : 'UNSIGNED_SHORT',
-        type : 'SCALAR'
+        type : 'SCALAR',
+        min : minComp,
+        max : maxComp
     };
 }
 
@@ -742,6 +892,13 @@ function getPerPointBatchTableProperties(pointsLength, noiseValues) {
     var secondaryColorBuffer = Buffer.alloc(pointsLength * 3 * sizeOfFloat32);
     var idBuffer = Buffer.alloc(pointsLength * sizeOfUint16);
 
+    var minTempComp = [Number.POSITIVE_INFINITY];
+    var maxTempComp = [Number.NEGATIVE_INFINITY];
+    var minSecondaryColorComp = new Array(3).fill(Number.POSITIVE_INFINITY);
+    var maxSecondaryColorComp = new Array(3).fill(Number.NEGATIVE_INFINITY);
+    var minIdComp = [Number.POSITIVE_INFINITY];
+    var maxIdComp = [Number.NEGATIVE_INFINITY];
+
     for (var i = 0; i < pointsLength; ++i) {
         var temperature = noiseValues[i];
         var secondaryColor = [CesiumMath.nextRandomNumber(), 0.0, 0.0];
@@ -750,6 +907,17 @@ function getPerPointBatchTableProperties(pointsLength, noiseValues) {
         secondaryColorBuffer.writeFloatLE(secondaryColor[1], (i * 3 + 1) * sizeOfFloat32);
         secondaryColorBuffer.writeFloatLE(secondaryColor[2], (i * 3 + 2) * sizeOfFloat32);
         idBuffer.writeUInt16LE(i, i * sizeOfUint16);
+
+        minTempComp[0] = Math.min(minTempComp[0], temperature);
+        maxTempComp[0] = Math.max(maxTempComp[0], temperature);
+        minIdComp[0] = Math.min(minIdComp[0], i); // TODO: This can be simplfied
+        maxIdComp[0] = Math.max(maxIdComp[0], i);
+        minSecondaryColorComp[0] = Math.min(minSecondaryColorComp[0], secondaryColor[0]);
+        minSecondaryColorComp[1] = Math.min(minSecondaryColorComp[1], secondaryColor[1]);
+        minSecondaryColorComp[2] = Math.min(minSecondaryColorComp[2], secondaryColor[2]);
+        maxSecondaryColorComp[0] = Math.max(maxSecondaryColorComp[0], secondaryColor[0]);
+        maxSecondaryColorComp[1] = Math.max(maxSecondaryColorComp[1], secondaryColor[1]);
+        maxSecondaryColorComp[2] = Math.max(maxSecondaryColorComp[2], secondaryColor[2]);
     }
 
     return [
@@ -757,19 +925,25 @@ function getPerPointBatchTableProperties(pointsLength, noiseValues) {
             buffer : temperaturesBuffer,
             propertyName : 'temperature',
             componentType : 'FLOAT',
-            type: 'SCALAR'
+            type: 'SCALAR',
+            min: minTempComp,
+            max: maxTempComp
         },
         {
             buffer : secondaryColorBuffer,
             propertyName : 'secondaryColor',
             componentType : 'FLOAT',
-            type : 'VEC3'
+            type : 'VEC3',
+            min: minSecondaryColorComp,
+            max: maxSecondaryColorComp
         },
         {
             buffer : idBuffer,
             propertyName : 'id',
             componentType : 'UNSIGNED_SHORT',
-            type : 'SCALAR'
+            type : 'SCALAR',
+            min: minIdComp,
+            max: maxIdComp
         }
     ];
 }
