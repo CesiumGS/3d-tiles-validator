@@ -154,7 +154,7 @@ function createBatchTableHierarchy(options) {
         });
         return Promise.all([
             saveJson(tilesetJsonPath, tilesetJson, options.prettyJson, gzip),
-            saveBinary(tilePath, b3dm, options.gzip)
+            saveBinary(tilePath, b3dm, gzip)
         ]);
     });
 }
