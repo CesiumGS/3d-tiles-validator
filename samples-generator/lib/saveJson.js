@@ -1,7 +1,6 @@
 'use strict';
 var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
-var zlib = require('zlib');
 var saveBinary = require('./saveBinary');
 
 var defaultValue = Cesium.defaultValue;
