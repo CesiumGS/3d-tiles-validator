@@ -2844,340 +2844,174 @@ function createRequestVolume() {
                         box : buildingBoxLocal
 
                     },
-
                     geometricError : 0.0,
-
                     content : {
 
                         uri : buildingTileName
 
                     }
-
                 },
-
                 {
 
                     transform : pointCloudTransform,
-
                     viewerRequestVolume : {
-
                         sphere : pointCloudViewerRequestSphere
-
                     },
-
                     boundingVolume : {
-
                         sphere : pointCloudSphereLocal
-
                     },
-
                     geometricError : 0.0,
-
                     content : {
-
                         uri : pointCloudTileName
-
                     }
-
                 }
-
             ]
-
         }
-
     };
 
-
-
     var cityTilesetJson = {
-
         asset : {
-
             version : versionNumber
 
         },
-
         properties : undefined,
-
         geometricError : smallGeometricError,
-
         root : {
-
             boundingVolume : {
-
                 region : childrenRegion
-
             },
-
             geometricError : smallGeometricError,
-
             refine : 'ADD',
-
             children : [
-
                 {
-
                     boundingVolume : {
-
                         region : llRegion
-
                     },
-
                     geometricError : 0.0,
-
                     content : {
-
                         uri : 'll.b3dm'
-
                     }
-
                 },
-
                 {
-
                     boundingVolume : {
-
                         region : lrRegion
-
                     },
-
                     geometricError : 0.0,
-
                     content : {
-
                         uri : 'lr.b3dm'
-
                     }
-
                 },
-
                 {
-
                     boundingVolume : {
-
                         region : urRegion
-
                     },
-
                     geometricError : 0.0,
-
                     content : {
-
                         uri : 'ur.b3dm'
-
                     }
-
                 },
-
                 {
-
                     boundingVolume : {
-
                         region : ulRegion
-
                     },
-
                     geometricError : 0.0,
-
                     content : {
-
                         uri : 'ul.b3dm'
-
                     }
-
                 }
-
             ]
-
         }
-
     };
-
-
 
     var pnts = createPointCloudTile(pointCloudOptions).pnts;
-
-
-
     var cityTilePromises = Promise.map(cityTileOptions, function(tileOptions, index) {
-
         return createBuildingsTile(tileOptions)
-
             .then(function(result) {
-
                 var tilePath = path.join(tilesetDirectory, 'city', cityTileNames[index]);
-
                 return saveBinary(tilePath, result.b3dm, gzip);
-
             });
-
     });
 
-
-
     var buildingPromise = fsExtra.readFile(buildingGlbPath)
-
         .then(function(glb) {
-
             return createB3dm({
-
                 glb : glb
-
             });
-
         })
-
         .then(function(b3dm) {
-
             saveBinary(buildingTilePath, b3dm, gzip);
-
         });
 
-
-
     return Promise.all([
-
         cityTilePromises,
-
         buildingPromise,
-
         saveBinary(pointCloudTilePath, pnts, gzip),
-
         saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
-
         saveJson(cityTilesetPath, cityTilesetJson, prettyJson, gzip)
-
     ]);
-
 }
 
-
-
 function createExpireTileset() {
-
     var tilesetName = 'TilesetWithExpiration';
-
     var tilesetDirectory = path.join(outputDirectory, 'Samples', tilesetName);
-
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
-
     var pointCloudTileName = 'points.pnts';
-
     var pointCloudTilePath = path.join(tilesetDirectory, pointCloudTileName);
 
-
-
     var pointsLength = 8000;
-
     var pointCloudTileWidth = 200.0;
-
     var pointCloudSphereLocal = [0.0, 0.0, 0.0, pointCloudTileWidth / 2.0];
-
     var pointCloudGeometricError = 1.732 * pointCloudTileWidth; // Diagonal of the point cloud box
-
     var pointCloudMatrix = wgs84Transform(longitude, latitude, pointCloudTileWidth / 2.0);
-
     var pointCloudTransform = Matrix4.pack(pointCloudMatrix, new Array(16));
 
-
-
     var pointCloudOptions = {
-
         tileWidth : pointCloudTileWidth,
-
         pointsLength : pointsLength,
-
         perPointProperties : true,
-
         transform : Matrix4.IDENTITY,
-
         relativeToCenter : false,
-
         color : 'noise',
-
         shape : 'box'
-
     };
-
-
 
     var tilePromises = [];
 
-
-
     var pnts = createPointCloudTile(pointCloudOptions).pnts;
-
     tilePromises.push(saveBinary(pointCloudTilePath, pnts, gzip));
 
-
-
     // Save a few tiles for the server cache
-
     for (var i = 0; i < 5; ++i) {
-
         var tilePath = path.join(tilesetDirectory, 'cache', 'points_' + i + '.pnts');
-
         var tileOptions = clone(pointCloudOptions);
-
         tileOptions.time = i * 0.1;
-
         var tile = createPointCloudTile(tileOptions).pnts;
-
         tilePromises.push(saveBinary(tilePath, tile, gzip));
-
     }
 
-
-
     var tilesetJson = {
-
         asset : {
-
             version : versionNumber
-
         },
-
         geometricError : pointCloudGeometricError,
-
         root : {
-
             expire : {
-
                 duration : 5.0
-
             },
-
             transform : pointCloudTransform,
-
             boundingVolume : {
-
                 sphere : pointCloudSphereLocal
-
             },
-
             geometricError : 0.0,
-
             refine : 'ADD',
-
             content : {
-
                 uri : pointCloudTileName
-
             }
-
         }
-
     };
 
-
-
     return Promise.all([
-
         saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
-
         Promise.all(tilePromises)
-
     ]);
-
 }
-
