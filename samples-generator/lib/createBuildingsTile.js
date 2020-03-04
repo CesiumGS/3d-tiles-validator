@@ -151,10 +151,10 @@ function createBuildingsTile(options) {
 
     return gltfToGlb(gltf, gltfConversionOptions).then(function(glb) {
         b3dmOptions.glb = glb.glb;
-        return Promise.resolve({
+        return {
             b3dm : createB3dm(b3dmOptions),
             batchTableJson : batchTableJson
-        });
+        };
     });
 }
 
