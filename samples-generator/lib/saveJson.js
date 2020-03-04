@@ -26,7 +26,7 @@ function saveJson(path, json, prettyJson, gzip) {
     }
     gzip = defaultValue(gzip, false);
     if (gzip) {
-        return saveBinary(path, json, gzip);
+        return saveBinary(path, Buffer.from(json), gzip);
     }
 
     return fsExtra.outputJson(path, json, options);
