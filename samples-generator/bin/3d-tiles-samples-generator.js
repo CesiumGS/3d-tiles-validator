@@ -2549,10 +2549,6 @@ function createDiscreteLOD() {
     var tilesetDirectory = path.join(outputDirectory, 'Samples', tilesetName);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
-    var dragonLowGeometricError = 500.0;
-    var dragonMediumGeometricError = 100.0;
-    var dragonHighGeometricError = 10.0;
-
     var dragonWidth = 14.191;
     var dragonHeight = 10.075;
     var dragonDepth = 6.281;
@@ -2570,11 +2566,17 @@ function createDiscreteLOD() {
     var dragonMatrix = Matrix4.multiply(wgs84Matrix, scaleMatrix, new Matrix4());
     var dragonTransform = Matrix4.pack(dragonMatrix, new Array(16));
 
+    // At runtime a tile's geometric error is scaled by its computed scale. This doesn't apply to the top-level geometric error.
+    var dragonLowGeometricError = 5.0;
+    var dragonMediumGeometricError = 1.0;
+    var dragonHighGeometricError = 0.1;
+    var dragonTilesetGeometricError = dragonLowGeometricError * dragonScale;
+
     var tilesetJson = {
         asset : {
             version : versionNumber
         },
-        geometricError : dragonLowGeometricError,
+        geometricError : dragonTilesetGeometricError,
         root : {
             transform : dragonTransform,
             boundingVolume : {
