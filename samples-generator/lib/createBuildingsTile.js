@@ -131,12 +131,18 @@ function createBuildingsTile(options) {
     }
 
     if (use3dTilesNext && !useGlb) {
-        return Promise.resolve(gltf);
+        return Promise.resolve({
+            gltf : gltf,
+            batchTableJson : batchTableJson
+        });
     }
 
     if (use3dTilesNext) {
         return gltfToGlb(gltf, gltfConversionOptions).then(function(glb) {
-            return Promise.resolve(glb.glb);
+            return Promise.resolve({
+                glb : glb,
+                batchTableJson : batchTableJson
+            });
         });
     }
 

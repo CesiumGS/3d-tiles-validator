@@ -980,35 +980,35 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
         .then(function(result) {
             if (argv['3d-tiles-next']) {
                 tilesetOptions.versionNumber = '1.1';
+                var batchTableJson = result.batchTableJson;
+                tilesetOptions.properties = getProperties(batchTableJson);
 
                 if (argv.glb) {
+                    // only save tileset.json if contentDataUri is present (the glb / gltf is embedded in the tileset.json)
                     if (tilesetOptions.contentDataUri) {
-                        tilesetOptions.contentUri = 'data:model/gltf-binary;base64,' + Buffer.from(result).toString('base64');
+                        tilesetOptions.contentUri = 'data:model/gltf-binary;base64,' + Buffer.from(result.glb).toString('base64');
                         return saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson, gzip);
                     }
 
                     return Promise.all([
-                        saveBinary(tilePath, result, gzip),
+                        saveBinary(tilePath, result.glb, gzip),
                         saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson, gzip)
                     ]);
                 }
 
                 if (tilesetOptions.contentDataUri) {
-                    tilesetOptions.contentUri = 'data:model/gltf+json;base64,' + Buffer.from(JSON.stringify(result)).toString('base64');
+                    tilesetOptions.contentUri = 'data:model/gltf+json;base64,' + Buffer.from(JSON.stringify(result.gltf)).toString('base64');
                     return saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson, gzip);
                 }
 
                 return Promise.all([
                     saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson, gzip),
-                    saveJson(tilePath, result, prettyJson, gzip)
+                    saveJson(tilePath, result.gltf, prettyJson, gzip)
                 ]);
             }
 
             // old .b3dm
             var b3dm = result.b3dm;
-            var batchTableJson = result.batchTableJson;
-            tilesetOptions.properties = getProperties(batchTableJson);
-
             if (tilesetOptions.contentDataUri) {
                 var dataUri = new DataUri();
                 dataUri.format('.b3dm', b3dm);
