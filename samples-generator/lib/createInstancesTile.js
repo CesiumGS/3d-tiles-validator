@@ -138,7 +138,7 @@ function createInstancesTile(options) {
 
     return fsExtra.readFile(uri)
         .then(function(glb) {
-            glb = embed ? glb : undefined;
+            glb = (embed) ? glb : undefined;
             uri = path.basename(uri);
             var i3dm = createI3dm({
                 featureTableJson : featureTableJson,

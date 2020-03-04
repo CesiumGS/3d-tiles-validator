@@ -2554,8 +2554,8 @@ function divideTile(level, x, y, divisions, depth, parent, tileOptions, tileName
     var isLeaf = (level === depth - 1);
     var isRoot = (level === 0);
     var subdivide = !isLeaf && (!defined(subdivideCallback) || subdivideCallback(level, x, y));
-    var geometricError = isLeaf ? 0.0 : largeGeometricError / Math.pow(2, level + 1);
-    var children = subdivide ? [] : undefined;
+    var geometricError = (isLeaf) ? 0.0 : largeGeometricError / Math.pow(2, level + 1);
+    var children = (subdivide) ? [] : undefined;
 
     var tileJson = {
         boundingVolume : {

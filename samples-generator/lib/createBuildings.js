@@ -124,17 +124,18 @@ function createRandomBuildings(options) {
     // Set the random number seed before creating materials
     CesiumMath.setRandomNumberSeed(seed);
     var materials = new Array(numberOfBuildings);
+    var i;
     for (i = 0; i < numberOfBuildings; ++i) {
         // For CesiumJS testing purposes make the first building red
         var useRedMaterial = (baseColorType === 'color') && (translucencyType === 'opaque') && i === 0;
         var randomMaterial = getMaterial(baseColorType, translucencyType, i, numberOfBuildings);
-        materials[i] = useRedMaterial ? redMaterial : randomMaterial;
+        materials[i] = (useRedMaterial) ? redMaterial : randomMaterial;
     }
 
     // Set the random number seed before creating buildings so that the generated buildings are the same between runs
     CesiumMath.setRandomNumberSeed(seed);
     var buildings = new Array(numberOfBuildings);
-    for (var i = 0; i < numberOfBuildings; ++i) {
+    for (i = 0; i < numberOfBuildings; ++i) {
         // Create buildings with the z-axis as up
         var width = Math.max(averageWidth + (CesiumMath.nextRandomNumber() - 0.5) * 8.0, 1.0);
         var depth = Math.max(width + (CesiumMath.nextRandomNumber() - 0.5) * 4.0, 1.0);
@@ -226,7 +227,7 @@ function getMaterial(baseColorType, translucencyType, buildingIndex, numberOfBui
         } else if (translucencyType === 'translucent') {
             return getRandomColorMaterial(0.5);
         } else if (translucencyType === 'mix') {
-            var alpha = firstHalf ? 1.0 : 0.5;
+            var alpha = (firstHalf) ? 1.0 : 0.5;
             return getRandomColorMaterial(alpha);
         }
     } else if (baseColorType === 'textured') {

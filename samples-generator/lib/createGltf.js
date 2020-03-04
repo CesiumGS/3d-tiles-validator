@@ -102,8 +102,8 @@ function createGltf(options) {
 
     var batchIdsMinMax;
     var batchIdsBuffer = Buffer.alloc(0);
-    var batchIdSemantic = deprecated ? 'BATCHID' : '_BATCHID';
-    batchIdSemantic = use3dTilesNext ? batchIdSemantic + '_0' : batchIdSemantic;
+    var batchIdSemantic = (deprecated) ? 'BATCHID' : '_BATCHID';
+    batchIdSemantic = (use3dTilesNext) ? batchIdSemantic + '_0' : batchIdSemantic;
 
     var batchIdsLength;
     if (useBatchIds) {
@@ -139,9 +139,9 @@ function createGltf(options) {
     var bufferViewIndex = 0;
     var positionsBufferViewIndex = bufferViewIndex++;
     var normalsBufferViewIndex = bufferViewIndex++;
-    var uvsBufferViewIndex = useUvs ? bufferViewIndex++ : 0;
-    var vertexColorsBufferViewIndex = useVertexColors ? bufferViewIndex++ : 0;
-    var batchIdsBufferViewIndex = useBatchIds ? bufferViewIndex++ : 0;
+    var uvsBufferViewIndex = (useUvs) ? bufferViewIndex++ : 0;
+    var vertexColorsBufferViewIndex = (useVertexColors) ? bufferViewIndex++ : 0;
+    var batchIdsBufferViewIndex = (useBatchIds) ? bufferViewIndex++ : 0;
     var indexBufferViewIndex = bufferViewIndex++;
 
     var byteOffset = 0;
@@ -150,11 +150,11 @@ function createGltf(options) {
     var normalsBufferByteOffset = byteOffset;
     byteOffset += normalsBuffer.length;
     var uvsBufferByteOffset = byteOffset;
-    byteOffset += useUvs ? uvsBuffer.length : 0;
+    byteOffset += (useUvs) ? uvsBuffer.length : 0;
     var vertexColorsBufferByteOffset = byteOffset;
-    byteOffset += useVertexColors ? vertexColorsBuffer.length : 0;
+    byteOffset += (useVertexColors) ? vertexColorsBuffer.length : 0;
     var batchIdsBufferByteOffset = byteOffset;
-    byteOffset += useBatchIds ? batchIdsBuffer.length : 0;
+    byteOffset += (useBatchIds) ? batchIdsBuffer.length : 0;
 
     // Start index buffer at the padded byte offset
     byteOffset = vertexBuffer.length;
@@ -205,7 +205,7 @@ function createGltf(options) {
         }
 
         var doubleSided = transparent;
-        var alphaMode = transparent ? 'BLEND' : 'OPAQUE';
+        var alphaMode = (transparent) ? 'BLEND' : 'OPAQUE';
 
         material = {
             pbrMetallicRoughness : {

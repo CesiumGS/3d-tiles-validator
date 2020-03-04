@@ -60,7 +60,7 @@ function createBuildingsTile(options) {
     var deprecated1 = options.deprecated1;
     var deprecated2 = options.deprecated2;
     var buildingsLength = buildings.length;
-    var batchLength = useBatchIds ? buildingsLength : 0;
+    var batchLength = (useBatchIds) ? buildingsLength : 0;
 
     var meshes = new Array(buildingsLength);
     for (var i = 0; i < buildingsLength; ++i) {
@@ -87,7 +87,7 @@ function createBuildingsTile(options) {
         }
 
         if (createBatchTableBinary) {
-            batchTableJsonAndBinary = use3dTilesNext ? generateBatchTableBinary3dTilesNext(buildings) : generateBatchTableBinary(buildings);
+            batchTableJsonAndBinary = (use3dTilesNext) ? generateBatchTableBinary3dTilesNext(buildings) : generateBatchTableBinary(buildings);
             batchTableBinary = batchTableJsonAndBinary.binary;
             batchTableJson = combine(batchTableJson, batchTableJsonAndBinary.json);
         }

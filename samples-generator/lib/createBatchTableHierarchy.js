@@ -213,7 +213,7 @@ function createBatchTableBinary(batchTable, options) {
     }
 
     // Convert instance properties to binary
-    var hierarchy = options.legacy ? batchTable.HIERARCHY : batchTable.extensions['3DTILES_batch_table_hierarchy'];
+    var hierarchy = (options.legacy) ? batchTable.HIERARCHY : batchTable.extensions['3DTILES_batch_table_hierarchy'];
     var classes = hierarchy.classes;
     var classesLength = classes.length;
     for (var i = 0; i < classesLength; ++i) {
