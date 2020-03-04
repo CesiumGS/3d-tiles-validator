@@ -3,9 +3,9 @@ var fs = require('fs');
 var path = require('path');
 var trianglePath = path.join(__dirname, '..', 'data', 'triangle.gltf');
 var minimalTriangleGLTF = JSON.parse(fs.readFileSync(trianglePath, 'utf8'));
-var create3dtilesBatchTableExt = require ('../../lib/create3dtilesBatchTableExt');
+var createBatchTableExtension = require ('../../lib/createBatchTableExtension');
 
-describe('create3dtilesBatchTableExt', function() {
+describe('createBatchTableExtension', function() {
     var triangleGLTF = minimalTriangleGLTF;
     var sharedBuffer = Buffer.from('abcdefghijklmnopqrstuvwxyz');
     var batchTableAttributes = {
@@ -34,7 +34,7 @@ describe('create3dtilesBatchTableExt', function() {
     var oldAccessorLength = Object.keys(triangleGLTF.accessors).length;
     var oldBufferViewLength = Object.keys(triangleGLTF.bufferViews).length;
     var oldBufferLength = Object.keys(triangleGLTF.buffers).length;
-    var gltfWithExt = create3dtilesBatchTableExt(triangleGLTF, batchTableAttributes, sharedBuffer);
+    var gltfWithExt = createBatchTableExtension(triangleGLTF, batchTableAttributes, sharedBuffer);
 
     it('extensions used / extension keys are present', function() {
         expect('extensionsUsed' in gltfWithExt).toBe(true);

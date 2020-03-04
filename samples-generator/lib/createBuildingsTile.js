@@ -1,7 +1,7 @@
 'use strict';
 var Cesium = require('cesium');
 var createB3dm = require('./createB3dm');
-var create3dtilesBatchTableExt = require('./create3dtilesBatchTableExt');
+var createBatchTableExtension = require('./createBatchTableExtension');
 var createBuildings = require('./createBuildings');
 var path = require('path');
 var Promise = require('bluebird');
@@ -127,7 +127,7 @@ function createBuildingsTile(options) {
 
     // Don't add the batch table extension if there is no batchTableJson (e.g in the case of `createBatchedWithoutBatchTable`)
     if (use3dTilesNext && defined(b3dmOptions.batchTableJson)) {
-        gltf = create3dtilesBatchTableExt(gltf, b3dmOptions.batchTableJson, binary);
+        gltf = createBatchTableExtension(gltf, b3dmOptions.batchTableJson, binary);
 
         // Make the RTC_CENTER translation the child of the rotationMatrix rootNode
         gltf = injectTranslationNodeToGltf(gltf, 'RTC_CENTER', featureTableJson.RTC_CENTER, 0);

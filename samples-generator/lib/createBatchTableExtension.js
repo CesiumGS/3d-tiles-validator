@@ -65,7 +65,7 @@ function assertHumanReadableBatchTableValueArraysHaveIdenticalLength(humanBatchT
  *                                                   This function currently assumes that all of the binary batch attributes in
  *                                                   batchTableAttributes are directly referring to this buffer.
  */
-function create3dtilesBatchTableExt(gltf, batchTableAttributes, sharedBinaryBuffer) {
+function createBatchTableExtension(gltf, batchTableAttributes, sharedBinaryBuffer) {
     Extensions.addExtensionsUsed(gltf, batchTableExtensionName);
     Extensions.addExtension(gltf, batchTableExtensionName, {
         batchTables: [{
@@ -134,4 +134,4 @@ function create3dtilesBatchTableExt(gltf, batchTableAttributes, sharedBinaryBuff
     return gltf;
 }
 
-module.exports = create3dtilesBatchTableExt;
+module.exports = createBatchTableExtension;
