@@ -12,9 +12,9 @@ module.exports = injectTranslationNodeToGltf;
  */
 
 function getRootNodesInGltf(nodes) {
-    var i = 0;
+    var i;
     var potentialRoot = {};
-    for (; i < nodes.length; ++i) {
+    for (i = 0; i < nodes.length; ++i) {
         potentialRoot[i] = true;
     }
 
@@ -36,8 +36,8 @@ function getRootNodesInGltf(nodes) {
  * Inserts a translation node at the root or underneath the specified
  * parentIndex if provided.
  * @param {Object} gltf The GLTF asset to modify
- * @param {Array<number>} translationVector XYZ translation value
- * @param {Number=} parentIndex Optional parent index for the new node.
+ * @param {Array.<Number>} translationVector XYZ translation value
+ * @param {Number} parentIndex Optional parent index for the new node.
  *                              The injected translation node will become the sole child
  *                              of the provided parent, and orphaned children
  *                              will be 'adopted' by the injected translation node.

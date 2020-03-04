@@ -88,7 +88,7 @@ function createBuildingsTile(options) {
         }
 
         if (createBatchTableBinary) {
-            batchTableJsonAndBinary = (use3dTilesNext) ? generateBatchTableBinary3dTilesNext(buildings) : generateBatchTableBinary(buildings);
+            batchTableJsonAndBinary = use3dTilesNext ? generateBatchTableBinary3dTilesNext(buildings) : generateBatchTableBinary(buildings);
             batchTableBinary = batchTableJsonAndBinary.binary;
             batchTableJson = combine(batchTableJson, batchTableJsonAndBinary.json);
         }
