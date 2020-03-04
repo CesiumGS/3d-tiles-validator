@@ -1,17 +1,10 @@
 'use strict';
 var Cesium = require('cesium');
-var gltfPipeline = require('gltf-pipeline');
-var path = require('path');
 var getBufferPadded = require('./getBufferPadded');
-
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 
-var gltfToGlb = gltfPipeline.gltfToGlb;
-
 module.exports = createGltf;
-
-var rootDirectory = path.join(__dirname, '../');
 
 var sizeOfUint8 = 1;
 var sizeOfUint16 = 2;
@@ -25,10 +18,13 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.useBatchIds=true] Modify the glTF to include the batchId vertex attribute.
  * @param {Boolean} [options.relativeToCenter=false] Set mesh positions relative to center.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
+ * @param {Boolean} [options.use3dTilesNext=false] Modify the GLTF to name batch ids with a numerical suffix
  *
- * @returns {Promise} A promise that resolves with the binary glTF buffer.
+ * @returns {Object} A glTF object
  */
+
 function createGltf(options) {
+    var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
     var useBatchIds = defaultValue(options.useBatchIds, true);
     var relativeToCenter = defaultValue(options.relativeToCenter, false);
     var deprecated = defaultValue(options.deprecated, false);
@@ -106,7 +102,9 @@ function createGltf(options) {
 
     var batchIdsMinMax;
     var batchIdsBuffer = Buffer.alloc(0);
-    var batchIdSemantic = deprecated ? 'BATCHID' : '_BATCHID';
+    var batchIdSemantic = (deprecated) ? 'BATCHID' : '_BATCHID';
+    batchIdSemantic = (use3dTilesNext) ? batchIdSemantic + '_0' : batchIdSemantic;
+
     var batchIdsLength;
     if (useBatchIds) {
         batchIdsMinMax = getMinMax(batchIds, 1);
@@ -141,9 +139,9 @@ function createGltf(options) {
     var bufferViewIndex = 0;
     var positionsBufferViewIndex = bufferViewIndex++;
     var normalsBufferViewIndex = bufferViewIndex++;
-    var uvsBufferViewIndex = useUvs ? bufferViewIndex++ : 0;
-    var vertexColorsBufferViewIndex = useVertexColors ? bufferViewIndex++ : 0;
-    var batchIdsBufferViewIndex = useBatchIds ? bufferViewIndex++ : 0;
+    var uvsBufferViewIndex = (useUvs) ? bufferViewIndex++ : 0;
+    var vertexColorsBufferViewIndex = (useVertexColors) ? bufferViewIndex++ : 0;
+    var batchIdsBufferViewIndex = (useBatchIds) ? bufferViewIndex++ : 0;
     var indexBufferViewIndex = bufferViewIndex++;
 
     var byteOffset = 0;
@@ -152,11 +150,11 @@ function createGltf(options) {
     var normalsBufferByteOffset = byteOffset;
     byteOffset += normalsBuffer.length;
     var uvsBufferByteOffset = byteOffset;
-    byteOffset += useUvs ? uvsBuffer.length : 0;
+    byteOffset += (useUvs) ? uvsBuffer.length : 0;
     var vertexColorsBufferByteOffset = byteOffset;
-    byteOffset += useVertexColors ? vertexColorsBuffer.length : 0;
+    byteOffset += (useVertexColors) ? vertexColorsBuffer.length : 0;
     var batchIdsBufferByteOffset = byteOffset;
-    byteOffset += useBatchIds ? batchIdsBuffer.length : 0;
+    byteOffset += (useBatchIds) ? batchIdsBuffer.length : 0;
 
     // Start index buffer at the padded byte offset
     byteOffset = vertexBuffer.length;
@@ -207,7 +205,7 @@ function createGltf(options) {
         }
 
         var doubleSided = transparent;
-        var alphaMode = transparent ? 'BLEND' : 'OPAQUE';
+        var alphaMode = (transparent) ? 'BLEND' : 'OPAQUE';
 
         material = {
             pbrMetallicRoughness : {
@@ -394,13 +392,17 @@ function createGltf(options) {
         textures : textures
     };
 
-    var gltfOptions = {
-        resourceDirectory : rootDirectory
-    };
-    return gltfToGlb(gltf, gltfOptions)
-        .then(function(results) {
-            return results.glb;
+    if (use3dTilesNext && defined(options.featureTableJson) && defined(options.featureTableJson.RTC_CENTER)) {
+        delete gltf.nodes[0].mesh;
+        gltf.nodes[0].children = [1];
+        gltf.nodes.push({
+            name : 'RTC_CENTER',
+            translation : options.featureTableJson.RTC_CENTER,
+            mesh : 0
         });
+    }
+
+    return gltf;
 }
 
 function getMinMax(array, components, start, length) {

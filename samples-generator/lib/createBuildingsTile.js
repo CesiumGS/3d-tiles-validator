@@ -1,8 +1,14 @@
 'use strict';
 var Cesium = require('cesium');
 var createB3dm = require('./createB3dm');
+var createBatchTableExtension = require('./createBatchTableExtension');
 var createBuildings = require('./createBuildings');
+var path = require('path');
 var createGltf = require('./createGltf');
+var gltfPipeline = require('gltf-pipeline');
+var processGltf = gltfPipeline.processGltf;
+var gltfToGlb = gltfPipeline.gltfToGlb;
+var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
 var Mesh = require('./Mesh');
 
 var Cartesian3 = Cesium.Cartesian3;
@@ -14,9 +20,10 @@ var Matrix4 = Cesium.Matrix4;
 module.exports = createBuildingsTile;
 
 var sizeOfUint8 = 1;
-var sizeOfDouble = 8;
+var sizeOfFloat = 4;
 
 var scratchMatrix = new Matrix4();
+var batchTableJsonAndBinary;
 
 /**
  * Creates a b3dm tile that represents a set of buildings.
@@ -35,6 +42,7 @@ var scratchMatrix = new Matrix4();
  * @param {Boolean} [options.deprecated2=false] Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic.
  *
  * @returns {Promise} A promise that resolves with the b3dm buffer and batch table JSON.
+ *                      OR a promise that resolves with a glTF
  */
 function createBuildingsTile(options) {
     var buildings = createBuildings(options.buildingOptions);
@@ -43,13 +51,16 @@ function createBuildingsTile(options) {
     var createBatchTableExtra = defaultValue(options.createBatchTableExtra, false) && useBatchIds;
     var createBatchTableBinary = defaultValue(options.createBatchTableBinary, false) && useBatchIds;
     var tileTransform = defaultValue(options.transform, Matrix4.IDENTITY);
+    var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
+    var useGlb = defaultValue(options.useGlb, false);
+
     var relativeToCenter = options.relativeToCenter;
     var rtcCenterPosition = options.rtcCenterPosition;
     var useVertexColors = options.useVertexColors;
     var deprecated1 = options.deprecated1;
     var deprecated2 = options.deprecated2;
     var buildingsLength = buildings.length;
-    var batchLength = useBatchIds ? buildingsLength : 0;
+    var batchLength = (useBatchIds) ? buildingsLength : 0;
 
     var meshes = new Array(buildingsLength);
     for (var i = 0; i < buildingsLength; ++i) {
@@ -74,10 +85,11 @@ function createBuildingsTile(options) {
             var batchTableExtra = generateBatchTableExtra(buildings);
             batchTableJson = combine(batchTableJson, batchTableExtra);
         }
+
         if (createBatchTableBinary) {
-            var batchTableJsonAndBinary = generateBatchTableBinary(buildings);
-            batchTableJson = combine(batchTableJson, batchTableJsonAndBinary.json);
+            batchTableJsonAndBinary = (use3dTilesNext) ? generateBatchTableBinary3dTilesNext(buildings) : generateBatchTableBinary(buildings);
             batchTableBinary = batchTableJsonAndBinary.binary;
+            batchTableJson = combine(batchTableJson, batchTableJsonAndBinary.json);
         }
     }
 
@@ -91,22 +103,55 @@ function createBuildingsTile(options) {
         featureTableJson.RTC_CENTER = Cartesian3.pack(batchedMesh.getCenter(), new Array(3));
     }
 
-    return createGltf({
+    var gltfOptions = {
         mesh : batchedMesh,
         useBatchIds : useBatchIds,
         relativeToCenter : relativeToCenter,
-        deprecated : deprecated1 || deprecated2
-    }).then(function(glb) {
-        var b3dm = createB3dm({
-            glb : glb,
-            featureTableJson : featureTableJson,
-            batchTableJson : batchTableJson,
-            batchTableBinary : batchTableBinary,
-            deprecated1 : deprecated1,
-            deprecated2 : deprecated2
+        deprecated : deprecated1 || deprecated2,
+        use3dTilesNext : use3dTilesNext,
+        featureTableJson : featureTableJson
+    };
+
+    var gltf = createGltf(gltfOptions);
+
+    var b3dmOptions = {
+        featureTableJson : featureTableJson,
+        batchTableJson : batchTableJson,
+        batchTableBinary : batchTableBinary,
+        batchTableJsonAndBinary : batchTableJsonAndBinary,
+        deprecated1 : deprecated1,
+        deprecated2 : deprecated2,
+    };
+
+    var binary = defined(b3dmOptions.batchTableBinary) ? b3dmOptions.batchTableJsonAndBinary.binary : undefined;
+
+    // Don't add the batch table extension if there is no batchTableJson (e.g in the case of `createBatchedWithoutBatchTable`)
+    if (use3dTilesNext && defined(b3dmOptions.batchTableJson)) {
+        gltf = createBatchTableExtension(gltf, b3dmOptions.batchTableJson, binary);
+    }
+
+    if (use3dTilesNext && !useGlb) {
+        return processGltf(gltf, gltfConversionOptions).then(function(results) {
+            return {
+                gltf : results.gltf,
+                batchTableJson : batchTableJson
+            };
         });
+    }
+
+    if (use3dTilesNext) {
+        return gltfToGlb(gltf, gltfConversionOptions).then(function(results) {
+            return {
+                glb : results.glb,
+                batchTableJson : batchTableJson
+            };
+        });
+    }
+
+    return gltfToGlb(gltf, gltfConversionOptions).then(function(results) {
+        b3dmOptions.glb = results.glb;
         return {
-            b3dm : b3dm,
+            b3dm : createB3dm(b3dmOptions),
             batchTableJson : batchTableJson
         };
     });
@@ -156,7 +201,7 @@ function generateBatchTableExtra(buildings) {
 
 function generateBatchTableBinary(buildings) {
     var buildingsLength = buildings.length;
-    var cartographicBuffer = Buffer.alloc(buildingsLength * 3 * sizeOfDouble);
+    var cartographicBuffer = Buffer.alloc(buildingsLength * 3 * sizeOfFloat);
     var codeBuffer = Buffer.alloc(buildingsLength * sizeOfUint8);
 
     var batchTableJson = {
@@ -175,9 +220,52 @@ function generateBatchTableBinary(buildings) {
     for (var i = 0; i < buildingsLength; ++i) {
         var building = buildings[i];
         var code = Math.max(i, 255);
-        cartographicBuffer.writeDoubleLE(building.longitude, (i * 3) * sizeOfDouble);
-        cartographicBuffer.writeDoubleLE(building.latitude, (i * 3 + 1) * sizeOfDouble);
-        cartographicBuffer.writeDoubleLE(building.height, (i * 3 + 2) * sizeOfDouble);
+        cartographicBuffer.writeFloatLE(building.longitude, (i * 3) * sizeOfFloat);
+        cartographicBuffer.writeFloatLE(building.latitude, (i * 3 + 1) * sizeOfFloat);
+        cartographicBuffer.writeFloatLE(building.height, (i * 3 + 2) * sizeOfFloat);
+        codeBuffer.writeUInt8(code, i);
+    }
+
+    // No need for padding with these sample properties
+    var batchTableBinary = Buffer.concat([cartographicBuffer, codeBuffer]);
+
+    return {
+        json : batchTableJson,
+        binary : batchTableBinary
+    };
+}
+
+function generateBatchTableBinary3dTilesNext(buildings) {
+    var buildingsLength = buildings.length;
+    var cartographicBuffer = Buffer.alloc(buildingsLength * 3 * sizeOfFloat);
+    var codeBuffer = Buffer.alloc(buildingsLength * sizeOfUint8);
+
+    var batchTableJson = {
+        cartographic : {
+            name : 'cartographic',
+            byteOffset : 0,
+            byteLength : cartographicBuffer.length,
+            componentType : 0x1406, // FLOAT
+            type : 'VEC3',
+            count : buildingsLength
+        },
+
+        code : {
+            name: 'code',
+            byteOffset : cartographicBuffer.length,
+            count: codeBuffer.length,
+            byteLength: codeBuffer.length,
+            componentType : 0x1401, // UNSIGNED_BYTE
+            type : 'SCALAR'
+        }
+    };
+
+    for (var i = 0; i < buildingsLength; ++i) {
+        var building = buildings[i];
+        var code = Math.max(i, 255);
+        cartographicBuffer.writeFloatLE(building.longitude, (i * 3) * sizeOfFloat);
+        cartographicBuffer.writeFloatLE(building.latitude, (i * 3 + 1) * sizeOfFloat);
+        cartographicBuffer.writeFloatLE(building.height, (i * 3 + 2) * sizeOfFloat);
         codeBuffer.writeUInt8(code, i);
     }
 

@@ -180,7 +180,7 @@ function createPointCloudTile(options) {
         }
         featureTableJson[name] = {
             byteOffset : byteOffset,
-            componentType : name === 'BATCH_ID' ? componentType : undefined
+            componentType : (name === 'BATCH_ID') ? componentType : undefined
         };
     }
 
@@ -508,8 +508,8 @@ function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shape
         noiseValues[i] = noise;
     }
 
-    var positionAttribute = quantizePositions ? getPositionsQuantized(positions, radius) : getPositions(positions);
-    var normalAttribute = octEncodeNormals ? getNormalsOctEncoded(normals) : getNormals(normals);
+    var positionAttribute = (quantizePositions) ? getPositionsQuantized(positions, radius) : getPositions(positions);
+    var normalAttribute = (octEncodeNormals) ? getNormalsOctEncoded(normals) : getNormals(normals);
     var batchIdAttribute = getBatchIds(batchIds);
     var colorAttribute = defined(colorModeFunction) ? colorModeFunction(colors) : undefined;
 
