@@ -6,7 +6,6 @@ var createBuildings = require('./createBuildings');
 var path = require('path');
 var Promise = require('bluebird');
 var createGltf = require('./createGltf');
-var injectTranslationNodeToGltf = require('./injectTranslationNodeToGltf');
 var gltfPipeline = require('gltf-pipeline');
 var gltfToGlb = gltfPipeline.gltfToGlb;
 var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
@@ -109,7 +108,8 @@ function createBuildingsTile(options) {
         useBatchIds : useBatchIds,
         relativeToCenter : relativeToCenter,
         deprecated : deprecated1 || deprecated2,
-        use3dTilesNext : use3dTilesNext
+        use3dTilesNext : use3dTilesNext,
+        featureTableJson : featureTableJson
     };
 
     var gltf = createGltf(gltfOptions);
@@ -128,17 +128,6 @@ function createBuildingsTile(options) {
     // Don't add the batch table extension if there is no batchTableJson (e.g in the case of `createBatchedWithoutBatchTable`)
     if (use3dTilesNext && defined(b3dmOptions.batchTableJson)) {
         gltf = createBatchTableExtension(gltf, b3dmOptions.batchTableJson, binary);
-
-        if (defined(featureTableJson.RTC_CENTER)) {
-            // Make the RTC_CENTER translation the child of the rotationMatrix rootNode
-            gltf = injectTranslationNodeToGltf(gltf, 'RTC_CENTER', featureTableJson.RTC_CENTER, 0);
-
-            // Make the root mesh: 0 node a child of the RTC_TRANSLATION node.
-            var value = gltf.nodes[0].mesh;
-            delete gltf.nodes[0].mesh;
-            gltf.nodes[1].children = [2];
-            gltf.nodes.push({mesh: value});
-        }
     }
 
     if (use3dTilesNext && !useGlb) {

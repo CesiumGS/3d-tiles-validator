@@ -392,6 +392,16 @@ function createGltf(options) {
         textures : textures
     };
 
+    if (use3dTilesNext && defined(options.featureTableJson) && defined(options.featureTableJson.RTC_CENTER)) {
+        delete gltf.nodes[0].mesh;
+        gltf.nodes[0].children = [1];
+        gltf.nodes.push({
+            name : 'RTC_CENTER',
+            translation : options.featureTableJson.RTC_CENTER,
+            mesh : 0
+        });
+    }
+
     return gltf;
 }
 
