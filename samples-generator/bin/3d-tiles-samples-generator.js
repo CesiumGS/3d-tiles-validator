@@ -961,7 +961,6 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     if (argv['3d-tiles-next']) {
         tileOptions.use3dTilesNext = true;
         tileOptions.useGlb = argv.glb;
-        tileOptions.versionNumber = 1.1;
         ext = (argv.glb) ? '.glb' : '.gltf';
     } else {
         ext = '.b3dm';
@@ -985,7 +984,9 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
                 if (argv.glb) {
                     if (tilesetOptions.contentDataUri) {
                         tilesetOptions.contentUri = 'data:model/gltf-binary;base64,' + Buffer.from(result).toString('base64');
+                        return saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson)
                     }
+
                     return Promise.all([
                         saveBinary(tilePath, result, tilesetOptions.gzip),
                         saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson)
@@ -994,6 +995,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
 
                 if (tilesetOptions.contentDataUri) {
                     tilesetOptions.contentUri = 'data:model/gltf+json;base64,' + Buffer.from(JSON.stringify(result)).toString('base64');
+                    return saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson)
                 }
 
                 return Promise.all([
