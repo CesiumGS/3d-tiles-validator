@@ -979,7 +979,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     return createBuildingsTile(tileOptions)
         .then(function(result) {
             if (argv['3d-tiles-next']) {
-                tilesetOptions.versionNumber = 1.1;
+                tilesetOptions.versionNumber = '1.1';
 
                 if (argv.glb) {
                     if (tilesetOptions.contentDataUri) {
