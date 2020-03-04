@@ -2842,17 +2842,13 @@ function createRequestVolume() {
                     transform : buildingTransform,
                     boundingVolume : {
                         box : buildingBoxLocal
-
                     },
                     geometricError : 0.0,
                     content : {
-
                         uri : buildingTileName
-
                     }
                 },
                 {
-
                     transform : pointCloudTransform,
                     viewerRequestVolume : {
                         sphere : pointCloudViewerRequestSphere
@@ -2872,7 +2868,6 @@ function createRequestVolume() {
     var cityTilesetJson = {
         asset : {
             version : versionNumber
-
         },
         properties : undefined,
         geometricError : smallGeometricError,
@@ -2924,6 +2919,7 @@ function createRequestVolume() {
     };
 
     var pnts = createPointCloudTile(pointCloudOptions).pnts;
+
     var cityTilePromises = Promise.map(cityTileOptions, function(tileOptions, index) {
         return createBuildingsTile(tileOptions)
             .then(function(result) {
