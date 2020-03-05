@@ -56,6 +56,7 @@ function createPointCloudTile(options) {
     CesiumMath.setRandomNumberSeed(0);
 
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
+    var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
     var tileWidth = defaultValue(options.tileWidth, 10.0);
     var transform = defaultValue(options.transform, Matrix4.IDENTITY);
     var pointsLength = defaultValue(options.pointsLength, 1000);
@@ -107,7 +108,7 @@ function createPointCloudTile(options) {
         constantColor = [255, 255, 0, 51];
     }
 
-    var points = getPoints(pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform, time);
+    var points = getPoints(use3dTilesNext, pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform, time);
     var positions = points.positions;
     var normals = points.normals;
     var batchIds = points.batchIds;
@@ -226,58 +227,23 @@ function createPointCloudTile(options) {
 
     var gltf;
     if (options.use3dTilesNext) {
-        var bufferAttributes = [
-        {
-            buffer: positions.buffer,
-            componentType: positions.componentType,
-            propertyName: positions.propertyName,
-            type: positions.type,
-            target: 0x8892,
-            min: positions.min,
-            max: positions.max
-        },
-        {
-            buffer: normals.buffer,
-            componentType: normals.componentType,
-            propertyName: normals.propertyName,
-            type: normals.type,
-            target: 0x8892,
-            min: normals.min,
-            max: normals.max
-        },
-        {
-            buffer: batchIds.buffer,
-            componentType: batchIds.componentType,
-            propertyName: batchIds.propertyName,
-            type: batchIds.type,
-            target: 0x8892,
-            min: batchIds.min,
-            max: batchIds.max
-        }
-    ];
-
+        var bufferAttributes = [positions, normals, batchIds];
         if (defined(colors)) {
-            bufferAttributes.push({
-                buffer: colors.buffer,
-                componentType: colors.componentType,
-                propertyName: colors.propertyName,
-                type: colors.type,
-                target: 0x8892,
-                min: colors.min,
-                max: colors.max
-            });
+            bufferAttributes.push(colors);
         }
 
-        // componentType needs to be converted from a string to an int
         gltf = createGltfFromPnts(bufferAttributes);
     }
 
-    var pnts = createPnts({
-        featureTableJson : featureTableJson,
-        featureTableBinary : featureTableBinary,
-        batchTableJson : batchTableJson,
-        batchTableBinary : batchTableBinary
-    });
+    var pnts;
+    if (defined(pnts)) {
+        pnts = createPnts({
+            featureTableJson : featureTableJson,
+            featureTableBinary : featureTableBinary,
+            batchTableJson : batchTableJson,
+            batchTableBinary : batchTableBinary
+        });
+    }
 
     return {
         gltf : gltf,
@@ -518,7 +484,7 @@ function getBatchId(position) {
 var scratchMatrix = new Matrix4();
 var scratchCenter = new Cartesian3();
 
-function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform, time) {
+function getPoints(use3dTilesNext, pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform, time) {
     var inverseTranspose = scratchMatrix;
     Matrix4.transpose(transform, inverseTranspose);
     Matrix4.inverse(inverseTranspose, inverseTranspose);
@@ -560,8 +526,8 @@ function getPoints(pointsLength, radius, colorModeFunction, colorFunction, shape
 
     var positionAttribute = (quantizePositions) ? getPositionsQuantized(positions, radius) : getPositions(positions);
     var normalAttribute = (octEncodeNormals) ? getNormalsOctEncoded(normals) : getNormals(normals);
-    var batchIdAttribute = getBatchIds(batchIds);
-    var colorAttribute = defined(colorModeFunction) ? colorModeFunction(colors) : undefined;
+    var batchIdAttribute = getBatchIds(batchIds, use3dTilesNext);
+    var colorAttribute = defined(colorModeFunction) ? colorModeFunction(colors, use3dTilesNext) : undefined;
 
     return {
         positions : positionAttribute,
@@ -598,7 +564,8 @@ function getPositions(positions) {
         componentType : 'FLOAT',
         type : 'VEC3',
         min : minComp,
-        max : maxComp
+        max : maxComp,
+        count : pointsLength
     };
 }
 
@@ -636,7 +603,8 @@ function getPositionsQuantized(positions, radius) {
         componentType : 'UNSIGNED_SHORT',
         type : 'VEC3',
         min : minComp,
-        max : maxComp
+        max : maxComp,
+        count : pointsLength
     };
 }
 
@@ -666,7 +634,8 @@ function getNormals(normals) {
         componentType : 'FLOAT',
         type : 'VEC3',
         min : minComp,
-        max : maxComp
+        max : maxComp,
+        count : pointsLength
     };
 }
 
@@ -695,11 +664,19 @@ function getNormalsOctEncoded(normals) {
         componentType : 'UNSIGNED_BYTE',
         type : 'VEC2',
         min : minComp,
-        max : maxComp
+        max : maxComp,
+        count : pointsLength
     };
 }
 
-function getBatchIds(batchIds) {
+/**
+ * Generates a list of batchIds
+ * @param {Array<Number>} batchIds A list of batchIds
+ * @param {Boolean} use3dTilesNext Force uint32 mode, use prefix naming for attribute
+ * @returns {Object} A bufferAttribute containing the necessary information for encoding to
+ *                   a .pnts / .gltf / .glb
+ */
+function getBatchIds(batchIds, use3dTilesNext) {
     // Find the batch length which determines whether the BATCH_ID buffer is byte, short, or int.
     var i;
     var pointsLength = batchIds.length;
@@ -713,15 +690,16 @@ function getBatchIds(batchIds) {
 
     var buffer;
     var componentType;
-    if (batchLength <= 256) {
-        buffer = Buffer.alloc(pointsLength * sizeOfUint8);
+
+    if (use3dTilesNext || batchLength > 65535) {
+        buffer = Buffer.alloc(pointsLength * sizeOfUint32);
         for (i = 0; i < pointsLength; ++i) {
-            buffer.writeUInt8(batchIds[i], i * sizeOfUint8);
             minComp[0] = Math.min(minComp[0], batchIds[i]);
             maxComp[0] = Math.max(maxComp[0], batchIds[i]);
+            buffer.writeUInt32LE(batchIds[i], i * sizeOfUint32);
         }
-        componentType = 'UNSIGNED_BYTE';
-    } else if (batchLength <= 65536) {
+        componentType = 'UNSIGNED_INT';
+    } else if (batchLength > 255 && batchLength < 65536) {
         buffer = Buffer.alloc(pointsLength * sizeOfUint16);
         for (i = 0; i < pointsLength; ++i) {
             minComp[0] = Math.min(minComp[0], batchIds[i]);
@@ -730,27 +708,28 @@ function getBatchIds(batchIds) {
         }
         componentType = 'UNSIGNED_SHORT';
     } else {
-        buffer = Buffer.alloc(pointsLength * sizeOfUint32);
+        buffer = Buffer.alloc(pointsLength * sizeOfUint8);
         for (i = 0; i < pointsLength; ++i) {
+            buffer.writeUInt8(batchIds[i], i * sizeOfUint8);
             minComp[0] = Math.min(minComp[0], batchIds[i]);
             maxComp[0] = Math.max(maxComp[0], batchIds[i]);
-            buffer.writeUInt32LE(batchIds[i], i * sizeOfUint32);
         }
-        componentType = 'UNSIGNED_INT';
+        componentType = 'UNSIGNED_BYTE';
     }
 
     return {
         buffer : buffer,
-        propertyName : 'BATCH_ID',
+        propertyName : use3dTilesNext ? '_BATCH_ID0' : 'BATCH_ID',
         componentType : componentType,
         type : 'SCALAR',
         batchLength : batchLength,
         min : minComp,
-        max : maxComp
+        max : maxComp,
+        count : pointsLength
     };
 }
 
-function getColorsRGB(colors) {
+function getColorsRGB(colors, use3dTilesNext) {
     var colorsLength = colors.length;
     var buffer = Buffer.alloc(colorsLength * 3);
 
@@ -776,15 +755,16 @@ function getColorsRGB(colors) {
     }
     return {
         buffer : buffer,
-        propertyName : 'RGB',
+        propertyName : use3dTilesNext ? '_RGB' : 'RGB',
         componentType : 'UNSIGNED_BYTE',
         type : 'VEC3',
         min : minComp,
-        max : maxComp
+        max : maxComp,
+        count : colorsLength
     };
 }
 
-function getColorsRGBA(colors) {
+function getColorsRGBA(colors, use3dTilesNext) {
     var colorsLength = colors.length;
     var buffer = Buffer.alloc(colorsLength * 4);
 
@@ -814,15 +794,16 @@ function getColorsRGBA(colors) {
     }
     return {
         buffer : buffer,
-        propertyName : 'RGBA',
+        propertyName : use3dTilesNext ? '_RGBA' : 'RGBA',
         componentType : 'UNSIGNED_BYTE',
         type : 'VEC4',
         min : minComp,
-        max : maxComp
+        max : maxComp,
+        count : colorsLength
     };
 }
 
-function getColorsRGB565(colors) {
+function getColorsRGB565(colors, use3dTilesNext) {
     var colorsLength = colors.length;
     var buffer = Buffer.alloc(colorsLength * sizeOfUint16);
 
@@ -841,11 +822,12 @@ function getColorsRGB565(colors) {
     }
     return {
         buffer : buffer,
-        propertyName : 'RGB565',
+        propertyName : use3dTilesNext ? '_RGB565' : '_RGB565',
         componentType : 'UNSIGNED_SHORT',
         type : 'SCALAR',
         min : minComp,
-        max : maxComp
+        max : maxComp,
+        count : colorsLength
     };
 }
 
@@ -927,7 +909,8 @@ function getPerPointBatchTableProperties(pointsLength, noiseValues) {
             componentType : 'FLOAT',
             type: 'SCALAR',
             min: minTempComp,
-            max: maxTempComp
+            max: maxTempComp,
+            count : pointsLength
         },
         {
             buffer : secondaryColorBuffer,
@@ -935,7 +918,8 @@ function getPerPointBatchTableProperties(pointsLength, noiseValues) {
             componentType : 'FLOAT',
             type : 'VEC3',
             min: minSecondaryColorComp,
-            max: maxSecondaryColorComp
+            max: maxSecondaryColorComp,
+            count : pointsLength
         },
         {
             buffer : idBuffer,
@@ -943,7 +927,8 @@ function getPerPointBatchTableProperties(pointsLength, noiseValues) {
             componentType : 'UNSIGNED_SHORT',
             type : 'SCALAR',
             min: minIdComp,
-            max: maxIdComp
+            max: maxIdComp,
+            count : pointsLength
         }
     ];
 }
