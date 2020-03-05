@@ -7,6 +7,8 @@ var gltfPipeline = require('gltf-pipeline');
 var path = require('path');
 var Promise = require('bluebird');
 var DataUri = require('datauri');
+var gltfToGlb = gltfPipeline.gltfToGlb;
+var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
 
 var createBatchTableHierarchy = require('../lib/createBatchTableHierarchy');
 var createBuildingsTile = require('../lib/createBuildingsTile');
@@ -1062,8 +1064,6 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
 
 function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     var tilesetDirectory = path.join(outputDirectory, 'PointCloud', tilesetName);
-    var contentUri = lowercase(tilesetName) + '.pnts';
-    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tileOptions = defaultValue(tileOptions, {});
@@ -1071,8 +1071,24 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions.transform = defaultValue(tileOptions.transform, pointCloudTransform);
     tileOptions.pointsLength = pointsLength;
 
+    var ext = '';
+    if (argv['3d-tiles-next'] && !argv.glb) {
+        ext = '.gltf';
+    }
+
+    else if (argv['3d-tiles-next'] && argv.glb) {
+        ext = '.glb';
+    }
+
+    else {
+        ext = '.pnts';
+    }
+
+    var contentUri = lowercase(tilesetName) + ext;
+    var tilePath = path.join(tilesetDirectory, contentUri);
+
+    tileOptions.use3dTilesNext = argv['3d-tiles-next'];
     var result = createPointCloudTile(tileOptions);
-    var pnts = result.pnts;
     var batchTableJson = result.batchTableJson;
     var extensions = result.extensions;
 
@@ -1086,9 +1102,25 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     }
 
     var tilesetJson = createTilesetJsonSingle(tilesetOptions);
+    if (argv['3d-tiles-next'] && !argv.glb) {
+        return Promise.all([
+            saveJson(tilePath, result.gltf, prettyJson, gzip),
+            saveJson(tilesetPath, tilesetJson, prettyJson)
+        ]);
+    }
+
+    if (argv['3d-tiles-next'] && argv.glb) {
+        return Promise.all([
+            gltfToGlb(result.gltf, gltfConversionOptions).then(function(result) {
+                return saveBinary(tilePath, result.glb, gzip);
+            }),
+            saveJson(tilesetPath, tilesetJson, prettyJson)
+        ]);
+    }
+
     return Promise.all([
         saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
-        saveBinary(tilePath, pnts, gzip)
+        saveBinary(tilePath, result.pnts, gzip)
     ]);
 }
 

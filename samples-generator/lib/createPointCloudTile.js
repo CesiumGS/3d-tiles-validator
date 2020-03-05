@@ -525,7 +525,7 @@ function getPoints(use3dTilesNext, pointsLength, radius, colorModeFunction, colo
     }
 
     var positionAttribute = (quantizePositions) ? getPositionsQuantized(positions, radius) : getPositions(positions);
-    var normalAttribute = (octEncodeNormals) ? getNormalsOctEncoded(normals) : getNormals(normals);
+    var normalAttribute = (octEncodeNormals) ? getNormalsOctEncoded(normals, use3dTilesNext) : getNormals(normals);
     var batchIdAttribute = getBatchIds(batchIds, use3dTilesNext);
     var colorAttribute = defined(colorModeFunction) ? colorModeFunction(colors, use3dTilesNext) : undefined;
 
@@ -641,9 +641,12 @@ function getNormals(normals) {
 
 var scratchEncoded = new Cartesian2();
 
-function getNormalsOctEncoded(normals) {
+function getNormalsOctEncoded(normals, use3dTilesNext) {
     var pointsLength = normals.length;
-    var buffer = Buffer.alloc(pointsLength * 2 * sizeOfUint8);
+    var elementSize = use3dTilesNext ? sizeOfUint16 : sizeOfUint8;
+
+    var multiple = use3dTilesNext ? 4 : 2;
+    var buffer = Buffer.alloc(pointsLength * 2 * elementSize);
 
     var components = 2;
     var minComp = new Array(components).fill(Number.POSITIVE_INFINITY);
@@ -651,13 +654,14 @@ function getNormalsOctEncoded(normals) {
 
     for (var i = 0; i < pointsLength; ++i) {
         var encodedNormal = AttributeCompression.octEncode(normals[i], scratchEncoded);
-        buffer.writeUInt8(encodedNormal.x, i * 2);
-        buffer.writeUInt8(encodedNormal.y, i * 2 + 1);
+        buffer.writeUIntLE(encodedNormal.x, i * multiple, elementSize);
+        buffer.writeUIntLE(encodedNormal.y, i * multiple + 1, elementSize);
         minComp[0] = Math.min(minComp[0], encodedNormal.x);
         minComp[1] = Math.min(minComp[1], encodedNormal.y);
         maxComp[0] = Math.max(maxComp[0], encodedNormal.x);
         maxComp[1] = Math.max(maxComp[1], encodedNormal.y);
     }
+
     return {
         buffer : buffer,
         propertyName : 'NORMAL_OCT16P',
@@ -729,22 +733,39 @@ function getBatchIds(batchIds, use3dTilesNext) {
     };
 }
 
+/**
+ *
+ * @param {Array<Object>} colors List of colors to use
+ * @param {Boolean} use3dTilesNext Forces RGBA mode due to byte alignment
+ *                                 requirements in glTF.
+ */
 function getColorsRGB(colors, use3dTilesNext) {
     var colorsLength = colors.length;
-    var buffer = Buffer.alloc(colorsLength * 3);
+    var multiple = use3dTilesNext ? 4 : 3;
+    var buffer = Buffer.alloc(colorsLength * multiple);
 
-    var components = 3;
-    var minComp = new Array(components).fill(Number.POSITIVE_INFINITY);
-    var maxComp = new Array(components).fill(Number.NEGATIVE_INFINITY);
+    var minComp = new Array(multiple).fill(Number.POSITIVE_INFINITY);
+    var maxComp = new Array(multiple).fill(Number.NEGATIVE_INFINITY);
+
+    // avoid performing min max calculation on padding
+    if (use3dTilesNext) {
+        minComp[3] = 0;
+        maxComp[3] = 0;
+    }
 
     for (var i = 0; i < colorsLength; ++i) {
         var color = colors[i];
         var r = Math.floor(color.red * 255);
         var g = Math.floor(color.green * 255);
         var b = Math.floor(color.blue * 255);
-        buffer.writeUInt8(r, i * 3);
-        buffer.writeUInt8(g, i * 3 + 1);
-        buffer.writeUInt8(b, i * 3 + 2);
+
+        buffer.writeUInt8(r, i * multiple);
+        buffer.writeUInt8(g, i * multiple + 1);
+        buffer.writeUInt8(b, i * multiple + 2);
+
+        if (use3dTilesNext) {
+            buffer.writeUInt8(0, i * multiple + 3);
+        }
 
         minComp[0] = Math.min(minComp[0], r);
         minComp[1] = Math.min(minComp[1], g);
@@ -752,12 +773,13 @@ function getColorsRGB(colors, use3dTilesNext) {
         maxComp[0] = Math.max(maxComp[0], r);
         maxComp[1] = Math.max(maxComp[1], g);
         maxComp[2] = Math.max(maxComp[2], b);
+
     }
     return {
         buffer : buffer,
         propertyName : use3dTilesNext ? '_RGB' : 'RGB',
         componentType : 'UNSIGNED_BYTE',
-        type : 'VEC3',
+        type : 'VEC4',
         min : minComp,
         max : maxComp,
         count : colorsLength
@@ -786,7 +808,7 @@ function getColorsRGBA(colors, use3dTilesNext) {
         minComp[0] = Math.min(minComp[0], r);
         minComp[1] = Math.min(minComp[1], g);
         minComp[2] = Math.min(minComp[2], b);
-        minComp[2] = Math.min(minComp[3], a);
+        minComp[3] = Math.min(minComp[3], a);
         maxComp[0] = Math.max(maxComp[0], r);
         maxComp[1] = Math.max(maxComp[1], g);
         maxComp[2] = Math.max(maxComp[2], b);
