@@ -914,7 +914,7 @@ function getPerPointBatchTableProperties(pointsLength, noiseValues) {
 
         minTempComp[0] = Math.min(minTempComp[0], temperature);
         maxTempComp[0] = Math.max(maxTempComp[0], temperature);
-        minIdComp[0] = Math.min(minIdComp[0], i); // TODO: This can be simplfied
+        minIdComp[0] = Math.min(minIdComp[0], i);
         maxIdComp[0] = Math.max(maxIdComp[0], i);
         minSecondaryColorComp[0] = Math.min(minSecondaryColorComp[0], secondaryColor[0]);
         minSecondaryColorComp[1] = Math.min(minSecondaryColorComp[1], secondaryColor[1]);
