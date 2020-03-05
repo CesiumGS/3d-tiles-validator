@@ -694,12 +694,18 @@ function createPointCloudDracoBatched() {
 }
 
 function createPointCloudTimeDynamic() {
-    return savePointCloudTimeDynamic('PointCloudTimeDynamic');
+    var options = {
+        useGlb : argv['glb'],
+        use3dTilesNext : argv['3d-tiles-next']
+    };
+    return savePointCloudTimeDynamic('PointCloudTimeDynamic', options);
 }
 
 function createPointCloudTimeDynamicWithTransforms() {
     var options = {
-        transform : true
+        transform : true,
+        useGlb : argv['glb'],
+        use3dTilesNext : argv['3d-tiles-next']
     };
     return savePointCloudTimeDynamic('PointCloudTimeDynamicWithTransform', options);
 }
@@ -710,7 +716,9 @@ function createPointCloudTimeDynamicDraco() {
     }
 
     var options = {
-        draco : true
+        draco : true,
+        useGlb : argv['glb'],
+        use3dTilesNext : argv['3d-tiles-next']
     };
     return savePointCloudTimeDynamic('PointCloudTimeDynamicDraco', options);
 }
@@ -1128,6 +1136,8 @@ function savePointCloudTimeDynamic(name, options) {
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
     var useTransform = defaultValue(options.transform, false);
     var directory = path.join(outputDirectory, 'PointCloud', name);
+    var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
+    var useGlb = defaultValue(options.useGlb, false);
 
     var transform = pointCloudTransform;
     var relativeToCenter = true;
@@ -1145,16 +1155,48 @@ function savePointCloudTimeDynamic(name, options) {
         relativeToCenter: relativeToCenter,
         color: 'noise',
         shape: 'box',
-        draco: options.draco
+        draco: options.draco,
+        use3dTilesNext: use3dTilesNext,
+        useGlb: useGlb
+    };
+
+    var ext;
+    if (use3dTilesNext && !useGlb) {
+        ext = '.gltf';
+    }
+
+    else if (useGlb) {
+        ext = '.glb';
+    }
+
+    else {
+        ext = '.pnts';
+    }
+
+    var tilePath;
+    var deferredIndex = 0; // TODO: Ugly, not sure how to handle this
+                           //       If we declare tilePath in the for loop,
+                           //       tilePath will always be 4.ext.
+
+    var saveTheBinary = function(result) {
+        tilePath = path.join(directory, deferredIndex++ + ext);
+        return saveBinary(tilePath, result.glb, gzip);
     };
 
     var tilePromises = [];
+
     for (var i = 0; i < 5; ++i) {
         var tileOptions = clone(pointCloudOptions);
         tileOptions.time = i * 0.1; // Seed for noise
-        var pnts = createPointCloudTile(tileOptions).pnts;
-        var tilePath = path.join(directory, i + '.pnts');
-        tilePromises.push(saveBinary(tilePath, pnts, gzip));
+        var result = createPointCloudTile(tileOptions);
+        tilePath = path.join(directory, i + ext);
+        if (use3dTilesNext && !useGlb) {
+            tilePromises.push(saveJson(tilePath, result.gltf, prettyJson, gzip));
+        } else if (useGlb) {
+            tilePromises.push(gltfToGlb(result.gltf, gltfConversionOptions).then(saveTheBinary));
+        } else {
+            tilePromises.push(saveBinary(tilePath, result.pnts, gzip));
+        }
     }
 
     return Promise.all(tilePromises);
