@@ -39,34 +39,34 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
  * @returns {Object} a buffer views array
  */
 
- function createBufferViewsFromAttributeBuffers(attributeBuffers, indexBuffer) {
-     var i = 0;
-     var result = [];
-     var byteOffset = 0;
+function createBufferViewsFromAttributeBuffers(attributeBuffers, indexBuffer) {
+    var i = 0;
+    var result = [];
+    var byteOffset = 0;
 
-     for (i = 0; i < attributeBuffers.length; ++i) {
-         result.push({
-             buffer: 0,
-             byteLength: attributeBuffers[i].buffer.byteLength,
-             byteOffset: byteOffset,
-             target: attributeBuffers[i].target
-         });
+    for (i = 0; i < attributeBuffers.length; ++i) {
+        result.push({
+            buffer: 0,
+            byteLength: attributeBuffers[i].buffer.byteLength,
+            byteOffset: byteOffset,
+            target: attributeBuffers[i].target
+        });
 
-         // All attribute data is tightly packed
-         byteOffset += attributeBuffers[i].buffer.byteLength;
-     }
+        // All attribute data is tightly packed
+        byteOffset += attributeBuffers[i].buffer.byteLength;
+    }
 
-     if (defined(indexBuffer)) {
-         result.push({
-             buffer: 0,
-             byteLength: indexBuffer.buffer.byteLength,
-             byteOffset: byteOffset,
-             target: indexBuffer.target
-         });
-     }
+    if (defined(indexBuffer)) {
+        result.push({
+            buffer: 0,
+            byteLength: indexBuffer.buffer.byteLength,
+            byteOffset: byteOffset,
+            target: indexBuffer.target
+        });
+    }
 
-     return result;
- }
+    return result;
+}
 
 /**
  * Create a meshes singleton using bufferAttributes
@@ -75,27 +75,27 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
  * @returns {Array.Object} A GLTF meshes array
  */
 
- function createMeshFromAttributeBuffers(attributeBuffers, indexBuffer) {
-     // the index of the attribute in the inputted bufferAttributes array directly
-     // corresponds to the accessor ID
-     var primitives = {
-         attributes: {},
-         mode: 0
-     };
+function createMeshFromAttributeBuffers(attributeBuffers, indexBuffer) {
+    // the index of the attribute in the inputted bufferAttributes array directly
+    // corresponds to the accessor ID
+    var primitives = {
+        attributes: {},
+        mode: 0
+    };
 
-     var i = 0;
-     for (; i < attributeBuffers.length; ++i) {
-         primitives.attributes[attributeBuffers[i].propertyName] = i;
-     }
+    var i = 0;
+    for (; i < attributeBuffers.length; ++i) {
+        primitives.attributes[attributeBuffers[i].propertyName] = i;
+    }
 
-     if (defined(indexBuffer)) {
-         primitives.indices = i;
-     }
+    if (defined(indexBuffer)) {
+        primitives.indices = i;
+    }
 
-     return [{
-         primitives: [primitives],
-    }];
- }
+    return [{
+        primitives: [primitives],
+   }];
+}
 
 /**
  * Creates accessors from attributeBuffers
