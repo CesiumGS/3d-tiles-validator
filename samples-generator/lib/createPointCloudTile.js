@@ -5,6 +5,7 @@ var SimplexNoise = require('simplex-noise');
 var createPnts = require('./createPnts');
 var Extensions = require('./Extensions');
 var createGltfFromPnts = require('./createGltfFromPnts');
+var typeConversion = require('./typeConversion');
 
 var AttributeCompression = Cesium.AttributeCompression;
 var Cartesian2 = Cesium.Cartesian2;
@@ -272,19 +273,6 @@ function getAddAttributeFunctionName(componentDatatype) {
     }
 }
 
-function numberOfComponentsForType(type) {
-    switch (type) {
-        case 'SCALAR':
-            return 1;
-        case 'VEC2':
-            return 2;
-        case 'VEC3':
-            return 3;
-        case 'VEC4':
-            return 4;
-    }
-}
-
 function getDracoType(name) {
     switch (name) {
         case 'POSITION':
@@ -312,7 +300,7 @@ function dracoEncodeProperties(pointsLength, properties, preserveOrder) {
         var property = properties[i];
         var componentDatatype = ComponentDatatype[property.componentType];
         var typedArray = ComponentDatatype.createArrayBufferView(componentDatatype, property.buffer.buffer);
-        var numberOfComponents = numberOfComponentsForType(property.type);
+        var numberOfComponents = typeConversion.elementTypeToCount(property.type);
         var addAttributeFunctionName = getAddAttributeFunctionName(componentDatatype);
         var name = property.propertyName;
         var dracoType = getDracoType(name);
