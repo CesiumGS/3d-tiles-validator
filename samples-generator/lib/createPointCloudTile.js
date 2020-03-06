@@ -233,9 +233,18 @@ function createPointCloudTile(options) {
 
     var gltf;
     if (options.use3dTilesNext) {
-        var bufferAttributes = [positions, normals, batchIds];
+        var bufferAttributes = [positions];
+
+        if (generateNormals) {
+            bufferAttributes.push(normals);
+        }
+
         if (defined(colors)) {
             bufferAttributes.push(colors);
+        }
+
+        if (batched) {
+            bufferAttributes.push(batchIds);
         }
 
         gltf = createGltfFromPnts(bufferAttributes);
