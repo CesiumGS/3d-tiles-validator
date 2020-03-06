@@ -1096,7 +1096,7 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     if (argv['3d-tiles-next'] && !argv.glb) {
         return Promise.all([
             saveJson(tilePath, result.gltf, prettyJson, gzip),
-            saveJson(tilesetPath, tilesetJson, prettyJson)
+            saveJson(tilesetPath, tilesetJson, prettyJson, gzip)
         ]);
     }
 
@@ -1105,7 +1105,7 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
             gltfToGlb(result.gltf, gltfConversionOptions).then(function(result) {
                 return saveBinary(tilePath, result.glb, gzip);
             }),
-            saveJson(tilesetPath, tilesetJson, prettyJson)
+            saveJson(tilesetPath, tilesetJson, prettyJson, gzip)
         ]);
     }
 
