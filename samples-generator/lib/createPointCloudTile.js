@@ -234,6 +234,8 @@ function createPointCloudTile(options) {
     }
 
     var gltf;
+    var pnts;
+
     if (options.use3dTilesNext) {
         var bufferAttributes = [positions];
 
@@ -253,10 +255,7 @@ function createPointCloudTile(options) {
         if (defined(batchTableJson) && Object.keys(batchTableJson).length > 0) {
             gltf = createBatchTableExtension(gltf, batchTableJson, batchTableBinary);
         }
-    }
-
-    var pnts;
-    if (defined(pnts)) {
+    } else {
         pnts = createPnts({
             featureTableJson : featureTableJson,
             featureTableBinary : featureTableBinary,
