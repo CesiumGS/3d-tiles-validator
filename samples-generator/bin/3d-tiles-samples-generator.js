@@ -9,6 +9,7 @@ var Promise = require('bluebird');
 var DataUri = require('datauri');
 var gltfToGlb = gltfPipeline.gltfToGlb;
 var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
+var calculateFilenameExt = require ('../lib/calculateFilenameExt');
 
 var createBatchTableHierarchy = require('../lib/createBatchTableHierarchy');
 var createBuildingsTile = require('../lib/createBuildingsTile');
@@ -1001,14 +1002,9 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions.relativeToCenter = defaultValue(tileOptions.relativeToCenter, true);
     tilesetOptions = defaultValue(tilesetOptions, {});
 
-    var ext = '';
-    if (argv['3d-tiles-next']) {
-        tileOptions.use3dTilesNext = true;
-        tileOptions.useGlb = argv.glb;
-        ext = (argv.glb) ? '.glb' : '.gltf';
-    } else {
-        ext = '.b3dm';
-    }
+    var ext = calculateFilenameExt(argv['3d-tiles-next'], argv.glb, '.b3dm');
+    tileOptions.use3dTilesNext = true;
+    tileOptions.useGlb = argv.glb;
 
     var contentUri = lowercase(tilesetName) + ext;
     tilesetOptions.contentUri = contentUri;
@@ -1077,18 +1073,7 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions.transform = defaultValue(tileOptions.transform, pointCloudTransform);
     tileOptions.pointsLength = pointsLength;
 
-    var ext = '';
-    if (argv['3d-tiles-next'] && !argv.glb) {
-        ext = '.gltf';
-    }
-
-    else if (argv['3d-tiles-next'] && argv.glb) {
-        ext = '.glb';
-    }
-
-    else {
-        ext = '.pnts';
-    }
+    var ext = calculateFilenameExt(argv['3d-tiles-next'], argv.glb, '.pnts');
 
     var contentUri = lowercase(tilesetName) + ext;
     var tilePath = path.join(tilesetDirectory, contentUri);
@@ -1158,19 +1143,7 @@ function savePointCloudTimeDynamic(name, options) {
         useGlb: useGlb
     };
 
-    var ext;
-    if (use3dTilesNext && !useGlb) {
-        ext = '.gltf';
-    }
-
-    else if (useGlb) {
-        ext = '.glb';
-    }
-
-    else {
-        ext = '.pnts';
-    }
-
+    var ext = calculateFilenameExt(use3dTilesNext, useGlb, '.pnts');
     var tilePath;
     var deferredIndex = 0; // TODO: Ugly, not sure how to handle this
                            //       If we declare tilePath in the for loop,
