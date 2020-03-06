@@ -1072,13 +1072,13 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions.tileWidth = pointCloudTileWidth;
     tileOptions.transform = defaultValue(tileOptions.transform, pointCloudTransform);
     tileOptions.pointsLength = pointsLength;
+    tileOptions.use3dTilesNext = argv['3d-tiles-next'];
 
     var ext = calculateFilenameExt(argv['3d-tiles-next'], argv.glb, '.pnts');
 
     var contentUri = lowercase(tilesetName) + ext;
     var tilePath = path.join(tilesetDirectory, contentUri);
 
-    tileOptions.use3dTilesNext = argv['3d-tiles-next'];
     var result = createPointCloudTile(tileOptions);
     var batchTableJson = result.batchTableJson;
     var extensions = result.extensions;
