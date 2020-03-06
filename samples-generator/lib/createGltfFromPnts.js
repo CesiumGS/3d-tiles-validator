@@ -72,7 +72,7 @@ function createBufferViewsFromAttributeBuffers(attributeBuffers, indexBuffer) {
  * Create a meshes singleton using bufferAttributes
  * @param {Array.<attributeBufferType>} attributeBuffers A list of buffer attributes to convert to GLTF
  * @param {attributeBufferType} [indexBuffer] An optional indexBuffer.
- * @returns {Array.Object} A GLTF meshes array
+ * @returns {Array.<Object>} A GLTF meshes array
  */
 
 function createMeshFromAttributeBuffers(attributeBuffers, indexBuffer) {
