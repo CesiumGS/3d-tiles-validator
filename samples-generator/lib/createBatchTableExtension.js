@@ -1,8 +1,9 @@
 'use strict';
 var Cesium = require('cesium');
 var defined = Cesium.defined;
-var Extensions = require ('./Extensions');
+var Extensions = require('./Extensions');
 var batchTableExtensionName = 'CESIUM_3dtiles_batch_table';
+var typeConversion = require('./typeConversion');
 
 function sortByByteOffset(a, b) {
     if (a.byteOffset < b.byteOffset ){
@@ -112,6 +113,10 @@ function createBatchTableExtension(gltf, batchTableAttributes, sharedBinaryBuffe
         for (i = 0; i < binaryReadable.length; ++i, ++accessorBufferViewIndex) {
             var batchAttribute = binaryReadable[i];
 
+            var componentType = batchAttribute.componentType;
+            var validComponentType = typeConversion.isValidWebGLDataTypeEnum(componentType);
+            var normalizedComponentType = validComponentType ? componentType : typeConversion.componentTypeStringToInteger(componentType);
+
             gltf.bufferViews.push({
                 buffer : newBufferIndex,
                 byteLength : batchAttribute.byteLength,
@@ -122,7 +127,7 @@ function createBatchTableExtension(gltf, batchTableAttributes, sharedBinaryBuffe
             gltf.accessors.push({
                 bufferView : accessorBufferViewIndex,
                 byteOffset : 0,
-                componentType : batchAttribute.componentType,
+                componentType : normalizedComponentType,
                 type : batchAttribute.type,
                 count : batchAttribute.count,
             });

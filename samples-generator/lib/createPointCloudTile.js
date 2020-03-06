@@ -6,6 +6,7 @@ var createPnts = require('./createPnts');
 var Extensions = require('./Extensions');
 var createGltfFromPnts = require('./createGltfFromPnts');
 var typeConversion = require('./typeConversion');
+var createBatchTableExtension = require('./createBatchTableExtension');
 
 var AttributeCompression = Cesium.AttributeCompression;
 var Cartesian2 = Cesium.Cartesian2;
@@ -234,6 +235,9 @@ function createPointCloudTile(options) {
         }
 
         gltf = createGltfFromPnts(bufferAttributes);
+        if (defined(batchTableJson) && Object.keys(batchTableJson).length > 0) {
+            gltf = createBatchTableExtension(gltf, batchTableJson, batchTableBinary);
+        }
     }
 
     var pnts;
@@ -850,24 +854,50 @@ function getBatchTableForBatchedPoints(batchLength) {
     var batchTableJson = {
         name : names,
         dimensions : {
+            name: 'dimensions',
+            count: batchLength,
             byteOffset : 0,
+            byteLength: dimensionsBuffer.length,
             componentType : 'FLOAT',
             type : 'VEC3'
         },
         id : {
+            name: 'id',
+            count: batchLength,
             byteOffset : dimensionsBuffer.length,
+            byteLength: idBuffer.length,
             componentType : 'UNSIGNED_INT',
             type : 'SCALAR'
         }
     };
 
+    var minDimension = new Array(3).fill(Number.POSITIVE_INFINITY);
+    var maxDimension = new Array(3).fill(Number.NEGATIVE_INFINITY);
+    var minId = [0];
+    var maxId = [batchLength - 1];
+
     for (var i = 0; i < batchLength; ++i) {
         names[i] = 'section' + i;
-        dimensionsBuffer.writeFloatLE(CesiumMath.nextRandomNumber(), (i * 3) * sizeOfFloat32);
-        dimensionsBuffer.writeFloatLE(CesiumMath.nextRandomNumber(), (i * 3 + 1) * sizeOfFloat32);
-        dimensionsBuffer.writeFloatLE(CesiumMath.nextRandomNumber(), (i * 3 + 2) * sizeOfFloat32);
+        var r1 = CesiumMath.nextRandomNumber();
+        var r2 = CesiumMath.nextRandomNumber();
+        var r3 = CesiumMath.nextRandomNumber();
+        dimensionsBuffer.writeFloatLE(r1, (i * 3) * sizeOfFloat32);
+        dimensionsBuffer.writeFloatLE(r2, (i * 3 + 1) * sizeOfFloat32);
+        dimensionsBuffer.writeFloatLE(r3, (i * 3 + 2) * sizeOfFloat32);
+        maxDimension[0] = Math.max(maxDimension[0], r1);
+        maxDimension[1] = Math.max(maxDimension[1], r2);
+        maxDimension[2] = Math.max(maxDimension[2], r3);
+        minDimension[0] = Math.min(minDimension[0], r1);
+        minDimension[1] = Math.min(minDimension[1], r2);
+        minDimension[2] = Math.min(minDimension[2], r3);
         idBuffer.writeUInt32LE(i, i * sizeOfUint32);
     }
+
+    batchTableJson.dimensions.min = minDimension;
+    batchTableJson.dimensions.max = maxDimension;
+    batchTableJson.id.min = minId;
+    batchTableJson.id.max = maxId;
+
 
     // No need for padding with these sample properties
     var batchTableBinary = Buffer.concat([dimensionsBuffer, idBuffer]);
