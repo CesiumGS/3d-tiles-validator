@@ -1146,18 +1146,17 @@ function savePointCloudTimeDynamic(name, options) {
 
     var ext = calculateFilenameExt(use3dTilesNext, useGlb, '.pnts');
     var tilePath;
-    var deferredIndex = 0; // TODO: Ugly, not sure how to handle this
-                           //       If we declare tilePath in the for loop,
-                           //       tilePath will always be 4.ext.
 
-    var saveTheBinary = function(result) {
-        tilePath = path.join(directory, deferredIndex++ + ext);
-        return saveBinary(tilePath, result.glb, gzip);
-    };
+    var i = 0;
+    function getSaveBinaryFunction() {
+        return function(result) {
+            return saveBinary(tilePath, result.glb, gzip);
+        };
+    }
 
     var tilePromises = [];
 
-    for (var i = 0; i < 5; ++i) {
+    for (; i < 5; ++i) {
         var tileOptions = clone(pointCloudOptions);
         tileOptions.time = i * 0.1; // Seed for noise
         var result = createPointCloudTile(tileOptions);
@@ -1165,7 +1164,7 @@ function savePointCloudTimeDynamic(name, options) {
         if (use3dTilesNext && !useGlb) {
             tilePromises.push(saveJson(tilePath, result.gltf, prettyJson, gzip));
         } else if (useGlb) {
-            tilePromises.push(gltfToGlb(result.gltf, gltfConversionOptions).then(saveTheBinary));
+            tilePromises.push(gltfToGlb(result.gltf, gltfConversionOptions).then(getSaveBinaryFunction(tilePath)));
         } else {
             tilePromises.push(saveBinary(tilePath, result.pnts, gzip));
         }
