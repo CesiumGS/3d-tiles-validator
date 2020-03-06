@@ -35,7 +35,7 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
  * into a GLTF
  *
  * @param {Array.<attributeBufferType>} attributeBuffers A list of buffer attributes to convert to GLTF
- * @param {attributeBufferType=} indexBuffer An optional indexBuffer.
+ * @param {attributeBufferType} [indexBuffer] An optional indexBuffer.
  * @returns {Object} a buffer views array
  */
 
@@ -71,7 +71,7 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
 /**
  * Create a meshes singleton using bufferAttributes
  * @param {Array.<attributeBufferType>} attributeBuffers A list of buffer attributes to convert to GLTF
- * @param {attributeBufferType=} indexBuffer An optional indexBuffer.
+ * @param {attributeBufferType} [indexBuffer] An optional indexBuffer.
  * @returns {Array.Object} A GLTF meshes array
  */
 
@@ -100,7 +100,7 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
 /**
  * Creates accessors from attributeBuffers
  * @param {Array.<attributeBufferType>} bufferAttributes A list of buffer attributes to convert to GLTF
- * @param {attributeBufferType=} indexBuffer An optional indexBuffer.
+ * @param {attributeBufferType} [indexBuffer] An optional indexBuffer.
  * @returns {Object} a buffer views array
  */
 
@@ -150,7 +150,7 @@ function createAccessorsFromAttributeBuffers(attributeBuffers, indexBuffer) {
  *
  * @param {Array.<attributeBufferType>} attributeBuffers An object where each key is the name of a bufferAttribute,
  *                                                       and each value is another js object with the following keys:
- * @param {attributeBufferType=} indexBuffer An optional indexBuffer.
+ * @param {attributeBufferType} [indexBuffer] An optional indexBuffer.
  *
  * @returns {Object} a GLTF object
  */
