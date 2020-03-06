@@ -206,7 +206,9 @@ function createPointCloudTile(options) {
             byteLength : property.buffer.length,
             byteOffset : byteOffset,
             componentType : componentType,
-            type : property.type
+            type : property.type,
+            min : property.min,
+            max : property.max
         };
     }
 

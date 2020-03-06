@@ -160,6 +160,8 @@ function createBatchTableExtension(gltf, batchTableAttributes, sharedBinaryBuffe
                 componentType : normalizedComponentType,
                 type : batchAttribute.type,
                 count : batchAttribute.count,
+                min : batchAttribute.min,
+                max : batchAttribute.max
             });
 
             activeBatchTable.properties[batchAttribute.name] = {accessor: accessorBufferViewIndex};
