@@ -116,9 +116,6 @@ function createAccessorsFromAttributeBuffers(attributeBuffers, indexBuffer) {
         componentType = attributeBuffers[i].componentType;
         validComponentType = typeConversion.isValidWebGLDataTypeEnum(componentType);
         normalizedComponentType = validComponentType ? componentType : typeConversion.componentTypeStringToInteger(componentType);
-        if (typeof attributeBuffers[i].count === 'undefined') {
-          console.assert('oh no');
-        }
 
         accessors.push({
             bufferView: i,
