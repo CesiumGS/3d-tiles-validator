@@ -9,26 +9,39 @@ describe('createBatchTableExtension', function() {
     var triangleGLTF = minimalTriangleGLTF;
     var sharedBuffer = Buffer.from('abcdefghijklmnopqrstuvwxyz');
     var batchTableAttributes = {
-        aToLInclusive: {
-            name: 'aToLInclusive',
+        aToMInclusive: {
+            name: 'aToMInclusive',
             byteOffset: 0,
-            byteLength: 12,
-            count: 12,
+            byteLength: 13,
+            count: 13,
             componentType: 0x1401,
             type: 'SCALAR'
         },
 
-        mToZInclusive: {
-            name: 'mToZInclusive',
+        nToZInclusive: {
+            name: 'nToZInclusive',
             byteOffset: 12,
-            byteLength: 14,
-            count: 14,
+            byteLength: 13,
+            count: 13,
             componentType: 0x1401,
             type: 'SCALAR'
         },
 
-        cornerName: ['A', 'B', 'C'],
-        cornerAstroSign: ['Virgo', 'Scorpio', 'Gemini']
+        cornerName: [
+            'alfa', 'bravo', 'charlie',
+            'delta', 'echo', 'foxtrot',
+            'golf', 'hotel', 'india',
+            'juliett', 'kilo', 'lima',
+            'mike'
+        ],
+
+        cornerColor: [
+            'red', 'blue', 'green', 
+            'indgio', 'cyan', 'yellow',
+            'periwinkle', 'grey', 'brown',
+            'purple', 'magenta', 'lime',
+            'orange'
+        ]
     };
 
     var oldAccessorLength = Object.keys(triangleGLTF.accessors).length;
@@ -54,14 +67,14 @@ describe('createBatchTableExtension', function() {
         var properties =  gltfWithExt.extensions.CESIUM_3dtiles_batch_table.batchTables[0].properties;
         // human readable values are embedded directly
         expect(properties.cornerName.values).toEqual(batchTableAttributes.cornerName);
-        expect(properties.cornerAstroSign.values).toEqual(batchTableAttributes.cornerAstroSign);
+        expect(properties.cornerColor.values).toEqual(batchTableAttributes.cornerColor);
 
         // binary values should only have an accessor key
         // accessor ids are sorted by byteOffset, so aToL should be first
-        expect(Object.keys(properties.aToLInclusive).length).toEqual(1);
-        expect(Object.keys(properties.mToZInclusive).length).toEqual(1);
-        expect(properties.aToLInclusive.accessor).toEqual(oldAccessorLength);
-        expect(properties.mToZInclusive.accessor).toEqual(oldAccessorLength + 1);
+        expect(Object.keys(properties.aToMInclusive).length).toEqual(1);
+        expect(Object.keys(properties.nToZInclusive).length).toEqual(1);
+        expect(properties.aToMInclusive.accessor).toEqual(oldAccessorLength);
+        expect(properties.nToZInclusive.accessor).toEqual(oldAccessorLength + 1);
     });
 
     it('buffers / accessors / bufferviews are updated with binary data', function() {
@@ -81,31 +94,31 @@ describe('createBatchTableExtension', function() {
         var lastAccessor = gltfWithExt.accessors[oldAccessorLength + 1];
         expect(secondToLastAccessor.bufferView).toBe(oldAccessorLength);
         expect(secondToLastAccessor.byteOffset).toBe(0);
-        expect(secondToLastAccessor.componentType).toBe(batchTableAttributes.aToLInclusive.componentType);
-        expect(secondToLastAccessor.type).toBe(batchTableAttributes.aToLInclusive.type);
-        expect(secondToLastAccessor.count).toBe(batchTableAttributes.aToLInclusive.count);
+        expect(secondToLastAccessor.componentType).toBe(batchTableAttributes.aToMInclusive.componentType);
+        expect(secondToLastAccessor.type).toBe(batchTableAttributes.aToMInclusive.type);
+        expect(secondToLastAccessor.count).toBe(batchTableAttributes.aToMInclusive.count);
 
         expect(lastAccessor.bufferView).toBe(oldAccessorLength + 1);
         expect(lastAccessor.byteOffset).toBe(0);
-        expect(lastAccessor.componentType).toBe(batchTableAttributes.mToZInclusive.componentType);
-        expect(lastAccessor.type).toBe(batchTableAttributes.mToZInclusive.type);
-        expect(lastAccessor.count).toBe(batchTableAttributes.mToZInclusive.count);
+        expect(lastAccessor.componentType).toBe(batchTableAttributes.nToZInclusive.componentType);
+        expect(lastAccessor.type).toBe(batchTableAttributes.nToZInclusive.type);
+        expect(lastAccessor.count).toBe(batchTableAttributes.nToZInclusive.count);
 
         // verify those bufferviews are both referencing `buffer 1`
         var secondToLastBufferView = gltfWithExt.bufferViews[oldBufferViewLength];
         var lastBufferView = gltfWithExt.bufferViews[oldBufferViewLength + 1];
         expect(secondToLastBufferView.buffer).toBe(1);
-        expect(secondToLastBufferView.byteLength).toBe(batchTableAttributes.aToLInclusive.byteLength);
-        expect(secondToLastBufferView.byteOffset).toBe(batchTableAttributes.aToLInclusive.byteOffset);
+        expect(secondToLastBufferView.byteLength).toBe(batchTableAttributes.aToMInclusive.byteLength);
+        expect(secondToLastBufferView.byteOffset).toBe(batchTableAttributes.aToMInclusive.byteOffset);
         expect(lastBufferView.buffer).toBe(1);
-        expect(lastBufferView.byteLength).toBe(batchTableAttributes.mToZInclusive.byteLength);
-        expect(lastBufferView.byteOffset).toBe(batchTableAttributes.mToZInclusive.byteOffset);
+        expect(lastBufferView.byteLength).toBe(batchTableAttributes.nToZInclusive.byteLength);
+        expect(lastBufferView.byteOffset).toBe(batchTableAttributes.nToZInclusive.byteOffset);
 
         // verify that references to the binary accessors are in `extensions: {...}`
         var batchTableProperties = gltfWithExt.extensions.CESIUM_3dtiles_batch_table.batchTables[0].properties;
-        expect(batchTableAttributes.aToLInclusive.name in batchTableProperties).toBeTrue();
-        expect(batchTableAttributes.mToZInclusive.name in batchTableProperties).toBeTrue();
-        expect(batchTableProperties[batchTableAttributes.aToLInclusive.name].accessor).toBe(oldAccessorLength);
-        expect(batchTableProperties[batchTableAttributes.mToZInclusive.name].accessor).toBe(oldAccessorLength + 1);
+        expect(batchTableAttributes.aToMInclusive.name in batchTableProperties).toBeTrue();
+        expect(batchTableAttributes.nToZInclusive.name in batchTableProperties).toBeTrue();
+        expect(batchTableProperties[batchTableAttributes.aToMInclusive.name].accessor).toBe(oldAccessorLength);
+        expect(batchTableProperties[batchTableAttributes.nToZInclusive.name].accessor).toBe(oldAccessorLength + 1);
     });
 });
