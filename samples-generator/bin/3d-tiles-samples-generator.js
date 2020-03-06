@@ -717,8 +717,6 @@ function createPointCloudTimeDynamicDraco() {
 
     var options = {
         draco : true,
-        useGlb : argv['glb'],
-        use3dTilesNext : argv['3d-tiles-next']
     };
     return savePointCloudTimeDynamic('PointCloudTimeDynamicDraco', options);
 }
