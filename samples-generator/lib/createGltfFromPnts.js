@@ -24,8 +24,8 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
     }
 
     return [{
-        'uri': 'data:application/octet-stream;base64,' + Buffer.from(megaBuffer).toString('base64'),
-        'byteLength': megaBuffer.length
+        uri: 'data:application/octet-stream;base64,' + Buffer.from(megaBuffer).toString('base64'),
+        byteLength: megaBuffer.length
     }];
  }
 
@@ -80,7 +80,7 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
      // corresponds to the accessor ID
      var primitives = {
          attributes: {},
-         'mode': 0
+         mode: 0
      };
 
      var i = 0;
@@ -93,7 +93,7 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
      }
 
      return [{
-         'primitives': [primitives],
+         primitives: [primitives],
     }];
  }
 
@@ -167,7 +167,7 @@ function createGltfFromPnts(attributeBuffers, indexBuffer) {
     gltf.bufferViews = createBufferViewsFromAttributeBuffers(attributeBuffers, indexBuffer);
     gltf.meshes = createMeshFromAttributeBuffers(attributeBuffers, indexBuffer);
     gltf.accessors = createAccessorsFromAttributeBuffers(attributeBuffers, indexBuffer);
-    gltf.nodes = [{'mesh': 0}];
-    gltf.scenes = [{'nodes': [0]}];
+    gltf.nodes = [{mesh: 0}];
+    gltf.scenes = [{nodes: [0]}];
     return gltf;
 }
