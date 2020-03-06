@@ -1003,7 +1003,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     tilesetOptions = defaultValue(tilesetOptions, {});
 
     var ext = calculateFilenameExt(argv['3d-tiles-next'], argv.glb, '.b3dm');
-    tileOptions.use3dTilesNext = true;
+    tileOptions.use3dTilesNext = argv['3d-tiles-next'];
     tileOptions.useGlb = argv.glb;
 
     var contentUri = lowercase(tilesetName) + ext;
@@ -1018,10 +1018,11 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
 
     return createBuildingsTile(tileOptions)
         .then(function(result) {
+            var batchTableJson = result.batchTableJson;
+            tilesetOptions.properties = getProperties(batchTableJson);
+
             if (argv['3d-tiles-next']) {
                 tilesetOptions.versionNumber = '1.1';
-                var batchTableJson = result.batchTableJson;
-                tilesetOptions.properties = getProperties(batchTableJson);
 
                 if (argv.glb) {
                     // only save tileset.json if contentDataUri is present (the glb / gltf is embedded in the tileset.json)
