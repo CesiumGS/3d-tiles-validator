@@ -199,7 +199,11 @@ function createPointCloudTile(options) {
             padding = Buffer.alloc(byteOffset - batchTableBinary.length);
             batchTableBinary = Buffer.concat([batchTableBinary, padding, property.buffer]);
         }
+
         batchTableJson[name] = {
+            name : name,
+            count : property.count,
+            byteLength : property.buffer.length,
             byteOffset : byteOffset,
             componentType : componentType,
             type : property.type

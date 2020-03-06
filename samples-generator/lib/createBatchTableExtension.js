@@ -4,6 +4,7 @@ var defined = Cesium.defined;
 var Extensions = require('./Extensions');
 var batchTableExtensionName = 'CESIUM_3dtiles_batch_table';
 var typeConversion = require('./typeConversion');
+module.exports = createBatchTableExtension;
 
 function sortByByteOffset(a, b) {
     if (a.byteOffset < b.byteOffset ){
@@ -27,6 +28,23 @@ function assertHumanReadableBatchTableValueArraysHaveIdenticalLength(humanBatchT
         if (humanBatchTables[i].value.length !== firstLength) {
             var badBatchTable = humanBatchTables[i].name;
             var badLength = humanBatchTables[i].value.length;
+            throw new Error(badBatchTable + ' has incorrect length of: '  + badLength + ', should match the first length: ' + firstLength);
+        }
+    }
+
+    return firstLength;
+}
+
+function assertBinaryHasIdenticalCount(binaryBatchTables) {
+    if (binaryBatchTables.length === 0) {
+        return 0;
+    }
+
+    var firstLength = binaryBatchTables[0].count;
+    for (var i = 1; i < binaryBatchTables.length; ++i) {
+        if (binaryBatchTables[i].count !== firstLength) {
+            var badBatchTable = binaryBatchTables[i].name;
+            var badLength = binaryBatchTables[i].count;
             throw new Error(badBatchTable + ' has incorrect length of: '  + badLength + ', should match the first length: ' + firstLength);
         }
     }
@@ -90,7 +108,19 @@ function createBatchTableExtension(gltf, batchTableAttributes, sharedBinaryBuffe
         }
     }
 
-    activeBatchTable.batchLength = assertHumanReadableBatchTableValueArraysHaveIdenticalLength(humanReadable);
+    var humanBatchLength = assertHumanReadableBatchTableValueArraysHaveIdenticalLength(humanReadable);
+    var binaryBatchLength = assertBinaryHasIdenticalCount(binaryReadable);
+
+    if (humanBatchLength === 0 && binaryBatchLength === 0) {
+        throw new Error('Must have at least one binary or human readable batch table attribute');
+    }
+
+    if (humanBatchLength > 0 && binaryBatchLength > 0 && binaryBatchLength !== humanBatchLength) {
+        throw new Error('Count must be identical across all batch table properties (binary or human readable)');
+    }
+
+    activeBatchTable.batchLength = Math.max(humanBatchLength, binaryBatchLength);
+
     for (i = 0; i < humanReadable.length; ++i) {
         var attribute = humanReadable[i];
         activeBatchTable.properties[attribute.name] = {values: attribute.value};
@@ -138,5 +168,3 @@ function createBatchTableExtension(gltf, batchTableAttributes, sharedBinaryBuffe
 
     return gltf;
 }
-
-module.exports = createBatchTableExtension;
