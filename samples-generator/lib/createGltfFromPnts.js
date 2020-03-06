@@ -11,10 +11,9 @@ module.exports = createGltfFromPnts;
  @property {String} componentType BufferAttribute componentType (FLOAT, UNSIGNED_BYTE, DOUBLE)
  @property {String} propertyName BufferAttribute property name (POSITION, NORMAL, COLOR, WEIGHT)
  @property {String} type (SCALAR, VEC2, VEC3, VEC4)
- @property {String} target OpenGL / WebGL re:
+ @property {String} target OpenGL / WebGL re:  target  (e.g 0x8892, 0x8893)
  @property {Array.<Number>} min Minimum value for each component in the bufferAttribute
  @property {Array.<Number>} max Maximum value for each component in the bufferAttribute
- target  (e.g 0x8892, 0x8893)
  */
 
 
