@@ -54,21 +54,35 @@ function assertBinaryHasIdenticalCount(binaryBatchTables) {
 
 /**
  * @typedef humanReadableBatchTableValue
- * @type {Array} values An array of arbitrary values in human readable form (e.g ["A", "B", "C"] or [1.3, 4.3, 1.5])
+ * @type {Object}
+ * @property {Array} values An array of arbitrary values in human readable form (e.g ["A", "B", "C"] or [1.3, 4.3, 1.5])
  */
 
 /**
  * @typedef binaryReadableBatchTableValue
- * @type {String} name Name of the batchTableAttribute (e.g to be placed into the accessor)
- * @type {Number} byteoffset ByteOffset of the batchTableAttribute
- * @type {Number} byteLength Length of the attribute in bytes
- * @type {Number} count Count of logical number of elements in the attribute (eg 9 floating point numbers with a vec3 type means count = 3)
- * @type {Number} componentType WebGL enum of the component type (e.g GL_UNSIGNED_BYTE / 0x1401)
+ * @type {Object}
+ * @property {String} name Name of the batchTableAttribute (e.g to be placed into the accessor)
+ * @property {Number} byteoffset ByteOffset of the batchTableAttribute
+ * @property {Number} byteLength Length of the attribute in bytes
+ * @property {Number} count Count of logical number of elements in the attribute (eg 9 floating point numbers with a vec3 property means count = 3)
+ * @property {Number} componentType WebGL enum of the component property (e.g GL_UNSIGNED_BYTE / 0x1401)
  */
 
 /**
  * @typedef batchTableAttribute
- * @type {Object.<string, humanReadableBatchTableValue|binaryReadableBatchTableValue>} batchTableAttribute;
+ * @type {Object.<string, humanReadableBatchTableValue|binaryReadableBatchTableValue>}
+ */
+
+/**
+ * @typedef attributeBufferType
+ * @type {Object}
+ * @property {Buffer} buffer BufferAttribute data
+ * @property {String} componentType BufferAttribute componentType (FLOAT, UNSIGNED_BYTE, DOUBLE)
+ * @property {String} propertyName BufferAttribute property name (POSITION, NORMAL, COLOR, WEIGHT)
+ * @property {String} type (SCALAR, VEC2, VEC3, VEC4)
+ * @property {String} target WebGL rendering target, like ARRAY_BUFFER, or ELEMENT_ARRAY_BUFFE (e.g 0x8892, 0x8893)
+ * @property {Array.<Number>} min Minimum value for each component in the bufferAttribute
+ * @property {Array.<Number>} max Maximum value for each component in the bufferAttribute
  */
 
 /**

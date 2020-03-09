@@ -4,18 +4,17 @@ var defined  = Cesium.defined;
 var typeConversion = require('./typeConversion');
 module.exports = createGltfFromPnts;
 
-/*
+/**
  @typedef attributeBufferType
- @type {Object}:
+ @type {Object}
  @property {Buffer} buffer BufferAttribute data
  @property {String} componentType BufferAttribute componentType (FLOAT, UNSIGNED_BYTE, DOUBLE)
  @property {String} propertyName BufferAttribute property name (POSITION, NORMAL, COLOR, WEIGHT)
  @property {String} type (SCALAR, VEC2, VEC3, VEC4)
- @property {String} target OpenGL / WebGL re:  target  (e.g 0x8892, 0x8893)
+ @property {String} target WebGL rendering target, like ARRAY_BUFFER, or ELEMENT_ARRAY_BUFFE (e.g 0x8892, 0x8893)
  @property {Array.<Number>} min Minimum value for each component in the bufferAttribute
  @property {Array.<Number>} max Maximum value for each component in the bufferAttribute
  */
-
 
 function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
     var megaBuffer = Buffer.concat(attributeBuffers.map(function (ab) { return ab.buffer; }));
@@ -34,7 +33,7 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
  * this module will only ever generate 1 buffer when converting pointcloud data
  * into a GLTF
  *
- * @param {Array.<attributeBufferType>} attributeBuffers A list of buffer attributes to convert to GLTF
+ * @param {Array<attributeBufferType>} attributeBuffers A list of buffer attributes to convert to GLTF
  * @param {attributeBufferType} [indexBuffer] An optional indexBuffer.
  * @returns {Object} a buffer views array
  */
@@ -74,7 +73,6 @@ function createBufferViewsFromAttributeBuffers(attributeBuffers, indexBuffer) {
  * @param {attributeBufferType} [indexBuffer] An optional indexBuffer.
  * @returns {Array.<Object>} A GLTF meshes array
  */
-
 function createMeshFromAttributeBuffers(attributeBuffers, indexBuffer) {
     // the index of the attribute in the inputted bufferAttributes array directly
     // corresponds to the accessor ID

@@ -14,3 +14,7 @@ coverage
 output
 *.tgz
 *.zip
+
+
+# Generated documentation
+doc/
