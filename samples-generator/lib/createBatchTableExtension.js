@@ -94,7 +94,7 @@ function createBatchTableExtension(gltf, batchTableAttributes, sharedBinaryBuffe
 
     var humanReadable = [];
     var binaryReadable = [];
-    var i = 0;
+    var i;
 
     var batchTableIndex = 0; // TODO: This will change when we add multiple batch table support
     var activeBatchTable = gltf.extensions[batchTableExtensionName].batchTables[batchTableIndex];
