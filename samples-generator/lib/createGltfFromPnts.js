@@ -159,13 +159,14 @@ function createAccessorsFromAttributeBuffers(attributeBuffers, indexBuffer) {
  * Create a GLTF from PNTS data
  *
  * @param {Array.<attributeBufferType>} attributeBuffers An object where each key is the name of a bufferAttribute,
- *                                                       and each value is another js object with the following keys:
+ * and each value is another js object with the following keys:
  * @param {attributeBufferType} [indexBuffer] An optional indexBuffer.
+ * @param {Object} [rtc] Optional RTC vec3. Will be inserted into the node hierarchy.
  *
  * @returns {Object} a GLTF object
  */
 
-function createGltfFromPnts(attributeBuffers, indexBuffer) {
+function createGltfFromPnts(attributeBuffers, indexBuffer, rtc) {
     var gltf = {
         asset : {
             generator : '3d-tiles-samples-generator',
@@ -173,11 +174,19 @@ function createGltfFromPnts(attributeBuffers, indexBuffer) {
         }
     };
 
+    // z-up to y-up transform.
+    var rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
+
     gltf.buffers = createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer);
     gltf.bufferViews = createBufferViewsFromAttributeBuffers(attributeBuffers, indexBuffer);
     gltf.meshes = createMeshFromAttributeBuffers(attributeBuffers, indexBuffer);
     gltf.accessors = createAccessorsFromAttributeBuffers(attributeBuffers, indexBuffer);
-    gltf.nodes = [{mesh: 0}];
+    gltf.nodes = [{ matrix: rootMatrix, mesh : 0, name : 'rootNode' }];
+    if (defined(rtc)) {
+        delete gltf.nodes[0].mesh;
+        gltf.nodes[0].children = [1];
+        gltf.nodes.push({ name: 'RTC_CENTER', mesh: 0, translation: rtc });
+    }
     gltf.scenes = [{nodes: [0]}];
     return gltf;
 }

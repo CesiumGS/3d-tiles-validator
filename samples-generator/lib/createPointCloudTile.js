@@ -251,7 +251,7 @@ function createPointCloudTile(options) {
             bufferAttributes.push(batchIds);
         }
 
-        gltf = createGltfFromPnts(bufferAttributes);
+        gltf = createGltfFromPnts(bufferAttributes, undefined, featureTableJson.RTC_CENTER);
         if (defined(batchTableJson) && Object.keys(batchTableJson).length > 0) {
             gltf = createBatchTableExtension(gltf, batchTableJson, batchTableBinary);
         }
