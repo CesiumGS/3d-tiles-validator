@@ -844,7 +844,7 @@ function getColorsRGB565(colors, use3dTilesNext) {
     }
     return {
         buffer : buffer,
-        propertyName : use3dTilesNext ? '_RGB565' : '_RGB565',
+        propertyName : use3dTilesNext ? '_RGB565' : 'RGB565',
         componentType : 'UNSIGNED_SHORT',
         type : 'SCALAR',
         min : minComp,
