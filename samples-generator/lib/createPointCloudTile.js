@@ -681,7 +681,7 @@ function getNormalsOctEncoded(normals, use3dTilesNext) {
 
 /**
  * Generates a list of batchIds
- * @param {Array<Number>} batchIds A list of batchIds
+ * @param {Array.<Number>} batchIds A list of batchIds
  * @param {Boolean} use3dTilesNext Force uint32 mode, use prefix naming for attribute
  * @returns {Object} A bufferAttribute containing the necessary information for encoding to
  *                   a .pnts / .gltf / .glb
@@ -783,7 +783,7 @@ function getColorsRGB(colors, use3dTilesNext) {
     }
     return {
         buffer : buffer,
-        propertyName : use3dTilesNext ? '_RGB' : 'RGB',
+        propertyName : use3dTilesNext ? 'COLOR_0' : 'RGB',
         componentType : 'UNSIGNED_BYTE',
         type : 'VEC4',
         min : minComp,
