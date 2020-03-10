@@ -741,9 +741,9 @@ function getBatchIds(batchIds, use3dTilesNext) {
 
 /**
  *
- * @param {Array<Object>} colors List of colors to use
- * @param {Boolean} use3dTilesNext Forces RGBA mode due to byte alignment
- *                                 requirements in glTF.
+ * @param {Object[]} colors List of colors to use
+ * @param {Boolean} use3dTilesNext Forces RGB mode with an extra padding byte
+ * after each b component due to byte alignment requirements in glTF.
  */
 function getColorsRGB(colors, use3dTilesNext) {
     var colorsLength = colors.length;
