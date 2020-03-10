@@ -782,7 +782,9 @@ function getColorsRGB(colors, use3dTilesNext) {
         type : 'VEC3',
         min : minComp,
         max : maxComp,
-        count : colorsLength
+        count : colorsLength,
+        normalized: true,
+        byteStride: 4
     };
 }
 
@@ -821,7 +823,9 @@ function getColorsRGBA(colors, use3dTilesNext) {
         type : 'VEC4',
         min : minComp,
         max : maxComp,
-        count : colorsLength
+        count : colorsLength,
+        normalized: true,
+        byteStride: 4
     };
 }
 

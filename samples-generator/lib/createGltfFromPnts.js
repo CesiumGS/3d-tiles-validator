@@ -43,12 +43,18 @@ function createBufferViewsFromAttributeBuffers(attributeBuffers, indexBuffer) {
     var byteOffset = 0;
 
     for (var i = 0; i < attributeBuffers.length; ++i) {
-        result.push({
+        var bufferView = {
             buffer: 0,
             byteLength: attributeBuffers[i].buffer.byteLength,
             byteOffset: byteOffset,
             target: attributeBuffers[i].target
-        });
+        };
+
+        if (defined(attributeBuffers[i].byteStride)) {
+            bufferView.byteStride = attributeBuffers[i].byteStride;
+        }
+
+        result.push(bufferView);
 
         // All attribute data is tightly packed
         byteOffset += attributeBuffers[i].buffer.byteLength;
@@ -113,7 +119,7 @@ function createAccessorsFromAttributeBuffers(attributeBuffers, indexBuffer) {
         validComponentType = typeConversion.isValidWebGLDataTypeEnum(componentType);
         normalizedComponentType = validComponentType ? componentType : typeConversion.componentTypeStringToInteger(componentType);
 
-        accessors.push({
+        var accessor = {
             bufferView: i,
             byteOffset: 0,
             componentType: normalizedComponentType,
@@ -121,7 +127,14 @@ function createAccessorsFromAttributeBuffers(attributeBuffers, indexBuffer) {
             count: attributeBuffers[i].count,
             min: attributeBuffers[i].min,
             max: attributeBuffers[i].max
-        });
+        };
+
+
+        if (defined(attributeBuffers[i].normalized)) {
+            accessor.normalized = attributeBuffers[i].normalized;
+        }
+
+        accessors.push(accessor);
     }
 
     if (defined(indexBuffer)) {
