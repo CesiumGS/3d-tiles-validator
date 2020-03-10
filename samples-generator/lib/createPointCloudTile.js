@@ -750,14 +750,8 @@ function getColorsRGB(colors, use3dTilesNext) {
     var multiple = use3dTilesNext ? 4 : 3;
     var buffer = Buffer.alloc(colorsLength * multiple);
 
-    var minComp = new Array(multiple).fill(Number.POSITIVE_INFINITY);
-    var maxComp = new Array(multiple).fill(Number.NEGATIVE_INFINITY);
-
-    // avoid performing min max calculation on padding
-    if (use3dTilesNext) {
-        minComp[3] = 0;
-        maxComp[3] = 0;
-    }
+    var minComp = new Array(3).fill(Number.POSITIVE_INFINITY);
+    var maxComp = new Array(3).fill(Number.NEGATIVE_INFINITY);
 
     for (var i = 0; i < colorsLength; ++i) {
         var color = colors[i];
@@ -785,7 +779,7 @@ function getColorsRGB(colors, use3dTilesNext) {
         buffer : buffer,
         propertyName : use3dTilesNext ? 'COLOR_0' : 'RGB',
         componentType : 'UNSIGNED_BYTE',
-        type : 'VEC4',
+        type : 'VEC3',
         min : minComp,
         max : maxComp,
         count : colorsLength
@@ -822,7 +816,7 @@ function getColorsRGBA(colors, use3dTilesNext) {
     }
     return {
         buffer : buffer,
-        propertyName : use3dTilesNext ? '_RGBA' : 'RGBA',
+        propertyName : use3dTilesNext ? 'COLOR_0' : 'RGBA',
         componentType : 'UNSIGNED_BYTE',
         type : 'VEC4',
         min : minComp,
