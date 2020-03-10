@@ -39,11 +39,10 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
  */
 
 function createBufferViewsFromAttributeBuffers(attributeBuffers, indexBuffer) {
-    var i = 0;
     var result = [];
     var byteOffset = 0;
 
-    for (i = 0; i < attributeBuffers.length; ++i) {
+    for (var i = 0; i < attributeBuffers.length; ++i) {
         result.push({
             buffer: 0,
             byteLength: attributeBuffers[i].buffer.byteLength,
@@ -81,8 +80,8 @@ function createMeshFromAttributeBuffers(attributeBuffers, indexBuffer) {
         mode: 0
     };
 
-    var i = 0;
-    for (; i < attributeBuffers.length; ++i) {
+    var i;
+    for (i = 0; i < attributeBuffers.length; ++i) {
         primitives.attributes[attributeBuffers[i].propertyName] = i;
     }
 
