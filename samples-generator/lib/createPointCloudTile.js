@@ -531,7 +531,7 @@ function getPoints(use3dTilesNext, pointsLength, radius, colorModeFunction, colo
     }
 
     var positionAttribute = (quantizePositions) ? getPositionsQuantized(positions, radius) : getPositions(positions);
-    var normalAttribute = (octEncodeNormals) ? getNormalsOctEncoded(normals, use3dTilesNext) : getNormals(normals);
+    var normalAttribute = (octEncodeNormals) ? getNormalsOctEncoded(normals) : getNormals(normals);
     var batchIdAttribute = getBatchIds(batchIds, use3dTilesNext);
     var colorAttribute = defined(colorModeFunction) ? colorModeFunction(colors, use3dTilesNext) : undefined;
 
@@ -647,21 +647,17 @@ function getNormals(normals) {
 
 var scratchEncoded = new Cartesian2();
 
-function getNormalsOctEncoded(normals, use3dTilesNext) {
+function getNormalsOctEncoded(normals) {
     var pointsLength = normals.length;
-    var elementSize = use3dTilesNext ? sizeOfUint16 : sizeOfUint8;
-
-    var multiple = use3dTilesNext ? 4 : 2;
-    var buffer = Buffer.alloc(pointsLength * 2 * elementSize);
-
+    var buffer = Buffer.alloc(pointsLength * 2 * sizeOfUint8);
     var components = 2;
     var minComp = new Array(components).fill(Number.POSITIVE_INFINITY);
     var maxComp = new Array(components).fill(Number.NEGATIVE_INFINITY);
 
     for (var i = 0; i < pointsLength; ++i) {
         var encodedNormal = AttributeCompression.octEncode(normals[i], scratchEncoded);
-        buffer.writeUIntLE(encodedNormal.x, i * multiple, elementSize);
-        buffer.writeUIntLE(encodedNormal.y, i * multiple + 1, elementSize);
+        buffer.writeUIntLE(encodedNormal.x, i * 2, sizeOfUint8);
+        buffer.writeUIntLE(encodedNormal.y, i * 2 + 1, sizeOfUint8);
         minComp[0] = Math.min(minComp[0], encodedNormal.x);
         minComp[1] = Math.min(minComp[1], encodedNormal.y);
         maxComp[0] = Math.max(maxComp[0], encodedNormal.x);
