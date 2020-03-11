@@ -825,7 +825,7 @@ function getColorsRGBA(colors, use3dTilesNext) {
     };
 }
 
-function getColorsRGB565(colors, use3dTilesNext) {
+function getColorsRGB565(colors) {
     var colorsLength = colors.length;
     var buffer = Buffer.alloc(colorsLength * sizeOfUint16);
 
@@ -844,7 +844,7 @@ function getColorsRGB565(colors, use3dTilesNext) {
     }
     return {
         buffer : buffer,
-        propertyName : use3dTilesNext ? '_RGB565' : 'RGB565',
+        propertyName :  'RGB565',
         componentType : 'UNSIGNED_SHORT',
         type : 'SCALAR',
         min : minComp,
