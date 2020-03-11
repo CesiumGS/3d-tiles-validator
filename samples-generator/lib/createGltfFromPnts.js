@@ -112,9 +112,9 @@ function createAccessorsFromAttributeBuffers(attributeBuffers, indexBuffer) {
     var validComponentType;
     var normalizedComponentType;
     var accessors = [];
-    var i = 0;
+    var i;
 
-    for (; i < attributeBuffers.length; ++i) {
+    for (i = 0; i < attributeBuffers.length; ++i) {
         componentType = attributeBuffers[i].componentType;
         validComponentType = typeConversion.isValidWebGLDataTypeEnum(componentType);
         normalizedComponentType = validComponentType ? componentType : typeConversion.componentTypeStringToInteger(componentType);
