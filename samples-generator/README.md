@@ -9,6 +9,10 @@ Clone this repo and install [Node.js](http://nodejs.org/).  From the root direct
 ```
 npm install
 
+node build
+
+cd dist/
+
 node bin/3d-tiles-samples-generator.js
 ```
 

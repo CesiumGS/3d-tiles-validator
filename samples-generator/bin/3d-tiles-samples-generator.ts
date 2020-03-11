@@ -5,11 +5,11 @@ var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
 var gltfPipeline = require('gltf-pipeline');
 var path = require('path');
-var Promise = require('bluebird');
+import { Promise } from 'bluebird';
 var DataUri = require('datauri');
 var gltfToGlb = gltfPipeline.gltfToGlb;
 var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
-var calculateFilenameExt = require ('../lib/calculateFilenameExt');
+import { calculateFilenameExt } from '../lib/calculateFilenameExt';
 
 var createBatchTableHierarchy = require('../lib/createBatchTableHierarchy');
 var createBuildingsTile = require('../lib/createBuildingsTile');
@@ -302,10 +302,14 @@ var promises = [
     createExpireTileset()
 ];
 
-return Promise.all(promises).catch(function(error) {
-    console.log(error.message);
-    console.log(error.stack);
-});
+function main() {
+    return Promise.all(promises).catch(function(error) {
+        console.log(error.message);
+        console.log(error.stack);
+    });
+}
+
+main();
 
 function createBatchedWithBatchTable() {
     var tileOptions = {
@@ -930,7 +934,7 @@ function createCompositeOfInstanced() {
     });
 }
 
-function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions) {
+function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions?) {
     var tilesetDirectory = path.join(outputDirectory, 'Composite', tilesetName);
     var contentUri = lowercase(tilesetName) + '.cmpt';
     var tilePath = path.join(tilesetDirectory, contentUri);
@@ -954,7 +958,7 @@ function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions) {
     ]);
 }
 
-function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
+function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions?) {
     var tilesetDirectory = path.join(outputDirectory, 'Instanced', tilesetName);
     var contentUri = lowercase(tilesetName) + '.i3dm';
     var tilePath = path.join(tilesetDirectory, contentUri);
@@ -993,7 +997,7 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions) {
         });
 }
 
-function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
+function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions?) {
     var tilesetDirectory = path.join(outputDirectory, 'Batched', tilesetName);
 
     tileOptions = defaultValue(tileOptions, {});
@@ -1065,7 +1069,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
         });
 }
 
-function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
+function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions?) {
     var tilesetDirectory = path.join(outputDirectory, 'PointCloud', tilesetName);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
@@ -1164,7 +1168,7 @@ function savePointCloudTimeDynamic(name, options) {
         if (use3dTilesNext && !useGlb) {
             tilePromises.push(saveJson(tilePath, result.gltf, prettyJson, gzip));
         } else if (useGlb) {
-            tilePromises.push(gltfToGlb(result.gltf, gltfConversionOptions).then(getSaveBinaryFunction(tilePath)));
+            tilePromises.push(gltfToGlb(result.gltf, gltfConversionOptions).then(getSaveBinaryFunction()));
         } else {
             tilePromises.push(saveBinary(tilePath, result.pnts, gzip));
         }
@@ -2560,7 +2564,7 @@ function createTilesetUniform() {
     var results = createUniformTileset(3, 3, subdivideCallback);
     var tileOptions = results.tileOptions;
     var tileNames = results.tileNames;
-    var tilesetJson = results.tilesetJson;
+    var tilesetJson: any = results.tilesetJson;
 
     // Insert an external tileset
     var externalTile1 = clone(tilesetJson.root, true);
@@ -2638,7 +2642,7 @@ function divideTile(level, x, y, divisions, depth, parent, tileOptions, tileName
     var geometricError = (isLeaf) ? 0.0 : largeGeometricError / Math.pow(2, level + 1);
     var children = (subdivide) ? [] : undefined;
 
-    var tileJson = {
+    var tileJson: any = {
         boundingVolume : {
             region : region
         },
@@ -2805,7 +2809,7 @@ function createTreeBillboards() {
 
     var optionsArray = [treeOptions, billboardOptions];
 
-    var tilesetJson = {
+    var tilesetJson: any = {
         asset : {
             version : versionNumber
         },
