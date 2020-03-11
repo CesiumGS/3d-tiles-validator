@@ -66,17 +66,22 @@ function isCandidateForImplicitBufferView(batchAttribute) {
 /**
  * @typedef humanReadableFeatureTableValue
  * @type {Object}
- * @property {Array} values An array of arbitrary values in human readable form (e.g ["A", "B", "C"] or [1.3, 4.3, 1.5])
+ * @property {Array} values An array of arbitrary values in human readable form
+ *                          (e.g ["A", "B", "C"] or [1.3, 4.3, 1.5])
  */
 
 /**
  * @typedef binaryReadableFeatureTableValue
  * @type {Object}
- * @property {String} name Name of the featureTableAttribute (e.g to be placed into the accessor)
- * @property {Number} byteoffset ByteOffset of the featureTableAttribute
- * @property {Number} byteLength Length of the attribute in bytes
- * @property {Number} count Count of logical number of elements in the attribute (eg 9 floating point numbers with a vec3 property means count = 3)
- * @property {Number} componentType WebGL enum of the component property (e.g GL_UNSIGNED_BYTE / 0x1401)
+ * @property {String} name Name of the featureTableAttribute (e.g to be placed
+ *                         into the accessor)
+ * @property {Number} [byteoffset] ByteOffset of the featureTableAttribute
+ * @property {Number} [byteLength] Length of the attribute in bytes
+ * @property {Number} count Count of logical number of elements in the
+ *                          attribute (eg 9 floating point numbers with a vec3
+ *                          property means count = 3)
+ * @property {Number} componentType WebGL enum of the component property
+ *                                  (e.g GL_UNSIGNED_BYTE / 0x1401)
  */
 
 /**
@@ -102,12 +107,13 @@ function isCandidateForImplicitBufferView(batchAttribute) {
  *
  * @param {Object} gltf The gltf object to edit
  * @param {featureTableAttribute} featureTableAttributes List of batch table attributes. The function will intelligently try to detect
- *                                                   if the attribute is a human readable value (a key value where the value is
- *                                                   just an array of non-binary data) or if the values are more keys describing the
- *                                                   layout of binary data in a binary buffer.
- * @param {Buffer}              sharedBinaryBuffer   Binary buffer. Must be defined if using at least 1 binary batch attribute.
- *                                                   This function currently assumes that all of the binary batch attributes in
- *                                                   featureTableAttributes are directly referring to this buffer.
+ * if the attribute is a human readable value (a key value where the value is
+ * just an array of non-binary data) or if the values are more keys describing the
+ * layout of binary data in a binary buffer.
+ * @param {Buffer} sharedBinaryBuffer Binary buffer. Must be defined if using at
+ * least 1 binary batch attribute. This function currently assumes that all of
+ * the binary batch attributes in featureTableAttributes are directly referring
+ * to this buffer.
  */
 function createFeatureMetadataExtension(gltf, featureTableAttributes, sharedBinaryBuffer) {
     Extensions.addExtensionsUsed(gltf, featureTableExtensionName);
