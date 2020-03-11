@@ -729,7 +729,7 @@ function getBatchIds(batchIds, use3dTilesNext) {
 
     return {
         buffer : buffer,
-        propertyName : use3dTilesNext ? '_BATCH_ID0' : 'BATCH_ID',
+        propertyName : use3dTilesNext ? '_BATCHID_0' : 'BATCH_ID',
         componentType : componentType,
         type : 'SCALAR',
         batchLength : batchLength,
