@@ -52,6 +52,17 @@ function assertBinaryHasIdenticalCount(binaryBatchTables) {
     return firstLength;
 }
 
+function isCandidateForImplicitBufferView(batchAttribute) {
+    var min = batchAttribute.min;
+    var max = batchAttribute.max;
+    var count = batchAttribute.count;
+    var minExists = defined(batchAttribute.min);
+    var maxExists = defined(batchAttribute.max);
+    var minPasses = minExists && min.length === 1 && min[0] === 0;
+    var maxPasses = maxExists && max.length === 1 && max[0] === count - 1;
+    return minPasses && maxPasses;
+}
+
 /**
  * @typedef humanReadableBatchTableValue
  * @type {Object}
@@ -152,33 +163,41 @@ function createBatchTableExtension(gltf, batchTableAttributes, sharedBinaryBuffe
         });
 
         var newBufferIndex = gltf.buffers.length - 1;
-        var accessorBufferViewIndex = gltf.bufferViews.length;
+        var bufferViewIndex = gltf.bufferViews.length;
+        var accessorIndex = gltf.accessors.length;
 
-        for (i = 0; i < binaryReadable.length; ++i, ++accessorBufferViewIndex) {
+        for (i = 0; i < binaryReadable.length; ++i, ++accessorIndex) {
             var batchAttribute = binaryReadable[i];
 
             var componentType = batchAttribute.componentType;
             var validComponentType = typeConversion.isValidWebGLDataTypeEnum(componentType);
             var normalizedComponentType = validComponentType ? componentType : typeConversion.componentTypeStringToInteger(componentType);
 
-            gltf.bufferViews.push({
-                buffer : newBufferIndex,
-                byteLength : batchAttribute.byteLength,
-                byteOffset : batchAttribute.byteOffset,
-                target : 0x8892 // ARRAY_BUFFER
-            });
+            var implicitBufferView = isCandidateForImplicitBufferView(batchAttribute);
+            if (!implicitBufferView) {
+                gltf.bufferViews.push({
+                    buffer : newBufferIndex,
+                    byteLength : batchAttribute.byteLength,
+                    byteOffset : batchAttribute.byteOffset,
+                    target : 0x8892 // ARRAY_BUFFER
+                });
+            }
 
-            gltf.accessors.push({
-                bufferView : accessorBufferViewIndex,
-                byteOffset : 0,
+            var accessor = {
                 componentType : normalizedComponentType,
                 type : batchAttribute.type,
                 count : batchAttribute.count,
                 min : batchAttribute.min,
                 max : batchAttribute.max
-            });
+            };
 
-            activeBatchTable.properties[batchAttribute.name] = {accessor: accessorBufferViewIndex};
+            if (!implicitBufferView) {
+                accessor.bufferView = bufferViewIndex++;
+                accessor.byteOffset = 0;
+            }
+
+            gltf.accessors.push(accessor);
+            activeBatchTable.properties[batchAttribute.name] = {accessor: accessorIndex};
         }
     }
 

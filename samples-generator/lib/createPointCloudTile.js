@@ -130,7 +130,7 @@ function createPointCloudTile(options) {
 
     var batchTableProperties = [];
     if (perPointProperties) {
-        batchTableProperties = getPerPointBatchTableProperties(pointsLength, noiseValues);
+        batchTableProperties = getPerPointBatchTableProperties(pointsLength, noiseValues, use3dTilesNext);
     }
 
     var featureTableJson = {};
@@ -227,7 +227,7 @@ function createPointCloudTile(options) {
     }
 
     if (batched) {
-        var batchTable = getBatchTableForBatchedPoints(batchIds.batchLength);
+        var batchTable = getBatchTableForBatchedPoints(batchIds.batchLength, use3dTilesNext);
         batchTableJson = batchTable.json;
         batchTableBinary = batchTable.binary;
         featureTableJson.BATCH_LENGTH = batchIds.batchLength;
@@ -853,11 +853,14 @@ function getColorsRGB565(colors) {
     };
 }
 
-function getBatchTableForBatchedPoints(batchLength) {
+function getBatchTableForBatchedPoints(batchLength, use3dTilesNext) {
     // Create some sample per-batch properties. Each batch will have a name, dimension, and id.
     var names = new Array(batchLength); // JSON array
     var dimensionsBuffer = Buffer.alloc(batchLength * 3 * sizeOfFloat32); // Binary
-    var idBuffer = Buffer.alloc(batchLength * sizeOfUint32); // Binary
+    var idBuffer;
+    if (!use3dTilesNext) {
+        idBuffer = Buffer.alloc(batchLength * sizeOfUint32); // Binary
+    }
 
     var batchTableJson = {
         name : names,
@@ -872,12 +875,18 @@ function getBatchTableForBatchedPoints(batchLength) {
         id : {
             name: 'id',
             count: batchLength,
-            byteOffset : dimensionsBuffer.length,
-            byteLength: idBuffer.length,
             componentType : 'UNSIGNED_INT',
             type : 'SCALAR'
         }
     };
+
+    // avoid writing an explicit id buffer in 3dtilesNext mode,
+    // an accessor with an implicit bufferView will be used instead
+    // to save space.
+    if (!use3dTilesNext) {
+        batchTableJson.id.byteOffset = dimensionsBuffer;
+        batchTableJson.id.byteLength = idBuffer.length;
+    }
 
     var minDimension = new Array(3).fill(Number.POSITIVE_INFINITY);
     var maxDimension = new Array(3).fill(Number.NEGATIVE_INFINITY);
@@ -898,7 +907,9 @@ function getBatchTableForBatchedPoints(batchLength) {
         minDimension[0] = Math.min(minDimension[0], r1);
         minDimension[1] = Math.min(minDimension[1], r2);
         minDimension[2] = Math.min(minDimension[2], r3);
-        idBuffer.writeUInt32LE(i, i * sizeOfUint32);
+        if (!use3dTilesNext) {
+            idBuffer.writeUInt32LE(i, i * sizeOfUint32);
+        }
     }
 
     batchTableJson.dimensions.min = minDimension;
@@ -908,7 +919,12 @@ function getBatchTableForBatchedPoints(batchLength) {
 
 
     // No need for padding with these sample properties
-    var batchTableBinary = Buffer.concat([dimensionsBuffer, idBuffer]);
+    var batchTableBinary;
+    if (!use3dTilesNext) {
+        batchTableBinary = Buffer.concat([dimensionsBuffer, idBuffer]);
+    } else {
+        batchTableBinary = dimensionsBuffer;
+    }
 
     return {
         json : batchTableJson,
@@ -916,18 +932,26 @@ function getBatchTableForBatchedPoints(batchLength) {
     };
 }
 
-function getPerPointBatchTableProperties(pointsLength, noiseValues) {
+function getPerPointBatchTableProperties(pointsLength, noiseValues, use3dTilesNext) {
     // Create some sample per-point properties. Each point will have a temperature, secondary color, and id.
     var temperaturesBuffer = Buffer.alloc(pointsLength * sizeOfFloat32);
     var secondaryColorBuffer = Buffer.alloc(pointsLength * 3 * sizeOfFloat32);
-    var idBuffer = Buffer.alloc(pointsLength * sizeOfUint16);
+    var idBuffer;
+
+    // avoid writing an explicit id buffer in 3dtilesNext mode,
+    // an accessor with an implicit bufferView will be used instead
+    // to save space.
+    if (!use3dTilesNext) {
+        idBuffer = Buffer.alloc(pointsLength * sizeOfUint16);
+    }
 
     var minTempComp = [Number.POSITIVE_INFINITY];
     var maxTempComp = [Number.NEGATIVE_INFINITY];
     var minSecondaryColorComp = new Array(3).fill(Number.POSITIVE_INFINITY);
     var maxSecondaryColorComp = new Array(3).fill(Number.NEGATIVE_INFINITY);
-    var minIdComp = [Number.POSITIVE_INFINITY];
-    var maxIdComp = [Number.NEGATIVE_INFINITY];
+
+    var minId = [0];
+    var maxId = [pointsLength - 1];
 
     for (var i = 0; i < pointsLength; ++i) {
         var temperature = noiseValues[i];
@@ -936,12 +960,12 @@ function getPerPointBatchTableProperties(pointsLength, noiseValues) {
         secondaryColorBuffer.writeFloatLE(secondaryColor[0], (i * 3) * sizeOfFloat32);
         secondaryColorBuffer.writeFloatLE(secondaryColor[1], (i * 3 + 1) * sizeOfFloat32);
         secondaryColorBuffer.writeFloatLE(secondaryColor[2], (i * 3 + 2) * sizeOfFloat32);
-        idBuffer.writeUInt16LE(i, i * sizeOfUint16);
+        if (!use3dTilesNext) {
+            idBuffer.writeUInt16LE(i, i * sizeOfUint16);
+        }
 
         minTempComp[0] = Math.min(minTempComp[0], temperature);
         maxTempComp[0] = Math.max(maxTempComp[0], temperature);
-        minIdComp[0] = Math.min(minIdComp[0], i);
-        maxIdComp[0] = Math.max(maxIdComp[0], i);
         minSecondaryColorComp[0] = Math.min(minSecondaryColorComp[0], secondaryColor[0]);
         minSecondaryColorComp[1] = Math.min(minSecondaryColorComp[1], secondaryColor[1]);
         minSecondaryColorComp[2] = Math.min(minSecondaryColorComp[2], secondaryColor[2]);
@@ -950,7 +974,7 @@ function getPerPointBatchTableProperties(pointsLength, noiseValues) {
         maxSecondaryColorComp[2] = Math.max(maxSecondaryColorComp[2], secondaryColor[2]);
     }
 
-    return [
+    var result = [
         {
             buffer : temperaturesBuffer,
             propertyName : 'temperature',
@@ -969,14 +993,21 @@ function getPerPointBatchTableProperties(pointsLength, noiseValues) {
             max: maxSecondaryColorComp,
             count : pointsLength
         },
-        {
-            buffer : idBuffer,
-            propertyName : 'id',
-            componentType : 'UNSIGNED_SHORT',
-            type : 'SCALAR',
-            min: minIdComp,
-            max: maxIdComp,
-            count : pointsLength
-        }
     ];
+
+
+    var idBatchAttribute = {
+        propertyName : 'id',
+        componentType : 'UNSIGNED_SHORT',
+        type : 'SCALAR',
+        min: minId,
+        max: maxId,
+        count : pointsLength
+    };
+
+    if (!use3dTilesNext) {
+        idBatchAttribute.buffer = idBuffer;
+    }
+
+    return result;
 }
