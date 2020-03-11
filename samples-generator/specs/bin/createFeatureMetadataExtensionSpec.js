@@ -3,12 +3,12 @@ var fs = require('fs');
 var path = require('path');
 var trianglePath = path.join(__dirname, '..', 'data', 'triangle.gltf');
 var minimalTriangleGLTF = JSON.parse(fs.readFileSync(trianglePath, 'utf8'));
-var createBatchTableExtension = require ('../../lib/createBatchTableExtension');
+var createFeatureMetadataExtension = require ('../../lib/createFeatureMetadataExtension');
 
-describe('createBatchTableExtension', function() {
+describe('createFeatureMetadataExtension', function() {
     var triangleGLTF = minimalTriangleGLTF;
     var sharedBuffer = Buffer.from('abcdefghijklmnopqrstuvwxyz');
-    var batchTableAttributes = {
+    var featureTableAttributes = {
         aToMInclusive: {
             name: 'aToMInclusive',
             byteOffset: 0,
@@ -36,7 +36,7 @@ describe('createBatchTableExtension', function() {
         ],
 
         cornerColor: [
-            'red', 'blue', 'green', 
+            'red', 'blue', 'green',
             'indgio', 'cyan', 'yellow',
             'periwinkle', 'grey', 'brown',
             'purple', 'magenta', 'lime',
@@ -47,27 +47,27 @@ describe('createBatchTableExtension', function() {
     var oldAccessorLength = Object.keys(triangleGLTF.accessors).length;
     var oldBufferViewLength = Object.keys(triangleGLTF.bufferViews).length;
     var oldBufferLength = Object.keys(triangleGLTF.buffers).length;
-    var gltfWithExt = createBatchTableExtension(triangleGLTF, batchTableAttributes, sharedBuffer);
+    var gltfWithExt = createFeatureMetadataExtension(triangleGLTF, featureTableAttributes, sharedBuffer);
 
     it('extensions used / extension keys are present', function() {
         expect('extensionsUsed' in gltfWithExt).toBe(true);
         expect('extensions' in gltfWithExt).toBe(true);
-        expect('CESIUM_3dtiles_batch_table' in gltfWithExt.extensions).toBe(true);
-        var batchTables =  gltfWithExt.extensions.CESIUM_3dtiles_batch_table.batchTables;
-        expect(batchTables).toBeInstanceOf(Array);
-        expect(batchTables.length).toBe(1); // Multiple Batch Table not Supported Yet
+        expect('CESIUM_3dtiles_feature_metadata' in gltfWithExt.extensions).toBe(true);
+        var featureTables =  gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables;
+        expect(featureTables).toBeInstanceOf(Array);
+        expect(featureTables.length).toBe(1); // Multiple Batch Table not Supported Yet
     });
 
-    it('has correct number of batch table attributes', function() {
-        var table =  gltfWithExt.extensions.CESIUM_3dtiles_batch_table.batchTables[0];
-        expect(table.batchLength).toBe(batchTableAttributes.cornerName.length);
+    it('has correct number of feature table attributes', function() {
+        var table =  gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0];
+        expect(table.featureCount).toBe(featureTableAttributes.cornerName.length);
     });
 
     it('human readable attributes are detected and left as-is in the ext section', function() {
-        var properties =  gltfWithExt.extensions.CESIUM_3dtiles_batch_table.batchTables[0].properties;
+        var properties =  gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0].properties;
         // human readable values are embedded directly
-        expect(properties.cornerName.values).toEqual(batchTableAttributes.cornerName);
-        expect(properties.cornerColor.values).toEqual(batchTableAttributes.cornerColor);
+        expect(properties.cornerName.values).toEqual(featureTableAttributes.cornerName);
+        expect(properties.cornerColor.values).toEqual(featureTableAttributes.cornerColor);
 
         // binary values should only have an accessor key
         // accessor ids are sorted by byteOffset, so aToL should be first
@@ -94,31 +94,31 @@ describe('createBatchTableExtension', function() {
         var lastAccessor = gltfWithExt.accessors[oldAccessorLength + 1];
         expect(secondToLastAccessor.bufferView).toBe(oldAccessorLength);
         expect(secondToLastAccessor.byteOffset).toBe(0);
-        expect(secondToLastAccessor.componentType).toBe(batchTableAttributes.aToMInclusive.componentType);
-        expect(secondToLastAccessor.type).toBe(batchTableAttributes.aToMInclusive.type);
-        expect(secondToLastAccessor.count).toBe(batchTableAttributes.aToMInclusive.count);
+        expect(secondToLastAccessor.componentType).toBe(featureTableAttributes.aToMInclusive.componentType);
+        expect(secondToLastAccessor.type).toBe(featureTableAttributes.aToMInclusive.type);
+        expect(secondToLastAccessor.count).toBe(featureTableAttributes.aToMInclusive.count);
 
         expect(lastAccessor.bufferView).toBe(oldAccessorLength + 1);
         expect(lastAccessor.byteOffset).toBe(0);
-        expect(lastAccessor.componentType).toBe(batchTableAttributes.nToZInclusive.componentType);
-        expect(lastAccessor.type).toBe(batchTableAttributes.nToZInclusive.type);
-        expect(lastAccessor.count).toBe(batchTableAttributes.nToZInclusive.count);
+        expect(lastAccessor.componentType).toBe(featureTableAttributes.nToZInclusive.componentType);
+        expect(lastAccessor.type).toBe(featureTableAttributes.nToZInclusive.type);
+        expect(lastAccessor.count).toBe(featureTableAttributes.nToZInclusive.count);
 
         // verify those bufferviews are both referencing `buffer 1`
         var secondToLastBufferView = gltfWithExt.bufferViews[oldBufferViewLength];
         var lastBufferView = gltfWithExt.bufferViews[oldBufferViewLength + 1];
         expect(secondToLastBufferView.buffer).toBe(1);
-        expect(secondToLastBufferView.byteLength).toBe(batchTableAttributes.aToMInclusive.byteLength);
-        expect(secondToLastBufferView.byteOffset).toBe(batchTableAttributes.aToMInclusive.byteOffset);
+        expect(secondToLastBufferView.byteLength).toBe(featureTableAttributes.aToMInclusive.byteLength);
+        expect(secondToLastBufferView.byteOffset).toBe(featureTableAttributes.aToMInclusive.byteOffset);
         expect(lastBufferView.buffer).toBe(1);
-        expect(lastBufferView.byteLength).toBe(batchTableAttributes.nToZInclusive.byteLength);
-        expect(lastBufferView.byteOffset).toBe(batchTableAttributes.nToZInclusive.byteOffset);
+        expect(lastBufferView.byteLength).toBe(featureTableAttributes.nToZInclusive.byteLength);
+        expect(lastBufferView.byteOffset).toBe(featureTableAttributes.nToZInclusive.byteOffset);
 
         // verify that references to the binary accessors are in `extensions: {...}`
-        var batchTableProperties = gltfWithExt.extensions.CESIUM_3dtiles_batch_table.batchTables[0].properties;
-        expect(batchTableAttributes.aToMInclusive.name in batchTableProperties).toBeTrue();
-        expect(batchTableAttributes.nToZInclusive.name in batchTableProperties).toBeTrue();
-        expect(batchTableProperties[batchTableAttributes.aToMInclusive.name].accessor).toBe(oldAccessorLength);
-        expect(batchTableProperties[batchTableAttributes.nToZInclusive.name].accessor).toBe(oldAccessorLength + 1);
+        var featureTableProperties = gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0].properties;
+        expect(featureTableAttributes.aToMInclusive.name in featureTableProperties).toBeTrue();
+        expect(featureTableAttributes.nToZInclusive.name in featureTableProperties).toBeTrue();
+        expect(featureTableProperties[featureTableAttributes.aToMInclusive.name].accessor).toBe(oldAccessorLength);
+        expect(featureTableProperties[featureTableAttributes.nToZInclusive.name].accessor).toBe(oldAccessorLength + 1);
     });
 });

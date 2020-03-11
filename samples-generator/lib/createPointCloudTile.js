@@ -6,7 +6,7 @@ var createPnts = require('./createPnts');
 var Extensions = require('./Extensions');
 var createGltfFromPnts = require('./createGltfFromPnts');
 var typeConversion = require('./typeConversion');
-var createBatchTableExtension = require('./createBatchTableExtension');
+var createFeatureMetadataExtension = require('./createFeatureMetadataExtension');
 
 var AttributeCompression = Cesium.AttributeCompression;
 var Cartesian2 = Cesium.Cartesian2;
@@ -253,7 +253,7 @@ function createPointCloudTile(options) {
 
         gltf = createGltfFromPnts(bufferAttributes, undefined, featureTableJson.RTC_CENTER);
         if (defined(batchTableJson) && Object.keys(batchTableJson).length > 0) {
-            gltf = createBatchTableExtension(gltf, batchTableJson, batchTableBinary);
+            gltf = createFeatureMetadataExtension(gltf, batchTableJson, batchTableBinary);
         }
     } else {
         pnts = createPnts({
@@ -725,7 +725,7 @@ function getBatchIds(batchIds, use3dTilesNext) {
 
     return {
         buffer : buffer,
-        propertyName : use3dTilesNext ? '_BATCHID_0' : 'BATCH_ID',
+        propertyName : use3dTilesNext ? '_FEATURE_ID_0' : 'BATCH_ID',
         componentType : componentType,
         type : 'SCALAR',
         batchLength : batchLength,

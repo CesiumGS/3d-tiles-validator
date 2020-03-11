@@ -2,9 +2,9 @@
 var Cesium = require('cesium');
 var defined = Cesium.defined;
 var Extensions = require('./Extensions');
-var batchTableExtensionName = 'CESIUM_3dtiles_batch_table';
+var featureTableExtensionName = 'CESIUM_3dtiles_feature_metadata';
 var typeConversion = require('./typeConversion');
-module.exports = createBatchTableExtension;
+module.exports = createFeatureMetadataExtension;
 
 function sortByByteOffset(a, b) {
     if (a.byteOffset < b.byteOffset ){
@@ -18,34 +18,34 @@ function sortByByteOffset(a, b) {
     return 0;
 }
 
-function assertHumanReadableBatchTableValueArraysHaveIdenticalLength(humanBatchTables) {
-    if (humanBatchTables.length === 0) {
+function assertHumanReadableFeatureTableValueArraysHaveIdenticalLength(humanfeatureTables) {
+    if (humanfeatureTables.length === 0) {
         return 0;
     }
 
-    var firstLength = humanBatchTables[0].value.length;
-    for (var i = 1; i < humanBatchTables.length; ++i) {
-        if (humanBatchTables[i].value.length !== firstLength) {
-            var badBatchTable = humanBatchTables[i].name;
-            var badLength = humanBatchTables[i].value.length;
-            throw new Error(badBatchTable + ' has incorrect length of: '  + badLength + ', should match the first length: ' + firstLength);
+    var firstLength = humanfeatureTables[0].value.length;
+    for (var i = 1; i < humanfeatureTables.length; ++i) {
+        if (humanfeatureTables[i].value.length !== firstLength) {
+            var badFeatureTable = humanfeatureTables[i].name;
+            var badLength = humanfeatureTables[i].value.length;
+            throw new Error(badFeatureTable + ' has incorrect length of: '  + badLength + ', should match the first length: ' + firstLength);
         }
     }
 
     return firstLength;
 }
 
-function assertBinaryHasIdenticalCount(binaryBatchTables) {
-    if (binaryBatchTables.length === 0) {
+function assertBinaryHasIdenticalCount(binaryfeatureTables) {
+    if (binaryfeatureTables.length === 0) {
         return 0;
     }
 
-    var firstLength = binaryBatchTables[0].count;
-    for (var i = 1; i < binaryBatchTables.length; ++i) {
-        if (binaryBatchTables[i].count !== firstLength) {
-            var badBatchTable = binaryBatchTables[i].name;
-            var badLength = binaryBatchTables[i].count;
-            throw new Error(badBatchTable + ' has incorrect length of: '  + badLength + ', should match the first length: ' + firstLength);
+    var firstLength = binaryfeatureTables[0].count;
+    for (var i = 1; i < binaryfeatureTables.length; ++i) {
+        if (binaryfeatureTables[i].count !== firstLength) {
+            var badFeatureTable = binaryfeatureTables[i].name;
+            var badLength = binaryfeatureTables[i].count;
+            throw new Error(badFeatureTable + ' has incorrect length of: '  + badLength + ', should match the first length: ' + firstLength);
         }
     }
 
@@ -64,24 +64,24 @@ function isCandidateForImplicitBufferView(batchAttribute) {
 }
 
 /**
- * @typedef humanReadableBatchTableValue
+ * @typedef humanReadableFeatureTableValue
  * @type {Object}
  * @property {Array} values An array of arbitrary values in human readable form (e.g ["A", "B", "C"] or [1.3, 4.3, 1.5])
  */
 
 /**
- * @typedef binaryReadableBatchTableValue
+ * @typedef binaryReadableFeatureTableValue
  * @type {Object}
- * @property {String} name Name of the batchTableAttribute (e.g to be placed into the accessor)
- * @property {Number} byteoffset ByteOffset of the batchTableAttribute
+ * @property {String} name Name of the featureTableAttribute (e.g to be placed into the accessor)
+ * @property {Number} byteoffset ByteOffset of the featureTableAttribute
  * @property {Number} byteLength Length of the attribute in bytes
  * @property {Number} count Count of logical number of elements in the attribute (eg 9 floating point numbers with a vec3 property means count = 3)
  * @property {Number} componentType WebGL enum of the component property (e.g GL_UNSIGNED_BYTE / 0x1401)
  */
 
 /**
- * @typedef batchTableAttribute
- * @type {Object.<string, humanReadableBatchTableValue|binaryReadableBatchTableValue>}
+ * @typedef featureTableAttribute
+ * @type {Object.<string, humanReadableFeatureTableValue|binaryReadableFeatureTableValue>}
  */
 
 /**
@@ -97,22 +97,22 @@ function isCandidateForImplicitBufferView(batchAttribute) {
  */
 
 /**
- * Iterates over batchTableAttributes and adorns the provided gltf object with them via
- * the CESIUM_3dtiles_batch_table extension
+ * Iterates over featureTableAttributes and adorns the provided gltf object with them via
+ * the CESIUM_3dtiles_feature_metadata extension
  *
  * @param {Object} gltf The gltf object to edit
- * @param {batchTableAttribute} batchTableAttributes List of batch table attributes. The function will intelligently try to detect
+ * @param {featureTableAttribute} featureTableAttributes List of batch table attributes. The function will intelligently try to detect
  *                                                   if the attribute is a human readable value (a key value where the value is
  *                                                   just an array of non-binary data) or if the values are more keys describing the
  *                                                   layout of binary data in a binary buffer.
  * @param {Buffer}              sharedBinaryBuffer   Binary buffer. Must be defined if using at least 1 binary batch attribute.
  *                                                   This function currently assumes that all of the binary batch attributes in
- *                                                   batchTableAttributes are directly referring to this buffer.
+ *                                                   featureTableAttributes are directly referring to this buffer.
  */
-function createBatchTableExtension(gltf, batchTableAttributes, sharedBinaryBuffer) {
-    Extensions.addExtensionsUsed(gltf, batchTableExtensionName);
-    Extensions.addExtension(gltf, batchTableExtensionName, {
-        batchTables: [{
+function createFeatureMetadataExtension(gltf, featureTableAttributes, sharedBinaryBuffer) {
+    Extensions.addExtensionsUsed(gltf, featureTableExtensionName);
+    Extensions.addExtension(gltf, featureTableExtensionName, {
+        featureTables: [{
             properties: {}
         }]
     });
@@ -121,34 +121,34 @@ function createBatchTableExtension(gltf, batchTableAttributes, sharedBinaryBuffe
     var binaryReadable = [];
     var i;
 
-    var batchTableIndex = 0; // TODO: This will change when we add multiple batch table support
-    var activeBatchTable = gltf.extensions[batchTableExtensionName].batchTables[batchTableIndex];
+    var featureTableIndex = 0; // TODO: This will change when we add multiple batch table support
+    var activeFeatureTable = gltf.extensions[featureTableExtensionName].featureTables[featureTableIndex];
 
-    var attributeNames = Object.keys(batchTableAttributes);
+    var attributeNames = Object.keys(featureTableAttributes);
     for (i = 0; i < attributeNames.length; ++i) {
-        if (batchTableAttributes[attributeNames[i]] instanceof Array) {
-            humanReadable.push({name: attributeNames[i], value: batchTableAttributes[attributeNames[i]]});
+        if (featureTableAttributes[attributeNames[i]] instanceof Array) {
+            humanReadable.push({name: attributeNames[i], value: featureTableAttributes[attributeNames[i]]});
         } else {
-            binaryReadable.push(batchTableAttributes[attributeNames[i]]);
+            binaryReadable.push(featureTableAttributes[attributeNames[i]]);
         }
     }
 
-    var humanBatchLength = assertHumanReadableBatchTableValueArraysHaveIdenticalLength(humanReadable);
-    var binaryBatchLength = assertBinaryHasIdenticalCount(binaryReadable);
+    var humanFeatureCount = assertHumanReadableFeatureTableValueArraysHaveIdenticalLength(humanReadable);
+    var binaryFeatureCount = assertBinaryHasIdenticalCount(binaryReadable);
 
-    if (humanBatchLength === 0 && binaryBatchLength === 0) {
+    if (humanFeatureCount === 0 && binaryFeatureCount === 0) {
         throw new Error('Must have at least one binary or human readable batch table attribute');
     }
 
-    if (humanBatchLength > 0 && binaryBatchLength > 0 && binaryBatchLength !== humanBatchLength) {
+    if (humanFeatureCount > 0 && binaryFeatureCount > 0 && binaryFeatureCount !== humanFeatureCount) {
         throw new Error('Count must be identical across all batch table properties (binary or human readable)');
     }
 
-    activeBatchTable.batchLength = Math.max(humanBatchLength, binaryBatchLength);
+    activeFeatureTable.featureCount = Math.max(humanFeatureCount, binaryFeatureCount);
 
     for (i = 0; i < humanReadable.length; ++i) {
         var attribute = humanReadable[i];
-        activeBatchTable.properties[attribute.name] = {values: attribute.value};
+        activeFeatureTable.properties[attribute.name] = {values: attribute.value};
     }
 
     if (binaryReadable.length > 0 && !defined(sharedBinaryBuffer)) {
@@ -197,8 +197,22 @@ function createBatchTableExtension(gltf, batchTableAttributes, sharedBinaryBuffe
             }
 
             gltf.accessors.push(accessor);
-            activeBatchTable.properties[batchAttribute.name] = {accessor: accessorIndex};
+            activeFeatureTable.properties[batchAttribute.name] = {
+                accessor: accessorIndex
+            };
         }
+    }
+
+    // also add the extension to attributes
+    var primitives = gltf.meshes[0].primitives;
+    for (i = 0; i < primitives.length; ++i) {
+        primitives[i].extensions = {
+            CESIUM_3dtiles_feature_metadata: {
+                attributes: {
+                    _FEATURE_ID_0: 0
+                }
+            }
+        };
     }
 
     return gltf;

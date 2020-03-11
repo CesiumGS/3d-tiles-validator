@@ -188,5 +188,6 @@ function createGltfFromPnts(attributeBuffers, indexBuffer, rtc) {
         gltf.nodes.push({ name: 'RTC_CENTER', mesh: 0, translation: rtc });
     }
     gltf.scenes = [{nodes: [0]}];
+
     return gltf;
 }
