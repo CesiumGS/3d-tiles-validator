@@ -7,6 +7,9 @@ var gltfPipeline = require('gltf-pipeline');
 var path = require('path');
 var Promise = require('bluebird');
 var DataUri = require('datauri');
+var gltfToGlb = gltfPipeline.gltfToGlb;
+var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
+var calculateFilenameExt = require ('../lib/calculateFilenameExt');
 
 var createBatchTableHierarchy = require('../lib/createBatchTableHierarchy');
 var createBuildingsTile = require('../lib/createBuildingsTile');
@@ -41,7 +44,6 @@ var gzip = false;
 
 var outputDirectory = 'output';
 
-var versionNumber = '1.0';
 
 var longitude = -1.31968;
 var latitude = 0.698874;
@@ -207,6 +209,8 @@ var argv = require('yargs')
         }
         return true;
     }).argv;
+
+var versionNumber = argv['3d-tiles-next'] ? '1.1' : '1.0';
 
 var promises = [
     // Batched
@@ -528,6 +532,10 @@ function createPointCloudRGBA() {
 }
 
 function createPointCloudRGB565() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         colorMode : 'rgb565'
     };
@@ -535,6 +543,10 @@ function createPointCloudRGB565() {
 }
 
 function createPointCloudConstantColor() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         colorMode : 'constant'
     };
@@ -557,6 +569,10 @@ function createPointCloudWGS84() {
 }
 
 function createPointCloudQuantized() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         quantizePositions : true
     };
@@ -572,6 +588,10 @@ function createPointCloudNormals() {
 }
 
 function createPointCloudNormalsOctEncoded() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         generateNormals : true,
         octEncodeNormals : true,
@@ -581,6 +601,10 @@ function createPointCloudNormalsOctEncoded() {
 }
 
 function createPointCloudQuantizedOctEncoded() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         quantizePositions : true,
         generateNormals : true,
@@ -626,6 +650,10 @@ function createPointCloudWithTransform() {
 }
 
 function createPointCloudDraco() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         colorMode : 'rgb',
         shape : 'sphere',
@@ -637,6 +665,10 @@ function createPointCloudDraco() {
 }
 
 function createPointCloudDracoPartial() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         colorMode : 'rgb',
         shape : 'sphere',
@@ -649,6 +681,10 @@ function createPointCloudDracoPartial() {
 }
 
 function createPointCloudDracoBatched() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var tileOptions = {
         colorMode : 'rgb',
         shape : 'sphere',
@@ -660,17 +696,27 @@ function createPointCloudDracoBatched() {
 }
 
 function createPointCloudTimeDynamic() {
-    return savePointCloudTimeDynamic('PointCloudTimeDynamic');
+    var options = {
+        useGlb : argv['glb'],
+        use3dTilesNext : argv['3d-tiles-next']
+    };
+    return savePointCloudTimeDynamic('PointCloudTimeDynamic', options);
 }
 
 function createPointCloudTimeDynamicWithTransforms() {
     var options = {
-        transform : true
+        transform : true,
+        useGlb : argv['glb'],
+        use3dTilesNext : argv['3d-tiles-next']
     };
     return savePointCloudTimeDynamic('PointCloudTimeDynamicWithTransform', options);
 }
 
 function createPointCloudTimeDynamicDraco() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     var options = {
         draco : true
     };
@@ -957,14 +1003,9 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
     tileOptions.relativeToCenter = defaultValue(tileOptions.relativeToCenter, true);
     tilesetOptions = defaultValue(tilesetOptions, {});
 
-    var ext = '';
-    if (argv['3d-tiles-next']) {
-        tileOptions.use3dTilesNext = true;
-        tileOptions.useGlb = argv.glb;
-        ext = (argv.glb) ? '.glb' : '.gltf';
-    } else {
-        ext = '.b3dm';
-    }
+    var ext = calculateFilenameExt(argv['3d-tiles-next'], argv.glb, '.b3dm');
+    tileOptions.use3dTilesNext = argv['3d-tiles-next'];
+    tileOptions.useGlb = argv.glb;
 
     var contentUri = lowercase(tilesetName) + ext;
     tilesetOptions.contentUri = contentUri;
@@ -978,11 +1019,11 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
 
     return createBuildingsTile(tileOptions)
         .then(function(result) {
-            if (argv['3d-tiles-next']) {
-                tilesetOptions.versionNumber = '1.1';
-                var batchTableJson = result.batchTableJson;
-                tilesetOptions.properties = getProperties(batchTableJson);
+            var batchTableJson = result.batchTableJson;
+            tilesetOptions.properties = getProperties(batchTableJson);
+            tilesetOptions.versionNumber = versionNumber;
 
+            if (argv['3d-tiles-next']) {
                 if (argv.glb) {
                     // only save tileset.json if contentDataUri is present (the glb / gltf is embedded in the tileset.json)
                     if (tilesetOptions.contentDataUri) {
@@ -1026,21 +1067,25 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions) {
 
 function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     var tilesetDirectory = path.join(outputDirectory, 'PointCloud', tilesetName);
-    var contentUri = lowercase(tilesetName) + '.pnts';
-    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
     tileOptions = defaultValue(tileOptions, {});
     tileOptions.tileWidth = pointCloudTileWidth;
     tileOptions.transform = defaultValue(tileOptions.transform, pointCloudTransform);
     tileOptions.pointsLength = pointsLength;
+    tileOptions.use3dTilesNext = argv['3d-tiles-next'];
+
+    var ext = calculateFilenameExt(argv['3d-tiles-next'], argv.glb, '.pnts');
+
+    var contentUri = lowercase(tilesetName) + ext;
+    var tilePath = path.join(tilesetDirectory, contentUri);
 
     var result = createPointCloudTile(tileOptions);
-    var pnts = result.pnts;
     var batchTableJson = result.batchTableJson;
     var extensions = result.extensions;
 
     tilesetOptions = defaultValue(tilesetOptions, {});
+    tilesetOptions.versionNumber = versionNumber;
     tilesetOptions.contentUri = contentUri;
     tilesetOptions.properties = getProperties(batchTableJson);
     tilesetOptions.geometricError = pointCloudGeometricError;
@@ -1050,9 +1095,25 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions) {
     }
 
     var tilesetJson = createTilesetJsonSingle(tilesetOptions);
+    if (argv['3d-tiles-next'] && !argv.glb) {
+        return Promise.all([
+            saveJson(tilePath, result.gltf, prettyJson, gzip),
+            saveJson(tilesetPath, tilesetJson, prettyJson, gzip)
+        ]);
+    }
+
+    if (argv['3d-tiles-next'] && argv.glb) {
+        return Promise.all([
+            gltfToGlb(result.gltf, gltfConversionOptions).then(function(result) {
+                return saveBinary(tilePath, result.glb, gzip);
+            }),
+            saveJson(tilesetPath, tilesetJson, prettyJson, gzip)
+        ]);
+    }
+
     return Promise.all([
         saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
-        saveBinary(tilePath, pnts, gzip)
+        saveBinary(tilePath, result.pnts, gzip)
     ]);
 }
 
@@ -1060,6 +1121,8 @@ function savePointCloudTimeDynamic(name, options) {
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
     var useTransform = defaultValue(options.transform, false);
     var directory = path.join(outputDirectory, 'PointCloud', name);
+    var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
+    var useGlb = defaultValue(options.useGlb, false);
 
     var transform = pointCloudTransform;
     var relativeToCenter = true;
@@ -1077,16 +1140,34 @@ function savePointCloudTimeDynamic(name, options) {
         relativeToCenter: relativeToCenter,
         color: 'noise',
         shape: 'box',
-        draco: options.draco
+        draco: options.draco,
+        use3dTilesNext: use3dTilesNext,
+        useGlb: useGlb
     };
 
+    var ext = calculateFilenameExt(use3dTilesNext, useGlb, '.pnts');
+    var tilePath;
+
+    function getSaveBinaryFunction(tilePath) {
+        return function(result) {
+            return saveBinary(tilePath, result.glb, gzip);
+        };
+    }
+
     var tilePromises = [];
+
     for (var i = 0; i < 5; ++i) {
         var tileOptions = clone(pointCloudOptions);
         tileOptions.time = i * 0.1; // Seed for noise
-        var pnts = createPointCloudTile(tileOptions).pnts;
-        var tilePath = path.join(directory, i + '.pnts');
-        tilePromises.push(saveBinary(tilePath, pnts, gzip));
+        var result = createPointCloudTile(tileOptions);
+        tilePath = path.join(directory, i + ext);
+        if (use3dTilesNext && !useGlb) {
+            tilePromises.push(saveJson(tilePath, result.gltf, prettyJson, gzip));
+        } else if (useGlb) {
+            tilePromises.push(gltfToGlb(result.gltf, gltfConversionOptions).then(getSaveBinaryFunction(tilePath)));
+        } else {
+            tilePromises.push(saveBinary(tilePath, result.pnts, gzip));
+        }
     }
 
     return Promise.all(tilePromises);

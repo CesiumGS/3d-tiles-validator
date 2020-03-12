@@ -1,7 +1,7 @@
 'use strict';
 var Cesium = require('cesium');
 var createB3dm = require('./createB3dm');
-var createBatchTableExtension = require('./createBatchTableExtension');
+var createFeatureMetadataExtension = require('./createFeatureMetadataExtension');
 var createBuildings = require('./createBuildings');
 var path = require('path');
 var createGltf = require('./createGltf');
@@ -127,7 +127,7 @@ function createBuildingsTile(options) {
 
     // Don't add the batch table extension if there is no batchTableJson (e.g in the case of `createBatchedWithoutBatchTable`)
     if (use3dTilesNext && defined(b3dmOptions.batchTableJson)) {
-        gltf = createBatchTableExtension(gltf, b3dmOptions.batchTableJson, binary);
+        gltf = createFeatureMetadataExtension(gltf, b3dmOptions.batchTableJson, binary);
     }
 
     if (use3dTilesNext && !useGlb) {
