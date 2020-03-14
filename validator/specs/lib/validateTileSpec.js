@@ -19,7 +19,8 @@ describe('validateTile', () => {
     it('returns error message if the tile has an invalid magic', async () => {
         const message = await validateTile({
             content: Buffer.from('xxxx'),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Invalid magic: xxxx');
     });
@@ -27,7 +28,8 @@ describe('validateTile', () => {
     it('validates b3dm', async () => {
         const message = await validateTile({
             content: createB3dm(),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -35,7 +37,8 @@ describe('validateTile', () => {
     it('validates i3dm', async () => {
         const message = await validateTile({
             content: createI3dm(),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -43,7 +46,8 @@ describe('validateTile', () => {
     it('validates pnts', async () => {
         const message = await validateTile({
             content: createPnts(),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -51,7 +55,8 @@ describe('validateTile', () => {
     it('validates cmpt', async () => {
         const message = await validateTile({
             content: createCmpt(),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });

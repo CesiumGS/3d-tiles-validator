@@ -11,7 +11,8 @@ describe('validate cmpt', () => {
     it ('returns error message if the cmpt buffer\'s byte length is less than its header length', async () => {
         const message = await validateCmpt({
             content: Buffer.alloc(0),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Header must be 16 bytes.');
     });
@@ -21,7 +22,8 @@ describe('validate cmpt', () => {
         cmpt.write('xxxx', 0);
         const message = await validateCmpt({
             content: cmpt,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Invalid magic: xxxx');
     });
@@ -31,7 +33,8 @@ describe('validate cmpt', () => {
         cmpt.writeUInt32LE(10, 4);
         const message = await validateCmpt({
             content: cmpt,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Invalid version: 10. Version must be 1.');
     });
@@ -41,7 +44,8 @@ describe('validate cmpt', () => {
         cmpt.writeUInt32LE(0, 8);
         const message = await validateCmpt({
             content: cmpt,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeDefined();
         expect(message.indexOf('byteLength of 0 does not equal the tile\'s actual byte length of') === 0).toBe(true);
@@ -53,7 +57,8 @@ describe('validate cmpt', () => {
         const cmpt = createCmpt([i3dm, b3dmStub]);
         const message = await validateCmpt({
             content: cmpt,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Cannot read byte length from inner tile, exceeds cmpt tile\'s byte length.');
     });
@@ -66,7 +71,8 @@ describe('validate cmpt', () => {
         const cmpt = createCmpt([pnts, b3dm]);
         const message = await validateCmpt({
             content: cmpt,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Inner tile must be aligned to an 8-byte boundary');
     });
@@ -79,7 +85,8 @@ describe('validate cmpt', () => {
         const cmpt = createCmpt([i3dm, b3dm]);
         const message = await validateCmpt({
             content: cmpt,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Error in inner b3dm tile: Feature table binary must be aligned to an 8-byte boundary.');
     });
@@ -94,7 +101,8 @@ describe('validate cmpt', () => {
         const cmpt = createCmpt([pnts, cmptInner]);
         const message = await validateCmpt({
             content: cmpt,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Error in inner cmpt tile: Error in inner b3dm tile: Feature table binary must be aligned to an 8-byte boundary.');
     });
@@ -106,7 +114,8 @@ describe('validate cmpt', () => {
         const cmpt = createCmpt([b3dm, i3dm]);
         const message = await validateCmpt({
             content: cmpt,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Invalid inner tile magic: xxxx');
     });
@@ -114,7 +123,8 @@ describe('validate cmpt', () => {
     it('validates cmpt with no inner tiles', async () => {
         const message = await validateCmpt({
             content: createCmpt(),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -125,7 +135,8 @@ describe('validate cmpt', () => {
         const b3dm = createB3dm();
         const message = await validateCmpt({
             content: createCmpt([pnts, i3dm, b3dm]),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -137,7 +148,8 @@ describe('validate cmpt', () => {
         const cmpt = createCmpt([b3dm, i3dm]);
         const message = await validateCmpt({
             content: createCmpt([pnts, cmpt]),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });

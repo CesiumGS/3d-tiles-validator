@@ -34,8 +34,6 @@ const argv = yargs
         }
     }).parse(args);
 
-return validate(argv);
-
 async function validate(argv) {
     const filePath = argv.input;
     const writeReports = argv.writeReports;
@@ -46,13 +44,14 @@ async function validate(argv) {
             message = await validateTile({
                 content: await readTile(filePath),
                 filePath: filePath,
+                directory: path.dirname(filePath),
                 writeReports: writeReports
             });
         } else {
             message = await validateTileset({
                 tileset: await readTileset(filePath),
                 filePath: filePath,
-                tilesetDirectory: path.dirname(filePath),
+                directory: path.dirname(filePath),
                 writeReports: writeReports
             });
         }
@@ -67,3 +66,5 @@ async function validate(argv) {
         console.log(`${filePath} is valid`);
     }
 }
+
+return validate(argv);

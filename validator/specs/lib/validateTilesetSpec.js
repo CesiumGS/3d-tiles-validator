@@ -47,7 +47,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         const error = 'Each tile must define geometricError';
         expect(message.slice(0, error.length)).toBe(error);
@@ -59,7 +59,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         const error = 'geometricError must be greater than or equal to 0.0';
         expect(message.slice(0, error.length)).toBe(error);
@@ -71,7 +71,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         const error = 'Child has geometricError greater than parent';
         expect(message.slice(0, error.length)).toBe(error);
@@ -83,7 +83,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         const error = 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
         expect(message.slice(0, error.length)).toBe(error);
@@ -95,7 +95,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         expect(message).toBe('Tileset must declare its geometricError as a top-level property.');
     });
@@ -106,7 +106,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         const error = 'Tileset must define refine property in root tile';
         expect(message.slice(0, error.length)).toBe(error);
@@ -118,7 +118,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         expect(message).toBe('Tileset must declare its asset as a top-level property.');
     });
@@ -129,7 +129,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         expect(message).toBe('Tileset must declare a version in its asset property');
     });
@@ -140,7 +140,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         expect(message).toBe(`Tileset version must be 1.0. Tileset version provided: ${tileset.asset.version}`);
     });
@@ -166,7 +166,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         const error = `content bounding volume is not within tile bounding volume: box [${contentBoundingVolume.box}] is not within box [${tileBoundingVolume.box}]`;
         expect(message.slice(0, error.length)).toBe(error);
@@ -193,7 +193,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         const error = `content bounding volume is not within tile bounding volume: box [${contentBoundingVolume.box}] is not within box [${tileBoundingVolume.box}]`;
         expect(message.slice(0, error.length)).toBe(error);
@@ -220,7 +220,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -241,7 +241,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         const error = `content bounding volume is not within tile bounding volume: box [${contentBoundingVolume.box}] is not within sphere [${tileBoundingVolume.sphere}]`;
         expect(message.slice(0, error.length)).toBe(error);
@@ -263,7 +263,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -284,7 +284,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         const error = `content bounding volume is not within tile bounding volume: sphere [${contentBoundingVolume.sphere}] is not within box [${tileBoundingVolume.box}]`;
         expect(message.slice(0, error.length)).toBe(error);
@@ -306,7 +306,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         const error = `content bounding volume is not within tile bounding volume: sphere [${contentBoundingVolume.sphere}] is not within box [${tileBoundingVolume.box}]`;
         expect(message.slice(0, error.length)).toBe(error);
@@ -328,7 +328,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         const error = `content bounding volume is not within tile bounding volume: sphere [${contentBoundingVolume.sphere}] is not within box [${tileBoundingVolume.box}]`;
         expect(message.slice(0, error.length)).toBe(error);
@@ -350,7 +350,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -384,7 +384,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: tileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -393,7 +393,7 @@ describe('validateTileset', () => {
         const message = await validateTileset({
             tileset: sampleTileset,
             filePath: 'filepath',
-            tilesetDirectory: '.'
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });

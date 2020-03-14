@@ -10,7 +10,8 @@ describe('validate b3dm', () => {
     it ('returns error message if the b3dm buffer\'s byte length is less than its header length', async () => {
         const message = await validateB3dm({
             content: Buffer.alloc(0),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Header must be 28 bytes.');
     });
@@ -20,7 +21,8 @@ describe('validate b3dm', () => {
         b3dm.write('xxxx', 0);
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Invalid magic: xxxx');
     });
@@ -30,7 +32,8 @@ describe('validate b3dm', () => {
         b3dm.writeUInt32LE(10, 4);
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Invalid version: 10. Version must be 1.');
     });
@@ -41,7 +44,8 @@ describe('validate b3dm', () => {
 
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeDefined();
         expect(message.indexOf('byteLength of 0 does not equal the tile\'s actual byte length of') === 0).toBe(true);
@@ -50,7 +54,8 @@ describe('validate b3dm', () => {
     it('returns error message if the b3dm header is a legacy version (1)', async () => {
         const message = await validateB3dm({
             content: createB3dmLegacy1(),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Header is using the legacy format [batchLength] [batchTableByteLength]. The new format is [featureTableJsonByteLength] [featureTableBinaryByteLength] [batchTableJsonByteLength] [batchTableBinaryByteLength].');
     });
@@ -58,7 +63,8 @@ describe('validate b3dm', () => {
     it('returns error message if the b3dm header is a legacy version (2)', async () => {
         const message = await validateB3dm({
             content: createB3dmLegacy2(),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Header is using the legacy format [batchTableJsonByteLength] [batchTableBinaryByteLength] [batchLength]. The new format is [featureTableJsonByteLength] [featureTableBinaryByteLength] [batchTableJsonByteLength] [batchTableBinaryByteLength].');
     });
@@ -69,7 +75,8 @@ describe('validate b3dm', () => {
         });
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table binary must be aligned to an 8-byte boundary.');
     });
@@ -80,7 +87,8 @@ describe('validate b3dm', () => {
         });
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Batch table binary must be aligned to an 8-byte boundary.');
     });
@@ -91,7 +99,8 @@ describe('validate b3dm', () => {
         });
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Glb must be aligned to an 8-byte boundary.');
     });
@@ -101,7 +110,8 @@ describe('validate b3dm', () => {
         b3dm.writeUInt32LE(6004, 12);
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table, batch table, and glb byte lengths exceed the tile\'s byte length.');
     });
@@ -112,7 +122,8 @@ describe('validate b3dm', () => {
         b3dm.writeUInt8(charCode, 28); // Replace '{' with '!'
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table JSON could not be parsed: Unexpected token ! in JSON at position 0');
     });
@@ -133,7 +144,8 @@ describe('validate b3dm', () => {
         b3dm.writeUInt8(charCode, batchTableJsonByteOffset); // Replace '{' with '!'
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Batch table JSON could not be parsed: Unexpected token ! in JSON at position 0');
     });
@@ -146,7 +158,8 @@ describe('validate b3dm', () => {
         });
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table must contain a BATCH_LENGTH property.');
     });
@@ -160,7 +173,8 @@ describe('validate b3dm', () => {
         });
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Invalid feature table property "INVALID".');
     });
@@ -180,7 +194,8 @@ describe('validate b3dm', () => {
         });
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
     });
@@ -193,7 +208,8 @@ describe('validate b3dm', () => {
         });
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -209,7 +225,8 @@ describe('validate b3dm', () => {
         });
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -230,7 +247,8 @@ describe('validate b3dm', () => {
         });
         const message = await validateB3dm({
             content: b3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });

@@ -2,6 +2,7 @@
 const Cesium = require('cesium');
 
 const bufferToJson = require('./bufferToJson');
+const isDataUri = require('./isDataUri');
 const utility = require('./utility');
 const validateBatchTable = require('./validateBatchTable');
 const validateFeatureTable = require('./validateFeatureTable');
@@ -92,6 +93,7 @@ const featureTableSemantics = {
  * @param {Object} options An object with the following properties:
  * @param {Buffer} options.content A buffer containing the contents of an i3dm tile.
  * @param {String} options.filePath The tile's file path.
+ * @param {String} options.directory The tile's directory.
  * @param {Boolean} [options.writeReports=false] Write glTF error report next to the glTF file in question.
  * @returns {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
  */
@@ -212,9 +214,11 @@ async function validateI3dm(options) {
     }
 
     if (embeddedGlb) {
+        const filePath = isDataUri(options.filePath) ? options.filePath : `${options.filePath}.glb`;
         const glbMessage = await validateGlb({
             glb: glb,
-            filePath: `${options.filePath}.glb`,
+            filePath: filePath,
+            directory: options.directory,
             writeReports: options.writeReports
         });
         if (defined(glbMessage)) {

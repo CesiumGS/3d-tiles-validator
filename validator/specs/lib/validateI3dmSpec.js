@@ -8,7 +8,8 @@ describe('validate i3dm', () => {
     it ('returns error message if the i3dm buffer\'s byte length is less than its header length', async () => {
         const message = await validateI3dm({
             content: Buffer.alloc(0),
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Header must be 32 bytes.');
     });
@@ -18,7 +19,8 @@ describe('validate i3dm', () => {
         i3dm.write('xxxx', 0);
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Invalid magic: xxxx');
     });
@@ -28,7 +30,8 @@ describe('validate i3dm', () => {
         i3dm.writeUInt32LE(10, 4);
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Invalid version: 10. Version must be 1.');
     });
@@ -38,7 +41,8 @@ describe('validate i3dm', () => {
         i3dm.writeUInt32LE(0, 8);
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeDefined();
         expect(message.indexOf('byteLength of 0 does not equal the tile\'s actual byte length of') === 0).toBe(true);
@@ -50,7 +54,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table binary must be aligned to an 8-byte boundary.');
     });
@@ -61,7 +66,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Batch table binary must be aligned to an 8-byte boundary.');
     });
@@ -72,7 +78,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Glb must be aligned to an 8-byte boundary.');
     });
@@ -82,7 +89,8 @@ describe('validate i3dm', () => {
         i3dm.writeUInt32LE(6000, 12);
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table, batch table, and glb byte lengths exceed the tile\'s byte length.');
     });
@@ -93,7 +101,8 @@ describe('validate i3dm', () => {
         i3dm.writeUInt8(charCode, 32); // Replace '{' with '!'
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table JSON could not be parsed: Unexpected token ! in JSON at position 0');
     });
@@ -115,7 +124,8 @@ describe('validate i3dm', () => {
         i3dm.writeUInt8(charCode, batchTableJsonByteOffset); // Replace '{' with '!'
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Batch table JSON could not be parsed: Unexpected token ! in JSON at position 0');
     });
@@ -128,7 +138,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table must contain an INSTANCES_LENGTH property.');
     });
@@ -141,7 +152,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table must contain either the POSITION or POSITION_QUANTIZED property.');
     });
@@ -156,7 +168,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table property NORMAL_RIGHT is required when NORMAL_UP is present.');
     });
@@ -171,7 +184,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table property NORMAL_UP is required when NORMAL_RIGHT is present.');
     });
@@ -186,7 +200,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table property NORMAL_RIGHT_OCT32P is required when NORMAL_UP_OCT32P is present.');
     });
@@ -201,7 +216,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table property NORMAL_UP_OCT32P is required when NORMAL_RIGHT_OCT32P is present.');
     });
@@ -215,7 +231,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Feature table properties QUANTIZED_VOLUME_OFFSET and QUANTIZED_VOLUME_SCALE are required when POSITION_QUANTIZED is present.');
     });
@@ -230,7 +247,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Invalid feature table property "INVALID".');
     });
@@ -251,7 +269,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
     });
@@ -265,7 +284,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -284,7 +304,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });
@@ -309,7 +330,8 @@ describe('validate i3dm', () => {
         });
         const message = await validateI3dm({
             content: i3dm,
-            filePath: 'filepath'
+            filePath: 'filepath',
+            directory: '.'
         });
         expect(message).toBeUndefined();
     });

@@ -3,6 +3,7 @@ const Cesium = require('cesium');
 const path = require('path');
 const Promise = require('bluebird');
 
+const isDataUri = require('./isDataUri');
 const isTile = require('./isTile');
 const readTile = require('./readTile');
 const readTileset = require('./readTileset');
@@ -29,7 +30,7 @@ module.exports = validateTileset;
  * @param {Object} options An object with the following properties:
  * @param {Buffer} options.tileset The tileset JSON.
  * @param {String} options.filePath The tileset JSON file path.
- * @param {String} options.tilesetDirectory The directory that all paths in the tileset JSON are relative to.
+ * @param {String} options.directory The directory containing the tileset JSON that all paths in the tileset JSON are relative to.
  * @returns {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
  */
 async function validateTileset(options) {
@@ -65,7 +66,7 @@ function validateTopLevel(tileset) {
 
 async function validateTileHierarchy(root, options) {
     const filePath = options.filePath;
-    const tilesetDirectory = options.tilesetDirectory;
+    const directory = options.directory;
     const contentPaths = [];
 
     const stack = [];
@@ -93,7 +94,11 @@ async function validateTileHierarchy(root, options) {
         }
 
         if (defined(content) && defined(content.uri)) {
-            contentPaths.push(path.join(tilesetDirectory, content.uri));
+            if (isDataUri(content.uri)) {
+                contentPaths.push(content.uri);
+            } else {
+                contentPaths.push(path.join(directory, content.uri));
+            }
         }
 
         if (defined(content) && defined(content.boundingVolume)) {
@@ -128,10 +133,10 @@ async function validateTileHierarchy(root, options) {
 
     let completed = 0;
     const contentPathsLength = contentPaths.length;
-    console.log(`Validating ${filePath} - ${contentPathsLength} sub tiles`);
+    //console.log(`Validating ${filePath} - ${contentPathsLength} sub tiles`);
 
     const messages = await Promise.map(contentPaths, async contentPath => {
-        const message = await validateContent(contentPath);
+        const message = await validateContent(contentPath, directory, options);
         completed++;
         if (completed % 32 === 0) {
             console.log(`[${filePath}] ${100 * completed / contentPathsLength}% done`);
@@ -150,23 +155,32 @@ async function validateTileHierarchy(root, options) {
     return message;
 }
 
-async function validateContent(contentPath, options) {
+async function validateContent(contentPath, directory, options) {
     try {
-        if (isTile(contentPath)) {
+        if (isDataUri(contentPath)) {
+            const content = Buffer.from(contentPath.split(',')[1], 'base64');
+            return await validateTile({
+                content: content,
+                filePath: contentPath,
+                directory: directory,
+                writeReports: options.writeReports
+            });
+        } else if (isTile(contentPath)) {
             return await validateTile({
                 content: await readTile(contentPath),
                 filePath: contentPath,
+                directory: path.dirname(contentPath),
                 writeReports: options.writeReports
             });
         }
         return await validateTileset({
             tileset: await readTileset(contentPath),
             filePath: contentPath,
-            tilesetDirectory: path.dirname(contentPath),
+            directory: path.dirname(contentPath),
             writeReports: options.writeReports
         });
     } catch (error) {
-        console.log(`Could not read file: + ${error.message}`);
+        console.log(`Could not read file: ${error.message}`);
     }
 }
 
