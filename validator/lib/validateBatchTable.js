@@ -1,83 +1,69 @@
 'use strict';
-var djv = require('djv');
-var Cesium = require('cesium');
-var utility = require('./utility');
+const Cesium = require('cesium');
 
-var componentTypeToByteLength = utility.componentTypeToByteLength;
-var typeToComponentsLength = utility.typeToComponentsLength;
-var extrasSchema = require('../specs/data/schema/extras.schema.json');
-var extensionSchema = require('../specs/data/schema/extension.schema.json');
+const utility = require('./utility');
 
-var defined = Cesium.defined;
+const defined = Cesium.defined;
+
+const componentTypeToByteLength = utility.componentTypeToByteLength;
+const typeToComponentsLength = utility.typeToComponentsLength;
 
 module.exports = validateBatchTable;
 
 /**
  * Checks if the batch table JSON and batch table binary are valid
  *
- * @param {Object} schema A JSON object containing the schema for the batch table.
  * @param {Object} batchTableJson Batch table JSON.
  * @param {Buffer} batchTableBinary Batch table binary.
  * @param {Number} featuresLength The number of features.
  * @returns {String} An error message if validation fails, otherwise undefined.
  */
-function validateBatchTable(schema, batchTableJson, batchTableBinary, featuresLength) {
-    for (var name in batchTableJson) {
+function validateBatchTable(batchTableJson, batchTableBinary, featuresLength) {
+    for (const name in batchTableJson) {
         if (batchTableJson.hasOwnProperty(name)) {
-            var property = batchTableJson[name];
-            var byteOffset = property.byteOffset;
+            const property = batchTableJson[name];
+            const byteOffset = property.byteOffset;
 
             if (defined(byteOffset)) {
                 if (typeof byteOffset !== 'number') {
-                    return 'Batch table binary property "' + name + '" byteOffset must be a number.';
+                    return `Batch table binary property "${name}" byteOffset must be a number.`;
                 }
 
-                var componentType = property.componentType;
-                var type = property.type;
+                const componentType = property.componentType;
+                const type = property.type;
 
                 if (!defined(type)) {
-                    return 'Batch table binary property "' + name + '" must have a type.';
+                    return `Batch table binary property "${name}" must have a type.`;
                 }
 
                 if (!defined(componentType)) {
-                    return 'Batch table binary property "' + name + '" must have a componentType.';
+                    return `Batch table binary property "${name}" must have a componentType.`;
                 }
 
-                var componentsLength = typeToComponentsLength(type);
-                var componentByteLength = componentTypeToByteLength(componentType);
+                const componentsLength = typeToComponentsLength(type);
+                const componentByteLength = componentTypeToByteLength(componentType);
 
                 if (!defined(componentsLength)) {
-                    return 'Batch table binary property "' + name + '" has invalid type "' + type+ '".';
+                    return `Batch table binary property "${name}" has invalid type "${type}".`;
                 }
                 if (!defined(componentByteLength)) {
-                    return 'Batch table binary property "' + name + '" has invalid componentType "' + componentType + '".';
+                    return `Batch table binary property "${name}" has invalid componentType "${componentType}".`;
                 }
                 if (byteOffset % componentByteLength > 0) {
-                    return 'Batch table binary property "' + name + '" must be aligned to a ' + componentByteLength + '-byte boundary.';
+                    return `Batch table binary property "${name}" must be aligned to a ${componentByteLength}-byte boundary.`;
                 }
-                var propertyByteLength = componentsLength * componentByteLength * featuresLength;
+                const propertyByteLength = componentsLength * componentByteLength * featuresLength;
                 if (byteOffset + propertyByteLength > batchTableBinary.length) {
-                    return 'Batch table binary property "' + name + '" exceeds batch table binary byte length.';
+                    return `Batch table binary property "${name}" exceeds batch table binary byte length.`;
                 }
-            } else if (name === 'HIERARCHY') {
-                // TODO : validate batch table hierarchy
             } else {
                 if (!Array.isArray(property)) {
-                    return 'Batch table property "' + name + '" must be an array.';
+                    return `Batch table property "${name}" must be an array.`;
                 }
                 if (property.length !== featuresLength) {
-                    return 'Batch table property "' + name + '" array length must equal features length ' + featuresLength + '.';
+                    return `Batch table property "${name}" array length must equal features length ${featuresLength}.`;
                 }
             }
         }
-    }
-
-    const env = new djv({ version: 'draft-04' });
-    env.addSchema('extras.schema.json', extrasSchema);
-    env.addSchema('extension.schema.json', extensionSchema);
-    env.addSchema('batchTable.schema.json', schema);
-    var validSchema = env.validate('batchTable.schema.json', batchTableJson);
-    if (validSchema !== undefined) {
-        return 'Batch table JSON failed schema validation: ' + validSchema;
     }
 }

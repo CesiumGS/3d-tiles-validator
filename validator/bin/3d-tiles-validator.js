@@ -1,65 +1,69 @@
-#!/usr/bin/env node
 'use strict';
-var Cesium = require('cesium');
-var path = require('path');
-var yargs = require('yargs');
-var isTile = require('../lib/isTile');
-var readTile = require('../lib/readTile');
-var readTileset = require('../lib/readTileset');
-var validateTile = require('../lib/validateTile');
-var validateTileset = require('../lib/validateTileset');
+const Cesium = require('cesium');
+const path = require('path');
+const yargs = require('yargs');
 
-var defined = Cesium.defined;
+const isTile = require('../lib/isTile');
+const readTile = require('../lib/readTile');
+const readTileset = require('../lib/readTileset');
+const validateTile = require('../lib/validateTile');
+const validateTileset = require('../lib/validateTileset');
 
-var args = process.argv.slice(2);
-global.argv = yargs
+const defined = Cesium.defined;
+
+const args = process.argv;
+const argv = yargs
     .usage('Usage: node $0 -i <path>')
+    .example('node $0 -i tile.b3dm')
+    .example('node $0 -i tileset.json')
     .help('h')
     .alias('h', 'help')
     .options({
-        'i': {
-            alias: 'input',
-            description: 'Input path for the tileset or tile.',
+        input: {
+            alias: 'i',
+            describe: 'Path to the tileset JSON or tile to validate.',
             normalize: true,
             demandOption: true,
             type: 'string'
         },
-        'r': {
-            alias: 'writeReports',
-            description: 'Write glTF error reports next to the glTF file in question.',
+        writeReports: {
+            alias: 'r',
+            describe: 'Write glTF error report next to the glTF file in question.',
             default: false,
             type: 'boolean'
         }
-    })
-    .recommendCommands()
-    .strict()
-    .parse(args);
+    }).parse(args);
 
-var promise;
-var filePath = argv.input;
-var extension = path.extname(filePath);
-if (extension === '') {
-    filePath = path.join(filePath, 'tileset.json');
-}
+return validate(argv);
 
-if (isTile(filePath)) {
-    promise = readTile(filePath)
-        .then(function(content) {
-            return validateTile(content, filePath);
-        });
-} else {
-    promise = readTileset(filePath)
-        .then(function(tileset) {
-            return validateTileset(tileset, filePath, path.dirname(filePath));
-        });
-}
+async function validate(argv) {
+    const filePath = argv.input;
+    const writeReports = argv.writeReports;
+    let message;
 
-promise.then(function(message) {
+    try {
+        if (isTile(filePath)) {
+            message = await validateTile({
+                content: await readTile(filePath),
+                filePath: filePath,
+                writeReports: writeReports
+            });
+        } else {
+            message = await validateTileset({
+                tileset: await readTileset(filePath),
+                filePath: filePath,
+                tilesetDirectory: path.dirname(filePath),
+                writeReports: writeReports
+            });
+        }
+    } catch (error) {
+        console.log(`Could not read input: ${error.message}`);
+        return;
+    }
+
     if (defined(message)) {
         console.log(message);
     } else {
-        console.log(filePath + ' is valid');
+        console.log(`${filePath} is valid`);
     }
-}).catch(function(error) {
-    console.log('Could not read ' + error.message);
-});
+}

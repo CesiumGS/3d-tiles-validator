@@ -1,44 +1,52 @@
 'use strict';
-var Cesium = require('cesium');
-var validateB3dm = require('../lib/validateB3dm');
-var validateI3dm = require('../lib/validateI3dm');
-var validatePnts = require('../lib/validatePnts');
+const Cesium = require('cesium');
 
-var defined = Cesium.defined;
+const validateB3dm = require('./validateB3dm');
+const validateI3dm = require('./validateI3dm');
+const validatePnts = require('./validatePnts');
+
+const clone = Cesium.clone;
+const defined = Cesium.defined;
 
 module.exports = validateCmpt;
 
 /**
  * Checks if the provided buffer has valid cmpt tile content.
  *
- * @param {Buffer} content A buffer containing the contents of a cmpt tile.
- * @returns {String} An error message if validation fails, otherwise undefined.
+ * @param {Object} options An object with the following properties:
+ * @param {Buffer} options.content A buffer containing the contents of a cmpt tile.
+ * @param {String} options.filePath The tile's file path.
+ * @param {Boolean} [options.writeReports=false] Write glTF error report next to the glTF file in question.
+ * @returns {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
  */
-function validateCmpt(content, filePath) {
-    var headerByteLength = 16;
+async function validateCmpt(options) {
+    options = clone(options, false);
+    const content = options.content;
+
+    const headerByteLength = 16;
     if (content.length < headerByteLength) {
         return 'Header must be 16 bytes.';
     }
 
-    var magic = content.toString('utf8', 0, 4);
-    var version = content.readUInt32LE(4);
-    var byteLength = content.readUInt32LE(8);
-    var tilesLength = content.readUInt32LE(12);
+    const magic = content.toString('utf8', 0, 4);
+    const version = content.readUInt32LE(4);
+    const byteLength = content.readUInt32LE(8);
+    const tilesLength = content.readUInt32LE(12);
 
     if (magic !== 'cmpt') {
-        return 'Invalid magic: ' + magic;
+        return `Invalid magic: ${magic}`;
     }
 
     if (version !== 1) {
-        return 'Invalid version: ' + version + '. Version must be 1.';
+        return `Invalid version: ${version}. Version must be 1.`;
     }
 
     if (byteLength !== content.length) {
-        return 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
+        return `byteLength of ${byteLength} does not equal the tile\'s actual byte length of ${content.length}.`;
     }
 
-    var byteOffset = headerByteLength;
-    for (var i = 0; i < tilesLength; ++i) {
+    let byteOffset = headerByteLength;
+    for (let i = 0; i < tilesLength; i++) {
         if (byteOffset + 12 > byteLength) {
             return 'Cannot read byte length from inner tile, exceeds cmpt tile\'s byte length.';
         }
@@ -46,25 +54,27 @@ function validateCmpt(content, filePath) {
             return 'Inner tile must be aligned to an 8-byte boundary';
         }
 
-        var innerTileMagic = content.toString('utf8', byteOffset, byteOffset + 4);
-        var innerTileByteLength = content.readUInt32LE(byteOffset + 8);
-        var innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
+        const innerTileMagic = content.toString('utf8', byteOffset, byteOffset + 4);
+        const innerTileByteLength = content.readUInt32LE(byteOffset + 8);
+        const innerTile = content.slice(byteOffset, byteOffset + innerTileByteLength);
 
-        var message;
+        options.content = innerTile;
+
+        let message;
         if (innerTileMagic === 'b3dm') {
-            message = validateB3dm(innerTile);
+            message = await validateB3dm(options);
         } else if (innerTileMagic === 'i3dm') {
-            message = validateI3dm(innerTile);
+            message = await validateI3dm(options);
         } else if (innerTileMagic === 'pnts') {
-            message = validatePnts(innerTile);
+            message = await validatePnts(options);
         } else if (innerTileMagic === 'cmpt') {
-            message = validateCmpt(innerTile);
+            message = await validateCmpt(options);
         } else {
-            return 'Invalid inner tile magic: ' + innerTileMagic;
+            return `Invalid inner tile magic: ${innerTileMagic}`;
         }
 
         if (defined(message)) {
-            return 'Error in inner ' + innerTileMagic + ' tile: ' + message;
+            return `Error in inner ${innerTileMagic} tile: ${message}`;
         }
 
         byteOffset += innerTileByteLength;

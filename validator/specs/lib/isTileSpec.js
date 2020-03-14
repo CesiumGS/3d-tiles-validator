@@ -1,8 +1,8 @@
 'use strict';
-var isTile = require('../../lib/isTile');
+const isTile = require('../../lib/isTile');
 
-describe('isTile', function() {
-    it('detects if the file path is a tile', function() {
+describe('isTile', () => {
+    it('detects if the file path is a tile', () => {
         expect(isTile('tile.b3dm')).toBe(true);
         expect(isTile('tile.i3dm')).toBe(true);
         expect(isTile('tile.pnts')).toBe(true);

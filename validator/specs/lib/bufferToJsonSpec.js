@@ -1,20 +1,19 @@
 'use strict';
-var bufferToJson = require('../../lib/bufferToJson');
+const bufferToJson = require('../../lib/bufferToJson');
 
-describe('bufferToJson', function() {
-    it('empty buffer returns empty object', function() {
-        var buffer = Buffer.alloc(0);
-        var result = bufferToJson(buffer);
+describe('bufferToJson', () => {
+    it('empty buffer returns empty object', () => {
+        const buffer = Buffer.alloc(0);
+        const result = bufferToJson(buffer);
         expect(result).toEqual({});
     });
 
-    it('converts buffer to JSON object', function() {
-        var json = {
-            version : 1
+    it('converts buffer to JSON object', () => {
+        const json = {
+            version: 1
         };
-        var buffer = Buffer.from(JSON.stringify(json));
-        var result = bufferToJson(buffer);
+        const buffer = Buffer.from(JSON.stringify(json));
+        const result = bufferToJson(buffer);
         expect(result).toEqual(json);
     });
-
 });

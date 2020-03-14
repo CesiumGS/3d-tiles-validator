@@ -1,22 +1,20 @@
 'use strict';
-var Cesium = require('cesium');
-var bufferToJson = require('../lib/bufferToJson');
-var validateBatchTable = require('../lib/validateBatchTable');
-var validateFeatureTable = require('../lib/validateFeatureTable');
-var validateGlb = require('../lib/validateGlb');
+const Cesium = require('cesium');
 
-var batchTableSchema = require('../specs/data/schema/batchTable.schema.json');
-var featureTableSchema = require('../specs/data/schema/featureTable.schema.json');
+const bufferToJson = require('./bufferToJson');
+const validateBatchTable = require('./validateBatchTable');
+const validateFeatureTable = require('./validateFeatureTable');
+const validateGlb = require('./validateGlb');
 
-var defined = Cesium.defined;
+const defined = Cesium.defined;
 
 module.exports = validateB3dm;
 
-var featureTableSemantics = {
-    BATCH_LENGTH : {
-        global : true,
-        type : 'SCALAR',
-        componentType : 'UNSIGNED_INT'
+const featureTableSemantics = {
+    BATCH_LENGTH: {
+        global: true,
+        type: 'SCALAR',
+        componentType: 'UNSIGNED_INT'
     },
     RTC_CENTER: {
         global: true,
@@ -26,35 +24,40 @@ var featureTableSemantics = {
 };
 
 /**
- * Checks if provided buffer has valid b3dm tile content
+ * Checks if the provided buffer has valid b3dm tile content
  *
- * @param {Buffer} content A buffer containing the contents of a b3dm tile.
- * @returns {String} An error message if validation fails, otherwise undefined.
+ * @param {Object} options An object with the following properties:
+ * @param {Buffer} options.content A buffer containing the contents of a b3dm tile.
+ * @param {String} options.filePath The tile's file path.
+ * @param {Boolean} [options.writeReports=false] Write glTF error report next to the glTF file in question.
+ * @returns {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
  */
-function validateB3dm(content, filePath) {
-    var headerByteLength = 28;
+async function validateB3dm(options) {
+    const content = options.content;
+
+    const headerByteLength = 28;
     if (content.length < headerByteLength) {
         return 'Header must be 28 bytes.';
     }
 
-    var magic = content.toString('utf8', 0, 4);
-    var version = content.readUInt32LE(4);
-    var byteLength = content.readUInt32LE(8);
-    var featureTableJsonByteLength = content.readUInt32LE(12);
-    var featureTableBinaryByteLength = content.readUInt32LE(16);
-    var batchTableJsonByteLength = content.readUInt32LE(20);
-    var batchTableBinaryByteLength = content.readUInt32LE(24);
+    const magic = content.toString('utf8', 0, 4);
+    const version = content.readUInt32LE(4);
+    const byteLength = content.readUInt32LE(8);
+    const featureTableJsonByteLength = content.readUInt32LE(12);
+    const featureTableBinaryByteLength = content.readUInt32LE(16);
+    const batchTableJsonByteLength = content.readUInt32LE(20);
+    const batchTableBinaryByteLength = content.readUInt32LE(24);
 
     if (magic !== 'b3dm') {
-        return 'Invalid magic: ' + magic;
+        return `Invalid magic: ${magic}`;
     }
 
     if (version !== 1) {
-        return 'Invalid version: ' + version + '. Version must be 1.';
+        return `Invalid version: ${version}. Version must be 1.`;
     }
 
     if (byteLength !== content.length) {
-        return 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
+        return `byteLength of ${byteLength} does not equal the tile\'s actual byte length of ${content.length}.`;
     }
 
     // Legacy header #1: [batchLength] [batchTableByteLength]
@@ -69,12 +72,12 @@ function validateB3dm(content, filePath) {
         return 'Header is using the legacy format [batchTableJsonByteLength] [batchTableBinaryByteLength] [batchLength]. The new format is [featureTableJsonByteLength] [featureTableBinaryByteLength] [batchTableJsonByteLength] [batchTableBinaryByteLength].';
     }
 
-    var featureTableJsonByteOffset = headerByteLength;
-    var featureTableBinaryByteOffset = featureTableJsonByteOffset + featureTableJsonByteLength;
-    var batchTableJsonByteOffset = featureTableBinaryByteOffset + featureTableBinaryByteLength;
-    var batchTableBinaryByteOffset = batchTableJsonByteOffset + batchTableJsonByteLength;
-    var glbByteOffset = batchTableBinaryByteOffset + batchTableBinaryByteLength;
-    var glbByteLength = Math.max(byteLength - glbByteOffset, 0);
+    const featureTableJsonByteOffset = headerByteLength;
+    const featureTableBinaryByteOffset = featureTableJsonByteOffset + featureTableJsonByteLength;
+    const batchTableJsonByteOffset = featureTableBinaryByteOffset + featureTableBinaryByteLength;
+    const batchTableBinaryByteOffset = batchTableJsonByteOffset + batchTableJsonByteLength;
+    const glbByteOffset = batchTableBinaryByteOffset + batchTableBinaryByteLength;
+    const glbByteLength = Math.max(byteLength - glbByteOffset, 0);
 
     if (featureTableBinaryByteOffset % 8 > 0) {
         return 'Feature table binary must be aligned to an 8-byte boundary.';
@@ -92,43 +95,47 @@ function validateB3dm(content, filePath) {
         return 'Feature table, batch table, and glb byte lengths exceed the tile\'s byte length.';
     }
 
-    var featureTableJsonBuffer = content.slice(featureTableJsonByteOffset, featureTableBinaryByteOffset);
-    var featureTableBinary = content.slice(featureTableBinaryByteOffset, batchTableJsonByteOffset);
-    var batchTableJsonBuffer = content.slice(batchTableJsonByteOffset, batchTableBinaryByteOffset);
-    var batchTableBinary = content.slice(batchTableBinaryByteOffset, glbByteOffset);
-    var glbBuffer = content.slice(glbByteOffset, byteLength);
+    const featureTableJsonBuffer = content.slice(featureTableJsonByteOffset, featureTableBinaryByteOffset);
+    const featureTableBinary = content.slice(featureTableBinaryByteOffset, batchTableJsonByteOffset);
+    const batchTableJsonBuffer = content.slice(batchTableJsonByteOffset, batchTableBinaryByteOffset);
+    const batchTableBinary = content.slice(batchTableBinaryByteOffset, glbByteOffset);
+    const glb = content.slice(glbByteOffset, byteLength);
 
-    var featureTableJson;
-    var batchTableJson;
+    let featureTableJson;
+    let batchTableJson;
 
     try {
         featureTableJson = bufferToJson(featureTableJsonBuffer);
-    } catch(error) {
-        return 'Feature table JSON could not be parsed: ' + error.message;
+    } catch (error) {
+        return `Feature table JSON could not be parsed: ${error.message}`;
     }
 
     try {
         batchTableJson = bufferToJson(batchTableJsonBuffer);
-    } catch(error) {
-        return 'Batch table JSON could not be parsed: ' + error.message;
+    } catch (error) {
+        return `Batch table JSON could not be parsed: ${error.message}`;
     }
 
-    var featuresLength = featureTableJson.BATCH_LENGTH;
+    const featuresLength = featureTableJson.BATCH_LENGTH;
     if (!defined(featuresLength)) {
         return 'Feature table must contain a BATCH_LENGTH property.';
     }
 
-    var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
+    const featureTableMessage = validateFeatureTable(featureTableJson, featureTableBinary, featuresLength, featureTableSemantics);
     if (defined(featureTableMessage)) {
         return featureTableMessage;
     }
 
-    var batchTableMessage = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, featuresLength);
+    const batchTableMessage = validateBatchTable(batchTableJson, batchTableBinary, featuresLength);
     if (defined(batchTableMessage)) {
         return batchTableMessage;
     }
 
-    var glbMessage = validateGlb(glbBuffer, filePath + ".glb");
+    const glbMessage = await validateGlb({
+        glb: glb,
+        filePath: `${options.filePath}.glb`,
+        writeReports: options.writeReports
+    });
     if (defined(glbMessage)) {
         return glbMessage;
     }

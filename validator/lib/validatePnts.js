@@ -1,129 +1,130 @@
 'use strict';
-var Cesium = require('cesium');
-var bufferToJson = require('../lib/bufferToJson');
-var validateBatchTable = require('../lib/validateBatchTable');
-var validateFeatureTable = require('../lib/validateFeatureTable');
+const Cesium = require('cesium');
 
-var batchTableSchema = require('../specs/data/schema/batchTable.schema.json');
-var featureTableSchema = require('../specs/data/schema/featureTable.schema.json');
+const bufferToJson = require('./bufferToJson');
+const validateBatchTable = require('./validateBatchTable');
+const validateFeatureTable = require('./validateFeatureTable');
 
-var defaultValue = Cesium.defaultValue;
-var defined = Cesium.defined;
-var Cesium3DTileFeatureTable = Cesium.Cesium3DTileFeatureTable;
-var ComponentDatatype = Cesium.ComponentDatatype;
+const Cesium3DTileFeatureTable = Cesium.Cesium3DTileFeatureTable;
+const ComponentDatatype = Cesium.ComponentDatatype;
+const defaultValue = Cesium.defaultValue;
+const defined = Cesium.defined;
 
 module.exports = validatePnts;
 
-var featureTableSemantics = {
-    POSITION : {
-        global : false,
-        type : 'VEC3',
-        componentType : 'FLOAT'
+const featureTableSemantics = {
+    POSITION: {
+        global: false,
+        type: 'VEC3',
+        componentType: 'FLOAT'
     },
-    POSITION_QUANTIZED : {
-        global : false,
-        type : 'VEC3',
-        componentType : 'UNSIGNED_SHORT'
+    POSITION_QUANTIZED: {
+        global: false,
+        type: 'VEC3',
+        componentType: 'UNSIGNED_SHORT'
     },
-    RGBA : {
-        global : false,
-        type : 'VEC4',
-        componentType : 'UNSIGNED_BYTE'
+    RGBA: {
+        global: false,
+        type: 'VEC4',
+        componentType: 'UNSIGNED_BYTE'
     },
-    RGB : {
-        global : false,
-        type : 'VEC3',
-        componentType : 'UNSIGNED_BYTE'
+    RGB: {
+        global: false,
+        type: 'VEC3',
+        componentType: 'UNSIGNED_BYTE'
     },
-    RGB565 : {
-        global : false,
-        type : 'SCALAR',
-        componentType : 'UNSIGNED_SHORT'
+    RGB565: {
+        global: false,
+        type: 'SCALAR',
+        componentType: 'UNSIGNED_SHORT'
     },
-    NORMAL : {
-        global : false,
-        type : 'VEC3',
-        componentType : 'FLOAT'
+    NORMAL: {
+        global: false,
+        type: 'VEC3',
+        componentType: 'FLOAT'
     },
-    NORMAL_OCT16P : {
-        global : false,
-        type : 'VEC2',
-        componentType : 'UNSIGNED_BYTE'
+    NORMAL_OCT16P: {
+        global: false,
+        type: 'VEC2',
+        componentType: 'UNSIGNED_BYTE'
     },
-    BATCH_ID : {
-        global : false,
-        type : 'SCALAR',
-        componentType : 'UNSIGNED_SHORT',
-        componentTypeOptions : ['UNSIGNED_BYTE', 'UNSIGNED_SHORT', 'UNSIGNED_INT']
+    BATCH_ID: {
+        global: false,
+        type: 'SCALAR',
+        componentType: 'UNSIGNED_SHORT',
+        componentTypeOptions: ['UNSIGNED_BYTE', 'UNSIGNED_SHORT', 'UNSIGNED_INT']
     },
-    POINTS_LENGTH : {
-        global : true,
-        type : 'SCALAR',
-        componentType : 'UNSIGNED_INT'
+    POINTS_LENGTH: {
+        global: true,
+        type: 'SCALAR',
+        componentType: 'UNSIGNED_INT'
     },
-    RTC_CENTER : {
-        global : true,
-        type : 'VEC3',
-        componentType : 'FLOAT'
+    RTC_CENTER: {
+        global: true,
+        type: 'VEC3',
+        componentType: 'FLOAT'
     },
-    QUANTIZED_VOLUME_OFFSET : {
-        global : true,
-        type : 'VEC3',
-        componentType : 'FLOAT'
+    QUANTIZED_VOLUME_OFFSET: {
+        global: true,
+        type: 'VEC3',
+        componentType: 'FLOAT'
     },
-    QUANTIZED_VOLUME_SCALE : {
-        global : true,
-        type : 'VEC3',
-        componentType : 'FLOAT'
+    QUANTIZED_VOLUME_SCALE: {
+        global: true,
+        type: 'VEC3',
+        componentType: 'FLOAT'
     },
-    CONSTANT_RGBA : {
-        global : true,
-        type : 'VEC4',
-        componentType : 'UNSIGNED_BYTE'
+    CONSTANT_RGBA: {
+        global: true,
+        type: 'VEC4',
+        componentType: 'UNSIGNED_BYTE'
     },
-    BATCH_LENGTH : {
-        global : true,
-        type : 'SCALAR',
-        componentType : 'UNSIGNED_INT'
+    BATCH_LENGTH: {
+        global: true,
+        type: 'SCALAR',
+        componentType: 'UNSIGNED_INT'
     }
 };
 
 /**
  * Checks if provided buffer has valid pnts tile content
  *
- * @param {Buffer} content A buffer containing the contents of a pnts tile.
- * @returns {String} An error message if validation fails, otherwise undefined.
+ * @param {Object} options An object with the following properties:
+ * @param {Buffer} options.content A buffer containing the contents of a pnts tile.
+ * @returns {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
  */
-function validatePnts(content, filePath) {
-    var headerByteLength = 28;
+async function validatePnts(options) {
+    const content = options.content;
+
+    const headerByteLength = 28;
     if (content.length < headerByteLength) {
         return 'Header must be 28 bytes.';
     }
 
-    var magic = content.toString('utf8', 0, 4);
-    var version = content.readUInt32LE(4);
-    var byteLength = content.readUInt32LE(8);
-    var featureTableJsonByteLength = content.readUInt32LE(12);
-    var featureTableBinaryByteLength = content.readUInt32LE(16);
-    var batchTableJsonByteLength = content.readUInt32LE(20);
-    var batchTableBinaryByteLength = content.readUInt32LE(24);
+    const magic = content.toString('utf8', 0, 4);
+    const version = content.readUInt32LE(4);
+    const byteLength = content.readUInt32LE(8);
+    const featureTableJsonByteLength = content.readUInt32LE(12);
+    const featureTableBinaryByteLength = content.readUInt32LE(16);
+    const batchTableJsonByteLength = content.readUInt32LE(20);
+    const batchTableBinaryByteLength = content.readUInt32LE(24);
 
     if (magic !== 'pnts') {
-        return 'Invalid magic: ' + magic;
+        return `Invalid magic: ${magic}`;
     }
 
     if (version !== 1) {
-        return 'Invalid version: ' + version + '. Version must be 1.';
+        return `Invalid version: ${version}. Version must be 1.`;
     }
 
     if (byteLength !== content.length) {
-        return 'byteLength of ' + byteLength + ' does not equal the tile\'s actual byte length of ' + content.length + '.';
+        return `byteLength of ${byteLength} does not equal the tile\'s actual byte length of ${content.length}.`;
     }
 
-    var featureTableJsonByteOffset = headerByteLength;
-    var featureTableBinaryByteOffset = featureTableJsonByteOffset + featureTableJsonByteLength;
-    var batchTableJsonByteOffset = featureTableBinaryByteOffset + featureTableBinaryByteLength;
-    var batchTableBinaryByteOffset = batchTableJsonByteOffset + batchTableJsonByteLength;
+    const featureTableJsonByteOffset = headerByteLength;
+    const featureTableBinaryByteOffset = featureTableJsonByteOffset + featureTableJsonByteLength;
+    const batchTableJsonByteOffset = featureTableBinaryByteOffset + featureTableBinaryByteLength;
+    const batchTableBinaryByteOffset = batchTableJsonByteOffset + batchTableJsonByteLength;
 
     if (featureTableBinaryByteOffset % 8 > 0) {
         return 'Feature table binary must be aligned to an 8-byte boundary.';
@@ -137,28 +138,28 @@ function validatePnts(content, filePath) {
         return 'Feature table and batch table exceed the tile\'s byte length.';
     }
 
-    var featureTableJsonBuffer = content.slice(featureTableJsonByteOffset, featureTableBinaryByteOffset);
-    var featureTableBinary = content.slice(featureTableBinaryByteOffset, batchTableJsonByteOffset);
-    var batchTableJsonBuffer = content.slice(batchTableJsonByteOffset, batchTableBinaryByteOffset);
-    var batchTableBinary = content.slice(batchTableBinaryByteOffset, byteLength);
+    const featureTableJsonBuffer = content.slice(featureTableJsonByteOffset, featureTableBinaryByteOffset);
+    const featureTableBinary = content.slice(featureTableBinaryByteOffset, batchTableJsonByteOffset);
+    const batchTableJsonBuffer = content.slice(batchTableJsonByteOffset, batchTableBinaryByteOffset);
+    const batchTableBinary = content.slice(batchTableBinaryByteOffset, byteLength);
 
-    var featureTableJson;
-    var batchTableJson;
+    let featureTableJson;
+    let batchTableJson;
 
     try {
         featureTableJson = bufferToJson(featureTableJsonBuffer);
-    } catch(error) {
-        return 'Feature table JSON could not be parsed: ' + error.message;
+    } catch (error) {
+        return `Feature table JSON could not be parsed: ${error.message}`;
     }
 
     try {
         batchTableJson = bufferToJson(batchTableJsonBuffer);
-    } catch(error) {
-        return 'Batch table JSON could not be parsed: ' + error.message;
+    } catch (error) {
+        return `Batch table JSON could not be parsed: ${error.message}`;
     }
 
-    var batchLength = defaultValue(featureTableJson.BATCH_LENGTH, 0);
-    var pointsLength = featureTableJson.POINTS_LENGTH;
+    const batchLength = defaultValue(featureTableJson.BATCH_LENGTH, 0);
+    const pointsLength = featureTableJson.POINTS_LENGTH;
     if (!defined(pointsLength)) {
         return 'Feature table must contain a POINTS_LENGTH property.';
     }
@@ -184,24 +185,24 @@ function validatePnts(content, filePath) {
     }
 
     if (defined(featureTableJson.BATCH_ID)) {
-        var featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
+        const featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
         featureTable.featuresLength = pointsLength;
-        var componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.BATCH_ID.componentType, 'UNSIGNED_SHORT'));
-        var batchIds = featureTable.getPropertyArray('BATCH_ID', componentDatatype, 1);
-        var length = batchIds.length;
-        for (var i = 0; i < length; i++) {
+        const componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.BATCH_ID.componentType, 'UNSIGNED_SHORT'));
+        const batchIds = featureTable.getPropertyArray('BATCH_ID', componentDatatype, 1);
+        const length = batchIds.length;
+        for (let i = 0; i < length; i++) {
             if (batchIds[i] >= featureTableJson.BATCH_LENGTH) {
                 return 'All the BATCH_IDs must have values less than feature table property BATCH_LENGTH.';
             }
         }
     }
 
-    var featureTableMessage = validateFeatureTable(featureTableSchema, featureTableJson, featureTableBinary, pointsLength, featureTableSemantics);
+    const featureTableMessage = validateFeatureTable(featureTableJson, featureTableBinary, pointsLength, featureTableSemantics);
     if (defined(featureTableMessage)) {
         return featureTableMessage;
     }
 
-    var batchTableMessage = validateBatchTable(batchTableSchema, batchTableJson, batchTableBinary, batchLength);
+    const batchTableMessage = validateBatchTable(batchTableJson, batchTableBinary, batchLength);
     if (defined(batchTableMessage)) {
         return batchTableMessage;
     }

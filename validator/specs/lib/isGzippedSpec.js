@@ -1,10 +1,11 @@
 'use strict';
-var zlib = require('zlib');
-var isGzipped = require('../../lib/isGzipped');
+const zlib = require('zlib');
 
-describe('isGzipped', function() {
-    it('detects when data is gzipped', function() {
-        var data = Buffer.alloc(40);
+const isGzipped = require('../../lib/isGzipped');
+
+describe('isGzipped', () => {
+    it('detects when data is gzipped', () => {
+        let data = Buffer.alloc(40);
         expect(isGzipped(data)).toBe(false);
         data = zlib.gzipSync(data);
         expect(isGzipped(data)).toBe(true);

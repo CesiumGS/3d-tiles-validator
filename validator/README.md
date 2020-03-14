@@ -16,15 +16,19 @@ npm install
 Validates the input tileset.
 
 ```
-node ./bin/3d-tiles-validator.js ./specs/data/Tileset/
+node ./bin/3d-tiles-validator.js -i ./specs/data/Tileset/tileset.json
 ```
+
+Validates a single tile.
+
 ```
-node ./bin/3d-tiles-validator.js -i ./specs/data/Tileset/
+node ./bin/3d-tiles-validator.js -i ./specs/data/Tileset/tile.b3dm
 ```
+
 
 |Flag|Description|Required|
 |----|-----------|--------|
-|`-i`, `--input`|Input directory of the tileset.| No. An input tileset is required but this flag may be omitted|
+|`-i`, `--input`|Tileset JSON file.| Yes |
 
 ## Build Instructions
 
@@ -59,8 +63,3 @@ npm run jsDoc
 ```
 
 The documentation will be placed in the `doc` folder.
-
-### Debugging
-
-* To debug the tests in Webstorm, open the Gulp tab, right click the `test` task, and click `Debug 'test'`.
-* To run a single test, change the test function from `it` to `fit`.

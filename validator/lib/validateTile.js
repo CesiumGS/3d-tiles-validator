@@ -1,30 +1,34 @@
 'use strict';
-var validateB3dm = require('../lib/validateB3dm');
-var validateCmpt = require('../lib/validateCmpt');
-var validateI3dm = require('../lib/validateI3dm');
-var validatePnts = require('../lib/validatePnts');
+const validateB3dm = require('./validateB3dm');
+const validateCmpt = require('./validateCmpt');
+const validateI3dm = require('./validateI3dm');
+const validatePnts = require('./validatePnts');
 
 module.exports = validateTile;
 
 /**
  * Check if the tile's content is valid.
  *
- * @param {Buffer} content The tile's content.
- * @returns {String} An error message if validation fails, otherwise undefined.
+ * @param {Object} options An object with the following properties:
+ * @param {Buffer} options.content A buffer containing the contents of the tile.
+ * @param {String} options.filePath The tile's file path.
+ * @param {Boolean} [options.writeReports=false] Write glTF error report next to the glTF file in question.
+ * @returns {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
  */
-function validateTile(content, filePath) {
+async function validateTile(options) {
+    const content = options.content;
     if (content.length < 4) {
-        return 'Cannot determine tile format from tile header, tile content is ' + content.length + ' bytes.';
+        return `Cannot determine tile format from tile header, tile content is ${content.length} bytes.`;
     }
-    var magic = content.toString('utf8', 0, 4);
+    const magic = content.toString('utf8', 0, 4);
     if (magic === 'b3dm') {
-        return validateB3dm(content, filePath);
+        return await validateB3dm(options);
     } else if (magic === 'i3dm') {
-        return validateI3dm(content, filePath);
+        return await validateI3dm(options);
     } else if (magic === 'pnts') {
-        return validatePnts(content, filePath);
+        return await validatePnts(options);
     } else if (magic === 'cmpt') {
-        return validateCmpt(content, filePath);
+        return await validateCmpt(options);
     }
-    return 'Invalid magic: ' + magic;
+    return `Invalid magic: ${magic}`;
 }
