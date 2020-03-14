@@ -1,32 +1,32 @@
 'use strict';
-var Cesium = require('cesium');
+const Cesium = require('cesium');
 
-var defaultValue = Cesium.defaultValue;
-var defined = Cesium.defined;
+const defaultValue = Cesium.defaultValue;
+const defined = Cesium.defined;
 
 module.exports = {
-    createB3dm : createB3dm,
-    createB3dmLegacy1 : createB3dmLegacy1,
-    createB3dmLegacy2 : createB3dmLegacy2,
-    createI3dm : createI3dm,
-    createPnts : createPnts,
-    createCmpt : createCmpt,
-    createGlb : createGlb
+    createB3dm: createB3dm,
+    createB3dmLegacy1: createB3dmLegacy1,
+    createB3dmLegacy2: createB3dmLegacy2,
+    createCmpt: createCmpt,
+    createGlb: createGlb,
+    createI3dm: createI3dm,
+    createPnts: createPnts
 };
 
 function createB3dm(options) {
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
-    var headerByteLength = 28;
-    var batchLength = defaultValue(options.batchLength, 0);
-    var featureTableJson = defaultValue(options.featureTableJson, {
-        BATCH_LENGTH : batchLength
+    const headerByteLength = 28;
+    const batchLength = defaultValue(options.batchLength, 0);
+    const featureTableJson = defaultValue(options.featureTableJson, {
+        BATCH_LENGTH: batchLength
     });
 
-    var featureTableJsonBuffer = getJsonBufferPadded(featureTableJson, headerByteLength);
-    var featureTableBinary = getBufferPadded(options.featureTableBinary);
-    var batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
-    var batchTableBinary = getBufferPadded(options.batchTableBinary);
-    var glb = getBufferPadded(defaultValue(options.glb, createGlb()));
+    let featureTableJsonBuffer = getJsonBufferPadded(featureTableJson, headerByteLength);
+    const featureTableBinary = getBufferPadded(options.featureTableBinary);
+    let batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
+    let batchTableBinary = getBufferPadded(options.batchTableBinary);
+    let glb = getBufferPadded(defaultValue(options.glb, createGlb()));
 
     if (options.unalignedFeatureTableBinary) {
         featureTableJsonBuffer = Buffer.concat([featureTableJsonBuffer, Buffer.from(' ')]);
@@ -41,15 +41,15 @@ function createB3dm(options) {
         glb = Buffer.concat([glb, Buffer.alloc(1)]);
     }
 
-    var featureTableJsonByteLength = featureTableJsonBuffer.length;
-    var featureTableBinaryByteLength = featureTableBinary.length;
-    var batchTableJsonByteLength = batchTableJsonBuffer.length;
-    var batchTableBinaryByteLength = batchTableBinary.length;
-    var glbByteLength = glb.length;
+    const featureTableJsonByteLength = featureTableJsonBuffer.length;
+    const featureTableBinaryByteLength = featureTableBinary.length;
+    const batchTableJsonByteLength = batchTableJsonBuffer.length;
+    const batchTableBinaryByteLength = batchTableBinary.length;
+    const glbByteLength = glb.length;
 
-    var byteLength = headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + glbByteLength;
+    const byteLength = headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + glbByteLength;
 
-    var header = Buffer.alloc(headerByteLength);
+    const header = Buffer.alloc(headerByteLength);
     header.write('b3dm', 0);                                // magic
     header.writeUInt32LE(1, 4);                             // version
     header.writeUInt32LE(byteLength, 8);                    // byteLength
@@ -62,7 +62,7 @@ function createB3dm(options) {
 }
 
 function createB3dmLegacy1() {
-    var b3dm = Buffer.alloc(28);
+    const b3dm = Buffer.alloc(28);
     b3dm.write('b3dm', 0);     // magic
     b3dm.writeUInt32LE(1, 4);  // version
     b3dm.writeUInt32LE(28, 8); // byteLength
@@ -73,7 +73,7 @@ function createB3dmLegacy1() {
 }
 
 function createB3dmLegacy2() {
-    var b3dm = Buffer.alloc(28);
+    const b3dm = Buffer.alloc(28);
     b3dm.write('b3dm', 0);     // magic
     b3dm.writeUInt32LE(1, 4);  // version
     b3dm.writeUInt32LE(28, 8); // byteLength
@@ -86,20 +86,20 @@ function createB3dmLegacy2() {
 
 function createI3dm(options) {
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
-    var headerByteLength = 32;
-    var instancesLength = defaultValue(options.instancesLength, 0);
-    var featureTableJson = defaultValue(options.featureTableJson, {
-        INSTANCES_LENGTH : instancesLength,
-        POSITION : new Array(instancesLength * 3).fill(0)
+    const headerByteLength = 32;
+    const instancesLength = defaultValue(options.instancesLength, 0);
+    const featureTableJson = defaultValue(options.featureTableJson, {
+        INSTANCES_LENGTH: instancesLength,
+        POSITION: new Array(instancesLength * 3).fill(0)
     });
 
-    var featureTableJsonBuffer = getJsonBufferPadded(featureTableJson, headerByteLength);
-    var featureTableBinary = getBufferPadded(options.featureTableBinary);
-    var batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
-    var batchTableBinary = getBufferPadded(options.batchTableBinary);
-    var glb = getBufferPadded(defaultValue(options.glb, createGlb()));
+    let featureTableJsonBuffer = getJsonBufferPadded(featureTableJson, headerByteLength);
+    const featureTableBinary = getBufferPadded(options.featureTableBinary);
+    let batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
+    let batchTableBinary = getBufferPadded(options.batchTableBinary);
+    let glb = getBufferPadded(defaultValue(options.glb, createGlb()));
 
-    var gltfFormat = 1;
+    let gltfFormat = 1;
     if (typeof glb === 'string') {
         gltfFormat = 0;
         glb = Buffer.from(glb);
@@ -118,15 +118,15 @@ function createI3dm(options) {
         glb = Buffer.concat([glb, Buffer.alloc(1)]);
     }
 
-    var featureTableJsonByteLength = featureTableJsonBuffer.length;
-    var featureTableBinaryByteLength = featureTableBinary.length;
-    var batchTableJsonByteLength = batchTableJsonBuffer.length;
-    var batchTableBinaryByteLength = batchTableBinary.length;
-    var glbByteLength = glb.length;
+    const featureTableJsonByteLength = featureTableJsonBuffer.length;
+    const featureTableBinaryByteLength = featureTableBinary.length;
+    const batchTableJsonByteLength = batchTableJsonBuffer.length;
+    const batchTableBinaryByteLength = batchTableBinary.length;
+    const glbByteLength = glb.length;
 
-    var byteLength = headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + glbByteLength;
+    const byteLength = headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + glbByteLength;
 
-    var header = Buffer.alloc(headerByteLength);
+    const header = Buffer.alloc(headerByteLength);
     header.write('i3dm', 0);                                // magic
     header.writeUInt32LE(1, 4);                             // version
     header.writeUInt32LE(byteLength, 8);                    // byteLength
@@ -141,17 +141,17 @@ function createI3dm(options) {
 
 function createPnts(options) {
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
-    var headerByteLength = 28;
-    var pointsLength = defaultValue(options.pointsLength, 0);
-    var featureTableJson = defaultValue(options.featureTableJson, {
-        POINTS_LENGTH : pointsLength,
-        POSITION : new Array(pointsLength * 3).fill(0)
+    const headerByteLength = 28;
+    const pointsLength = defaultValue(options.pointsLength, 0);
+    const featureTableJson = defaultValue(options.featureTableJson, {
+        POINTS_LENGTH: pointsLength,
+        POSITION: new Array(pointsLength * 3).fill(0)
     });
 
-    var featureTableJsonBuffer = getJsonBufferPadded(featureTableJson, headerByteLength);
-    var featureTableBinary = getBufferPadded(options.featureTableBinary);
-    var batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
-    var batchTableBinary = getBufferPadded(options.batchTableBinary);
+    let featureTableJsonBuffer = getJsonBufferPadded(featureTableJson, headerByteLength);
+    const featureTableBinary = getBufferPadded(options.featureTableBinary);
+    let batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
+    let batchTableBinary = getBufferPadded(options.batchTableBinary);
 
     if (options.unalignedFeatureTableBinary) {
         featureTableJsonBuffer = Buffer.concat([featureTableJsonBuffer, Buffer.from(' ')]);
@@ -163,14 +163,14 @@ function createPnts(options) {
         batchTableBinary = Buffer.concat([batchTableBinary, Buffer.alloc(1)]);
     }
 
-    var featureTableJsonByteLength = featureTableJsonBuffer.length;
-    var featureTableBinaryByteLength = featureTableBinary.length;
-    var batchTableJsonByteLength = batchTableJsonBuffer.length;
-    var batchTableBinaryByteLength = batchTableBinary.length;
+    const featureTableJsonByteLength = featureTableJsonBuffer.length;
+    const featureTableBinaryByteLength = featureTableBinary.length;
+    const batchTableJsonByteLength = batchTableJsonBuffer.length;
+    const batchTableBinaryByteLength = batchTableBinary.length;
 
-    var byteLength = headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength;
+    const byteLength = headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength;
 
-    var header = Buffer.alloc(headerByteLength);
+    const header = Buffer.alloc(headerByteLength);
     header.write('pnts', 0);                                // magic
     header.writeUInt32LE(1, 4);                             // version
     header.writeUInt32LE(byteLength, 8);                    // byteLength
@@ -184,11 +184,11 @@ function createPnts(options) {
 
 function createCmpt(tiles) {
     tiles = defaultValue(tiles, []);
-    var innerTiles = Buffer.concat(tiles);
-    var headerByteLength = 16;
-    var byteLength = headerByteLength + innerTiles.length;
+    const innerTiles = Buffer.concat(tiles);
+    const headerByteLength = 16;
+    const byteLength = headerByteLength + innerTiles.length;
 
-    var header = Buffer.alloc(16);
+    const header = Buffer.alloc(16);
     header.write('cmpt', 0);                // magic
     header.writeUInt32LE(1, 4);             // version
     header.writeUInt32LE(byteLength, 8);    // byteLength
@@ -204,11 +204,11 @@ function getBufferPadded(buffer, byteOffset) {
 
     byteOffset = defaultValue(byteOffset, 0);
 
-    var boundary = 8;
-    var byteLength = buffer.length;
-    var remainder = (byteOffset + byteLength) % boundary;
-    var padding = (remainder === 0) ? 0 : boundary - remainder;
-    var emptyBuffer = Buffer.alloc(padding);
+    const boundary = 8;
+    const byteLength = buffer.length;
+    const remainder = (byteOffset + byteLength) % boundary;
+    const padding = (remainder === 0) ? 0 : boundary - remainder;
+    const emptyBuffer = Buffer.alloc(padding);
     return Buffer.concat([buffer, emptyBuffer]);
 }
 
@@ -218,14 +218,14 @@ function getJsonBufferPadded(json, byteOffset) {
     }
 
     byteOffset = defaultValue(byteOffset, 0);
-    var string = JSON.stringify(json);
+    let string = JSON.stringify(json);
 
-    var boundary = 8;
-    var byteLength = Buffer.byteLength(string);
-    var remainder = (byteOffset + byteLength) % boundary;
-    var padding = (remainder === 0) ? 0 : boundary - remainder;
-    var whitespace = '';
-    for (var i = 0; i < padding; ++i) {
+    const boundary = 8;
+    const byteLength = Buffer.byteLength(string);
+    const remainder = (byteOffset + byteLength) % boundary;
+    const padding = (remainder === 0) ? 0 : boundary - remainder;
+    let whitespace = '';
+    for (let i = 0; i < padding; i++) {
         whitespace += ' ';
     }
     string += whitespace;
@@ -233,10 +233,12 @@ function getJsonBufferPadded(json, byteOffset) {
     return Buffer.from(string);
 }
 
+// Triangle from glTF-sample-models
+const glbDataUri = 'data:model/gltf-binary;base64,Z2xURgIAAAAAAwAAuAIAAEpTT057InNjZW5lIjowLCJzY2VuZXMiOlt7Im5vZGVzIjpbMF19XSwibm9kZXMiOlt7Im1lc2giOjB9XSwibWVzaGVzIjpbeyJwcmltaXRpdmVzIjpbeyJhdHRyaWJ1dGVzIjp7IlBPU0lUSU9OIjoxfSwiaW5kaWNlcyI6MCwibW9kZSI6NCwibWF0ZXJpYWwiOjB9XX1dLCJidWZmZXJzIjpbeyJuYW1lIjoic2ltcGxlVHJpYW5nbGUiLCJieXRlTGVuZ3RoIjo0NH1dLCJidWZmZXJWaWV3cyI6W3siYnVmZmVyIjowLCJieXRlT2Zmc2V0IjowLCJieXRlTGVuZ3RoIjo2LCJ0YXJnZXQiOjM0OTYzfSx7ImJ1ZmZlciI6MCwiYnl0ZU9mZnNldCI6OCwiYnl0ZUxlbmd0aCI6MzYsInRhcmdldCI6MzQ5NjIsImJ5dGVTdHJpZGUiOjEyfV0sImFjY2Vzc29ycyI6W3siYnVmZmVyVmlldyI6MCwiYnl0ZU9mZnNldCI6MCwiY29tcG9uZW50VHlwZSI6NTEyMywiY291bnQiOjMsInR5cGUiOiJTQ0FMQVIiLCJtYXgiOlsyXSwibWluIjpbMF19LHsiYnVmZmVyVmlldyI6MSwiYnl0ZU9mZnNldCI6MCwiY29tcG9uZW50VHlwZSI6NTEyNiwiY291bnQiOjMsInR5cGUiOiJWRUMzIiwibWF4IjpbMSwxLDBdLCJtaW4iOlswLDAsMF19XSwiYXNzZXQiOnsidmVyc2lvbiI6IjIuMCJ9LCJtYXRlcmlhbHMiOlt7Im5hbWUiOiJkZWZhdWx0IiwiZW1pc3NpdmVGYWN0b3IiOlswLDAsMF0sImFscGhhTW9kZSI6Ik9QQVFVRSIsImRvdWJsZVNpZGVkIjpmYWxzZX1dfSAsAAAAQklOAAAAAQACAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAA';
+const uriHeader = 'data:model/gltf-binary;base64,';
+const base64 = glbDataUri.substring(uriHeader.length);
+const glb = Buffer.from(base64, 'base64');
+
 function createGlb() {
-    var glb = Buffer.alloc(12);
-    glb.write('gltf', 0); // magic
-    glb.writeUInt32LE(2, 4); // version
-    glb.writeUInt32LE(28, 8); // byteLength
-    return glb;
+    return Buffer.from(glb);
 }

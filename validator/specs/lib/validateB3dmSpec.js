@@ -1,166 +1,255 @@
 'use strict';
-var validateB3dm = require('../../lib/validateB3dm');
-var specUtility = require('./specUtility.js');
+const validateB3dm = require('../../lib/validateB3dm');
+const specUtility = require('./specUtility.js');
 
-var createB3dm = specUtility.createB3dm;
-var createB3dmLegacy1 = specUtility.createB3dmLegacy1;
-var createB3dmLegacy2 = specUtility.createB3dmLegacy2;
+const createB3dm = specUtility.createB3dm;
+const createB3dmLegacy1 = specUtility.createB3dmLegacy1;
+const createB3dmLegacy2 = specUtility.createB3dmLegacy2;
 
-describe('validate b3dm', function() {
-    it ('returns error message if the b3dm buffer\'s byte length is less than its header length', function() {
-        expect(validateB3dm(Buffer.alloc(0))).toBe('Header must be 28 bytes.');
+describe('validate b3dm', () => {
+    it ('returns error message if the b3dm buffer\'s byte length is less than its header length', async () => {
+        const message = await validateB3dm({
+            content: Buffer.alloc(0),
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Header must be 28 bytes.');
     });
 
-    it('returns error message if the b3dm has invalid magic', function() {
-        var b3dm = createB3dm();
+    it('returns error message if the b3dm has invalid magic', async () => {
+        const b3dm = createB3dm();
         b3dm.write('xxxx', 0);
-        expect(validateB3dm(b3dm)).toBe('Invalid magic: xxxx');
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Invalid magic: xxxx');
     });
 
-    it('returns error message if the b3dm has an invalid version', function() {
-        var b3dm = createB3dm();
+    it('returns error message if the b3dm has an invalid version', async () => {
+        const b3dm = createB3dm();
         b3dm.writeUInt32LE(10, 4);
-        expect(validateB3dm(b3dm)).toBe('Invalid version: 10. Version must be 1.');
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Invalid version: 10. Version must be 1.');
     });
 
-    it('returns error message if the b3dm has wrong byteLength', function() {
-        var b3dm = createB3dm();
+    it('returns error message if the b3dm has wrong byteLength', async () => {
+        const b3dm = createB3dm();
         b3dm.writeUInt32LE(0, 8);
-        var message = validateB3dm(b3dm);
+
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
         expect(message).toBeDefined();
         expect(message.indexOf('byteLength of 0 does not equal the tile\'s actual byte length of') === 0).toBe(true);
     });
 
-    it('returns error message if the b3dm header is a legacy version (1)', function() {
-        expect(validateB3dm(createB3dmLegacy1())).toBe('Header is using the legacy format [batchLength] [batchTableByteLength]. The new format is [featureTableJsonByteLength] [featureTableBinaryByteLength] [batchTableJsonByteLength] [batchTableBinaryByteLength].');
-    });
-
-    it('returns error message if the b3dm header is a legacy version (2)', function() {
-        expect(validateB3dm(createB3dmLegacy2())).toBe('Header is using the legacy format [batchTableJsonByteLength] [batchTableBinaryByteLength] [batchLength]. The new format is [featureTableJsonByteLength] [featureTableBinaryByteLength] [batchTableJsonByteLength] [batchTableBinaryByteLength].');
-    });
-
-    it('returns error message if the feature table binary is not aligned to an 8-byte boundary', function() {
-        var b3dm = createB3dm({
-            unalignedFeatureTableBinary : true
+    it('returns error message if the b3dm header is a legacy version (1)', async () => {
+        const message = await validateB3dm({
+            content: createB3dmLegacy1(),
+            filePath: 'filepath',
+            directory: '.'
         });
-        expect(validateB3dm(b3dm)).toBe('Feature table binary must be aligned to an 8-byte boundary.');
+        expect(message).toBe('Header is using the legacy format [batchLength] [batchTableByteLength]. The new format is [featureTableJsonByteLength] [featureTableBinaryByteLength] [batchTableJsonByteLength] [batchTableBinaryByteLength].');
     });
 
-    it('returns error message if the batch table binary is not aligned to an 8-byte boundary', function() {
-        var b3dm = createB3dm({
-            unalignedBatchTableBinary : true
+    it('returns error message if the b3dm header is a legacy version (2)', async () => {
+        const message = await validateB3dm({
+            content: createB3dmLegacy2(),
+            filePath: 'filepath',
+            directory: '.'
         });
-        expect(validateB3dm(b3dm)).toBe('Batch table binary must be aligned to an 8-byte boundary.');
+        expect(message).toBe('Header is using the legacy format [batchTableJsonByteLength] [batchTableBinaryByteLength] [batchLength]. The new format is [featureTableJsonByteLength] [featureTableBinaryByteLength] [batchTableJsonByteLength] [batchTableBinaryByteLength].');
     });
 
-    it('returns error message if the glb is not aligned to an 8-byte boundary', function() {
-        var b3dm = createB3dm({
-            unalignedGlb : true
+    it('returns error message if the feature table binary is not aligned to an 8-byte boundary', async () => {
+        const b3dm = createB3dm({
+            unalignedFeatureTableBinary: true
         });
-        expect(validateB3dm(b3dm)).toBe('Glb must be aligned to an 8-byte boundary.');
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Feature table binary must be aligned to an 8-byte boundary.');
     });
 
-    it('returns error message if the byte lengths in the header exceed the tile\'s byte length', function() {
-        var b3dm = createB3dm();
-        b3dm.writeUInt32LE(60, 12);
-        expect(validateB3dm(b3dm)).toBe('Feature table, batch table, and glb byte lengths exceed the tile\'s byte length.');
+    it('returns error message if the batch table binary is not aligned to an 8-byte boundary', async () => {
+        const b3dm = createB3dm({
+            unalignedBatchTableBinary: true
+        });
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Batch table binary must be aligned to an 8-byte boundary.');
     });
 
-    it('returns error message if feature table JSON could not be parsed: ', function() {
-        var b3dm = createB3dm();
-        var charCode = '!'.charCodeAt(0);
+    it('returns error message if the glb is not aligned to an 8-byte boundary', async () => {
+        const b3dm = createB3dm({
+            unalignedGlb: true
+        });
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Glb must be aligned to an 8-byte boundary.');
+    });
+
+    it('returns error message if the byte lengths in the header exceed the tile\'s byte length', async () => {
+        const b3dm = createB3dm();
+        b3dm.writeUInt32LE(6004, 12);
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Feature table, batch table, and glb byte lengths exceed the tile\'s byte length.');
+    });
+
+    it('returns error message if feature table JSON could not be parsed: ', async () => {
+        const b3dm = createB3dm();
+        const charCode = '!'.charCodeAt(0);
         b3dm.writeUInt8(charCode, 28); // Replace '{' with '!'
-        expect(validateB3dm(b3dm)).toBe('Feature table JSON could not be parsed: Unexpected token ! in JSON at position 0');
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Feature table JSON could not be parsed: Unexpected token ! in JSON at position 0');
     });
 
-    it('returns error message if batch table JSON could not be parsed: ', function() {
-        var b3dm = createB3dm({
-            featureTableJson : {
-                BATCH_LENGTH : 1
+    it('returns error message if batch table JSON could not be parsed: ', async () => {
+        const b3dm = createB3dm({
+            featureTableJson: {
+                BATCH_LENGTH: 1
             },
-            batchTableJson : {
-                height : [0.0]
+            batchTableJson: {
+                height: [0.0]
             }
         });
-        var featureTableJsonByteLength = b3dm.readUInt32LE(12);
-        var featureTableBinaryByteLength = b3dm.readUInt32LE(16);
-        var batchTableJsonByteOffset = 28 + featureTableJsonByteLength + featureTableBinaryByteLength;
-        var charCode = '!'.charCodeAt(0);
+        const featureTableJsonByteLength = b3dm.readUInt32LE(12);
+        const featureTableBinaryByteLength = b3dm.readUInt32LE(16);
+        const batchTableJsonByteOffset = 28 + featureTableJsonByteLength + featureTableBinaryByteLength;
+        const charCode = '!'.charCodeAt(0);
         b3dm.writeUInt8(charCode, batchTableJsonByteOffset); // Replace '{' with '!'
-        expect(validateB3dm(b3dm)).toBe('Batch table JSON could not be parsed: Unexpected token ! in JSON at position 0');
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Batch table JSON could not be parsed: Unexpected token ! in JSON at position 0');
     });
 
-    it('returns error message if feature table does not contain a BATCH_LENGTH property: ', function() {
-        var b3dm = createB3dm({
-            featureTableJson : {
-                PROPERTY : 0
+    it('returns error message if feature table does not contain a BATCH_LENGTH property: ', async () => {
+        const b3dm = createB3dm({
+            featureTableJson: {
+                PROPERTY: 0
             }
         });
-        expect(validateB3dm(b3dm)).toBe('Feature table must contain a BATCH_LENGTH property.');
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Feature table must contain a BATCH_LENGTH property.');
     });
 
-    it('returns error message if feature table is invalid', function() {
-        var b3dm = createB3dm({
-            featureTableJson : {
-                BATCH_LENGTH : 0,
-                INVALID : 0
+    it('returns error message if feature table is invalid', async () => {
+        const b3dm = createB3dm({
+            featureTableJson: {
+                BATCH_LENGTH: 0,
+                INVALID: 0
             }
         });
-        expect(validateB3dm(b3dm)).toBe('Invalid feature table property "INVALID".');
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Invalid feature table property "INVALID".');
     });
 
-    it('returns error message if batch table is invalid', function() {
-        var b3dm = createB3dm({
-            featureTableJson : {
-                BATCH_LENGTH : 1
+    it('returns error message if batch table is invalid', async () => {
+        const b3dm = createB3dm({
+            featureTableJson: {
+                BATCH_LENGTH: 1
             },
-            batchTableJson : {
-                height : {
-                    byteOffset : 0,
-                    type : 'SCALAR',
-                    componentType : 'FLOAT'
+            batchTableJson: {
+                height: {
+                    byteOffset: 0,
+                    type: 'SCALAR',
+                    componentType: 'FLOAT'
                 }
             }
         });
-
-        expect(validateB3dm(b3dm)).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Batch table binary property "height" exceeds batch table binary byte length.');
     });
 
-    it('succeeds for valid b3dm with BATCH_LENGTH 0 and no batch table', function() {
-        var b3dm = createB3dm({
-            featureTableJson : {
-                BATCH_LENGTH : 0
+    it('succeeds for valid b3dm with BATCH_LENGTH 0 and no batch table', async () => {
+        const b3dm = createB3dm({
+            featureTableJson: {
+                BATCH_LENGTH: 0
             }
         });
-        expect(validateB3dm(b3dm)).toBeUndefined();
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBeUndefined();
     });
 
-    it('succeeds for valid b3dm with a feature table binary', function() {
-        var b3dm = createB3dm({
-            featureTableJson : {
-                BATCH_LENGTH : {
-                    byteOffset : 0
+    it('succeeds for valid b3dm with a feature table binary', async () => {
+        const b3dm = createB3dm({
+            featureTableJson: {
+                BATCH_LENGTH: {
+                    byteOffset: 0
                 }
             },
-            featureTableBinary : Buffer.alloc(4)
+            featureTableBinary: Buffer.alloc(4)
         });
-        expect(validateB3dm(b3dm)).toBeUndefined();
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBeUndefined();
     });
 
-    it('succeeds for valid b3dm with a batch table', function() {
-        var b3dm = createB3dm({
-            featureTableJson : {
-                BATCH_LENGTH : 1
+    it('succeeds for valid b3dm with a batch table', async () => {
+        const b3dm = createB3dm({
+            featureTableJson: {
+                BATCH_LENGTH: 1
             },
-            batchTableJson : {
-                height : {
-                    byteOffset : 0,
-                    type : 'SCALAR',
-                    componentType : 'FLOAT'
+            batchTableJson: {
+                height: {
+                    byteOffset: 0,
+                    type: 'SCALAR',
+                    componentType: 'FLOAT'
                 }
             },
-            batchTableBinary : Buffer.alloc(4)
+            batchTableBinary: Buffer.alloc(4)
         });
-        expect(validateB3dm(b3dm)).toBeUndefined();
+        const message = await validateB3dm({
+            content: b3dm,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBeUndefined();
     });
 });

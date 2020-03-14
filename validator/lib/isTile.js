@@ -1,5 +1,5 @@
 'use strict';
-var path = require('path');
+const path = require('path');
 
 module.exports = isTile;
 
@@ -10,7 +10,7 @@ module.exports = isTile;
  * @returns {Boolean} True if the file path is a tile file path, false if not.
  */
 function isTile(filePath) {
-    var extension = path.extname(filePath);
+    const extension = path.extname(filePath);
     return extension === '.b3dm' ||
         extension === '.i3dm' ||
         extension === '.pnts' ||

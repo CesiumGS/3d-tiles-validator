@@ -1,37 +1,41 @@
 'use strict';
-var fsExtra = require('fs-extra');
-var os = require('os');
-var path = require('path');
-var zlib = require('zlib');
-var readTileset = require('../../lib/readTileset');
+const fsExtra = require('fs-extra');
+const os = require('os');
+const path = require('path');
+const zlib = require('zlib');
+
+const readTileset = require('../../lib/readTileset');
 
 function writeGzippedTileset(url) {
-    var buffer = fsExtra.readFileSync(url);
-    var gzipped = zlib.gzipSync(buffer);
-    var tempFile = path.join(os.tmpdir(), 'tileset.json');
+    const buffer = fsExtra.readFileSync(url);
+    const gzipped = zlib.gzipSync(buffer);
+    const tempFile = path.join(os.tmpdir(), 'tileset.json');
     fsExtra.outputFileSync(tempFile, gzipped);
     return tempFile;
 }
 
-describe('readTileset', function() {
-    it('reads a tileset', function(done) {
-        expect(readTileset('./specs/data/Tileset/tileset.json')
-            .then(function(json) {
-                expect(json).toBeDefined();
-                expect(json.root).toBeDefined();
-            }), done).toResolve();
+describe('readTileset', () => {
+    it('reads a tileset', async () => {
+        const json = await readTileset('./specs/data/Tileset/tileset.json');
+        expect(json).toBeDefined();
+        expect(json.root).toBeDefined();
     });
 
-    it('reads a gzipped tileset', function(done) {
-        var tilesetPath = writeGzippedTileset('./specs/data/Tileset/tileset.json');
-        expect(readTileset(tilesetPath)
-            .then(function(json) {
-                expect(json).toBeDefined();
-                expect(json.root).toBeDefined();
-            }), done).toResolve();
+    it('reads a gzipped tileset', async () => {
+        const tilesetPath = writeGzippedTileset('./specs/data/Tileset/tileset.json');
+        const json = await readTileset(tilesetPath);
+        expect(json).toBeDefined();
+        expect(json.root).toBeDefined();
     });
 
-    it('rejects an invalid tileset', function(done) {
-        expect(readTileset('./specs/data/Tileset/parent.b3dm'), done).toRejectWith(Error);
+    it('rejects an invalid tileset', async () => {
+        let error;
+        try {
+            await readTileset('./specs/data/Tileset/parent.b3dm');
+        } catch (e) {
+            error = e;
+        }
+
+        expect(() => { throw error; }).toThrowError();
     });
 });

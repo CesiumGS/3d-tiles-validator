@@ -1,38 +1,45 @@
 'use strict';
-var Promise = require('bluebird');
-var Cesium = require('cesium');
-var path = require('path');
-var isTile = require('../lib/isTile');
-var readTile = require('../lib/readTile');
-var readTileset = require('../lib/readTileset');
-var utility = require('../lib/utility');
-var validateTile = require('../lib/validateTile');
+const Cesium = require('cesium');
+const path = require('path');
+const Promise = require('bluebird');
 
-var regionInsideRegion = utility.regionInsideRegion;
-var sphereInsideSphere = utility.sphereInsideSphere;
-var boxInsideBox = utility.boxInsideBox;
-var boxInsideSphere = utility.boxInsideSphere;
-var Matrix4 = Cesium.Matrix4;
-var Cartesian3 = Cesium.Cartesian3;
-var Matrix3 = Cesium.Matrix3;
-var sphereInsideBox = utility.sphereInsideBox;
-var defined = Cesium.defined;
+const isDataUri = require('./isDataUri');
+const isTile = require('./isTile');
+const readTile = require('./readTile');
+const readTileset = require('./readTileset');
+const utility = require('./utility');
+const validateTile = require('./validateTile');
+
+const Cartesian3 = Cesium.Cartesian3;
+const clone = Cesium.clone;
+const defined = Cesium.defined;
+const Matrix3 = Cesium.Matrix3;
+const Matrix4 = Cesium.Matrix4;
+
+const boxInsideBox = utility.boxInsideBox;
+const boxInsideSphere = utility.boxInsideSphere;
+const regionInsideRegion = utility.regionInsideRegion;
+const sphereInsideBox = utility.sphereInsideBox;
+const sphereInsideSphere = utility.sphereInsideSphere;
 
 module.exports = validateTileset;
 
 /**
  * Check if a tileset is valid, including the tileset JSON and all tiles referenced within.
  *
- * @param {Object} tileset The tileset JSON.
- * @param {String} tilesetDirectory The directory that all paths in the tileset JSON are relative to.
- * @return {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
+ * @param {Object} options An object with the following properties:
+ * @param {Buffer} options.tileset The tileset JSON.
+ * @param {String} options.filePath The tileset JSON file path.
+ * @param {String} options.directory The directory containing the tileset JSON that all paths in the tileset JSON are relative to.
+ * @returns {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
  */
-function validateTileset(tileset, filePath, tilesetDirectory) {
-    var message = validateTopLevel(tileset);
+async function validateTileset(options) {
+    const tileset = options.tileset;
+    const message = validateTopLevel(tileset);
     if (defined(message)) {
-        return Promise.resolve(message);
+        return message;
     }
-    return Promise.resolve(validateTileHierarchy(tileset.root, filePath, tilesetDirectory));
+    return validateTileHierarchy(tileset.root, options);
 }
 
 function validateTopLevel(tileset) {
@@ -53,233 +60,208 @@ function validateTopLevel(tileset) {
     }
 
     if (tileset.asset.version !== '1.0') {
-        return 'Tileset version must be 1.0. Tileset version provided: ' + tileset.asset.version;
-    }
-
-    var gltfUpAxis = tileset.asset.gltfUpAxis;
-    if (defined(gltfUpAxis)) {
-        if (gltfUpAxis !== 'X' && gltfUpAxis !== 'Y' && gltfUpAxis !== 'Z') {
-            return 'gltfUpAxis should either be "X", "Y", or "Z".';
-        }
+        return `Tileset version must be 1.0. Tileset version provided: ${tileset.asset.version}`;
     }
 }
 
-function validateTileHierarchy(root, filePath, tilesetDirectory) {
-    var contentPaths = [];
+async function validateTileHierarchy(root, options) {
+    const filePath = options.filePath;
+    const directory = options.directory;
+    const contentPaths = [];
 
-    var stack = [];
+    const stack = [];
     stack.push({
-        tile : root,
-        parent : undefined
+        tile: root,
+        parent: undefined
     });
 
     while (stack.length > 0) {
-        var node = stack.pop();
-        var tile = node.tile;
-        var parent = node.parent;
-        var content = tile.content;
+        const node = stack.pop();
+        const tile = node.tile;
+        const parent = node.parent;
+        const content = tile.content;
 
         if (!defined(tile.geometricError)) {
-            return errorMessage('Each tile must define geometricError', tile);
+            return getTileErrorMessage('Each tile must define geometricError', tile);
         }
 
         if (tile.geometricError < 0.0) {
-            return errorMessage('geometricError must be greater than or equal to 0.0', tile);
+            return getTileErrorMessage('geometricError must be greater than or equal to 0.0', tile);
         }
 
         if (defined(parent) && (tile.geometricError > parent.geometricError)) {
-            return errorMessage('Child has geometricError greater than parent', tile);
+            return getTileErrorMessage('Child has geometricError greater than parent', tile);
         }
 
-        if (defined(content) && defined(content.url)) {
-            contentPaths.push(path.join(tilesetDirectory, content.url));
-        }
         if (defined(content) && defined(content.uri)) {
-            contentPaths.push(path.join(tilesetDirectory, content.uri));
+            if (isDataUri(content.uri)) {
+                contentPaths.push(content.uri);
+            } else {
+                contentPaths.push(path.join(directory, content.uri));
+            }
         }
 
-        var outerTransform;
-        var innerTransform;
-        var message;
         if (defined(content) && defined(content.boundingVolume)) {
-            outerTransform = Matrix4.IDENTITY;
+            let outerTransform = Matrix4.IDENTITY;
             if (defined(tile.transform)) {
                 outerTransform = Matrix4.fromArray(tile.transform);
             }
-            innerTransform = Matrix4.IDENTITY;
-            message = checkBoundingVolume(content.boundingVolume, tile.boundingVolume, innerTransform, outerTransform);
+            const innerTransform = Matrix4.IDENTITY;
+            const message = checkBoundingVolume(content.boundingVolume, tile.boundingVolume, innerTransform, outerTransform);
             if (defined(message)) {
-                return errorMessage('content bounding volume is not within tile bounding volume: ' + message, tile);
-            }
-        }
-
-        if (defined(parent) && !defined(content)) {
-            innerTransform = Matrix4.IDENTITY;
-            if (defined(tile.transform)) {
-                innerTransform = Matrix4.fromArray(tile.transform);
-            }
-            outerTransform = Matrix4.IDENTITY;
-            if (defined(parent.transform)) {
-                outerTransform = Matrix4.fromArray(parent.transform);
-            }
-            message = checkBoundingVolume(tile.boundingVolume, parent.boundingVolume, innerTransform, outerTransform);
-            if (defined(message)) {
-                return errorMessage('child bounding volume is not within parent bounding volume: ' + message, tile);
+                return getTileErrorMessage(`content bounding volume is not within tile bounding volume: ${message}`, tile);
             }
         }
 
         if (defined(tile.refine)) {
             if (tile.refine !== 'ADD' && tile.refine !== 'REPLACE') {
-                return errorMessage('Refine property in tile must have either "ADD" or "REPLACE" as its value.', tile);
+                return getTileErrorMessage('Refine property in tile must have either "ADD" or "REPLACE" as its value.', tile);
             }
         }
 
-        var children = tile.children;
+        const children = tile.children;
         if (defined(children)) {
-            var length = children.length;
-            for (var i = 0; i < length; i++) {
+            const length = children.length;
+            for (let i = 0; i < length; i++) {
                 stack.push({
-                    tile : children[i],
-                    parent : tile
+                    tile: children[i],
+                    parent: tile
                 });
             }
         }
     }
 
     let completed = 0;
-    const numContentPaths = contentPaths.length;
-    let reportProgress = function() {
+    const contentPathsLength = contentPaths.length;
+    console.log(`Validating ${filePath} - ${contentPathsLength} sub tiles`);
+
+    const messages = await Promise.map(contentPaths, async contentPath => {
+        const message = await validateContent(contentPath, directory, options);
         completed++;
-        if (completed % 32 == 0) {
-            console.log(`[${filePath}] ${100 * completed / numContentPaths}% done`);
+        if (completed % 32 === 0) {
+            console.log(`[${filePath}] ${100 * completed / contentPathsLength}% done`);
         }
-    };
-    console.log(`Validating ${filePath} - ${numContentPaths} sub tiles`);
-    return Promise.map(contentPaths, function (contentPath) {
-        //console.log("Validating " + contentPath);
-        if (isTile(contentPath)) {
-            return readTile(contentPath)
-                .then(function (content) {
-                    return validateTile(content, contentPath);
-                })
-                .catch(function (error) {
-                    return 'Could not read file: ' + error.message;
-                })
-                .finally(reportProgress);
+        return message;
+    });
+    let message = '';
+    for (let i = 0; i < messages.length; i++) {
+        if (defined(messages[i])) {
+            message += `Error in ${contentPaths[i]}: ${messages[i]}\n`;
         }
-        return readTileset(contentPath)
-            .then(function(tileset) {
-                return validateTileset(tileset, contentPath, path.dirname(contentPath));
-            })
-            .catch(function(error) {
-                return 'Could not read file: ' + error.message;
-            })
-            .finally(reportProgress);
-    })
-        .then(function(messages) {
-            var message = '';
-            var length = messages.length;
-            for (var i = 0; i < length; ++i) {
-                if (defined(messages[i])) {
-                    message += 'Error in ' + contentPaths[i] + ': ' + messages[i] + '\n';
-                }
-            }
-            if (message === '') {
-                return undefined;
-            }
-            return message;
-        });
+    }
+    if (message === '') {
+        return undefined;
+    }
+    return message;
 }
 
-function checkBoundingVolume(innerBoundingVolume, outerBoundingVolume, innerTransform, outerTransform) {
-    var message;
-    var transformedInnerTile;
-    var transformedOuterTile;
-
-    if (defined(innerBoundingVolume.box) && defined(outerBoundingVolume.box)) {
-        // Box in Box check
-        transformedInnerTile = getTransformedBox(innerBoundingVolume.box, innerTransform);
-        transformedOuterTile = getTransformedBox(outerBoundingVolume.box, outerTransform);
-        if (!boxInsideBox(transformedInnerTile, transformedOuterTile)) {
-            message = 'box [' + innerBoundingVolume.box + '] is not within box [' + outerBoundingVolume.box + ']';
+async function validateContent(contentPath, directory, options) {
+    try {
+        if (isDataUri(contentPath)) {
+            const content = Buffer.from(contentPath.split(',')[1], 'base64');
+            return await validateTile({
+                content: content,
+                filePath: contentPath,
+                directory: directory,
+                writeReports: options.writeReports
+            });
+        } else if (isTile(contentPath)) {
+            return await validateTile({
+                content: await readTile(contentPath),
+                filePath: contentPath,
+                directory: path.dirname(contentPath),
+                writeReports: options.writeReports
+            });
         }
-        return message;
-    } else if (defined(innerBoundingVolume.sphere) && defined(outerBoundingVolume.sphere)) {
-        // Sphere in Sphere
-        transformedInnerTile = getTransformedSphere(innerBoundingVolume.sphere, innerTransform);
-        transformedOuterTile = getTransformedSphere(outerBoundingVolume.sphere, outerTransform);
-        if (!sphereInsideSphere(transformedInnerTile, transformedOuterTile)) {
-            message = 'sphere [' + innerBoundingVolume.sphere + '] is not within sphere [' + outerBoundingVolume.sphere + ']';
-            return message;
-        }
-        return message
-    } else if (defined(innerBoundingVolume.region)&& defined(outerBoundingVolume.region)) {
-        // Region in Region
-        // Region does not update with transform
-        transformedInnerTile = innerBoundingVolume.region;
-        transformedOuterTile = outerBoundingVolume.region;
-        if (!regionInsideRegion(transformedInnerTile, transformedOuterTile)) {
-            message = 'region [' + innerBoundingVolume.region + '] is not within region [' + outerBoundingVolume.region + ']';
-            return message;
-        }
-        return message;
-    } else if (defined(innerBoundingVolume.box) && defined(outerBoundingVolume.sphere)) {
-        // Box in Sphere
-        transformedInnerTile = getTransformedBox(innerBoundingVolume.box, innerTransform);
-        transformedOuterTile = getTransformedSphere(outerBoundingVolume.sphere, outerTransform);
-        if (!boxInsideSphere(transformedInnerTile, transformedOuterTile)) {
-            message = 'box [' + innerBoundingVolume.box + '] is not within sphere [' + outerBoundingVolume.sphere + ']';
-            return message;
-        }
-        return message;
-    } else if (defined(innerBoundingVolume.sphere) && defined(outerBoundingVolume.box)) {
-        // Sphere in Box
-        transformedInnerTile = getTransformedSphere(innerBoundingVolume.sphere, innerTransform);
-        transformedOuterTile = getTransformedBox(outerBoundingVolume.box, outerTransform);
-        if (!sphereInsideBox(transformedInnerTile, transformedOuterTile)) {
-            message = 'sphere [' + innerBoundingVolume.sphere + '] is not within box [' + outerBoundingVolume.box + ']';
-            return message;
-        }
-        return message;
+        return await validateTileset({
+            tileset: await readTileset(contentPath),
+            filePath: contentPath,
+            directory: path.dirname(contentPath),
+            writeReports: options.writeReports
+        });
+    } catch (error) {
+        console.log(`Could not read file: ${error.message}`);
     }
 }
 
-var scratchMatrix = new Matrix3();
-var scratchHalfAxes = new Matrix3();
-var scratchCenter = new Cartesian3();
-var scratchScale = new Cartesian3();
+function checkBoundingVolume(innerBoundingVolume, outerBoundingVolume, innerTransform, outerTransform) {
+    if (defined(innerBoundingVolume.box) && defined(outerBoundingVolume.box)) {
+        // Box in Box check
+        const transformedInnerTile = getTransformedBox(innerBoundingVolume.box, innerTransform);
+        const transformedOuterTile = getTransformedBox(outerBoundingVolume.box, outerTransform);
+        if (!boxInsideBox(transformedInnerTile, transformedOuterTile)) {
+            return `box [${innerBoundingVolume.box}] is not within box [${outerBoundingVolume.box}]`;
+        }
+    } else if (defined(innerBoundingVolume.sphere) && defined(outerBoundingVolume.sphere)) {
+        // Sphere in Sphere
+        const transformedInnerTile = getTransformedSphere(innerBoundingVolume.sphere, innerTransform);
+        const transformedOuterTile = getTransformedSphere(outerBoundingVolume.sphere, outerTransform);
+        if (!sphereInsideSphere(transformedInnerTile, transformedOuterTile)) {
+            return `sphere [${innerBoundingVolume.sphere}] is not within sphere [${outerBoundingVolume.sphere}]`;
+        }
+    } else if (defined(innerBoundingVolume.region)&& defined(outerBoundingVolume.region)) {
+        // Region in Region
+        // Region does not update with transform
+        const transformedInnerTile = innerBoundingVolume.region;
+        const transformedOuterTile = outerBoundingVolume.region;
+        if (!regionInsideRegion(transformedInnerTile, transformedOuterTile)) {
+            return `region [${innerBoundingVolume.region}] is not within region [${outerBoundingVolume.region}]`;
+        }
+    } else if (defined(innerBoundingVolume.box) && defined(outerBoundingVolume.sphere)) {
+        // Box in Sphere
+        const transformedInnerTile = getTransformedBox(innerBoundingVolume.box, innerTransform);
+        const transformedOuterTile = getTransformedSphere(outerBoundingVolume.sphere, outerTransform);
+        if (!boxInsideSphere(transformedInnerTile, transformedOuterTile)) {
+            return `box [${innerBoundingVolume.box}] is not within sphere [${outerBoundingVolume.sphere}]`;
+        }
+    } else if (defined(innerBoundingVolume.sphere) && defined(outerBoundingVolume.box)) {
+        // Sphere in Box
+        const transformedInnerTile = getTransformedSphere(innerBoundingVolume.sphere, innerTransform);
+        const transformedOuterTile = getTransformedBox(outerBoundingVolume.box, outerTransform);
+        if (!sphereInsideBox(transformedInnerTile, transformedOuterTile)) {
+            return `sphere [${innerBoundingVolume.sphere}] is not within box [${outerBoundingVolume.box}]`;
+        }
+    }
+}
+
+const scratchMatrix = new Matrix3();
+const scratchHalfAxes = new Matrix3();
+const scratchCenter = new Cartesian3();
+const scratchScale = new Cartesian3();
+
 function getTransformedBox(box, transform) {
-    var center = Cartesian3.fromElements(box[0], box[1], box[2], scratchCenter);
-    var halfAxes = Matrix3.fromArray(box, 3, scratchHalfAxes);
+    let center = Cartesian3.fromElements(box[0], box[1], box[2], scratchCenter);
+    let halfAxes = Matrix3.fromArray(box, 3, scratchHalfAxes);
 
     // Find the transformed center and halfAxes
     center = Matrix4.multiplyByPoint(transform, center, center);
-    var rotationScale = Matrix4.getRotation(transform, scratchMatrix);
+    const rotationScale = Matrix4.getMatrix3(transform, scratchMatrix);
     halfAxes = Matrix3.multiply(rotationScale, halfAxes, halfAxes);
 
     // Return a Box array
-    var returnBox = [center.x, center.y, center.z, halfAxes[0], halfAxes[3], halfAxes[6], halfAxes[1], halfAxes[4], halfAxes[7], halfAxes[2], halfAxes[5], halfAxes[8]];
+    const returnBox = [center.x, center.y, center.z, halfAxes[0], halfAxes[3], halfAxes[6], halfAxes[1], halfAxes[4], halfAxes[7], halfAxes[2], halfAxes[5], halfAxes[8]];
     return returnBox;
 }
 
 function getTransformedSphere(sphere, transform) {
-    var center = Cartesian3.fromElements(sphere[0], sphere[1], sphere[2], scratchCenter);
-    var radius = sphere[3];
+    let center = Cartesian3.fromElements(sphere[0], sphere[1], sphere[2], scratchCenter);
+    let radius = sphere[3];
 
     // Find the transformed center and radius
     center = Matrix4.multiplyByPoint(transform, center, center);
-    var scale = Matrix4.getScale(transform, scratchScale);
-    var uniformScale = Cartesian3.maximumComponent(scale);
+    const scale = Matrix4.getScale(transform, scratchScale);
+    const uniformScale = Cartesian3.maximumComponent(scale);
     radius *= uniformScale;
 
     // Return a Sphere array
-    var returnSphere = [center.x, center.y, center.z, radius];
+    const returnSphere = [center.x, center.y, center.z, radius];
     return returnSphere;
 }
 
-function errorMessage(originalMessage, tile) {
+function getTileErrorMessage(originalMessage, tile) {
+    tile = clone(tile, false);
     delete tile.children;
-    var stringJson = JSON.stringify(tile, undefined, 4);
-    var newMessage = originalMessage + ' \n ' + stringJson;
+    const stringJson = JSON.stringify(tile, undefined, 4);
+    const newMessage = `${originalMessage}\n${stringJson}`;
     return newMessage;
 }

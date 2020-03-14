@@ -1,10 +1,10 @@
 'use strict';
-var Cesium = require('cesium');
-var validateTileset = require('../../lib/validateTileset');
+const Cesium = require('cesium');
+const validateTileset = require('../../lib/validateTileset');
 
-var clone = Cesium.clone;
+const clone = Cesium.clone;
 
-var sampleTileset = {
+const sampleTileset = {
     asset: {
         version: '1.0'
     },
@@ -21,18 +21,12 @@ var sampleTileset = {
                     region: [-1.3197209591796106, 0.6988424218, -1.31968, 0.698874, 0, 20]
                 },
                 geometricError: 50,
-                content: {
-                    geometricError: 20
-                },
                 children: [
                     {
                         boundingVolume: {
                             region: [-1.3197209591796106, 0.6988424218, -1.31968, 0.698874, 0, 10]
                         },
-                        geometricError: 0,
-                        content: {
-                            geometricError: 10
-                        }
+                        geometricError: 0
                     }
                 ]
             },
@@ -40,114 +34,119 @@ var sampleTileset = {
                 boundingVolume: {
                     region: [-1.31968, 0.6988424218, -1.3196390408203893, 0.698874, 0, 20]
                 },
-                geometricError: 0,
-                content: {
-                    geometricError: 20
-                }
+                geometricError: 0
             }
         ]
     }
 };
 
-describe('validateTileset', function() {
-    it('returns error message when the geometricError is not defined', function(done) {
-        var tileset = clone(sampleTileset, true);
+describe('validateTileset', () => {
+    it('returns error message when the geometricError is not defined', async () => {
+        const tileset = clone(sampleTileset, true);
         delete tileset.root.children[0].geometricError;
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var error = 'Each tile must define geometricError';
-                expect(message.slice(0, error.length)).toBe(error);
-            }), done).toResolve();
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        const error = 'Each tile must define geometricError';
+        expect(message.slice(0, error.length)).toBe(error);
     });
 
-    it('returns error message when the geometricError is less than 0.0', function(done) {
-        var tileset = clone(sampleTileset, true);
+    it('returns error message when the geometricError is less than 0.0', async () => {
+        const tileset = clone(sampleTileset, true);
         tileset.root.children[0].geometricError = -1;
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'geometricError must be greater than or equal to 0.0';
-                expect(message.slice(0, err.length)).toBe(err);
-            }), done).toResolve();
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        const error = 'geometricError must be greater than or equal to 0.0';
+        expect(message.slice(0, error.length)).toBe(error);
     });
 
-    it('returns error message when child has geometricError greater than parent', function(done) {
-        var tileset = clone(sampleTileset, true);
+    it('returns error message when child has geometricError greater than parent', async () => {
+        const tileset = clone(sampleTileset, true);
         tileset.root.children[0].geometricError = 80;
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'Child has geometricError greater than parent';
-                expect(message.slice(0, err.length)).toBe(err);
-            }), done).toResolve();
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        const error = 'Child has geometricError greater than parent';
+        expect(message.slice(0, error.length)).toBe(error);
     });
 
-    it('returns error message when refine property of tile has incorrect value', function(done) {
-        var tileset = clone(sampleTileset, true);
+    it('returns error message when refine property of tile has incorrect value', async () => {
+        const tileset = clone(sampleTileset, true);
         tileset.root.children[0].refine = 'NEW';
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
-                expect(message.slice(0, err.length)).toBe(err);
-            }), done).toResolve();
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        const error = 'Refine property in tile must have either "ADD" or "REPLACE" as its value.';
+        expect(message.slice(0, error.length)).toBe(error);
     });
 
-    it('returns error message when the top-level geometricError is missing', function(done) {
-        var tileset = clone(sampleTileset, true);
+    it('returns error message when the top-level geometricError is missing', async () => {
+        const tileset = clone(sampleTileset, true);
         delete tileset.geometricError;
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                expect(message).toBe('Tileset must declare its geometricError as a top-level property.');
-            }), done).toResolve();
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Tileset must declare its geometricError as a top-level property.');
     });
 
-    it('returns error message when refine property is not defined in root tile', function(done) {
-        var tileset = clone(sampleTileset, true);
+    it('returns error message when refine property is not defined in root tile', async () => {
+        const tileset = clone(sampleTileset, true);
         delete tileset.root.refine;
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'Tileset must define refine property in root tile';
-                expect(message.slice(0, err.length)).toBe(err);
-            }), done).toResolve();
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        const error = 'Tileset must define refine property in root tile';
+        expect(message.slice(0, error.length)).toBe(error);
     });
 
-    it('returns error message when the top-level asset is missing', function(done) {
-        var tileset = clone(sampleTileset, true);
+    it('returns error message when the top-level asset is missing', async () => {
+        const tileset = clone(sampleTileset, true);
         delete tileset.asset;
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                expect(message).toBe('Tileset must declare its asset as a top-level property.');
-            }), done).toResolve();
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Tileset must declare its asset as a top-level property.');
     });
 
-    it('returns error message when asset.version property is missing', function(done) {
-        var tileset = clone(sampleTileset, true);
+    it('returns error message when asset.version property is missing', async () => {
+        const tileset = clone(sampleTileset, true);
         delete tileset.asset.version;
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                expect(message).toBe('Tileset must declare a version in its asset property');
-            }), done).toResolve();
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe('Tileset must declare a version in its asset property');
     });
 
-    it('returns error message when asset.version property value is incorrect', function(done) {
-        var tileset = clone(sampleTileset, true);
+    it('returns error message when asset.version property value is incorrect', async () => {
+        const tileset = clone(sampleTileset, true);
         tileset.asset.version = '0.0';
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                expect(message).toBe('Tileset version must be 1.0. Tileset version provided: ' + tileset.asset.version);
-            }), done).toResolve();
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBe(`Tileset version must be 1.0. Tileset version provided: ${tileset.asset.version}`);
     });
 
-    it('returns error message when the up-axis is not X, Y, or Z', function(done) {
-        var tileset = clone(sampleTileset, true);
-        tileset.asset.gltfUpAxis = 'A';
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'gltfUpAxis should either be "X", "Y", or "Z".';
-                expect(message.slice(0, err.length)).toBe(err);
-            }), done).toResolve();
-    });
-
-    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s box type boundingVolume [invalid aligned bounding boxes]', function(done) {
-        var tileBoundingVolume = {
+    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s box type boundingVolume [invalid aligned bounding boxes]', async () => {
+        const tileBoundingVolume = {
             box: [
                 0, 0, 0,
                 7.0955, 0, 0,
@@ -155,7 +154,7 @@ describe('validateTileset', function() {
                 0, 0, 5.0375
             ]
         };
-        var contentBoundingVolume = {
+        const contentBoundingVolume = {
             box: [
                 0, 0, 0,
                 7.0955, 0, 0,
@@ -163,16 +162,18 @@ describe('validateTileset', function() {
                 0, 0, 5.04
             ]
         };
-        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'content bounding volume is not within tile bounding volume: box [' + contentBoundingVolume.box + '] is not within box [' + tileBoundingVolume.box + ']';
-                expect(message.slice(0, err.length)).toBe(err);
-            }), done).toResolve();
+        const tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        const error = `content bounding volume is not within tile bounding volume: box [${contentBoundingVolume.box}] is not within box [${tileBoundingVolume.box}]`;
+        expect(message.slice(0, error.length)).toBe(error);
     });
 
-    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s box type boundingVolume [invalid unaligned bounding boxes]', function(done) {
-        var tileBoundingVolume = {
+    it('returns error message when a content\'s box type boundingVolume is not within it\'s tile\'s box type boundingVolume [invalid unaligned bounding boxes]', async () => {
+        const tileBoundingVolume = {
             box: [
                 0, 0, 0,
                 1, 0, 0,
@@ -180,7 +181,7 @@ describe('validateTileset', function() {
                 0, 0, 1
             ]
         };
-        var contentBoundingVolume = {
+        const contentBoundingVolume = {
             box: [
                 0, 0, 0,
                 1, 1, 0,
@@ -188,16 +189,18 @@ describe('validateTileset', function() {
                 0, 0, 1
             ]
         };
-        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'content bounding volume is not within tile bounding volume: box [' + contentBoundingVolume.box + '] is not within box [' + tileBoundingVolume.box + ']';
-                expect(message.slice(0, err.length)).toBe(err);
-            }), done).toResolve();
+        const tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        const error = `content bounding volume is not within tile bounding volume: box [${contentBoundingVolume.box}] is not within box [${tileBoundingVolume.box}]`;
+        expect(message.slice(0, error.length)).toBe(error);
     });
 
-    it('succeeds when a content\'s box type boundingVolume is within it\'s tile\'s box type boundingVolume [valid bounding boxes]', function(done) {
-        var tileBoundingVolume = {
+    it('succeeds when a content\'s box type boundingVolume is within it\'s tile\'s box type boundingVolume [valid bounding boxes]', async () => {
+        const tileBoundingVolume = {
             box: [
                 0, 0, 0,
                 1, 0, 0,
@@ -205,7 +208,7 @@ describe('validateTileset', function() {
                 0, 0, 1
             ]
         };
-        var contentBoundingVolume = {
+        const contentBoundingVolume = {
             box: [
                 0, 0, 0,
                 0.5, 0.5, 0,
@@ -213,18 +216,20 @@ describe('validateTileset', function() {
                 0, 0, 1
             ]
         };
-        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                expect(message).toBeUndefined();
-            }), done).toResolve();
+        const tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBeUndefined();
     });
 
-    it('returns error message when content\'s box type boundingVolume is not within it\'s tile\'s sphere type boundingVolume', function(done) {
-        var tileBoundingVolume = {
+    it('returns error message when content\'s box type boundingVolume is not within it\'s tile\'s sphere type boundingVolume', async () => {
+        const tileBoundingVolume = {
             sphere: [0, 0, 0, 1]
         };
-        var contentBoundingVolume = {
+        const contentBoundingVolume = {
             box: [
                 0, 0, 0,
                 1, 0, 0,
@@ -232,19 +237,21 @@ describe('validateTileset', function() {
                 0, 0, 0.7
             ]
         };
-        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'content bounding volume is not within tile bounding volume: box [' + contentBoundingVolume.box + '] is not within sphere [' + tileBoundingVolume.sphere + ']';
-                expect(message.slice(0, err.length)).toBe(err);
-            }), done).toResolve();
+        const tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        const error = `content bounding volume is not within tile bounding volume: box [${contentBoundingVolume.box}] is not within sphere [${tileBoundingVolume.sphere}]`;
+        expect(message.slice(0, error.length)).toBe(error);
     });
 
-    it('succeeds when content\'s box type boundingVolume is within it\'s tile\'s sphere type boundingVolume', function(done) {
-        var tileBoundingVolume = {
+    it('succeeds when content\'s box type boundingVolume is within it\'s tile\'s sphere type boundingVolume', async () => {
+        const tileBoundingVolume = {
             sphere: [0, 0, 0, 1]
         };
-        var contentBoundingVolume = {
+        const contentBoundingVolume = {
             box: [
                 0, 0, 0,
                 0.5, 0, 0,
@@ -252,15 +259,17 @@ describe('validateTileset', function() {
                 0, 0, 0.5
             ]
         };
-        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                expect(message).toBeUndefined();
-            }), done).toResolve();
+        const tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBeUndefined();
     });
 
-    it('returns error message when content\'s sphere type boundingVolume is entirely outside tile\'s box type boundingVolume', function(done) {
-        var tileBoundingVolume = {
+    it('returns error message when content\'s sphere type boundingVolume is entirely outside tile\'s box type boundingVolume', async () => {
+        const tileBoundingVolume = {
             box: [
                 0, 0, 0,
                 7, 0, 0,
@@ -268,19 +277,21 @@ describe('validateTileset', function() {
                 0, 0, 5
             ]
         };
-        var contentBoundingVolume = {
+        const contentBoundingVolume = {
             sphere: [10, 10, 10, 1]
         };
-        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'content bounding volume is not within tile bounding volume: sphere [' + contentBoundingVolume.sphere + '] is not within box [' + tileBoundingVolume.box + ']';
-                expect(message.slice(0, err.length)).toBe(err);
-          }), done).toResolve();
+        const tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        const error = `content bounding volume is not within tile bounding volume: sphere [${contentBoundingVolume.sphere}] is not within box [${tileBoundingVolume.box}]`;
+        expect(message.slice(0, error.length)).toBe(error);
     });
 
-    it('returns error message when content\'s bounding sphere\'s center is within the tile\'s bounding box but it\'s radius extends beyond', function(done) {
-        var tileBoundingVolume = {
+    it('returns error message when content\'s bounding sphere\'s center is within the tile\'s bounding box but it\'s radius extends beyond', async () => {
+        const tileBoundingVolume = {
             box: [
                 0, 0, 0,
                 1, 0, 0,
@@ -288,19 +299,21 @@ describe('validateTileset', function() {
                 0, 0, 1
             ]
         };
-        var contentBoundingVolume = {
+        const contentBoundingVolume = {
             sphere: [0, 0, 0, 1.1]
         };
-        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'content bounding volume is not within tile bounding volume: sphere [' + contentBoundingVolume.sphere + '] is not within box [' + tileBoundingVolume.box + ']';
-                expect(message.slice(0, err.length)).toBe(err);
-          }), done).toResolve();
+        const tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        const error = `content bounding volume is not within tile bounding volume: sphere [${contentBoundingVolume.sphere}] is not within box [${tileBoundingVolume.box}]`;
+        expect(message.slice(0, error.length)).toBe(error);
     });
 
-    it('returns error message when content\'s bounding sphere\'s center is outside tile\'s bounding box and the volumes intersect', function(done) {
-        var tileBoundingVolume = {
+    it('returns error message when content\'s bounding sphere\'s center is outside tile\'s bounding box and the volumes intersect', async () => {
+        const tileBoundingVolume = {
             box: [
                 0, 0, 0,
                 7, 0, 0,
@@ -308,19 +321,21 @@ describe('validateTileset', function() {
                 0, 0, 5
             ]
         };
-        var contentBoundingVolume = {
+        const contentBoundingVolume = {
             sphere: [0, 5, 0, 3]
         };
-        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'content bounding volume is not within tile bounding volume: sphere [' + contentBoundingVolume.sphere + '] is not within box [' + tileBoundingVolume.box + ']';
-                expect(message.slice(0, err.length)).toBe(err);
-          }), done).toResolve();
+        const tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        const error = `content bounding volume is not within tile bounding volume: sphere [${contentBoundingVolume.sphere}] is not within box [${tileBoundingVolume.box}]`;
+        expect(message.slice(0, error.length)).toBe(error);
     });
 
-    it('succeeds when content\'s bounding sphere is within tile\'s bounding box', function(done) {
-        var tileBoundingVolume = {
+    it('succeeds when content\'s bounding sphere is within tile\'s bounding box', async () => {
+        const tileBoundingVolume = {
             box: [
                 0, 0, 0,
                 7, 0, 0,
@@ -328,18 +343,20 @@ describe('validateTileset', function() {
                 0, 0, 5
             ]
         };
-        var contentBoundingVolume = {
+        const contentBoundingVolume = {
             sphere: [0, 0, 0, 2]
         };
-        var tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                expect(message).toBeUndefined();
-          }), done).toResolve();
+        const tileset = createSampleTileset(tileBoundingVolume, contentBoundingVolume);
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBeUndefined();
     });
 
-    it('succeeds when child\'s box type boundingVolume is completely within it\'s parents\'s box type boundingVolume', function(done) {
-        var parentBoundingVolume = {
+    it('succeeds when child\'s box type boundingVolume is completely within it\'s parents\'s box type boundingVolume', async () => {
+        const parentBoundingVolume = {
             box: [
                 0, 0, 0,
                 1, 0, 0,
@@ -347,7 +364,7 @@ describe('validateTileset', function() {
                 0, 0, 1
             ]
         };
-        var childBoundingVolume = {
+        const childBoundingVolume = {
             box: [
                 0, 0, 0,
                 0.5, 0, 0,
@@ -355,7 +372,7 @@ describe('validateTileset', function() {
                 0, 0, 0.5
             ]
         };
-        var childTransform = {
+        const childTransform = {
             transform: [
                 0.87, 0.5, 0, 0,
                 -0.5, 0.87, 0, 0,
@@ -363,89 +380,27 @@ describe('validateTileset', function() {
                 0, 0, 0, 0
             ]
         };
-        var tileset = createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, undefined);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                expect(message).toBeUndefined();
-            }), done).toResolve();
+        const tileset = createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, undefined);
+        const message = await validateTileset({
+            tileset: tileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBeUndefined();
     });
 
-    it('returns error message when when child\'s box type boundingVolume is not completely within it\'s parents\'s box type boundingVolume [aligned bounding volumes]', function(done) {
-        var parentBoundingVolume = {
-            box: [
-                0, 0, 0,
-                1, 0, 0,
-                0, 1, 0,
-                0, 0, 1
-            ]
-        };
-        var childBoundingVolume = {
-            box: [
-                0, 0, 0,
-                1, 0, 0,
-                0, 1, 0,
-                0, 0, 1
-            ]
-        };
-        var childTransform = {
-            transform: [
-                4, 0, 0, 0,
-                0, 4, 0, 0,
-                0, 0 , 4, 0,
-                0, 0, 0, 1
-            ]
-        };
-        var tileset = createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, undefined);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'child bounding volume is not within parent bounding volume: ' + 'box [' + childBoundingVolume.box + '] is not within box [' + parentBoundingVolume.box + ']';
-                expect(message.slice(0, err.length)).toBe(err);
-            }), done).toResolve();
-    });
-
-    it('returns error message when when child\'s box type boundingVolume is not completely within it\'s parents\'s box type boundingVolume [unaligned bounding volumes]', function(done) {
-        var parentBoundingVolume = {
-            box: [
-                0, 0, 0,
-                1, 0, 0,
-                0, 1, 0,
-                0, 0, 1
-            ]
-        };
-        var childBoundingVolume = {
-            box: [
-                0, 0, 0,
-                1, 0, 0,
-                0, 1, 0,
-                0, 0, 1
-            ]
-        };
-        var childTransform = {
-            transform: [
-                0.87, 0.5, 0, 0,
-                -0.5, 0.87, 0, 0,
-                0, 0 , 1, 0,
-                0, 0, 0, 0
-            ]
-        };
-        var tileset = createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, undefined);
-        expect(validateTileset(tileset)
-            .then(function(message) {
-                var err = 'child bounding volume is not within parent bounding volume: ' + 'box [' + childBoundingVolume.box + '] is not within box [' + parentBoundingVolume.box + ']';
-                expect(message.slice(0, err.length)).toBe(err);
-            }), done).toResolve();
-    });
-
-    it('succeeds for valid tileset', function(done) {
-        expect(validateTileset(sampleTileset)
-            .then(function(message) {
-                expect(message).toBeUndefined();
-            }), done).toResolve();
+    it('succeeds for valid tileset', async () => {
+        const message = await validateTileset({
+            tileset: sampleTileset,
+            filePath: 'filepath',
+            directory: '.'
+        });
+        expect(message).toBeUndefined();
     });
 });
 
 function createSampleTileset(tileBoundingVolume, contentBoundingVolume) {
-    var sampleTileset = {
+    const sampleTileset = {
         asset: {
             version: '1.0'
         },
@@ -463,7 +418,7 @@ function createSampleTileset(tileBoundingVolume, contentBoundingVolume) {
 }
 
 function createParentChildTileset(parentBoundingVolume, childBoundingVolume, childTransform, parentTransform) {
-    var sampleTileset = {
+    const sampleTileset = {
         asset: {
             version: '1.0'
         },
@@ -475,7 +430,7 @@ function createParentChildTileset(parentBoundingVolume, childBoundingVolume, chi
             refine: 'ADD',
             children: [
                 {
-                    transform: childTransform.transform, 
+                    transform: childTransform.transform,
                     boundingVolume: childBoundingVolume,
                     geometricError: 50,
                     refine: 'ADD'
