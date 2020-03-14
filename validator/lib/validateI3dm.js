@@ -134,7 +134,7 @@ async function validateI3dm(options) {
     const batchTableJsonByteOffset = featureTableBinaryByteOffset + featureTableBinaryByteLength;
     const batchTableBinaryByteOffset = batchTableJsonByteOffset + batchTableJsonByteLength;
     const glbByteOffset = batchTableBinaryByteOffset + batchTableBinaryByteLength;
-    const glbByteLength = Math.max(byteLength - glbByteOffset, 0);
+    let glbByteLength = Math.max(byteLength - glbByteOffset, 0);
 
     if (featureTableBinaryByteOffset % 8 > 0) {
         return 'Feature table binary must be aligned to an 8-byte boundary.';
@@ -157,7 +157,9 @@ async function validateI3dm(options) {
     const featureTableBinary = content.slice(featureTableBinaryByteOffset, batchTableJsonByteOffset);
     const batchTableJsonBuffer = content.slice(batchTableJsonByteOffset, batchTableBinaryByteOffset);
     const batchTableBinary = content.slice(batchTableBinaryByteOffset, glbByteOffset);
-    const glb = content.slice(glbByteOffset, byteLength);
+
+    glbByteLength = embeddedGlb ? content.readUInt32LE(glbByteOffset + 8) : glbByteLength;
+    const glb = content.slice(glbByteOffset, glbByteOffset + glbByteLength);
 
     let featureTableJson;
     let batchTableJson;

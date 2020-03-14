@@ -23,11 +23,18 @@ module.exports = validateFeatureTable;
 function validateFeatureTable(featureTableJson, featureTableBinary, featuresLength, featureTableSemantics) {
     for (const name in featureTableJson) {
         if (featureTableJson.hasOwnProperty(name)) {
+            if (name === 'extensions' || name === 'extras') {
+                continue;
+            }
             const property = featureTableJson[name];
             const definition = featureTableSemantics[name];
             if (!defined(definition)) {
                 return `Invalid feature table property "${name}".`;
             }
+            if (hasDracoProperty(featureTableJson, name)) {
+                continue;
+            }
+
             const byteOffset = property.byteOffset;
             const componentType = defaultValue(property.componentType, definition.componentType);
             const componentTypeOptions = definition.componentTypeOptions;
@@ -77,4 +84,15 @@ function validateFeatureTable(featureTableJson, featureTableBinary, featuresLeng
             }
         }
     }
+}
+
+function hasDracoProperty(featureTableJson, propertyName) {
+    const extensions = featureTableJson.extensions;
+    if (defined(extensions)) {
+        const dracoExtension = extensions['3DTILES_draco_point_compression'];
+        if (defined(dracoExtension)) {
+            return defined(dracoExtension.properties[propertyName]);
+        }
+    }
+    return false;
 }

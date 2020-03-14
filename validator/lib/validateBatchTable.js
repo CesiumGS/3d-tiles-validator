@@ -21,6 +21,13 @@ module.exports = validateBatchTable;
 function validateBatchTable(batchTableJson, batchTableBinary, featuresLength) {
     for (const name in batchTableJson) {
         if (batchTableJson.hasOwnProperty(name)) {
+            if (name === 'extensions' || name === 'extras') {
+                continue;
+            }
+            if (hasDracoProperty(batchTableJson, name)) {
+                continue;
+            }
+
             const property = batchTableJson[name];
             const byteOffset = property.byteOffset;
 
@@ -66,4 +73,15 @@ function validateBatchTable(batchTableJson, batchTableBinary, featuresLength) {
             }
         }
     }
+}
+
+function hasDracoProperty(batchTableJson, propertyName) {
+    const extensions = batchTableJson.extensions;
+    if (defined(extensions)) {
+        const dracoExtension = extensions['3DTILES_draco_point_compression'];
+        if (defined(dracoExtension)) {
+            return defined(dracoExtension.properties[propertyName]);
+        }
+    }
+    return false;
 }

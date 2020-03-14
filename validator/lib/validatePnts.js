@@ -184,7 +184,7 @@ async function validatePnts(options) {
         return 'Feature table property BATCH_LENGTH must be less than or equal to POINTS_LENGTH.';
     }
 
-    if (defined(featureTableJson.BATCH_ID)) {
+    if (defined(featureTableJson.BATCH_ID) && !hasDracoBatchIds(featureTableJson)) {
         const featureTable = new Cesium3DTileFeatureTable(featureTableJson, featureTableBinary);
         featureTable.featuresLength = pointsLength;
         const componentDatatype = ComponentDatatype.fromName(defaultValue(featureTableJson.BATCH_ID.componentType, 'UNSIGNED_SHORT'));
@@ -206,4 +206,15 @@ async function validatePnts(options) {
     if (defined(batchTableMessage)) {
         return batchTableMessage;
     }
+}
+
+function hasDracoBatchIds(featureTableJson) {
+    const extensions = featureTableJson.extensions;
+    if (defined(extensions)) {
+        const dracoExtension = extensions['3DTILES_draco_point_compression'];
+        if (defined(dracoExtension)) {
+            return defined(dracoExtension.properties.BATCH_ID);
+        }
+    }
+    return false;
 }

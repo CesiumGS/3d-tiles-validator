@@ -28,7 +28,7 @@ node ./bin/3d-tiles-validator.js -i ./specs/data/Tileset/tile.b3dm
 
 |Flag|Description|Required|
 |----|-----------|--------|
-|`-i`, `--input`|Tileset JSON file.| Yes |
+|`-i`, `--input`|Tileset JSON or individual tile.| Yes |
 
 ## Build Instructions
 

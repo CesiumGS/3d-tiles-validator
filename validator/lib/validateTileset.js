@@ -133,7 +133,7 @@ async function validateTileHierarchy(root, options) {
 
     let completed = 0;
     const contentPathsLength = contentPaths.length;
-    //console.log(`Validating ${filePath} - ${contentPathsLength} sub tiles`);
+    console.log(`Validating ${filePath} - ${contentPathsLength} sub tiles`);
 
     const messages = await Promise.map(contentPaths, async contentPath => {
         const message = await validateContent(contentPath, directory, options);
