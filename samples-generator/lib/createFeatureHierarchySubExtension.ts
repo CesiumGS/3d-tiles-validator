@@ -71,7 +71,6 @@ export function createFeatureHierarchySubExtension(
     parentCounts?: number[] | CompositeAccessorBufferView,
     binaryData?: Buffer
 ) {
-
     assertParametersAreValid(
         classes,
         classIds,

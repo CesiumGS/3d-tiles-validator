@@ -1,4 +1,4 @@
-import { FeatureHierarchyExtension } from "./createFeatureHierarchySubExtension";
+import { FeatureHierarchyExtension } from './createFeatureHierarchySubExtension';
 
 export interface FeatureMetatableExtensions {
     CESIUM_3dtiles_feature_hierarchy?: FeatureHierarchyExtension;

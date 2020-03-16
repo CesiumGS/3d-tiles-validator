@@ -1,4 +1,4 @@
-import { FeatureMetatable } from "./featureMetatableType";
+import { FeatureMetatable } from './featureMetatableType';
 
 export enum GltfComponentType {
     UNSIGNED_BYTE = 'UNSIGNED_BYTE',

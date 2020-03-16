@@ -134,8 +134,6 @@ export function createBatchTableHierarchy(options) {
     }
 
     var tilesetJson = createTilesetJsonSingle(opts)
-
-
     if (!use3dTilesNext && !options.legacy) {
         Extensions.addExtensionsUsed(tilesetJson, '3DTILES_batch_table_hierarchy');
         Extensions.addExtensionsRequired(tilesetJson, '3DTILES_batch_table_hierarchy');
@@ -363,7 +361,6 @@ function createBatchTableJson(instances, options) {
 
     return batchTable;
 }
-
 
 function createHierarchy(instances) {
     var i;
