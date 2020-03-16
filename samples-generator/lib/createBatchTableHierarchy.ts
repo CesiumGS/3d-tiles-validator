@@ -315,16 +315,16 @@ function createBatchTableBinary(batchTable, options) {
     }
 
     // Convert classIds to binary
-    hierarchy.classIds = createBinaryProperty(hierarchy.classIds, 'UNSIGNED_SHORT', 'classIds');
+    hierarchy.classIds = createBinaryProperty(hierarchy.classIds, 'UNSIGNED_SHORT');
 
     // Convert parentCounts to binary (if they exist)
     if (defined(hierarchy.parentCounts)) {
-        hierarchy.parentCounts = createBinaryProperty(hierarchy.parentCounts, 'UNSIGNED_SHORT', 'parentCounts');
+        hierarchy.parentCounts = createBinaryProperty(hierarchy.parentCounts, 'UNSIGNED_SHORT');
     }
 
     // Convert parentIds to binary (if they exist)
     if (defined(hierarchy.parentIds)) {
-        hierarchy.parentIds = createBinaryProperty(hierarchy.parentIds, 'UNSIGNED_SHORT', 'parentIds');
+        hierarchy.parentIds = createBinaryProperty(hierarchy.parentIds, 'UNSIGNED_SHORT');
     }
 
     return Buffer.concat(buffers);
