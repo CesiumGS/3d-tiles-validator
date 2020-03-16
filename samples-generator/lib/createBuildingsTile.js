@@ -21,6 +21,7 @@ module.exports = createBuildingsTile;
 
 var sizeOfUint8 = 1;
 var sizeOfFloat = 4;
+var sizeOfDouble = 8;
 
 var scratchMatrix = new Matrix4();
 var batchTableJsonAndBinary;
@@ -201,7 +202,7 @@ function generateBatchTableExtra(buildings) {
 
 function generateBatchTableBinary(buildings) {
     var buildingsLength = buildings.length;
-    var cartographicBuffer = Buffer.alloc(buildingsLength * 3 * sizeOfFloat);
+    var cartographicBuffer = Buffer.alloc(buildingsLength * 3 * sizeOfDouble);
     var codeBuffer = Buffer.alloc(buildingsLength * sizeOfUint8);
 
     var batchTableJson = {
@@ -220,9 +221,9 @@ function generateBatchTableBinary(buildings) {
     for (var i = 0; i < buildingsLength; ++i) {
         var building = buildings[i];
         var code = Math.max(i, 255);
-        cartographicBuffer.writeFloatLE(building.longitude, (i * 3) * sizeOfFloat);
-        cartographicBuffer.writeFloatLE(building.latitude, (i * 3 + 1) * sizeOfFloat);
-        cartographicBuffer.writeFloatLE(building.height, (i * 3 + 2) * sizeOfFloat);
+        cartographicBuffer.writeDoubleLE(building.longitude, (i * 3) * sizeOfDouble);
+        cartographicBuffer.writeDoubleLE(building.latitude, (i * 3 + 1) * sizeOfDouble);
+        cartographicBuffer.writeDoubleLE(building.height, (i * 3 + 2) * sizeOfDouble);
         codeBuffer.writeUInt8(code, i);
     }
 

@@ -2571,7 +2571,6 @@ function createTilesetUniform() {
 
     var externalTile2 = clone(tilesetJson.root, true);
     delete externalTile2.transform;
-    delete externalTile2.refine;
     delete externalTile2.content;
 
     var tileset2Json = clone(tilesetJson, true);
