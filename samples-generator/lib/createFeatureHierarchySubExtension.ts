@@ -53,9 +53,15 @@ export interface FeatureHierarchyExtension {
  * the glTF asset.
  * @param classes An array of FeatureHierarchyClasses to insert into the glTF
  * asset
- * @param instanceCount
- * @param [parentIds]
+ * @param classIds classIds for the feature hierarchy
+ * @param instanceCount Total number of instances. Should be equal to the sum
+ * of each classes[i].instancesCount
+ * @param [parentIds] Optional list of parentIds associated with each classIds
  * @param [parentCounts] Optional numerical array containing
+ * @param [binaryData] Optional binaryData parameter. Should be provided if 
+ * using binary accessors. This function makes the assumption that all of the
+ * binary class accessors / classIds / parentIds / parentCounts are all refering
+ * to this buffer.
  * @throws TypeError If the provided glTF asset does not have a
  * `CESIUM_3dtiles_feature_metadata` extension already.
  * @throws RangeError If classes, parentIds, or parentCounts is empty. Or if
