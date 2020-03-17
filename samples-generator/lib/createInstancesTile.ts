@@ -1,22 +1,48 @@
-'use strict';
-var Cesium = require('cesium');
-var fsExtra = require('fs-extra');
-var path = require('path');
-var createI3dm = require('./createI3dm');
+const Cesium = require('cesium');
+import fsExtra = require('fs-extra');
+import path = require('path');
+import { Gltf } from './gltfType';
+const createI3dm = require('./createI3dm');
 
-var AttributeCompression = Cesium.AttributeCompression;
-var Cartesian2 = Cesium.Cartesian2;
-var Cartesian3 = Cesium.Cartesian3;
-var CesiumMath = Cesium.Math;
-var defaultValue = Cesium.defaultValue;
-var Matrix4 = Cesium.Matrix4;
+const AttributeCompression = Cesium.AttributeCompression;
+const Cartesian2 = Cesium.Cartesian2;
+const Cartesian3 = Cesium.Cartesian3;
+const CesiumMath = Cesium.Math;
+const defaultValue = Cesium.defaultValue;
+const Matrix4 = Cesium.Matrix4;
 
-module.exports = createInstancesTile;
+const sizeOfUint8 = 1;
+const sizeOfUint16 = 2;
+const sizeOfUint32 = 4;
+const sizeOfFloat32 = 4;
 
-var sizeOfUint8 = 1;
-var sizeOfUint16 = 2;
-var sizeOfUint32 = 4;
-var sizeOfFloat32 = 4;
+export interface InstanceTileOptions {
+    uri: string
+    tileWidth?: Number
+    transform?: number[], // Matrix4
+    instancesLength?: Number
+    embed?: Boolean
+    modelSize?: Number
+    createBatchTable?: Boolean
+    createBatchTableBinary?: Boolean
+    relativeToCenter?: Boolean
+    quantizePositions?: Boolean
+    eastNorthUp?: Boolean
+    orientations?: Boolean
+    octEncodeOrientations?: Boolean
+    uniformScales?: Boolean
+    nonUniformScales?: Boolean
+    batchIds?: Boolean
+    use3dTilesNext?: boolean
+    useGlb?: boolean
+}
+
+export interface InstancesTileResult {
+    glb?: Buffer,
+    gltf?: Gltf,
+    i3dm?: any,
+    batchTableJson?: any
+}
 
 /**
  * Creates a i3dm tile that represents a set of instances.
@@ -41,39 +67,39 @@ var sizeOfFloat32 = 4;
  *
  * @returns {Promise} A promise that resolves with the i3dm buffer and batch table JSON.
  */
-function createInstancesTile(options) {
+export async function createInstancesTile(options: InstanceTileOptions): Promise<InstancesTileResult> {
     // Set the random number seed before creating the instances so that the generated instances are the same between runs
     CesiumMath.setRandomNumberSeed(0);
 
     options = defaultValue(options, defaultValue.EMPTY_OBJECT);
-    var tileWidth = defaultValue(options.tileWidth, 200.0);
-    var transform = defaultValue(options.transform, Matrix4.IDENTITY);
-    var instancesLength = defaultValue(options.instancesLength, 25);
-    var uri = options.uri;
-    var embed = defaultValue(options.embed, true);
-    var modelSize = defaultValue(options.modelSize, 20.0);
-    var createBatchTable = defaultValue(options.createBatchTable, true);
-    var createBatchTableBinary = defaultValue(options.createBatchTableBinary, false);
-    var relativeToCenter = defaultValue(options.relativeToCenter, false);
-    var quantizePositions = defaultValue(options.quantizePositions, false);
-    var eastNorthUp = defaultValue(options.eastNorthUp, false);
-    var orientations = defaultValue(options.orientations, false);
-    var octEncodeOrientations = defaultValue(options.octEncodeOrientations, false);
-    var uniformScales = defaultValue(options.uniformScales, false);
-    var nonUniformScales = defaultValue(options.nonUniformScales, false);
-    var batchIds = defaultValue(options.batchIds, false);
+    const tileWidth = defaultValue(options.tileWidth, 200.0);
+    const transform = defaultValue(options.transform, Matrix4.IDENTITY);
+    const instancesLength = defaultValue(options.instancesLength, 25);
+    let uri = options.uri;
+    const embed = defaultValue(options.embed, true) as boolean;
+    const modelSize = defaultValue(options.modelSize, 20.0) as number;
+    const createBatchTable = defaultValue(options.createBatchTable, true) as boolean;
+    const createBatchTableBinary = defaultValue(options.createBatchTableBinary, false) as boolean;
+    const relativeToCenter = defaultValue(options.relativeToCenter, false) as boolean;
+    const quantizePositions = defaultValue(options.quantizePositions, false) as boolean;
+    const eastNorthUp = defaultValue(options.eastNorthUp, false) as boolean;
+    const orientations = defaultValue(options.orientations, false) as boolean;
+    const octEncodeOrientations = defaultValue(options.octEncodeOrientations, false) as boolean;
+    const uniformScales = defaultValue(options.uniformScales, false) as boolean;
+    const nonUniformScales = defaultValue(options.nonUniformScales, false) as boolean;
+    const batchIds = defaultValue(options.batchIds, false) as boolean;
 
-    var featureTableJson = {};
+    const featureTableJson: any = {};
     featureTableJson.INSTANCES_LENGTH = instancesLength;
 
-    var attributes = [];
+    let attributes = [];
 
-    var center = Matrix4.multiplyByPoint(transform, new Cartesian3(), new Cartesian3());
+    const center = Matrix4.multiplyByPoint(transform, new Cartesian3(), new Cartesian3());
     if (relativeToCenter) {
         attributes.push(getPositionsRTC(instancesLength, tileWidth, modelSize, transform, center));
         featureTableJson.RTC_CENTER = [center.x, center.y, center.z];
     } else if (quantizePositions) {
-        var halfWidth = tileWidth / 2.0;
+        const halfWidth = tileWidth / 2.0;
         attributes.push(getPositionsQuantized(instancesLength, tileWidth, modelSize, transform, center));
         featureTableJson.QUANTIZED_VOLUME_SCALE = [tileWidth, tileWidth, tileWidth];
         featureTableJson.QUANTIZED_VOLUME_OFFSET = [center.x - halfWidth, center.y - halfWidth, center.z - halfWidth];
@@ -101,19 +127,19 @@ function createInstancesTile(options) {
         attributes.push(getBatchIds(instancesLength));
     }
 
-    var i;
-    var attribute;
-    var byteOffset = 0;
-    var attributesLength = attributes.length;
+    let i;
+    let attribute;
+    let byteOffset = 0;
+    let attributesLength = attributes.length;
     for (i = 0; i < attributesLength; ++i) {
         attribute = attributes[i];
-        var byteAlignment = attribute.byteAlignment;
+        const byteAlignment = attribute.byteAlignment;
         byteOffset = Math.ceil(byteOffset / byteAlignment) * byteAlignment; // Round up to the required alignment
         attribute.byteOffset = byteOffset;
         byteOffset += attribute.buffer.length;
     }
 
-    var featureTableBinary = Buffer.alloc(byteOffset);
+    const featureTableBinary = Buffer.alloc(byteOffset);
 
     for (i = 0; i < attributesLength; ++i) {
         attribute = attributes[i];
@@ -124,11 +150,11 @@ function createInstancesTile(options) {
         attribute.buffer.copy(featureTableBinary, attribute.byteOffset);
     }
 
-    var batchTableJson;
-    var batchTableBinary;
+    let batchTableJson;
+    let batchTableBinary;
     if (createBatchTable) {
         if (createBatchTableBinary) {
-            var batchTable = generateBatchTableBinary(instancesLength);
+            const batchTable = generateBatchTableBinary(instancesLength);
             batchTableJson = batchTable.json;
             batchTableBinary = batchTable.binary;
         } else {
@@ -136,30 +162,28 @@ function createInstancesTile(options) {
         }
     }
 
-    return fsExtra.readFile(uri)
-        .then(function(glb) {
-            glb = (embed) ? glb : undefined;
-            uri = path.basename(uri);
-            var i3dm = createI3dm({
-                featureTableJson : featureTableJson,
-                featureTableBinary : featureTableBinary,
-                batchTableJson : batchTableJson,
-                batchTableBinary : batchTableBinary,
-                glb : glb,
-                uri : uri
-            });
-            return {
-                i3dm : i3dm,
-                batchTableJson : batchTableJson
-            };
-        });
+    let glb = await fsExtra.readFile(uri)
+    glb = (embed) ? glb : undefined;
+    uri = path.basename(uri);
+    const i3dm = createI3dm({
+        featureTableJson: featureTableJson,
+        featureTableBinary: featureTableBinary,
+        batchTableJson: batchTableJson,
+        batchTableBinary: batchTableBinary,
+        glb: glb,
+        uri: uri
+    });
+    return {
+        i3dm: i3dm, 
+        batchTableJson: batchTableJson
+    }
 }
 
 function getPosition(i, instancesLength, tileWidth, modelSize, transform) {
-    var width = Math.round(Math.sqrt(instancesLength));
-    var x = i % width;
-    var y = Math.floor(i / width);
-    var z = 0.0;
+    const width = Math.round(Math.sqrt(instancesLength));
+    let x = i % width;
+    let y = Math.floor(i / width);
+    let z = 0.0;
 
     x = x / (width - 1) - 0.5;
     y = y / (width - 1) - 0.5;
@@ -167,16 +191,16 @@ function getPosition(i, instancesLength, tileWidth, modelSize, transform) {
     x *= (tileWidth - modelSize * 2.0);
     y *= (tileWidth - modelSize * 2.0);
 
-    var position = new Cartesian3(x, y, z);
+    let position = new Cartesian3(x, y, z);
     Matrix4.multiplyByPoint(transform, position, position);
 
     return position;
 }
 
 function getPositions(instancesLength, tileWidth, modelSize, transform) {
-    var buffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
-    for (var i = 0; i < instancesLength; ++i) {
-        var position = getPosition(i, instancesLength, tileWidth, modelSize, transform);
+    const buffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
+    for (let i = 0; i < instancesLength; ++i) {
+        const position = getPosition(i, instancesLength, tileWidth, modelSize, transform);
         buffer.writeFloatLE(position.x, (i * 3) * sizeOfFloat32);
         buffer.writeFloatLE(position.y, (i * 3 + 1) * sizeOfFloat32);
         buffer.writeFloatLE(position.z, (i * 3 + 2) * sizeOfFloat32);
@@ -189,9 +213,9 @@ function getPositions(instancesLength, tileWidth, modelSize, transform) {
 }
 
 function getPositionsRTC(instancesLength, tileWidth, modelSize, transform, center) {
-    var buffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
-    for (var i = 0; i < instancesLength; ++i) {
-        var position = getPosition(i, instancesLength, tileWidth, modelSize, transform);
+    const buffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
+    for (let i = 0; i < instancesLength; ++i) {
+        let position = getPosition(i, instancesLength, tileWidth, modelSize, transform);
         position = Cartesian3.subtract(position, center, position);
         buffer.writeFloatLE(position.x, (i * 3) * sizeOfFloat32);
         buffer.writeFloatLE(position.y, (i * 3 + 1) * sizeOfFloat32);
@@ -205,17 +229,17 @@ function getPositionsRTC(instancesLength, tileWidth, modelSize, transform, cente
 }
 
 function getPositionsQuantized(instancesLength, tileWidth, modelSize, transform, center) {
-    var min = -tileWidth / 2.0;
-    var max = tileWidth / 2.0;
-    var range = Math.pow(2, 16) - 1;
-    var scale = max - min;
-    var buffer = Buffer.alloc(instancesLength * 3 * sizeOfUint16);
-    for (var i = 0; i < instancesLength; ++i) {
-        var position = getPosition(i, instancesLength, tileWidth, modelSize, transform);
+    const min = -tileWidth / 2.0;
+    const max = tileWidth / 2.0;
+    const range = Math.pow(2, 16) - 1;
+    const scale = max - min;
+    const buffer = Buffer.alloc(instancesLength * 3 * sizeOfUint16);
+    for (let i = 0; i < instancesLength; ++i) {
+        let position = getPosition(i, instancesLength, tileWidth, modelSize, transform);
         position = Cartesian3.subtract(position, center, position);
-        var x = (position.x - min) * range / scale;
-        var y = (position.y - min) * range / scale;
-        var z = (position.z - min) * range / scale;
+        const x = (position.x - min) * range / scale;
+        const y = (position.y - min) * range / scale;
+        const z = (position.z - min) * range / scale;
         buffer.writeUInt16LE(x, (i * 3) * sizeOfUint16);
         buffer.writeUInt16LE(y, (i * 3 + 1) * sizeOfUint16);
         buffer.writeUInt16LE(z, (i * 3 + 2) * sizeOfUint16);
@@ -228,31 +252,31 @@ function getPositionsQuantized(instancesLength, tileWidth, modelSize, transform,
 }
 
 function getNormal() {
-    var x = CesiumMath.nextRandomNumber();
-    var y = CesiumMath.nextRandomNumber();
-    var z = CesiumMath.nextRandomNumber();
+    const x = CesiumMath.nextRandomNumber();
+    const y = CesiumMath.nextRandomNumber();
+    const z = CesiumMath.nextRandomNumber();
 
-    var normal = new Cartesian3(x, y, z);
+    const normal = new Cartesian3(x, y, z);
     Cartesian3.normalize(normal, normal);
     return normal;
 }
 
 function getOrthogonalNormal(normal) {
-    var randomNormal = getNormal();
-    var orthogonal = Cartesian3.cross(normal, randomNormal, randomNormal);
+    const randomNormal = getNormal();
+    const orthogonal = Cartesian3.cross(normal, randomNormal, randomNormal);
     return Cartesian3.normalize(orthogonal, orthogonal);
 }
 
 function getOrientations(instancesLength) {
-    var normalsUpBuffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
-    var normalsRightBuffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
-    for (var i = 0; i < instancesLength; ++i) {
-        var normalUp = getNormal();
+    const normalsUpBuffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
+    const normalsRightBuffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
+    for (let i = 0; i < instancesLength; ++i) {
+        const normalUp = getNormal();
         normalsUpBuffer.writeFloatLE(normalUp.x, (i * 3) * sizeOfFloat32);
         normalsUpBuffer.writeFloatLE(normalUp.y, (i * 3 + 1) * sizeOfFloat32);
         normalsUpBuffer.writeFloatLE(normalUp.z, (i * 3 + 2) * sizeOfFloat32);
 
-        var normalRight = getOrthogonalNormal(normalUp);
+        const normalRight = getOrthogonalNormal(normalUp);
         normalsRightBuffer.writeFloatLE(normalRight.x, (i * 3) * sizeOfFloat32);
         normalsRightBuffer.writeFloatLE(normalRight.y, (i * 3 + 1) * sizeOfFloat32);
         normalsRightBuffer.writeFloatLE(normalRight.z, (i * 3 + 2) * sizeOfFloat32);
@@ -269,19 +293,19 @@ function getOrientations(instancesLength) {
     }];
 }
 
-var scratchEncoded = new Cartesian2();
+const scratchEncoded = new Cartesian2();
 
 function getOrientationsOctEncoded(instancesLength) {
-    var normalsUpBuffer = Buffer.alloc(instancesLength * 2 * sizeOfUint16);
-    var normalsRightBuffer = Buffer.alloc(instancesLength * 2 * sizeOfUint16);
-    for (var i = 0; i < instancesLength; ++i) {
-        var normalUp = getNormal();
-        var encodedNormalUp = AttributeCompression.octEncodeInRange(normalUp, 65535, scratchEncoded);
+    const normalsUpBuffer = Buffer.alloc(instancesLength * 2 * sizeOfUint16);
+    const normalsRightBuffer = Buffer.alloc(instancesLength * 2 * sizeOfUint16);
+    for (let i = 0; i < instancesLength; ++i) {
+        const normalUp = getNormal();
+        const encodedNormalUp = AttributeCompression.octEncodeInRange(normalUp, 65535, scratchEncoded);
         normalsUpBuffer.writeUInt16LE(encodedNormalUp.x, (i * 2) * sizeOfUint16);
         normalsUpBuffer.writeUInt16LE(encodedNormalUp.y, (i * 2 + 1) * sizeOfUint16);
 
-        var normalRight = getOrthogonalNormal(normalUp);
-        var encodedNormalRight = AttributeCompression.octEncodeInRange(normalRight, 65535, scratchEncoded);
+        const normalRight = getOrthogonalNormal(normalUp);
+        const encodedNormalRight = AttributeCompression.octEncodeInRange(normalRight, 65535, scratchEncoded);
         normalsRightBuffer.writeUInt16LE(encodedNormalRight.x, (i * 2) * sizeOfUint16);
         normalsRightBuffer.writeUInt16LE(encodedNormalRight.y, (i * 2 + 1) * sizeOfUint16);
     }
@@ -297,13 +321,13 @@ function getOrientationsOctEncoded(instancesLength) {
     }];
 }
 
-function getScale() {
+function getScale(): number {
     return CesiumMath.nextRandomNumber() + 0.5;
 }
 
 function getUniformScales(instancesLength) {
-    var buffer = Buffer.alloc(instancesLength * sizeOfFloat32);
-    for (var i = 0; i < instancesLength; ++i) {
+    const buffer = Buffer.alloc(instancesLength * sizeOfFloat32);
+    for (let i = 0; i < instancesLength; ++i) {
         buffer.writeFloatLE(getScale(), i * sizeOfFloat32);
     }
     return {
@@ -314,8 +338,8 @@ function getUniformScales(instancesLength) {
 }
 
 function getNonUniformScales(instancesLength) {
-    var buffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
-    for (var i = 0; i < instancesLength; ++i) {
+    const buffer = Buffer.alloc(instancesLength * 3 * sizeOfFloat32);
+    for (let i = 0; i < instancesLength; ++i) {
         buffer.writeFloatLE(getScale(), (i * 3) * sizeOfFloat32);
         buffer.writeFloatLE(getScale(), (i * 3 + 1) * sizeOfFloat32);
         buffer.writeFloatLE(getScale(), (i * 3 + 2) * sizeOfFloat32);
@@ -327,11 +351,11 @@ function getNonUniformScales(instancesLength) {
     };
 }
 
-function getBatchIds(instancesLength) {
-    var i;
-    var buffer;
-    var componentType;
-    var byteAlignment;
+function getBatchIds(instancesLength: number) {
+    let i: number;
+    let buffer: Buffer;
+    let componentType: string;
+    let byteAlignment: number;
 
     if (instancesLength < 256) {
         buffer = Buffer.alloc(instancesLength * sizeOfUint8);
@@ -364,19 +388,19 @@ function getBatchIds(instancesLength) {
     };
 }
 
-function generateBatchTable(instancesLength, modelSize) {
+function generateBatchTable(instancesLength: number, modelSize: number) {
     return {
         Height : new Array(instancesLength).fill(modelSize)
     };
 }
 
-function generateBatchTableBinary(instancesLength) {
-    var idBuffer = Buffer.alloc(instancesLength * sizeOfUint32);
-    for (var i = 0; i < instancesLength; ++i) {
+function generateBatchTableBinary(instancesLength: number) {
+    const idBuffer = Buffer.alloc(instancesLength * sizeOfUint32);
+    for (let i = 0; i < instancesLength; ++i) {
         idBuffer.writeUInt32LE(i, i * sizeOfUint32);
     }
 
-    var batchTableJson = {
+    const batchTableJson = {
         id : {
             byteOffset : 0,
             componentType : 'UNSIGNED_INT',

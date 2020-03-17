@@ -1,0 +1,1 @@
+export const FLOAT32_SIZE_BYTES = 4;

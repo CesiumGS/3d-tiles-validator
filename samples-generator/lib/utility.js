@@ -9,7 +9,7 @@ module.exports = {
     metersToLongitude : metersToLongitude,
     metersToLatitude : metersToLatitude,
     wgs84Transform : wgs84Transform,
-    lowercase : lowercase,
+    toCamelCase : toCamelCase,
     typeToNumberOfComponents : typeToNumberOfComponents
 };
 
@@ -25,7 +25,7 @@ function wgs84Transform(longitude, latitude, height) {
     return Transforms.headingPitchRollToFixedFrame(Cartesian3.fromRadians(longitude, latitude, height), new HeadingPitchRoll());
 }
 
-function lowercase(s) {
+function toCamelCase(s) {
     return s[0].toLowerCase() + s.slice(1);
 }
 

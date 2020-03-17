@@ -1,10 +1,17 @@
-import { FeatureMetatable } from './featureMetatableType';
+import {
+    FeatureMetadata,
+    FeatureMetadataPrimitiveExtension
+} from './featureMetadataType';
+import { KHRMeshInstancing } from './khrInstancingType';
+import { AtLeastOne } from './atLeastN';
 
 export enum GltfComponentType {
-    UNSIGNED_BYTE = 'UNSIGNED_BYTE',
-    UNSIGNED_SHORT = 'UNSIGNED_SHORT',
-    UNSIGNED_INT = 'UNSIGNED_INT',
-    FLOAT = 'FLOAT'
+    BYTE = 5120,
+    UNSIGNED_BYTE = 5121,
+    SHORT = 5122,
+    UNSIGNED_SHORT = 5123,
+    UNSIGNED_INT = 5125,
+    FLOAT = 5126
 }
 
 export enum GltfType {
@@ -21,13 +28,19 @@ export interface GltfScene {
     nodes: number[];
 }
 
+export interface GltfNodeExtensions {
+    EXT_mesh_gpu_instancing?: KHRMeshInstancing;
+}
+
 export interface GltfNode {
     name?: string;
+    mesh?: number;
     children?: number[];
     rotation?: number[];
     scale?: number[];
     translation?: number[];
     matrix?: number[];
+    extensions?: GltfNodeExtensions;
 }
 
 export interface GltfBuffer {
@@ -43,8 +56,8 @@ export interface GltfBufferView {
 }
 
 export interface GltfAccessor {
-    bufferView: number;
-    byteOffset: number;
+    bufferView?: number;
+    byteOffset?: number;
     componentType: GLenum;
     count: number;
     max?: number[];
@@ -52,33 +65,74 @@ export interface GltfAccessor {
     type: GltfType;
 }
 
-export interface GltfMeshes {
-    primitives?: GltfPrimitives;
+export interface GltfMesh {
+    primitives: GltfPrimitive[];
 }
 
-export interface GltfPrimitives {
-    attributes?: { [key: string]: number }[];
+export interface GltfMaterial {}
+
+export type ValidPrimitiveAttributes = {
+    POSITION: number;
+    NORMAL: number;
+    TANGENT: number;
+    [other: string]: number;
+};
+
+export type GltfPrimitive = {
+    attributes: AtLeastOne<ValidPrimitiveAttributes>;
     indices?: number;
     material?: number;
     mode?: number;
+    extensions?: GltfPrimitiveExtensions;
+};
+
+export type GltfTexture = {
+    sampler?: number;
+    source?: number;
+    name?: string;
+    extensions?: object;
+    extras?: object;
 }
 
-export interface GltfExtensions {
-    CESIUM_3dtiles_feature_metadata?: FeatureMetatable;
+export type GltfSampler = {
+    magFilter?: number;
+    minFilter?: number;
+    wrapS?: number;
+    wrapT?: number;
+    name?: string;
+    extensions?: object;
+    extras?: object
 }
 
-// TODO: Missing textures, images, materials.
-//       Update this when the interface is missing something
-//       you need!
-
+export type GltfImage = {
+    uri?: string;
+    mimeType?: string;
+    bufferView?: number;
+    name?: string;
+    extensions?: object;
+    extras?: object;
+}
 export interface Gltf {
     scenes?: GltfScene[];
     nodes: GltfNode[];
-    meshes: any[];
-    buffers: GltfBuffer[];
-    bufferViews: GltfBufferView[];
-    accessors: GltfAccessor[];
+    meshes: GltfMesh[];
+    buffers?: GltfBuffer[];
+    bufferViews?: GltfBufferView[];
+    accessors?: GltfAccessor[];
     asset: any[];
     extensions?: GltfExtensions;
     extensionsUsed?: string[];
+    materials: GltfMaterial[];
+    images?: GltfImage[];
+    textures?: GltfTexture[];
+    samplers?: GltfSampler[];
+}
+
+// Extensions
+export interface GltfExtensions {
+    CESIUM_3dtiles_feature_metadata?: FeatureMetadata;
+}
+
+export interface GltfPrimitiveExtensions {
+    CESIUM_3dtiles_feature_metadata?: FeatureMetadataPrimitiveExtension;
 }

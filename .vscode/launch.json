@@ -1,0 +1,40 @@
+{
+    "launch": {
+        "configurations": [
+            {
+                "type": "node",
+                "request": "launch",
+                "name": "3d-tiles-samples-generator",
+                "skipFiles": ["<node_internals>/**"],
+                "program": "${workspaceFolder}/samples-generator/dist/bin/3d-tiles-samples-generator.js",
+                "cwd": "${workspaceFolder}/samples-generator/dist/",
+                "protocol": "inspector",
+                "args": ["${input:3d-tiles-next}", "${input:glb}"],
+            },
+
+            {
+                "type": "node",
+                "request": "launch",
+                "name": "3d-tiles-samples-generator (Jasmine)",
+                "skipFiles": ["<node_internals>/**"],
+                "program": "${workspaceRoot}/samples-generator/node_modules/jasmine/bin/jasmine.js",
+                "cwd": "${workspaceFolder}/samples-generator/",
+                "args": ["--config=specs/jasmine.json"]
+            }
+        ],
+        "inputs": [
+            {
+                "id": "3d-tiles-next",
+                "type": "pickString",
+                "description": "Output as gltf or legacy samples (blank option)",
+                "options": ["--3d-tiles-next", ""]
+            },
+            {
+                "id": "glb",
+                "type": "pickString",
+                "description": "Output as glb or not (blank option)",
+                "options": ["--glb", ""]
+            }
+        ]
+    }
+}
