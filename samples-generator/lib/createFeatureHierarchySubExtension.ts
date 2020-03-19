@@ -44,6 +44,7 @@ export interface FeatureHierarchyExtension {
     parentCounts?: FeatureHierarchyExtIdsOrAccessor;
 }
 
+const extensionName = 'CESIUM_3dtiles_feature_hierarchy';
 /**
  * Add CESIUM_3dtiles_feature_hierarchy as a sub extension to an existing
  * glTF object.
@@ -120,6 +121,12 @@ export function createFeatureHierarchySubExtension(
     if (featureMetadataExtension.extensions == null) {
         featureMetadataExtension.extensions = {};
         featureMetadataExtension.extensions.CESIUM_3dtiles_feature_hierarchy = extension;
+    }
+
+    if (gltf.extensionsUsed == null) {
+        gltf.extensionsUsed = [extensionName]
+    } else {
+        gltf.extensionsUsed.push(extensionName);
     }
 }
 

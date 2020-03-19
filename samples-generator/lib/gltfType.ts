@@ -80,4 +80,5 @@ export interface Gltf {
     accessors: GltfAccessor[];
     asset: any[];
     extensions?: GltfExtensions;
+    extensionsUsed?: string[];
 }
