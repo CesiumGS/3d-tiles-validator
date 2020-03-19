@@ -1,5 +1,5 @@
 # NPM
-node_modules
+node_modules/
 npm-debug.log
 package-lock.json
 
@@ -14,3 +14,6 @@ coverage
 output
 *.tgz
 *.zip
+
+# Generated documentation
+doc/

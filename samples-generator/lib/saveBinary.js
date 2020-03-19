@@ -5,18 +5,19 @@ var zlib = require('zlib');
 
 var defaultValue = Cesium.defaultValue;
 
-module.exports = saveTile;
+module.exports = saveBinary;
 
 /**
- * Save a tile to disk.
+ * Save a binary file to disk. (Optionally using gzip)
  *
- * @param {String} path The tile path.
- * @param {Buffer} contents The contents of the tile.
+ * @param {String} path The object destination path.
+ * @param {Buffer} contents A binary blob to write.
  * @param {Boolean} [gzip=false] Whether to gzip the tile.
  *
  * @returns {Promise} A promise that resolves when the tile is saved.
  */
-function saveTile(path, contents, gzip) {
+
+function saveBinary(path, contents, gzip) {
     gzip = defaultValue(gzip, false);
     if (gzip) {
         contents = zlib.gzipSync(contents);

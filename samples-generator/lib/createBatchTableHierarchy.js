@@ -5,14 +5,14 @@ var path = require('path');
 var Promise = require('bluebird');
 
 var createB3dm = require('./createB3dm');
-var createGltf = require('./createGltf');
+var createGlb = require('./createGlb');
 var createTilesetJsonSingle = require('./createTilesetJsonSingle');
 var Extensions = require('./Extensions');
 var getBufferPadded = require('./getBufferPadded');
 var Material = require('./Material');
 var Mesh = require('./Mesh');
-var saveTile = require('./saveTile');
-var saveTilesetJson = require('./saveTilesetJson');
+var saveBinary = require('./saveBinary');
+var saveJson = require('./saveJson');
 
 var Cartesian3 = Cesium.Cartesian3;
 var CesiumMath = Cesium.Math;
@@ -47,6 +47,7 @@ var whiteOpaqueMaterial = new Material({
  */
 
 function createBatchTableHierarchy(options) {
+    var gzip = defaultValue(options.gzip, false);
     var useBatchTableBinary = defaultValue(options.batchTableBinary, false);
     var noParents = defaultValue(options.noParents, false);
     var multipleParents = defaultValue(options.multipleParents, false);
@@ -141,7 +142,7 @@ function createBatchTableHierarchy(options) {
             }
         }
         var batchedMesh = Mesh.batch(clonedMeshes);
-        return createGltf({
+        return createGlb({
             mesh : batchedMesh
         });
     }).then(function(glb) {
@@ -152,8 +153,8 @@ function createBatchTableHierarchy(options) {
             batchTableBinary : batchTableBinary
         });
         return Promise.all([
-            saveTilesetJson(tilesetJsonPath, tilesetJson, options.prettyJson),
-            saveTile(tilePath, b3dm, options.gzip)
+            saveJson(tilesetJsonPath, tilesetJson, options.prettyJson, gzip),
+            saveBinary(tilePath, b3dm, gzip)
         ]);
     });
 }
@@ -212,7 +213,7 @@ function createBatchTableBinary(batchTable, options) {
     }
 
     // Convert instance properties to binary
-    var hierarchy = options.legacy ? batchTable.HIERARCHY : batchTable.extensions['3DTILES_batch_table_hierarchy'];
+    var hierarchy = (options.legacy) ? batchTable.HIERARCHY : batchTable.extensions['3DTILES_batch_table_hierarchy'];
     var classes = hierarchy.classes;
     var classesLength = classes.length;
     for (var i = 0; i < classesLength; ++i) {
