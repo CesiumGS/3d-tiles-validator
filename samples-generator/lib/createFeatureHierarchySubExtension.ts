@@ -57,7 +57,8 @@ export interface FeatureHierarchyExtension {
  * @param instanceCount Total number of instances. Should be equal to the sum
  * of each classes[i].instancesCount
  * @param [parentIds] Optional list of parentIds associated with each classIds
- * @param [parentCounts] Optional numerical array containing
+ * @param [parentCounts] Optional numerical array containing the number of 
+ * parents each instance has.
  * @param [binaryData] Optional binaryData parameter. Should be provided if 
  * using binary accessors. This function makes the assumption that all of the
  * binary class accessors / classIds / parentIds / parentCounts are all refering
