@@ -9,7 +9,7 @@ Clone this repo and install [Node.js](http://nodejs.org/).  From the root direct
 ```
 npm install
 
-node build
+npm run build
 
 cd dist/
 
