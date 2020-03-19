@@ -161,7 +161,7 @@ export function createBatchTableHierarchy(options) {
         }
         var batchedMesh = Mesh.batch(clonedMeshes);
 
-        if (use3dTilesNext || useGlb) {
+        if (use3dTilesNext) {
             return createGltf({
                 mesh: batchedMesh
             });
@@ -171,7 +171,7 @@ export function createBatchTableHierarchy(options) {
             mesh : batchedMesh
         });
     }).then(function(result) {
-        if (use3dTilesNext || useGlb) {
+        if (use3dTilesNext) {
             if (defined(batchTableJson)) {
 
                 // add human readable batch table data
