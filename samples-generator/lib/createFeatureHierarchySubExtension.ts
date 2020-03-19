@@ -116,12 +116,21 @@ export function createFeatureHierarchySubExtension(
         extension.parentCounts = normalizeIdsOrGltfAccessor(gltf, parentCounts);
     }
 
-    const featureMetadataExtension =
-        gltf.extensions.CESIUM_3dtiles_feature_metadata;
-    if (featureMetadataExtension.extensions == null) {
-        featureMetadataExtension.extensions = {};
-        featureMetadataExtension.extensions.CESIUM_3dtiles_feature_hierarchy = extension;
+    gltf.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0]
+
+    // TODO: Right now we assume that the first featureTable is where the 
+    //       featureHierarchy extension should go. This should be refactored.
+    //       eventually when we support exporting multiple feature tables
+    //       in the samples.
+
+    const firstFeatureTable = gltf.extensions
+                                  .CESIUM_3dtiles_feature_metadata
+                                  .featureTables[0];
+    if (firstFeatureTable.extensions == null) {
+        firstFeatureTable.extensions = {};
     }
+
+    firstFeatureTable.extensions.CESIUM_3dtiles_feature_hierarchy = extension;
 
     if (gltf.extensionsUsed == null) {
         gltf.extensionsUsed = [extensionName]
