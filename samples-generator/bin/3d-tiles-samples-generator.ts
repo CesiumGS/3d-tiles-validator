@@ -1190,6 +1190,10 @@ function createHierarchy() {
 }
 
 function createHierarchyLegacy() {
+    if (argv['3d-tiles-next']) {
+        return Promise.resolve();
+    }
+
     return createBatchTableHierarchy({
         directory : path.join(outputDirectory, 'Hierarchy', 'BatchTableHierarchyLegacy'),
         transform : buildingsTransform,
