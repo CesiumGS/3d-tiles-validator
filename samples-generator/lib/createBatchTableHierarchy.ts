@@ -163,7 +163,8 @@ export function createBatchTableHierarchy(options) {
 
         if (use3dTilesNext) {
             return createGltf({
-                mesh: batchedMesh
+                mesh: batchedMesh,
+                use3dTilesNext: use3dTilesNext
             });
         }
 
