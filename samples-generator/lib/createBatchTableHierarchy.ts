@@ -204,7 +204,7 @@ export function createBatchTableHierarchy(options) {
             } else {
                 return Promise.all([
                     gltfToGlb(result, gltfConversionOptions).then(function(out) {
-                        saveBinary(tilePath, out.glb, gzip);
+                        return saveBinary(tilePath, out.glb, gzip);
                     }),
                     saveJson(tilesetJsonPath, tilesetJson, options.prettyJson, gzip)
                 ]);
