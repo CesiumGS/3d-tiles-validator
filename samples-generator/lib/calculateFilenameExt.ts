@@ -1,6 +1,3 @@
-'use strict';
-module.exports = calculateFilenameExt;
-
 /**
  * Calculates the filename extension suffix based off flags
  * @param {Boolean} use3dTilesNext If the extension is for use3dTilesNext
@@ -9,8 +6,11 @@ module.exports = calculateFilenameExt;
  * @param {String} defaultExt If use3dTilesNext and useGlb are both false,
  * then use defaultExt
  */
-
-function calculateFilenameExt(use3dTilesNext, useGlb, defaultExt) {
+export function calculateFilenameExt(
+    use3dTilesNext: boolean,
+    useGlb: boolean,
+    defaultExt: string
+) {
     if (use3dTilesNext && !useGlb) {
         return '.gltf';
     } else if (useGlb) {

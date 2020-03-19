@@ -15,5 +15,8 @@ output
 *.tgz
 *.zip
 
+# ts
+dist/
+
 # Generated documentation
 doc/

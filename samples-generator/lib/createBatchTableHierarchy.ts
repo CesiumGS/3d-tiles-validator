@@ -1,8 +1,19 @@
 'use strict';
 var Cesium = require('cesium');
+var gltfPipeline = require('gltf-pipeline');
+var gltfToGlb = gltfPipeline.gltfToGlb;
 var fsExtra = require('fs-extra');
 var path = require('path');
-var Promise = require('bluebird');
+var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
+import { Promise } from 'bluebird';
+import { calculateFilenameExt } from '../lib/calculateFilenameExt';
+import createGltf = require('./createGltf');
+import { createFeatureHierarchySubExtension } from './createFeatureHierarchySubExtension';
+import { Gltf, GltfType  } from './gltfType';
+import { FeatureHierarchyClass } from './featureHierarchyClass';
+var typeConversion = require('./typeConversion');
+var createFeatureMetadataExtension = require('./createFeatureMetadataExtension');
+var getMinMax = require('./getMinMax');
 
 var createB3dm = require('./createB3dm');
 var createGlb = require('./createGlb');
@@ -20,8 +31,6 @@ var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 var Matrix4 = Cesium.Matrix4;
 var Quaternion = Cesium.Quaternion;
-
-module.exports = createBatchTableHierarchy;
 
 var sizeOfFloat = 4;
 var sizeOfUint16 = 2;
@@ -43,10 +52,14 @@ var whiteOpaqueMaterial = new Material({
  * @param {Matrix4} [options.transform=Matrix4.IDENTITY] The tile transform.
  * @param {Boolean} [options.gzip=false] Gzip the saved tile.
  * @param {Boolean} [options.prettyJson=true] Whether to prettify the JSON.
+ * @param {Boolean} [options.use3dTilesNext=false] Whether to use 3dTilesNext (gltf)
+ * @param {Boolean} [options.useGlb=false] Whether to use glb with 3dTilesNexxt
  * @returns {Promise} A promise that resolves when the tileset is saved.
  */
 
-function createBatchTableHierarchy(options) {
+export function createBatchTableHierarchy(options) {
+    var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
+    var useGlb = defaultValue(options.useGlb, false);
     var gzip = defaultValue(options.gzip, false);
     var useBatchTableBinary = defaultValue(options.batchTableBinary, false);
     var noParents = defaultValue(options.noParents, false);
@@ -92,7 +105,7 @@ function createBatchTableHierarchy(options) {
         Matrix4.fromTranslationQuaternionRotationScale(buildingPositions[2], yUpToZUp , scale)
     ];
 
-    var contentUri = 'tile.b3dm';
+    var contentUri = 'tile' + calculateFilenameExt(use3dTilesNext, useGlb, '.b3dm');
     var directory = options.directory;
     var tilePath = path.join(directory, contentUri);
     var tilesetJsonPath = path.join(directory, 'tileset.json');
@@ -109,14 +122,19 @@ function createBatchTableHierarchy(options) {
         0, 0, 10
     ];
 
-    var tilesetJson = createTilesetJsonSingle({
+    var opts: any = {
         contentUri : contentUri,
         geometricError : geometricError,
         box : box,
         transform : transform
-    });
+    };
 
-    if (!options.legacy) {
+    if (use3dTilesNext) {
+        opts.versionNumber = '1.1';
+    }
+
+    var tilesetJson = createTilesetJsonSingle(opts)
+    if (!use3dTilesNext && !options.legacy) {
         Extensions.addExtensionsUsed(tilesetJson, '3DTILES_batch_table_hierarchy');
         Extensions.addExtensionsRequired(tilesetJson, '3DTILES_batch_table_hierarchy');
     }
@@ -142,16 +160,66 @@ function createBatchTableHierarchy(options) {
             }
         }
         var batchedMesh = Mesh.batch(clonedMeshes);
+
+        if (use3dTilesNext) {
+            return createGltf({
+                mesh: batchedMesh,
+                use3dTilesNext: use3dTilesNext
+            });
+        }
+
         return createGlb({
             mesh : batchedMesh
         });
-    }).then(function(glb) {
+    }).then(function(result) {
+        if (use3dTilesNext) {
+            if (defined(batchTableJson)) {
+
+                // add human readable batch table data
+                if (defined(batchTableJson) && Object.keys(batchTableJson).length > 0) {
+                    var batchTableJsonPruned = {
+                        area: batchTableJson.area,
+                        height: batchTableJson.height
+                    };
+
+                    result = createFeatureMetadataExtension(
+                        result, 
+                        batchTableJsonPruned, 
+                        batchTableBinary
+                    ) as Gltf;
+
+                    const hierarchy = 
+                        batchTableJson.tilesNextHierarchy;
+
+                    if (defined(hierarchy)) {
+                        addHierarchyToGltf(hierarchy, result, batchTableBinary);
+                    }
+                }
+            }
+
+            if (!useGlb) {
+                return Promise.all([
+                    saveJson(tilePath, result, options.prettyJson, gzip),
+                    saveJson(tilesetJsonPath, tilesetJson, options.prettyJson, gzip)
+                ]);
+            } else {
+                return Promise.all([
+                    gltfToGlb(result, gltfConversionOptions).then(function(out) {
+                        return saveBinary(tilePath, out.glb, gzip);
+                    }),
+                    saveJson(tilesetJsonPath, tilesetJson, options.prettyJson, gzip)
+                ]);
+            }
+        }
+
         var b3dm = createB3dm({
-            glb : glb,
+            glb : result,
             featureTableJson : featureTableJson,
             batchTableJson : batchTableJson,
             batchTableBinary : batchTableBinary
         });
+
+        // legacy b3dm
         return Promise.all([
             saveJson(tilesetJsonPath, tilesetJson, options.prettyJson, gzip),
             saveBinary(tilePath, b3dm, gzip)
@@ -180,8 +248,9 @@ function createUInt16Buffer(values) {
 function createBatchTableBinary(batchTable, options) {
     var byteOffset = 0;
     var buffers = [];
+    var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
 
-    function createBinaryProperty(values, componentType, type) {
+    function createBinaryProperty(values, componentType, type?, name?: string) {
         var buffer;
         if (componentType === 'FLOAT') {
             buffer = createFloatBuffer(values);
@@ -190,11 +259,28 @@ function createBatchTableBinary(batchTable, options) {
         }
         buffer = getBufferPadded(buffer);
         buffers.push(buffer);
-        var binaryReference = {
+        var binaryReference: any = {
             byteOffset : byteOffset,
             componentType : componentType,
             type : type
         };
+        
+        // Create a composite object containing all of the necessary
+        // information to split into a GltfAccessor / GltfBufferView
+        if (use3dTilesNext) {
+            // buffer view
+            binaryReference.name = name;
+            binaryReference.byteLength = buffer.length;
+            binaryReference.target = 0x8892; // ARRAY_BUFFER
+
+            // accessor
+            binaryReference.componentType = typeConversion.componentTypeStringToInteger(componentType)
+            binaryReference.count = values.length;
+            const minMax = getMinMax(values, 1);
+            binaryReference.max = minMax.max;
+            binaryReference.min = minMax.min;
+            binaryReference.type = GltfType.SCALAR;
+        }
         byteOffset += buffer.length;
         return binaryReference;
     }
@@ -207,7 +293,7 @@ function createBatchTableBinary(batchTable, options) {
                 && propertyName !== 'extensions'
                 && propertyName !== 'extras') {
             if (typeof batchTable[propertyName][0] === 'number') {
-                batchTable[propertyName] = createBinaryProperty(batchTable[propertyName], 'FLOAT', 'SCALAR');
+                batchTable[propertyName] = createBinaryProperty(batchTable[propertyName], 'FLOAT', 'SCALAR', propertyName);
             }
         }
     }
@@ -221,7 +307,7 @@ function createBatchTableBinary(batchTable, options) {
         for (propertyName in instances) {
             if (instances.hasOwnProperty(propertyName)) {
                 if (typeof instances[propertyName][0] === 'number') {
-                    instances[propertyName] = createBinaryProperty(instances[propertyName], 'FLOAT', 'SCALAR');
+                    instances[propertyName] = createBinaryProperty(instances[propertyName], 'FLOAT', 'SCALAR', propertyName);
                 }
             }
         }
@@ -245,7 +331,7 @@ function createBatchTableBinary(batchTable, options) {
 
 function createBatchTableJson(instances, options) {
     // Create batch table from the instances' regular properties
-    var batchTable = {};
+    var batchTable: any = {};
     var instancesLength = instances.length;
     for (var i = 0; i < instancesLength; ++i) {
         var instance = instances[i];
@@ -263,6 +349,10 @@ function createBatchTableJson(instances, options) {
     }
 
     var hierarchy = createHierarchy(instances);
+    if (options.use3dTilesNext) {
+        batchTable.tilesNextHierarchy = hierarchy;
+    } 
+
     if (options.legacy) {
         // Add HIERARCHY object
         batchTable.HIERARCHY = hierarchy;
@@ -378,8 +468,27 @@ function createHierarchy(instances) {
     };
 }
 
+function addHierarchyToGltf(hierarchy: any, gltf: Gltf, binary: Buffer) {
+    const classes = hierarchy.classes.map(item => 
+        new FeatureHierarchyClass(item.name, item.length, item.instances)
+    );
+    const classIds = hierarchy.classIds;
+    const parentCounts = hierarchy.parentCounts;
+    const parentIds = hierarchy.parentIds;
+    const instancesLength = hierarchy.instancesLength;
+    return createFeatureHierarchySubExtension(
+        gltf,
+        classes,
+        classIds,
+        instancesLength,
+        parentIds,
+        parentCounts,
+        binary
+    );
+}
+
 function createInstances(noParents, multipleParents) {
-    var door0 = {
+    var door0: any = {
         instance : {
             className : 'door',
             properties : {
@@ -393,7 +502,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var door1 = {
+    var door1: any = {
         instance : {
             className : 'door',
             properties : {
@@ -407,7 +516,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var door2 = {
+    var door2: any = {
         instance : {
             className : 'door',
             properties : {
@@ -421,7 +530,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var door3 = {
+    var door3: any = {
         instance : {
             className : 'door',
             properties : {
@@ -435,7 +544,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var door4 = {
+    var door4: any = {
         instance : {
             className : 'door',
             properties : {
@@ -449,7 +558,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var door5 = {
+    var door5: any = {
         instance : {
             className : 'door',
             properties : {
@@ -463,7 +572,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var door6 = {
+    var door6: any = {
         instance : {
             className : 'door',
             properties : {
@@ -477,7 +586,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var door7 = {
+    var door7: any = {
         instance : {
             className : 'door',
             properties : {
@@ -491,7 +600,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var door8 = {
+    var door8: any = {
         instance : {
             className : 'door',
             properties : {
@@ -505,7 +614,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var door9 = {
+    var door9: any = {
         instance : {
             className : 'door',
             properties : {
@@ -519,7 +628,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var door10 = {
+    var door10: any = {
         instance : {
             className : 'door',
             properties : {
@@ -533,7 +642,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var door11 = {
+    var door11: any = {
         instance : {
             className : 'door',
             properties : {
@@ -547,7 +656,7 @@ function createInstances(noParents, multipleParents) {
             area : 10.0
         }
     };
-    var doorknob0 = {
+    var doorknob0: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -560,7 +669,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var doorknob1 = {
+    var doorknob1: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -573,7 +682,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var doorknob2 = {
+    var doorknob2: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -586,7 +695,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var doorknob3 = {
+    var doorknob3: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -599,7 +708,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var doorknob4 = {
+    var doorknob4: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -612,7 +721,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var doorknob5 = {
+    var doorknob5: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -625,7 +734,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var doorknob6 = {
+    var doorknob6: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -638,7 +747,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var doorknob7 = {
+    var doorknob7: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -651,7 +760,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var doorknob8 = {
+    var doorknob8: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -664,7 +773,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var doorknob9 = {
+    var doorknob9: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -677,7 +786,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var doorknob10 = {
+    var doorknob10: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -690,7 +799,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var doorknob11 = {
+    var doorknob11: any = {
         instance : {
             className : 'doorknob',
             properties : {
@@ -703,7 +812,7 @@ function createInstances(noParents, multipleParents) {
             area : 0.2
         }
     };
-    var roof0 = {
+    var roof0: any = {
         instance : {
             className : 'roof',
             properties : {
@@ -716,7 +825,7 @@ function createInstances(noParents, multipleParents) {
             area : 12.0
         }
     };
-    var roof1 = {
+    var roof1: any = {
         instance : {
             className : 'roof',
             properties : {
@@ -729,7 +838,7 @@ function createInstances(noParents, multipleParents) {
             area : 12.0
         }
     };
-    var roof2 = {
+    var roof2: any = {
         instance : {
             className : 'roof',
             properties : {
@@ -742,7 +851,7 @@ function createInstances(noParents, multipleParents) {
             area : 12.0
         }
     };
-    var wall0 = {
+    var wall0: any = {
         instance : {
             className : 'wall',
             properties : {
@@ -756,7 +865,7 @@ function createInstances(noParents, multipleParents) {
             area : 20.0
         }
     };
-    var wall1 = {
+    var wall1: any = {
         instance : {
             className : 'wall',
             properties : {
@@ -770,7 +879,7 @@ function createInstances(noParents, multipleParents) {
             area : 20.0
         }
     };
-    var wall2 = {
+    var wall2: any = {
         instance : {
             className : 'wall',
             properties : {
@@ -784,7 +893,7 @@ function createInstances(noParents, multipleParents) {
             area : 20.0
         }
     };
-    var building0 = {
+    var building0: any = {
         instance : {
             className : 'building',
             properties : {
@@ -793,7 +902,7 @@ function createInstances(noParents, multipleParents) {
             }
         }
     };
-    var building1 = {
+    var building1: any = {
         instance : {
             className : 'building',
             properties : {
@@ -802,7 +911,7 @@ function createInstances(noParents, multipleParents) {
             }
         }
     };
-    var building2 = {
+    var building2: any = {
         instance : {
             className : 'building',
             properties : {
@@ -811,7 +920,7 @@ function createInstances(noParents, multipleParents) {
             }
         }
     };
-    var zone0 = {
+    var zone0: any = {
         instance : {
             className : 'zone',
             properties : {
@@ -820,7 +929,7 @@ function createInstances(noParents, multipleParents) {
             }
         }
     };
-    var classifierNew = {
+    var classifierNew: any = {
         instance : {
             className : 'classifier_new',
             properties : {
@@ -831,7 +940,7 @@ function createInstances(noParents, multipleParents) {
             }
         }
     };
-    var classifierOld = {
+    var classifierOld: any = {
         instance : {
             className : 'classifier_old',
             properties : {

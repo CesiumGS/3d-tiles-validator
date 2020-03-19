@@ -9,6 +9,10 @@ Clone this repo and install [Node.js](http://nodejs.org/).  From the root direct
 ```
 npm install
 
+npm run build
+
+cd dist/
+
 node bin/3d-tiles-samples-generator.js
 ```
 
@@ -26,6 +30,14 @@ To run ESLint automatically when a file is saved, run the following and leave it
 ```
 npm run eslint-watch
 ```
+
+## Auto Recompilation
+You can use
+```
+npm run watch
+```
+
+to automatically recompile your changes while editing.
 
 ## Contributions
 
