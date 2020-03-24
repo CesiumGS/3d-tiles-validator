@@ -1,7 +1,7 @@
-import { TilesetOption } from './tilesetJson';
-import { Gltf } from './gltfType';
+import { TilesetJson } from "./tilesetJson";
+import { Gltf } from "./gltfType";
 
 export interface SampleOutput {
     gltf: Gltf,
-    tileset: TilesetOption
+    tileset: TilesetJson
 }
