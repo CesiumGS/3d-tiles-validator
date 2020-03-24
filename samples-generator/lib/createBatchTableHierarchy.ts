@@ -1,4 +1,6 @@
 'use strict';
+import { createFeatureMetadataExtension } from './createFeatureMetadataExtension';
+
 var Cesium = require('cesium');
 var gltfPipeline = require('gltf-pipeline');
 var gltfToGlb = gltfPipeline.gltfToGlb;
@@ -12,16 +14,15 @@ import { createFeatureHierarchySubExtension } from './createFeatureHierarchySubE
 import { Gltf, GltfType  } from './gltfType';
 import { FeatureHierarchyClass } from './featureHierarchyClass';
 import { createTilesetJsonSingle } from './createTilesetJsonSingle';
+import { Material } from './Material';
+import { Mesh } from './Mesh';
 var typeConversion = require('./typeConversion');
-var createFeatureMetadataExtension = require('./createFeatureMetadataExtension');
 var getMinMax = require('./getMinMax');
 
 var createB3dm = require('./createB3dm');
 var createGlb = require('./createGlb');
 var Extensions = require('./Extensions');
 var getBufferPadded = require('./getBufferPadded');
-var Material = require('./Material');
-var Mesh = require('./Mesh');
 var saveBinary = require('./saveBinary');
 var saveJson = require('./saveJson');
 
@@ -35,9 +36,7 @@ var Quaternion = Cesium.Quaternion;
 var sizeOfFloat = 4;
 var sizeOfUint16 = 2;
 
-var whiteOpaqueMaterial = new Material({
-    baseColor : [1.0, 1.0, 1.0, 1.0]
-});
+var whiteOpaqueMaterial = new Material([1.0, 1.0, 1.0, 1.0]);
 
 /**
  * Create a tileset that uses a batch table hierarchy,

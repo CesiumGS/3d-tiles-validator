@@ -1,4 +1,7 @@
 'use strict';
+
+import { createFeatureMetadataExtension } from "./createFeatureMetadataExtension";
+
 var Cesium = require('cesium');
 var draco3d = require('draco3d');
 var SimplexNoise = require('simplex-noise');
@@ -6,7 +9,6 @@ var createPnts = require('./createPnts');
 var Extensions = require('./Extensions');
 var createGltfFromPnts = require('./createGltfFromPnts');
 var typeConversion = require('./typeConversion');
-var createFeatureMetadataExtension = require('./createFeatureMetadataExtension');
 
 var AttributeCompression = Cesium.AttributeCompression;
 var Cartesian2 = Cesium.Cartesian2;
@@ -18,8 +20,6 @@ var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 var Matrix4 = Cesium.Matrix4;
 var WebGLConstants = Cesium.WebGLConstants;
-
-module.exports = createPointCloudTile;
 
 var sizeOfUint8 = 1;
 var sizeOfUint16 = 2;
@@ -53,7 +53,7 @@ var encoderModule = draco3d.createEncoderModule({});
  *
  * @returns {Object} An object containing the pnts buffer and batch table JSON.
  */
-function createPointCloudTile(options) {
+export function createPointCloudTile(options) {
     // Set the random number seed before creating each point cloud so that the generated points are the same between runs
     CesiumMath.setRandomNumberSeed(0);
 
@@ -110,7 +110,7 @@ function createPointCloudTile(options) {
         constantColor = [255, 255, 0, 51];
     }
 
-    var points = getPoints(use3dTilesNext, pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform, time);
+    var points = getPoints(use3dTilesNext, pointsLength, radius, colorModeFunction, colorFunction, shapeFunction, quantizePositions, octEncodeNormals, relativeToCenter, transform, time) as any;
     var positions = points.positions;
     var normals = points.normals;
     var batchIds = points.batchIds;
@@ -134,7 +134,7 @@ function createPointCloudTile(options) {
         batchTableProperties = getPerPointBatchTableProperties(pointsLength, noiseValues, use3dTilesNext);
     }
 
-    var featureTableJson = {};
+    var featureTableJson: any = {};
     var featureTableBinary = Buffer.alloc(0);
 
     var batchTableJson = {};
@@ -556,7 +556,7 @@ function getPoints(use3dTilesNext, pointsLength, radius, colorModeFunction, colo
         };
     }
 
-    var result =  {
+    var result: any =  {
         positions : positionAttribute,
         normals : normalAttribute,
         batchIds : batchIdAttribute,
@@ -592,7 +592,7 @@ function getPositions(positions, use3dTilesNext) {
         maxComp[2] = Math.max(maxComp[2], position.z);
     }
 
-    var result = {
+    var result: any = {
         buffer : buffer,
         propertyName : 'POSITION',
         componentType : 'FLOAT',
@@ -655,7 +655,7 @@ function getNormals(normals, use3dTilesNext) {
         maxComp[2] = Math.max(maxComp[2], normal.z);
     }
 
-    var result = {
+    var result: any = {
         buffer : buffer,
         propertyName : 'NORMAL',
         componentType : 'FLOAT',
@@ -739,7 +739,7 @@ function getBatchIds(batchIds, use3dTilesNext) {
         componentType = 'UNSIGNED_BYTE';
     }
 
-    var result = {
+    var result: any = {
         buffer : buffer,
         propertyName : use3dTilesNext ? '_FEATURE_ID_0' : 'BATCH_ID',
         componentType : componentType,
@@ -792,7 +792,7 @@ function getColorsRGB(colors, use3dTilesNext) {
         maxComp[2] = Math.max(maxComp[2], b);
     }
 
-    var result = {
+    var result: any = {
         buffer : buffer,
         propertyName : use3dTilesNext ? 'COLOR_0' : 'RGB',
         componentType : 'UNSIGNED_BYTE',
@@ -839,7 +839,7 @@ function getColorsRGBA(colors, use3dTilesNext) {
         maxComp[3] = Math.max(maxComp[3], a);
     }
 
-    var result = {
+    var result: any = {
         buffer : buffer,
         propertyName : use3dTilesNext ? 'COLOR_0' : 'RGBA',
         componentType : 'UNSIGNED_BYTE',
@@ -882,7 +882,7 @@ function getBatchTableForBatchedPoints(batchLength, use3dTilesNext) {
     var dimensionsBuffer = Buffer.alloc(batchLength * 3 * sizeOfFloat32); // Binary
     var idBuffer = Buffer.alloc(batchLength * sizeOfUint32); // Binary
 
-    var batchTableJson = {
+    var batchTableJson: any = {
         name : names,
         dimensions : {
             byteOffset : 0,
@@ -976,7 +976,7 @@ function getPerPointBatchTableProperties(pointsLength, noiseValues, use3dTilesNe
         maxSecondaryColorComp[2] = Math.max(maxSecondaryColorComp[2], secondaryColor[2]);
     }
 
-    var result = [
+    var result: any = [
         {
             buffer : temperaturesBuffer,
             propertyName : 'temperature',

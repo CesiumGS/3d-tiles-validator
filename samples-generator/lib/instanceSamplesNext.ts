@@ -1,9 +1,4 @@
-import { createTilesetJsonSingle, TilesetOptions } from './createTilesetJsonSingle';
-
-const gltfPipeline = require('gltf-pipeline');
-const glbToGltf = gltfPipeline.glbToGltf;
-const gltfToGlb = gltfPipeline.gltfToGlb;
-
+import { getGltfFromGlbUri } from './gltfFromUri';
 import { InstanceTileUtils } from './instanceUtilsNext';
 import { GeneratorArgs } from './arguments';
 import { addBinaryBuffers } from './gltfUtil';
@@ -12,7 +7,14 @@ import { metersToLatitude, metersToLongitude, toCamelCase, wgs84Transform } from
 import { FeatureMetadata } from './featureMetadata';
 import { createEXTMeshInstancingExtension } from './createEXTMeshInstancing';
 import { createConstantAttributeLEU32 } from './createConstantAttribute';
-import { Cartesian3, Matrix4 } from 'cesium';
+import { Matrix4 } from 'cesium';
+
+const Cesium = require('cesium');
+const Cartesian3 = Cesium.Cartesian3;
+const gltfPipeline = require('gltf-pipeline');
+const gltfToGlb = gltfPipeline.gltfToGlb;
+const glbToGltf = gltfPipeline.glbToGltf;
+
 import saveJson = require('./saveJson');
 import saveBinary = require('./saveBinary');
 import fsExtra = require('fs-extra');
@@ -81,13 +83,14 @@ export namespace InstanceSamplesNext {
     function getTilesetOpts(
         contentUri: string,
         geometricError: number,
-        versionNumber: string
+        versionNumber: string,
+        region: number[] = instancesRegion
     ): TilesetOptions {
         return {
             contentUri: contentUri,
             geometricError: geometricError,
             versionNumber: versionNumber,
-            region: instancesRegion,
+            region: region,
             transform: null
         };
     }
@@ -120,8 +123,10 @@ export namespace InstanceSamplesNext {
     }
 
     export async function createInstancedWithBatchTable(args: GeneratorArgs) {
-        const opts = getDefaultTileOptions();
-        let gltf = await getGltfFromUri(
+        const opts = InstanceTileUtils.getDefaultTileOptions(
+            'output/Instanced'
+        );
+        let gltf = await getGltfFromGlbUri(
             opts.instancesUri,
             args.gltfConversionOptions
         );
@@ -178,7 +183,8 @@ export namespace InstanceSamplesNext {
         const tilesetOpts = getTilesetOpts(
             tileFilename,
             args.geometricError,
-            args.versionNumber
+            args.versionNumber,
+            instancesRegion
         );
 
         let tilesetJson = createTilesetJsonSingle(tilesetOpts);
@@ -194,8 +200,10 @@ export namespace InstanceSamplesNext {
     export async function createInstancedWithBatchTableBinary(
         args: GeneratorArgs
     ) {
-        const opts = getDefaultTileOptions();
-        let gltf = await getGltfFromUri(
+        const opts = InstanceTileUtils.getDefaultTileOptions(
+            'output/Instanced'
+        );
+        let gltf = await getGltfFromGlbUri(
             opts.instancesUri,
             args.gltfConversionOptions
         );
@@ -260,7 +268,8 @@ export namespace InstanceSamplesNext {
         const tilesetOpts = getTilesetOpts(
             tileFilename,
             args.geometricError,
-            args.versionNumber
+            args.versionNumber,
+            instancesRegion
         );
 
         let tilesetJson = createTilesetJsonSingle(tilesetOpts);
@@ -274,8 +283,10 @@ export namespace InstanceSamplesNext {
     }
 
     export async function createInstancedOrientation(args: GeneratorArgs) {
-        const opts = getDefaultTileOptions();
-        let gltf = await getGltfFromUri(
+        const opts = InstanceTileUtils.getDefaultTileOptions(
+            'output/Instanced'
+        );
+        let gltf = await getGltfFromGlbUri(
             opts.instancesUri,
             args.gltfConversionOptions
         );
@@ -310,7 +321,8 @@ export namespace InstanceSamplesNext {
         const tilesetOpts = getTilesetOpts(
             tileFilename,
             args.geometricError,
-            args.versionNumber
+            args.versionNumber,
+            instancesRegion
         );
 
         let tilesetJson = createTilesetJsonSingle(tilesetOpts);
@@ -324,8 +336,10 @@ export namespace InstanceSamplesNext {
     }
 
     export async function createInstancedScaleNonUniform(args: GeneratorArgs) {
-        const opts = getDefaultTileOptions();
-        const gltf = await getGltfFromUri(
+        const opts = InstanceTileUtils.getDefaultTileOptions(
+            'output/Instanced'
+        );
+        const gltf = await getGltfFromGlbUri(
             opts.instancesUri,
             args.gltfConversionOptions
         );
@@ -363,7 +377,8 @@ export namespace InstanceSamplesNext {
         const tilesetOpts = getTilesetOpts(
             tileFilename,
             args.geometricError,
-            args.versionNumber
+            args.versionNumber,
+            instancesRegion
         );
 
         let tilesetJson = createTilesetJsonSingle(tilesetOpts);
@@ -377,8 +392,10 @@ export namespace InstanceSamplesNext {
     }
 
     export async function createInstancedScale(args: GeneratorArgs) {
-        const opts = getDefaultTileOptions();
-        const gltf = await getGltfFromUri(
+        const opts = InstanceTileUtils.getDefaultTileOptions(
+            'output/Instanced'
+        );
+        const gltf = await getGltfFromGlbUri(
             opts.instancesUri,
             args.gltfConversionOptions
         );
@@ -415,7 +432,8 @@ export namespace InstanceSamplesNext {
         const tilesetOpts = getTilesetOpts(
             tileFilename,
             args.geometricError,
-            args.versionNumber
+            args.versionNumber,
+            instancesRegion
         );
 
         let tilesetJson = createTilesetJsonSingle(tilesetOpts);
@@ -429,8 +447,10 @@ export namespace InstanceSamplesNext {
     }
 
     export async function createInstancedRTC(args: GeneratorArgs) {
-        const opts = getDefaultTileOptions();
-        const gltf = await getGltfFromUri(
+        const opts = InstanceTileUtils.getDefaultTileOptions(
+            'output/Instanced'
+        );
+        const gltf = await getGltfFromGlbUri(
             opts.instancesUri,
             args.gltfConversionOptions
         );
@@ -478,7 +498,8 @@ export namespace InstanceSamplesNext {
         const tilesetOpts = getTilesetOpts(
             tileFilename,
             args.geometricError,
-            args.versionNumber
+            args.versionNumber,
+            instancesRegion
         );
 
         let tilesetJson = createTilesetJsonSingle(tilesetOpts);
@@ -541,9 +562,11 @@ export namespace InstanceSamplesNext {
     }
 
     export async function createInstancedRedMaterial(args: GeneratorArgs) {
-        const opts = getDefaultTileOptions();
+        const opts = InstanceTileUtils.getDefaultTileOptions(
+            'output/Instanced'
+        );
         opts.instancesUri = 'data/red_box.glb';
-        const gltf = await getGltfFromUri(
+        const gltf = await getGltfFromGlbUri(
             opts.instancesUri,
             args.gltfConversionOptions
         );
@@ -575,7 +598,8 @@ export namespace InstanceSamplesNext {
         const tilesetOpts = getTilesetOpts(
             tileFilename,
             args.geometricError,
-            args.versionNumber
+            args.versionNumber,
+            instancesRegion
         );
 
         let tilesetJson = createTilesetJsonSingle(tilesetOpts);

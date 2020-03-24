@@ -1,213 +1,106 @@
 #!/usr/bin/env node
 'use strict';
 
-var Cesium = require('cesium');
-var fsExtra = require('fs-extra');
+import { Cartesian3, clone, defaultValue, defined, Matrix4 } from 'cesium';
+
+const fsExtra = require('fs-extra');
 var gltfPipeline = require('gltf-pipeline');
 var path = require('path');
-import {Promise as Bluebird} from 'bluebird';
+import { Promise as Bluebird } from 'bluebird';
 var DataUri = require('datauri');
 var gltfToGlb = gltfPipeline.gltfToGlb;
-var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
+var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../') };
 import { calculateFilenameExt } from '../lib/calculateFilenameExt';
 import { createBatchTableHierarchy } from '../lib/createBatchTableHierarchy';
-import { createInstancesTile }  from '../lib/createInstancesTile';
+import { createInstancesTile } from '../lib/createInstancesTile';
 import { InstanceSamplesNext } from '../lib/instanceSamplesNext';
 import { GeneratorArgs } from '../lib/arguments';
-import { createTilesetJsonSingle } from '../lib/createTilesetJsonSingle';
+import { CompositeSamplesNext } from '../lib/compositeSamplesNext';
+import { BaseColorType, TranslucencyType } from '../lib/colorTypes';
+import { createBuildingsTile } from '../lib/createBuildingsTile';
+import { createPointCloudTile } from '../lib/createPointCloudTile';
+import {
+    prettyJson,
+    instancesGeometricError,
+    buildingTemplate,
+    smallSphere,
+    smallBoxLocal,
+    buildingsTransform,
+    smallSphereLocal,
+    smallRegion,
+    pointCloudTransform,
+    pointCloudSphereLocal,
+    instancesTransform,
+    instancesBoxLocal,
+    instancesRedUri,
+    instancesTexturedUri,
+    instancesUri,
+    instancesTileWidth,
+    instancesLength,
+    instancesModelSize,
+    outputDirectory,
+    compositeGeometricError,
+    compositeRegion,
+    instancesRegion,
+    smallGeometricError,
+    pointCloudTileWidth,
+    pointsLength,
+    pointCloudGeometricError,
+    pointCloudSphere,
+    parentTileOptions,
+    llTileOptions,
+    lrTileOptions,
+    urTileOptions,
+    ulTileOptions,
+    largeGeometricError,
+    parentRegion,
+    parentContentRegion,
+    llRegion,
+    lrRegion,
+    urRegion,
+    ulRegion,
+    childrenRegion,
+    latitude,
+    longitude,
+    longitudeExtent,
+    latitudeExtent,
+    tileWidth,
+    gzip,
+    west,
+    south,
+    east,
+    north
+} from '../lib/constants';
+import { metersToLongitude, toCamelCase, wgs84Transform } from '../lib/utility';
 
-var createBuildingsTile = require('../lib/createBuildingsTile');
-var createB3dm = require('../lib/createB3dm');
-var createCmpt = require('../lib/createCmpt');
-var createI3dm = require('../lib/createI3dm');
-var createPointCloudTile = require('../lib/createPointCloudTile');
-var getProperties = require('../lib/getProperties');
-var saveBinary = require('../lib/saveBinary');
-var saveJson = require('../lib/saveJson');
-var util = require('../lib/utility');
+const createB3dm = require('../lib/createB3dm');
+const createCmpt = require('../lib/createCmpt');
+const createI3dm = require('../lib/createI3dm');
+const createTilesetJsonSingle = require('../lib/createTilesetJsonSingle');
+const getProperties = require('../lib/getProperties');
+const saveBinary = require('../lib/saveBinary');
+const saveJson = require('../lib/saveJson');
 
-var processGlb = gltfPipeline.processGlb;
+const processGlb = gltfPipeline.processGlb;
 
-var Cartesian3 = Cesium.Cartesian3;
-var CesiumMath = Cesium.Math;
-var clone = Cesium.clone;
-var defaultValue = Cesium.defaultValue;
-var defined  = Cesium.defined;
-var Matrix4 = Cesium.Matrix4;
-var Quaternion = Cesium.Quaternion;
-
-const toCamelCase = util.toCamelCase;
-var metersToLongitude = util.metersToLongitude;
-var metersToLatitude = util.metersToLatitude;
-var wgs84Transform = util.wgs84Transform;
-
-var prettyJson = true;
-var gzip = false;
-
-var outputDirectory = 'output';
-
-
-var longitude = -1.31968;
-var latitude = 0.698874;
-var tileWidth = 200.0;
-
-var longitudeExtent = metersToLongitude(tileWidth, latitude);
-var latitudeExtent = metersToLatitude(tileWidth);
-
-var west = longitude - longitudeExtent / 2.0;
-var south = latitude - latitudeExtent / 2.0;
-var east = longitude + longitudeExtent / 2.0;
-var north = latitude + latitudeExtent / 2.0;
-
-var buildingTemplate = {
-    numberOfBuildings : 10,
-    tileWidth : tileWidth,
-    averageWidth : 8.0,
-    averageHeight : 10.0,
-    baseColorType : 'white',
-    translucencyType : 'opaque',
-    longitude : longitude,
-    latitude : latitude
-};
-
-var buildingsTransform = wgs84Transform(longitude, latitude, 0.0); // height is 0.0 because the base of building models is at the origin
-var buildingsCenter = [buildingsTransform[12], buildingsTransform[13], buildingsTransform[14]];
-
-// Small buildings
-var smallGeometricError = 70.0; // Estimated
-var smallHeight = 20.0; // Estimated
-var smallRegion = [west, south, east, north, 0.0, smallHeight];
-var smallRadius = tileWidth * 0.707107;
-var smallSphere = [buildingsCenter[0], buildingsCenter[1], buildingsCenter[2] + smallHeight / 2.0, smallRadius];
-var smallSphereLocal = [0.0, 0.0, smallHeight / 2.0, smallRadius];
-var smallBoxLocal = [
-    0.0, 0.0, smallHeight / 2.0, // center
-    tileWidth / 2.0, 0.0, 0.0,   // width
-    0.0, tileWidth / 2.0, 0.0,   // depth
-    0.0, 0.0, smallHeight / 2.0  // height
-];
-
-// Large buildings
-var largeGeometricError = 240.0; // Estimated
-var largeHeight = 88.0; // Estimated
-
-// Point cloud
-var pointsLength = 1000;
-var pointCloudTileWidth = 10.0;
-var pointCloudRadius = pointCloudTileWidth / 2.0;
-var pointCloudTransform = wgs84Transform(longitude, latitude, pointCloudRadius);
-var pointCloudGeometricError = 1.732 * pointCloudTileWidth; // Diagonal of the point cloud box
-var pointCloudCenter = [pointCloudTransform[12], pointCloudTransform[13], pointCloudTransform[14]];
-var pointCloudSphere = [pointCloudCenter[0], pointCloudCenter[1], pointCloudCenter[2], pointCloudRadius];
-var pointCloudSphereLocal = [0.0, 0.0, 0.0, pointCloudRadius];
-
-// Instances
-var instancesLength = 25;
-var instancesGeometricError = 70.0; // Estimated
-var instancesTileWidth = tileWidth;
-var instancesUri = 'data/box.glb'; // Model's center is at the origin (and for below)
-var instancesRedUri = 'data/red_box.glb';
-var instancesTexturedUri = 'data/textured_box.glb';
-var instancesModelSize = 20.0;
-var instancesHeight = instancesModelSize + 10.0; // Just a little extra padding at the top for aiding Cesium tests
-var instancesTransform = wgs84Transform(longitude, latitude, instancesModelSize / 2.0);
-var instancesRegion = [west, south, east, north, 0.0, instancesHeight];
-var instancesBoxLocal = [
-    0.0, 0.0, 0.0,                      // center
-    instancesTileWidth / 2.0, 0.0, 0.0, // width
-    0.0,instancesTileWidth / 2.0, 0.0,  // depth
-    0.0, 0.0, instancesHeight / 2.0     // height
-];
-
-// Composite
-var compositeRegion = instancesRegion;
-var compositeGeometricError = instancesGeometricError;
-
-// City Tileset
-var parentRegion = [longitude - longitudeExtent, latitude - latitudeExtent, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, largeHeight];
-var parentContentRegion = [longitude - longitudeExtent / 2.0, latitude - latitudeExtent / 2.0, longitude + longitudeExtent / 2.0, latitude + latitudeExtent / 2.0, 0.0, largeHeight];
-var parentOptions = clone(buildingTemplate);
-parentOptions.averageWidth = 20.0;
-parentOptions.averageHeight = 82.0;
-parentOptions.longitude = longitude;
-parentOptions.latitude = latitude;
-var parentTileOptions = {
-    buildingOptions : parentOptions,
-    createBatchTable : true,
-    transform : buildingsTransform,
-    relativeToCenter : true
-};
-
-var childrenRegion = [longitude - longitudeExtent, latitude - latitudeExtent, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, smallHeight];
-
-var llRegion = [longitude - longitudeExtent, latitude - latitudeExtent, longitude, latitude, 0.0, smallHeight];
-var llLongitude = longitude - longitudeExtent / 2.0;
-var llLatitude = latitude - latitudeExtent / 2.0;
-var llTransform = wgs84Transform(llLongitude, llLatitude);
-var llOptions = clone(buildingTemplate);
-llOptions.longitude = llLongitude;
-llOptions.latitude = llLatitude;
-llOptions.seed = 0;
-var llTileOptions = {
-    buildingOptions : llOptions,
-    createBatchTable : true,
-    transform : llTransform,
-    relativeToCenter : true
-};
-
-var lrRegion = [longitude, latitude - latitudeExtent, longitude + longitudeExtent, latitude, 0.0, smallHeight];
-var lrLongitude = longitude + longitudeExtent / 2.0;
-var lrLatitude = latitude - latitudeExtent / 2.0;
-var lrTransform = wgs84Transform(lrLongitude, lrLatitude);
-var lrOptions = clone(buildingTemplate);
-lrOptions.longitude = lrLongitude;
-lrOptions.latitude = lrLatitude;
-lrOptions.seed = 1;
-var lrTileOptions = {
-    buildingOptions : lrOptions,
-    createBatchTable : true,
-    transform : lrTransform,
-    relativeToCenter : true
-};
-
-var urRegion = [longitude, latitude, longitude + longitudeExtent, latitude + latitudeExtent, 0.0, smallHeight];
-var urLongitude = longitude + longitudeExtent / 2.0;
-var urLatitude = latitude + latitudeExtent / 2.0;
-var urTransform = wgs84Transform(urLongitude, urLatitude);
-var urOptions = clone(buildingTemplate);
-urOptions.longitude = urLongitude;
-urOptions.latitude = urLatitude;
-urOptions.seed = 2;
-var urTileOptions = {
-    buildingOptions : urOptions,
-    createBatchTable : true,
-    transform : urTransform,
-    relativeToCenter : true
-};
-
-var ulRegion = [longitude - longitudeExtent, latitude, longitude, latitude + latitudeExtent, 0.0, smallHeight];
-var ulLongitude = longitude - longitudeExtent / 2.0;
-var ulLatitude = latitude + latitudeExtent / 2.0;
-var ulTransform = wgs84Transform(ulLongitude, ulLatitude);
-var ulOptions = clone(buildingTemplate);
-ulOptions.longitude = ulLongitude;
-ulOptions.latitude = ulLatitude;
-ulOptions.seed = 3;
-var ulTileOptions = {
-    buildingOptions : ulOptions,
-    createBatchTable : true,
-    transform : ulTransform,
-    relativeToCenter : true
-};
-
-var argv = require('yargs')
+const argv = require('yargs')
     .help()
     .strict()
-    .option('3d-tiles-next', { type: 'boolean', describe: 'Export samples as 3D Tiles Next (.gltf). This flag is experimental and should not be used in production.'})
-    .option('glb', { type: 'boolean', describe: 'Export 3D Tiles Next in (.glb) form. Can only be used with --3d-tiles-next. This flag is experimental and should not be used in production.' })
+    .option('3d-tiles-next', {
+        type: 'boolean',
+        describe:
+            'Export samples as 3D Tiles Next (.gltf). This flag is experimental and should not be used in production.'
+    })
+    .option('glb', {
+        type: 'boolean',
+        describe:
+            'Export 3D Tiles Next in (.glb) form. Can only be used with --3d-tiles-next. This flag is experimental and should not be used in production.'
+    })
     .check(function(argv) {
         if (argv.glb && !argv['3d-tiles-next']) {
-            throw new Error('--glb can only be used if --3d-tiles-next is also provided.');
+            throw new Error(
+                '--glb can only be used if --3d-tiles-next is also provided.'
+            );
         }
         return true;
     }).argv;
@@ -319,26 +212,32 @@ async function main() {
     let tilesNextPromises: (() => Promise<void>)[] = [];
     if (args.use3dTilesNext) {
         tilesNextPromises = [
+            // Instanced
             async () => InstanceSamplesNext.createInstancedWithBatchTable(args),
-            async () => InstanceSamplesNext.createInstancedWithBatchTableBinary(args),
+            async () =>
+                InstanceSamplesNext.createInstancedWithBatchTableBinary(args),
             async () => InstanceSamplesNext.createInstancedOrientation(args),
-            async () => InstanceSamplesNext.createInstancedScaleNonUniform(args),
+            async () =>
+                InstanceSamplesNext.createInstancedScaleNonUniform(args),
             async () => InstanceSamplesNext.createInstancedScale(args),
             async () => InstanceSamplesNext.createInstancedRTC(args),
             async () => InstanceSamplesNext.createInstancedWithTransform(args),
             async () => InstanceSamplesNext.createInstancedRedMaterial(args),
-            async () => InstanceSamplesNext.createInstancedTextured(args)
+
+            // Composite
+            async () => CompositeSamplesNext.createComposite(args),
+            async () => CompositeSamplesNext.createCompositeOfInstanced(args)
         ];
     }
 
-    // 3d-tiles-next 
+    // 3d-tiles-next
     try {
         if (args.use3dTilesNext) {
             for (const promise of tilesNextPromises) {
                 await promise();
             }
         }
-    } catch(error) {
+    } catch (error) {
         console.log(error.message);
         console.log(error.stack);
     }
@@ -354,94 +253,98 @@ main();
 
 function createBatchedWithBatchTable() {
     var tileOptions = {
-        createBatchTable : true,
-        createBatchTableExtra : true
+        createBatchTable: true,
+        createBatchTableExtra: true
     };
     return saveBatchedTileset('BatchedWithBatchTable', tileOptions);
 }
 
 function createBatchedWithoutBatchTable() {
     var tileOptions = {
-        createBatchTable : false
+        createBatchTable: false
     };
     return saveBatchedTileset('BatchedWithoutBatchTable', tileOptions);
 }
 
 function createBatchedWithBatchTableBinary() {
     var tileOptions = {
-        createBatchTable : true,
-        createBatchTableBinary : true
+        createBatchTable: true,
+        createBatchTableBinary: true
     };
     return saveBatchedTileset('BatchedWithBatchTableBinary', tileOptions);
 }
 
 function createBatchedTranslucent() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.translucencyType = 'translucent';
+    buildingOptions.translucencyType = TranslucencyType.Translucent;
     var tileOptions = {
-        buildingOptions : buildingOptions
+        buildingOptions: buildingOptions
     };
     return saveBatchedTileset('BatchedTranslucent', tileOptions);
 }
 
 function createBatchedTranslucentOpaqueMix() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.translucencyType = 'mix';
+    buildingOptions.translucencyType = TranslucencyType.Mix;
     var tileOptions = {
-        buildingOptions : buildingOptions
+        buildingOptions: buildingOptions
     };
     return saveBatchedTileset('BatchedTranslucentOpaqueMix', tileOptions);
 }
 
 function createBatchedTextured() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.baseColorType = 'textured';
+    buildingOptions.baseColorType = BaseColorType.Texture;
     var tileOptions = {
-        buildingOptions : buildingOptions
+        buildingOptions: buildingOptions
     };
     return saveBatchedTileset('BatchedTextured', tileOptions);
 }
 
 function createBatchedColors() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.baseColorType = 'color';
+    buildingOptions.baseColorType = BaseColorType.Color;
     var tileOptions = {
-        buildingOptions : buildingOptions
+        buildingOptions: buildingOptions
     };
     return saveBatchedTileset('BatchedColors', tileOptions);
 }
 
 function createBatchedColorsTranslucent() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.baseColorType = 'color';
-    buildingOptions.translucencyType = 'translucent';
+    buildingOptions.baseColorType = BaseColorType.Color;
+    buildingOptions.translucencyType = TranslucencyType.Translucent;
     var tileOptions = {
-        buildingOptions : buildingOptions
+        buildingOptions: buildingOptions
     };
     return saveBatchedTileset('BatchedColorsTranslucent', tileOptions);
 }
 
 function createBatchedColorsMix() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.baseColorType = 'color';
-    buildingOptions.translucencyType = 'mix';
+    buildingOptions.baseColorType = BaseColorType.Color;
+    buildingOptions.translucencyType = TranslucencyType.Mix;
     var tileOptions = {
-        buildingOptions : buildingOptions
+        buildingOptions: buildingOptions
     };
     return saveBatchedTileset('BatchedColorsMix', tileOptions);
 }
 
 function createBatchedWithBoundingSphere() {
     var tilesetOptions = {
-        sphere : smallSphere
+        sphere: smallSphere
     };
-    return saveBatchedTileset('BatchedWithBoundingSphere', undefined, tilesetOptions);
+    return saveBatchedTileset(
+        'BatchedWithBoundingSphere',
+        undefined,
+        tilesetOptions
+    );
 }
 
 function createBatchedWithTransformBox() {
     var tileOptions = {
-        transform : Matrix4.IDENTITY,
-        relativeToCenter : false
+        transform: Matrix4.IDENTITY,
+        relativeToCenter: false
     };
     var tilesetOptions = {
         box : smallBoxLocal,
@@ -547,7 +450,7 @@ function createBatchedExpiration() {
 
 function createBatchedWithVertexColors() {
     var buildingOptions = clone(buildingTemplate);
-    buildingOptions.baseColorType = 'color';
+    buildingOptions.baseColorType = BaseColorType.Color;
     var tileOptions = {
         buildingOptions : buildingOptions,
         useVertexColors : true
@@ -942,6 +845,10 @@ function createInstancedTextured() {
 }
 
 function createComposite() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var i3dmOptions = {
         uri : instancesUri,
         tileWidth : instancesTileWidth,
@@ -970,6 +877,10 @@ function createComposite() {
 }
 
 function createCompositeOfComposite() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var i3dmOptions = {
         uri : instancesUri,
         tileWidth : instancesTileWidth,
@@ -999,6 +910,10 @@ function createCompositeOfComposite() {
 }
 
 function createCompositeOfInstanced() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var i3dmOptions1 = {
         uri : instancesUri,
         tileWidth : instancesTileWidth,

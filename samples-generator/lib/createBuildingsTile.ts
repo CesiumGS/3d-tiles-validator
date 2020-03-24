@@ -1,23 +1,23 @@
 'use strict';
+
+import { createBuildings, Building } from "./createBuilding";
+import { Mesh } from "./Mesh";
+import { createFeatureMetadataExtension } from "./createFeatureMetadataExtension";
+
 var Cesium = require('cesium');
 var createB3dm = require('./createB3dm');
-var createFeatureMetadataExtension = require('./createFeatureMetadataExtension');
-var createBuildings = require('./createBuildings');
 var path = require('path');
 var createGltf = require('./createGltf');
 var gltfPipeline = require('gltf-pipeline');
 var processGltf = gltfPipeline.processGltf;
 var gltfToGlb = gltfPipeline.gltfToGlb;
 var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
-var Mesh = require('./Mesh');
 
 var Cartesian3 = Cesium.Cartesian3;
 var combine = Cesium.combine;
 var defaultValue = Cesium.defaultValue;
 var defined = Cesium.defined;
 var Matrix4 = Cesium.Matrix4;
-
-module.exports = createBuildingsTile;
 
 var sizeOfUint8 = 1;
 var sizeOfFloat = 4;
@@ -45,7 +45,7 @@ var batchTableJsonAndBinary;
  * @returns {Promise} A promise that resolves with the b3dm buffer and batch table JSON.
  *                      OR a promise that resolves with a glTF
  */
-function createBuildingsTile(options) {
+export function createBuildingsTile(options) {
     var buildings = createBuildings(options.buildingOptions);
     var useBatchIds = defaultValue(options.useBatchIds, true);
     var createBatchTable = defaultValue(options.createBatchTable, true) && useBatchIds;
@@ -81,7 +81,7 @@ function createBuildingsTile(options) {
     var batchTableJson;
     var batchTableBinary;
     if (createBatchTable) {
-        batchTableJson = generateBatchTable(buildings);
+        batchTableJson = generateBuildingBatchTable(buildings);
         if (createBatchTableExtra) {
             var batchTableExtra = generateBatchTableExtra(buildings);
             batchTableJson = combine(batchTableJson, batchTableExtra);
@@ -94,14 +94,14 @@ function createBuildingsTile(options) {
         }
     }
 
-    var featureTableJson = {
+    var featureTableJson: any = {
         BATCH_LENGTH : batchLength
     };
 
     if (defined(rtcCenterPosition)) {
         featureTableJson.RTC_CENTER = rtcCenterPosition;
     } else if (relativeToCenter) {
-        featureTableJson.RTC_CENTER = Cartesian3.pack(batchedMesh.getCenter(), new Array(3));
+        featureTableJson.RTC_CENTER = Cartesian3.pack(batchedMesh.center, new Array(3));
     }
 
     var gltfOptions = {
@@ -115,7 +115,7 @@ function createBuildingsTile(options) {
 
     var gltf = createGltf(gltfOptions);
 
-    var b3dmOptions = {
+    var b3dmOptions: any = {
         featureTableJson : featureTableJson,
         batchTableJson : batchTableJson,
         batchTableBinary : batchTableBinary,
@@ -158,7 +158,7 @@ function createBuildingsTile(options) {
     });
 }
 
-function generateBatchTable(buildings) {
+export function generateBuildingBatchTable(buildings: Building[]) {
     var buildingsLength = buildings.length;
     var batchTable = {
         id : new Array(buildingsLength),

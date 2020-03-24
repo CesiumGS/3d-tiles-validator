@@ -19,8 +19,32 @@ function toMatrix3(matrix4: Matrix4) {
     result[8] = matrix4[10];
     return result;
 }
+import { GltfType, GltfComponentType } from './gltfType';
+import path = require('path');
+const Cesium = require('cesium');
+const util = require('../lib/utility');
+const wgs84Transform = util.wgs84Transform;
+const Matrix4 = Cesium.Matrix4;
+const Matrix3 = Cesium.Matrix3;
+const Quaternion = Cesium.Quaternion;
+const Cartesian3 = Cesium.Cartesian3;
+const CesiumMath = Cesium.Math;
 
 export namespace InstanceTileUtils {
+    const instancesModelSize = 20.0;
+    const longitude = -1.31968;
+    const latitude = 0.698874;
+
+    export interface TileOptions {
+        instancesLength: number;
+        tileWidth: number;
+        modelSize: number;
+        instancesUri: string;
+        rootDir: string;
+        embed: boolean;
+        transform: object; // should be a Cesium.Matrix4
+    }
+
     export interface FeatureTableJson {
         INSTANCES_LENGTH?: number;
         RTC_CENTER?: [number, number, number];
@@ -29,6 +53,22 @@ export namespace InstanceTileUtils {
         EAST_NORTH_UP?: boolean;
         property?: {
             [name: string]: { byteOffset: number; componentType: number };
+        };
+    }
+
+    export function getDefaultTileOptions(rootDir: string): TileOptions {
+        return {
+            instancesLength: 25,
+            tileWidth: 200,
+            modelSize: 20,
+            instancesUri: 'data/box.glb',
+            rootDir: rootDir,
+            embed: false,
+            transform: wgs84Transform(
+                longitude,
+                latitude,
+                instancesModelSize / 2.0
+            )
         };
     }
 
@@ -180,8 +220,8 @@ export namespace InstanceTileUtils {
             componentType: GltfComponentType.FLOAT,
             type: GltfType.VEC4,
             min: min,
-            max: max 
-        }
+            max: max
+        };
     }
 
     export function getOrientations(

@@ -154,7 +154,7 @@ export async function createInstancesTile(options: InstanceTileOptions): Promise
             batchTableJson = batchTable.json;
             batchTableBinary = batchTable.binary;
         } else {
-            batchTableJson = generateBatchTable(instancesLength, modelSize);
+            batchTableJson = generateInstancesBatchTable(instancesLength, modelSize);
         }
     }
 
@@ -384,7 +384,7 @@ function getBatchIds(instancesLength: number) {
     };
 }
 
-function generateBatchTable(instancesLength: number, modelSize: number) {
+export function generateInstancesBatchTable(instancesLength: number, modelSize: number) {
     return {
         Height : new Array(instancesLength).fill(modelSize)
     };
