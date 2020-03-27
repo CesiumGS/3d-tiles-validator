@@ -4,18 +4,18 @@ const zlib = require('zlib');
 
 const isGzipped = require('./isGzipped');
 
-module.exports = readTile;
+module.exports = readTileset;
 
 /**
- * Reads tile content from a file.
+ * Reads the tileset JSON from a file.
  *
  * @param {String} filePath The file path.
- * @returns {Promise} A promise that resolves to a buffer containing the tile's content.
+ * @returns {Promise} A promise that resolves to an object containing the tileset JSON.
  */
-async function readTile(filePath) {
+async function readTileset(filePath) {
     let buffer = await fsExtra.readFile(filePath);
     if (isGzipped(buffer)) {
         buffer = zlib.gunzipSync(buffer);
     }
-    return buffer;
+    return JSON.parse(buffer.toString());
 }

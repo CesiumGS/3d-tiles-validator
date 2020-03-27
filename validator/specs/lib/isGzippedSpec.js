@@ -1,17 +1,13 @@
 'use strict';
-var Promise = require('bluebird');
-var zlib = require('zlib');
-var isGzipped = require('../../lib/isGzipped');
+const zlib = require('zlib');
 
-var zlibGzip = Promise.promisify(zlib.gzip);
+const isGzipped = require('../../lib/isGzipped');
 
-describe('isGzipped', function() {
-    it('detects when data is gzipped', function(done) {
-        var data = Buffer.alloc(40);
+describe('isGzipped', () => {
+    it('detects when data is gzipped', () => {
+        let data = Buffer.alloc(40);
         expect(isGzipped(data)).toBe(false);
-        expect(zlibGzip(data)
-            .then(function(zippedData) {
-                expect(isGzipped(zippedData)).toBe(true);
-            }), done).toResolve();
+        data = zlib.gzipSync(data);
+        expect(isGzipped(data)).toBe(true);
     });
 });
