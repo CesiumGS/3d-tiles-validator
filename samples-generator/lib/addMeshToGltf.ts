@@ -114,14 +114,6 @@ export function addBatchedMeshToGltf(
         componentType: GltfComponentType.FLOAT
     });
 
-    attributes.push({
-        minMax: batchIdsMinMax,
-        buffer: batchIdsBuffer,
-        type: GltfType.SCALAR,
-        count: mesh.batchIds.length,
-        componentType: GltfComponentType.FLOAT
-    });
-
     if (useUvs) {
         attributes.push({
             minMax: uvsMinMax,
@@ -165,7 +157,6 @@ export function addBatchedMeshToGltf(
             attributes: {
                 POSITION: accessorBufferViewAccessorInfo.accessorIndex[0],
                 NORMAL: accessorBufferViewAccessorInfo.accessorIndex[1],
-                _FEATURE_ID_0: accessorBufferViewAccessorInfo.accessorIndex[2]
             },
             material: i,
             mode: 4,

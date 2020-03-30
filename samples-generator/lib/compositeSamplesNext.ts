@@ -5,13 +5,7 @@ import { writeOutputToDisk } from './ioUtil';
 import { InstanceTileUtils } from './instanceUtilsNext';
 import { addBinaryBuffers } from './gltfUtil';
 import { getGltfFromGlbUri } from './gltfFromUri';
-import {
-    instancesRegion,
-    instancesLength,
-    instancesModelSize
-} from './constants';
-import { createFeatureMetadataExtensionV2 } from './featureMetadataExtension';
-import { FeatureTableType } from './featureMetadataType';
+import { instancesRegion } from './constants';
 import path = require('path');
 import { FeatureTableUtils } from './featureMetatableUtilsNext';
 import { createBuildings } from './createBuilding';
@@ -21,6 +15,7 @@ import { generateBuildingBatchTable } from './createBuildingsTile';
 import createTilesetJsonSingle = require('./createTilesetJsonSingle');
 import getProperties = require('./getProperties');
 import { createEXTMeshInstancingExtension } from './createEXTMeshInstancing';
+import { FeatureMetadata } from './featureMetadata';
 
 export namespace CompositeSamplesNext {
     export async function createComposite(args: GeneratorArgs) {
@@ -41,6 +36,7 @@ export namespace CompositeSamplesNext {
             opts.transform
         );
 
+        // add EXT_mesh_gpu_instancing extension to i3dm mesh
         const positionAccessorIndex = gltf.accessors.length;
         addBinaryBuffers(gltf, positions);
         createEXTMeshInstancingExtension(gltf, gltf.nodes[0], {
@@ -49,41 +45,29 @@ export namespace CompositeSamplesNext {
             }
         });
 
-        // add an empty feature metadata extension table; i3dm uses
-        // implicit per-vertex feature IDs, so we don't need to add an
-        // explicit _FEATURE_ID_X attribute to the primitive, or a
-        // explicit featureTable
-        gltf.extensionsUsed.push('CESIUM_3dtiles_feature_metadata');
-        gltf.extensions = {
-            CESIUM_3dtiles_feature_metadata: {
-                featureTables: [{ featureCount: instancesLength }]
+        // add CESIUM_3dtiles_metadata_feature extension to i3dm mesh
+        const prim = gltf.meshes[0].primitives[0];
+        FeatureMetadata.updateExtensionUsed(gltf);
+        FeatureMetadata.addFeatureLayer(prim, {
+            featureTable: 0,
+            vertexAttribute: {
+                implicit: {
+                    increment: 0,
+                    start: 0
+                }
             }
-        };
+        });
 
-        // all the heights are the same, so we can use the
-        // implicit per-vertex feature IDs, so we don't need
-        gltf.meshes[0].primitives[0].extensions = {
-            CESIUM_3dtiles_feature_metadata: {
-                featureLayers: [
-                    {
-                        featureTable: 0,
-                        vertexAttribute: {
-                            implicit: {
-                                start: instancesModelSize,
-                                increment: 0
-                            }
-                        }
-                    }
-                ]
+        FeatureMetadata.addFeatureTable(gltf, {
+            featureCount: opts.instancesLength,
+            properties: {
+                Height: {
+                    values: new Array(opts.instancesLength).fill(opts.modelSize)
+                }
             }
-        };
+        });
 
-
-        //
         // b3dm
-        //
-
-        // create the necessary data for b3dm, add it to the existing gltf
         const transform = FeatureTableUtils.getDefaultTransform();
         const buildingOptions = FeatureTableUtils.getDefaultBuildingGenerationOptions();
         const buildings = createBuildings(buildingOptions);
@@ -95,13 +79,19 @@ export namespace CompositeSamplesNext {
 
         const rtc = batchedMesh.center;
         const buildingTable = generateBuildingBatchTable(buildings);
+        // explicit ids are unnecessary for the feature_metadata extension
+        // but required for legacy b3dm
+        delete buildingTable.id;
 
         // add CESIUM_3dtiles_feature_metadata extension
-        const buildingFeatureTable = [
-            { type: FeatureTableType.PlainText, data: buildingTable }
-        ];
-
-        createFeatureMetadataExtensionV2(gltf, buildingFeatureTable);
+        gltf.extensions.CESIUM_3dtiles_feature_metadata.featureTables.push({
+            featureCount: buildingTable.Height.length,
+            properties: {
+                Height: { values: buildingTable.Height },
+                Longitude: { values: buildingTable.Longitude },
+                Latitude: { values: buildingTable.Latitude }
+            }
+        });
 
         // setup the primitives.extension
         gltf.meshes[1].primitives[0].extensions = {
@@ -110,7 +100,10 @@ export namespace CompositeSamplesNext {
                     {
                         featureTable: 1,
                         vertexAttribute: {
-                            attributeindex: 0
+                            implicit: {
+                                increment: 1,
+                                start: 0
+                            }
                         }
                     }
                 ]
@@ -121,13 +114,13 @@ export namespace CompositeSamplesNext {
         gltf.nodes[1] = {
             name: 'RTC_CENTER',
             mesh: gltf.nodes[1].mesh!,
-            translation: [rtc.x, rtc.y, rtc.z],
-        }
-
+            translation: [rtc.x, rtc.y, rtc.z]
+        };
 
         //
         // common
         //
+
         gltf.scenes[0].nodes.push(1);
 
         const outputFolder = 'Composite';
