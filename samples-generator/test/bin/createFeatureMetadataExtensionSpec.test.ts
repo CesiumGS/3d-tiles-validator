@@ -116,8 +116,8 @@ describe('createFeatureMetadataExtension', function() {
 
         // verify that references to the binary accessors are in `extensions: {...}`
         var featureTableProperties = gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0].properties;
-        expect(featureTableAttributes.aToMInclusive.name in featureTableProperties).toBeTrue();
-        expect(featureTableAttributes.nToZInclusive.name in featureTableProperties).toBeTrue();
+        expect(featureTableAttributes.aToMInclusive.name in featureTableProperties).toEqual(true);
+        expect(featureTableAttributes.nToZInclusive.name in featureTableProperties).toEqual(true);
         expect(featureTableProperties[featureTableAttributes.aToMInclusive.name].accessor).toBe(oldAccessorLength);
         expect(featureTableProperties[featureTableAttributes.nToZInclusive.name].accessor).toBe(oldAccessorLength + 1);
     });

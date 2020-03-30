@@ -14,11 +14,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "3d-tiles-samples-generator (Jasmine)",
+            "name": "Unittests (Jest)",
             "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceRoot}/samples-generator/node_modules/jasmine/bin/jasmine.js",
+            "program": "${workspaceFolder}/samples-generator/node_modules/jest/bin/jest.js",
             "cwd": "${workspaceFolder}/samples-generator/",
-            "args": ["--config=specs/jasmine.json"]
+            "args": ["--runInBand"]
         }
     ],
     "inputs": [

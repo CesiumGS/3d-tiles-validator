@@ -113,8 +113,8 @@ describe('createGltfFromPnts', function() {
         expect(gltfWithIndex.meshes).toBeInstanceOf(Array);
         expect(gltfWithIndex.meshes[0].primitives).toBeInstanceOf(Array);
         var primitive = gltfWithIndex.meshes[0].primitives[0];
-        expect('attributes' in primitive).toBeTrue();
-        expect('indices' in primitive).toBeTrue();
+        expect('attributes' in primitive).toEqual(true);
+        expect('indices' in primitive).toEqual(true);
 
         var i = 0;
         for (i = 0; i < attributeBuffers.length; ++i) {
@@ -127,11 +127,11 @@ describe('createGltfFromPnts', function() {
 
     it('has a single node / scene', function() {
         expect(gltfWithIndex.nodes).toBeInstanceOf(Array);
-        expect('mesh' in gltfWithIndex.nodes[0]).toBeTrue();
+        expect('mesh' in gltfWithIndex.nodes[0]).toEqual(true);
         expect(gltfWithIndex.nodes[0].mesh).toEqual(0);
 
         expect(gltfWithIndex.scenes).toBeInstanceOf(Array);
-        expect('nodes' in gltfWithIndex.scenes[0]).toBeTrue();
+        expect('nodes' in gltfWithIndex.scenes[0]).toEqual(true);
         expect(gltfWithIndex.scenes[0].nodes).toEqual([0]);
     });
 

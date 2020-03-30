@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^8.1.0",
+    "@types/jest": "^25.1.4",
     "cloc": "^2.3.3",
     "copyfiles": "^2.2.0",
     "datauri": "^1.1.0",
@@ -45,8 +46,10 @@
     "gulp": "^3.9.1",
     "jasmine": "^3.5.0",
     "jasmine-spec-reporter": "^4.2.1",
+    "jest": "^25.2.4",
     "nyc": "^11.3.0",
     "open": "^0.0.5",
+    "ts-jest": "^25.3.0",
     "typescript": "^3.8.3",
     "yargs": "^10.1.2"
   },
@@ -56,9 +59,9 @@
     "postbuild": "copyfiles -u \"lib/**/*\" \"specs/**/*\" \"data/**/*\" -e '*.js' -e '*.ts' dist",
     "watch": "tsc -w",
     "eslint": "eslint \"./**/*.js\" --cache --quiet",
-    "test": "gulp test",
-    "test-watch": "gulp test-watch",
-    "coverage": "gulp coverage",
+    "test": "jest",
+    "test-watch": "npx jest --watch",
+    "coverage": "npx jest --coverage",
     "cloc": "gulp cloc"
   },
   "bin": {
