@@ -183,8 +183,8 @@ export function createBuildingsTile(options) {
 
 export type BatchTable = {
     id?: number[];
-    Longitude: number[];
-    Latitude: number[];
+    Longitude?: number[];
+    Latitude?: number[];
     Height: number[];
 }
 

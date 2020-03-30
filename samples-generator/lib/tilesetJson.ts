@@ -2,7 +2,26 @@ import { AtLeastOne } from './atLeastN';
 import { instancesRegion } from './constants';
 import { TilesetOption } from './createTilesetJsonSingle';
 
-// https://github.com/CesiumGS/3d-tiles/tree/master/specification#tileset
+type BoundingVolume = AtLeastOne<{
+    region: number[];
+    box: number[];
+    sphere: number[];
+}>;
+
+export interface TilesetJsonRootChildren {
+    children?: TilesetJsonRootChildren[];
+    boundingVolume: BoundingVolume;
+    geometricError: number;
+    transform?: number[];
+    content: {
+        uri: string;
+    };
+    extras?: {
+        id: string;
+    };
+    viewerRequestVolume?: BoundingVolume;
+}
+
 export interface TilesetJson {
     asset: {
         version: string;
@@ -16,24 +35,13 @@ export interface TilesetJson {
     };
     geometricError: number;
     root: {
-        content: {
+        content?: {
             uri: string;
             boundingVolume?: {
                 region: number[];
             };
         };
-        children?: {
-            boundingVolume: {
-                region: number[];
-            };
-            geometricError: number;
-            content: {
-                uri: string;
-            };
-            extras?: {
-                id: string;
-            };
-        }[];
+        children?: TilesetJsonRootChildren[];
         geometricError: number;
         versionNumber?: string;
         region?: number[];
@@ -43,11 +51,7 @@ export interface TilesetJson {
         eastNorthUp?: boolean;
         expire?: any;
         refine: string;
-        boundingVolume: AtLeastOne<{
-            region: number[];
-            box: number[];
-            sphere: number[];
-        }>;
+        boundingVolume: BoundingVolume;
     };
     extensionsUsed?: string[];
     extensionsRequired?: string[];

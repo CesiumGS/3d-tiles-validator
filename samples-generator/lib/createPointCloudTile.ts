@@ -6,6 +6,7 @@ var Cesium = require('cesium');
 var draco3d = require('draco3d');
 var SimplexNoise = require('simplex-noise');
 var createPnts = require('./createPnts');
+var Extensions = require('./Extensions');
 var createGltfFromPnts = require('./createGltfFromPnts');
 var typeConversion = require('./typeConversion');
 
