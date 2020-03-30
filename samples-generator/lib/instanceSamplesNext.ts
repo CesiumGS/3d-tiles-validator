@@ -23,6 +23,7 @@ import path = require('path');
 import createFeatureMetadataExtension = require('./createFeatureMetadataExtension');
 import { FeatureMetadata } from './featureMetadata';
 import { createEXTMeshInstancingExtension } from './createEXTMeshInstancing';
+import { createConstantAttributeLEU32 } from './createConstantAttribute';
 
 export namespace InstanceSamplesNext {
     const longitude = -1.31968;
@@ -157,13 +158,18 @@ export namespace InstanceSamplesNext {
             vertexAttribute: {
                 implicit: {
                     increment: 0,
-                    start: opts.modelSize
+                    start: 0
                 }
             }
         });
 
         FeatureMetadata.addFeatureTable(gltf, {
-            featureCount: opts.instancesLength
+            featureCount: opts.instancesLength,
+            properties: {
+                Height: {
+                    values: new Array(opts.instancesLength).fill(opts.modelSize)
+                }
+            }
         });
 
         const ext = args.useGlb ? '.glb' : '.gltf';
@@ -212,27 +218,19 @@ export namespace InstanceSamplesNext {
             }
         });
 
-        const binaryBatchTableJson = InstanceTileUtils.generateBatchTableBinary(
-            opts.instancesLength,
-            opts.modelSize
+        const heightFeatureData = createConstantAttributeLEU32(
+            'Height', 
+            opts.modelSize, 
+            opts.instancesLength
         );
 
-        // add BatchBinary as 'FeatureMetadata'
-        const binaryId = binaryBatchTableJson.json.id;
-        const binaryIdAccessor = gltf.accessors.length;
-        addBinaryBuffers(gltf, {
-            buffer: binaryBatchTableJson.binary,
-            componentType: binaryId.componentType,
-            count: binaryId.count,
-            max: binaryId.max,
-            min: binaryId.min,
-            type: binaryId.type
-        })
+        const heightAccessorIndex = gltf.accessors.length;
+        addBinaryBuffers(gltf, heightFeatureData);
 
         const primitive = gltf.meshes[0].primitives[0];
         FeatureMetadata.updateExtensionUsed(gltf);
 
-        primitive.attributes['_FEATURE_ID_0'] = binaryIdAccessor;
+        primitive.attributes['_FEATURE_ID_0'] = heightAccessorIndex;
         FeatureMetadata.addFeatureLayer(primitive, {
             featureTable: 0, 
             vertexAttribute: {
@@ -243,8 +241,8 @@ export namespace InstanceSamplesNext {
         FeatureMetadata.addFeatureTable(gltf, {
             featureCount: opts.instancesLength,
             properties: {
-                id: {
-                    accessor: binaryIdAccessor
+                Height: {
+                    accessor: heightAccessorIndex
                 }
             }
         })
