@@ -22,9 +22,9 @@ import { Mesh } from './Mesh';
 import { generateBuildingBatchTable } from './createBuildingsTile';
 import { Gltf } from './gltfType';
 import { FeatureMetadata } from './featureMetadata';
-import { toCamelCase } from './utility';
 import path = require('path');
 import { writeTileset, writeTile } from './ioUtil';
+import saveJson = require('./saveJson');
 const createGltf = require('./createGltf');
 
 export namespace TilesetSamplesNext {
@@ -299,7 +299,167 @@ export namespace TilesetSamplesNext {
         }
     }
 
-    export async function createTilesetOfTilesets(args: GeneratorArgs) {}
+    export async function createTilesetOfTilesets(args: GeneratorArgs) {
+        const tilesetName = 'TilesetOfTilesets';
+        const tilesetDirectory = path.join(rootDir, tilesetName);
+        const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+        const tileset2Path = path.join(tilesetDirectory, 'tileset2.json');
+        const tileset3Path = path.join(tilesetDirectory, 'tileset3', 'tileset3.json');
+        const llPath = path.join('tileset3', 'll');
+        const tileNames = ['parent', llPath, 'lr', 'ur', 'ul'];
+        const tileOptions = [parentTileOptions, llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
+        const ext = args.useGlb ? '.glb' : '.gltf';
+
+        const tilesetJson = {
+            asset : {
+                version : tilesNextTilesetJsonVersion,
+                tilesetVersion : '1.2.3'
+            },
+            properties : undefined,
+            geometricError : largeGeometricError,
+            root : {
+                boundingVolume : {
+                    region : parentRegion
+                },
+                geometricError : smallGeometricError,
+                refine : 'ADD',
+                content : {
+                    uri : 'tileset2.json'
+                }
+            }
+        };
+    
+        const tileset2Json = {
+            asset : {
+                version : tilesNextTilesetJsonVersion
+            },
+            geometricError : largeGeometricError,
+            root : {
+                boundingVolume : {
+                    region : parentRegion
+                },
+                geometricError : smallGeometricError,
+                refine : 'ADD',
+                content : {
+                    uri : 'parent' + ext
+                },
+                children : [
+                    {
+                        boundingVolume : {
+                            region : llRegion
+                        },
+                        geometricError : 0.0,
+                        content : {
+                            uri : 'tileset3/tileset3.json'
+                        }
+                    },
+                    {
+                        boundingVolume : {
+                            region : lrRegion
+                        },
+                        geometricError : 0.0,
+                        content : {
+                            uri : 'lr' + ext
+                        }
+                    },
+                    {
+                        boundingVolume : {
+                            region : urRegion
+                        },
+                        geometricError : 0.0,
+                        content : {
+                            uri : 'ur' + ext
+                        }
+                    },
+                    {
+                        boundingVolume : {
+                            region : ulRegion
+                        },
+                        geometricError : 0.0,
+                        content : {
+                            uri : 'ul' + ext
+                        }
+                    }
+                ]
+            }
+        };
+    
+        const tileset3Json = {
+            asset : {
+                version : tilesNextTilesetJsonVersion
+            },
+            geometricError : smallGeometricError,
+            root : {
+                boundingVolume : {
+                    region : llRegion
+                },
+                geometricError : 0.0,
+                refine : 'ADD',
+                content : {
+                    uri : 'll' + ext
+                }
+            }
+        };
+
+        const buildings = tileOptions.map(opt =>
+            createBuildings(opt.buildingOptions)
+        );
+
+        const batchTables = buildings.map(building =>
+            generateBuildingBatchTable(building)
+        );
+
+        const batchedMeshes = buildings.map((building, i) => {
+            const transform = tileOptions[i].transform;
+            return Mesh.batch(
+                FeatureTableUtils.createMeshes(transform, building, false)
+            );
+        });
+
+        // remove explicit ID from batchTable, it's not used in the
+        // feature metadata gltf extension
+        batchTables.forEach(table => delete table.id);
+
+        const gltfs = batchedMeshes.map(mesh =>
+            createGltf({ mesh: mesh, useBatchIds: false })
+        ) as Gltf[];
+
+        gltfs.forEach((gltf, i) => {
+            const batchTable = batchTables[i];
+
+            FeatureMetadata.updateExtensionUsed(gltf);
+            FeatureMetadata.addFeatureTable(gltf, {
+                featureCount: batchTable.Longitude.length,
+                properties: {
+                    Longitude: { values: batchTable.Longitude },
+                    Latitude: { values: batchTable.Latitude },
+                    Height: { values: batchTable.Height }
+                }
+            });
+
+            const primitive = gltf.meshes[0].primitives[0];
+            FeatureMetadata.addFeatureLayer(primitive, {
+                featureTable: 0,
+                vertexAttribute: {
+                    implicit: {
+                        increment: 1,
+                        start: 0
+                    }
+                }
+            });
+        });
+
+        await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip),
+        await saveJson(tileset2Path, tileset2Json, args.prettyJson, args.gzip),
+        await saveJson(tileset3Path, tileset3Json, args.prettyJson, args.gzip)
+
+        const fullPath = path.join(rootDir, 'TilesetOfTilesets');
+        for (let i=0; i < gltfs.length; ++i) {
+            const gltf = gltfs[i];
+            const tileFilename = tileNames[i] + ext;
+            await writeTile(fullPath, tileFilename, gltf, args);
+        }
+    }
 
     export async function createTilesetWithExternalResources(
         args: GeneratorArgs
