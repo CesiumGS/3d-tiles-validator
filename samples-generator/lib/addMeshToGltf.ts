@@ -14,8 +14,6 @@ import {
 } from './createByteBuffer';
 import { calculateBufferPadding } from './calculateBufferPadding';
 import { UINT16_SIZE_BYTES } from './typeSize';
-import { initalizeGltf } from './initializeGltf';
-import { Material } from './Material';
 import { rootMatrix } from './constants';
 
 type AttributeData = {
