@@ -257,8 +257,14 @@ export const ulTileOptions = {
     relativeToCenter: true
 };
 
+
+
 // Models are z-up, so add a z-up to y-up transform.
 // The glTF spec defines the y-axis as up, so this is the default behavior.
 // In CesiumJS a y-up to z-up transform is applied later so that the glTF and
 // 3D Tiles coordinate systems are consistent
 export const rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
+
+
+// 3d-tiles-next
+export const tilesNextTilesetJsonVersion = '1.1';

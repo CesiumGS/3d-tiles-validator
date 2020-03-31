@@ -226,7 +226,25 @@ async function main() {
 
             // Composite
             async () => CompositeSamplesNext.createComposite(args),
-            async () => CompositeSamplesNext.createCompositeOfInstanced(args)
+            async () => CompositeSamplesNext.createCompositeOfInstanced(args),
+
+            // Tileset
+            async () => TilesetSamplesNext.createTileset(args),
+            async () => TilesetSamplesNext.createTilesetEmptyRoot(args),
+            async () => TilesetSamplesNext.createTilesetOfTilesets(args),
+            async () => TilesetSamplesNext.createTilesetWithExternalResources(args),
+            async () => TilesetSamplesNext.createTilesetRefinementMix(args),
+            async () => TilesetSamplesNext.createTilesetReplacement1(args),
+            async () => TilesetSamplesNext.createTilesetReplacement2(args),
+            async () => TilesetSamplesNext.createTilesetReplacement3(args),
+            async () => TilesetSamplesNext.createTilesetWithTransforms(args),
+            async () => TilesetSamplesNext.createTilesetWithViewerRequestVolume(args),
+            async () => TilesetSamplesNext.createTilesetReplacementWithViewerRequestVolume(args),
+            async () => TilesetSamplesNext.createTilesetSubtreeExpiration(args),
+            async () => TilesetSamplesNext.createTilesetPoints(args),
+            async () => TilesetSamplesNext.createTilesetUniform(args)
+
+
         ];
     }
 
@@ -1282,6 +1300,10 @@ function saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath,
 }
 
 function createTileset() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     // Create a tileset with one root tile and four child tiles
     var tilesetName = 'Tileset';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
@@ -1359,6 +1381,10 @@ function createTileset() {
 }
 
 function createTilesetEmptyRoot() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     // Create a tileset with one empty root tile and four child tiles
     var tilesetName = 'TilesetEmptyRoot';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
@@ -1423,6 +1449,10 @@ function createTilesetEmptyRoot() {
 }
 
 function createTilesetOfTilesets() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     // Create a tileset that references an external tileset
     var tilesetName = 'TilesetOfTilesets';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
@@ -1550,6 +1580,10 @@ function modifyImageUri(glb, resourceDirectory, newResourceDirectory) {
 }
 
 function createTilesetWithExternalResources() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     // Create a tileset that references an external tileset where tiles reference external resources
     var tilesetName = 'TilesetWithExternalResources';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
@@ -1745,6 +1779,10 @@ function createTilesetWithExternalResources() {
 }
 
 function createTilesetRefinementMix() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     // Create a tileset with a mix of additive and replacement refinement
     // A - add
     // R - replace
@@ -1848,6 +1886,10 @@ function createTilesetRefinementMix() {
 }
 
 function createTilesetReplacement1() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     // No children have content, but all grandchildren have content. Root uses replacement refinement.
     // C - content
     // E - empty
@@ -1941,6 +1983,10 @@ function createTilesetReplacement1() {
 }
 
 function createTilesetReplacement2() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     //          C
     //          E
     //        C   E
@@ -2015,6 +2061,10 @@ function createTilesetReplacement2() {
 }
 
 function createTilesetReplacement3() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     //          C
     //          T (external tileset ref)
     //          E (root of external tileset)
@@ -2118,6 +2168,10 @@ function createTilesetReplacement3() {
 }
 
 function createTilesetWithTransforms() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tilesetName = 'TilesetWithTransforms';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -2194,6 +2248,10 @@ function createTilesetWithTransforms() {
 }
 
 function createTilesetWithViewerRequestVolume() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     // Create a tileset with one root tile and four child tiles
     var tilesetName = 'TilesetWithViewerRequestVolume';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
@@ -2293,6 +2351,10 @@ function createTilesetWithViewerRequestVolume() {
 }
 
 function createTilesetReplacementWithViewerRequestVolume() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tilesetName = 'TilesetReplacementWithViewerRequestVolume';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -2386,6 +2448,10 @@ function createTilesetReplacementWithViewerRequestVolume() {
 }
 
 function createTilesetSubtreeExpiration() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tilesetName = 'TilesetSubtreeExpiration';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -2488,6 +2554,10 @@ function createTilesetSubtreeExpiration() {
 }
 
 function createTilesetPoints() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     // Create a tileset with one root tile and eight child tiles
     var tilesetName = 'TilesetPoints';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
@@ -2585,6 +2655,10 @@ function createTilesetPoints() {
 }
 
 function createTilesetUniform() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tilesetName = 'TilesetUniform';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
