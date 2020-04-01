@@ -1,7 +1,9 @@
 const Cesium = require('cesium');
 const clone = Cesium.clone;
+const path = require('path');
 import { BaseColorType, TranslucencyType } from './colorTypes';
 
+export const gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../') };
 export const util = require('../lib/utility');
 export const wgs84Transform = util.wgs84Transform;
 export const metersToLongitude = util.metersToLongitude;
