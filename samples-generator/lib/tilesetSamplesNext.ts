@@ -41,6 +41,7 @@ import saveJson = require('./saveJson');
 import { modifyImageUri } from './modifyImageUri';
 import { getGltfFromGlbUri } from './gltfFromUri';
 const createGltf = require('./createGltf');
+const getProperties = require('./getProperties');
 
 export namespace TilesetSamplesNext {
     const rootDir = path.join('output', 'Tilesets');
@@ -677,18 +678,24 @@ export namespace TilesetSamplesNext {
         await fsExtra.copy(glbBasePath, glbCopyPath);
 
         const resourceDirectory = {
-            resourceDirectory: path.join(tilesetDirectory, 'textured_box_separate')
+            resourceDirectory: path.join(
+                tilesetDirectory,
+                'textured_box_separate'
+            )
         };
 
         // feature tables are deprecated, so the glbs are copied as-is
-        const gltf0 = 
-            (await glbToGltf(glbs[0], gltfConversionOptions)).gltf as Gltf;
+        const gltf0 = (await glbToGltf(glbs[0], gltfConversionOptions))
+            .gltf as Gltf;
 
-        const gltf1 = 
-            (await glbToGltf(glbs[1], gltfConversionOptions)).gltf as Gltf;
+        const gltf1 = (await glbToGltf(glbs[1], gltfConversionOptions))
+            .gltf as Gltf;
 
         const i3dm0 = await getGltfFromGlbUri(
-            path.join(tilesetDirectory, 'textured_box_separate/textured_box.glb'),
+            path.join(
+                tilesetDirectory,
+                'textured_box_separate/textured_box.glb'
+            ),
             resourceDirectory
         );
 
@@ -703,7 +710,169 @@ export namespace TilesetSamplesNext {
         }
     }
 
-    export async function createTilesetRefinementMix(args: GeneratorArgs) {}
+    export async function createTilesetRefinementMix(args: GeneratorArgs) {
+        // Create a tileset with a mix of additive and replacement refinement
+        // A - add
+        // R - replace
+        //          A
+        //      A       R (not rendered)
+        //    R   A   R   A
+        const ext = args.useGlb ? '.glb' : '.gltf';
+        const tilesetName = 'TilesetRefinementMix';
+        const tilesetDirectory = path.join(rootDir, tilesetName);
+        const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+        const tileNames = ['parent', 'll', 'lr', 'ur', 'ul'];
+        const tileOptions = [
+            parentTileOptions,
+            llTileOptions,
+            lrTileOptions,
+            urTileOptions,
+            ulTileOptions
+        ];
+
+        const tilesetJson = {
+            asset: {
+                version: tilesNextTilesetJsonVersion
+            },
+            properties: undefined,
+            geometricError: largeGeometricError,
+            root: {
+                boundingVolume: {
+                    region: parentRegion
+                },
+                geometricError: smallGeometricError,
+                refine: 'ADD',
+                content: {
+                    uri: 'parent' + ext,
+                    boundingVolume: {
+                        region: parentContentRegion
+                    }
+                },
+                children: [
+                    {
+                        boundingVolume: {
+                            region: parentContentRegion
+                        },
+                        geometricError: smallGeometricError,
+                        refine: 'REPLACE',
+                        content: {
+                            uri: 'parent' + ext
+                        },
+                        children: [
+                            {
+                                boundingVolume: {
+                                    region: llRegion
+                                },
+                                geometricError: 0.0,
+                                refine: 'ADD',
+                                content: {
+                                    uri: 'll' + ext
+                                }
+                            },
+                            {
+                                boundingVolume: {
+                                    region: urRegion
+                                },
+                                geometricError: 0.0,
+                                refine: 'REPLACE',
+                                content: {
+                                    uri: 'ur' + ext
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        boundingVolume: {
+                            region: parentContentRegion
+                        },
+                        geometricError: smallGeometricError,
+                        refine: 'ADD',
+                        content: {
+                            uri: 'parent' + ext
+                        },
+                        children: [
+                            {
+                                boundingVolume: {
+                                    region: ulRegion
+                                },
+                                geometricError: 0.0,
+                                refine: 'ADD',
+                                content: {
+                                    uri: 'ul' + ext
+                                }
+                            },
+                            {
+                                boundingVolume: {
+                                    region: lrRegion
+                                },
+                                geometricError: 0.0,
+                                refine: 'REPLACE',
+                                content: {
+                                    uri: 'lr' + ext
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        const buildings = tileOptions.map(opt =>
+            createBuildings(opt.buildingOptions)
+        );
+
+        const batchTables = buildings.map(building =>
+            generateBuildingBatchTable(building)
+        );
+
+        const batchedMeshes = buildings.map((building, i) => {
+            const transform = tileOptions[i].transform;
+            return Mesh.batch(
+                FeatureTableUtils.createMeshes(transform, building, false)
+            );
+        });
+
+        // remove explicit ID from batchTable, it's not used in the
+        // feature metadata gltf extension
+        batchTables.forEach(table => delete table.id);
+
+        const gltfs = batchedMeshes.map(mesh =>
+            createGltf({ mesh: mesh, useBatchIds: false })
+        ) as Gltf[];
+
+        gltfs.forEach((gltf, i) => {
+            const batchTable = batchTables[i];
+
+            FeatureMetadata.updateExtensionUsed(gltf);
+            FeatureMetadata.addFeatureTable(gltf, {
+                featureCount: batchTable.Longitude.length,
+                properties: {
+                    Longitude: { values: batchTable.Longitude },
+                    Latitude: { values: batchTable.Latitude },
+                    Height: { values: batchTable.Height }
+                }
+            });
+
+            const primitive = gltf.meshes[0].primitives[0];
+            FeatureMetadata.addFeatureLayer(primitive, {
+                featureTable: 0,
+                vertexAttribute: {
+                    implicit: {
+                        increment: 1,
+                        start: 0
+                    }
+                }
+            });
+        });
+
+        tilesetJson.properties = getProperties(batchTables);
+        await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
+        for (let i = 0; i < gltfs.length; ++i) {
+            const gltf = gltfs[i];
+            const tileFilename = tileNames[i] + ext;
+            await writeTile(tilesetDirectory, tileFilename, gltf, args);
+        }
+    }
 
     export async function createTilesetReplacement1(args: GeneratorArgs) {}
 
