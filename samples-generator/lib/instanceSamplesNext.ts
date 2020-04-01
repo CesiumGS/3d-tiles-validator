@@ -155,6 +155,7 @@ export namespace InstanceSamplesNext {
         FeatureMetadata.updateExtensionUsed(gltf);
         FeatureMetadata.addFeatureLayer(prim, {
             featureTable: 0,
+            instanceStride: 1,
             vertexAttribute: {
                 implicit: {
                     increment: 0,
@@ -230,9 +231,9 @@ export namespace InstanceSamplesNext {
         const primitive = gltf.meshes[0].primitives[0];
         FeatureMetadata.updateExtensionUsed(gltf);
 
-        primitive.attributes['_FEATURE_ID_0'] = heightAccessorIndex;
         FeatureMetadata.addFeatureLayer(primitive, {
             featureTable: 0, 
+            instanceStride: 1,
             vertexAttribute: {
                 attributeindex: 0
             }
