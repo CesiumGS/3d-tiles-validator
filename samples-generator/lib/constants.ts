@@ -2,6 +2,7 @@ const Cesium = require('cesium');
 const clone = Cesium.clone;
 const path = require('path');
 import { BaseColorType, TranslucencyType } from './colorTypes';
+import { Building } from './createBuilding';
 
 export const gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../') };
 export const util = require('../lib/utility');
@@ -26,7 +27,18 @@ export const south = latitude - latitudeExtent / 2.0;
 export const east = longitude + longitudeExtent / 2.0;
 export const north = latitude + latitudeExtent / 2.0;
 
-export const buildingTemplate = {
+export type BuildingTemplate = {
+    numberOfBuildings: number;
+    tileWidth: number;
+    averageWidth: number;
+    averageHeight: number;
+    baseColorType: BaseColorType;
+    translucencyType: TranslucencyType;
+    longitude: number;
+    latitude: number;
+};
+
+export const buildingTemplate: BuildingTemplate = {
     numberOfBuildings: 10,
     tileWidth: tileWidth,
     averageWidth: 8.0,
@@ -155,7 +167,15 @@ parentOptions.averageWidth = 20.0;
 parentOptions.averageHeight = 82.0;
 parentOptions.longitude = longitude;
 parentOptions.latitude = latitude;
-export const parentTileOptions = {
+
+export type TileOptions = {
+    buildingOptions: BuildingTemplate,
+    createBatchTable: boolean,
+    transform: object;
+    relativeToCenter: boolean;
+}
+
+export const parentTileOptions: TileOptions = {
     buildingOptions: parentOptions,
     createBatchTable: true,
     transform: buildingsTransform,

@@ -2,7 +2,6 @@ const Cesium = require('cesium');
 const Matrix4 = Cesium.Matrix4;
 const gltfPipeline = require('gltf-pipeline');
 const glbToGltf = gltfPipeline.glbToGltf;
-
 import fsExtra = require('fs-extra');
 import { GeneratorArgs } from './arguments';
 import { createBuildings } from './createBuilding';
@@ -30,17 +29,13 @@ import {
     smallRegion,
     gltfConversionOptions
 } from './constants';
-import { FeatureTableUtils } from './featureMetatableUtilsNext';
-import { Mesh } from './Mesh';
-import { generateBuildingBatchTable } from './createBuildingsTile';
 import { Gltf } from './gltfType';
-import { FeatureMetadata } from './featureMetadata';
 import path = require('path');
 import { writeTileset, writeTile } from './ioUtil';
 import saveJson = require('./saveJson');
 import { modifyImageUri } from './modifyImageUri';
 import { getGltfFromGlbUri } from './gltfFromUri';
-const createGltf = require('./createGltf');
+import { TilesetUtilsNext } from './tilesetUtilsNext';
 const getProperties = require('./getProperties');
 
 export namespace TilesetSamplesNext {
@@ -57,53 +52,12 @@ export namespace TilesetSamplesNext {
 
         const tileNames = ['parent', 'll', 'lr', 'ur', 'ul'];
 
-        const buildings = tileOptions.map(opt =>
-            createBuildings(opt.buildingOptions)
+        const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
+            tileOptions
         );
 
-        const batchTables = buildings.map(building =>
-            generateBuildingBatchTable(building)
-        );
-
-        const batchedMeshes = buildings.map((building, i) => {
-            const transform = tileOptions[i].transform;
-            return Mesh.batch(
-                FeatureTableUtils.createMeshes(transform, building, false)
-            );
-        });
-
-        // remove explicit ID from batchTable, it's not used in the
-        // feature metadata gltf extension
-        batchTables.forEach(table => delete table.id);
-
-        const gltfs = batchedMeshes.map(mesh =>
-            createGltf({ mesh: mesh, useBatchIds: false })
-        ) as Gltf[];
-
-        gltfs.forEach((gltf, i) => {
-            const batchTable = batchTables[i];
-
-            FeatureMetadata.updateExtensionUsed(gltf);
-            FeatureMetadata.addFeatureTable(gltf, {
-                featureCount: batchTable.Longitude.length,
-                properties: {
-                    Longitude: { values: batchTable.Longitude },
-                    Latitude: { values: batchTable.Latitude },
-                    Height: { values: batchTable.Height }
-                }
-            });
-
-            const primitive = gltf.meshes[0].primitives[0];
-            FeatureMetadata.addFeatureLayer(primitive, {
-                featureTable: 0,
-                vertexAttribute: {
-                    implicit: {
-                        increment: 1,
-                        start: 0
-                    }
-                }
-            });
-        });
+        const batchTables = result.batchTables;
+        const gltfs = result.gltfs;
 
         const ext = args.useGlb ? '.glb' : '.gltf';
         const tilesetJson = {
@@ -182,6 +136,8 @@ export namespace TilesetSamplesNext {
     }
 
     export async function createTilesetEmptyRoot(args: GeneratorArgs) {
+        const ext = args.useGlb ? '.glb' : '.gltf';
+
         const tileOptions = [
             llTileOptions,
             lrTileOptions,
@@ -191,57 +147,13 @@ export namespace TilesetSamplesNext {
 
         const tileNames = ['ll', 'lr', 'ur', 'ul'];
 
-        const buildings = tileOptions.map(opt =>
-            createBuildings(opt.buildingOptions)
+        const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
+            tileOptions
         );
 
-        const batchTables = buildings.map(building =>
-            generateBuildingBatchTable(building)
-        );
+        const gltfs = result.gltfs;
 
-        const batchedMeshes = buildings.map((building, i) => {
-            const transform = tileOptions[i].transform;
-            return Mesh.batch(
-                FeatureTableUtils.createMeshes(transform, building, false)
-            );
-        });
-
-        // remove explicit ID from batchTable, it's not used in the
-        // feature metadata gltf extension
-        batchTables.forEach(table => delete table.id);
-
-        const gltfs = batchedMeshes.map(mesh =>
-            createGltf({ mesh: mesh, useBatchIds: false })
-        ) as Gltf[];
-
-        gltfs.forEach((gltf, i) => {
-            const batchTable = batchTables[i];
-
-            FeatureMetadata.updateExtensionUsed(gltf);
-            FeatureMetadata.addFeatureTable(gltf, {
-                featureCount: batchTable.Longitude.length,
-                properties: {
-                    Longitude: { values: batchTable.Longitude },
-                    Latitude: { values: batchTable.Latitude },
-                    Height: { values: batchTable.Height }
-                }
-            });
-
-            const primitive = gltf.meshes[0].primitives[0];
-            FeatureMetadata.addFeatureLayer(primitive, {
-                featureTable: 0,
-                vertexAttribute: {
-                    implicit: {
-                        increment: 1,
-                        start: 0
-                    }
-                }
-            });
-        });
-
-        const ext = args.useGlb ? '.glb' : '.gltf';
-
-        var tilesetJson = {
+        const tilesetJson = {
             asset: {
                 version: tilesNextTilesetJsonVersion
             },
@@ -415,73 +327,19 @@ export namespace TilesetSamplesNext {
             }
         };
 
-        const buildings = tileOptions.map(opt =>
-            createBuildings(opt.buildingOptions)
+        const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
+            tileOptions
         );
 
-        const batchTables = buildings.map(building =>
-            generateBuildingBatchTable(building)
-        );
+        const gltfs = result.gltfs;
 
-        const batchedMeshes = buildings.map((building, i) => {
-            const transform = tileOptions[i].transform;
-            return Mesh.batch(
-                FeatureTableUtils.createMeshes(transform, building, false)
-            );
-        });
-
-        // remove explicit ID from batchTable, it's not used in the
-        // feature metadata gltf extension
-        batchTables.forEach(table => delete table.id);
-
-        const gltfs = batchedMeshes.map(mesh =>
-            createGltf({ mesh: mesh, useBatchIds: false })
-        ) as Gltf[];
-
-        gltfs.forEach((gltf, i) => {
-            const batchTable = batchTables[i];
-
-            FeatureMetadata.updateExtensionUsed(gltf);
-            FeatureMetadata.addFeatureTable(gltf, {
-                featureCount: batchTable.Longitude.length,
-                properties: {
-                    Longitude: { values: batchTable.Longitude },
-                    Latitude: { values: batchTable.Latitude },
-                    Height: { values: batchTable.Height }
-                }
-            });
-
-            const primitive = gltf.meshes[0].primitives[0];
-            FeatureMetadata.addFeatureLayer(primitive, {
-                featureTable: 0,
-                vertexAttribute: {
-                    implicit: {
-                        increment: 1,
-                        start: 0
-                    }
-                }
-            });
-        });
-
-        await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip),
-            await saveJson(
-                tileset2Path,
-                tileset2Json,
-                args.prettyJson,
-                args.gzip
-            ),
-            await saveJson(
-                tileset3Path,
-                tileset3Json,
-                args.prettyJson,
-                args.gzip
-            );
-
-        const fullPath = path.join(rootDir, 'TilesetOfTilesets');
+        await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
+        await saveJson(tileset2Path, tileset2Json, args.prettyJson, args.gzip);
+        await saveJson(tileset3Path, tileset3Json, args.prettyJson, args.gzip);
         for (let i = 0; i < gltfs.length; ++i) {
             const gltf = gltfs[i];
             const tileFilename = tileNames[i] + ext;
-            await writeTile(fullPath, tileFilename, gltf, args);
+            await writeTile(tilesetDirectory, tileFilename, gltf, args);
         }
     }
 
@@ -730,6 +588,13 @@ export namespace TilesetSamplesNext {
             ulTileOptions
         ];
 
+        const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
+            tileOptions
+        );
+
+        const gltfs = result.gltfs;
+        const batchTables = result.batchTables;
+
         const tilesetJson = {
             asset: {
                 version: tilesNextTilesetJsonVersion
@@ -817,53 +682,6 @@ export namespace TilesetSamplesNext {
             }
         };
 
-        const buildings = tileOptions.map(opt =>
-            createBuildings(opt.buildingOptions)
-        );
-
-        const batchTables = buildings.map(building =>
-            generateBuildingBatchTable(building)
-        );
-
-        const batchedMeshes = buildings.map((building, i) => {
-            const transform = tileOptions[i].transform;
-            return Mesh.batch(
-                FeatureTableUtils.createMeshes(transform, building, false)
-            );
-        });
-
-        // remove explicit ID from batchTable, it's not used in the
-        // feature metadata gltf extension
-        batchTables.forEach(table => delete table.id);
-
-        const gltfs = batchedMeshes.map(mesh =>
-            createGltf({ mesh: mesh, useBatchIds: false })
-        ) as Gltf[];
-
-        gltfs.forEach((gltf, i) => {
-            const batchTable = batchTables[i];
-
-            FeatureMetadata.updateExtensionUsed(gltf);
-            FeatureMetadata.addFeatureTable(gltf, {
-                featureCount: batchTable.Longitude.length,
-                properties: {
-                    Longitude: { values: batchTable.Longitude },
-                    Latitude: { values: batchTable.Latitude },
-                    Height: { values: batchTable.Height }
-                }
-            });
-
-            const primitive = gltf.meshes[0].primitives[0];
-            FeatureMetadata.addFeatureLayer(primitive, {
-                featureTable: 0,
-                vertexAttribute: {
-                    implicit: {
-                        increment: 1,
-                        start: 0
-                    }
-                }
-            });
-        });
 
         tilesetJson.properties = getProperties(batchTables);
         await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
@@ -874,7 +692,117 @@ export namespace TilesetSamplesNext {
         }
     }
 
-    export async function createTilesetReplacement1(args: GeneratorArgs) {}
+    export async function createTilesetReplacement1(args: GeneratorArgs) {
+        // No children have content, but all grandchildren have content. Root uses replacement refinement.
+        // C - content
+        // E - empty
+        //          C
+        //      E       E
+        //    C   C   C   C
+        const ext = args.useGlb ? '.glb' : '.gltf';
+        const tilesetName = 'TilesetReplacement1';
+        const tilesetDirectory = path.join(rootDir, tilesetName);
+        const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+        const tileNames = ['parent', 'll', 'lr', 'ur', 'ul'];
+        const tileOptions = [
+            parentTileOptions,
+            llTileOptions,
+            lrTileOptions,
+            urTileOptions,
+            ulTileOptions
+        ];
+
+        const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
+            tileOptions
+        );
+
+        const gltfs = result.gltfs;
+        const batchTables = result.batchTables;
+
+        const tilesetJson = {
+            asset: {
+                version: tilesNextTilesetJsonVersion
+            },
+            properties: undefined,
+            geometricError: largeGeometricError,
+            root: {
+                boundingVolume: {
+                    region: parentRegion
+                },
+                geometricError: smallGeometricError,
+                refine: 'REPLACE',
+                content: {
+                    uri: 'parent' + ext,
+                    boundingVolume: {
+                        region: parentContentRegion
+                    }
+                },
+                children: [
+                    {
+                        boundingVolume: {
+                            region: childrenRegion
+                        },
+                        geometricError: smallGeometricError,
+                        refine: 'ADD',
+                        children: [
+                            {
+                                boundingVolume: {
+                                    region: llRegion
+                                },
+                                geometricError: 0.0,
+                                content: {
+                                    uri: 'll' + ext
+                                }
+                            },
+                            {
+                                boundingVolume: {
+                                    region: urRegion
+                                },
+                                geometricError: 0.0,
+                                content: {
+                                    uri: 'ur' + ext
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        boundingVolume: {
+                            region: childrenRegion
+                        },
+                        geometricError: smallGeometricError,
+                        refine: 'ADD',
+                        children: [
+                            {
+                                boundingVolume: {
+                                    region: lrRegion
+                                },
+                                geometricError: 0.0,
+                                content: {
+                                    uri: 'lr' + ext
+                                }
+                            },
+                            {
+                                boundingVolume: {
+                                    region: ulRegion
+                                },
+                                geometricError: 0.0,
+                                content: {
+                                    uri: 'ul' + ext
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
+        for (let i = 0; i < gltfs.length; ++i) {
+            const gltf = gltfs[i];
+            const tileFilename = tileNames[i] + ext;
+            await writeTile(tilesetDirectory, tileFilename, gltf, args);
+        }
+    }
 
     export async function createTilesetReplacement2(args: GeneratorArgs) {}
 

@@ -158,7 +158,14 @@ export function createBuildingsTile(options) {
     });
 }
 
-export function generateBuildingBatchTable(buildings: Building[]) {
+export type BatchTable = {
+    id?: number[];
+    Longitude: number[];
+    Latitude: number[];
+    Height: number[];
+}
+
+export function generateBuildingBatchTable(buildings: Building[]): BatchTable {
     var buildingsLength = buildings.length;
     var batchTable = {
         id : new Array(buildingsLength),
