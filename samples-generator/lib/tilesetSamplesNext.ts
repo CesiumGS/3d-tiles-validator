@@ -37,7 +37,9 @@ import {
     smallBoxLocal,
     instancesGeometricError,
     instancesBoxLocal,
-    buildingsTransform
+    buildingsTransform,
+    longitudeExtent,
+    latitudeExtent
 } from './constants';
 import { Gltf } from './gltfType';
 import path = require('path');
@@ -1361,7 +1363,123 @@ export namespace TilesetSamplesNext {
 
     export async function createTilesetReplacementWithViewerRequestVolume(
         args: GeneratorArgs
-    ) {}
+    ) {
+        const ext = args.useGlb ? '.glb' : '.gltf';
+        const tilesetName = 'TilesetReplacementWithViewerRequestVolume';
+        const tilesetDirectory = path.join(rootDir, tilesetName);
+        const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+        const tileNames = ['parent', 'll', 'lr', 'ur', 'ul'];
+        const tileOptions = [
+            parentTileOptions,
+            llTileOptions,
+            lrTileOptions,
+            urTileOptions,
+            ulTileOptions
+        ];
+
+        const requestHeight = 50.0;
+        const childRequestRegion = [
+            longitude - longitudeExtent / 2.0,
+            latitude - latitudeExtent / 2.0,
+            longitude + longitudeExtent / 2.0,
+            latitude + latitudeExtent / 2.0,
+            0.0,
+            requestHeight
+        ];
+
+        const tilesetJson = {
+            asset: {
+                version: tilesNextTilesetJsonVersion
+            },
+            properties: undefined,
+            geometricError: largeGeometricError,
+            root: {
+                boundingVolume: {
+                    region: parentRegion
+                },
+                geometricError: largeGeometricError,
+                refine: 'REPLACE',
+                children: [
+                    {
+                        boundingVolume: {
+                            region: parentRegion
+                        },
+                        geometricError: smallGeometricError,
+                        refine: 'REPLACE',
+                        content: {
+                            uri: 'parent' + ext,
+                            boundingVolume: {
+                                region: parentContentRegion
+                            }
+                        },
+                        children: [
+                            {
+                                boundingVolume: {
+                                    region: llRegion
+                                },
+                                viewerRequestVolume: {
+                                    region: childRequestRegion
+                                },
+                                geometricError: 0.0,
+                                content: {
+                                    uri: 'll' + ext
+                                }
+                            },
+                            {
+                                boundingVolume: {
+                                    region: lrRegion
+                                },
+                                viewerRequestVolume: {
+                                    region: childRequestRegion
+                                },
+                                geometricError: 0.0,
+                                content: {
+                                    uri: 'lr' + ext
+                                }
+                            },
+                            {
+                                boundingVolume: {
+                                    region: urRegion
+                                },
+                                viewerRequestVolume: {
+                                    region: childRequestRegion
+                                },
+                                geometricError: 0.0,
+                                content: {
+                                    uri: 'ur' + ext
+                                }
+                            },
+                            {
+                                boundingVolume: {
+                                    region: ulRegion
+                                },
+                                viewerRequestVolume: {
+                                    region: childRequestRegion
+                                },
+                                geometricError: 0.0,
+                                content: {
+                                    uri: 'ul' + ext
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
+            tileOptions
+        );
+
+        const gltfs = result.gltfs;
+
+        await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
+        for (let i = 0; i < gltfs.length; ++i) {
+            const gltf = gltfs[i];
+            const tileFilename = tileNames[i] + ext;
+            await writeTile(tilesetDirectory, tileFilename, gltf, args);
+        }
+    }
 
     export async function createTilesetSubtreeExpiration(args: GeneratorArgs) {}
 
