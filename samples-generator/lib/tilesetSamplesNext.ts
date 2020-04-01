@@ -42,6 +42,7 @@ export namespace TilesetSamplesNext {
     const rootDir = path.join('output', 'Tilesets');
 
     export async function createTileset(args: GeneratorArgs) {
+        const tilesetDirectory = path.join(rootDir, 'Tilesets');
         const tileOptions = [
             parentTileOptions,
             llTileOptions,
@@ -126,12 +127,12 @@ export namespace TilesetSamplesNext {
             }
         };
 
-        const fullPath = path.join(rootDir, 'Tileset');
-        await writeTileset(fullPath, tilesetJson as any, args);
+        tilesetJson.properties = getProperties(batchTables);
+        await writeTileset(tilesetDirectory, tilesetJson as any, args);
         for (let i = 0; i < gltfs.length; ++i) {
             const gltf = gltfs[i];
             const tileFilename = tileNames[i] + ext;
-            await writeTile(fullPath, tileFilename, gltf, args);
+            await writeTile(tilesetDirectory, tileFilename, gltf, args);
         }
     }
 
@@ -796,6 +797,7 @@ export namespace TilesetSamplesNext {
             }
         };
 
+        tilesetJson.properties = getProperties(batchTables);
         await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
         for (let i = 0; i < gltfs.length; ++i) {
             const gltf = gltfs[i];
@@ -804,7 +806,94 @@ export namespace TilesetSamplesNext {
         }
     }
 
-    export async function createTilesetReplacement2(args: GeneratorArgs) {}
+    export async function createTilesetReplacement2(args: GeneratorArgs) {
+        //          C
+        //          E
+        //        C   E
+        //            C (smaller geometric error)
+        //
+        const ext = args.useGlb ? '.glb' : '.gltf';
+        const tilesetName = 'TilesetReplacement2';
+        const tilesetDirectory = path.join(rootDir, tilesetName);
+        const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+        const tileNames = ['parent', 'll', 'ur'];
+        const tileOptions = [parentTileOptions, llTileOptions, urTileOptions];
+
+        const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
+            tileOptions
+        );
+
+        const gltfs = result.gltfs;
+        const batchTables = result.batchTables;
+    
+        const tilesetJson = {
+            asset : {
+                version : tilesNextTilesetJsonVersion
+            },
+            properties : undefined,
+            geometricError : largeGeometricError,
+            root : {
+                boundingVolume : {
+                    region : parentRegion
+                },
+                geometricError : smallGeometricError,
+                refine : 'REPLACE',
+                content : {
+                    uri : 'parent' + ext,
+                    boundingVolume : {
+                        region : parentContentRegion
+                    }
+                },
+                children : [
+                    {
+                        boundingVolume : {
+                            region : childrenRegion
+                        },
+                        geometricError : smallGeometricError,
+                        refine : 'ADD',
+                        children : [
+                            {
+                                boundingVolume : {
+                                    region : urRegion
+                                },
+                                geometricError : 7.0,
+                                refine : 'REPLACE',
+                                children : [
+                                    {
+                                        boundingVolume : {
+                                            region : urRegion
+                                        },
+                                        geometricError : 0.0,
+                                        content : {
+                                            uri : 'ur' + ext
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                boundingVolume : {
+                                    region : llRegion
+                                },
+                                geometricError : 0.0,
+                                content : {
+                                    uri : 'll' + ext
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        tilesetJson.properties = getProperties(batchTables);
+        await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
+        for (let i = 0; i < gltfs.length; ++i) {
+            const gltf = gltfs[i];
+            const tileFilename = tileNames[i] + ext;
+            await writeTile(tilesetDirectory, tileFilename, gltf, args);
+        }
+
+    }
 
     export async function createTilesetReplacement3(args: GeneratorArgs) {}
 
