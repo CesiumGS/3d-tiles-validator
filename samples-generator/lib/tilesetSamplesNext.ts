@@ -1,5 +1,8 @@
 const Cesium = require('cesium');
+const Cartesian3 = Cesium.Cartesian3;
+const CesiumMath = Cesium.Math;
 const Matrix4 = Cesium.Matrix4;
+const Quaternion = Cesium.Quaternion;
 const gltfPipeline = require('gltf-pipeline');
 const glbToGltf = gltfPipeline.glbToGltf;
 import fsExtra = require('fs-extra');
@@ -26,7 +29,15 @@ import {
     longitude,
     instancesModelSize,
     smallRegion,
-    gltfConversionOptions
+    gltfConversionOptions,
+    instancesTileWidth,
+    instancesLength,
+    instancesUri,
+    buildingTemplate,
+    smallBoxLocal,
+    instancesGeometricError,
+    instancesBoxLocal,
+    buildingsTransform
 } from './constants';
 import { Gltf } from './gltfType';
 import path = require('path');
@@ -35,6 +46,16 @@ import saveJson = require('./saveJson');
 import { modifyImageUri } from './modifyImageUri';
 import { getGltfFromGlbUri } from './gltfFromUri';
 import { TilesetUtilsNext } from './tilesetUtilsNext';
+import { InstanceTileUtils } from './instanceUtilsNext';
+import { addBinaryBuffers } from './gltfUtil';
+import { createEXTMeshInstancingExtension } from './createEXTMeshInstancing';
+import { FeatureMetadata } from './featureMetadata';
+import { FeatureTableUtils } from './featureMetatableUtilsNext';
+import { createBuildings } from './createBuilding';
+import { Mesh } from './Mesh';
+import { addBatchedMeshToGltf } from './addMeshToGltf';
+import { generateBuildingBatchTable } from './createBuildingsTile';
+import createGltf = require('./createGltf');
 const getProperties = require('./getProperties');
 
 export namespace TilesetSamplesNext {
@@ -682,7 +703,6 @@ export namespace TilesetSamplesNext {
             }
         };
 
-
         tilesetJson.properties = getProperties(batchTables);
         await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
         for (let i = 0; i < gltfs.length; ++i) {
@@ -824,58 +844,58 @@ export namespace TilesetSamplesNext {
 
         const gltfs = result.gltfs;
         const batchTables = result.batchTables;
-    
+
         const tilesetJson = {
-            asset : {
-                version : tilesNextTilesetJsonVersion
+            asset: {
+                version: tilesNextTilesetJsonVersion
             },
-            properties : undefined,
-            geometricError : largeGeometricError,
-            root : {
-                boundingVolume : {
-                    region : parentRegion
+            properties: undefined,
+            geometricError: largeGeometricError,
+            root: {
+                boundingVolume: {
+                    region: parentRegion
                 },
-                geometricError : smallGeometricError,
-                refine : 'REPLACE',
-                content : {
-                    uri : 'parent' + ext,
-                    boundingVolume : {
-                        region : parentContentRegion
+                geometricError: smallGeometricError,
+                refine: 'REPLACE',
+                content: {
+                    uri: 'parent' + ext,
+                    boundingVolume: {
+                        region: parentContentRegion
                     }
                 },
-                children : [
+                children: [
                     {
-                        boundingVolume : {
-                            region : childrenRegion
+                        boundingVolume: {
+                            region: childrenRegion
                         },
-                        geometricError : smallGeometricError,
-                        refine : 'ADD',
-                        children : [
+                        geometricError: smallGeometricError,
+                        refine: 'ADD',
+                        children: [
                             {
-                                boundingVolume : {
-                                    region : urRegion
+                                boundingVolume: {
+                                    region: urRegion
                                 },
-                                geometricError : 7.0,
-                                refine : 'REPLACE',
-                                children : [
+                                geometricError: 7.0,
+                                refine: 'REPLACE',
+                                children: [
                                     {
-                                        boundingVolume : {
-                                            region : urRegion
+                                        boundingVolume: {
+                                            region: urRegion
                                         },
-                                        geometricError : 0.0,
-                                        content : {
-                                            uri : 'ur' + ext
+                                        geometricError: 0.0,
+                                        content: {
+                                            uri: 'ur' + ext
                                         }
                                     }
                                 ]
                             },
                             {
-                                boundingVolume : {
-                                    region : llRegion
+                                boundingVolume: {
+                                    region: llRegion
                                 },
-                                geometricError : 0.0,
-                                content : {
-                                    uri : 'll' + ext
+                                geometricError: 0.0,
+                                content: {
+                                    uri: 'll' + ext
                                 }
                             }
                         ]
@@ -891,7 +911,6 @@ export namespace TilesetSamplesNext {
             const tileFilename = tileNames[i] + ext;
             await writeTile(tilesetDirectory, tileFilename, gltf, args);
         }
-
     }
 
     export async function createTilesetReplacement3(args: GeneratorArgs) {
@@ -905,7 +924,13 @@ export namespace TilesetSamplesNext {
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
         const tileset2Path = path.join(tilesetDirectory, 'tileset2.json');
         const tileNames = ['parent', 'll', 'lr', 'ur', 'ul'];
-        const tileOptions = [parentTileOptions, llTileOptions, lrTileOptions, urTileOptions, ulTileOptions];
+        const tileOptions = [
+            parentTileOptions,
+            llTileOptions,
+            lrTileOptions,
+            urTileOptions,
+            ulTileOptions
+        ];
 
         const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
             tileOptions
@@ -913,86 +938,86 @@ export namespace TilesetSamplesNext {
 
         const gltfs = result.gltfs;
         const batchTables = result.batchTables;
-    
+
         const tilesetJson = {
-            asset : {
-                version : tilesNextTilesetJsonVersion
+            asset: {
+                version: tilesNextTilesetJsonVersion
             },
-            properties : undefined,
-            geometricError : largeGeometricError,
-            root : {
-                boundingVolume : {
-                    region : parentRegion
+            properties: undefined,
+            geometricError: largeGeometricError,
+            root: {
+                boundingVolume: {
+                    region: parentRegion
                 },
-                geometricError : smallGeometricError,
-                refine : 'REPLACE',
-                content : {
-                    uri : 'parent' + ext,
-                    boundingVolume : {
-                        region : parentContentRegion
+                geometricError: smallGeometricError,
+                refine: 'REPLACE',
+                content: {
+                    uri: 'parent' + ext,
+                    boundingVolume: {
+                        region: parentContentRegion
                     }
                 },
-                children : [
+                children: [
                     {
-                        boundingVolume : {
-                            region : childrenRegion
+                        boundingVolume: {
+                            region: childrenRegion
                         },
-                        geometricError : smallGeometricError,
-                        refine : 'ADD',
-                        content : {
-                            uri : 'tileset2.json'
+                        geometricError: smallGeometricError,
+                        refine: 'ADD',
+                        content: {
+                            uri: 'tileset2.json'
                         }
                     }
                 ]
             }
         };
-    
+
         const tileset2Json = {
-            asset : {
-                version : tilesNextTilesetJsonVersion
+            asset: {
+                version: tilesNextTilesetJsonVersion
             },
-            geometricError : smallGeometricError,
-            root : {
-                boundingVolume : {
-                    region : childrenRegion
+            geometricError: smallGeometricError,
+            root: {
+                boundingVolume: {
+                    region: childrenRegion
                 },
-                geometricError : smallGeometricError,
-                refine : 'REPLACE',
-                children : [
+                geometricError: smallGeometricError,
+                refine: 'REPLACE',
+                children: [
                     {
-                        boundingVolume : {
-                            region : llRegion
+                        boundingVolume: {
+                            region: llRegion
                         },
-                        geometricError : 0.0,
-                        content : {
-                            uri : 'll' + ext
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'll' + ext
                         }
                     },
                     {
-                        boundingVolume : {
-                            region : lrRegion
+                        boundingVolume: {
+                            region: lrRegion
                         },
-                        geometricError : 0.0,
-                        content : {
-                            uri : 'lr' + ext
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'lr' + ext
                         }
                     },
                     {
-                        boundingVolume : {
-                            region : urRegion
+                        boundingVolume: {
+                            region: urRegion
                         },
-                        geometricError : 0.0,
-                        content : {
-                            uri : 'ur' + ext
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'ur' + ext
                         }
                     },
                     {
-                        boundingVolume : {
-                            region : ulRegion
+                        boundingVolume: {
+                            region: ulRegion
                         },
-                        geometricError : 0.0,
-                        content : {
-                            uri : 'ul' + ext
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'ul' + ext
                         }
                     }
                 ]
@@ -1009,7 +1034,189 @@ export namespace TilesetSamplesNext {
         }
     }
 
-    export async function createTilesetWithTransforms(args: GeneratorArgs) {}
+    export async function createTilesetWithTransforms(args: GeneratorArgs) {
+        const ext = args.useGlb ? '.glb' : '.gltf';
+        const tilesetName = 'TilesetWithTransforms';
+        const tilesetDirectory = path.join(rootDir, tilesetName);
+        const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+        const buildingsTileName = 'buildings' + ext;
+        const buildingsTilePath = path.join(
+            tilesetDirectory,
+            buildingsTileName
+        );
+        const instancesTileName = 'instances' + ext;
+        const instancesTilePath = path.join(
+            tilesetDirectory,
+            instancesTileName
+        );
+        const rootTransform = Matrix4.pack(buildingsTransform, new Array(16));
+        const rotation = Quaternion.fromAxisAngle(
+            Cartesian3.UNIT_Z,
+            CesiumMath.PI_OVER_FOUR
+        );
+        const translation = new Cartesian3(0, 0, 5.0);
+        const scale = new Cartesian3(0.5, 0.5, 0.5);
+        const childMatrix = Matrix4.fromTranslationQuaternionRotationScale(
+            translation,
+            rotation,
+            scale
+        );
+        const childTransform = Matrix4.pack(childMatrix, new Array(16));
+
+        const buildingsOptions = {
+            buildingOptions: buildingTemplate,
+            transform: Matrix4.IDENTITY
+        };
+
+        const tilesetJson = {
+            asset: {
+                version: tilesNextTilesetJsonVersion
+            },
+            properties: undefined,
+            geometricError: smallGeometricError,
+            root: {
+                boundingVolume: {
+                    box: smallBoxLocal
+                },
+                transform: rootTransform,
+                geometricError: instancesGeometricError,
+                refine: 'ADD',
+                content: {
+                    uri: buildingsTileName
+                },
+                children: [
+                    {
+                        boundingVolume: {
+                            box: instancesBoxLocal
+                        },
+                        transform: childTransform,
+                        geometricError: 0.0,
+                        content: {
+                            uri: instancesTileName
+                        }
+                    }
+                ]
+            }
+        };
+
+        const instancedTile = await getGltfFromGlbUri(
+            instancesUri,
+            gltfConversionOptions
+        );
+
+        //
+        // i3dm (gltf)
+        //
+
+        const instancedPositions = InstanceTileUtils.getPositions(
+            instancesLength,
+            instancesTileWidth,
+            instancesModelSize,
+            Matrix4.IDENTITY
+        );
+
+        // add EXT_mesh_gpu_instancing
+        const positionAccessorIndex = instancedTile.accessors.length;
+        addBinaryBuffers(instancedTile, instancedPositions);
+        createEXTMeshInstancingExtension(
+            instancedTile,
+            instancedTile.nodes[0],
+            {
+                attributes: {
+                    TRANSLATION: positionAccessorIndex
+                }
+            }
+        );
+
+        // CESIUM_3dtiles_feature_metadata
+        const prim = instancedTile.meshes[0].primitives[0];
+        FeatureMetadata.updateExtensionUsed(instancedTile);
+        FeatureMetadata.addFeatureLayer(prim, {
+            featureTable: 0,
+            vertexAttribute: {
+                implicit: {
+                    increment: 0,
+                    start: 0
+                }
+            }
+        });
+
+        FeatureMetadata.addFeatureTable(instancedTile, {
+            featureCount: instancesLength,
+            properties: {
+                Height: {
+                    values: new Array(instancesLength).fill(instancesModelSize)
+                }
+            }
+        });
+
+        //
+        // b3dm (gltf)
+        //
+        const buildings = createBuildings(buildingsOptions.buildingOptions);
+        const buildingTable = generateBuildingBatchTable(buildings);
+        delete buildingTable.id;
+        const batchedMesh = Mesh.batch(
+            FeatureTableUtils.createMeshes(buildingsTransform, buildings, false)
+        );
+
+        const gltfOptions = {
+            mesh: batchedMesh,
+            useBatchIds: false,
+            relativeToCenter: true,
+            deprecated: false,
+            use3dTilesNext: true,
+            featureTableJson: undefined
+        };
+
+        const buildingTile = createGltf(gltfOptions) as Gltf;
+        FeatureMetadata.updateExtensionUsed(buildingTile);
+        buildingTile.meshes[0].primitives[0].extensions = {
+            CESIUM_3dtiles_feature_metadata: {
+                featureLayers: [
+                    {
+                        featureTable: 0,
+                        vertexAttribute: {
+                            implicit: {
+                                increment: 1,
+                                start: 0
+                            }
+                        }
+                    }
+                ]
+            }
+        };
+
+        buildingTile.extensions = {
+            CESIUM_3dtiles_feature_metadata: {
+                featureTables: [
+                    {
+                        featureCount: buildingTable.Height.length,
+                        properties: {
+                            Height: { values: buildingTable.Height },
+                            Longitude: { values: buildingTable.Longitude },
+                            Latitude: { values: buildingTable.Latitude }
+                        }
+                    }
+                ]
+            }
+        };
+
+        tilesetJson.properties = getProperties(buildingTable);
+        await writeTileset(tilesetDirectory, tilesetJson as any, args);
+        await writeTile(
+            tilesetDirectory,
+            buildingsTileName,
+            buildingTile,
+            args
+        );
+        await writeTile(
+            tilesetDirectory,
+            instancesTileName,
+            instancedTile,
+            args
+        );
+    }
 
     export async function createTilesetWithViewerRequestVolume(
         args: GeneratorArgs
