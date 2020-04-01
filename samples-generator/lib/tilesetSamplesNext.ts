@@ -41,7 +41,7 @@ import {
 } from './constants';
 import { Gltf } from './gltfType';
 import path = require('path');
-import { writeTileset, writeTile } from './ioUtil';
+import { writeTileset, writeTile, writeTilesetAndTile } from './ioUtil';
 import saveJson = require('./saveJson');
 import { modifyImageUri } from './modifyImageUri';
 import { getGltfFromGlbUri } from './gltfFromUri';
@@ -56,6 +56,7 @@ import { Mesh } from './Mesh';
 import { addBatchedMeshToGltf } from './addMeshToGltf';
 import { generateBuildingBatchTable } from './createBuildingsTile';
 import createGltf = require('./createGltf');
+import { createPointCloudTile } from './createPointCloudTile';
 const getProperties = require('./getProperties');
 
 export namespace TilesetSamplesNext {
@@ -1220,7 +1221,143 @@ export namespace TilesetSamplesNext {
 
     export async function createTilesetWithViewerRequestVolume(
         args: GeneratorArgs
-    ) {}
+    ) {
+        // Create a tileset with one root tile and four child tiles
+        const ext = args.useGlb ? '.glb' : '.gltf';
+        const tilesetName = 'TilesetWithViewerRequestVolume';
+        const tilesetDirectory = path.join(rootDir, tilesetName);
+        const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+        const tileNames = ['ll', 'lr', 'ur', 'ul'];
+        const tileOptions = [
+            llTileOptions,
+            lrTileOptions,
+            urTileOptions,
+            ulTileOptions
+        ];
+        const pointCloudTileName = 'points' + ext;
+        const pointCloudTilePath = path.join(
+            tilesetDirectory,
+            pointCloudTileName
+        );
+
+        const pointsLength = 1000;
+        const pointCloudTileWidth = 20.0;
+        const pointCloudRadius = pointCloudTileWidth / 2.0;
+        const pointCloudSphereLocal = [0.0, 0.0, 0.0, pointCloudRadius];
+        const pointCloudHeight = pointCloudRadius + 5.0;
+        const pointCloudMatrix = wgs84Transform(
+            longitude,
+            latitude,
+            pointCloudHeight
+        );
+        const pointCloudTransform = Matrix4.pack(
+            pointCloudMatrix,
+            new Array(16)
+        );
+        const pointCloudViewerRequestSphere = [
+            0.0,
+            0.0,
+            0.0,
+            pointCloudTileWidth * 50.0
+        ]; // Point cloud only become visible when you are inside the request volume
+
+        const pointCloudOptions = {
+            tileWidth: pointCloudTileWidth,
+            pointsLength: pointsLength,
+            transform: Matrix4.IDENTITY,
+            shape: 'sphere',
+            use3dTilesNext: true
+        };
+
+        const tilesetJson = {
+            asset: {
+                version: tilesNextTilesetJsonVersion
+            },
+            geometricError: largeGeometricError,
+            root: {
+                boundingVolume: {
+                    region: childrenRegion
+                },
+                geometricError: smallGeometricError,
+                refine: 'ADD',
+                children: [
+                    {
+                        boundingVolume: {
+                            region: llRegion
+                        },
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'll' + ext
+                        }
+                    },
+                    {
+                        boundingVolume: {
+                            region: lrRegion
+                        },
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'lr' + ext
+                        }
+                    },
+                    {
+                        boundingVolume: {
+                            region: urRegion
+                        },
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'ur' + ext
+                        }
+                    },
+                    {
+                        boundingVolume: {
+                            region: ulRegion
+                        },
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'ul' + ext
+                        }
+                    },
+                    {
+                        transform: pointCloudTransform,
+                        viewerRequestVolume: {
+                            sphere: pointCloudViewerRequestSphere
+                        },
+                        boundingVolume: {
+                            sphere: pointCloudSphereLocal
+                        },
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'points' + ext
+                        }
+                    }
+                ]
+            }
+        };
+
+        // TODO: Abstract the point cloud creation logic into smaller functions
+        //       so the `use-3dtiles-next` flag is unnecessary and this code
+        //       matches compositeSamplesNext / instanceSamplesNext
+        const gltf = createPointCloudTile(pointCloudOptions).gltf;
+        await writeTilesetAndTile(
+            tilesetDirectory,
+            pointCloudTileName,
+            tilesetJson as any,
+            gltf,
+            args
+        );
+
+        const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
+            tileOptions
+        );
+
+        const gltfs = result.gltfs;
+
+        for (let i = 0; i < gltfs.length; ++i) {
+            const gltf = gltfs[i];
+            const tileFilename = tileNames[i] + ext;
+            await writeTile(tilesetDirectory, tileFilename, gltf, args);
+        }
+    }
 
     export async function createTilesetReplacementWithViewerRequestVolume(
         args: GeneratorArgs
