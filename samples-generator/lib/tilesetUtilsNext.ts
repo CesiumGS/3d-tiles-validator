@@ -72,6 +72,18 @@ export namespace TilesetUtilsNext {
                     }
                 }
             });
+
+            const batchedMesh = batchedMeshes[i];
+            const rtcCenter = Cartesian3.pack(batchedMesh.center, new Array(3));
+
+            // apply RTC
+            delete gltf.nodes[0].mesh;
+            gltf.nodes[0].children = [1];
+            gltf.nodes.push({
+                name: 'RTC_CENTER',
+                translation: rtcCenter,
+                mesh: 0
+            });
         });
 
         return {

@@ -61,13 +61,14 @@ import { generateBuildingBatchTable } from './createBuildingsTile';
 import createGltf = require('./createGltf');
 import { createPointCloudTile } from './createPointCloudTile';
 import { TilesNextExtension } from './tilesNextExtension';
+import { TilesetJson } from './tilesetJson';
 const getProperties = require('./getProperties');
 
 export namespace TilesetSamplesNext {
     const rootDir = path.join('output', 'Tilesets');
 
     export async function createTileset(args: GeneratorArgs) {
-        const tilesetDirectory = path.join(rootDir, 'Tilesets');
+        const tilesetDirectory = path.join(rootDir, 'Tileset');
         const tileOptions = [
             parentTileOptions,
             llTileOptions,
@@ -85,8 +86,11 @@ export namespace TilesetSamplesNext {
         const batchTables = result.batchTables;
         const gltfs = result.gltfs;
 
-        const ext = args.useGlb ? '.glb' : '.gltf';
-        const tilesetJson = {
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
+        const tilesetJson: TilesetJson = {
             asset: {
                 version: tilesNextTilesetJsonVersion,
                 tilesetVersion: '1.2.3'
@@ -153,7 +157,7 @@ export namespace TilesetSamplesNext {
         };
 
         tilesetJson.properties = getProperties(batchTables);
-        await writeTileset(tilesetDirectory, tilesetJson as any, args);
+        await writeTileset(tilesetDirectory, tilesetJson, args);
         for (let i = 0; i < gltfs.length; ++i) {
             const gltf = gltfs[i];
             const tileFilename = tileNames[i] + ext;
@@ -1610,28 +1614,40 @@ export namespace TilesetSamplesNext {
         const tilesetName = 'TilesetPoints';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
-        
+
         const pointsLength = 1000;
         const parentTileWidth = 10.0;
         const parentTileHalfWidth = parentTileWidth / 2.0;
         const parentGeometricError = 1.732 * parentTileWidth; // Diagonal of the point cloud box
-        const parentMatrix = wgs84Transform(longitude, latitude, parentTileHalfWidth);
+        const parentMatrix = wgs84Transform(
+            longitude,
+            latitude,
+            parentTileHalfWidth
+        );
         const parentTransform = Matrix4.pack(parentMatrix, new Array(16));
         const parentBoxLocal = [
-            0.0, 0.0, 0.0, // center
-            parentTileHalfWidth, 0.0, 0.0,   // width
-            0.0, parentTileHalfWidth, 0.0,   // depth
-            0.0, 0.0, parentTileHalfWidth    // height
+            0.0,
+            0.0,
+            0.0, // center
+            parentTileHalfWidth,
+            0.0,
+            0.0, // width
+            0.0,
+            parentTileHalfWidth,
+            0.0, // depth
+            0.0,
+            0.0,
+            parentTileHalfWidth // height
         ];
 
         const parentTile = createPointCloudTile({
-            tileWidth : parentTileWidth * 2.0,
-            pointsLength : pointsLength,
-            relativeToCenter : false,
-            use3dTilesNext : true,
+            tileWidth: parentTileWidth * 2.0,
+            pointsLength: pointsLength,
+            relativeToCenter: false,
+            use3dTilesNext: true,
             useGlb: args.useGlb
         }).gltf;
-    
+
         const childrenJson = [];
         const childTiles: Gltf[] = [];
         const childTileWidth = 5.0;
@@ -1647,52 +1663,64 @@ export namespace TilesetSamplesNext {
             [childTileHalfWidth, -childTileHalfWidth, childTileHalfWidth],
             [childTileHalfWidth, childTileHalfWidth, childTileHalfWidth]
         ];
-    
+
         for (let i = 0; i < 8; ++i) {
             const childCenter = childCenters[i];
-            const childTransform = Matrix4.fromTranslation(Cartesian3.unpack(childCenter));
-            childTiles.push(createPointCloudTile({
-                tileWidth : childTileWidth * 2.0,
-                transform : childTransform,
-                pointsLength : pointsLength,
-                relativeToCenter : false,
-                use3dTilesNext : true,
-                useGlb: args.useGlb
-            }).gltf as Gltf);
+            const childTransform = Matrix4.fromTranslation(
+                Cartesian3.unpack(childCenter)
+            );
+            childTiles.push(
+                createPointCloudTile({
+                    tileWidth: childTileWidth * 2.0,
+                    transform: childTransform,
+                    pointsLength: pointsLength,
+                    relativeToCenter: false,
+                    use3dTilesNext: true,
+                    useGlb: args.useGlb
+                }).gltf as Gltf
+            );
             const childBoxLocal = [
-                childCenter[0], childCenter[1], childCenter[2],
-                childTileHalfWidth, 0.0, 0.0,   // width
-                0.0, childTileHalfWidth, 0.0,   // depth
-                0.0, 0.0, childTileHalfWidth    // height
+                childCenter[0],
+                childCenter[1],
+                childCenter[2],
+                childTileHalfWidth,
+                0.0,
+                0.0, // width
+                0.0,
+                childTileHalfWidth,
+                0.0, // depth
+                0.0,
+                0.0,
+                childTileHalfWidth // height
             ];
             childrenJson.push({
-                boundingVolume : {
-                    box : childBoxLocal
+                boundingVolume: {
+                    box: childBoxLocal
                 },
-                geometricError : 0.0,
-                content : {
-                    uri : i + ext
+                geometricError: 0.0,
+                content: {
+                    uri: i + ext
                 }
             });
         }
-    
+
         const tilesetJson = {
-            asset : {
-                version : tilesNextTilesetJsonVersion
+            asset: {
+                version: tilesNextTilesetJsonVersion
             },
-            properties : undefined,
-            geometricError : parentGeometricError,
-            root : {
-                boundingVolume : {
-                    box : parentBoxLocal
+            properties: undefined,
+            geometricError: parentGeometricError,
+            root: {
+                boundingVolume: {
+                    box: parentBoxLocal
                 },
-                transform : parentTransform,
-                geometricError : childGeometricError,
-                refine : 'ADD',
-                content : {
-                    uri : 'parent' + ext
+                transform: parentTransform,
+                geometricError: childGeometricError,
+                refine: 'ADD',
+                content: {
+                    uri: 'parent' + ext
                 },
-                children : childrenJson
+                children: childrenJson
             }
         };
 
@@ -1700,37 +1728,49 @@ export namespace TilesetSamplesNext {
         await writeTileset(tilesetDirectory, tilesetJson as any, args);
 
         for (let i = 0; i < 8; ++i) {
-            await writeTile(tilesetDirectory, i + ext, childTiles[i] as Gltf, args);
+            await writeTile(
+                tilesetDirectory,
+                i + ext,
+                childTiles[i] as Gltf,
+                args
+            );
         }
     }
 
     export async function createTilesetUniform(args: GeneratorArgs) {
-        const ext = args.useGlb ? TilesNextExtension.Glb : TilesNextExtension.Gltf;
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
         const tilesetName = 'TilesetUniform';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
         const tileset2Path = path.join(tilesetDirectory, 'tileset2.json');
-    
+
         // Only subdivide the middle tile in level 1. Helps reduce tileset size.
         const subdivideCallback = (level: number, x: number, y: number) =>
             level === 0 || (level === 1 && x === 1 && y === 1);
-    
-        const results = TilesetUtilsNext.createUniformTileset(3, 3, ext, subdivideCallback);
+
+        const results = TilesetUtilsNext.createUniformTileset(
+            3,
+            3,
+            ext,
+            subdivideCallback
+        );
         const tileOptions = results.tileOptions as TileOptions[];
         const tileNames = results.tileNames;
         const tilesetJson: any = results.tilesetJson;
-    
+
         // Insert an external tileset
         const externalTile1 = clone(tilesetJson.root, true);
         delete externalTile1.transform;
         delete externalTile1.refine;
         delete externalTile1.children;
         externalTile1.content.uri = 'tileset2.json';
-    
+
         const externalTile2 = clone(tilesetJson.root, true);
         delete externalTile2.transform;
         delete externalTile2.content;
-    
+
         const tileset2Json = clone(tilesetJson, true);
         tileset2Json.root = externalTile2;
         tilesetJson.root.children = [externalTile1];

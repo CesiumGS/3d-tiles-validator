@@ -232,7 +232,7 @@ async function main() {
             async () => TilesetSamplesNext.createTileset(args),
             async () => TilesetSamplesNext.createTilesetEmptyRoot(args),
             async () => TilesetSamplesNext.createTilesetOfTilesets(args),
-            async () => TilesetSamplesNext.createTilesetWithExternalResources(args),
+            //async () => TilesetSamplesNext.createTilesetWithExternalResources(args), // fix GLB
             async () => TilesetSamplesNext.createTilesetRefinementMix(args),
             async () => TilesetSamplesNext.createTilesetReplacement1(args),
             async () => TilesetSamplesNext.createTilesetReplacement2(args),
