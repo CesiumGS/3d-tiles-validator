@@ -1,4 +1,5 @@
 const Cesium = require('cesium');
+const clone = Cesium.clone;
 const Cartesian3 = Cesium.Cartesian3;
 const CesiumMath = Cesium.Math;
 const Matrix4 = Cesium.Matrix4;
@@ -39,7 +40,8 @@ import {
     instancesBoxLocal,
     buildingsTransform,
     longitudeExtent,
-    latitudeExtent
+    latitudeExtent,
+    TileOptions
 } from './constants';
 import { Gltf } from './gltfType';
 import path = require('path');
@@ -55,10 +57,10 @@ import { FeatureMetadata } from './featureMetadata';
 import { FeatureTableUtils } from './featureMetatableUtilsNext';
 import { createBuildings } from './createBuilding';
 import { Mesh } from './Mesh';
-import { addBatchedMeshToGltf } from './addMeshToGltf';
 import { generateBuildingBatchTable } from './createBuildingsTile';
 import createGltf = require('./createGltf');
 import { createPointCloudTile } from './createPointCloudTile';
+import { TilesNextExtension } from './tilesNextExtension';
 const getProperties = require('./getProperties');
 
 export namespace TilesetSamplesNext {
@@ -1602,7 +1604,152 @@ export namespace TilesetSamplesNext {
         }
     }
 
-    export async function createTilesetPoints(args: GeneratorArgs) {}
+    export async function createTilesetPoints(args: GeneratorArgs) {
+        // Create a tileset with one root tile and eight child tiles
+        const ext = args.useGlb ? '.glb' : '.gltf';
+        const tilesetName = 'TilesetPoints';
+        const tilesetDirectory = path.join(rootDir, tilesetName);
+        const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+        
+        const pointsLength = 1000;
+        const parentTileWidth = 10.0;
+        const parentTileHalfWidth = parentTileWidth / 2.0;
+        const parentGeometricError = 1.732 * parentTileWidth; // Diagonal of the point cloud box
+        const parentMatrix = wgs84Transform(longitude, latitude, parentTileHalfWidth);
+        const parentTransform = Matrix4.pack(parentMatrix, new Array(16));
+        const parentBoxLocal = [
+            0.0, 0.0, 0.0, // center
+            parentTileHalfWidth, 0.0, 0.0,   // width
+            0.0, parentTileHalfWidth, 0.0,   // depth
+            0.0, 0.0, parentTileHalfWidth    // height
+        ];
 
-    export async function createTilesetUniform(args: GeneratorArgs) {}
+        const parentTile = createPointCloudTile({
+            tileWidth : parentTileWidth * 2.0,
+            pointsLength : pointsLength,
+            relativeToCenter : false,
+            use3dTilesNext : true,
+            useGlb: args.useGlb
+        }).gltf;
+    
+        const childrenJson = [];
+        const childTiles: Gltf[] = [];
+        const childTileWidth = 5.0;
+        const childTileHalfWidth = childTileWidth / 2.0;
+        const childGeometricError = 1.732 * childTileWidth; // Diagonal of the point cloud box
+        const childCenters = [
+            [-childTileHalfWidth, -childTileHalfWidth, -childTileHalfWidth],
+            [-childTileHalfWidth, childTileHalfWidth, childTileHalfWidth],
+            [-childTileHalfWidth, -childTileHalfWidth, childTileHalfWidth],
+            [-childTileHalfWidth, childTileHalfWidth, -childTileHalfWidth],
+            [childTileHalfWidth, -childTileHalfWidth, -childTileHalfWidth],
+            [childTileHalfWidth, childTileHalfWidth, -childTileHalfWidth],
+            [childTileHalfWidth, -childTileHalfWidth, childTileHalfWidth],
+            [childTileHalfWidth, childTileHalfWidth, childTileHalfWidth]
+        ];
+    
+        for (let i = 0; i < 8; ++i) {
+            const childCenter = childCenters[i];
+            const childTransform = Matrix4.fromTranslation(Cartesian3.unpack(childCenter));
+            childTiles.push(createPointCloudTile({
+                tileWidth : childTileWidth * 2.0,
+                transform : childTransform,
+                pointsLength : pointsLength,
+                relativeToCenter : false,
+                use3dTilesNext : true,
+                useGlb: args.useGlb
+            }).gltf as Gltf);
+            const childBoxLocal = [
+                childCenter[0], childCenter[1], childCenter[2],
+                childTileHalfWidth, 0.0, 0.0,   // width
+                0.0, childTileHalfWidth, 0.0,   // depth
+                0.0, 0.0, childTileHalfWidth    // height
+            ];
+            childrenJson.push({
+                boundingVolume : {
+                    box : childBoxLocal
+                },
+                geometricError : 0.0,
+                content : {
+                    uri : i + ext
+                }
+            });
+        }
+    
+        const tilesetJson = {
+            asset : {
+                version : tilesNextTilesetJsonVersion
+            },
+            properties : undefined,
+            geometricError : parentGeometricError,
+            root : {
+                boundingVolume : {
+                    box : parentBoxLocal
+                },
+                transform : parentTransform,
+                geometricError : childGeometricError,
+                refine : 'ADD',
+                content : {
+                    uri : 'parent' + ext
+                },
+                children : childrenJson
+            }
+        };
+
+        await writeTile(tilesetDirectory, 'parent' + ext, parentTile, args);
+        await writeTileset(tilesetDirectory, tilesetJson as any, args);
+
+        for (let i = 0; i < 8; ++i) {
+            await writeTile(tilesetDirectory, i + ext, childTiles[i] as Gltf, args);
+        }
+    }
+
+    export async function createTilesetUniform(args: GeneratorArgs) {
+        const ext = args.useGlb ? TilesNextExtension.Glb : TilesNextExtension.Gltf;
+        const tilesetName = 'TilesetUniform';
+        const tilesetDirectory = path.join(rootDir, tilesetName);
+        const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+        const tileset2Path = path.join(tilesetDirectory, 'tileset2.json');
+    
+        // Only subdivide the middle tile in level 1. Helps reduce tileset size.
+        const subdivideCallback = (level: number, x: number, y: number) =>
+            level === 0 || (level === 1 && x === 1 && y === 1);
+    
+        const results = TilesetUtilsNext.createUniformTileset(3, 3, ext, subdivideCallback);
+        const tileOptions = results.tileOptions as TileOptions[];
+        const tileNames = results.tileNames;
+        const tilesetJson: any = results.tilesetJson;
+    
+        // Insert an external tileset
+        const externalTile1 = clone(tilesetJson.root, true);
+        delete externalTile1.transform;
+        delete externalTile1.refine;
+        delete externalTile1.children;
+        externalTile1.content.uri = 'tileset2.json';
+    
+        const externalTile2 = clone(tilesetJson.root, true);
+        delete externalTile2.transform;
+        delete externalTile2.content;
+    
+        const tileset2Json = clone(tilesetJson, true);
+        tileset2Json.root = externalTile2;
+        tilesetJson.root.children = [externalTile1];
+
+        const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
+            tileOptions
+        );
+
+        const gltfs = result.gltfs;
+        const batchTables = result.batchTables;
+        tilesetJson.properties = getProperties(batchTables);
+
+        saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
+        saveJson(tileset2Path, tileset2Json, args.prettyJson, args.gzip);
+
+        for (let i = 0; i < gltfs.length; ++i) {
+            const gltf = gltfs[i];
+            const tilePath = path.join(tilesetDirectory, tileNames[i]);
+            await writeTile(tilePath, '', gltf, args);
+        }
+    }
 }
