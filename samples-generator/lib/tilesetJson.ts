@@ -2,6 +2,7 @@ import { AtLeastOne } from './atLeastN';
 import { instancesRegion } from './constants';
 import { TilesetOption } from './createTilesetJsonSingle';
 
+// https://github.com/CesiumGS/3d-tiles/tree/master/specification#tileset
 export interface TilesetJson {
     asset: {
         version: string;

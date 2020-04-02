@@ -28,6 +28,7 @@ export const east = longitude + longitudeExtent / 2.0;
 export const north = latitude + latitudeExtent / 2.0;
 
 export type BuildingTemplate = {
+    uniform: boolean;
     numberOfBuildings: number;
     tileWidth: number;
     averageWidth: number;
@@ -38,7 +39,7 @@ export type BuildingTemplate = {
     latitude: number;
 };
 
-export const buildingTemplate: BuildingTemplate = {
+export const buildingTemplate = {
     numberOfBuildings: 10,
     tileWidth: tileWidth,
     averageWidth: 8.0,
