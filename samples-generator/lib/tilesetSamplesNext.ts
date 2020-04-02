@@ -1481,7 +1481,126 @@ export namespace TilesetSamplesNext {
         }
     }
 
-    export async function createTilesetSubtreeExpiration(args: GeneratorArgs) {}
+    export async function createTilesetSubtreeExpiration(args: GeneratorArgs) {
+        const ext = args.useGlb ? '.glb' : '.gltf';
+        const tilesetName = 'TilesetSubtreeExpiration';
+        const tilesetDirectory = path.join(rootDir, tilesetName);
+        const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+        const subtreePath = path.join(tilesetDirectory, 'subtree.json');
+        const tileNames = ['parent', 'll', 'lr', 'ur', 'ul'];
+        const tileOptions = [
+            parentTileOptions,
+            llTileOptions,
+            lrTileOptions,
+            urTileOptions,
+            ulTileOptions
+        ];
+
+        const tilesetJson = {
+            asset: {
+                version: tilesNextTilesetJsonVersion
+            },
+            properties: undefined,
+            geometricError: largeGeometricError,
+            root: {
+                boundingVolume: {
+                    region: parentRegion
+                },
+                geometricError: smallGeometricError,
+                refine: 'ADD',
+                content: {
+                    boundingVolume: {
+                        region: parentContentRegion
+                    },
+                    uri: 'parent' + ext
+                },
+                children: [
+                    {
+                        expire: {
+                            duration: 5.0
+                        },
+                        boundingVolume: {
+                            region: childrenRegion
+                        },
+                        geometricError: smallGeometricError,
+                        content: {
+                            uri: 'subtree.json'
+                        }
+                    }
+                ]
+            }
+        };
+
+        const subtreeJson = {
+            asset: {
+                version: tilesNextTilesetJsonVersion
+            },
+            properties: undefined,
+            geometricError: smallGeometricError,
+            root: {
+                boundingVolume: {
+                    region: childrenRegion
+                },
+                geometricError: smallGeometricError,
+                refine: 'ADD',
+                children: [
+                    {
+                        boundingVolume: {
+                            region: llRegion
+                        },
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'll' + ext
+                        }
+                    },
+                    {
+                        boundingVolume: {
+                            region: lrRegion
+                        },
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'lr' + ext
+                        }
+                    },
+                    {
+                        boundingVolume: {
+                            region: urRegion
+                        },
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'ur' + ext
+                        }
+                    },
+                    {
+                        boundingVolume: {
+                            region: ulRegion
+                        },
+                        geometricError: 0.0,
+                        content: {
+                            uri: 'ul' + ext
+                        }
+                    }
+                ]
+            }
+        };
+
+        const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
+            tileOptions
+        );
+
+        const gltfs = result.gltfs;
+        const batchTables = result.batchTables;
+        tilesetJson.properties = getProperties(batchTables);
+
+        await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
+        await saveJson(subtreePath, subtreeJson, args.prettyJson, args.gzip);
+
+        for (let i = 0; i < gltfs.length; ++i) {
+            const gltf = gltfs[i];
+            const tilePath = path.join(tilesetDirectory, tileNames[i] + ext);
+            await writeTile(tilePath, '', gltf, args);
+        }
+    }
 
     export async function createTilesetPoints(args: GeneratorArgs) {}
 
