@@ -232,10 +232,13 @@ export namespace InstanceSamplesNext {
         FeatureMetadata.updateExtensionUsed(gltf);
 
         FeatureMetadata.addFeatureLayer(primitive, {
-            featureTable: 0, 
+            featureTable: 0,
             instanceStride: 1,
             vertexAttribute: {
-                attributeindex: 0
+                implicit: {
+                    increment: 0,
+                    start: 0
+                }
             }
         });
 
