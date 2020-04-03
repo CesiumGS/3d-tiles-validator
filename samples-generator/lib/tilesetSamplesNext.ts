@@ -166,7 +166,9 @@ export namespace TilesetSamplesNext {
     }
 
     export async function createTilesetEmptyRoot(args: GeneratorArgs) {
-        const ext = args.useGlb ? '.glb' : '.gltf';
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
 
         const tileOptions = [
             llTileOptions,
@@ -182,6 +184,7 @@ export namespace TilesetSamplesNext {
         );
 
         const gltfs = result.gltfs;
+        const batchTables = result.batchTables;
 
         const tilesetJson = {
             asset: {
@@ -237,6 +240,7 @@ export namespace TilesetSamplesNext {
         };
 
         const fullPath = path.join(rootDir, 'TilesetEmptyRoot');
+        tilesetJson.properties = getProperties(batchTables);
         await writeTileset(fullPath, tilesetJson as any, args);
         for (let i = 0; i < gltfs.length; ++i) {
             const gltf = gltfs[i];
@@ -246,6 +250,10 @@ export namespace TilesetSamplesNext {
     }
 
     export async function createTilesetOfTilesets(args: GeneratorArgs) {
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetOfTilesets';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -264,7 +272,6 @@ export namespace TilesetSamplesNext {
             urTileOptions,
             ulTileOptions
         ];
-        const ext = args.useGlb ? '.glb' : '.gltf';
 
         const tilesetJson = {
             asset: {
@@ -362,7 +369,9 @@ export namespace TilesetSamplesNext {
         );
 
         const gltfs = result.gltfs;
+        const batchTables = result.batchTables;
 
+        tilesetJson.properties = getProperties(batchTables);
         await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
         await saveJson(tileset2Path, tileset2Json, args.prettyJson, args.gzip);
         await saveJson(tileset3Path, tileset3Json, args.prettyJson, args.gzip);
@@ -376,7 +385,10 @@ export namespace TilesetSamplesNext {
     export async function createTilesetWithExternalResources(
         args: GeneratorArgs
     ) {
-        const ext = args.useGlb ? '.glb' : '.gltf';
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetWithExternalResources';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -605,7 +617,11 @@ export namespace TilesetSamplesNext {
         //          A
         //      A       R (not rendered)
         //    R   A   R   A
-        const ext = args.useGlb ? '.glb' : '.gltf';
+
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetRefinementMix';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -728,7 +744,10 @@ export namespace TilesetSamplesNext {
         //          C
         //      E       E
         //    C   C   C   C
-        const ext = args.useGlb ? '.glb' : '.gltf';
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetReplacement1';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -840,7 +859,10 @@ export namespace TilesetSamplesNext {
         //        C   E
         //            C (smaller geometric error)
         //
-        const ext = args.useGlb ? '.glb' : '.gltf';
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetReplacement2';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -927,7 +949,10 @@ export namespace TilesetSamplesNext {
         //          T (external tileset ref)
         //          E (root of external tileset)
         //     C  C  C  C
-        const ext = args.useGlb ? '.glb' : '.gltf';
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetReplacement3';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -1035,6 +1060,7 @@ export namespace TilesetSamplesNext {
 
         tilesetJson.properties = getProperties(batchTables);
         await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
+        await saveJson(tileset2Path, tileset2Json, args.prettyJson, args.gzip);
 
         for (let i = 0; i < gltfs.length; ++i) {
             const gltf = gltfs[i];
@@ -1044,7 +1070,10 @@ export namespace TilesetSamplesNext {
     }
 
     export async function createTilesetWithTransforms(args: GeneratorArgs) {
-        const ext = args.useGlb ? '.glb' : '.gltf';
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetWithTransforms';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -1211,7 +1240,6 @@ export namespace TilesetSamplesNext {
             }
         };
 
-        tilesetJson.properties = getProperties(buildingTable);
         await writeTileset(tilesetDirectory, tilesetJson as any, args);
         await writeTile(
             tilesetDirectory,
@@ -1231,7 +1259,10 @@ export namespace TilesetSamplesNext {
         args: GeneratorArgs
     ) {
         // Create a tileset with one root tile and four child tiles
-        const ext = args.useGlb ? '.glb' : '.gltf';
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetWithViewerRequestVolume';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -1370,7 +1401,10 @@ export namespace TilesetSamplesNext {
     export async function createTilesetReplacementWithViewerRequestVolume(
         args: GeneratorArgs
     ) {
-        const ext = args.useGlb ? '.glb' : '.gltf';
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetReplacementWithViewerRequestVolume';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -1478,7 +1512,9 @@ export namespace TilesetSamplesNext {
         );
 
         const gltfs = result.gltfs;
+        const batchTables = result.batchTables;
 
+        tilesetJson.properties = getProperties(batchTables);
         await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
         for (let i = 0; i < gltfs.length; ++i) {
             const gltf = gltfs[i];
@@ -1488,7 +1524,10 @@ export namespace TilesetSamplesNext {
     }
 
     export async function createTilesetSubtreeExpiration(args: GeneratorArgs) {
-        const ext = args.useGlb ? '.glb' : '.gltf';
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetSubtreeExpiration';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -1610,7 +1649,10 @@ export namespace TilesetSamplesNext {
 
     export async function createTilesetPoints(args: GeneratorArgs) {
         // Create a tileset with one root tile and eight child tiles
-        const ext = args.useGlb ? '.glb' : '.gltf';
+        const ext = args.useGlb
+            ? TilesNextExtension.Glb
+            : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetPoints';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -1741,6 +1783,7 @@ export namespace TilesetSamplesNext {
         const ext = args.useGlb
             ? TilesNextExtension.Glb
             : TilesNextExtension.Gltf;
+
         const tilesetName = 'TilesetUniform';
         const tilesetDirectory = path.join(rootDir, tilesetName);
         const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
