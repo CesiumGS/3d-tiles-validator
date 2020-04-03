@@ -209,7 +209,7 @@ export function createFeatureMetadataExtension(
         });
 
         const newBufferIndex = gltf.buffers.length - 1;
-        let bufferViewIndex = gltf.bufferViews.lengthl
+        let bufferViewIndex = gltf.bufferViews.length;
         let accessorIndex = gltf.accessors.length;
 
         for (let i = 0; i < binaryReadable.length; ++i, ++accessorIndex) {
