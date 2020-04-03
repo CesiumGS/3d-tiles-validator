@@ -1,15 +1,14 @@
-'use strict';
 import { createFeatureMetadataExtension } from "../../lib/createFeatureMetadataExtension";
 
-var fs = require('fs');
-var path = require('path');
-var trianglePath = path.join(__dirname, '..', 'data', 'triangle.gltf');
-var minimalTriangleGLTF = JSON.parse(fs.readFileSync(trianglePath, 'utf8'));
+const fs = require('fs');
+const path = require('path');
+const trianglePath = path.join(__dirname, '..', 'data', 'triangle.gltf');
+const minimalTriangleGLTF = JSON.parse(fs.readFileSync(trianglePath, 'utf8'));
 
 describe('createFeatureMetadataExtension', function() {
-    var triangleGLTF = minimalTriangleGLTF;
-    var sharedBuffer = Buffer.from('abcdefghijklmnopqrstuvwxyz');
-    var featureTableAttributes = {
+    const triangleGLTF = minimalTriangleGLTF;
+    const sharedBuffer = Buffer.from('abcdefghijklmnopqrstuvwxyz');
+    const featureTableAttributes = {
         aToMInclusive: {
             name: 'aToMInclusive',
             byteOffset: 0,
@@ -45,36 +44,27 @@ describe('createFeatureMetadataExtension', function() {
         ]
     };
 
-    /*
-    data = [
-        {type: binary, data: BINARY},
-        {type: plaintext, data: {cornerNames: […], cornerColors: […]}}
-        {type: plaintext, data: {moreData: […]}}
-    ]
-    */
-
-
-    var oldAccessorLength = Object.keys(triangleGLTF.accessors).length;
-    var oldBufferViewLength = Object.keys(triangleGLTF.bufferViews).length;
-    var oldBufferLength = Object.keys(triangleGLTF.buffers).length;
-    var gltfWithExt = createFeatureMetadataExtension(triangleGLTF, featureTableAttributes, sharedBuffer);
+    const oldAccessorLength = Object.keys(triangleGLTF.accessors).length;
+    const oldBufferViewLength = Object.keys(triangleGLTF.bufferViews).length;
+    const oldBufferLength = Object.keys(triangleGLTF.buffers).length;
+    const gltfWithExt = createFeatureMetadataExtension(triangleGLTF, featureTableAttributes, sharedBuffer);
 
     it('extensions used / extension keys are present', function() {
         expect('extensionsUsed' in gltfWithExt).toBe(true);
         expect('extensions' in gltfWithExt).toBe(true);
         expect('CESIUM_3dtiles_feature_metadata' in gltfWithExt.extensions).toBe(true);
-        var featureTables =  gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables;
+        const featureTables =  gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables;
         expect(featureTables).toBeInstanceOf(Array);
         expect(featureTables.length).toBe(1); // Multiple Batch Table not Supported Yet
     });
 
     it('has correct number of feature table attributes', function() {
-        var table =  gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0];
+        const table =  gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0];
         expect(table.featureCount).toBe(featureTableAttributes.cornerName.length);
     });
 
     it('human readable attributes are detected and left as-is in the ext section', function() {
-        var properties =  gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0].properties;
+        const properties =  gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0].properties;
         // human readable values are embedded directly
         expect(properties.cornerName.values).toEqual(featureTableAttributes.cornerName);
         expect(properties.cornerColor.values).toEqual(featureTableAttributes.cornerColor);
@@ -88,7 +78,7 @@ describe('createFeatureMetadataExtension', function() {
     });
 
     it('buffers / accessors / bufferviews are updated with binary data', function() {
-        var accessors = gltfWithExt.accessors;
+        const accessors = gltfWithExt.accessors;
         expect(accessors.length).toEqual(4);
         expect(Object.keys(gltfWithExt.accessors).length).toBe(oldAccessorLength + 2);
         expect(Object.keys(gltfWithExt.bufferViews).length).toBe(oldBufferViewLength + 2);
@@ -96,12 +86,12 @@ describe('createFeatureMetadataExtension', function() {
         expect(gltfWithExt.buffers[1].byteLength).toEqual(sharedBuffer.length);
 
         // verify the buffer was written correctly for the binary data
-        var newBuffer = triangleGLTF.buffers[1];
-        var decodedBase64 = Buffer.from(newBuffer.uri.replace('data:application/octet-stream;base64,', ''), 'base64');
+        const newBuffer = triangleGLTF.buffers[1];
+        const decodedBase64 = Buffer.from(newBuffer.uri.replace('data:application/octet-stream;base64,', ''), 'base64');
         expect(decodedBase64).toEqual(sharedBuffer);
 
-        var secondToLastAccessor = gltfWithExt.accessors[oldAccessorLength];
-        var lastAccessor = gltfWithExt.accessors[oldAccessorLength + 1];
+        const secondToLastAccessor = gltfWithExt.accessors[oldAccessorLength];
+        const lastAccessor = gltfWithExt.accessors[oldAccessorLength + 1];
         expect(secondToLastAccessor.bufferView).toBe(oldAccessorLength);
         expect(secondToLastAccessor.byteOffset).toBe(0);
         expect(secondToLastAccessor.componentType).toBe(featureTableAttributes.aToMInclusive.componentType);
@@ -115,8 +105,8 @@ describe('createFeatureMetadataExtension', function() {
         expect(lastAccessor.count).toBe(featureTableAttributes.nToZInclusive.count);
 
         // verify those bufferviews are both referencing `buffer 1`
-        var secondToLastBufferView = gltfWithExt.bufferViews[oldBufferViewLength];
-        var lastBufferView = gltfWithExt.bufferViews[oldBufferViewLength + 1];
+        const secondToLastBufferView = gltfWithExt.bufferViews[oldBufferViewLength];
+        const lastBufferView = gltfWithExt.bufferViews[oldBufferViewLength + 1];
         expect(secondToLastBufferView.buffer).toBe(1);
         expect(secondToLastBufferView.byteLength).toBe(featureTableAttributes.aToMInclusive.byteLength);
         expect(secondToLastBufferView.byteOffset).toBe(featureTableAttributes.aToMInclusive.byteOffset);
@@ -125,7 +115,7 @@ describe('createFeatureMetadataExtension', function() {
         expect(lastBufferView.byteOffset).toBe(featureTableAttributes.nToZInclusive.byteOffset);
 
         // verify that references to the binary accessors are in `extensions: {...}`
-        var featureTableProperties = gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0].properties;
+        const featureTableProperties = gltfWithExt.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0].properties;
         expect(featureTableAttributes.aToMInclusive.name in featureTableProperties).toEqual(true);
         expect(featureTableAttributes.nToZInclusive.name in featureTableProperties).toEqual(true);
         expect(featureTableProperties[featureTableAttributes.aToMInclusive.name].accessor).toBe(oldAccessorLength);
