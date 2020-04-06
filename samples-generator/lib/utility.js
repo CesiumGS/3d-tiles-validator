@@ -22,7 +22,10 @@ function metersToLatitude(meters) {
 }
 
 function wgs84Transform(longitude, latitude, height) {
-    return Transforms.headingPitchRollToFixedFrame(Cartesian3.fromRadians(longitude, latitude, height), new HeadingPitchRoll());
+    return Transforms.headingPitchRollToFixedFrame(
+        Cartesian3.fromRadians(longitude, latitude, height),
+        new HeadingPitchRoll()
+    );
 }
 
 function toCamelCase(s) {
@@ -47,3 +50,4 @@ function typeToNumberOfComponents(type) {
             return 16;
     }
 }
+

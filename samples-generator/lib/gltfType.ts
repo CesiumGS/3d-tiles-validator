@@ -92,7 +92,7 @@ export type GltfTexture = {
     name?: string;
     extensions?: object;
     extras?: object;
-}
+};
 
 export type GltfSampler = {
     magFilter?: number;
@@ -101,8 +101,8 @@ export type GltfSampler = {
     wrapT?: number;
     name?: string;
     extensions?: object;
-    extras?: object
-}
+    extras?: object;
+};
 
 export type GltfImage = {
     uri?: string;
@@ -111,7 +111,7 @@ export type GltfImage = {
     name?: string;
     extensions?: object;
     extras?: object;
-}
+};
 export interface Gltf {
     scenes?: GltfScene[];
     nodes: GltfNode[];

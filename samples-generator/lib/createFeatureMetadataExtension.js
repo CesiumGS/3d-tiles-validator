@@ -7,7 +7,7 @@ var typeConversion = require('./typeConversion');
 module.exports = createFeatureMetadataExtension;
 
 function sortByByteOffset(a, b) {
-    if (a.byteOffset < b.byteOffset ){
+    if (a.byteOffset < b.byteOffset) {
         return -1;
     }
 
@@ -18,7 +18,9 @@ function sortByByteOffset(a, b) {
     return 0;
 }
 
-function assertHumanReadableFeatureTableValueArraysHaveIdenticalLength(humanfeatureTables) {
+function assertHumanReadableFeatureTableValueArraysHaveIdenticalLength(
+    humanfeatureTables
+) {
     if (humanfeatureTables.length === 0) {
         return 0;
     }
@@ -28,7 +30,13 @@ function assertHumanReadableFeatureTableValueArraysHaveIdenticalLength(humanfeat
         if (humanfeatureTables[i].value.length !== firstLength) {
             var badFeatureTable = humanfeatureTables[i].name;
             var badLength = humanfeatureTables[i].value.length;
-            throw new Error(badFeatureTable + ' has incorrect length of: '  + badLength + ', should match the first length: ' + firstLength);
+            throw new Error(
+                badFeatureTable +
+                    ' has incorrect length of: ' +
+                    badLength +
+                    ', should match the first length: ' +
+                    firstLength
+            );
         }
     }
 
@@ -45,7 +53,13 @@ function assertBinaryHasIdenticalCount(binaryfeatureTables) {
         if (binaryfeatureTables[i].count !== firstLength) {
             var badFeatureTable = binaryfeatureTables[i].name;
             var badLength = binaryfeatureTables[i].count;
-            throw new Error(badFeatureTable + ' has incorrect length of: '  + badLength + ', should match the first length: ' + firstLength);
+            throw new Error(
+                badFeatureTable +
+                    ' has incorrect length of: ' +
+                    badLength +
+                    ', should match the first length: ' +
+                    firstLength
+            );
         }
     }
 
@@ -93,12 +107,17 @@ function isCandidateForImplicitBufferView(batchAttribute) {
  * @typedef attributeBufferType
  * @type {Object}
  * @property {Buffer} buffer BufferAttribute data
- * @property {String} componentType BufferAttribute componentType (FLOAT, UNSIGNED_BYTE, DOUBLE)
- * @property {String} propertyName BufferAttribute property name (POSITION, NORMAL, COLOR, WEIGHT)
+ * @property {String} componentType BufferAttribute componentType
+ * (FLOAT, UNSIGNED_BYTE, DOUBLE)
+ * @property {String} propertyName BufferAttribute property name
+ * (POSITION, NORMAL, COLOR, WEIGHT)
  * @property {String} type (SCALAR, VEC2, VEC3, VEC4)
- * @property {String} target WebGL rendering target, like ARRAY_BUFFER, or ELEMENT_ARRAY_BUFFE (e.g 0x8892, 0x8893)
- * @property {Array.<Number>} min Minimum value for each component in the bufferAttribute
- * @property {Array.<Number>} max Maximum value for each component in the bufferAttribute
+ * @property {String} target WebGL rendering target, like ARRAY_BUFFER, or
+ * ELEMENT_ARRAY_BUFFE (e.g 0x8892, 0x8893)
+ * @property {Array.<Number>} min Minimum value for each component in the
+ * bufferAttribute
+ * @property {Array.<Number>} max Maximum value for each component in the
+ * bufferAttribute
  */
 
 /**
@@ -115,57 +134,89 @@ function isCandidateForImplicitBufferView(batchAttribute) {
  * the binary batch attributes in featureTableAttributes are directly referring
  * to this buffer.
  */
-function createFeatureMetadataExtension(gltf, featureTableAttributes, sharedBinaryBuffer) {
+function createFeatureMetadataExtension(
+    gltf,
+    featureTableAttributes,
+    sharedBinaryBuffer
+) {
     Extensions.addExtensionsUsed(gltf, featureTableExtensionName);
     Extensions.addExtension(gltf, featureTableExtensionName, {
-        featureTables: [{
-            properties: {}
-        }]
+        featureTables: [
+            {
+                properties: {}
+            }
+        ]
     });
 
     var humanReadable = [];
     var binaryReadable = [];
     var i;
 
-    var featureTableIndex = 0; // TODO: This will change when we add multiple batch table support
-    var activeFeatureTable = gltf.extensions[featureTableExtensionName].featureTables[featureTableIndex];
+    // TODO: This will change when we add multiple batch table support
+    var featureTableIndex = 0;
+    var activeFeatureTable =
+        gltf.extensions[featureTableExtensionName].featureTables[
+            featureTableIndex
+        ];
 
     var attributeNames = Object.keys(featureTableAttributes);
     for (i = 0; i < attributeNames.length; ++i) {
         if (featureTableAttributes[attributeNames[i]] instanceof Array) {
-            humanReadable.push({name: attributeNames[i], value: featureTableAttributes[attributeNames[i]]});
+            humanReadable.push({
+                name: attributeNames[i],
+                value: featureTableAttributes[attributeNames[i]]
+            });
         } else {
             binaryReadable.push(featureTableAttributes[attributeNames[i]]);
         }
     }
 
-    var humanFeatureCount = assertHumanReadableFeatureTableValueArraysHaveIdenticalLength(humanReadable);
+    var humanFeatureCount = assertHumanReadableFeatureTableValueArraysHaveIdenticalLength(
+        humanReadable
+    );
     var binaryFeatureCount = assertBinaryHasIdenticalCount(binaryReadable);
 
     if (humanFeatureCount === 0 && binaryFeatureCount === 0) {
-        throw new Error('Must have at least one binary or human readable batch table attribute');
+        throw new Error(
+            'Must have at least one binary or human readable batch table attribute'
+        );
     }
 
-    if (humanFeatureCount > 0 && binaryFeatureCount > 0 && binaryFeatureCount !== humanFeatureCount) {
-        throw new Error('Count must be identical across all batch table properties (binary or human readable)');
+    if (
+        humanFeatureCount > 0 &&
+        binaryFeatureCount > 0 &&
+        binaryFeatureCount !== humanFeatureCount
+    ) {
+        throw new Error(
+            'Count must be identical across all batch table properties (binary or human readable)'
+        );
     }
 
-    activeFeatureTable.featureCount = Math.max(humanFeatureCount, binaryFeatureCount);
+    activeFeatureTable.featureCount = Math.max(
+        humanFeatureCount,
+        binaryFeatureCount
+    );
 
     for (i = 0; i < humanReadable.length; ++i) {
         var attribute = humanReadable[i];
-        activeFeatureTable.properties[attribute.name] = {values: attribute.value};
+        activeFeatureTable.properties[attribute.name] = {
+            values: attribute.value
+        };
     }
 
     if (binaryReadable.length > 0 && !defined(sharedBinaryBuffer)) {
-        throw new Error('Detected a binary attribute, but function called without binary buffer');
+        throw new Error(
+            'Detected a binary attribute, but function called without binary buffer'
+        );
     }
 
     binaryReadable.sort(sortByByteOffset);
     if (binaryReadable.length > 0) {
         gltf.buffers.push({
             byteLength: sharedBinaryBuffer.length,
-            uri: 'data:application/octet-stream;base64,' + sharedBinaryBuffer.toString('base64')
+            uri:
+                'data:application/octet-stream;base64,' +
+                sharedBinaryBuffer.toString('base64')
         });
 
         var newBufferIndex = gltf.buffers.length - 1;
@@ -176,25 +227,31 @@ function createFeatureMetadataExtension(gltf, featureTableAttributes, sharedBina
             var batchAttribute = binaryReadable[i];
 
             var componentType = batchAttribute.componentType;
-            var validComponentType = typeConversion.isValidWebGLDataTypeEnum(componentType);
-            var normalizedComponentType = validComponentType ? componentType : typeConversion.componentTypeStringToInteger(componentType);
+            var validComponentType = typeConversion.isValidWebGLDataTypeEnum(
+                componentType
+            );
+            var normalizedComponentType = validComponentType
+                ? componentType
+                : typeConversion.componentTypeStringToInteger(componentType);
 
-            var implicitBufferView = isCandidateForImplicitBufferView(batchAttribute);
+            var implicitBufferView = isCandidateForImplicitBufferView(
+                batchAttribute
+            );
             if (!implicitBufferView) {
                 gltf.bufferViews.push({
-                    buffer : newBufferIndex,
-                    byteLength : batchAttribute.byteLength,
-                    byteOffset : batchAttribute.byteOffset,
-                    target : 0x8892 // ARRAY_BUFFER
+                    buffer: newBufferIndex,
+                    byteLength: batchAttribute.byteLength,
+                    byteOffset: batchAttribute.byteOffset,
+                    target: 0x8892 // ARRAY_BUFFER
                 });
             }
 
             var accessor = {
-                componentType : normalizedComponentType,
-                type : batchAttribute.type,
-                count : batchAttribute.count,
-                min : batchAttribute.min,
-                max : batchAttribute.max
+                componentType: normalizedComponentType,
+                type: batchAttribute.type,
+                count: batchAttribute.count,
+                min: batchAttribute.min,
+                max: batchAttribute.max
             };
 
             if (!implicitBufferView) {

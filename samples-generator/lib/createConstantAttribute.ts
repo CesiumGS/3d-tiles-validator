@@ -7,9 +7,8 @@ export function createConstantAttributeLEU32(
     constant: number,
     len: number
 ): Attribute {
-
     const buffer = Buffer.alloc(len * UINT32_SIZE_BYTES);
-    for (let i=0; i < len; ++i) {
+    for (let i = 0; i < len; ++i) {
         buffer.writeUInt32LE(constant, i * UINT32_SIZE_BYTES);
     }
 
@@ -23,5 +22,5 @@ export function createConstantAttributeLEU32(
         max: [constant],
         propertyName: name,
         byteAlignment: 1
-    }
+    };
 }

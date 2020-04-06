@@ -20,12 +20,6 @@ export type FeatureHiearchyExtProperties = {
     [propertyName: string]: FeatureHierarchyExtValuesOrAccessor;
 };
 
-export interface BufferViewAccessorState {
-    numAccessors: number;
-    numBufferViews: number;
-    numBuffers: number;
-}
-
 /**
  * Differs from [featureHierarchyClass] in that the properties can only
  * be of the form {values: …} or {accessor: …}.
@@ -58,9 +52,9 @@ const extensionName = 'CESIUM_3dtiles_feature_hierarchy';
  * @param instanceCount Total number of instances. Should be equal to the sum
  * of each classes[i].instancesCount
  * @param [parentIds] Optional list of parentIds associated with each classIds
- * @param [parentCounts] Optional numerical array containing the number of 
+ * @param [parentCounts] Optional numerical array containing the number of
  * parents each instance has.
- * @param [binaryData] Optional binaryData parameter. Should be provided if 
+ * @param [binaryData] Optional binaryData parameter. Should be provided if
  * using binary accessors. This function makes the assumption that all of the
  * binary class accessors / classIds / parentIds / parentCounts are all refering
  * to this buffer.
@@ -116,16 +110,15 @@ export function createFeatureHierarchySubExtension(
         extension.parentCounts = normalizeIdsOrGltfAccessor(gltf, parentCounts);
     }
 
-    gltf.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0]
+    gltf.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0];
 
-    // TODO: Right now we assume that the first featureTable is where the 
+    // TODO: Right now we assume that the first featureTable is where the
     //       featureHierarchy extension should go. This should be refactored.
     //       eventually when we support exporting multiple feature tables
     //       in the samples.
 
-    const firstFeatureTable = gltf.extensions
-                                  .CESIUM_3dtiles_feature_metadata
-                                  .featureTables[0];
+    const firstFeatureTable =
+        gltf.extensions.CESIUM_3dtiles_feature_metadata.featureTables[0];
     if (firstFeatureTable.extensions == null) {
         firstFeatureTable.extensions = {};
     }
@@ -133,7 +126,7 @@ export function createFeatureHierarchySubExtension(
     firstFeatureTable.extensions.CESIUM_3dtiles_feature_hierarchy = extension;
 
     if (gltf.extensionsUsed == null) {
-        gltf.extensionsUsed = [extensionName]
+        gltf.extensionsUsed = [extensionName];
     } else {
         gltf.extensionsUsed.push(extensionName);
     }
@@ -154,14 +147,16 @@ function featureHierarchyClassToExt(
     for (const cls of classes) {
         let normalizedProperties: FeatureHiearchyExtProperties = {};
         for (const propName in cls.properties) {
-            const property = cls.properties[propName];
-            if (Array.isArray(property)) {
-                normalizedProperties[propName] = { values: property };
-            } else {
-                createAccessorAndBufferView(gltf, property);
-                normalizedProperties[propName] = {
-                    accessor: gltf.accessors.length - 1
-                };
+            if (cls.properties.hasOwnProperty(propName)) {
+                const property = cls.properties[propName];
+                if (Array.isArray(property)) {
+                    normalizedProperties[propName] = { values: property };
+                } else {
+                    createAccessorAndBufferView(gltf, property);
+                    normalizedProperties[propName] = {
+                        accessor: gltf.accessors.length - 1
+                    };
+                }
             }
         }
 
@@ -173,24 +168,6 @@ function featureHierarchyClassToExt(
     }
 
     return result;
-}
-
-/**
- * If data is a primitive array, wrap it with {values: primitive} and add it to
- * the provided object, otherwise add a new BufferView / Accessor and wrap the
- * binary data with {accessor: index}
- */
-
-function normalizeValuesOrGltfAccessor(
-    gltf: Gltf,
-    data: number[] | CompositeAccessorBufferView
-): FeatureHierarchyExtValuesOrAccessor {
-    if (Array.isArray(data)) {
-        return { values: data };
-    }
-
-    createAccessorAndBufferView(gltf, data);
-    return { accessor: gltf.accessors.length - 1 };
 }
 
 function normalizeIdsOrGltfAccessor(

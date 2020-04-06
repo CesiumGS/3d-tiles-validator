@@ -1,4 +1,4 @@
-import { GltfType } from "./gltfType";
+import { GltfType } from './gltfType';
 
 export interface Attribute {
     buffer: Buffer;
