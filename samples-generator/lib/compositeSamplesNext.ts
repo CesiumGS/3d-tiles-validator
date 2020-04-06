@@ -1,21 +1,21 @@
 import { GeneratorArgs } from './arguments';
 import { toCamelCase } from './utility';
-import { getTilesetOpts, TilesetJson } from './tilesetJson';
-import { writeOutputToDisk } from './ioUtil';
+import { getTilesetOpts } from './tilesetJson';
 import { InstanceTileUtils } from './instanceUtilsNext';
 import { addBinaryBuffers } from './gltfUtil';
 import { getGltfFromGlbUri } from './gltfFromUri';
 import { instancesRegion } from './constants';
-import path = require('path');
 import { FeatureTableUtils } from './featureMetatableUtilsNext';
 import { createBuildings } from './createBuilding';
 import { Mesh } from './Mesh';
 import { addBatchedMeshToGltf } from './addMeshToGltf';
 import { generateBuildingBatchTable } from './createBuildingsTile';
-import createTilesetJsonSingle = require('./createTilesetJsonSingle');
-import getProperties = require('./getProperties');
 import { createEXTMeshInstancingExtension } from './createEXTMeshInstancing';
 import { FeatureMetadata } from './featureMetadata';
+import { createTilesetJsonSingle } from './createTilesetJsonSingle';
+import { writeTilesetAndTile } from './ioUtil';
+import path = require('path');
+import getProperties = require('./getProperties');
 
 export namespace CompositeSamplesNext {
     export async function createComposite(args: GeneratorArgs) {
@@ -136,9 +136,9 @@ export namespace CompositeSamplesNext {
         );
 
         tilesetOpts.properties = getProperties(buildingTable);
-        let tilesetJson = createTilesetJsonSingle(tilesetOpts) as TilesetJson;
+        let tilesetJson = createTilesetJsonSingle(tilesetOpts);
 
-        await writeOutputToDisk(
+        await writeTilesetAndTile(
             fullPath,
             tileFilename,
             tilesetJson,
@@ -190,8 +190,8 @@ export namespace CompositeSamplesNext {
             instancesRegion
         );
 
-        let tilesetJson = createTilesetJsonSingle(tilesetOpts) as TilesetJson;
-        await writeOutputToDisk(
+        let tilesetJson = createTilesetJsonSingle(tilesetOpts);
+        await writeTilesetAndTile(
             fullPath,
             tileFilename,
             tilesetJson,

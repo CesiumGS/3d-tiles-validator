@@ -1,21 +1,21 @@
-'use strict';
 import { createFeatureMetadataExtension } from './createFeatureMetadataExtension';
+import { Promise } from 'bluebird';
+import { calculateFilenameExt } from './calculateFilenameExt';
+import { createFeatureHierarchySubExtension } from './createFeatureHierarchySubExtension';
+import { Gltf, GltfType } from './gltfType';
+import { FeatureHierarchyClass } from './featureHierarchyClass';
+import { Material } from './Material';
+import { Mesh } from './Mesh';
+import { Cartesian3, defaultValue, defined, Math as CesiumMath, Matrix4, Quaternion } from 'cesium';
 
-var Cesium = require('cesium');
-var gltfPipeline = require('gltf-pipeline');
+const gltfPipeline = require('gltf-pipeline');
 var gltfToGlb = gltfPipeline.gltfToGlb;
 var fsExtra = require('fs-extra');
 var path = require('path');
 var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
-import { Promise } from 'bluebird';
-import { calculateFilenameExt } from './calculateFilenameExt';
 import createGltf = require('./createGltf');
-import { createFeatureHierarchySubExtension } from './createFeatureHierarchySubExtension';
-import { Gltf, GltfType  } from './gltfType';
-import { FeatureHierarchyClass } from './featureHierarchyClass';
 import { createTilesetJsonSingle } from './createTilesetJsonSingle';
-import { Material } from './Material';
-import { Mesh } from './Mesh';
+
 var typeConversion = require('./typeConversion');
 var getMinMax = require('./getMinMax');
 
@@ -25,13 +25,6 @@ var Extensions = require('./Extensions');
 var getBufferPadded = require('./getBufferPadded');
 var saveBinary = require('./saveBinary');
 var saveJson = require('./saveJson');
-
-var Cartesian3 = Cesium.Cartesian3;
-var CesiumMath = Cesium.Math;
-var defaultValue = Cesium.defaultValue;
-var defined = Cesium.defined;
-var Matrix4 = Cesium.Matrix4;
-var Quaternion = Cesium.Quaternion;
 
 var sizeOfFloat = 4;
 var sizeOfUint16 = 2;

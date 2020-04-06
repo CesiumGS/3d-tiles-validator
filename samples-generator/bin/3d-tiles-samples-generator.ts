@@ -1,15 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 
-import { Cartesian3, clone, defaultValue, defined, Matrix4 } from 'cesium';
-
-const fsExtra = require('fs-extra');
-var gltfPipeline = require('gltf-pipeline');
-var path = require('path');
+import { Cartesian3, clone, defaultValue, defined, Math as CesiumMath, Matrix4, Quaternion } from 'cesium';
 import { Promise as Bluebird } from 'bluebird';
-var DataUri = require('datauri');
-var gltfToGlb = gltfPipeline.gltfToGlb;
-var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../') };
 import { calculateFilenameExt } from '../lib/calculateFilenameExt';
 import { createBatchTableHierarchy } from '../lib/createBatchTableHierarchy';
 import { createInstancesTile } from '../lib/createInstancesTile';
@@ -20,63 +13,70 @@ import { BaseColorType, TranslucencyType } from '../lib/colorTypes';
 import { createBuildingsTile } from '../lib/createBuildingsTile';
 import { createPointCloudTile } from '../lib/createPointCloudTile';
 import {
-    prettyJson,
-    instancesGeometricError,
-    buildingTemplate,
-    smallSphere,
-    smallBoxLocal,
     buildingsTransform,
-    smallSphereLocal,
-    smallRegion,
-    pointCloudTransform,
-    pointCloudSphereLocal,
-    instancesTransform,
-    instancesBoxLocal,
-    instancesRedUri,
-    instancesTexturedUri,
-    instancesUri,
-    instancesTileWidth,
-    instancesLength,
-    instancesModelSize,
-    outputDirectory,
+    buildingTemplate,
+    childrenRegion,
     compositeGeometricError,
     compositeRegion,
+    east,
+    gzip,
+    instancesBoxLocal,
+    instancesGeometricError,
+    instancesLength,
+    instancesModelSize,
+    instancesRedUri,
     instancesRegion,
-    smallGeometricError,
-    pointCloudTileWidth,
-    pointsLength,
-    pointCloudGeometricError,
-    pointCloudSphere,
-    parentTileOptions,
-    llTileOptions,
-    lrTileOptions,
-    urTileOptions,
-    ulTileOptions,
+    instancesTexturedUri,
+    instancesTileWidth,
+    instancesTransform,
+    instancesUri,
     largeGeometricError,
-    parentRegion,
-    parentContentRegion,
-    llRegion,
-    lrRegion,
-    urRegion,
-    ulRegion,
-    childrenRegion,
     latitude,
+    latitudeExtent,
+    llRegion,
+    llTileOptions,
     longitude,
     longitudeExtent,
-    latitudeExtent,
-    tileWidth,
-    gzip,
-    west,
+    lrRegion,
+    lrTileOptions,
+    north,
+    outputDirectory,
+    parentContentRegion,
+    parentRegion,
+    parentTileOptions,
+    pointCloudGeometricError,
+    pointCloudSphere,
+    pointCloudSphereLocal,
+    pointCloudTileWidth,
+    pointCloudTransform,
+    pointsLength,
+    prettyJson,
+    smallBoxLocal,
+    smallGeometricError,
+    smallRegion,
+    smallSphere,
+    smallSphereLocal,
     south,
-    east,
-    north
+    tileWidth,
+    ulRegion,
+    ulTileOptions,
+    urRegion,
+    urTileOptions,
+    west
 } from '../lib/constants';
+import { createTilesetJsonSingle } from '../lib/createTilesetJsonSingle';
 import { metersToLongitude, toCamelCase, wgs84Transform } from '../lib/utility';
+
+const fsExtra = require('fs-extra');
+var gltfPipeline = require('gltf-pipeline');
+var path = require('path');
+var DataUri = require('datauri');
+var gltfToGlb = gltfPipeline.gltfToGlb;
+var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../') };
 
 const createB3dm = require('../lib/createB3dm');
 const createCmpt = require('../lib/createCmpt');
 const createI3dm = require('../lib/createI3dm');
-const createTilesetJsonSingle = require('../lib/createTilesetJsonSingle');
 const getProperties = require('../lib/getProperties');
 const saveBinary = require('../lib/saveBinary');
 const saveJson = require('../lib/saveJson');

@@ -19,16 +19,9 @@ function toMatrix3(matrix4: Matrix4) {
     result[8] = matrix4[10];
     return result;
 }
-import { GltfType, GltfComponentType } from './gltfType';
-import path = require('path');
-const Cesium = require('cesium');
+
 const util = require('../lib/utility');
 const wgs84Transform = util.wgs84Transform;
-const Matrix4 = Cesium.Matrix4;
-const Matrix3 = Cesium.Matrix3;
-const Quaternion = Cesium.Quaternion;
-const Cartesian3 = Cesium.Cartesian3;
-const CesiumMath = Cesium.Math;
 
 export namespace InstanceTileUtils {
     const instancesModelSize = 20.0;
@@ -42,18 +35,7 @@ export namespace InstanceTileUtils {
         instancesUri: string;
         rootDir: string;
         embed: boolean;
-        transform: object; // should be a Cesium.Matrix4
-    }
-
-    export interface FeatureTableJson {
-        INSTANCES_LENGTH?: number;
-        RTC_CENTER?: [number, number, number];
-        QUANTIZED_VOLUME_SCALE?: [number, number, number];
-        QUANTIZED_VOLUME_OFFSET?: [number, number, number];
-        EAST_NORTH_UP?: boolean;
-        property?: {
-            [name: string]: { byteOffset: number; componentType: number };
-        };
+        transform: Matrix4;
     }
 
     export function getDefaultTileOptions(rootDir: string): TileOptions {
@@ -68,7 +50,7 @@ export namespace InstanceTileUtils {
                 longitude,
                 latitude,
                 instancesModelSize / 2.0
-            )
+            ) as Matrix4
         };
     }
 
