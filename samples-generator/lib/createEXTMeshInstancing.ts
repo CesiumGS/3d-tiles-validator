@@ -2,6 +2,7 @@ import { Gltf, GltfNode } from './gltfType';
 import { AtLeastOne } from './atLeastN';
 
 const extensionName = 'EXT_mesh_gpu_instancing';
+const Extensions = require('./Extensions');
 
 export interface ExtMeshGpuInstancing {
     attributes: AtLeastOne<{
@@ -16,11 +17,7 @@ export function createEXTMeshInstancingExtension(
     node: GltfNode,
     extMeshGpuInstancing: ExtMeshGpuInstancing
 ) {
-    if (gltf.extensionsUsed == null) {
-        gltf.extensionsUsed = [extensionName];
-    } else {
-        gltf.extensionsUsed.push(extensionName);
-    }
+    Extensions.addExtensionsUsed(gltf, extensionName);
 
     if (node.extensions == null) {
         node.extensions = {};
