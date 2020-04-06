@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@types/bluebird": "^3.5.30",
+    "@types/cesium": "^1.67.3",
     "@types/jasmine": "^3.5.9",
     "@types/node": "^13.9.1",
     "bluebird": "^3.5.1",
