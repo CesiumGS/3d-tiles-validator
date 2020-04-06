@@ -79,5 +79,5 @@ function getBoundingVolume(region?: number[], box?: number[], sphere?: number[])
         return { box: box };
     }
 
-    return {sphere: sphere};
+    return { sphere: sphere };
 }
