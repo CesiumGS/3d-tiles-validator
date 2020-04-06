@@ -99,6 +99,7 @@ export namespace CompositeSamplesNext {
                 featureLayers: [
                     {
                         featureTable: 1,
+                        instanceStride: 1,
                         vertexAttribute: {
                             implicit: {
                                 increment: 1,
