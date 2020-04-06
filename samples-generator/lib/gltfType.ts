@@ -5,6 +5,11 @@ import {
 import { AtLeastOne } from './atLeastN';
 import { ExtMeshGpuInstancing } from './createEXTMeshInstancing';
 
+export enum GLenumName {
+    ARRAY_BUFFER = 0x8892,
+    ELEMENT_ARRAY_BUFFER = 0x8993
+}
+
 export enum GltfComponentType {
     BYTE = 5120,
     UNSIGNED_BYTE = 5121,

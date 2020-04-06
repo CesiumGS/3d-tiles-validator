@@ -1,4 +1,7 @@
 'use strict';
+
+import { GLenumName } from "../../lib/gltfType";
+
 var createGltfFromPnts = require('../../lib/createGltfFromPnts');
 var typeConversion = require('../../lib/typeConversion');
 
@@ -10,7 +13,7 @@ describe('createGltfFromPnts', function() {
             componentType: 'FLOAT',
             propertyName: 'POSITION',
             type: 'VEC3',
-            target: 0x8892,
+            target: GLenumName.ARRAY_BUFFER,
             count: 3,
             min: [-1, 0, 0],
             max: [1, 1, 1]
@@ -21,7 +24,7 @@ describe('createGltfFromPnts', function() {
             componentType: 'FLOAT',
             propertyName: 'NORMAL',
             type: 'VEC3',
-            target: 0x8892,
+            target: GLenumName.ARRAY_BUFFER,
             count: 3,
             min: [0, 0, 1],
             max: [0, 0, 1]
@@ -32,7 +35,7 @@ describe('createGltfFromPnts', function() {
             componentType: 'UNSIGNED_BYTE',
             propertyName: 'RGB',
             type: 'VEC3',
-            target: 0x8892,
+            target: GLenumName.ARRAY_BUFFER,
             count: 3,
             min: [0, 0, 0],
             max: [255, 255, 255]
@@ -44,7 +47,7 @@ describe('createGltfFromPnts', function() {
         componentType: 'UNSIGNED_SHORT',
         propertyName: 'INDICES' ,
         type: 'SCALAR',
-        target: 0x8893,
+        target: GLenumName.ELEMENT_ARRAY_BUFFER,
         count: 3,
         min: [0],
         max: [2]

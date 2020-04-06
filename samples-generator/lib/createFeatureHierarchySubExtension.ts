@@ -1,4 +1,4 @@
-import { Gltf, GltfAccessor } from './gltfType';
+import { Gltf, GltfAccessor, GLenumName } from './gltfType';
 import {
     FeatureHierarchyClass,
     CompositeAccessorBufferView
@@ -190,7 +190,7 @@ function createAccessorAndBufferView(
         buffer: gltf.buffers.length - 1,
         byteLength: composite.byteLength,
         byteOffset: composite.byteOffset,
-        target: 0x8892
+        target: GLenumName.ARRAY_BUFFER
     });
 
     const bufferViewIndex = gltf.bufferViews.length - 1;

@@ -2,7 +2,7 @@ import { createFeatureMetadataExtension } from './createFeatureMetadataExtension
 import { Promise } from 'bluebird';
 import { calculateFilenameExt } from './calculateFilenameExt';
 import { createFeatureHierarchySubExtension } from './createFeatureHierarchySubExtension';
-import { Gltf, GltfType } from './gltfType';
+import { Gltf, GltfType, GLenumName } from './gltfType';
 import { FeatureHierarchyClass } from './featureHierarchyClass';
 import { Material } from './Material';
 import { Mesh } from './Mesh';
@@ -263,7 +263,7 @@ function createBatchTableBinary(batchTable, options) {
             // buffer view
             binaryReference.name = name;
             binaryReference.byteLength = buffer.length;
-            binaryReference.target = 0x8892; // ARRAY_BUFFER
+            binaryReference.target = GLenumName.ARRAY_BUFFER;
 
             // accessor
             binaryReference.componentType = typeConversion.componentTypeStringToInteger(componentType);

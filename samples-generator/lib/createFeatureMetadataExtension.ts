@@ -1,4 +1,4 @@
-import { GltfAccessor } from "./gltfType";
+import { GltfAccessor, GLenumName } from "./gltfType";
 
 const Cesium = require('cesium');
 const defined = Cesium.defined;
@@ -231,7 +231,7 @@ export function createFeatureMetadataExtension(
                     buffer: newBufferIndex,
                     byteLength: batchAttribute.byteLength,
                     byteOffset: batchAttribute.byteOffset,
-                    target: 0x8892 // ARRAY_BUFFER
+                    target: GLenumName.ARRAY_BUFFER
                 });
             }
 
