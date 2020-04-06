@@ -2,8 +2,8 @@ import {
     FeatureMetadata,
     FeatureMetadataPrimitiveExtension
 } from './featureMetadataType';
-import { KHRMeshInstancing } from './khrInstancingType';
 import { AtLeastOne } from './atLeastN';
+import { ExtMeshGpuInstancing } from './createEXTMeshInstancing';
 
 export enum GltfComponentType {
     BYTE = 5120,
@@ -29,7 +29,7 @@ export interface GltfScene {
 }
 
 export interface GltfNodeExtensions {
-    EXT_mesh_gpu_instancing?: KHRMeshInstancing;
+    EXT_mesh_gpu_instancing?: ExtMeshGpuInstancing;
 }
 
 export interface GltfNode {

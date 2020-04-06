@@ -1,11 +1,20 @@
 import { Gltf, GltfNode } from './gltfType';
-import { KHRMeshInstancing } from './khrInstancingType';
+import { AtLeastOne } from './atLeastN';
+
 const extensionName = 'EXT_mesh_gpu_instancing';
+
+export interface ExtMeshGpuInstancing {
+    attributes: AtLeastOne<{
+        TRANSLATION?: number;
+        ROTATION?: number;
+        SCALE?: number;
+    }>;
+}
 
 export function createEXTMeshInstancingExtension(
     gltf: Gltf,
     node: GltfNode,
-    khrMeshInstancing: KHRMeshInstancing
+    extMeshGpuInstancing: ExtMeshGpuInstancing
 ) {
     if (gltf.extensionsUsed == null) {
         gltf.extensionsUsed = [extensionName];
@@ -17,5 +26,5 @@ export function createEXTMeshInstancingExtension(
         node.extensions = {};
     }
 
-    node.extensions.EXT_mesh_gpu_instancing = khrMeshInstancing;
+    node.extensions.EXT_mesh_gpu_instancing = extMeshGpuInstancing;
 }
