@@ -1,12 +1,24 @@
 import { FLOAT32_SIZE_BYTES } from './typeSize';
 import { Attribute } from './attribute';
-import { GltfType, GltfComponentType } from './gltfType';
-const Cesium = require('cesium');
-const Matrix4 = Cesium.Matrix4;
-const Matrix3 = Cesium.Matrix3;
-const Quaternion = Cesium.Quaternion;
-const Cartesian3 = Cesium.Cartesian3;
-const CesiumMath = Cesium.Math;
+import { GltfComponentType, GltfType } from './gltfType';
+import { Cartesian3, Math as CesiumMath, Matrix3, Matrix4, Quaternion, Transforms } from 'cesium';
+
+function toMatrix3(matrix4: Matrix4) {
+    const result = new Matrix3();
+    // X
+    result[0] = matrix4[0];
+    result[3] = matrix4[4];
+    result[6] = matrix4[8];
+    // Y
+    result[1] = matrix4[1];
+    result[4] = matrix4[5];
+    result[7] = matrix4[9];
+    // Z
+    result[2] = matrix4[2];
+    result[5] = matrix4[6];
+    result[8] = matrix4[10];
+    return result;
+}
 
 export namespace InstanceTileUtils {
     export interface FeatureTableJson {
@@ -29,28 +41,11 @@ export namespace InstanceTileUtils {
         };
     }
 
-       export function genFeatureTableJson(
-        featureTableBinary: Buffer,
-        attributes: Attribute[]
-    ): FeatureTableJson {
-        const out: FeatureTableJson = {};
-
-        for (let i = 0; i < attributes.length; ++i) {
-            let attribute = attributes[i];
-            out[attribute.propertyName] = {
-                byteOffset: attribute.byteOffset,
-                componentType: attribute.componentType // Only defined for batchIds
-            };
-            attribute.buffer.copy(featureTableBinary, attribute.byteOffset);
-            return {} as any;
-        }
-    }
-
     export function getPositions(
         instancesLength: number,
         tileWidth: number,
         modelSize: number,
-        transform: object
+        transform: Matrix4
     ): Attribute {
         const buffer = Buffer.alloc(instancesLength * 3 * FLOAT32_SIZE_BYTES);
 
@@ -95,7 +90,7 @@ export namespace InstanceTileUtils {
         instancesLength: number,
         tileWidth: number,
         modelSize: number,
-        transform: object // Cesium.Matrix4
+        transform: Matrix4
     ) {
         const width = Math.round(Math.sqrt(instancesLength));
         let x = i % width;
@@ -158,8 +153,8 @@ export namespace InstanceTileUtils {
                 normalForward.x, normalForward.y, normalForward.z
             ];
 
-            Cesium.Matrix3.fromRowMajorArray(rotationMatrixRowMajor, rotationMatrix);
-            Cesium.Quaternion.fromRotationMatrix(rotationMatrix, quaternion)
+            Matrix3.fromRowMajorArray(rotationMatrixRowMajor, rotationMatrix);
+            Quaternion.fromRotationMatrix(rotationMatrix, quaternion);
 
             min[0] = Math.min(min[0], quaternion.x);
             min[1] = Math.min(min[1], quaternion.y);
@@ -171,7 +166,7 @@ export namespace InstanceTileUtils {
             max[2] = Math.max(max[2], quaternion.z);
             max[3] = Math.max(max[3], quaternion.w);
 
-            buffer.writeFloatLE(quaternion.x, (i * 4 + 0) * FLOAT32_SIZE_BYTES);
+            buffer.writeFloatLE(quaternion.x, (i * 4) * FLOAT32_SIZE_BYTES);
             buffer.writeFloatLE(quaternion.y, (i * 4 + 1) * FLOAT32_SIZE_BYTES);
             buffer.writeFloatLE(quaternion.z, (i * 4 + 2) * FLOAT32_SIZE_BYTES);
             buffer.writeFloatLE(quaternion.w, (i * 4 + 3) * FLOAT32_SIZE_BYTES);
@@ -333,8 +328,8 @@ export namespace InstanceTileUtils {
         instancesLength: number,
         tileWidth: number,
         modelSize: number,
-        transform: object,
-        center: object // Cesium.Cartesian3
+        transform: Matrix4,
+        center: Cartesian3
     ): Attribute {
         const buffer = Buffer.alloc(instancesLength * 3 * FLOAT32_SIZE_BYTES);
         const min = new Array(3).fill(+Infinity);
@@ -368,6 +363,51 @@ export namespace InstanceTileUtils {
             max: max,
             type: GltfType.VEC3,
             componentType: GltfComponentType.FLOAT
+        };
+    }
+
+
+    const pos = new Cartesian3();
+    export function eastNorthUpQuaternion(position: Attribute): Attribute {
+        const positionBuffer = position.buffer;
+        const quatBuffer = Buffer.alloc(position.count * 4 * FLOAT32_SIZE_BYTES);
+        const min = new Array(4).fill(+Infinity);
+        const max = new Array(4).fill(-Infinity);
+
+        for (let i = 0; i < position.count; ++i) {
+            pos.x = positionBuffer.readFloatLE((i * 3) * FLOAT32_SIZE_BYTES);
+            pos.y = positionBuffer.readFloatLE((i * 3 + 1) * FLOAT32_SIZE_BYTES);
+            pos.z = positionBuffer.readFloatLE((i * 3 + 2) * FLOAT32_SIZE_BYTES);
+
+            const fixedFrame = Transforms.eastNorthUpToFixedFrame(pos);
+            const rotationMatrix = toMatrix3(fixedFrame);
+            const quat = Quaternion.fromRotationMatrix(rotationMatrix);
+
+            quatBuffer.writeFloatLE(quat.x, (i * 4) * FLOAT32_SIZE_BYTES);
+            quatBuffer.writeFloatLE(quat.y, (i * 4 + 1) * FLOAT32_SIZE_BYTES);
+            quatBuffer.writeFloatLE(quat.z, (i * 4 + 2) * FLOAT32_SIZE_BYTES);
+            quatBuffer.writeFloatLE(quat.w, (i * 4 + 3) * FLOAT32_SIZE_BYTES);
+
+            min[0] = Math.min(min[0], quat.x);
+            min[1] = Math.min(min[1], quat.y);
+            min[2] = Math.min(min[2], quat.z);
+            min[3] = Math.min(min[3], quat.w);
+
+            max[0] = Math.max(max[0], quat.x);
+            max[1] = Math.max(max[1], quat.y);
+            max[2] = Math.max(max[2], quat.z);
+            max[3] = Math.max(max[3], quat.w);
+        }
+
+        return {
+            buffer: quatBuffer,
+            propertyName: 'EAST_NORTH_UP',
+            byteAlignment: FLOAT32_SIZE_BYTES,
+            componentType: GltfComponentType.FLOAT,
+            count: position.count,
+            min: min,
+            max: max,
+            type: GltfType.VEC4
         };
     }
 }

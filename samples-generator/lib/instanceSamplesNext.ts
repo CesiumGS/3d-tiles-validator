@@ -1,6 +1,7 @@
+
+
 const Cesium = require('cesium');
 const Cartesian3 = Cesium.Cartesian3;
-const Matrix4 = Cesium.Matrix4;
 const gltfPipeline = require('gltf-pipeline');
 const glbToGltf = gltfPipeline.glbToGltf;
 const gltfToGlb = gltfPipeline.gltfToGlb;
@@ -15,15 +16,15 @@ import { addBinaryBuffers } from './gltfUtil';
 import { Gltf } from './gltfType';
 import { toCamelCase } from './utility';
 import { TilesetJson } from './tilesetJson';
+import { FeatureMetadata } from './featureMetadata';
+import { createEXTMeshInstancingExtension } from './createEXTMeshInstancing';
+import { createConstantAttributeLEU32 } from './createConstantAttribute';
+import { Matrix4 } from 'cesium';
 import saveJson = require('./saveJson');
 import saveBinary = require('./saveBinary');
 import createTilesetJsonSingle = require('./createTilesetJsonSingle');
 import fsExtra = require('fs-extra');
 import path = require('path');
-import createFeatureMetadataExtension = require('./createFeatureMetadataExtension');
-import { FeatureMetadata } from './featureMetadata';
-import { createEXTMeshInstancingExtension } from './createEXTMeshInstancing';
-import { createConstantAttributeLEU32 } from './createConstantAttribute';
 
 export namespace InstanceSamplesNext {
     const longitude = -1.31968;
@@ -68,7 +69,7 @@ export namespace InstanceSamplesNext {
         instancesUri: string;
         rootDir: string;
         embed: boolean;
-        transform: object; // should be a Cesium.Matrix4
+        transform: Matrix4;
     }
 
     function getDefaultTileOptions(): TileOptions {
@@ -83,7 +84,7 @@ export namespace InstanceSamplesNext {
                 longitude,
                 latitude,
                 instancesModelSize / 2.0
-            )
+            ) as Matrix4
         };
     }
 
@@ -141,12 +142,17 @@ export namespace InstanceSamplesNext {
             opts.transform
         );
 
+        const eastNorthUp = InstanceTileUtils.eastNorthUpQuaternion(positions);
+
         // add EXT_mesh_gpu_instancing
         const positionAccessorIndex = gltf.accessors.length;
-        addBinaryBuffers(gltf, positions);
+        const eastNorthUpAccessorIndex = gltf.accessors.length + 1;
+
+        addBinaryBuffers(gltf, positions, eastNorthUp);
         createEXTMeshInstancingExtension(gltf, gltf.nodes[0], {
             attributes: {
-                TRANSLATION: positionAccessorIndex
+                TRANSLATION: positionAccessorIndex,
+                ROTATION: eastNorthUpAccessorIndex
             }
         });
 
@@ -210,18 +216,22 @@ export namespace InstanceSamplesNext {
             opts.transform
         );
 
+        const eastNorthUp = InstanceTileUtils.eastNorthUpQuaternion(positions);
+
         // Add instancing (EXT_mesh_gpu_instancing)
         const positionAccessorIndex = gltf.accessors.length;
-        addBinaryBuffers(gltf, positions);
+        const eastNorthUpAccessorIndex = gltf.accessors.length + 1;
+        addBinaryBuffers(gltf, positions, eastNorthUp);
         createEXTMeshInstancingExtension(gltf, gltf.nodes[0], {
             attributes: {
-                TRANSLATION: positionAccessorIndex
+                TRANSLATION: positionAccessorIndex,
+                ROTATION: eastNorthUpAccessorIndex
             }
         });
 
         const heightFeatureData = createConstantAttributeLEU32(
-            'Height', 
-            opts.modelSize, 
+            'Height',
+            opts.modelSize,
             opts.instancesLength
         );
 
@@ -249,7 +259,7 @@ export namespace InstanceSamplesNext {
                     accessor: heightAccessorIndex
                 }
             }
-        })
+        });
 
         const ext = args.useGlb ? '.glb' : '.gltf';
         const outputFolder = 'InstancedWithBatchTableBinary';
@@ -335,6 +345,7 @@ export namespace InstanceSamplesNext {
             opts.modelSize,
             opts.transform
         );
+        const eastNorthUp = InstanceTileUtils.eastNorthUpQuaternion(positions);
 
         const nonUniformScales = InstanceTileUtils.getNonUniformScales(
             opts.instancesLength
@@ -342,11 +353,14 @@ export namespace InstanceSamplesNext {
 
         const positionAccessorIndex = gltf.accessors.length;
         const nonUniformScalesAccessorIndex = gltf.accessors.length + 1;
-        addBinaryBuffers(gltf, positions, nonUniformScales);
+        const eastNorthUpAccessorIndex = gltf.accessors.length + 2;
+
+        addBinaryBuffers(gltf, positions, nonUniformScales, eastNorthUp);
         createEXTMeshInstancingExtension(gltf, gltf.nodes[0], {
             attributes: {
                 TRANSLATION: positionAccessorIndex,
-                SCALE: nonUniformScalesAccessorIndex
+                SCALE: nonUniformScalesAccessorIndex,
+                ROTATION: eastNorthUpAccessorIndex
             }
         });
 
@@ -384,6 +398,7 @@ export namespace InstanceSamplesNext {
             opts.modelSize,
             opts.transform
         );
+        const eastNorthUp = InstanceTileUtils.eastNorthUpQuaternion(positions);
 
         const uniformScale = InstanceTileUtils.getUniformScales(
             opts.instancesLength
@@ -391,11 +406,13 @@ export namespace InstanceSamplesNext {
 
         const positionAccessorIndex = gltf.accessors.length;
         const uniformScaleAccessorIndex = gltf.accessors.length + 1;
-        addBinaryBuffers(gltf, positions, uniformScale);
+        const eastNorthUpAccessorIndex = gltf.accessors.length + 2;
+        addBinaryBuffers(gltf, positions, uniformScale, eastNorthUp);
         createEXTMeshInstancingExtension(gltf, gltf.nodes[0], {
             attributes: {
                 TRANSLATION: positionAccessorIndex,
-                SCALE: uniformScaleAccessorIndex
+                SCALE: uniformScaleAccessorIndex,
+                ROTATION: eastNorthUpAccessorIndex
             }
         });
 
@@ -441,11 +458,15 @@ export namespace InstanceSamplesNext {
             center
         );
 
+        const eastNorthUp = InstanceTileUtils.eastNorthUpQuaternion(rtcPositions);
+
         const rtcPositionAccessorIndex = gltf.accessors.length;
-        addBinaryBuffers(gltf, rtcPositions);
+        const eastNorthUpAccessorIndex = gltf.accessors.length + 1;
+        addBinaryBuffers(gltf, rtcPositions, eastNorthUp);
         createEXTMeshInstancingExtension(gltf, gltf.nodes[0], {
             attributes: {
-                TRANSLATION: rtcPositionAccessorIndex
+                TRANSLATION: rtcPositionAccessorIndex,
+                ROTATION: eastNorthUpAccessorIndex
             }
         });
 
@@ -541,11 +562,15 @@ export namespace InstanceSamplesNext {
             opts.transform
         );
 
+        const eastNorthUp = InstanceTileUtils.eastNorthUpQuaternion(positions);
+
         const positionAccessorIndex = gltf.accessors.length;
-        addBinaryBuffers(gltf, positions);
+        const eastNorthUpAccessorIndex = gltf.accessors.length + 1;
+        addBinaryBuffers(gltf, positions, eastNorthUp);
         createEXTMeshInstancingExtension(gltf, gltf.nodes[0], {
             attributes: {
-                TRANSLATION: positionAccessorIndex
+                TRANSLATION: positionAccessorIndex,
+                ROTATION: eastNorthUpAccessorIndex
             }
         });
 
@@ -584,12 +609,15 @@ export namespace InstanceSamplesNext {
             opts.modelSize,
             opts.transform
         );
+        const eastNorthUp = InstanceTileUtils.eastNorthUpQuaternion(positions);
 
         const positionAccessorIndex = gltf.accessors.length;
-        addBinaryBuffers(gltf, positions);
+        const eastNorthUpAccessorIndex = gltf.accessors.length + 1;
+        addBinaryBuffers(gltf, positions, eastNorthUp);
         createEXTMeshInstancingExtension(gltf, gltf.nodes[0], {
             attributes: {
-                TRANSLATION: positionAccessorIndex
+                TRANSLATION: positionAccessorIndex,
+                ROTATION: eastNorthUpAccessorIndex
             }
         });
 
