@@ -2,6 +2,7 @@ import { FLOAT32_SIZE_BYTES } from './typeSize';
 import { Attribute } from './attribute';
 import { GltfComponentType, GltfType } from './gltfType';
 import { Cartesian3, Math as CesiumMath, Matrix3, Matrix4, Quaternion, Transforms } from 'cesium';
+import { instancesLength, tileWidth, instancesUri } from './constants';
 
 function toMatrix3(matrix4: Matrix4) {
     const result = new Matrix3();
@@ -40,10 +41,10 @@ export namespace InstanceTileUtils {
 
     export function getDefaultTileOptions(rootDir: string): TileOptions {
         return {
-            instancesLength: 25,
-            tileWidth: 200,
-            modelSize: 20,
-            instancesUri: 'data/box.glb',
+            instancesLength: instancesLength,
+            tileWidth: tileWidth,
+            modelSize: instancesModelSize,
+            instancesUri: instancesUri,
             rootDir: rootDir,
             embed: false,
             transform: wgs84Transform(
