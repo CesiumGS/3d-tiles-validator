@@ -1,11 +1,9 @@
-
-
 const Cesium = require('cesium');
 const Cartesian3 = Cesium.Cartesian3;
 const gltfPipeline = require('gltf-pipeline');
 const glbToGltf = gltfPipeline.glbToGltf;
 const gltfToGlb = gltfPipeline.gltfToGlb;
-const util = require('../lib/utility');
+const util = require('./utility');
 const wgs84Transform = util.wgs84Transform;
 const metersToLongitude = util.metersToLongitude;
 const metersToLatitude = util.metersToLatitude;
@@ -15,11 +13,10 @@ import { GeneratorArgs } from './arguments';
 import { addBinaryBuffers } from './gltfUtil';
 import { Gltf } from './gltfType';
 import { toCamelCase } from './utility';
-import { TilesetJson } from './tilesetJson';
 import { FeatureMetadata } from './featureMetadata';
 import { createEXTMeshInstancingExtension } from './createEXTMeshInstancing';
 import { createConstantAttributeLEU32 } from './createConstantAttribute';
-import { Matrix4 } from 'cesium';
+import { Matrix3, Matrix4 } from 'cesium';
 import saveJson = require('./saveJson');
 import saveBinary = require('./saveBinary');
 import createTilesetJsonSingle = require('./createTilesetJsonSingle');
@@ -38,7 +35,7 @@ export namespace InstanceSamplesNext {
     const south = latitude - latitudeExtent / 2.0;
     const east = longitude + longitudeExtent / 2.0;
     const north = latitude + latitudeExtent / 2.0;
-    const instancesRegion = [west, south, east, north, 0.0, instancesHeight];
+    const instancesRegion = [west, south, east, north, 0.0, instancesHeight] as number[];
     const instancesTileWidth = tileWidth;
     const instancesTransform = wgs84Transform(
         longitude,
@@ -69,7 +66,7 @@ export namespace InstanceSamplesNext {
         instancesUri: string;
         rootDir: string;
         embed: boolean;
-        transform: Matrix4;
+        transform: Matrix3;
     }
 
     function getDefaultTileOptions(): TileOptions {
@@ -84,7 +81,7 @@ export namespace InstanceSamplesNext {
                 longitude,
                 latitude,
                 instancesModelSize / 2.0
-            ) as Matrix4
+            )
         };
     }
 
@@ -92,12 +89,14 @@ export namespace InstanceSamplesNext {
         contentUri: string,
         geometricError: number,
         versionNumber: string
-    ): TilesetJson {
+    ) {
         return {
             contentUri: contentUri,
             geometricError: geometricError,
             versionNumber: versionNumber,
-            region: instancesRegion
+            region: instancesRegion,
+            box: undefined as number[],
+            transform: instancesTransform
         };
     }
 
@@ -112,7 +111,7 @@ export namespace InstanceSamplesNext {
     async function writeOutputToDisk(
         destFolder: string,
         tileFileName: string,
-        tileset: TilesetJson,
+        tileset: object,
         gltf: Gltf,
         args: GeneratorArgs
     ) {
@@ -190,7 +189,7 @@ export namespace InstanceSamplesNext {
             args.versionNumber
         );
 
-        let tilesetJson = createTilesetJsonSingle(tilesetOpts) as TilesetJson;
+        let tilesetJson = createTilesetJsonSingle(tilesetOpts);
         await writeOutputToDisk(
             fullPath,
             tileFilename,
@@ -272,7 +271,7 @@ export namespace InstanceSamplesNext {
             args.versionNumber
         );
 
-        let tilesetJson = createTilesetJsonSingle(tilesetOpts) as TilesetJson;
+        let tilesetJson = createTilesetJsonSingle(tilesetOpts);
         await writeOutputToDisk(
             fullPath,
             tileFilename,
@@ -322,7 +321,7 @@ export namespace InstanceSamplesNext {
             args.versionNumber
         );
 
-        let tilesetJson = createTilesetJsonSingle(tilesetOpts) as TilesetJson;
+        let tilesetJson = createTilesetJsonSingle(tilesetOpts);
         await writeOutputToDisk(
             fullPath,
             tileFilename,
@@ -375,7 +374,7 @@ export namespace InstanceSamplesNext {
             args.versionNumber
         );
 
-        let tilesetJson = createTilesetJsonSingle(tilesetOpts) as TilesetJson;
+        let tilesetJson = createTilesetJsonSingle(tilesetOpts);
         await writeOutputToDisk(
             fullPath,
             tileFilename,
@@ -427,7 +426,7 @@ export namespace InstanceSamplesNext {
             args.versionNumber
         );
 
-        let tilesetJson = createTilesetJsonSingle(tilesetOpts) as TilesetJson;
+        let tilesetJson = createTilesetJsonSingle(tilesetOpts);
         await writeOutputToDisk(
             fullPath,
             tileFilename,
@@ -490,7 +489,7 @@ export namespace InstanceSamplesNext {
             args.versionNumber
         );
 
-        let tilesetJson = createTilesetJsonSingle(tilesetOpts) as TilesetJson;
+        let tilesetJson = createTilesetJsonSingle(tilesetOpts);
         await writeOutputToDisk(
             fullPath,
             tileFilename,
@@ -537,7 +536,7 @@ export namespace InstanceSamplesNext {
         tilesetOpts.box = instancesBoxLocal;
         tilesetOpts.transform = instancesTransform;
 
-        let tilesetJson = createTilesetJsonSingle(tilesetOpts) as TilesetJson;
+        let tilesetJson = createTilesetJsonSingle(tilesetOpts);
         await writeOutputToDisk(
             fullPath,
             tileFilename,
@@ -585,7 +584,7 @@ export namespace InstanceSamplesNext {
             args.versionNumber
         );
 
-        let tilesetJson = createTilesetJsonSingle(tilesetOpts) as TilesetJson;
+        let tilesetJson = createTilesetJsonSingle(tilesetOpts);
         await writeOutputToDisk(
             fullPath,
             tileFilename,
@@ -632,7 +631,7 @@ export namespace InstanceSamplesNext {
             args.versionNumber
         );
 
-        let tilesetJson = createTilesetJsonSingle(tilesetOpts) as TilesetJson;
+        let tilesetJson = createTilesetJsonSingle(tilesetOpts);
         await writeOutputToDisk(
             fullPath,
             tileFilename,
