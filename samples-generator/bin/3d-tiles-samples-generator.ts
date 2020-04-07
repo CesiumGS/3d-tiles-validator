@@ -14,13 +14,13 @@ import { createBatchTableHierarchy } from '../lib/createBatchTableHierarchy';
 import { createInstancesTile }  from '../lib/createInstancesTile';
 import { InstanceSamplesNext } from '../lib/instanceSamplesNext';
 import { GeneratorArgs } from '../lib/arguments';
+import { createTilesetJsonSingle } from '../lib/createTilesetJsonSingle';
 
 var createBuildingsTile = require('../lib/createBuildingsTile');
 var createB3dm = require('../lib/createB3dm');
 var createCmpt = require('../lib/createCmpt');
 var createI3dm = require('../lib/createI3dm');
 var createPointCloudTile = require('../lib/createPointCloudTile');
-var createTilesetJsonSingle = require('../lib/createTilesetJsonSingle');
 var getProperties = require('../lib/getProperties');
 var saveBinary = require('../lib/saveBinary');
 var saveJson = require('../lib/saveJson');
@@ -222,7 +222,7 @@ const args: GeneratorArgs = {
     prettyJson: prettyJson,
     geometricError: instancesGeometricError,
     versionNumber: '1.1'
-}
+};
 
 var promises = [
     // Batched
@@ -332,7 +332,6 @@ async function main() {
     }
 
     // 3d-tiles-next 
-    const ext = args.useGlb ? '.glb' : '.gltf';
     try {
         if (args.use3dTilesNext) {
             for (const promise of tilesNextPromises) {
@@ -1087,7 +1086,7 @@ async function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions?) {
         tilesetOptions.region = instancesRegion;
     }
 
-    const result = await createInstancesTile(tileOptions)
+    const result = await createInstancesTile(tileOptions);
     var tilesetJson = createTilesetJsonSingle(tilesetOptions);
 
     const i3dm = result.i3dm;

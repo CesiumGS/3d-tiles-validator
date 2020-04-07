@@ -1,4 +1,4 @@
-import { Cartesian3, HeadingPitchRoll, Matrix3, Transforms } from 'cesium';
+import { Cartesian3, HeadingPitchRoll, Matrix4, Transforms } from 'cesium';
 
 export function metersToLongitude(meters: number, latitude: number): number {
     return (meters * 0.000000156785) / Math.cos(latitude);
@@ -12,7 +12,7 @@ export function wgs84Transform(
     longitude: number,
     latitude: number,
     height: number
-): Matrix3 {
+): Matrix4 {
     return Transforms.headingPitchRollToFixedFrame(
         Cartesian3.fromRadians(longitude, latitude, height),
         new HeadingPitchRoll()
