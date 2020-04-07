@@ -6,18 +6,18 @@ var fsExtra = require('fs-extra');
 var path = require('path');
 var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
 import { Promise } from 'bluebird';
-import { calculateFilenameExt } from '../lib/calculateFilenameExt';
+import { calculateFilenameExt } from './calculateFilenameExt';
 import createGltf = require('./createGltf');
 import { createFeatureHierarchySubExtension } from './createFeatureHierarchySubExtension';
 import { Gltf, GltfType  } from './gltfType';
 import { FeatureHierarchyClass } from './featureHierarchyClass';
+import { createTilesetJsonSingle } from './createTilesetJsonSingle';
 var typeConversion = require('./typeConversion');
 var createFeatureMetadataExtension = require('./createFeatureMetadataExtension');
 var getMinMax = require('./getMinMax');
 
 var createB3dm = require('./createB3dm');
 var createGlb = require('./createGlb');
-var createTilesetJsonSingle = require('./createTilesetJsonSingle');
 var Extensions = require('./Extensions');
 var getBufferPadded = require('./getBufferPadded');
 var Material = require('./Material');
@@ -133,7 +133,7 @@ export function createBatchTableHierarchy(options) {
         opts.versionNumber = '1.1';
     }
 
-    var tilesetJson = createTilesetJsonSingle(opts)
+    var tilesetJson = createTilesetJsonSingle(opts);
     if (!use3dTilesNext && !options.legacy) {
         Extensions.addExtensionsUsed(tilesetJson, '3DTILES_batch_table_hierarchy');
         Extensions.addExtensionsRequired(tilesetJson, '3DTILES_batch_table_hierarchy');
@@ -274,7 +274,7 @@ function createBatchTableBinary(batchTable, options) {
             binaryReference.target = 0x8892; // ARRAY_BUFFER
 
             // accessor
-            binaryReference.componentType = typeConversion.componentTypeStringToInteger(componentType)
+            binaryReference.componentType = typeConversion.componentTypeStringToInteger(componentType);
             binaryReference.count = values.length;
             const minMax = getMinMax(values, 1);
             binaryReference.max = minMax.max;
@@ -412,12 +412,12 @@ function createHierarchy(instances) {
         // Add properties to class
         for (var propertyName in properties) {
             if (properties.hasOwnProperty(propertyName)) {
-                classData.instances[propertyName].push(properties[propertyName]);
+                classData!.instances[propertyName].push(properties[propertyName]);
             }
         }
 
         // Increment class instances length
-        classData.length++;
+        classData!.length++;
 
         // Add to classIds
         classIds.push(classId);

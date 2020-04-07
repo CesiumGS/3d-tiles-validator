@@ -5,21 +5,22 @@ var Cesium = require('cesium');
 var fsExtra = require('fs-extra');
 var gltfPipeline = require('gltf-pipeline');
 var path = require('path');
-import { Promise } from 'bluebird';
+import {Promise as Bluebird} from 'bluebird';
 var DataUri = require('datauri');
 var gltfToGlb = gltfPipeline.gltfToGlb;
 var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
 import { calculateFilenameExt } from '../lib/calculateFilenameExt';
-
 import { createBatchTableHierarchy } from '../lib/createBatchTableHierarchy';
+import { createInstancesTile }  from '../lib/createInstancesTile';
+import { InstanceSamplesNext } from '../lib/instanceSamplesNext';
+import { GeneratorArgs } from '../lib/arguments';
+import { createTilesetJsonSingle } from '../lib/createTilesetJsonSingle';
 
 var createBuildingsTile = require('../lib/createBuildingsTile');
 var createB3dm = require('../lib/createB3dm');
 var createCmpt = require('../lib/createCmpt');
 var createI3dm = require('../lib/createI3dm');
-var createInstancesTile = require('../lib/createInstancesTile');
 var createPointCloudTile = require('../lib/createPointCloudTile');
-var createTilesetJsonSingle = require('../lib/createTilesetJsonSingle');
 var getProperties = require('../lib/getProperties');
 var saveBinary = require('../lib/saveBinary');
 var saveJson = require('../lib/saveJson');
@@ -35,7 +36,7 @@ var defined  = Cesium.defined;
 var Matrix4 = Cesium.Matrix4;
 var Quaternion = Cesium.Quaternion;
 
-var lowercase = util.lowercase;
+const toCamelCase = util.toCamelCase;
 var metersToLongitude = util.metersToLongitude;
 var metersToLatitude = util.metersToLatitude;
 var wgs84Transform = util.wgs84Transform;
@@ -213,6 +214,16 @@ var argv = require('yargs')
 
 var versionNumber = argv['3d-tiles-next'] ? '1.1' : '1.0';
 
+const args: GeneratorArgs = {
+    use3dTilesNext: argv['3d-tiles-next'],
+    useGlb: argv['glb'],
+    gltfConversionOptions: gltfConversionOptions,
+    gzip: gzip,
+    prettyJson: prettyJson,
+    geometricError: instancesGeometricError,
+    versionNumber: '1.1'
+};
+
 var promises = [
     // Batched
     createBatchedWithBatchTable(),
@@ -304,8 +315,36 @@ var promises = [
     createExpireTileset()
 ];
 
-function main() {
-    return Promise.all(promises).catch(function(error) {
+async function main() {
+    let tilesNextPromises: (() => Promise<void>)[] = [];
+    if (args.use3dTilesNext) {
+        tilesNextPromises = [
+            async () => InstanceSamplesNext.createInstancedWithBatchTable(args),
+            async () => InstanceSamplesNext.createInstancedWithBatchTableBinary(args),
+            async () => InstanceSamplesNext.createInstancedOrientation(args),
+            async () => InstanceSamplesNext.createInstancedScaleNonUniform(args),
+            async () => InstanceSamplesNext.createInstancedScale(args),
+            async () => InstanceSamplesNext.createInstancedRTC(args),
+            async () => InstanceSamplesNext.createInstancedWithTransform(args),
+            async () => InstanceSamplesNext.createInstancedRedMaterial(args),
+            async () => InstanceSamplesNext.createInstancedTextured(args)
+        ];
+    }
+
+    // 3d-tiles-next 
+    try {
+        if (args.use3dTilesNext) {
+            for (const promise of tilesNextPromises) {
+                await promise();
+            }
+        }
+    } catch(error) {
+        console.log(error.message);
+        console.log(error.stack);
+    }
+
+    // legacy code path
+    return Bluebird.all(promises).catch(function(error) {
         console.log(error.message);
         console.log(error.stack);
     });
@@ -465,7 +504,7 @@ function createBatchedWGS84() {
 
 function createBatchedDeprecated1() {
     if (argv['3d-tiles-next']) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     // Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic
@@ -482,7 +521,7 @@ function createBatchedDeprecated1() {
 
 function createBatchedDeprecated2() {
     if (argv['3d-tiles-next']) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     // Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic
@@ -538,7 +577,7 @@ function createPointCloudRGBA() {
 
 function createPointCloudRGB565() {
     if (argv['3d-tiles-next']) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     var tileOptions = {
@@ -549,7 +588,7 @@ function createPointCloudRGB565() {
 
 function createPointCloudConstantColor() {
     if (argv['3d-tiles-next']) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     var tileOptions = {
@@ -575,7 +614,7 @@ function createPointCloudWGS84() {
 
 function createPointCloudQuantized() {
     if (argv['3d-tiles-next']) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     var tileOptions = {
@@ -594,7 +633,7 @@ function createPointCloudNormals() {
 
 function createPointCloudNormalsOctEncoded() {
     if (argv['3d-tiles-next']) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     var tileOptions = {
@@ -607,7 +646,7 @@ function createPointCloudNormalsOctEncoded() {
 
 function createPointCloudQuantizedOctEncoded() {
     if (argv['3d-tiles-next']) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     var tileOptions = {
@@ -656,7 +695,7 @@ function createPointCloudWithTransform() {
 
 function createPointCloudDraco() {
     if (argv['3d-tiles-next']) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     var tileOptions = {
@@ -671,7 +710,7 @@ function createPointCloudDraco() {
 
 function createPointCloudDracoPartial() {
     if (argv['3d-tiles-next']) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     var tileOptions = {
@@ -687,7 +726,7 @@ function createPointCloudDracoPartial() {
 
 function createPointCloudDracoBatched() {
     if (argv['3d-tiles-next']) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     var tileOptions = {
@@ -719,7 +758,7 @@ function createPointCloudTimeDynamicWithTransforms() {
 
 function createPointCloudTimeDynamicDraco() {
     if (argv['3d-tiles-next']) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     var options = {
@@ -729,6 +768,10 @@ function createPointCloudTimeDynamicDraco() {
 }
 
 function createInstancedWithBatchTable() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         createBatchTable : true
     };
@@ -736,6 +779,10 @@ function createInstancedWithBatchTable() {
 }
 
 function createInstancedWithoutBatchTable() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         createBatchTable : false
     };
@@ -743,6 +790,10 @@ function createInstancedWithoutBatchTable() {
 }
 
 function createInstancedWithBatchTableBinary() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         createBatchTable : true,
         createBatchTableBinary : true
@@ -751,6 +802,10 @@ function createInstancedWithBatchTableBinary() {
 }
 
 function createInstancedGltfExternal() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         embed : false
     };
@@ -758,6 +813,10 @@ function createInstancedGltfExternal() {
 }
 
 function createInstancedOrientation() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         orientations : true
     };
@@ -765,6 +824,10 @@ function createInstancedOrientation() {
 }
 
 function createInstancedOct32POrientation() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         orientations : true,
         octEncodeOrientations : true
@@ -773,6 +836,10 @@ function createInstancedOct32POrientation() {
 }
 
 function createInstancedQuantized() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         quantizePositions : true
     };
@@ -780,6 +847,10 @@ function createInstancedQuantized() {
 }
 
 function createInstancedQuantizedOct32POrientation() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         quantizePositions : true,
         orientations : true,
@@ -789,6 +860,10 @@ function createInstancedQuantizedOct32POrientation() {
 }
 
 function createInstancedScaleNonUniform() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         nonUniformScales : true
     };
@@ -796,6 +871,10 @@ function createInstancedScaleNonUniform() {
 }
 
 function createInstancedScale() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         uniformScales : true
     };
@@ -803,6 +882,10 @@ function createInstancedScale() {
 }
 
 function createInstancedRTC() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         relativeToCenter : true
     };
@@ -810,6 +893,10 @@ function createInstancedRTC() {
 }
 
 function createInstancedWithTransform() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         transform : Matrix4.IDENTITY,
         eastNorthUp : false
@@ -822,6 +909,10 @@ function createInstancedWithTransform() {
 }
 
 function createInstancedRedMaterial() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         uri : instancesRedUri
     };
@@ -829,6 +920,10 @@ function createInstancedRedMaterial() {
 }
 
 function createInstancedWithBatchIds() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         batchIds : true
     };
@@ -836,6 +931,10 @@ function createInstancedWithBatchIds() {
 }
 
 function createInstancedTextured() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
     var tileOptions = {
         uri : instancesTexturedUri
     };
@@ -858,7 +957,7 @@ function createComposite() {
         relativeToCenter : true
     };
 
-    return Promise.all([
+    return Bluebird.all([
         createBuildingsTile(b3dmOptions),
         createInstancesTile(i3dmOptions)
     ]).then(function(results) {
@@ -886,7 +985,7 @@ function createCompositeOfComposite() {
         relativeToCenter : true
     };
 
-    return Promise.all([
+    return Bluebird.all([
         createBuildingsTile(b3dmOptions),
         createInstancesTile(i3dmOptions)
     ]).then(function(results) {
@@ -920,7 +1019,7 @@ function createCompositeOfInstanced() {
         embed : false
     };
 
-    return Promise.all([
+    return Bluebird.all([
         createInstancesTile(i3dmOptions1),
         createInstancesTile(i3dmOptions2)
     ]).then(function(results) {
@@ -938,7 +1037,7 @@ function createCompositeOfInstanced() {
 
 function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions?) {
     var tilesetDirectory = path.join(outputDirectory, 'Composite', tilesetName);
-    var contentUri = lowercase(tilesetName) + '.cmpt';
+    var contentUri = toCamelCase(tilesetName) + '.cmpt';
     var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
 
@@ -954,17 +1053,17 @@ function saveCompositeTileset(tilesetName, tiles, batchTables, tilesetOptions?) 
     tilesetOptions.properties = getProperties(batchTables);
     var tilesetJson = createTilesetJsonSingle(tilesetOptions);
 
-    return Promise.all([
+    return Bluebird.all([
         saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
         saveBinary(tilePath, cmpt, gzip)
     ]);
 }
 
-function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions?) {
+async function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions?) {
     var tilesetDirectory = path.join(outputDirectory, 'Instanced', tilesetName);
-    var contentUri = lowercase(tilesetName) + '.i3dm';
-    var tilePath = path.join(tilesetDirectory, contentUri);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
+    var use3dTilesNext = defaultValue(argv['3d-tiles-next'], false);
+    var useGlb = defaultValue(argv['glb'], false);
 
     tileOptions = defaultValue(tileOptions, {});
     tileOptions.uri = defaultValue(tileOptions.uri, instancesUri);
@@ -973,30 +1072,35 @@ function saveInstancedTileset(tilesetName, tileOptions, tilesetOptions?) {
     tileOptions.instancesLength = instancesLength;
     tileOptions.modelSize = instancesModelSize;
     tileOptions.eastNorthUp = defaultValue(tileOptions.eastNorthUp, true);
+    tileOptions.use3dTilesNext = use3dTilesNext;
+    tileOptions.useGlb = useGlb;
 
     tilesetOptions = defaultValue(tilesetOptions, {});
-    tilesetOptions.contentUri = contentUri;
+    var ext = calculateFilenameExt(argv['3d-tiles-next'], argv.glb, '.i3dm');
+
+    tilesetOptions.contentUri = toCamelCase(tilesetName) + ext;
+    var tilePath = path.join(tilesetDirectory, tilesetOptions.contentUri);
+
     tilesetOptions.geometricError = instancesGeometricError;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
         tilesetOptions.region = instancesRegion;
     }
 
-    return createInstancesTile(tileOptions)
-        .then(function(result) {
-            var i3dm = result.i3dm;
-            var batchTableJson = result.batchTableJson;
-            tilesetOptions.properties = getProperties(batchTableJson);
-            var tilesetJson = createTilesetJsonSingle(tilesetOptions);
-            var promises = [
-                saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
-                saveBinary(tilePath, i3dm, gzip)
-            ];
-            if (tileOptions.embed === false) {
-                var copyPath = path.join(tilesetDirectory, path.basename(tileOptions.uri));
-                promises.push(fsExtra.copy(tileOptions.uri, copyPath));
-            }
-            return Promise.all(promises);
-        });
+    const result = await createInstancesTile(tileOptions);
+    var tilesetJson = createTilesetJsonSingle(tilesetOptions);
+
+    const i3dm = result.i3dm;
+    const batchTableJson = result.batchTableJson;
+    tilesetOptions.properties = getProperties(batchTableJson);
+    const promises = [
+        saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
+        saveBinary(tilePath, i3dm, gzip)
+    ];
+    if (tileOptions.embed === false) {
+        const copyPath = path.join(tilesetDirectory, path.basename(tileOptions.uri));
+        promises.push(fsExtra.copy(tileOptions.uri, copyPath));
+    }
+    return Bluebird.all(promises);
 }
 
 function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions?) {
@@ -1012,7 +1116,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions?) {
     tileOptions.use3dTilesNext = argv['3d-tiles-next'];
     tileOptions.useGlb = argv.glb;
 
-    var contentUri = lowercase(tilesetName) + ext;
+    var contentUri = toCamelCase(tilesetName) + ext;
     tilesetOptions.contentUri = contentUri;
     tilesetOptions.geometricError = smallGeometricError;
     if (!defined(tilesetOptions.region) && !defined(tilesetOptions.sphere) && !defined(tilesetOptions.box)) {
@@ -1036,7 +1140,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions?) {
                         return saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson, gzip);
                     }
 
-                    return Promise.all([
+                    return Bluebird.all([
                         saveBinary(tilePath, result.glb, gzip),
                         saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson, gzip)
                     ]);
@@ -1047,7 +1151,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions?) {
                     return saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson, gzip);
                 }
 
-                return Promise.all([
+                return Bluebird.all([
                     saveJson(tilesetPath, createTilesetJsonSingle(tilesetOptions), prettyJson, gzip),
                     saveJson(tilePath, result.gltf, prettyJson, gzip)
                 ]);
@@ -1063,7 +1167,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions?) {
             }
 
             var tilesetJson = createTilesetJsonSingle(tilesetOptions);
-            return Promise.all([
+            return Bluebird.all([
                 saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
                 saveBinary(tilePath, b3dm, gzip)
             ]);
@@ -1082,7 +1186,7 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions?) {
 
     var ext = calculateFilenameExt(argv['3d-tiles-next'], argv.glb, '.pnts');
 
-    var contentUri = lowercase(tilesetName) + ext;
+    var contentUri = toCamelCase(tilesetName) + ext;
     var tilePath = path.join(tilesetDirectory, contentUri);
 
     var result = createPointCloudTile(tileOptions);
@@ -1101,14 +1205,14 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions?) {
 
     var tilesetJson = createTilesetJsonSingle(tilesetOptions);
     if (argv['3d-tiles-next'] && !argv.glb) {
-        return Promise.all([
+        return Bluebird.all([
             saveJson(tilePath, result.gltf, prettyJson, gzip),
             saveJson(tilesetPath, tilesetJson, prettyJson, gzip)
         ]);
     }
 
     if (argv['3d-tiles-next'] && argv.glb) {
-        return Promise.all([
+        return Bluebird.all([
             gltfToGlb(result.gltf, gltfConversionOptions).then(function(result) {
                 return saveBinary(tilePath, result.glb, gzip);
             }),
@@ -1116,7 +1220,7 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions?) {
         ]);
     }
 
-    return Promise.all([
+    return Bluebird.all([
         saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
         saveBinary(tilePath, result.pnts, gzip)
     ]);
@@ -1175,7 +1279,7 @@ function savePointCloudTimeDynamic(name, options) {
         }
     }
 
-    return Promise.all(tilePromises);
+    return Bluebird.all(tilePromises);
 }
 
 function createHierarchy() {
@@ -1243,7 +1347,7 @@ function createHierarchyBinary() {
 }
 
 function saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, saveProperties) {
-    return Promise.map(tileOptions, function(tileOptions, index) {
+    return Bluebird.map(tileOptions, function(tileOptions, index) {
         return createBuildingsTile(tileOptions)
             .then(function(result) {
                 var b3dm = result.b3dm;
@@ -1507,7 +1611,7 @@ function createTilesetOfTilesets() {
 
     return saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true)
         .then(function() {
-            return Promise.all([
+            return Bluebird.all([
                 saveJson(tileset2Path, tileset2Json, prettyJson, gzip),
                 saveJson(tileset3Path, tileset3Json, prettyJson, gzip)
             ]);
@@ -1678,7 +1782,7 @@ function createTilesetWithExternalResources() {
 
     return fsExtra.readFile(glbPath)
         .then(function(glb) {
-            return Promise.all([
+            return Bluebird.all([
                 modifyImageUri(glb, glbBasePath, 'textured_box_separate/'),
                 modifyImageUri(glb, glbBasePath, '../textured_box_separate/')
             ]);
@@ -1712,12 +1816,12 @@ function createTilesetWithExternalResources() {
                     glb : glbs[1]
                 })
             ];
-            return Promise.map(tiles, function(tile, index) {
+            return Bluebird.map(tiles, function(tile, index) {
                 return saveBinary(tilePaths[index], tile, gzip);
             });
         })
         .then(function() {
-            return Promise.all([
+            return Bluebird.all([
                 saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
                 saveJson(tileset2Path, tileset2Json, prettyJson, gzip),
                 fsExtra.copy(glbBasePath, glbCopyPath)
@@ -2160,13 +2264,13 @@ function createTilesetWithTransforms() {
         }
     };
 
-    return Promise.all([
+    return Bluebird.all([
         createInstancesTile(instancesOptions),
         createBuildingsTile(buildingsOptions)
     ]).then(function(results) {
         var i3dm = results[0].i3dm;
         var b3dm = results[1].b3dm;
-        return Promise.all([
+        return Bluebird.all([
             saveBinary(instancesTilePath, i3dm, gzip),
             saveBinary(buildingsTilePath, b3dm, gzip),
             saveJson(tilesetPath, tilesetJson, prettyJson, gzip)
@@ -2462,7 +2566,7 @@ function createTilesetSubtreeExpiration() {
         }
     };
 
-    return Promise.all([
+    return Bluebird.all([
         saveTilesetFiles(tileOptions, tileNames, tilesetDirectory, tilesetPath, tilesetJson, true),
         saveJson(subtreePath, subtreeJson, prettyJson, gzip)
     ]);
@@ -2562,7 +2666,7 @@ function createTilesetPoints() {
     }
     promises.push(saveJson(tilesetPath, tilesetJson, prettyJson, gzip));
 
-    return Promise.all(promises);
+    return Bluebird.all(promises);
 }
 
 function createTilesetUniform() {
@@ -2772,7 +2876,7 @@ function createDiscreteLOD() {
         }
     };
 
-    var tilesPromise = Promise.map(glbPaths, function(glbPath, index) {
+    var tilesBluebird = Bluebird.map(glbPaths, function(glbPath, index) {
         return fsExtra.readFile(glbPath)
             .then(function(glb) {
                 var b3dm = createB3dm({
@@ -2783,9 +2887,9 @@ function createDiscreteLOD() {
             });
     });
 
-    var tilesetPromise = saveJson(tilesetPath, tilesetJson, prettyJson, gzip);
+    var tilesetBluebird = saveJson(tilesetPath, tilesetJson, prettyJson, gzip);
 
-    return Promise.all([tilesPromise, tilesetPromise]);
+    return Bluebird.all([tilesBluebird, tilesetBluebird]);
 }
 
 function createTreeBillboards() {
@@ -2851,7 +2955,7 @@ function createTreeBillboards() {
         }
     };
 
-    return Promise.map(optionsArray, function(options, index) {
+    return Bluebird.map(optionsArray, function(options, index) {
         return createInstancesTile(options)
             .then(function(result) {
                 var i3dm = result.i3dm;
@@ -3021,7 +3125,7 @@ function createRequestVolume() {
 
     var pnts = createPointCloudTile(pointCloudOptions).pnts;
 
-    var cityTilePromises = Promise.map(cityTileOptions, function(tileOptions, index) {
+    var cityTilePromises = Bluebird.map(cityTileOptions, function(tileOptions, index) {
         return createBuildingsTile(tileOptions)
             .then(function(result) {
                 var tilePath = path.join(tilesetDirectory, 'city', cityTileNames[index]);
@@ -3029,7 +3133,7 @@ function createRequestVolume() {
             });
     });
 
-    var buildingPromise = fsExtra.readFile(buildingGlbPath)
+    var buildingBluebird = fsExtra.readFile(buildingGlbPath)
         .then(function(glb) {
             return createB3dm({
                 glb : glb
@@ -3039,9 +3143,9 @@ function createRequestVolume() {
             saveBinary(buildingTilePath, b3dm, gzip);
         });
 
-    return Promise.all([
+    return Bluebird.all([
         cityTilePromises,
-        buildingPromise,
+        buildingBluebird,
         saveBinary(pointCloudTilePath, pnts, gzip),
         saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
         saveJson(cityTilesetPath, cityTilesetJson, prettyJson, gzip)
@@ -3107,8 +3211,8 @@ function createExpireTileset() {
         }
     };
 
-    return Promise.all([
+    return Bluebird.all([
         saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
-        Promise.all(tilePromises)
+        Bluebird.all(tilePromises)
     ]);
 }

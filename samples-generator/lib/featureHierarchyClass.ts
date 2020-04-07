@@ -1,4 +1,4 @@
-import { GltfType, GltfAccessor } from './gltfType';
+import { GltfType } from './gltfType';
 
 export interface CompositeAccessorBufferView {
     bufferView: number;

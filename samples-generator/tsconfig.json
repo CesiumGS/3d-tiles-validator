@@ -5,11 +5,12 @@
         "target": "es5",
         "allowJs": true,
         "noImplicitAny": false,
-        "sourceMap": true
+        "sourceMap": true,
+        "types": [ "node", "jest" ]
     },
     "include": [
         "./lib/**/*",
         "./bin/**/*",
-        "./specs/**/*"
+        "test/**/*"
     ]
 }
