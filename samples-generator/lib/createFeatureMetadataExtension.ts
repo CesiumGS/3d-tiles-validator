@@ -1,8 +1,8 @@
-import { GltfAccessor, GLenumName } from "./gltfType";
+import { GltfAccessor, GLenumName } from './gltfType';
+import { Extensions } from './Extensions';
 
 const Cesium = require('cesium');
 const defined = Cesium.defined;
-const Extensions = require('./Extensions');
 const typeConversion = require('./typeConversion');
 const featureTableExtensionName = 'CESIUM_3dtiles_feature_metadata';
 

@@ -1,4 +1,3 @@
-import { createFeatureMetadataExtension } from './createFeatureMetadataExtension';
 import { Promise } from 'bluebird';
 import { calculateFilenameExt } from './calculateFilenameExt';
 import { createFeatureHierarchySubExtension } from './createFeatureHierarchySubExtension';
@@ -6,22 +5,30 @@ import { Gltf, GltfType, GLenumName } from './gltfType';
 import { FeatureHierarchyClass } from './featureHierarchyClass';
 import { Material } from './Material';
 import { Mesh } from './Mesh';
-import { Cartesian3, defaultValue, defined, Math as CesiumMath, Matrix4, Quaternion } from 'cesium';
+import {
+    Cartesian3,
+    defaultValue,
+    defined,
+    Math as CesiumMath,
+    Matrix4,
+    Quaternion
+} from 'cesium';
 
 const gltfPipeline = require('gltf-pipeline');
 var gltfToGlb = gltfPipeline.gltfToGlb;
 var fsExtra = require('fs-extra');
 var path = require('path');
-var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../')};
+var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../') };
 import createGltf = require('./createGltf');
 import { createTilesetJsonSingle } from './createTilesetJsonSingle';
+import { createFeatureMetadataExtension } from './createFeatureMetadataExtension';
+import { Extensions } from './Extensions';
 
 var typeConversion = require('./typeConversion');
 var getMinMax = require('./getMinMax');
 
 var createB3dm = require('./createB3dm');
 var createGlb = require('./createGlb');
-var Extensions = require('./Extensions');
 var getBufferPadded = require('./getBufferPadded');
 var saveBinary = require('./saveBinary');
 var saveJson = require('./saveJson');
@@ -63,7 +70,7 @@ export function createBatchTableHierarchy(options) {
 
     var batchTableBinary;
     if (useBatchTableBinary) {
-        batchTableBinary = createBatchTableBinary(batchTableJson, options);  // Modifies the json in place
+        batchTableBinary = createBatchTableBinary(batchTableJson, options); // Modifies the json in place
     }
 
     // Mesh urls listed in the same order as features in the classIds arrays
@@ -87,17 +94,33 @@ export function createBatchTableHierarchy(options) {
     ];
 
     // glTF models are initially y-up, transform to z-up
-    var yUpToZUp = Quaternion.fromAxisAngle(Cartesian3.UNIT_X, CesiumMath.PI_OVER_TWO);
+    var yUpToZUp = Quaternion.fromAxisAngle(
+        Cartesian3.UNIT_X,
+        CesiumMath.PI_OVER_TWO
+    );
     var scale = new Cartesian3(5.0, 5.0, 5.0); // Scale the models up a bit
 
     // Local transforms of the buildings within the tile
     var buildingTransforms = [
-        Matrix4.fromTranslationQuaternionRotationScale(buildingPositions[0], yUpToZUp, scale),
-        Matrix4.fromTranslationQuaternionRotationScale(buildingPositions[1], yUpToZUp, scale),
-        Matrix4.fromTranslationQuaternionRotationScale(buildingPositions[2], yUpToZUp , scale)
+        Matrix4.fromTranslationQuaternionRotationScale(
+            buildingPositions[0],
+            yUpToZUp,
+            scale
+        ),
+        Matrix4.fromTranslationQuaternionRotationScale(
+            buildingPositions[1],
+            yUpToZUp,
+            scale
+        ),
+        Matrix4.fromTranslationQuaternionRotationScale(
+            buildingPositions[2],
+            yUpToZUp,
+            scale
+        )
     ];
 
-    var contentUri = 'tile' + calculateFilenameExt(use3dTilesNext, useGlb, '.b3dm');
+    var contentUri =
+        'tile' + calculateFilenameExt(use3dTilesNext, useGlb, '.b3dm');
     var directory = options.directory;
     var tilePath = path.join(directory, contentUri);
     var tilesetJsonPath = path.join(directory, 'tileset.json');
@@ -107,18 +130,13 @@ export function createBatchTableHierarchy(options) {
     var batchLength = buildingsLength * meshesLength;
     var geometricError = 70.0;
 
-    var box = [
-        0, 0, 10,
-        50, 0, 0,
-        0, 50, 0,
-        0, 0, 10
-    ];
+    var box = [0, 0, 10, 50, 0, 0, 0, 50, 0, 0, 0, 10];
 
     var opts: any = {
-        contentUri : contentUri,
-        geometricError : geometricError,
-        box : box,
-        transform : transform
+        contentUri: contentUri,
+        geometricError: geometricError,
+        box: box,
+        transform: transform
     };
 
     if (use3dTilesNext) {
@@ -127,96 +145,125 @@ export function createBatchTableHierarchy(options) {
 
     var tilesetJson = createTilesetJsonSingle(opts);
     if (!use3dTilesNext && !options.legacy) {
-        Extensions.addExtensionsUsed(tilesetJson, '3DTILES_batch_table_hierarchy');
-        Extensions.addExtensionsRequired(tilesetJson, '3DTILES_batch_table_hierarchy');
+        Extensions.addExtensionsUsed(
+            tilesetJson,
+            '3DTILES_batch_table_hierarchy'
+        );
+        Extensions.addExtensionsRequired(
+            tilesetJson,
+            '3DTILES_batch_table_hierarchy'
+        );
     }
 
     var featureTableJson = {
-        BATCH_LENGTH : batchLength
+        BATCH_LENGTH: batchLength
     };
 
-    return Promise.map(urls, function(url) {
-        return fsExtra.readJson(url)
-            .then(function(gltf) {
-                return Mesh.fromGltf(gltf);
-            });
-    }).then(function(meshes) {
-        var meshesLength = meshes.length;
-        var clonedMeshes = [];
-        for (var i = 0; i < buildingsLength; ++i) {
-            for (var j = 0; j < meshesLength; ++j) {
-                var mesh = Mesh.clone(meshes[j]);
-                mesh.material = whiteOpaqueMaterial;
-                mesh.transform(buildingTransforms[i]);
-                clonedMeshes.push(mesh);
-            }
-        }
-        var batchedMesh = Mesh.batch(clonedMeshes);
-
-        if (use3dTilesNext) {
-            return createGltf({
-                mesh: batchedMesh,
-                use3dTilesNext: use3dTilesNext
-            });
-        }
-
-        return createGlb({
-            mesh : batchedMesh
+    return Promise.map(urls, function (url) {
+        return fsExtra.readJson(url).then(function (gltf) {
+            return Mesh.fromGltf(gltf);
         });
-    }).then(function(result) {
-        if (use3dTilesNext) {
-            if (defined(batchTableJson)) {
+    })
+        .then(function (meshes) {
+            var meshesLength = meshes.length;
+            var clonedMeshes = [];
+            for (var i = 0; i < buildingsLength; ++i) {
+                for (var j = 0; j < meshesLength; ++j) {
+                    var mesh = Mesh.clone(meshes[j]);
+                    mesh.material = whiteOpaqueMaterial;
+                    mesh.transform(buildingTransforms[i]);
+                    clonedMeshes.push(mesh);
+                }
+            }
+            var batchedMesh = Mesh.batch(clonedMeshes);
 
-                // add human readable batch table data
-                if (defined(batchTableJson) && Object.keys(batchTableJson).length > 0) {
-                    var batchTableJsonPruned = {
-                        area: batchTableJson.area,
-                        height: batchTableJson.height
-                    };
+            if (use3dTilesNext) {
+                return createGltf({
+                    mesh: batchedMesh,
+                    use3dTilesNext: use3dTilesNext
+                });
+            }
 
-                    result = createFeatureMetadataExtension(
-                        result, 
-                        batchTableJsonPruned, 
-                        batchTableBinary
-                    ) as Gltf;
+            return createGlb({
+                mesh: batchedMesh
+            });
+        })
+        .then(function (result) {
+            if (use3dTilesNext) {
+                if (defined(batchTableJson)) {
+                    // add human readable batch table data
+                    if (
+                        defined(batchTableJson) &&
+                        Object.keys(batchTableJson).length > 0
+                    ) {
+                        var batchTableJsonPruned = {
+                            area: batchTableJson.area,
+                            height: batchTableJson.height
+                        };
 
-                    const hierarchy = 
-                        batchTableJson.tilesNextHierarchy;
+                        result = createFeatureMetadataExtension(
+                            result,
+                            batchTableJsonPruned,
+                            batchTableBinary
+                        ) as Gltf;
 
-                    if (defined(hierarchy)) {
-                        addHierarchyToGltf(hierarchy, result, batchTableBinary);
+                        const hierarchy = batchTableJson.tilesNextHierarchy;
+
+                        if (defined(hierarchy)) {
+                            addHierarchyToGltf(
+                                hierarchy,
+                                result,
+                                batchTableBinary
+                            );
+                        }
                     }
+                }
+
+                if (!useGlb) {
+                    return Promise.all([
+                        saveJson(tilePath, result, options.prettyJson, gzip),
+                        saveJson(
+                            tilesetJsonPath,
+                            tilesetJson,
+                            options.prettyJson,
+                            gzip
+                        )
+                    ]);
+                } else {
+                    return Promise.all([
+                        gltfToGlb(result, gltfConversionOptions).then(function (
+                            out
+                        ) {
+                            return saveBinary(tilePath, out.glb, gzip);
+                        }),
+                        saveJson(
+                            tilesetJsonPath,
+                            tilesetJson,
+                            options.prettyJson,
+                            gzip
+                        )
+                    ]);
                 }
             }
 
-            if (!useGlb) {
-                return Promise.all([
-                    saveJson(tilePath, result, options.prettyJson, gzip),
-                    saveJson(tilesetJsonPath, tilesetJson, options.prettyJson, gzip)
-                ]);
-            } else {
-                return Promise.all([
-                    gltfToGlb(result, gltfConversionOptions).then(function(out) {
-                        return saveBinary(tilePath, out.glb, gzip);
-                    }),
-                    saveJson(tilesetJsonPath, tilesetJson, options.prettyJson, gzip)
-                ]);
-            }
-        }
+            var b3dm = createB3dm({
+                glb: result,
+                featureTableJson: featureTableJson,
+                batchTableJson: batchTableJson,
+                batchTableBinary: batchTableBinary
+            });
 
-        var b3dm = createB3dm({
-            glb : result,
-            featureTableJson : featureTableJson,
-            batchTableJson : batchTableJson,
-            batchTableBinary : batchTableBinary
+            // legacy b3dm
+            return Promise.all([
+                saveJson(
+                    tilesetJsonPath,
+                    tilesetJson,
+                    options.prettyJson,
+                    gzip
+                ),
+                saveBinary(tilePath, b3dm, gzip)
+            ]);
         });
-
-        // legacy b3dm
-        return Promise.all([
-            saveJson(tilesetJsonPath, tilesetJson, options.prettyJson, gzip),
-            saveBinary(tilePath, b3dm, gzip)
-        ]);
-    });
 }
 
 function createFloatBuffer(values) {
@@ -252,11 +299,11 @@ function createBatchTableBinary(batchTable, options) {
         buffer = getBufferPadded(buffer);
         buffers.push(buffer);
         var binaryReference: any = {
-            byteOffset : byteOffset,
-            componentType : componentType,
-            type : type
+            byteOffset: byteOffset,
+            componentType: componentType,
+            type: type
         };
-        
+
         // Create a composite object containing all of the necessary
         // information to split into a GltfAccessor / GltfBufferView
         if (use3dTilesNext) {
@@ -266,7 +313,9 @@ function createBatchTableBinary(batchTable, options) {
             binaryReference.target = GLenumName.ARRAY_BUFFER;
 
             // accessor
-            binaryReference.componentType = typeConversion.componentTypeStringToInteger(componentType);
+            binaryReference.componentType = typeConversion.componentTypeStringToInteger(
+                componentType
+            );
             binaryReference.count = values.length;
             const minMax = getMinMax(values, 1);
             binaryReference.max = minMax.max;
@@ -280,18 +329,27 @@ function createBatchTableBinary(batchTable, options) {
     // Convert regular batch table properties to binary
     var propertyName;
     for (propertyName in batchTable) {
-        if (batchTable.hasOwnProperty(propertyName)
-                && propertyName !== 'HIERARCHY'
-                && propertyName !== 'extensions'
-                && propertyName !== 'extras') {
+        if (
+            batchTable.hasOwnProperty(propertyName) &&
+            propertyName !== 'HIERARCHY' &&
+            propertyName !== 'extensions' &&
+            propertyName !== 'extras'
+        ) {
             if (typeof batchTable[propertyName][0] === 'number') {
-                batchTable[propertyName] = createBinaryProperty(batchTable[propertyName], 'FLOAT', 'SCALAR', propertyName);
+                batchTable[propertyName] = createBinaryProperty(
+                    batchTable[propertyName],
+                    'FLOAT',
+                    'SCALAR',
+                    propertyName
+                );
             }
         }
     }
 
     // Convert instance properties to binary
-    var hierarchy = (options.legacy) ? batchTable.HIERARCHY : batchTable.extensions['3DTILES_batch_table_hierarchy'];
+    var hierarchy = options.legacy
+        ? batchTable.HIERARCHY
+        : batchTable.extensions['3DTILES_batch_table_hierarchy'];
     var classes = hierarchy.classes;
     var classesLength = classes.length;
     for (var i = 0; i < classesLength; ++i) {
@@ -299,23 +357,37 @@ function createBatchTableBinary(batchTable, options) {
         for (propertyName in instances) {
             if (instances.hasOwnProperty(propertyName)) {
                 if (typeof instances[propertyName][0] === 'number') {
-                    instances[propertyName] = createBinaryProperty(instances[propertyName], 'FLOAT', 'SCALAR', propertyName);
+                    instances[propertyName] = createBinaryProperty(
+                        instances[propertyName],
+                        'FLOAT',
+                        'SCALAR',
+                        propertyName
+                    );
                 }
             }
         }
     }
 
     // Convert classIds to binary
-    hierarchy.classIds = createBinaryProperty(hierarchy.classIds, 'UNSIGNED_SHORT');
+    hierarchy.classIds = createBinaryProperty(
+        hierarchy.classIds,
+        'UNSIGNED_SHORT'
+    );
 
     // Convert parentCounts to binary (if they exist)
     if (defined(hierarchy.parentCounts)) {
-        hierarchy.parentCounts = createBinaryProperty(hierarchy.parentCounts, 'UNSIGNED_SHORT');
+        hierarchy.parentCounts = createBinaryProperty(
+            hierarchy.parentCounts,
+            'UNSIGNED_SHORT'
+        );
     }
 
     // Convert parentIds to binary (if they exist)
     if (defined(hierarchy.parentIds)) {
-        hierarchy.parentIds = createBinaryProperty(hierarchy.parentIds, 'UNSIGNED_SHORT');
+        hierarchy.parentIds = createBinaryProperty(
+            hierarchy.parentIds,
+            'UNSIGNED_SHORT'
+        );
     }
 
     return Buffer.concat(buffers);
@@ -343,13 +415,17 @@ function createBatchTableJson(instances, options) {
     var hierarchy = createHierarchy(instances);
     if (options.use3dTilesNext) {
         batchTable.tilesNextHierarchy = hierarchy;
-    } 
+    }
 
     if (options.legacy) {
         // Add HIERARCHY object
         batchTable.HIERARCHY = hierarchy;
     } else {
-        Extensions.addExtension(batchTable, '3DTILES_batch_table_hierarchy', hierarchy);
+        Extensions.addExtension(
+            batchTable,
+            '3DTILES_batch_table_hierarchy',
+            hierarchy
+        );
     }
 
     return batchTable;
@@ -388,9 +464,9 @@ function createHierarchy(instances) {
         // Create class if it doesn't already exist
         if (!defined(classId)) {
             classData = {
-                name : className,
-                length : 0,
-                instances : {}
+                name: className,
+                length: 0,
+                instances: {}
             };
             classId = classes.length;
             classes.push(classData);
@@ -404,7 +480,9 @@ function createHierarchy(instances) {
         // Add properties to class
         for (var propertyName in properties) {
             if (properties.hasOwnProperty(propertyName)) {
-                classData!.instances[propertyName].push(properties[propertyName]);
+                classData!.instances[propertyName].push(
+                    properties[propertyName]
+                );
             }
         }
 
@@ -452,17 +530,18 @@ function createHierarchy(instances) {
     }
 
     return {
-        instancesLength : instancesLength,
-        classes : classes,
-        classIds : classIds,
-        parentIds : parentIds,
-        parentCounts : parentCounts
+        instancesLength: instancesLength,
+        classes: classes,
+        classIds: classIds,
+        parentIds: parentIds,
+        parentCounts: parentCounts
     };
 }
 
 function addHierarchyToGltf(hierarchy: any, gltf: Gltf, binary: Buffer) {
-    const classes = hierarchy.classes.map(item => 
-        new FeatureHierarchyClass(item.name, item.length, item.instances)
+    const classes = hierarchy.classes.map(
+        (item) =>
+            new FeatureHierarchyClass(item.name, item.length, item.instances)
     );
     const classIds = hierarchy.classIds;
     const parentCounts = hierarchy.parentCounts;
@@ -481,472 +560,499 @@ function addHierarchyToGltf(hierarchy: any, gltf: Gltf, binary: Buffer) {
 
 function createInstances(noParents, multipleParents) {
     var door0: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door0',
-                door_width : 1.2,
-                door_mass : 10
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door0',
+                door_width: 1.2,
+                door_mass: 10
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var door1: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door1',
-                door_width : 1.3,
-                door_mass : 11
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door1',
+                door_width: 1.3,
+                door_mass: 11
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var door2: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door2',
-                door_width : 1.21,
-                door_mass : 14
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door2',
+                door_width: 1.21,
+                door_mass: 14
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var door3: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door3',
-                door_width : 1.5,
-                door_mass : 7
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door3',
+                door_width: 1.5,
+                door_mass: 7
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var door4: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door4',
-                door_width : 1.1,
-                door_mass : 8
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door4',
+                door_width: 1.1,
+                door_mass: 8
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var door5: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door5',
-                door_width : 1.15,
-                door_mass : 12
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door5',
+                door_width: 1.15,
+                door_mass: 12
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var door6: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door6',
-                door_width : 1.32,
-                door_mass : 3
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door6',
+                door_width: 1.32,
+                door_mass: 3
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var door7: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door7',
-                door_width : 1.54,
-                door_mass : 6
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door7',
+                door_width: 1.54,
+                door_mass: 6
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var door8: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door8',
-                door_width : 1.8,
-                door_mass : 3
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door8',
+                door_width: 1.8,
+                door_mass: 3
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var door9: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door9',
-                door_width : 2.0,
-                door_mass : 5
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door9',
+                door_width: 2.0,
+                door_mass: 5
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var door10: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door10',
-                door_width : 2.1,
-                door_mass : 9
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door10',
+                door_width: 2.1,
+                door_mass: 9
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var door11: any = {
-        instance : {
-            className : 'door',
-            properties : {
-                door_name : 'door11',
-                door_width : 1.3,
-                door_mass : 10
+        instance: {
+            className: 'door',
+            properties: {
+                door_name: 'door11',
+                door_width: 1.3,
+                door_mass: 10
             }
         },
-        properties : {
-            height : 5.0,
-            area : 10.0
+        properties: {
+            height: 5.0,
+            area: 10.0
         }
     };
     var doorknob0: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob0',
-                doorknob_size : 0.3
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob0',
+                doorknob_size: 0.3
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var doorknob1: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob1',
-                doorknob_size : 0.43
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob1',
+                doorknob_size: 0.43
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var doorknob2: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob2',
-                doorknob_size : 0.32
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob2',
+                doorknob_size: 0.32
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var doorknob3: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob3',
-                doorknob_size : 0.2
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob3',
+                doorknob_size: 0.2
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var doorknob4: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob4',
-                doorknob_size : 0.21
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob4',
+                doorknob_size: 0.21
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var doorknob5: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob5',
-                doorknob_size : 0.35
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob5',
+                doorknob_size: 0.35
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var doorknob6: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob6',
-                doorknob_size : 0.3
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob6',
+                doorknob_size: 0.3
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var doorknob7: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob7',
-                doorknob_size : 0.23
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob7',
+                doorknob_size: 0.23
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var doorknob8: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob8',
-                doorknob_size : 0.43
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob8',
+                doorknob_size: 0.43
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var doorknob9: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob9',
-                doorknob_size : 0.32
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob9',
+                doorknob_size: 0.32
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var doorknob10: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob10',
-                doorknob_size : 0.41
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob10',
+                doorknob_size: 0.41
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var doorknob11: any = {
-        instance : {
-            className : 'doorknob',
-            properties : {
-                doorknob_name : 'doorknob11',
-                doorknob_size : 0.33
+        instance: {
+            className: 'doorknob',
+            properties: {
+                doorknob_name: 'doorknob11',
+                doorknob_size: 0.33
             }
         },
-        properties : {
-            height : 0.1,
-            area : 0.2
+        properties: {
+            height: 0.1,
+            area: 0.2
         }
     };
     var roof0: any = {
-        instance : {
-            className : 'roof',
-            properties : {
-                roof_name : 'roof0',
-                roof_paint : 'red'
+        instance: {
+            className: 'roof',
+            properties: {
+                roof_name: 'roof0',
+                roof_paint: 'red'
             }
         },
-        properties : {
-            height : 6.0,
-            area : 12.0
+        properties: {
+            height: 6.0,
+            area: 12.0
         }
     };
     var roof1: any = {
-        instance : {
-            className : 'roof',
-            properties : {
-                roof_name : 'roof1',
-                roof_paint : 'blue'
+        instance: {
+            className: 'roof',
+            properties: {
+                roof_name: 'roof1',
+                roof_paint: 'blue'
             }
         },
-        properties : {
-            height : 6.0,
-            area : 12.0
+        properties: {
+            height: 6.0,
+            area: 12.0
         }
     };
     var roof2: any = {
-        instance : {
-            className : 'roof',
-            properties : {
-                roof_name : 'roof2',
-                roof_paint : 'yellow'
+        instance: {
+            className: 'roof',
+            properties: {
+                roof_name: 'roof2',
+                roof_paint: 'yellow'
             }
         },
-        properties : {
-            height : 6.0,
-            area : 12.0
+        properties: {
+            height: 6.0,
+            area: 12.0
         }
     };
     var wall0: any = {
-        instance : {
-            className : 'wall',
-            properties : {
-                wall_name : 'wall0',
-                wall_paint : 'pink',
-                wall_windows : 1
+        instance: {
+            className: 'wall',
+            properties: {
+                wall_name: 'wall0',
+                wall_paint: 'pink',
+                wall_windows: 1
             }
         },
-        properties : {
-            height : 10.0,
-            area : 20.0
+        properties: {
+            height: 10.0,
+            area: 20.0
         }
     };
     var wall1: any = {
-        instance : {
-            className : 'wall',
-            properties : {
-                wall_name : 'wall1',
-                wall_paint : 'orange',
-                wall_windows : 2
+        instance: {
+            className: 'wall',
+            properties: {
+                wall_name: 'wall1',
+                wall_paint: 'orange',
+                wall_windows: 2
             }
         },
-        properties : {
-            height : 10.0,
-            area : 20.0
+        properties: {
+            height: 10.0,
+            area: 20.0
         }
     };
     var wall2: any = {
-        instance : {
-            className : 'wall',
-            properties : {
-                wall_name : 'wall2',
-                wall_paint : 'blue',
-                wall_windows : 4
+        instance: {
+            className: 'wall',
+            properties: {
+                wall_name: 'wall2',
+                wall_paint: 'blue',
+                wall_windows: 4
             }
         },
-        properties : {
-            height : 10.0,
-            area : 20.0
+        properties: {
+            height: 10.0,
+            area: 20.0
         }
     };
     var building0: any = {
-        instance : {
-            className : 'building',
-            properties : {
-                building_name : 'building0',
-                building_area : 20.0
+        instance: {
+            className: 'building',
+            properties: {
+                building_name: 'building0',
+                building_area: 20.0
             }
         }
     };
     var building1: any = {
-        instance : {
-            className : 'building',
-            properties : {
-                building_name : 'building1',
-                building_area : 21.98
+        instance: {
+            className: 'building',
+            properties: {
+                building_name: 'building1',
+                building_area: 21.98
             }
         }
     };
     var building2: any = {
-        instance : {
-            className : 'building',
-            properties : {
-                building_name : 'building2',
-                building_area : 39.3
+        instance: {
+            className: 'building',
+            properties: {
+                building_name: 'building2',
+                building_area: 39.3
             }
         }
     };
     var zone0: any = {
-        instance : {
-            className : 'zone',
-            properties : {
-                zone_name : 'zone0',
-                zone_buildings : 3
+        instance: {
+            className: 'zone',
+            properties: {
+                zone_name: 'zone0',
+                zone_buildings: 3
             }
         }
     };
     var classifierNew: any = {
-        instance : {
-            className : 'classifier_new',
-            properties : {
-                year : 2000,
-                color : 'red',
-                name : 'project',
-                architect : 'architect'
+        instance: {
+            className: 'classifier_new',
+            properties: {
+                year: 2000,
+                color: 'red',
+                name: 'project',
+                architect: 'architect'
             }
         }
     };
     var classifierOld: any = {
-        instance : {
-            className : 'classifier_old',
-            properties : {
-                description : 'built in 1980',
-                inspection : 2009
+        instance: {
+            className: 'classifier_old',
+            properties: {
+                description: 'built in 1980',
+                inspection: 2009
             }
         }
     };
 
     if (noParents) {
         return [
-            doorknob0, doorknob1, doorknob2, doorknob3, door0, door1, door2, door3, roof0, wall0,
-            doorknob4, doorknob5, doorknob6, doorknob7, door4, door5, door6, door7, roof1, wall1,
-            doorknob8, doorknob9, doorknob10, doorknob11, door8, door9, door10, door11, roof2, wall2
+            doorknob0,
+            doorknob1,
+            doorknob2,
+            doorknob3,
+            door0,
+            door1,
+            door2,
+            door3,
+            roof0,
+            wall0,
+            doorknob4,
+            doorknob5,
+            doorknob6,
+            doorknob7,
+            door4,
+            door5,
+            door6,
+            door7,
+            roof1,
+            wall1,
+            doorknob8,
+            doorknob9,
+            doorknob10,
+            doorknob11,
+            door8,
+            door9,
+            door10,
+            door11,
+            roof2,
+            wall2
         ];
     }
     door0.instance.parents = [building0];
@@ -989,16 +1095,78 @@ function createInstances(noParents, multipleParents) {
         building1.instance.parents.push(classifierOld);
         building2.instance.parents.push(classifierNew, classifierOld);
         return [
-            doorknob0, doorknob1, doorknob2, doorknob3, door0, door1, door2, door3, roof0, wall0,
-            doorknob4, doorknob5, doorknob6, doorknob7, door4, door5, door6, door7, roof1, wall1,
-            doorknob8, doorknob9, doorknob10, doorknob11, door8, door9, door10, door11, roof2, wall2,
-            building0, building1, building2, zone0, classifierNew, classifierOld
+            doorknob0,
+            doorknob1,
+            doorknob2,
+            doorknob3,
+            door0,
+            door1,
+            door2,
+            door3,
+            roof0,
+            wall0,
+            doorknob4,
+            doorknob5,
+            doorknob6,
+            doorknob7,
+            door4,
+            door5,
+            door6,
+            door7,
+            roof1,
+            wall1,
+            doorknob8,
+            doorknob9,
+            doorknob10,
+            doorknob11,
+            door8,
+            door9,
+            door10,
+            door11,
+            roof2,
+            wall2,
+            building0,
+            building1,
+            building2,
+            zone0,
+            classifierNew,
+            classifierOld
         ];
     }
     return [
-            doorknob0, doorknob1, doorknob2, doorknob3, door0, door1, door2, door3, roof0, wall0,
-            doorknob4, doorknob5, doorknob6, doorknob7, door4, door5, door6, door7, roof1, wall1,
-            doorknob8, doorknob9, doorknob10, doorknob11, door8, door9, door10, door11, roof2, wall2,
-            building0, building1, building2, zone0
+        doorknob0,
+        doorknob1,
+        doorknob2,
+        doorknob3,
+        door0,
+        door1,
+        door2,
+        door3,
+        roof0,
+        wall0,
+        doorknob4,
+        doorknob5,
+        doorknob6,
+        doorknob7,
+        door4,
+        door5,
+        door6,
+        door7,
+        roof1,
+        wall1,
+        doorknob8,
+        doorknob9,
+        doorknob10,
+        doorknob11,
+        door8,
+        door9,
+        door10,
+        door11,
+        roof2,
+        wall2,
+        building0,
+        building1,
+        building2,
+        zone0
     ];
 }

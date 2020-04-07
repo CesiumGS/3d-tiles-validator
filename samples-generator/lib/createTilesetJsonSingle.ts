@@ -1,5 +1,6 @@
 import { AtLeastOne } from './atLeastN';
 import { Matrix4 } from 'cesium';
+import { TilesetJson } from './tilesetJson';
 
 const defaultTilesetVersion = '1.0';
 
@@ -22,40 +23,51 @@ type TilesetBoundingVolumeKeys = {
     region: number[];
     box: number[];
     sphere: number[];
-}
+};
 
 export type TilesetBoundingVolume = AtLeastOne<TilesetBoundingVolumeKeys>;
 
-export type TilesetOptions = {
+export type TilesetOption = {
     contentUri: string;
     geometricError: number;
-    versionNumber?: string;
+    versionNumber: string;
     transform?: Matrix4;
-    properties?: object;
-    extensions?: any;
-    expire?: object;
+    properties?: {
+        [propertyName: string]: { minimum: number; maximum: number };
+    };
+    extensions?: {
+        extensionsRequired?: string[];
+    };
+    expire?: any;
 } & TilesetBoundingVolume;
 
-export function createTilesetJsonSingle(options: TilesetOptions) {
-    const transform = options.transform != null ?
-        options.transform :
-        Matrix4.IDENTITY;
-    const transformArray = !Matrix4.equals(transform, Matrix4.IDENTITY) ?
-        Matrix4.pack(transform, new Array(16)) : undefined;
-    const boundingVolume =
-        getBoundingVolume(options.region, options.box, options.sphere);
+export function createTilesetJsonSingle(options: TilesetOption): TilesetJson {
+    const transform =
+        options.transform != null ? options.transform : Matrix4.IDENTITY;
+    const transformArray = !Matrix4.equals(transform, Matrix4.IDENTITY)
+        ? Matrix4.pack(transform, new Array(16))
+        : undefined;
+    const boundingVolume = getBoundingVolume(
+        options.region,
+        options.box,
+        options.sphere
+    );
     const extensions = options.extensions != null ? options.extensions : null;
     const extensionsRequired = options?.extensions?.extensionsRequired;
-    const version = options.versionNumber != null ? options.versionNumber :
-        defaultTilesetVersion;
+    const version =
+        options.versionNumber != null
+            ? options.versionNumber
+            : defaultTilesetVersion;
 
     return {
         asset: {
             version: version
         },
         properties: options.properties,
-        ...extensions != null ? { extensions: extensions } : {},
-        ...extensionsRequired != null ? { extensionsRequired: extensionsRequired } : {},
+        ...(extensions != null ? { extensions: extensions } : {}),
+        ...(extensionsRequired != null
+            ? { extensionsRequired: extensionsRequired }
+            : {}),
         geometricError: options.geometricError,
         root: {
             transform: transformArray,
@@ -70,7 +82,11 @@ export function createTilesetJsonSingle(options: TilesetOptions) {
     };
 }
 
-function getBoundingVolume(region?: number[], box?: number[], sphere?: number[]): TilesetBoundingVolume {
+function getBoundingVolume(
+    region?: number[],
+    box?: number[],
+    sphere?: number[]
+): TilesetBoundingVolume {
     if (region != null) {
         return { region: region };
     }

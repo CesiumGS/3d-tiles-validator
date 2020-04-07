@@ -1,43 +1,48 @@
-const Cesium = require('cesium');
 import fsExtra = require('fs-extra');
 import path = require('path');
 import { Gltf } from './gltfType';
-import { FLOAT32_SIZE_BYTES, UINT16_SIZE_BYTES, UINT8_SIZE_BYTES, UINT32_SIZE_BYTES } from './typeSize';
+import {
+    FLOAT32_SIZE_BYTES,
+    UINT16_SIZE_BYTES,
+    UINT8_SIZE_BYTES,
+    UINT32_SIZE_BYTES
+} from './typeSize';
+import {
+    Matrix4,
+    Cartesian2,
+    Cartesian3,
+    Math as CesiumMath,
+    defaultValue
+} from 'cesium';
 const createI3dm = require('./createI3dm');
-
-const AttributeCompression = Cesium.AttributeCompression;
-const Cartesian2 = Cesium.Cartesian2;
-const Cartesian3 = Cesium.Cartesian3;
-const CesiumMath = Cesium.Math;
-const defaultValue = Cesium.defaultValue;
-const Matrix4 = Cesium.Matrix4;
+const AttributeCompression = require('cesium').Cesium.AttributeCompression;
 
 export interface InstanceTileOptions {
-    uri: string
-    tileWidth?: Number
-    transform?: number[], // Matrix4
-    instancesLength?: Number
-    embed?: Boolean
-    modelSize?: Number
-    createBatchTable?: Boolean
-    createBatchTableBinary?: Boolean
-    relativeToCenter?: Boolean
-    quantizePositions?: Boolean
-    eastNorthUp?: Boolean
-    orientations?: Boolean
-    octEncodeOrientations?: Boolean
-    uniformScales?: Boolean
-    nonUniformScales?: Boolean
-    batchIds?: Boolean
-    use3dTilesNext?: boolean
-    useGlb?: boolean
+    uri: string;
+    tileWidth?: number;
+    transform?: Matrix4;
+    instancesLength?: number;
+    embed?: boolean;
+    modelSize?: number;
+    createBatchTable?: boolean;
+    createBatchTableBinary?: boolean;
+    relativeToCenter?: boolean;
+    quantizePositions?: boolean;
+    eastNorthUp?: boolean;
+    orientations?: boolean;
+    octEncodeOrientations?: boolean;
+    uniformScales?: boolean;
+    nonUniformScales?: boolean;
+    batchIds?: boolean;
+    use3dTilesNext?: boolean;
+    useGlb?: boolean;
 }
 
 export interface InstancesTileResult {
-    glb?: Buffer,
-    gltf?: Gltf,
-    i3dm?: any,
-    batchTableJson?: any
+    glb?: Buffer;
+    gltf?: Gltf;
+    i3dm?: any;
+    batchTableJson?: any;
 }
 
 /**
@@ -63,7 +68,9 @@ export interface InstancesTileResult {
  *
  * @returns {Promise} A promise that resolves with the i3dm buffer and batch table JSON.
  */
-export async function createInstancesTile(options: InstanceTileOptions): Promise<InstancesTileResult> {
+export async function createInstancesTile(
+    options: InstanceTileOptions
+): Promise<InstancesTileResult> {
     // Set the random number seed before creating the instances so that the generated instances are the same between runs
     CesiumMath.setRandomNumberSeed(0);
 
@@ -72,40 +79,78 @@ export async function createInstancesTile(options: InstanceTileOptions): Promise
     const transform = defaultValue(options.transform, Matrix4.IDENTITY);
     const instancesLength = defaultValue(options.instancesLength, 25);
     let uri = options.uri;
-    const embed = defaultValue(options.embed, true) as boolean;
+    const embed = defaultValue(options.embed, true);
     const modelSize = defaultValue(options.modelSize, 20.0) as number;
-    const createBatchTable = defaultValue(options.createBatchTable, true) as boolean;
-    const createBatchTableBinary = defaultValue(options.createBatchTableBinary, false) as boolean;
-    const relativeToCenter = defaultValue(options.relativeToCenter, false) as boolean;
-    const quantizePositions = defaultValue(options.quantizePositions, false) as boolean;
-    const eastNorthUp = defaultValue(options.eastNorthUp, false) as boolean;
-    const orientations = defaultValue(options.orientations, false) as boolean;
-    const octEncodeOrientations = defaultValue(options.octEncodeOrientations, false) as boolean;
-    const uniformScales = defaultValue(options.uniformScales, false) as boolean;
-    const nonUniformScales = defaultValue(options.nonUniformScales, false) as boolean;
-    const batchIds = defaultValue(options.batchIds, false) as boolean;
+    const createBatchTable = defaultValue(options.createBatchTable, true);
+    const createBatchTableBinary = defaultValue(
+        options.createBatchTableBinary,
+        false
+    );
+    const relativeToCenter = defaultValue(options.relativeToCenter, false);
+    const quantizePositions = defaultValue(options.quantizePositions, false);
+    const eastNorthUp = defaultValue(options.eastNorthUp, false);
+    const orientations = defaultValue(options.orientations, false);
+    const octEncodeOrientations = defaultValue(
+        options.octEncodeOrientations,
+        false
+    );
+    const uniformScales = defaultValue(options.uniformScales, false);
+    const nonUniformScales = defaultValue(options.nonUniformScales, false);
+    const batchIds = defaultValue(options.batchIds, false);
 
     const featureTableJson: any = {};
     featureTableJson.INSTANCES_LENGTH = instancesLength;
 
     let attributes = [];
 
-    const center = Matrix4.multiplyByPoint(transform, new Cartesian3(), new Cartesian3());
+    const center = Matrix4.multiplyByPoint(
+        transform,
+        new Cartesian3(),
+        new Cartesian3()
+    );
     if (relativeToCenter) {
-        attributes.push(getPositionsRTC(instancesLength, tileWidth, modelSize, transform, center));
+        attributes.push(
+            getPositionsRTC(
+                instancesLength,
+                tileWidth,
+                modelSize,
+                transform,
+                center
+            )
+        );
         featureTableJson.RTC_CENTER = [center.x, center.y, center.z];
     } else if (quantizePositions) {
         const halfWidth = tileWidth / 2.0;
-        attributes.push(getPositionsQuantized(instancesLength, tileWidth, modelSize, transform, center));
-        featureTableJson.QUANTIZED_VOLUME_SCALE = [tileWidth, tileWidth, tileWidth];
-        featureTableJson.QUANTIZED_VOLUME_OFFSET = [center.x - halfWidth, center.y - halfWidth, center.z - halfWidth];
+        attributes.push(
+            getPositionsQuantized(
+                instancesLength,
+                tileWidth,
+                modelSize,
+                transform,
+                center
+            )
+        );
+        featureTableJson.QUANTIZED_VOLUME_SCALE = [
+            tileWidth,
+            tileWidth,
+            tileWidth
+        ];
+        featureTableJson.QUANTIZED_VOLUME_OFFSET = [
+            center.x - halfWidth,
+            center.y - halfWidth,
+            center.z - halfWidth
+        ];
     } else {
-        attributes.push(getPositions(instancesLength, tileWidth, modelSize, transform));
+        attributes.push(
+            getPositions(instancesLength, tileWidth, modelSize, transform)
+        );
     }
 
     if (orientations) {
         if (octEncodeOrientations) {
-            attributes = attributes.concat(getOrientationsOctEncoded(instancesLength));
+            attributes = attributes.concat(
+                getOrientationsOctEncoded(instancesLength)
+            );
         } else {
             attributes = attributes.concat(getOrientations(instancesLength));
         }
@@ -140,8 +185,8 @@ export async function createInstancesTile(options: InstanceTileOptions): Promise
     for (i = 0; i < attributesLength; ++i) {
         attribute = attributes[i];
         featureTableJson[attribute.propertyName] = {
-            byteOffset : attribute.byteOffset,
-            componentType : attribute.componentType // Only defined for batchIds
+            byteOffset: attribute.byteOffset,
+            componentType: attribute.componentType // Only defined for batchIds
         };
         attribute.buffer.copy(featureTableBinary, attribute.byteOffset);
     }
@@ -154,12 +199,15 @@ export async function createInstancesTile(options: InstanceTileOptions): Promise
             batchTableJson = batchTable.json;
             batchTableBinary = batchTable.binary;
         } else {
-            batchTableJson = generateInstancesBatchTable(instancesLength, modelSize);
+            batchTableJson = generateInstancesBatchTable(
+                instancesLength,
+                modelSize
+            );
         }
     }
 
     let glb = await fsExtra.readFile(uri);
-    glb = (embed) ? glb : undefined;
+    glb = embed ? glb : undefined;
     uri = path.basename(uri);
     const i3dm = createI3dm({
         featureTableJson: featureTableJson,
@@ -170,9 +218,9 @@ export async function createInstancesTile(options: InstanceTileOptions): Promise
         uri: uri
     });
     return {
-        i3dm: i3dm, 
+        i3dm: i3dm,
         batchTableJson: batchTableJson
-    }
+    };
 }
 
 function getPosition(i, instancesLength, tileWidth, modelSize, transform) {
@@ -184,8 +232,8 @@ function getPosition(i, instancesLength, tileWidth, modelSize, transform) {
     x = x / (width - 1) - 0.5;
     y = y / (width - 1) - 0.5;
 
-    x *= (tileWidth - modelSize * 2.0);
-    y *= (tileWidth - modelSize * 2.0);
+    x *= tileWidth - modelSize * 2.0;
+    y *= tileWidth - modelSize * 2.0;
 
     let position = new Cartesian3(x, y, z);
     Matrix4.multiplyByPoint(transform, position, position);
@@ -196,54 +244,84 @@ function getPosition(i, instancesLength, tileWidth, modelSize, transform) {
 function getPositions(instancesLength, tileWidth, modelSize, transform) {
     const buffer = Buffer.alloc(instancesLength * 3 * FLOAT32_SIZE_BYTES);
     for (let i = 0; i < instancesLength; ++i) {
-        const position = getPosition(i, instancesLength, tileWidth, modelSize, transform);
-        buffer.writeFloatLE(position.x, (i * 3) * FLOAT32_SIZE_BYTES);
+        const position = getPosition(
+            i,
+            instancesLength,
+            tileWidth,
+            modelSize,
+            transform
+        );
+        buffer.writeFloatLE(position.x, i * 3 * FLOAT32_SIZE_BYTES);
         buffer.writeFloatLE(position.y, (i * 3 + 1) * FLOAT32_SIZE_BYTES);
         buffer.writeFloatLE(position.z, (i * 3 + 2) * FLOAT32_SIZE_BYTES);
     }
     return {
-        buffer : buffer,
-        propertyName : 'POSITION',
-        byteAlignment : FLOAT32_SIZE_BYTES
+        buffer: buffer,
+        propertyName: 'POSITION',
+        byteAlignment: FLOAT32_SIZE_BYTES
     };
 }
 
-function getPositionsRTC(instancesLength, tileWidth, modelSize, transform, center) {
+function getPositionsRTC(
+    instancesLength,
+    tileWidth,
+    modelSize,
+    transform,
+    center
+) {
     const buffer = Buffer.alloc(instancesLength * 3 * FLOAT32_SIZE_BYTES);
     for (let i = 0; i < instancesLength; ++i) {
-        let position = getPosition(i, instancesLength, tileWidth, modelSize, transform);
+        let position = getPosition(
+            i,
+            instancesLength,
+            tileWidth,
+            modelSize,
+            transform
+        );
         position = Cartesian3.subtract(position, center, position);
-        buffer.writeFloatLE(position.x, (i * 3) * FLOAT32_SIZE_BYTES);
+        buffer.writeFloatLE(position.x, i * 3 * FLOAT32_SIZE_BYTES);
         buffer.writeFloatLE(position.y, (i * 3 + 1) * FLOAT32_SIZE_BYTES);
         buffer.writeFloatLE(position.z, (i * 3 + 2) * FLOAT32_SIZE_BYTES);
     }
     return {
-        buffer : buffer,
-        propertyName : 'POSITION',
-        byteAlignment : FLOAT32_SIZE_BYTES
+        buffer: buffer,
+        propertyName: 'POSITION',
+        byteAlignment: FLOAT32_SIZE_BYTES
     };
 }
 
-function getPositionsQuantized(instancesLength, tileWidth, modelSize, transform, center) {
+function getPositionsQuantized(
+    instancesLength,
+    tileWidth,
+    modelSize,
+    transform,
+    center
+) {
     const min = -tileWidth / 2.0;
     const max = tileWidth / 2.0;
     const range = Math.pow(2, 16) - 1;
     const scale = max - min;
     const buffer = Buffer.alloc(instancesLength * 3 * UINT16_SIZE_BYTES);
     for (let i = 0; i < instancesLength; ++i) {
-        let position = getPosition(i, instancesLength, tileWidth, modelSize, transform);
+        let position = getPosition(
+            i,
+            instancesLength,
+            tileWidth,
+            modelSize,
+            transform
+        );
         position = Cartesian3.subtract(position, center, position);
-        const x = (position.x - min) * range / scale;
-        const y = (position.y - min) * range / scale;
-        const z = (position.z - min) * range / scale;
-        buffer.writeUInt16LE(x, (i * 3) * UINT16_SIZE_BYTES);
+        const x = ((position.x - min) * range) / scale;
+        const y = ((position.y - min) * range) / scale;
+        const z = ((position.z - min) * range) / scale;
+        buffer.writeUInt16LE(x, i * 3 * UINT16_SIZE_BYTES);
         buffer.writeUInt16LE(y, (i * 3 + 1) * UINT16_SIZE_BYTES);
         buffer.writeUInt16LE(z, (i * 3 + 2) * UINT16_SIZE_BYTES);
     }
     return {
-        buffer : buffer,
-        propertyName : 'POSITION_QUANTIZED',
-        byteAlignment : UINT16_SIZE_BYTES
+        buffer: buffer,
+        propertyName: 'POSITION_QUANTIZED',
+        byteAlignment: UINT16_SIZE_BYTES
     };
 }
 
@@ -264,57 +342,106 @@ function getOrthogonalNormal(normal) {
 }
 
 function getOrientations(instancesLength) {
-    const normalsUpBuffer = Buffer.alloc(instancesLength * 3 * FLOAT32_SIZE_BYTES);
-    const normalsRightBuffer = Buffer.alloc(instancesLength * 3 * FLOAT32_SIZE_BYTES);
+    const normalsUpBuffer = Buffer.alloc(
+        instancesLength * 3 * FLOAT32_SIZE_BYTES
+    );
+    const normalsRightBuffer = Buffer.alloc(
+        instancesLength * 3 * FLOAT32_SIZE_BYTES
+    );
     for (let i = 0; i < instancesLength; ++i) {
         const normalUp = getNormal();
-        normalsUpBuffer.writeFloatLE(normalUp.x, (i * 3) * FLOAT32_SIZE_BYTES);
-        normalsUpBuffer.writeFloatLE(normalUp.y, (i * 3 + 1) * FLOAT32_SIZE_BYTES);
-        normalsUpBuffer.writeFloatLE(normalUp.z, (i * 3 + 2) * FLOAT32_SIZE_BYTES);
+        normalsUpBuffer.writeFloatLE(normalUp.x, i * 3 * FLOAT32_SIZE_BYTES);
+        normalsUpBuffer.writeFloatLE(
+            normalUp.y,
+            (i * 3 + 1) * FLOAT32_SIZE_BYTES
+        );
+        normalsUpBuffer.writeFloatLE(
+            normalUp.z,
+            (i * 3 + 2) * FLOAT32_SIZE_BYTES
+        );
 
         const normalRight = getOrthogonalNormal(normalUp);
-        normalsRightBuffer.writeFloatLE(normalRight.x, (i * 3) * FLOAT32_SIZE_BYTES);
-        normalsRightBuffer.writeFloatLE(normalRight.y, (i * 3 + 1) * FLOAT32_SIZE_BYTES);
-        normalsRightBuffer.writeFloatLE(normalRight.z, (i * 3 + 2) * FLOAT32_SIZE_BYTES);
+        normalsRightBuffer.writeFloatLE(
+            normalRight.x,
+            i * 3 * FLOAT32_SIZE_BYTES
+        );
+        normalsRightBuffer.writeFloatLE(
+            normalRight.y,
+            (i * 3 + 1) * FLOAT32_SIZE_BYTES
+        );
+        normalsRightBuffer.writeFloatLE(
+            normalRight.z,
+            (i * 3 + 2) * FLOAT32_SIZE_BYTES
+        );
     }
 
-    return [{
-        buffer : normalsUpBuffer,
-        propertyName : 'NORMAL_UP',
-        byteAlignment : FLOAT32_SIZE_BYTES
-    }, {
-        buffer : normalsRightBuffer,
-        propertyName : 'NORMAL_RIGHT',
-        byteAlignment : FLOAT32_SIZE_BYTES
-    }];
+    return [
+        {
+            buffer: normalsUpBuffer,
+            propertyName: 'NORMAL_UP',
+            byteAlignment: FLOAT32_SIZE_BYTES
+        },
+        {
+            buffer: normalsRightBuffer,
+            propertyName: 'NORMAL_RIGHT',
+            byteAlignment: FLOAT32_SIZE_BYTES
+        }
+    ];
 }
 
 const scratchEncoded = new Cartesian2();
 
 function getOrientationsOctEncoded(instancesLength) {
-    const normalsUpBuffer = Buffer.alloc(instancesLength * 2 * UINT16_SIZE_BYTES);
-    const normalsRightBuffer = Buffer.alloc(instancesLength * 2 * UINT16_SIZE_BYTES);
+    const normalsUpBuffer = Buffer.alloc(
+        instancesLength * 2 * UINT16_SIZE_BYTES
+    );
+    const normalsRightBuffer = Buffer.alloc(
+        instancesLength * 2 * UINT16_SIZE_BYTES
+    );
     for (let i = 0; i < instancesLength; ++i) {
         const normalUp = getNormal();
-        const encodedNormalUp = AttributeCompression.octEncodeInRange(normalUp, 65535, scratchEncoded);
-        normalsUpBuffer.writeUInt16LE(encodedNormalUp.x, (i * 2) * UINT16_SIZE_BYTES);
-        normalsUpBuffer.writeUInt16LE(encodedNormalUp.y, (i * 2 + 1) * UINT16_SIZE_BYTES);
+        const encodedNormalUp = AttributeCompression.octEncodeInRange(
+            normalUp,
+            65535,
+            scratchEncoded
+        );
+        normalsUpBuffer.writeUInt16LE(
+            encodedNormalUp.x,
+            i * 2 * UINT16_SIZE_BYTES
+        );
+        normalsUpBuffer.writeUInt16LE(
+            encodedNormalUp.y,
+            (i * 2 + 1) * UINT16_SIZE_BYTES
+        );
 
         const normalRight = getOrthogonalNormal(normalUp);
-        const encodedNormalRight = AttributeCompression.octEncodeInRange(normalRight, 65535, scratchEncoded);
-        normalsRightBuffer.writeUInt16LE(encodedNormalRight.x, (i * 2) * UINT16_SIZE_BYTES);
-        normalsRightBuffer.writeUInt16LE(encodedNormalRight.y, (i * 2 + 1) * UINT16_SIZE_BYTES);
+        const encodedNormalRight = AttributeCompression.octEncodeInRange(
+            normalRight,
+            65535,
+            scratchEncoded
+        );
+        normalsRightBuffer.writeUInt16LE(
+            encodedNormalRight.x,
+            i * 2 * UINT16_SIZE_BYTES
+        );
+        normalsRightBuffer.writeUInt16LE(
+            encodedNormalRight.y,
+            (i * 2 + 1) * UINT16_SIZE_BYTES
+        );
     }
 
-    return [{
-        buffer : normalsUpBuffer,
-        propertyName : 'NORMAL_UP_OCT32P',
-        byteAlignment : UINT16_SIZE_BYTES
-    }, {
-        buffer : normalsRightBuffer,
-        propertyName : 'NORMAL_RIGHT_OCT32P',
-        byteAlignment : UINT16_SIZE_BYTES
-    }];
+    return [
+        {
+            buffer: normalsUpBuffer,
+            propertyName: 'NORMAL_UP_OCT32P',
+            byteAlignment: UINT16_SIZE_BYTES
+        },
+        {
+            buffer: normalsRightBuffer,
+            propertyName: 'NORMAL_RIGHT_OCT32P',
+            byteAlignment: UINT16_SIZE_BYTES
+        }
+    ];
 }
 
 function getScale(): number {
@@ -327,23 +454,23 @@ function getUniformScales(instancesLength) {
         buffer.writeFloatLE(getScale(), i * FLOAT32_SIZE_BYTES);
     }
     return {
-        buffer : buffer,
-        propertyName : 'SCALE',
-        byteAlignment : FLOAT32_SIZE_BYTES
+        buffer: buffer,
+        propertyName: 'SCALE',
+        byteAlignment: FLOAT32_SIZE_BYTES
     };
 }
 
 function getNonUniformScales(instancesLength) {
     const buffer = Buffer.alloc(instancesLength * 3 * FLOAT32_SIZE_BYTES);
     for (let i = 0; i < instancesLength; ++i) {
-        buffer.writeFloatLE(getScale(), (i * 3) * FLOAT32_SIZE_BYTES);
+        buffer.writeFloatLE(getScale(), i * 3 * FLOAT32_SIZE_BYTES);
         buffer.writeFloatLE(getScale(), (i * 3 + 1) * FLOAT32_SIZE_BYTES);
         buffer.writeFloatLE(getScale(), (i * 3 + 2) * FLOAT32_SIZE_BYTES);
     }
     return {
-        buffer : buffer,
-        propertyName : 'SCALE_NON_UNIFORM',
-        byteAlignment : FLOAT32_SIZE_BYTES
+        buffer: buffer,
+        propertyName: 'SCALE_NON_UNIFORM',
+        byteAlignment: FLOAT32_SIZE_BYTES
     };
 }
 
@@ -377,16 +504,19 @@ function getBatchIds(instancesLength: number) {
     }
 
     return {
-        buffer : buffer,
-        componentType : componentType,
-        propertyName : 'BATCH_ID',
-        byteAlignment : byteAlignment
+        buffer: buffer,
+        componentType: componentType,
+        propertyName: 'BATCH_ID',
+        byteAlignment: byteAlignment
     };
 }
 
-export function generateInstancesBatchTable(instancesLength: number, modelSize: number) {
+export function generateInstancesBatchTable(
+    instancesLength: number,
+    modelSize: number
+) {
     return {
-        Height : new Array(instancesLength).fill(modelSize)
+        Height: new Array(instancesLength).fill(modelSize)
     };
 }
 
@@ -395,17 +525,8 @@ function generateBatchTableBinary(instancesLength: number) {
     for (let i = 0; i < instancesLength; ++i) {
         idBuffer.writeUInt32LE(i, i * UINT32_SIZE_BYTES);
     }
-
     const batchTableJson = {
-        id : {
-            byteOffset : 0,
-            componentType : 'UNSIGNED_INT',
-            type : 'SCALAR'
-        }
+        id: { byteOffset: 0, componentType: 'UNSIGNED_INT', type: 'SCALAR' }
     };
-
-    return {
-        json : batchTableJson,
-        binary : idBuffer
-    };
+    return { json: batchTableJson, binary: idBuffer };
 }

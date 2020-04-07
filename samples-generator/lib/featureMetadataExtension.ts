@@ -5,99 +5,34 @@
  */
 
 import { Gltf, GltfAccessor } from './gltfType';
-import Extensions = require('./Extensions');
 import {
-    FeatureTableProperties,
-    FeatureTablePair,
-    FeatureTableType,
+    FeatureTableBinary,
     FeatureTablePlainText,
-    FeatureTableBinary
+    FeatureTableProperties
 } from './featureMetadataType';
-import { all } from 'bluebird';
 
 const extensionName = 'CESIUM_3dtiles_feature_metadata';
-
-/**
- * If the glTF asset already has a featureMetadataExtension on it, another
- * featureTable will be created. Does not support empty feature tables.
- * @param gltf
- * @param featureTables
- * @param buffer
- */
-export function createFeatureMetadataExtensionV2(
-    gltf: Gltf,
-    featureTables: FeatureTablePair[],
-    buffer?: Buffer
-) {
-    const plainText = featureTables
-        .filter(t => t.type == FeatureTableType.PlainText)
-        .map(t => t.data as FeatureTablePlainText);
-
-    const binary = featureTables
-        .filter(t => t.type == FeatureTableType.Binary)
-        .map(t => t.data as FeatureTableBinary);
-
-    const plainTextCount = calcAndAssertPlainTextHaveSameCount(plainText);
-    const binaryCount = calcAndAssertBinaryHaveSameCount(binary);
-
-    if (plainTextCount === 0 && binaryCount === 0) {
-        throw new Error('plainTextCount or binaryCount must be non-zero');
-    }
-
-    const mismatch =
-        plainTextCount > 0 && binaryCount > 0 && binaryCount !== binaryCount;
-    if (mismatch) {
-        throw new Error(
-            'plainTextCount and binaryCount must be identical if both present'
-        );
-    }
-
-    if (binaryCount > 0 && buffer == null) {
-        throw new Error('buffer must be defined if binaryCount is non zero');
-    }
-
-    const currentFeatureTableProperties: FeatureTableProperties = {};
-
-    addPlainTextAccessorsToFeatureTable(
-        currentFeatureTableProperties,
-        plainText
-    );
-
-    if (binaryCount > 0) {
-        addBinaryAccessorsToFeatureTable(
-            gltf,
-            currentFeatureTableProperties,
-            binary,
-            buffer
-        );
-    }
-
-    addExtension(gltf);
-
-    const allTables =
-        gltf.extensions.CESIUM_3dtiles_feature_metadata.featureTables;
-
-
-    // create a reference to the feature table for the zeroth
-    // primtiive by default. Not particularly robust!
-
-    const currentFeatureTable = {
-        featureCount: Math.max(plainTextCount, binaryCount),
-        properties: currentFeatureTableProperties
-    };
-
-    allTables.push(currentFeatureTable);
-}
-
 function addExtension(gltf: Gltf) {
-    if (gltf.extensionsUsed != null && gltf.extensionsUsed.indexOf(extensionName) != -1) {
+    if (
+        gltf.extensionsUsed != null &&
+        gltf.extensionsUsed.indexOf(extensionName) != -1
+    ) {
         return;
     }
 
-    Extensions.addExtensionsUsed(gltf, extensionName);
-    Extensions.addExtension(gltf, extensionName, {
+    if (gltf.extensionsUsed == null) {
+        gltf.extensionsUsed = [extensionName];
+    } else {
+        gltf.extensionsUsed.push(extensionName);
+    }
+
+    if (gltf.extensions == null) {
+        gltf.extensions = {};
+    }
+
+    gltf.extensions[extensionName] = {
         featureTables: []
-    });
+    };
 }
 
 function calcAndAssertBinaryHaveSameCount(
@@ -144,7 +79,7 @@ function addPlainTextAccessorsToFeatureTable(
     currentFeatureTableProperties: FeatureTableProperties,
     plainText: FeatureTablePlainText[]
 ) {
-    plainText.forEach(plainTextProperty => {
+    plainText.forEach((plainTextProperty) => {
         const keys = Object.keys(plainTextProperty);
         for (let k of keys) {
             const array = plainTextProperty[k];
