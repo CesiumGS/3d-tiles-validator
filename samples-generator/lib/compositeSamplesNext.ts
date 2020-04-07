@@ -162,6 +162,11 @@ export namespace CompositeSamplesNext {
         const opts = InstanceTileUtils.getDefaultTileOptions(
             'output/Composite'
         );
+
+        const i3dmHeights = new Array(opts.instancesLength).fill(
+            opts.modelSize
+        );
+
         const gltf = await getGltfFromGlbUri(
             opts.instancesUri,
             args.gltfConversionOptions
@@ -189,6 +194,29 @@ export namespace CompositeSamplesNext {
             }
         });
 
+        // add CESIUM_3dtiles_metadata_feature extension to i3dm mesh
+        const prim = gltf.meshes[0].primitives[0];
+        FeatureMetadata.updateExtensionUsed(gltf);
+        FeatureMetadata.addFeatureLayer(prim, {
+            featureTable: 0,
+            instanceStride: 1,
+            vertexAttribute: {
+                implicit: {
+                    increment: 0,
+                    start: 0
+                }
+            }
+        });
+
+        FeatureMetadata.addFeatureTable(gltf, {
+            featureCount: opts.instancesLength,
+            properties: {
+                Height: {
+                    values: i3dmHeights
+                }
+            }
+        });
+
         const ext = args.useGlb ? '.glb' : '.gltf';
         const outputFolder = 'CompositeOfInstanced';
         const tileFilename = toCamelCase(outputFolder) + ext;
@@ -201,7 +229,11 @@ export namespace CompositeSamplesNext {
             instancesRegion
         );
 
+        tilesetOpts.properties = getProperties({
+            Height: i3dmHeights
+        });
         let tilesetJson = createTilesetJsonSingle(tilesetOpts);
+
         await writeTilesetAndTile(
             fullPath,
             tileFilename,
