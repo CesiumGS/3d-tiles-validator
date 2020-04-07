@@ -40,7 +40,7 @@ export function createTilesetJsonSingle(options: TilesetOptions) {
     const transform = options.transform != null ?
         options.transform :
         Matrix4.IDENTITY;
-    const transformArray = Matrix4.equals(transform, Matrix4.IDENTITY) ?
+    const transformArray = !Matrix4.equals(transform, Matrix4.IDENTITY) ?
         Matrix4.pack(transform, new Array(16)) : undefined;
     const boundingVolume =
         getBoundingVolume(options.region, options.box, options.sphere);

@@ -22,6 +22,8 @@ export namespace InstanceSamplesNext {
     const longitude = -1.31968;
     const latitude = 0.698874;
     const tileWidth = 200.0;
+    const instancesUri = 'data/box.glb';
+    const instancesLength = 25;
     const instancesModelSize = 20.0;
     const instancesHeight = instancesModelSize + 10.0; // Just a little extra padding at the top for aiding Cesium tests
     const longitudeExtent = metersToLongitude(tileWidth, latitude);
@@ -66,17 +68,13 @@ export namespace InstanceSamplesNext {
 
     function getDefaultTileOptions(): TileOptions {
         return {
-            instancesLength: 24,
-            tileWidth: 200,
-            modelSize: 20,
-            instancesUri: 'data/box.glb',
+            instancesLength: instancesLength,
+            tileWidth: tileWidth,
+            modelSize: instancesModelSize,
+            instancesUri: instancesUri,
             rootDir: path.join('output', 'Instanced'),
             embed: false,
-            transform: wgs84Transform(
-                longitude,
-                latitude,
-                instancesModelSize / 2.0
-            )
+            transform: instancesTransform,
         };
     }
 
@@ -90,7 +88,7 @@ export namespace InstanceSamplesNext {
             geometricError: geometricError,
             versionNumber: versionNumber,
             region: instancesRegion,
-            transform: instancesTransform
+            transform: null
         };
     }
 
@@ -499,6 +497,8 @@ export namespace InstanceSamplesNext {
             opts.instancesUri,
             args.gltfConversionOptions
         );
+
+        opts.transform = Matrix4.IDENTITY;
 
         const positions = InstanceTileUtils.getPositions(
             opts.instancesLength,
