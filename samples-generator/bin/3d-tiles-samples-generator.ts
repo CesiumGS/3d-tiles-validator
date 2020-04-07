@@ -66,6 +66,7 @@ import {
 } from '../lib/constants';
 import { createTilesetJsonSingle } from '../lib/createTilesetJsonSingle';
 import { metersToLongitude, toCamelCase, wgs84Transform } from '../lib/utility';
+import { TilesetSamplesNext } from '../lib/tilesetSamplesNext';
 
 const fsExtra = require('fs-extra');
 var gltfPipeline = require('gltf-pipeline');
