@@ -5,49 +5,42 @@ const CesiumMath = Cesium.Math;
 const Matrix4 = Cesium.Matrix4;
 const Quaternion = Cesium.Quaternion;
 const gltfPipeline = require('gltf-pipeline');
-const glbToGltf = gltfPipeline.glbToGltf;
-import fsExtra = require('fs-extra');
 import { GeneratorArgs } from './arguments';
 import {
-    tilesNextTilesetJsonVersion,
-    largeGeometricError,
-    parentRegion,
-    smallGeometricError,
-    parentContentRegion,
-    llRegion,
-    lrRegion,
-    urRegion,
-    ulRegion,
-    parentTileOptions,
-    llTileOptions,
-    lrTileOptions,
-    urTileOptions,
-    ulTileOptions,
-    childrenRegion,
-    metersToLongitude,
-    latitude,
-    wgs84Transform,
-    longitude,
-    instancesModelSize,
-    smallRegion,
-    gltfConversionOptions,
-    instancesTileWidth,
-    instancesLength,
-    instancesUri,
-    buildingTemplate,
-    smallBoxLocal,
-    instancesGeometricError,
-    instancesBoxLocal,
     buildingsTransform,
-    longitudeExtent,
+    buildingTemplate,
+    childrenRegion,
+    gltfConversionOptions,
+    instancesBoxLocal,
+    instancesGeometricError,
+    instancesLength,
+    instancesModelSize,
+    instancesTileWidth,
+    instancesUri,
+    largeGeometricError,
+    latitude,
     latitudeExtent,
-    TileOptions
+    llRegion,
+    llTileOptions,
+    longitude,
+    longitudeExtent,
+    lrRegion,
+    lrTileOptions,
+    parentContentRegion,
+    parentRegion,
+    parentTileOptions,
+    smallBoxLocal,
+    smallGeometricError,
+    TileOptions,
+    tilesNextTilesetJsonVersion,
+    ulRegion,
+    ulTileOptions,
+    urRegion,
+    urTileOptions,
+    wgs84Transform
 } from './constants';
 import { Gltf } from './gltfType';
-import path = require('path');
-import { writeTileset, writeTile, writeTilesetAndTile } from './ioUtil';
-import saveJson = require('./saveJson');
-import { modifyImageUri } from './modifyImageUri';
+import { writeTile, writeTileset, writeTilesetAndTile } from './ioUtil';
 import { getGltfFromGlbUri } from './gltfFromUri';
 import { TilesetUtilsNext } from './tilesetUtilsNext';
 import { InstanceTileUtils } from './instanceUtilsNext';
@@ -58,10 +51,13 @@ import { FeatureTableUtils } from './featureMetatableUtilsNext';
 import { createBuildings } from './createBuilding';
 import { Mesh } from './Mesh';
 import { generateBuildingBatchTable } from './createBuildingsTile';
-import createGltf = require('./createGltf');
 import { createPointCloudTile } from './createPointCloudTile';
 import { TilesNextExtension } from './tilesNextExtension';
 import { TilesetJson } from './tilesetJson';
+import path = require('path');
+import saveJson = require('./saveJson');
+import createGltf = require('./createGltf');
+
 const getProperties = require('./getProperties');
 
 export namespace TilesetSamplesNext {
@@ -379,234 +375,6 @@ export namespace TilesetSamplesNext {
             const gltf = gltfs[i];
             const tileFilename = tileNames[i] + ext;
             await writeTile(tilesetDirectory, tileFilename, gltf, args);
-        }
-    }
-
-    export async function createTilesetWithExternalResources(
-        args: GeneratorArgs
-    ) {
-        const ext = args.useGlb
-            ? TilesNextExtension.Glb
-            : TilesNextExtension.Gltf;
-
-        const tilesetName = 'TilesetWithExternalResources';
-        const tilesetDirectory = path.join(rootDir, tilesetName);
-        const tilesetPath = path.join(tilesetDirectory, 'tileset.json');
-        const tileset2Path = path.join(
-            tilesetDirectory,
-            'tileset2',
-            'tileset2.json'
-        );
-        const glbPath = 'data/textured_box_separate/textured_box.glb';
-        const glbBasePath = 'data/textured_box_separate/';
-        const glbCopyPath = path.join(
-            tilesetDirectory,
-            'textured_box_separate/'
-        );
-
-        const tilePaths = [
-            path.join(tilesetDirectory, 'external' + ext),
-            path.join(tilesetDirectory, 'external' + ext),
-            path.join(tilesetDirectory, 'embed' + ext),
-            path.join(tilesetDirectory, 'tileset2', 'external' + ext),
-            path.join(tilesetDirectory, 'tileset2', 'external' + ext),
-            path.join(tilesetDirectory, 'tileset2', 'embed' + ext)
-        ];
-
-        const offset = metersToLongitude(20, latitude);
-        const transforms = [
-            Matrix4.pack(
-                wgs84Transform(
-                    longitude + offset * 3,
-                    latitude,
-                    instancesModelSize / 2.0
-                ),
-                new Array(16)
-            ),
-            Matrix4.pack(
-                wgs84Transform(
-                    longitude + offset * 2,
-                    latitude,
-                    instancesModelSize / 2.0
-                ),
-                new Array(16)
-            ),
-            Matrix4.pack(
-                wgs84Transform(
-                    longitude + offset,
-                    latitude,
-                    instancesModelSize / 2.0
-                ),
-                new Array(16)
-            ),
-            Matrix4.pack(
-                wgs84Transform(longitude, latitude, instancesModelSize / 2.0),
-                new Array(16)
-            ),
-            Matrix4.pack(
-                wgs84Transform(
-                    longitude - offset,
-                    latitude,
-                    instancesModelSize / 2.0
-                ),
-                new Array(16)
-            ),
-            Matrix4.pack(
-                wgs84Transform(
-                    longitude - offset * 2,
-                    latitude,
-                    instancesModelSize / 2.0
-                ),
-                new Array(16)
-            )
-        ];
-
-        const tilesetJson = {
-            asset: {
-                version: tilesNextTilesetJsonVersion
-            },
-            geometricError: smallGeometricError,
-            root: {
-                boundingVolume: {
-                    region: smallRegion
-                },
-                geometricError: smallGeometricError,
-                refine: 'ADD',
-                children: [
-                    {
-                        boundingVolume: {
-                            region: smallRegion
-                        },
-                        geometricError: smallGeometricError,
-                        refine: 'ADD',
-                        content: {
-                            uri: 'tileset2/tileset2.json'
-                        }
-                    },
-                    {
-                        boundingVolume: {
-                            region: smallRegion
-                        },
-                        geometricError: smallGeometricError,
-                        refine: 'ADD',
-                        content: {
-                            uri: 'external' + ext
-                        },
-                        transform: transforms[0]
-                    },
-                    {
-                        boundingVolume: {
-                            region: smallRegion
-                        },
-                        geometricError: smallGeometricError,
-                        refine: 'ADD',
-                        content: {
-                            uri: 'external' + ext
-                        },
-                        transform: transforms[1]
-                    },
-                    {
-                        boundingVolume: {
-                            region: smallRegion
-                        },
-                        geometricError: smallGeometricError,
-                        refine: 'ADD',
-                        content: {
-                            uri: 'embed' + ext
-                        },
-                        transform: transforms[2]
-                    }
-                ]
-            }
-        };
-
-        const tileset2Json = {
-            asset: {
-                version: tilesNextTilesetJsonVersion
-            },
-            geometricError: smallGeometricError,
-            root: {
-                boundingVolume: {
-                    region: smallRegion
-                },
-                geometricError: smallGeometricError,
-                refine: 'ADD',
-                children: [
-                    {
-                        boundingVolume: {
-                            region: smallRegion
-                        },
-                        geometricError: smallGeometricError,
-                        refine: 'ADD',
-                        content: {
-                            uri: 'external' + ext
-                        },
-                        transform: transforms[3]
-                    },
-                    {
-                        boundingVolume: {
-                            region: smallRegion
-                        },
-                        geometricError: smallGeometricError,
-                        refine: 'ADD',
-                        content: {
-                            uri: 'external' + ext
-                        },
-                        transform: transforms[4]
-                    },
-                    {
-                        boundingVolume: {
-                            region: smallRegion
-                        },
-                        geometricError: smallGeometricError,
-                        refine: 'ADD',
-                        content: {
-                            uri: 'embed' + ext
-                        },
-                        transform: transforms[5]
-                    }
-                ]
-            }
-        };
-
-        const glb = await fsExtra.readFile(glbPath);
-        const glbs = (await Promise.all([
-            modifyImageUri(glb, glbBasePath, 'textured_box_separate/'),
-            modifyImageUri(glb, glbBasePath, '../textured_box_separate/')
-        ])) as Buffer[];
-
-        await fsExtra.copy(glbBasePath, glbCopyPath);
-
-        const resourceDirectory = {
-            resourceDirectory: path.join(
-                tilesetDirectory,
-                'textured_box_separate'
-            )
-        };
-
-        // feature tables are deprecated, so the glbs are copied as-is
-        const gltf0 = (await glbToGltf(glbs[0], gltfConversionOptions))
-            .gltf as Gltf;
-
-        const gltf1 = (await glbToGltf(glbs[1], gltfConversionOptions))
-            .gltf as Gltf;
-
-        const i3dm0 = await getGltfFromGlbUri(
-            path.join(
-                tilesetDirectory,
-                'textured_box_separate/textured_box.glb'
-            ),
-            resourceDirectory
-        );
-
-        const tiles = [gltf0, i3dm0, gltf0, gltf1, i3dm0, gltf1];
-        await saveJson(tilesetPath, tilesetJson, args.prettyJson, args.gzip);
-        await saveJson(tileset2Path, tileset2Json, args.prettyJson, args.gzip);
-
-        for (let i = 0; i < tilePaths.length; ++i) {
-            const gltf = tiles[i];
-            const tilePath = tilePaths[i];
-            await writeTile(tilePath, '', gltf, args);
         }
     }
 

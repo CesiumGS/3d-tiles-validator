@@ -233,7 +233,6 @@ async function main() {
             async () => TilesetSamplesNext.createTileset(args),
             async () => TilesetSamplesNext.createTilesetEmptyRoot(args),
             async () => TilesetSamplesNext.createTilesetOfTilesets(args),
-            //async () => TilesetSamplesNext.createTilesetWithExternalResources(args), // Currently disabled, can't figure out why .glb is failing
             async () => TilesetSamplesNext.createTilesetRefinementMix(args),
             async () => TilesetSamplesNext.createTilesetReplacement1(args),
             async () => TilesetSamplesNext.createTilesetReplacement2(args),
@@ -244,8 +243,6 @@ async function main() {
             async () => TilesetSamplesNext.createTilesetSubtreeExpiration(args),
             async () => TilesetSamplesNext.createTilesetPoints(args),
             async () => TilesetSamplesNext.createTilesetUniform(args)
-
-
         ];
     }
 
@@ -1580,7 +1577,7 @@ function modifyImageUri(glb, resourceDirectory, newResourceDirectory) {
         });
 }
 
-function createTilesetWithExternalResources() {
+async function createTilesetWithExternalResources() {
     if (argv['3d-tiles-next']) {
         return Bluebird.resolve();
     }
@@ -1730,53 +1727,50 @@ function createTilesetWithExternalResources() {
         }
     };
 
-    return fsExtra.readFile(glbPath)
-        .then(function(glb) {
-            return Bluebird.all([
-                modifyImageUri(glb, glbBasePath, 'textured_box_separate/'),
-                modifyImageUri(glb, glbBasePath, '../textured_box_separate/')
-            ]);
+    const glb = await fsExtra.readFile(glbPath)
+
+    const glbs = (await Promise.all([
+        modifyImageUri(glb, glbBasePath, 'textured_box_separate/'),
+        modifyImageUri(glb, glbBasePath, '../textured_box_separate/')
+    ])) as Buffer[];
+
+    const tiles = [
+        createB3dm({
+            glb : glbs[0]
+        }),
+        createI3dm({
+            featureTableJson : featureTableJson,
+            featureTableBinary : featureTableBinary,
+            uri : 'textured_box_separate/textured_box.glb'
+        }),
+        createI3dm({
+            featureTableJson : featureTableJson,
+            featureTableBinary : featureTableBinary,
+            glb : glbs[0]
+        }),
+        createB3dm({
+            glb : glbs[1]
+        }),
+        createI3dm({
+            featureTableJson : featureTableJson,
+            featureTableBinary : featureTableBinary,
+            uri : '../textured_box_separate/textured_box.glb'
+        }),
+        createI3dm({
+            featureTableJson : featureTableJson,
+            featureTableBinary : featureTableBinary,
+            glb : glbs[1]
         })
-        .then(function(glbs) {
-            var tiles = [
-                createB3dm({
-                    glb : glbs[0]
-                }),
-                createI3dm({
-                    featureTableJson : featureTableJson,
-                    featureTableBinary : featureTableBinary,
-                    uri : 'textured_box_separate/textured_box.glb'
-                }),
-                createI3dm({
-                    featureTableJson : featureTableJson,
-                    featureTableBinary : featureTableBinary,
-                    glb : glbs[0]
-                }),
-                createB3dm({
-                    glb : glbs[1]
-                }),
-                createI3dm({
-                    featureTableJson : featureTableJson,
-                    featureTableBinary : featureTableBinary,
-                    uri : '../textured_box_separate/textured_box.glb'
-                }),
-                createI3dm({
-                    featureTableJson : featureTableJson,
-                    featureTableBinary : featureTableBinary,
-                    glb : glbs[1]
-                })
-            ];
-            return Bluebird.map(tiles, function(tile, index) {
-                return saveBinary(tilePaths[index], tile, gzip);
-            });
-        })
-        .then(function() {
-            return Bluebird.all([
-                saveJson(tilesetPath, tilesetJson, prettyJson, gzip),
-                saveJson(tileset2Path, tileset2Json, prettyJson, gzip),
-                fsExtra.copy(glbBasePath, glbCopyPath)
-            ]);
-        });
+    ];
+
+    for (let i = 0; i < tiles.length; ++i) {
+        const tile = tiles[i];
+        await saveBinary(tilePaths[i], tile, gzip);
+    }
+
+    await saveJson(tilesetPath, tilesetJson, prettyJson, gzip);
+    await saveJson(tileset2Path, tileset2Json, prettyJson, gzip);
+    await fsExtra.copy(glbBasePath, glbCopyPath);
 }
 
 function createTilesetRefinementMix() {
