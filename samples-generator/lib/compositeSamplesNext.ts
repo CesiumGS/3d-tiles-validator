@@ -24,6 +24,10 @@ export namespace CompositeSamplesNext {
             'output/Composite'
         );
 
+        const i3dmHeights = new Array(opts.instancesLength).fill(
+            opts.modelSize
+        );
+
         const gltf = await getGltfFromGlbUri(
             opts.instancesUri,
             args.gltfConversionOptions
@@ -62,7 +66,7 @@ export namespace CompositeSamplesNext {
             featureCount: opts.instancesLength,
             properties: {
                 Height: {
-                    values: new Array(opts.instancesLength).fill(opts.modelSize)
+                    values: i3dmHeights
                 }
             }
         });
@@ -136,7 +140,13 @@ export namespace CompositeSamplesNext {
             instancesRegion
         );
 
-        tilesetOpts.properties = getProperties(buildingTable);
+        const compositeFeatureTable = {
+            Longitude: buildingTable.Longitude,
+            Latitude: buildingTable.Latitude,
+            Height: [...i3dmHeights, ...buildingTable.Height]
+        };
+
+        tilesetOpts.properties = getProperties(compositeFeatureTable);
         let tilesetJson = createTilesetJsonSingle(tilesetOpts);
 
         await writeTilesetAndTile(
