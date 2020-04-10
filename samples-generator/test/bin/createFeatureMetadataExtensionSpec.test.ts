@@ -1,4 +1,4 @@
-import { createFeatureMetadataExtension } from "../../lib/createFeatureMetadataExtension";
+import { createFeatureMetadataExtension } from '../../lib/createFeatureMetadataExtension';
 
 const fs = require('fs');
 const path = require('path');
