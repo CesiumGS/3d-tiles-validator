@@ -54,6 +54,7 @@ export namespace CompositeSamplesNext {
         FeatureMetadata.updateExtensionUsed(gltf);
         FeatureMetadata.addFeatureLayer(prim, {
             featureTable: 0,
+            instanceStride: 1,
             vertexAttribute: {
                 implicit: {
                     increment: 0,
@@ -103,7 +104,6 @@ export namespace CompositeSamplesNext {
                 featureLayers: [
                     {
                         featureTable: 1,
-                        instanceStride: 1,
                         vertexAttribute: {
                             implicit: {
                                 increment: 1,
