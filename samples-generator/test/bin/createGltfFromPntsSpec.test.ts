@@ -1,12 +1,10 @@
-'use strict';
+import { GLenumName } from '../../lib/gltfType';
 
-import { GLenumName } from "../../lib/gltfType";
-
-var createGltfFromPnts = require('../../lib/createGltfFromPnts');
-var typeConversion = require('../../lib/typeConversion');
+const createGltfFromPnts = require('../../lib/createGltfFromPnts');
+const typeConversion = require('../../lib/typeConversion');
 
 describe('createGltfFromPnts', function() {
-    var attributeBuffers = [
+    const attributeBuffers = [
         {
             // position
             buffer: Buffer.from([-1, 0, 0, 0, 1, 0, 1, 0, 0]),
@@ -42,7 +40,7 @@ describe('createGltfFromPnts', function() {
         }
     ];
 
-    var indexBuffer = {
+    const indexBuffer = {
         buffer: Uint8Array.of(0, 1, 2),
         componentType: 'UNSIGNED_SHORT',
         propertyName: 'INDICES' ,
@@ -53,26 +51,26 @@ describe('createGltfFromPnts', function() {
         max: [2]
     };
 
-    var gltfWithIndex = createGltfFromPnts(attributeBuffers, indexBuffer);
+    const gltfWithIndex = createGltfFromPnts(attributeBuffers, indexBuffer);
 
     it('attributeBuffers / indexAttribute is encoded as base64 properly', function() {
-        var megaBuffer = Buffer.concat(attributeBuffers.map(function (ab) { return ab.buffer; }));
+        let megaBuffer = Buffer.concat(attributeBuffers.map(function (ab) { return ab.buffer; }));
         megaBuffer = Buffer.concat([megaBuffer, indexBuffer.buffer]);
-        var megaBufferBase64 = 'data:application/octet-stream;base64,' + Buffer.from(megaBuffer).toString('base64');
-        var buffers = gltfWithIndex.buffers;
+        const megaBufferBase64 = 'data:application/octet-stream;base64,' + Buffer.from(megaBuffer).toString('base64');
+        const buffers = gltfWithIndex.buffers;
         expect(buffers).not.toBeUndefined();
         expect(buffers[0].byteLength).toEqual(megaBuffer.length);
         expect(buffers[0].uri).toEqual(megaBufferBase64);
     });
 
     it('generated gltf has four bufferviews', function() {
-        var bufferViews = gltfWithIndex.bufferViews;
+        const bufferViews = gltfWithIndex.bufferViews;
         expect(bufferViews).not.toBeUndefined();
         expect(bufferViews.length).toEqual(attributeBuffers.length + 1);
 
-        var byteOffset = 0;
-        var i = 0;
-        for (; i < attributeBuffers.length; ++i) {
+        let byteOffset = 0;
+        let i: number;
+        for (i = 0; i < attributeBuffers.length; ++i) {
             expect(bufferViews[i].buffer).toEqual(0);
             expect(bufferViews[i].byteOffset).toEqual(byteOffset);
             expect(bufferViews[i].target).toEqual(attributeBuffers[i].target);
@@ -91,9 +89,9 @@ describe('createGltfFromPnts', function() {
         // +1 for the indexBuffer
         expect(gltfWithIndex.accessors.length).toBe(attributeBuffers.length + 1);
 
-        var accessors = gltfWithIndex.accessors;
-        var expectedItemCount;
-        var i = 0;
+        const accessors = gltfWithIndex.accessors;
+        let expectedItemCount;
+        let i: number;
 
         for (i = 0; i < attributeBuffers.length - 1; ++i) {
             expect(accessors[i].bufferView).toEqual(i);
@@ -115,13 +113,13 @@ describe('createGltfFromPnts', function() {
     it('generated gltf has a mesh, with valid attributes / indices', function() {
         expect(gltfWithIndex.meshes).toBeInstanceOf(Array);
         expect(gltfWithIndex.meshes[0].primitives).toBeInstanceOf(Array);
-        var primitive = gltfWithIndex.meshes[0].primitives[0];
+        const primitive = gltfWithIndex.meshes[0].primitives[0];
         expect('attributes' in primitive).toEqual(true);
         expect('indices' in primitive).toEqual(true);
 
-        var i = 0;
+        let i: number;
         for (i = 0; i < attributeBuffers.length; ++i) {
-            var propertyName = attributeBuffers[i].propertyName;
+            const propertyName = attributeBuffers[i].propertyName;
             expect(primitive.attributes[propertyName]).toEqual(i);
         }
 
@@ -139,22 +137,22 @@ describe('createGltfFromPnts', function() {
     });
 
     it('byteOffset of each accessor is divisible by its componentType', function() {
-        var accessors = gltfWithIndex.accessors;
-        for (var i = 0; i < accessors.length; ++i) {
-            var componentType = accessors[i].componentType;
-            var byteOffset = accessors[i].byteOffset;
-            var size = typeConversion.webglDataTypeToByteSize(componentType);
+        const accessors = gltfWithIndex.accessors;
+        for (let i = 0; i < accessors.length; ++i) {
+            const componentType = accessors[i].componentType;
+            const byteOffset = accessors[i].byteOffset;
+            const size = typeConversion.webglDataTypeToByteSize(componentType);
             expect(byteOffset / size).toEqual(0);
         }
     });
 
     it('accessor.byteOffset + bufferView[accessor.bufferView].byteOffset is divisible by size of its componentType', function() {
-        var accessors = gltfWithIndex.accessors;
-        for (var i = 0; i < accessors.length; ++i) {
-            var accessorByteOffset = accessors[i].byteOffset;
-            var bufferViewByteOffset = gltfWithIndex.bufferViews[accessors[i].bufferView].byteOffset;
-            var sum = accessorByteOffset + bufferViewByteOffset;
-            var componentTypeSize = typeConversion.elementTypeToCount(accessors[i].type);
+        const accessors = gltfWithIndex.accessors;
+        for (let i = 0; i < accessors.length; ++i) {
+            const accessorByteOffset = accessors[i].byteOffset;
+            const bufferViewByteOffset = gltfWithIndex.bufferViews[accessors[i].bufferView].byteOffset;
+            const sum = accessorByteOffset + bufferViewByteOffset;
+            const componentTypeSize = typeConversion.elementTypeToCount(accessors[i].type);
             expect(sum % componentTypeSize).toEqual(0);
         }
     });
