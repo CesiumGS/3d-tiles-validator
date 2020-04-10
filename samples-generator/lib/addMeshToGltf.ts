@@ -1,9 +1,4 @@
-import {
-    Gltf,
-    GltfType,
-    GltfPrimitive,
-    GltfComponentType
-} from './gltfType';
+import { Gltf, GltfType, GltfPrimitive, GltfComponentType } from './gltfType';
 import { Mesh } from './Mesh';
 import { MeshView } from './meshView';
 import { calculateMinMax, MinMax } from './calculateMinMax';
@@ -46,6 +41,8 @@ type BufferViewAccessorInfo = {
  * glTF asset instead of creating an entirely new one.
  * @param gltf The glTF asset to modify
  * @param mesh A single mesh to edit
+ * @param attributeSuffix Value to append to the name of consecutive
+ * TEXCOORD / COLOR
  * @param relativeToCenter If the mesh should have its positions set relative
  * to center or not.
  */
@@ -57,7 +54,7 @@ export function addBatchedMeshToGltf(
     relativeToCenter = false
 ) {
     // If all the vertex colors are 0 then the mesh does not have vertex colors
-    const useVertexColors = !mesh.vertexColors.every(e => e === 0);
+    const useVertexColors = !mesh.vertexColors.every((e) => e === 0);
 
     if (relativeToCenter) {
         mesh.setPositionsRelativeToCenter();
@@ -69,9 +66,6 @@ export function addBatchedMeshToGltf(
     const positionsBuffer = createFloat32Buffer(mesh.positions);
     const normalsMinMax = calculateMinMax(mesh.normals, 3);
     const normalsBuffer = createFloat32Buffer(mesh.normals);
-
-    const batchIdsMinMax = calculateMinMax(mesh.batchIds, 1);
-    const batchIdsBuffer = createFloat32Buffer(mesh.batchIds);
 
     let uvsMinMax: MinMax;
     let uvsBuffer: Buffer;
@@ -150,34 +144,34 @@ export function addBatchedMeshToGltf(
 
     // add aj new primitive
     let primitives: GltfPrimitive[] = [];
-    for (let i = 0 ; i < mesh.views.length; ++i) {
+    for (let i = 0; i < mesh.views.length; ++i) {
         let primitive = {
             attributes: {
                 POSITION: accessorBufferViewAccessorInfo.accessorIndex[0],
-                NORMAL: accessorBufferViewAccessorInfo.accessorIndex[1],
+                NORMAL: accessorBufferViewAccessorInfo.accessorIndex[1]
             },
             material: i,
             mode: 4,
             indices: indexBufferViewAccessorInfo.accessorIndex[i]
-        }
+        };
 
         // TODO: How do we detect if we should add a _0, _1, _2 suffix?
         if (useUvs) {
-            primitive.attributes['TEXTCOORD_' + attributeSuffix] =
-                accessorBufferViewAccessorInfo.accessorIndex[2]
+            primitive.attributes['TEXCOORD' + attributeSuffix] =
+                accessorBufferViewAccessorInfo.accessorIndex[2];
         }
 
         if (useVertexColors) {
-            primitive.attributes['COLOR_' + attributeSuffix] =
-                accessorBufferViewAccessorInfo.accessorIndex[3]
+            primitive.attributes['COLOR' + attributeSuffix] =
+                accessorBufferViewAccessorInfo.accessorIndex[3];
         }
 
         primitives.push(primitive);
     }
 
-    gltf.meshes.push({primitives: primitives});
+    gltf.meshes.push({ primitives: primitives });
     gltf.nodes.push({
-        matrix: rootMatrix, 
+        matrix: rootMatrix,
         mesh: gltf.meshes.length - 1
     });
 }
@@ -226,7 +220,7 @@ function addBufferToGltf(
     }
 
     const vertexBuffer = calculateBufferPadding(
-        Buffer.concat(pairs.map(v => v.buffer))
+        Buffer.concat(pairs.map((v) => v.buffer))
     );
 
     let buffer: Buffer;
