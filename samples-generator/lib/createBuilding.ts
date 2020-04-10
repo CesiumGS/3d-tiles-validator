@@ -1,8 +1,8 @@
 'use strict';
 
-import { FeatureTableUtils } from "./featureMetatableUtilsNext";
-import { Material, TexturedMaterial } from "./Material";
-import { TranslucencyType, BaseColorType } from "./colorTypes";
+import { FeatureTableUtils } from './featureMetatableUtilsNext';
+import { Material, TexturedMaterial } from './Material';
+import { TranslucencyType, BaseColorType } from './colorTypes';
 
 const Cesium = require('cesium');
 const util = require('./utility');
