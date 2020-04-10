@@ -15,7 +15,7 @@ import {
     defaultValue
 } from 'cesium';
 const createI3dm = require('./createI3dm');
-const AttributeCompression = require('cesium').Cesium.AttributeCompression;
+const AttributeCompression = require('cesium').AttributeCompression;
 
 export interface InstanceTileOptions {
     uri: string;
