@@ -62,7 +62,7 @@ export type VertexAttribute = {
 
 export type TextureAccessor = {
     texture: {
-        textCoord: number;
+        texCoord: number;
         normalized: boolean;
         channels: string; // /^[rgba]{1,4}$/
         texture: {

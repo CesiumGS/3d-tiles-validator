@@ -123,7 +123,7 @@ function createGltf(options) {
         indexBuffer.writeUInt16LE(indices[i], i * sizeOfUint16);
     }
 
-    var vertexCount = mesh.getVertexCount();
+    var vertexCount = mesh.vertexCount;
 
     var vertexBuffer = getBufferPadded(Buffer.concat([positionsBuffer, normalsBuffer, uvsBuffer, vertexColorsBuffer, batchIdsBuffer]));
     var buffer = getBufferPadded(Buffer.concat([vertexBuffer, indexBuffer]));

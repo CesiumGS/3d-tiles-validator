@@ -2,6 +2,7 @@ import { FLOAT32_SIZE_BYTES } from './typeSize';
 import { Attribute } from './attribute';
 import { GltfComponentType, GltfType } from './gltfType';
 import { Cartesian3, Math as CesiumMath, Matrix3, Matrix4, Quaternion, Transforms } from 'cesium';
+import { instancesLength, tileWidth, instancesUri } from './constants';
 
 function toMatrix3(matrix4: Matrix4) {
     const result = new Matrix3();
@@ -20,15 +21,37 @@ function toMatrix3(matrix4: Matrix4) {
     return result;
 }
 
+const util = require('../lib/utility');
+const wgs84Transform = util.wgs84Transform;
+
 export namespace InstanceTileUtils {
-    export interface FeatureTableJson {
-        INSTANCES_LENGTH?: number;
-        RTC_CENTER?: [number, number, number];
-        QUANTIZED_VOLUME_SCALE?: [number, number, number];
-        QUANTIZED_VOLUME_OFFSET?: [number, number, number];
-        EAST_NORTH_UP?: boolean;
-        property?: {
-            [name: string]: { byteOffset: number; componentType: number };
+    const instancesModelSize = 20.0;
+    const longitude = -1.31968;
+    const latitude = 0.698874;
+
+    export interface TileOptions {
+        instancesLength: number;
+        tileWidth: number;
+        modelSize: number;
+        instancesUri: string;
+        rootDir: string;
+        embed: boolean;
+        transform: Matrix4;
+    }
+
+    export function getDefaultTileOptions(rootDir: string): TileOptions {
+        return {
+            instancesLength: instancesLength,
+            tileWidth: tileWidth,
+            modelSize: instancesModelSize,
+            instancesUri: instancesUri,
+            rootDir: rootDir,
+            embed: false,
+            transform: wgs84Transform(
+                longitude,
+                latitude,
+                instancesModelSize / 2.0
+            ) as Matrix4
         };
     }
 
@@ -180,8 +203,8 @@ export namespace InstanceTileUtils {
             componentType: GltfComponentType.FLOAT,
             type: GltfType.VEC4,
             min: min,
-            max: max 
-        }
+            max: max
+        };
     }
 
     export function getOrientations(

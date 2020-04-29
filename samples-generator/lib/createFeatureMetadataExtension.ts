@@ -1,10 +1,10 @@
-'use strict';
-var Cesium = require('cesium');
-var defined = Cesium.defined;
-var Extensions = require('./Extensions');
-var featureTableExtensionName = 'CESIUM_3dtiles_feature_metadata';
-var typeConversion = require('./typeConversion');
-module.exports = createFeatureMetadataExtension;
+import { GltfAccessor, GLenumName } from './gltfType';
+import { Extensions } from './Extensions';
+
+const Cesium = require('cesium');
+const defined = Cesium.defined;
+const typeConversion = require('./typeConversion');
+const featureTableExtensionName = 'CESIUM_3dtiles_feature_metadata';
 
 function sortByByteOffset(a, b) {
     if (a.byteOffset < b.byteOffset) {
@@ -25,17 +25,13 @@ function assertHumanReadableFeatureTableValueArraysHaveIdenticalLength(
         return 0;
     }
 
-    var firstLength = humanfeatureTables[0].value.length;
-    for (var i = 1; i < humanfeatureTables.length; ++i) {
+    const firstLength = humanfeatureTables[0].value.length;
+    for (let i = 1; i < humanfeatureTables.length; ++i) {
         if (humanfeatureTables[i].value.length !== firstLength) {
-            var badFeatureTable = humanfeatureTables[i].name;
-            var badLength = humanfeatureTables[i].value.length;
+            const badFeatureTable = humanfeatureTables[i].name;
+            const badLength = humanfeatureTables[i].value.length;
             throw new Error(
-                badFeatureTable +
-                    ' has incorrect length of: ' +
-                    badLength +
-                    ', should match the first length: ' +
-                    firstLength
+                `${badFeatureTable} has incorrect length of ${badLength}, should match first length: ${firstLength}`
             );
         }
     }
@@ -48,11 +44,11 @@ function assertBinaryHasIdenticalCount(binaryfeatureTables) {
         return 0;
     }
 
-    var firstLength = binaryfeatureTables[0].count;
-    for (var i = 1; i < binaryfeatureTables.length; ++i) {
+    const firstLength = binaryfeatureTables[0].count;
+    for (let i = 1; i < binaryfeatureTables.length; ++i) {
         if (binaryfeatureTables[i].count !== firstLength) {
-            var badFeatureTable = binaryfeatureTables[i].name;
-            var badLength = binaryfeatureTables[i].count;
+            const badFeatureTable = binaryfeatureTables[i].name;
+            const badLength = binaryfeatureTables[i].count;
             throw new Error(
                 badFeatureTable +
                     ' has incorrect length of: ' +
@@ -67,13 +63,13 @@ function assertBinaryHasIdenticalCount(binaryfeatureTables) {
 }
 
 function isCandidateForImplicitBufferView(batchAttribute) {
-    var min = batchAttribute.min;
-    var max = batchAttribute.max;
-    var count = batchAttribute.count;
-    var minExists = defined(batchAttribute.min);
-    var maxExists = defined(batchAttribute.max);
-    var minPasses = minExists && min.length === 1 && min[0] === 0;
-    var maxPasses = maxExists && max.length === 1 && max[0] === count - 1;
+    const min = batchAttribute.min;
+    const max = batchAttribute.max;
+    const count = batchAttribute.count;
+    const minExists = defined(batchAttribute.min);
+    const maxExists = defined(batchAttribute.max);
+    const minPasses = minExists && min.length === 1 && min[0] === 0;
+    const maxPasses = maxExists && max.length === 1 && max[0] === count - 1;
     return minPasses && maxPasses;
 }
 
@@ -107,17 +103,12 @@ function isCandidateForImplicitBufferView(batchAttribute) {
  * @typedef attributeBufferType
  * @type {Object}
  * @property {Buffer} buffer BufferAttribute data
- * @property {String} componentType BufferAttribute componentType
- * (FLOAT, UNSIGNED_BYTE, DOUBLE)
- * @property {String} propertyName BufferAttribute property name
- * (POSITION, NORMAL, COLOR, WEIGHT)
+ * @property {String} componentType BufferAttribute componentType (FLOAT, UNSIGNED_BYTE, DOUBLE)
+ * @property {String} propertyName BufferAttribute property name (POSITION, NORMAL, COLOR, WEIGHT)
  * @property {String} type (SCALAR, VEC2, VEC3, VEC4)
- * @property {String} target WebGL rendering target, like ARRAY_BUFFER, or
- * ELEMENT_ARRAY_BUFFE (e.g 0x8892, 0x8893)
- * @property {Array.<Number>} min Minimum value for each component in the
- * bufferAttribute
- * @property {Array.<Number>} max Maximum value for each component in the
- * bufferAttribute
+ * @property {String} target WebGL rendering target, like ARRAY_BUFFER, or ELEMENT_ARRAY_BUFFE (e.g 0x8892, 0x8893)
+ * @property {Array.<Number>} min Minimum value for each component in the bufferAttribute
+ * @property {Array.<Number>} max Maximum value for each component in the bufferAttribute
  */
 
 /**
@@ -134,7 +125,7 @@ function isCandidateForImplicitBufferView(batchAttribute) {
  * the binary batch attributes in featureTableAttributes are directly referring
  * to this buffer.
  */
-function createFeatureMetadataExtension(
+export function createFeatureMetadataExtension(
     gltf,
     featureTableAttributes,
     sharedBinaryBuffer
@@ -148,19 +139,17 @@ function createFeatureMetadataExtension(
         ]
     });
 
-    var humanReadable = [];
-    var binaryReadable = [];
-    var i;
+    const humanReadable = [];
+    const binaryReadable = [];
 
-    // TODO: This will change when we add multiple batch table support
-    var featureTableIndex = 0;
-    var activeFeatureTable =
+    const featureTableIndex = 0; // TODO: This will change when we add multiple batch table support
+    const activeFeatureTable =
         gltf.extensions[featureTableExtensionName].featureTables[
             featureTableIndex
         ];
 
-    var attributeNames = Object.keys(featureTableAttributes);
-    for (i = 0; i < attributeNames.length; ++i) {
+    const attributeNames = Object.keys(featureTableAttributes);
+    for (let i = 0; i < attributeNames.length; ++i) {
         if (featureTableAttributes[attributeNames[i]] instanceof Array) {
             humanReadable.push({
                 name: attributeNames[i],
@@ -171,10 +160,10 @@ function createFeatureMetadataExtension(
         }
     }
 
-    var humanFeatureCount = assertHumanReadableFeatureTableValueArraysHaveIdenticalLength(
+    const humanFeatureCount = assertHumanReadableFeatureTableValueArraysHaveIdenticalLength(
         humanReadable
     );
-    var binaryFeatureCount = assertBinaryHasIdenticalCount(binaryReadable);
+    const binaryFeatureCount = assertBinaryHasIdenticalCount(binaryReadable);
 
     if (humanFeatureCount === 0 && binaryFeatureCount === 0) {
         throw new Error(
@@ -197,8 +186,8 @@ function createFeatureMetadataExtension(
         binaryFeatureCount
     );
 
-    for (i = 0; i < humanReadable.length; ++i) {
-        var attribute = humanReadable[i];
+    for (let i = 0; i < humanReadable.length; ++i) {
+        const attribute = humanReadable[i];
         activeFeatureTable.properties[attribute.name] = {
             values: attribute.value
         };
@@ -219,22 +208,22 @@ function createFeatureMetadataExtension(
                 sharedBinaryBuffer.toString('base64')
         });
 
-        var newBufferIndex = gltf.buffers.length - 1;
-        var bufferViewIndex = gltf.bufferViews.length;
-        var accessorIndex = gltf.accessors.length;
+        const newBufferIndex = gltf.buffers.length - 1;
+        let bufferViewIndex = gltf.bufferViews.length;
+        let accessorIndex = gltf.accessors.length;
 
-        for (i = 0; i < binaryReadable.length; ++i, ++accessorIndex) {
-            var batchAttribute = binaryReadable[i];
+        for (let i = 0; i < binaryReadable.length; ++i, ++accessorIndex) {
+            const batchAttribute = binaryReadable[i];
 
-            var componentType = batchAttribute.componentType;
-            var validComponentType = typeConversion.isValidWebGLDataTypeEnum(
+            const componentType = batchAttribute.componentType;
+            const validComponentType = typeConversion.isValidWebGLDataTypeEnum(
                 componentType
             );
-            var normalizedComponentType = validComponentType
+            const normalizedComponentType = validComponentType
                 ? componentType
                 : typeConversion.componentTypeStringToInteger(componentType);
 
-            var implicitBufferView = isCandidateForImplicitBufferView(
+            const implicitBufferView = isCandidateForImplicitBufferView(
                 batchAttribute
             );
             if (!implicitBufferView) {
@@ -242,11 +231,11 @@ function createFeatureMetadataExtension(
                     buffer: newBufferIndex,
                     byteLength: batchAttribute.byteLength,
                     byteOffset: batchAttribute.byteOffset,
-                    target: 0x8892 // ARRAY_BUFFER
+                    target: GLenumName.ARRAY_BUFFER
                 });
             }
 
-            var accessor = {
+            const accessor: GltfAccessor = {
                 componentType: normalizedComponentType,
                 type: batchAttribute.type,
                 count: batchAttribute.count,
@@ -267,8 +256,8 @@ function createFeatureMetadataExtension(
     }
 
     // also add the extension to attributes
-    var primitives = gltf.meshes[0].primitives;
-    for (i = 0; i < primitives.length; ++i) {
+    const primitives = gltf.meshes[0].primitives;
+    for (let i = 0; i < primitives.length; ++i) {
         primitives[i].extensions = {
             CESIUM_3dtiles_feature_metadata: {
                 attributes: {

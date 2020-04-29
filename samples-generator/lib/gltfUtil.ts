@@ -1,4 +1,4 @@
-import {  Gltf, GltfBuffer, GltfType } from './gltfType';
+import {  Gltf, GltfBuffer, GltfType, GLenumName } from './gltfType';
 import { Attribute } from './attribute';
 
 export function buffersToGltfBuffer(buffers: Buffer[]): GltfBuffer {
@@ -50,7 +50,7 @@ export function addBinaryBuffers(gltf: Gltf, ...attributes: Omit<Attribute, 'pro
             buffer: bufferIndex,
             byteLength: attrib.buffer.byteLength,
             byteOffset: attrib.byteOffset,
-            target: 0x8892
+            target: GLenumName.ARRAY_BUFFER
         });
 
         const bufferViewIndex = gltf.bufferViews.length - 1;
