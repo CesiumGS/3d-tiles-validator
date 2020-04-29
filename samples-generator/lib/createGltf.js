@@ -20,6 +20,8 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.relativeToCenter=false] Set mesh positions relative to center.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
  * @param {Boolean} [options.use3dTilesNext=false] Modify the GLTF to name batch ids with a numerical suffix
+ * @todo options.use3dTilesNext will be deprecated soon, all 3dtilesnext logic
+ *       will go into a dedicated class.
  *
  * @returns {Object} A glTF object
  */

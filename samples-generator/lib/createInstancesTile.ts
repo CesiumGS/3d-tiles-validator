@@ -1,19 +1,9 @@
 import fsExtra = require('fs-extra');
 import path = require('path');
 import { Gltf } from './gltfType';
-import {
-    FLOAT32_SIZE_BYTES,
-    UINT16_SIZE_BYTES,
-    UINT8_SIZE_BYTES,
-    UINT32_SIZE_BYTES
-} from './typeSize';
-import {
-    Matrix4,
-    Cartesian2,
-    Cartesian3,
-    Math as CesiumMath,
-    defaultValue
-} from 'cesium';
+import { FLOAT32_SIZE_BYTES, UINT16_SIZE_BYTES, UINT32_SIZE_BYTES, UINT8_SIZE_BYTES } from './typeSize';
+import { Cartesian2, Cartesian3, defaultValue, Math as CesiumMath, Matrix4 } from 'cesium';
+
 const createI3dm = require('./createI3dm');
 const AttributeCompression = require('cesium').AttributeCompression;
 

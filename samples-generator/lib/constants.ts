@@ -1,7 +1,10 @@
 const Cesium = require('cesium');
 const clone = Cesium.clone;
+const path = require('path');
 import { BaseColorType, TranslucencyType } from './colorTypes';
+import { Building } from './createBuilding';
 
+export const gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../') };
 export const util = require('../lib/utility');
 export const wgs84Transform = util.wgs84Transform;
 export const metersToLongitude = util.metersToLongitude;
@@ -23,6 +26,18 @@ export const west = longitude - longitudeExtent / 2.0;
 export const south = latitude - latitudeExtent / 2.0;
 export const east = longitude + longitudeExtent / 2.0;
 export const north = latitude + latitudeExtent / 2.0;
+
+export type BuildingTemplate = {
+    uniform: boolean;
+    numberOfBuildings: number;
+    tileWidth: number;
+    averageWidth: number;
+    averageHeight: number;
+    baseColorType: BaseColorType;
+    translucencyType: TranslucencyType;
+    longitude: number;
+    latitude: number;
+};
 
 export const buildingTemplate = {
     numberOfBuildings: 10,
@@ -153,7 +168,15 @@ parentOptions.averageWidth = 20.0;
 parentOptions.averageHeight = 82.0;
 parentOptions.longitude = longitude;
 parentOptions.latitude = latitude;
-export const parentTileOptions = {
+
+export type TileOptions = {
+    buildingOptions: BuildingTemplate,
+    createBatchTable: boolean,
+    transform: object;
+    relativeToCenter: boolean;
+}
+
+export const parentTileOptions: TileOptions = {
     buildingOptions: parentOptions,
     createBatchTable: true,
     transform: buildingsTransform,
@@ -257,8 +280,14 @@ export const ulTileOptions = {
     relativeToCenter: true
 };
 
+
+
 // Models are z-up, so add a z-up to y-up transform.
 // The glTF spec defines the y-axis as up, so this is the default behavior.
 // In CesiumJS a y-up to z-up transform is applied later so that the glTF and
 // 3D Tiles coordinate systems are consistent
 export const rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
+
+
+// 3d-tiles-next
+export const tilesNextTilesetJsonVersion = '1.1';

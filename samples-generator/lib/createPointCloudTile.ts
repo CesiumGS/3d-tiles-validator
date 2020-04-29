@@ -1,5 +1,4 @@
 'use strict';
-
 import { createFeatureMetadataExtension } from './createFeatureMetadataExtension';
 import { Extensions } from './Extensions';
 
