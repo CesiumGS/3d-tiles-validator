@@ -48,6 +48,7 @@ var encoderModule = draco3d.createEncoderModule({});
  * @param {Boolean} [options.batched=false] Group points together with batch ids and generate per-batch metadata. Good for differentiating different sections of a point cloud. Not compatible with perPointProperties.
  * @param {Boolean} [options.perPointProperties=false] Generate per-point metadata.
  * @param {Boolean} [options.relativeToCenter=true] Define point positions relative-to-center.
+ * @param {Boolean} [options.unicodePropertyNames=false] Use unicode characters in per-point property names.
  * @param {Boolean} [options.time=0.0] Time value when generating 4D simplex noise.
  *
  * @returns {Object} An object containing the pnts buffer and batch table JSON.
@@ -74,6 +75,10 @@ export function createPointCloudTile(options) {
     var batched = defaultValue(options.batched, false);
     var perPointProperties = defaultValue(options.perPointProperties, false);
     var relativeToCenter = defaultValue(options.relativeToCenter, true);
+    var unicodePropertyNames = defaultValue(
+        options.unicodePropertyNames,
+        false
+    );
     var time = defaultValue(options.time, 0.0);
 
     if (colorMode === 'rgb565' && draco) {
@@ -147,7 +152,8 @@ export function createPointCloudTile(options) {
         batchTableProperties = getPerPointBatchTableProperties(
             pointsLength,
             noiseValues,
-            use3dTilesNext
+            use3dTilesNext,
+            unicodePropertyNames
         );
     }
 
@@ -1083,7 +1089,8 @@ function getBatchTableForBatchedPoints(batchLength, use3dTilesNext) {
 function getPerPointBatchTableProperties(
     pointsLength,
     noiseValues,
-    use3dTilesNext
+    use3dTilesNext,
+    unicodePropertyNames
 ) {
     // Create some sample per-point properties. Each point will have a temperature, secondary color, and id.
     var temperaturesBuffer = Buffer.alloc(pointsLength * sizeOfFloat32);
@@ -1144,10 +1151,14 @@ function getPerPointBatchTableProperties(
         );
     }
 
+    var temperatureName = unicodePropertyNames
+        ? 'temperature ℃'
+        : 'temperature';
+
     var result: any = [
         {
             buffer: temperaturesBuffer,
-            propertyName: 'temperature',
+            propertyName: temperatureName,
             componentType: 'FLOAT',
             type: 'SCALAR'
         },
