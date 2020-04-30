@@ -1,6 +1,5 @@
 'use strict';
 import { createFeatureMetadataExtension } from './createFeatureMetadataExtension';
-import { Extensions } from './Extensions';
 
 var Cesium = require('cesium');
 var draco3d = require('draco3d');

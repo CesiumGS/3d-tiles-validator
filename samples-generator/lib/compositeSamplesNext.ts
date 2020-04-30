@@ -71,7 +71,7 @@ export namespace CompositeSamplesNext {
                     }
                 }
             }
-        });
+        );
 
         // b3dm
         const transform = FeatureTableUtils.getDefaultTransform();
