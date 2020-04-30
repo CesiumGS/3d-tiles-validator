@@ -1,8 +1,19 @@
 import fsExtra = require('fs-extra');
 import path = require('path');
 import { Gltf } from './gltfType';
-import { FLOAT32_SIZE_BYTES, UINT16_SIZE_BYTES, UINT32_SIZE_BYTES, UINT8_SIZE_BYTES } from './typeSize';
-import { Cartesian2, Cartesian3, defaultValue, Math as CesiumMath, Matrix4 } from 'cesium';
+import {
+    FLOAT32_SIZE_BYTES,
+    UINT16_SIZE_BYTES,
+    UINT8_SIZE_BYTES,
+    UINT32_SIZE_BYTES
+} from './typeSize';
+import {
+    Matrix4,
+    Cartesian2,
+    Cartesian3,
+    Math as CesiumMath,
+    defaultValue
+} from 'cesium';
 
 const createI3dm = require('./createI3dm');
 const AttributeCompression = require('cesium').AttributeCompression;
@@ -29,10 +40,10 @@ export interface InstanceTileOptions {
 }
 
 export interface InstancesTileResult {
-    glb?: Buffer;
-    gltf?: Gltf;
-    i3dm?: any;
-    batchTableJson?: any;
+    glb?: Buffer,
+    gltf?: Gltf,
+    i3dm?: any,
+    batchTableJson?: any
 }
 
 /**
@@ -69,7 +80,7 @@ export async function createInstancesTile(
     const transform = defaultValue(options.transform, Matrix4.IDENTITY);
     const instancesLength = defaultValue(options.instancesLength, 25);
     let uri = options.uri;
-    const embed = defaultValue(options.embed, true);
+    const embed = defaultValue(options.embed, true) as boolean;
     const modelSize = defaultValue(options.modelSize, 20.0) as number;
     const createBatchTable = defaultValue(options.createBatchTable, true);
     const createBatchTableBinary = defaultValue(

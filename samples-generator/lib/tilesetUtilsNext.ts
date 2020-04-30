@@ -1,8 +1,3 @@
-const Cesium = require('cesium');
-const Matrix4 = Cesium.Matrix4;
-const defined = Cesium.defined;
-const Cartesian3 = Cesium.Cartesian3;
-
 import { createBuildings } from './createBuilding';
 import { BatchTable, generateBuildingBatchTable } from './createBuildingsTile';
 import { Mesh } from './Mesh';
@@ -15,23 +10,22 @@ import {
     latitude,
     latitudeExtent,
     longitude,
-    longitudeExtent,
-    TileOptions,
-    tilesNextTilesetJsonVersion,
+    longitudeExtent, TileOptions, tilesNextTilesetJsonVersion,
     tileWidth
 } from './constants';
 import { TilesNextExtension } from './tilesNextExtension';
 import createGltf = require('./createGltf');
+import { Cartesian3, defined, Matrix4 } from 'cesium';
 
 export namespace TilesetUtilsNext {
     export function createBuildingGltfsWithFeatureMetadata(
         tileOptions: TileOptions[]
     ): { gltfs: Gltf[]; batchTables: BatchTable[] } {
-        const buildings = tileOptions.map((opt) =>
+        const buildings = tileOptions.map(opt =>
             createBuildings(opt.buildingOptions)
         );
 
-        const batchTables = buildings.map((building) =>
+        const batchTables = buildings.map(building =>
             generateBuildingBatchTable(building)
         );
 
@@ -44,9 +38,9 @@ export namespace TilesetUtilsNext {
 
         // remove explicit ID from batchTable, it's not used in the
         // feature metadata gltf extension
-        batchTables.forEach((table) => delete table.id);
+        batchTables.forEach(table => delete table.id);
 
-        const gltfs = batchedMeshes.map((mesh) =>
+        const gltfs = batchedMeshes.map(mesh =>
             createGltf({ mesh: mesh, useBatchIds: false })
         ) as Gltf[];
 
@@ -112,11 +106,11 @@ export namespace TilesetUtilsNext {
         const tileNames: string[] = [];
 
         const tilesetJson = {
-            asset: {
-                version: tilesNextTilesetJsonVersion
+            asset : {
+                version : tilesNextTilesetJsonVersion
             },
-            properties: undefined,
-            geometricError: largeGeometricError
+            properties : undefined,
+            geometricError : largeGeometricError
         };
 
         divideTile(
@@ -125,7 +119,7 @@ export namespace TilesetUtilsNext {
             0,
             divisions,
             depth,
-            tilesetJson as any, // TODO:
+            tilesetJson as any,  // TODO:
             tileOptions,
             tileNames,
             extension,
@@ -133,9 +127,9 @@ export namespace TilesetUtilsNext {
         );
 
         return {
-            tilesetJson: tilesetJson,
-            tileOptions: tileOptions,
-            tileNames: tileNames
+            tilesetJson : tilesetJson,
+            tileOptions : tileOptions,
+            tileNames : tileNames
         };
     }
 
@@ -145,17 +139,10 @@ export namespace TilesetUtilsNext {
     //       used recursion to dynamically build the object, which doens't
     //       translate to Typescript well without casting.
     function divideTile(
-        level: number,
-        x: number,
-        y: number,
-        divisions: number,
-        depth: number,
-        parent: any,
-        tileOptions: any,
-        tileNames: string[],
-        extension: TilesNextExtension,
-        subdivideCallback: SubdivisionCallback
-    ) {
+        level: number, x: number, y: number, divisions: number,
+        depth: number, parent: any, tileOptions: any,
+        tileNames: string[], extension: TilesNextExtension,
+        subdivideCallback: SubdivisionCallback) {
         const uri = level + '_' + x + '_' + y + extension;
         const tilesPerAxis = Math.pow(divisions, level);
 
@@ -169,12 +156,9 @@ export namespace TilesetUtilsNext {
 
         const xOffset = -tileWidth / 2.0 + (x + 0.5) * tileWidthMeters;
         const yOffset = -tileWidth / 2.0 + (y + 0.5) * tileWidthMeters;
-        const transform = Matrix4.fromTranslation(
-            new Cartesian3(xOffset, yOffset, 0)
-        );
+        const transform = Matrix4.fromTranslation(new Cartesian3(xOffset, yOffset, 0));
 
-        const west =
-            longitude - longitudeExtent / 2.0 + x * tileLongitudeExtent;
+        const west = longitude - longitudeExtent / 2.0 + x * tileLongitudeExtent;
         const south = latitude - latitudeExtent / 2.0 + y * tileLatitudeExtent;
         const east = west + tileLongitudeExtent;
         const north = south + tileLatitudeExtent;
@@ -182,33 +166,26 @@ export namespace TilesetUtilsNext {
         const tileLatitude = south + (north - south) / 2.0;
         const region = [west, south, east, north, 0, tileHeightMeters];
 
-        const isLeaf = level === depth - 1;
-        const isRoot = level === 0;
-        const subdivide =
-            !isLeaf &&
-            (!defined(subdivideCallback) || subdivideCallback(level, x, y));
-        const geometricError = isLeaf
-            ? 0.0
-            : largeGeometricError / Math.pow(2, level + 1);
-        const children = subdivide ? [] : undefined;
+        const isLeaf = (level === depth - 1);
+        const isRoot = (level === 0);
+        const subdivide = !isLeaf && (!defined(subdivideCallback) || subdivideCallback(level, x, y));
+        const geometricError = (isLeaf) ? 0.0 : largeGeometricError / Math.pow(2, level + 1);
+        const children = (subdivide) ? [] : undefined;
 
         const tileJson: any = {
-            boundingVolume: {
-                region: region
+            boundingVolume : {
+                region : region
             },
-            geometricError: geometricError,
-            content: {
-                uri: uri
+            geometricError : geometricError,
+            content : {
+                uri : uri
             },
-            children: children
+            children : children
         };
 
         if (isRoot) {
             parent.root = tileJson;
-            tileJson.transform = Matrix4.pack(
-                buildingsTransform,
-                new Array(16)
-            );
+            tileJson.transform = Matrix4.pack(buildingsTransform, new Array(16));
             tileJson.refine = 'REPLACE';
         } else {
             parent.children.push(tileJson);
@@ -231,6 +208,7 @@ export namespace TilesetUtilsNext {
         const nextLevel = level + 1;
         const nextX = divisions * x;
         const nextY = divisions * y;
+
 
         if (subdivide) {
             for (let i = 0; i < divisions; ++i) {

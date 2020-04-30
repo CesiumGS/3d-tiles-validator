@@ -1,3 +1,5 @@
+import { TilesNextExtension } from './tilesNextExtension';
+
 const Cesium = require('cesium');
 const clone = Cesium.clone;
 const Cartesian3 = Cesium.Cartesian3;
@@ -7,40 +9,40 @@ const Quaternion = Cesium.Quaternion;
 const gltfPipeline = require('gltf-pipeline');
 import { GeneratorArgs } from './arguments';
 import {
-    buildingsTransform,
-    buildingTemplate,
+    largeGeometricError,
+    parentRegion,
+    smallGeometricError,
+    parentContentRegion,
+    llRegion,
+    lrRegion,
+    urRegion,
+    ulRegion,
+    parentTileOptions,
+    llTileOptions,
+    lrTileOptions,
+    urTileOptions,
+    ulTileOptions,
     childrenRegion,
-    gltfConversionOptions,
-    instancesBoxLocal,
-    instancesGeometricError,
-    instancesLength,
+    latitude,
+    wgs84Transform,
+    longitude,
     instancesModelSize,
     instancesTileWidth,
+    instancesLength,
     instancesUri,
-    largeGeometricError,
-    latitude,
-    latitudeExtent,
-    llRegion,
-    llTileOptions,
-    longitude,
-    longitudeExtent,
-    lrRegion,
-    lrTileOptions,
-    parentContentRegion,
-    parentRegion,
-    parentTileOptions,
+    buildingTemplate,
     smallBoxLocal,
-    smallGeometricError,
-    TileOptions,
-    tilesNextTilesetJsonVersion,
-    ulRegion,
-    ulTileOptions,
-    urRegion,
-    urTileOptions,
-    wgs84Transform
+    instancesGeometricError,
+    instancesBoxLocal,
+    buildingsTransform,
+    longitudeExtent,
+    latitudeExtent,
+    TileOptions, tilesNextTilesetJsonVersion, gltfConversionOptions
 } from './constants';
 import { Gltf } from './gltfType';
-import { writeTile, writeTileset, writeTilesetAndTile } from './ioUtil';
+import path = require('path');
+import { writeTileset, writeTile, writeTilesetAndTile } from './ioUtil';
+import saveJson = require('./saveJson');
 import { getGltfFromGlbUri } from './gltfFromUri';
 import { TilesetUtilsNext } from './tilesetUtilsNext';
 import { InstanceTileUtils } from './instanceUtilsNext';
@@ -51,12 +53,9 @@ import { FeatureTableUtils } from './featureMetatableUtilsNext';
 import { createBuildings } from './createBuilding';
 import { Mesh } from './Mesh';
 import { generateBuildingBatchTable } from './createBuildingsTile';
-import { createPointCloudTile } from './createPointCloudTile';
-import { TilesNextExtension } from './tilesNextExtension';
 import { TilesetJson } from './tilesetJson';
-import path = require('path');
-import saveJson = require('./saveJson');
 import createGltf = require('./createGltf');
+import { createPointCloudTile } from './createPointCloudTile';
 
 const getProperties = require('./getProperties');
 

@@ -68,9 +68,10 @@ export namespace CompositeSamplesNext {
             properties: {
                 Height: {
                     values: i3dmHeights
+                    }
                 }
             }
-        });
+        );
 
         // b3dm
         const transform = FeatureTableUtils.getDefaultTransform();
@@ -104,6 +105,7 @@ export namespace CompositeSamplesNext {
                 featureLayers: [
                     {
                         featureTable: 1,
+                        instanceStride: 1,
                         vertexAttribute: {
                             implicit: {
                                 increment: 1,
