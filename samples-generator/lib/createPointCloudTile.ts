@@ -1,11 +1,12 @@
 'use strict';
-import { createFeatureMetadataExtension } from './createFeatureMetadataExtension';
-
 var Cesium = require('cesium');
 var draco3d = require('draco3d');
 var SimplexNoise = require('simplex-noise');
+
+import { createFeatureMetadataExtension } from './createFeatureMetadataExtension';
+import { Extensions } from './Extensions';
+
 var createPnts = require('./createPnts');
-var Extensions = require('./Extensions');
 var createGltfFromPnts = require('./createGltfFromPnts');
 var typeConversion = require('./typeConversion');
 
