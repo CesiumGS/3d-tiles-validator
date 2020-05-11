@@ -163,6 +163,7 @@ var promises = [
     createPointCloudQuantizedOctEncoded(),
     createPointCloudBatched(),
     createPointCloudWithPerPointProperties(),
+    createPointCloudWithUnicodePropertyNames(),
     createPointCloudWithTransform(),
     createPointCloudDraco(),
     createPointCloudDracoPartial(),
@@ -645,6 +646,24 @@ function createPointCloudWithPerPointProperties() {
         tileOptions,
         tilesetOptions
     );
+}
+
+function createPointCloudWithUnicodePropertyNames() {
+  var tileOptions = {
+      perPointProperties: true,
+      transform: Matrix4.IDENTITY,
+      relativeToCenter: false,
+      unicodePropertyNames: true
+  };
+  var tilesetOptions = {
+      transform: pointCloudTransform,
+      sphere: pointCloudSphereLocal
+  };
+  return savePointCloudTileset(
+      'PointCloudWithUnicodePropertyNames',
+      tileOptions,
+      tilesetOptions
+  );
 }
 
 function createPointCloudWithTransform() {
