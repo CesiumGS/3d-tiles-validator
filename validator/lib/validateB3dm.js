@@ -31,6 +31,7 @@ const featureTableSemantics = {
  * @param {Buffer} options.content A buffer containing the contents of a b3dm tile.
  * @param {String} options.filePath The tile's file path.
  * @param {String} options.directory The tile's directory.
+ * @param {Object} options.reader The resource reader.
  * @param {Boolean} [options.writeReports=false] Write glTF error report next to the glTF file in question.
  * @returns {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
  */
@@ -137,7 +138,8 @@ async function validateB3dm(options) {
 
     const filePath = isDataUri(options.filePath) ? options.filePath : `${options.filePath}.glb`;
     const glbMessage = await validateGlb({
-        glb: glb,
+        content: glb,
+        reader: options.reader,
         filePath: filePath,
         directory: options.directory,
         writeReports: options.writeReports

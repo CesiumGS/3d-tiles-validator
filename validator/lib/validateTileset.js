@@ -30,6 +30,7 @@ module.exports = validateTileset;
  * @param {Object} options An object with the following properties:
  * @param {Buffer} options.tileset The tileset JSON.
  * @param {String} options.filePath The tileset JSON file path.
+ * @param {Boolean} options.onlyValidateTilesets Only check tilesets, skip any other tile type.
  * @param {String} options.directory The directory containing the tileset JSON that all paths in the tileset JSON are relative to.
  * @returns {Promise} A promise that resolves when the validation completes. If the validation fails, the promise will resolve to an error message.
  */
@@ -39,6 +40,7 @@ async function validateTileset(options) {
     if (defined(message)) {
         return message;
     }
+    options.version = tileset.asset.version;
     return validateTileHierarchy(tileset.root, options);
 }
 
@@ -59,8 +61,8 @@ function validateTopLevel(tileset) {
         return 'Tileset must declare a version in its asset property';
     }
 
-    if (tileset.asset.version !== '1.0') {
-        return `Tileset version must be 1.0. Tileset version provided: ${tileset.asset.version}`;
+    if (tileset.asset.version !== "1.0" && tileset.asset.version !== "2.0.0-alpha.0") {
+        return `Tileset version must be 1.0 or 2.0.0-alpha.0. Tileset version provided: ${tileset.asset.version}`;
     }
 }
 
@@ -97,7 +99,9 @@ async function validateTileHierarchy(root, options) {
             if (isDataUri(content.uri)) {
                 contentPaths.push(content.uri);
             } else {
-                contentPaths.push(path.join(directory, content.uri));
+                if (!options.onlyValidateTilesets || content.uri.endsWith(".json")) {
+                    contentPaths.push(path.join(directory, content.uri));
+                }
             }
         }
 
@@ -156,8 +160,12 @@ async function validateTileHierarchy(root, options) {
 }
 
 async function validateContent(contentPath, directory, options) {
+    const reader = options.reader;
     try {
         if (isDataUri(contentPath)) {
+            if (options.onlyValidateTilesets) {
+                return;
+            }
             const content = Buffer.from(contentPath.split(',')[1], 'base64');
             return await validateTile({
                 content: content,
@@ -165,19 +173,27 @@ async function validateContent(contentPath, directory, options) {
                 directory: directory,
                 writeReports: options.writeReports
             });
-        } else if (isTile(contentPath)) {
+        } else if (isTile(contentPath, options.version)) {
+            if (options.onlyValidateTilesets) {
+                return;
+            }
+            contentPath = utility.normalizePath(contentPath);
             return await validateTile({
-                content: await readTile(contentPath),
+                reader: reader,
+                content: await reader.readBinary(contentPath),
                 filePath: contentPath,
                 directory: path.dirname(contentPath),
                 writeReports: options.writeReports
             });
         }
+        contentPath = utility.normalizePath(contentPath);
         return await validateTileset({
-            tileset: await readTileset(contentPath),
+            reader: reader,
+            tileset: await reader.readJson(contentPath),
             filePath: contentPath,
             directory: path.dirname(contentPath),
-            writeReports: options.writeReports
+            writeReports: options.writeReports,
+            onlyValidateTilesets: options.onlyValidateTilesets
         });
     } catch (error) {
         console.log(`Could not read file: ${error.message}`);

@@ -26,33 +26,59 @@ const argv = yargs
             demandOption: true,
             type: 'string'
         },
+        innerPath: {
+            alias: 's',
+            describe: 'Path to the tileset JSON or tile to validate.',
+            normalize: true,
+            default: 'tileset.json',
+            demandOption: false,
+            type: 'string'
+        },
         writeReports: {
             alias: 'r',
             describe: 'Write glTF error report next to the glTF file in question.',
+            default: false,
+            type: 'boolean'
+        },
+        onlyValidateTilesets: {
+            alias: 'q',
+            describe: 'Only validate tileset files, for quick shallow validation.',
             default: false,
             type: 'boolean'
         }
     }).parse(args);
 
 async function validate(argv) {
-    const filePath = argv.input;
+    let filePath = argv.input;
     const writeReports = argv.writeReports;
     let message;
 
+    let reader = {
+        readBinary: readTile,
+        readJson: readTileset
+    };
+
     try {
         if (isTile(filePath)) {
-            message = await validateTile({
-                content: await readTile(filePath),
-                filePath: filePath,
-                directory: path.dirname(filePath),
-                writeReports: writeReports
-            });
+            if (argv.onlyValidateTilesets) {
+                message = `${filePath} is a tile, validation skipped.`;
+            } else {
+                message = await validateTile({
+                    reader: reader,
+                    content: await reader.readBinary(filePath),
+                    filePath: filePath,
+                    directory: path.dirname(filePath),
+                    writeReports: writeReports
+                });
+                }
         } else {
             message = await validateTileset({
-                tileset: await readTileset(filePath),
+                reader: reader,
+                tileset: await reader.readJson(filePath),
                 filePath: filePath,
                 directory: path.dirname(filePath),
-                writeReports: writeReports
+                writeReports: writeReports,
+                onlyValidateTilesets: argv.onlyValidateTilesets
             });
         }
     } catch (error) {

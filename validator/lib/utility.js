@@ -17,8 +17,16 @@ module.exports = {
     regionInsideRegion: regionInsideRegion,
     sphereInsideBox: sphereInsideBox,
     sphereInsideSphere: sphereInsideSphere,
-    typeToComponentsLength: typeToComponentsLength
+    typeToComponentsLength: typeToComponentsLength,
+    normalizePath: normalizePath
 };
+
+function normalizePath(path) {
+    // on Windows, the paths get backslashes (due to path.join)
+    // normalize that to be able to deal with internal zip paths
+    let res = path.replace(/\.\//, "");
+    return res.replace(/\\/g, '/');
+}
 
 function typeToComponentsLength(type) {
     switch (type) {
