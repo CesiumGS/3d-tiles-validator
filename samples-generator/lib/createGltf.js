@@ -20,6 +20,7 @@ var sizeOfFloat32 = 4;
  * @param {Boolean} [options.relativeToCenter=false] Set mesh positions relative to center.
  * @param {Boolean} [options.deprecated=false] Save the glTF with the old BATCHID semantic.
  * @param {Boolean} [options.use3dTilesNext=false] Modify the GLTF to name batch ids with a numerical suffix
+ * @param {Boolean} [options.animated=false] Whether to include glTF animations.
  * @todo options.use3dTilesNext will be deprecated soon, all 3dtilesnext logic
  *       will go into a dedicated class.
  *
@@ -31,6 +32,7 @@ function createGltf(options) {
     var useBatchIds = defaultValue(options.useBatchIds, true);
     var relativeToCenter = defaultValue(options.relativeToCenter, false);
     var deprecated = defaultValue(options.deprecated, false);
+    var animated = defaultValue(options.animated, false);
 
     var mesh = options.mesh;
     var positions = mesh.positions;
@@ -54,6 +56,7 @@ function createGltf(options) {
     var rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
 
     var i;
+    var j;
     var view;
     var material;
     var viewsLength = views.length;
@@ -124,11 +127,41 @@ function createGltf(options) {
     for (i = 0; i < indicesLength; ++i) {
         indexBuffer.writeUInt16LE(indices[i], i * sizeOfUint16);
     }
+    indexBuffer = getBufferPadded(indexBuffer);
+
+    var translations = [
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0]
+    ];
+    var times = [0.0, 0.5, 1.0];
+    var keyframesLength = translations.length;
+
+    var animationBuffer = Buffer.alloc(0);
+    var translationsBuffer = Buffer.alloc(0);
+    var timesBuffer = Buffer.alloc(0);
+
+    if (animated) {
+        translationsBuffer = Buffer.alloc(keyframesLength * 3 * sizeOfFloat32);
+        timesBuffer = Buffer.alloc(keyframesLength * sizeOfFloat32);
+
+        for (i = 0; i < keyframesLength; ++i) {
+            for (j = 0; j < 3; ++j) {
+                var index = i * keyframesLength + j;
+                translationsBuffer.writeFloatLE(translations[i][j], index * sizeOfFloat32);
+            }
+        }
+        for (i = 0; i < keyframesLength; ++i) {
+            timesBuffer.writeFloatLE(times[i], i * sizeOfFloat32);
+        }
+
+        animationBuffer = getBufferPadded(Buffer.concat([translationsBuffer, timesBuffer]));
+    }
 
     var vertexCount = mesh.vertexCount;
 
     var vertexBuffer = getBufferPadded(Buffer.concat([positionsBuffer, normalsBuffer, uvsBuffer, vertexColorsBuffer, batchIdsBuffer]));
-    var buffer = getBufferPadded(Buffer.concat([vertexBuffer, indexBuffer]));
+    var buffer = getBufferPadded(Buffer.concat([vertexBuffer, indexBuffer, animationBuffer]));
     var bufferUri = 'data:application/octet-stream;base64,' + buffer.toString('base64');
     var byteLength = buffer.byteLength;
 
@@ -147,6 +180,8 @@ function createGltf(options) {
     var vertexColorsBufferViewIndex = (useVertexColors) ? bufferViewIndex++ : 0;
     var batchIdsBufferViewIndex = (useBatchIds) ? bufferViewIndex++ : 0;
     var indexBufferViewIndex = bufferViewIndex++;
+    var translationsBufferViewIndex = (animated) ? bufferViewIndex++ : 0;
+    var timesBufferViewIndex = (animated) ? bufferViewIndex++ : 0;
 
     var byteOffset = 0;
     var positionsBufferByteOffset = byteOffset;
@@ -164,6 +199,12 @@ function createGltf(options) {
     byteOffset = vertexBuffer.length;
     var indexBufferByteOffset = byteOffset;
     byteOffset += indexBuffer.length;
+
+    // Start animation buffer at the padded byte offset
+    var translationsByteOffset = vertexBuffer.length + indexBuffer.length;
+    byteOffset += translationsBuffer.length;
+    var timesByteOffset = byteOffset;
+    byteOffset += timesByteOffset;
 
     for (i = 0; i < viewsLength; ++i) {
         view = views[i];
@@ -312,7 +353,28 @@ function createGltf(options) {
         });
     }
 
-    var accessors = vertexAccessors.concat(indexAccessors);
+    var animationAccessors = [];
+
+    if (animated) {
+        animationAccessors.push({
+            bufferView : translationsBufferViewIndex,
+            byteOffset : 0,
+            componentType: 5126, // FLOAT,
+            count : keyframesLength,
+            type : 'VEC3',
+        });
+        animationAccessors.push({
+            bufferView : timesBufferViewIndex,
+            byteOffset : 0,
+            componentType: 5126, // FLOAT,
+            count : keyframesLength,
+            type : 'SCALAR',
+            min: [times[0]],
+            max: [times[keyframesLength - 1]]
+        });
+    }
+
+    var accessors = vertexAccessors.concat(indexAccessors, animationAccessors);
 
     var bufferViews = [
         {
@@ -363,8 +425,98 @@ function createGltf(options) {
         target : 34963 // ELEMENT_ARRAY_BUFFER
     });
 
+    if (animated) {
+        bufferViews.push({
+            buffer: 0,
+            byteLength : translationsBuffer.length,
+            byteOffset : translationsByteOffset
+        });
+        bufferViews.push({
+            buffer: 0,
+            byteLength : timesBuffer.length,
+            byteOffset : timesByteOffset
+        });
+    }
+
+    var hasRTC = use3dTilesNext && defined(options.featureTableJson) && defined(options.featureTableJson.RTC_CENTER);
+    var nodes;
+    var animationNode;
+
+    if (animated && hasRTC) {
+        nodes = [
+            {
+                matrix : rootMatrix,
+                children : [1]
+            },
+            {
+                name : 'RTC_CENTER',
+                translation : options.featureTableJson.RTC_CENTER,
+                children : [2]
+            },
+            {
+                mesh : 0
+            }
+        ];
+        animationNode = 2;
+    } else if (animated) {
+        nodes = [
+            {
+                matrix : rootMatrix,
+                children : [1]
+            },
+            {
+                mesh : 0
+            }
+        ];
+        animationNode = 1;
+    } else if (hasRTC) {
+        nodes = [
+            {
+                matrix : rootMatrix,
+                children : [1]
+            },
+            {
+                name : 'RTC_CENTER',
+                translation : options.featureTableJson.RTC_CENTER,
+                mesh : 0
+            }
+        ];
+    } else {
+        nodes = [
+            {
+                matrix : rootMatrix,
+                mesh : 0
+            }
+        ];
+    }
+
+    var animations;
+    if (animated) {
+        animations = [
+            {
+                channels : [
+                    {
+                        sampler : 0,
+                        target : {
+                            node : animationNode,
+                            path : 'translation'
+                        }
+                    }
+                ],
+                samplers : [
+                    {
+                        input : timesBufferViewIndex,
+                        interpolation : 'LINEAR',
+                        output : translationsBufferViewIndex
+                    }
+                ]
+            }
+        ];
+    }
+
     var gltf = {
         accessors : accessors,
+        animations : animations,
         asset : {
             generator : '3d-tiles-samples-generator',
             version : '2.0'
@@ -381,13 +533,7 @@ function createGltf(options) {
                 primitives : primitives
             }
         ],
-        nodes : [
-            {
-                matrix : rootMatrix,
-                mesh : 0,
-                name : 'rootNode'
-            }
-        ],
+        nodes : nodes,
         samplers : samplers,
         scene : 0,
         scenes : [{
@@ -395,16 +541,6 @@ function createGltf(options) {
         }],
         textures : textures
     };
-
-    if (use3dTilesNext && defined(options.featureTableJson) && defined(options.featureTableJson.RTC_CENTER)) {
-        delete gltf.nodes[0].mesh;
-        gltf.nodes[0].children = [1];
-        gltf.nodes.push({
-            name : 'RTC_CENTER',
-            translation : options.featureTableJson.RTC_CENTER,
-            mesh : 0
-        });
-    }
 
     return gltf;
 }

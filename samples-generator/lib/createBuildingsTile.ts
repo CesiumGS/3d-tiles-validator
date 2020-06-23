@@ -39,6 +39,7 @@ var batchTableJsonAndBinary;
  * @param {Boolean} [options.relativeToCenter=false] Set mesh positions relative to center.
  * @param {Number[]} [options.rtcCenterPosition] If defined, sets RTC_CENTER attribute in the feature table.
  * @param {Boolean} [options.useVertexColors=false] Bake materials as vertex colors.
+ * @param {Boolean} [options.animated=false] Whether to include glTF animations.
  * @param {Boolean} [options.deprecated1=false] Save the b3dm with the deprecated 20-byte header and the glTF with the BATCHID semantic.
  * @param {Boolean} [options.deprecated2=false] Save the b3dm with the deprecated 24-byte header and the glTF with the BATCHID semantic.
  *
@@ -57,6 +58,7 @@ export function createBuildingsTile(options) {
     var tileTransform = defaultValue(options.transform, Matrix4.IDENTITY);
     var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
     var useGlb = defaultValue(options.useGlb, false);
+    var animated = defaultValue(options.animated, false);
 
     var relativeToCenter = options.relativeToCenter;
     var rtcCenterPosition = options.rtcCenterPosition;
@@ -125,7 +127,8 @@ export function createBuildingsTile(options) {
         relativeToCenter: relativeToCenter,
         deprecated: deprecated1 || deprecated2,
         use3dTilesNext: use3dTilesNext,
-        featureTableJson: featureTableJson
+        featureTableJson: featureTableJson,
+        animated: animated
     };
 
     var gltf = createGltf(gltfOptions);

@@ -28,6 +28,7 @@ import {
     compositeRegion,
     east,
     gzip,
+    instancesAnimatedUri,
     instancesBoxLocal,
     instancesGeometricError,
     instancesLength,
@@ -150,6 +151,7 @@ var promises = [
     createBatchedExpiration(),
     createBatchedWithVertexColors(),
     createBatchedWithContentDataUri(),
+    createBatchedAnimated(),
     // Point Cloud
     createPointCloudRGB(),
     createPointCloudRGBA(),
@@ -187,6 +189,7 @@ var promises = [
     createInstancedRedMaterial(),
     createInstancedWithBatchIds(),
     createInstancedTextured(),
+    createInstancedAnimated(),
     // Composite
     createComposite(),
     createCompositeOfComposite(),
@@ -521,6 +524,12 @@ function createBatchedWithVertexColors() {
 function createBatchedWithContentDataUri() {
     return saveBatchedTileset('BatchedWithContentDataUri', undefined, {
         contentDataUri: true
+    });
+}
+
+function createBatchedAnimated() {
+    return saveBatchedTileset('BatchedAnimated', {
+        animated: true
     });
 }
 
@@ -938,6 +947,17 @@ function createInstancedTextured() {
         uri: instancesTexturedUri
     };
     return saveInstancedTileset('InstancedTextured', tileOptions);
+}
+
+function createInstancedAnimated() {
+    if (argv['3d-tiles-next']) {
+        return Bluebird.resolve();
+    }
+
+    var tileOptions = {
+        uri: instancesAnimatedUri
+    };
+    return saveInstancedTileset('InstancedAnimated', tileOptions);
 }
 
 function createComposite() {
