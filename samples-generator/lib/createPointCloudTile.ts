@@ -29,7 +29,22 @@ var sizeOfFloat32 = 4;
 CesiumMath.setRandomNumberSeed(0);
 var simplex = new SimplexNoise(CesiumMath.nextRandomNumber);
 
-var encoderModule = draco3d.createEncoderModule({});
+var encoderModule;
+var encodeModulePromise;
+
+async function initializeDraco() {
+    if (defined(encodeModulePromise)) {
+        return encodeModulePromise;
+    }
+    encodeModulePromise = new Promise(function(resolve) {
+        encoderModule = draco3d.createEncoderModule({
+            onModuleLoaded: function() {
+                resolve();
+            }
+        });
+    });
+    return encodeModulePromise;
+}
 
 /**
  * Creates a pnts tile that represents a point cloud.
@@ -52,13 +67,15 @@ var encoderModule = draco3d.createEncoderModule({});
  * @param {Boolean} [options.unicodePropertyNames=false] Use unicode characters in per-point property names.
  * @param {Boolean} [options.time=0.0] Time value when generating 4D simplex noise.
  *
- * @returns {Object} An object containing the pnts buffer and batch table JSON.
+ * @returns {Promise} A promise that resolves with the pnts buffer and batch table JSON.
  */
-export function createPointCloudTile(options) {
+export async function createPointCloudTile(options) {
+    await initializeDraco();
+
     // Set the random number seed before creating each point cloud so that the generated points are the same between runs
     CesiumMath.setRandomNumberSeed(0);
 
-    options = defaultValue(options, defaultValue.EMPTY_OBJECT);
+    options = defaultValue(options, {});
     var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
     var tileWidth = defaultValue(options.tileWidth, 10.0);
     var transform = defaultValue(options.transform, Matrix4.IDENTITY);

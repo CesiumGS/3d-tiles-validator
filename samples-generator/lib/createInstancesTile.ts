@@ -75,7 +75,7 @@ export async function createInstancesTile(
     // Set the random number seed before creating the instances so that the generated instances are the same between runs
     CesiumMath.setRandomNumberSeed(0);
 
-    options = defaultValue(options, defaultValue.EMPTY_OBJECT);
+    options = defaultValue(options, {});
     const tileWidth = defaultValue(options.tileWidth, 200.0);
     const transform = defaultValue(options.transform, Matrix4.IDENTITY);
     const instancesLength = defaultValue(options.instancesLength, 25);

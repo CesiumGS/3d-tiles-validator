@@ -1,25 +1,8 @@
 import { FLOAT32_SIZE_BYTES } from './typeSize';
 import { Attribute } from './attribute';
 import { GltfComponentType, GltfType } from './gltfType';
-import { Cartesian3, Math as CesiumMath, Matrix3, Matrix4, Quaternion, Transforms } from 'cesium';
+import { Cartesian3, Ellipsoid, Math as CesiumMath, Matrix3, Matrix4, Quaternion, Transforms } from 'cesium';
 import { instancesLength, tileWidth, instancesUri } from './constants';
-
-function toMatrix3(matrix4: Matrix4) {
-    const result = new Matrix3();
-    // X
-    result[0] = matrix4[0];
-    result[3] = matrix4[4];
-    result[6] = matrix4[8];
-    // Y
-    result[1] = matrix4[1];
-    result[4] = matrix4[5];
-    result[7] = matrix4[9];
-    // Z
-    result[2] = matrix4[2];
-    result[5] = matrix4[6];
-    result[8] = matrix4[10];
-    return result;
-}
 
 const util = require('../lib/utility');
 const wgs84Transform = util.wgs84Transform;
@@ -391,6 +374,9 @@ export namespace InstanceTileUtils {
 
 
     const pos = new Cartesian3();
+    const scratchMatrix3 = new Matrix3();
+    const scratchMatrix4 = new Matrix4();
+    const scratchQuaternion = new Quaternion();
     export function eastNorthUpQuaternion(position: Attribute): Attribute {
         const positionBuffer = position.buffer;
         const quatBuffer = Buffer.alloc(position.count * 4 * FLOAT32_SIZE_BYTES);
@@ -402,9 +388,9 @@ export namespace InstanceTileUtils {
             pos.y = positionBuffer.readFloatLE((i * 3 + 1) * FLOAT32_SIZE_BYTES);
             pos.z = positionBuffer.readFloatLE((i * 3 + 2) * FLOAT32_SIZE_BYTES);
 
-            const fixedFrame = Transforms.eastNorthUpToFixedFrame(pos);
-            const rotationMatrix = toMatrix3(fixedFrame);
-            const quat = Quaternion.fromRotationMatrix(rotationMatrix);
+            const fixedFrame = Transforms.eastNorthUpToFixedFrame(pos, Ellipsoid.WGS84, scratchMatrix4);
+            const rotationMatrix = Matrix4.getMatrix3(fixedFrame, scratchMatrix3);
+            const quat = Quaternion.fromRotationMatrix(rotationMatrix, scratchQuaternion);
 
             quatBuffer.writeFloatLE(quat.x, (i * 4) * FLOAT32_SIZE_BYTES);
             quatBuffer.writeFloatLE(quat.y, (i * 4 + 1) * FLOAT32_SIZE_BYTES);
