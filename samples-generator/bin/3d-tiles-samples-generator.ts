@@ -345,7 +345,7 @@ function createBatchedTexturedCompressed() {
     var tileOptions = {
         buildingOptions: buildingOptions
     };
-    return saveBatchedTileset('BatchedTextured', tileOptions);
+    return saveBatchedTileset('BatchedTexturedCompressed', tileOptions);
 }
 
 function createBatchedColors() {
