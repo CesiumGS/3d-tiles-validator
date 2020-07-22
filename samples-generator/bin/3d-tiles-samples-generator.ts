@@ -80,7 +80,8 @@ import { SamplesNext } from '../lib/samplesNext';
 const fsExtra = require('fs-extra');
 var gltfPipeline = require('gltf-pipeline');
 var path = require('path');
-var DataUri = require('datauri');
+var DataUriParser = require('datauri/parser');
+var dataUriParser = new DataUriParser();
 var gltfToGlb = gltfPipeline.gltfToGlb;
 var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../') };
 
@@ -1247,9 +1248,8 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions?) {
         // old .b3dm
         var b3dm = result.b3dm;
         if (tilesetOptions.contentDataUri) {
-            var dataUri = new DataUri();
-            dataUri.format('.b3dm', b3dm);
-            tilesetOptions.contentUri = dataUri.content;
+            var dataUri = dataUriParser.format('.b3dm', b3dm);
+            tilesetOptions.contentUri = dataUri;
             return saveJson(
                 tilesetPath,
                 createTilesetJsonSingle(tilesetOptions),
@@ -1266,7 +1266,7 @@ function saveBatchedTileset(tilesetName, tileOptions, tilesetOptions?) {
     });
 }
 
-function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions?) {
+async function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions?) {
     var tilesetDirectory = path.join(
         outputDirectory,
         'PointCloud',
@@ -1288,7 +1288,7 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions?) {
     var contentUri = toCamelCase(tilesetName) + ext;
     var tilePath = path.join(tilesetDirectory, contentUri);
 
-    var result = createPointCloudTile(tileOptions);
+    var result = await createPointCloudTile(tileOptions);
     var batchTableJson = result.batchTableJson;
     var extensions = result.extensions;
 
@@ -1331,8 +1331,8 @@ function savePointCloudTileset(tilesetName, tileOptions, tilesetOptions?) {
     ]);
 }
 
-function savePointCloudTimeDynamic(name, options) {
-    options = defaultValue(options, defaultValue.EMPTY_OBJECT);
+async function savePointCloudTimeDynamic(name, options) {
+    options = defaultValue(options, {});
     var useTransform = defaultValue(options.transform, false);
     var directory = path.join(outputDirectory, 'PointCloud', name);
     var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
@@ -1373,7 +1373,7 @@ function savePointCloudTimeDynamic(name, options) {
     for (var i = 0; i < 5; ++i) {
         var tileOptions = clone(pointCloudOptions);
         tileOptions.time = i * 0.1; // Seed for noise
-        var result = createPointCloudTile(tileOptions);
+        var result = await createPointCloudTile(tileOptions);
         tilePath = path.join(directory, i + ext);
         if (use3dTilesNext && !useGlb) {
             tilePromises.push(
@@ -2541,7 +2541,7 @@ function createTilesetWithTransforms() {
     });
 }
 
-function createTilesetWithViewerRequestVolume() {
+async function createTilesetWithViewerRequestVolume() {
     // Create a tileset with one root tile and four child tiles
     var tilesetName = 'TilesetWithViewerRequestVolume';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
@@ -2646,7 +2646,7 @@ function createTilesetWithViewerRequestVolume() {
         }
     };
 
-    var pnts = createPointCloudTile(pointCloudOptions).pnts;
+    var pnts = (await createPointCloudTile(pointCloudOptions)).pnts;
 
     return saveTilesetFiles(
         tileOptions,
@@ -2888,7 +2888,7 @@ function createTilesetSubtreeExpiration() {
     ]);
 }
 
-function createTilesetPoints() {
+async function createTilesetPoints() {
     // Create a tileset with one root tile and eight child tiles
     var tilesetName = 'TilesetPoints';
     var tilesetDirectory = path.join(outputDirectory, 'Tilesets', tilesetName);
@@ -2914,11 +2914,11 @@ function createTilesetPoints() {
         0.0,
         parentTileHalfWidth // height
     ];
-    var parentTile = createPointCloudTile({
+    var parentTile = (await createPointCloudTile({
         tileWidth: parentTileWidth * 2.0,
         pointsLength: pointsLength,
         relativeToCenter: false
-    }).pnts;
+    })).pnts;
 
     var childrenJson = [];
     var childTiles = [];
@@ -2943,12 +2943,12 @@ function createTilesetPoints() {
             Cartesian3.unpack(childCenter)
         );
         childTiles.push(
-            createPointCloudTile({
+            (await createPointCloudTile({
                 tileWidth: childTileWidth * 2.0,
                 transform: childTransform,
                 pointsLength: pointsLength,
                 relativeToCenter: false
-            }).pnts
+            })).pnts
         );
         var childBoxLocal = [
             childCenter[0],
@@ -3383,7 +3383,7 @@ function createTreeBillboards() {
     });
 }
 
-function createRequestVolume() {
+async function createRequestVolume() {
     var tilesetName = 'TilesetWithRequestVolume';
     var tilesetDirectory = path.join(outputDirectory, 'Samples', tilesetName);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -3560,7 +3560,7 @@ function createRequestVolume() {
         }
     };
 
-    var pnts = createPointCloudTile(pointCloudOptions).pnts;
+    var pnts = (await createPointCloudTile(pointCloudOptions)).pnts;
 
     var cityTilePromises = Bluebird.map(cityTileOptions, function (
         tileOptions,
@@ -3596,7 +3596,7 @@ function createRequestVolume() {
     ]);
 }
 
-function createExpireTileset() {
+async function createExpireTileset() {
     var tilesetName = 'TilesetWithExpiration';
     var tilesetDirectory = path.join(outputDirectory, 'Samples', tilesetName);
     var tilesetPath = path.join(tilesetDirectory, 'tileset.json');
@@ -3626,7 +3626,7 @@ function createExpireTileset() {
 
     var tilePromises = [];
 
-    var pnts = createPointCloudTile(pointCloudOptions).pnts;
+    var pnts = (await createPointCloudTile(pointCloudOptions)).pnts;
     tilePromises.push(saveBinary(pointCloudTilePath, pnts, gzip));
 
     // Save a few tiles for the server cache
@@ -3638,7 +3638,7 @@ function createExpireTileset() {
         );
         var tileOptions = clone(pointCloudOptions);
         tileOptions.time = i * 0.1;
-        var tile = createPointCloudTile(tileOptions).pnts;
+        var tile = (await createPointCloudTile(tileOptions)).pnts;
         tilePromises.push(saveBinary(tilePath, tile, gzip));
     }
 

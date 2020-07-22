@@ -1143,7 +1143,7 @@ export namespace TilesetSamplesNext {
         // TODO: Abstract the point cloud creation logic into smaller functions
         //       so the `use-3dtiles-next` flag is unnecessary and this code
         //       matches compositeSamplesNext / instanceSamplesNext
-        const gltf = createPointCloudTile(pointCloudOptions).gltf;
+        const gltf = (await createPointCloudTile(pointCloudOptions)).gltf;
         await writeTilesetAndTile(
             tilesetDirectory,
             pointCloudTileName,
@@ -1449,13 +1449,13 @@ export namespace TilesetSamplesNext {
             parentTileHalfWidth // height
         ];
 
-        const parentTile = createPointCloudTile({
+        const parentTile = (await createPointCloudTile({
             tileWidth: parentTileWidth * 2.0,
             pointsLength: pointsLength,
             relativeToCenter: false,
             use3dTilesNext: true,
             useGlb: args.useGlb
-        }).gltf;
+        })).gltf;
 
         const childrenJson = [];
         const childTiles: Gltf[] = [];
@@ -1479,14 +1479,14 @@ export namespace TilesetSamplesNext {
                 Cartesian3.unpack(childCenter)
             );
             childTiles.push(
-                createPointCloudTile({
+                (await createPointCloudTile({
                     tileWidth: childTileWidth * 2.0,
                     transform: childTransform,
                     pointsLength: pointsLength,
                     relativeToCenter: false,
                     use3dTilesNext: true,
                     useGlb: args.useGlb
-                }).gltf as Gltf
+                })).gltf as Gltf
             );
             const childBoxLocal = [
                 childCenter[0],

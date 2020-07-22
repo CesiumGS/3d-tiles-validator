@@ -4,7 +4,7 @@ The tilesets generated here are included in [3d-tiles-samples](https://github.co
 
 ## Instructions
 
-Clone this repo and install [Node.js](http://nodejs.org/).  From the root directory of this repo, run:
+Clone this repo and install [Node.js](http://nodejs.org/).  From this directory, run:
 
 ```
 npm install
