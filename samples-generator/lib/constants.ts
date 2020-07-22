@@ -119,6 +119,7 @@ export const instancesTileWidth = tileWidth;
 export const instancesUri = 'data/box.glb'; // Model's center is at the origin (and for below)
 export const instancesRedUri = 'data/red_box.glb';
 export const instancesTexturedUri = 'data/textured_box.glb';
+export const instancesAnimatedUri = 'data/animated_box.glb';
 export const instancesModelSize = 20.0;
 export const instancesHeight = instancesModelSize + 10.0; // Just a little extra padding at the top for aiding Cesium tests
 export const instancesTransform = wgs84Transform(
