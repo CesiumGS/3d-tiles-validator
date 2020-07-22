@@ -518,7 +518,7 @@ export namespace SamplesNext {
             }
         };
 
-        const pntsGltf = createPointCloudTile(pointCloudOptions).gltf;
+        const pntsGltf = (await createPointCloudTile(pointCloudOptions)).gltf;
 
         const result = TilesetUtilsNext.createBuildingGltfsWithFeatureMetadata(
             cityTileOptions
@@ -596,7 +596,7 @@ export namespace SamplesNext {
             use3dTilesNext: true
         };
 
-        const gltfPnts = createPointCloudTile(pointCloudOptions).gltf;
+        const gltfPnts = (await createPointCloudTile(pointCloudOptions)).gltf;
         await writeTile(pointCloudTilePath, '', gltfPnts, args);
 
         // Save a few tiles for the server cache
@@ -608,7 +608,7 @@ export namespace SamplesNext {
             );
             const tileOptions = clone(pointCloudOptions);
             tileOptions.time = i * 0.1;
-            const tile = createPointCloudTile(tileOptions).gltf;
+            const tile = (await createPointCloudTile(tileOptions)).gltf;
             await writeTile(tilePath, '', tile, args);
         }
 
