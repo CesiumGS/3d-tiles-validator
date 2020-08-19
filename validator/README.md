@@ -10,7 +10,7 @@ This validator is still in alpha and does not have complete coverage of the 3D T
 
 ## Instructions
 
-Clone this repo and install [Node.js](http://nodejs.org/).  From the root directory of this repo, run:
+Clone this repo and install [Node.js](http://nodejs.org/).  From the `validator` directory, run:
 ```
 npm install
 ```
