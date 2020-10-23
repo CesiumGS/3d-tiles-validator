@@ -22,6 +22,8 @@ function isTile(filePath, options) {
         var extensionsUsed = defaultValue(tileset.extensionsUsed, emptyArray);
         var hasContentGltfExtension = extensionsUsed.indexOf('3DTILES_content_gltf') > -1;
 
+        // Version "2.0.0-alpha.0" was used during early development of 3D Tiles Next
+        // and is included here for backwards compatibility purposes
         if (version === '2.0.0-alpha.0' || hasContentGltfExtension) {
             return (
                 extension === '.gltf' ||
