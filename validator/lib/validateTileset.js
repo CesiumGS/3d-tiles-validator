@@ -28,7 +28,7 @@ module.exports = validateTileset;
  * Check if a tileset is valid, including the tileset JSON and all tiles referenced within.
  *
  * @param {Object} options An object with the following properties:
- * @param {Buffer} options.tileset The tileset JSON.
+ * @param {Object} options.tileset The tileset JSON.
  * @param {String} options.filePath The tileset JSON file path.
  * @param {Boolean} options.onlyValidateTilesets Only check tilesets, skip any other tile type.
  * @param {String} options.directory The directory containing the tileset JSON that all paths in the tileset JSON are relative to.
@@ -173,7 +173,7 @@ async function validateContent(contentPath, directory, options) {
                 directory: directory,
                 writeReports: options.writeReports
             });
-        } else if (isTile(contentPath, options.version)) {
+        } else if (isTile(contentPath, options)) {
             if (options.onlyValidateTilesets) {
                 return;
             }
