@@ -8,6 +8,7 @@ const isTile = require('./isTile');
 const readTile = require('./readTile');
 const readTileset = require('./readTileset');
 const utility = require('./utility');
+const validateExtensions = require('./validateExtensions');
 const validateTile = require('./validateTile');
 
 const Cartesian3 = Cesium.Cartesian3;
@@ -36,7 +37,11 @@ module.exports = validateTileset;
  */
 async function validateTileset(options) {
     const tileset = options.tileset;
-    const message = validateTopLevel(tileset);
+    let message = validateTopLevel(tileset);
+    if (defined(message)) {
+        return message;
+    }
+    message = validateExtensions(options);
     if (defined(message)) {
         return message;
     }
