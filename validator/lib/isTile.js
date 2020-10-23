@@ -5,7 +5,7 @@ const defaultValue = Cesium.defaultValue;
 const defined = Cesium.defined;
 module.exports = isTile;
 
-var emptyArray = [];
+const EMPTY_ARRAY = [];
 
 /**
  * Checks whether the given file path is a tile file path.
@@ -15,19 +15,19 @@ var emptyArray = [];
  * @returns {Boolean} True if the file path is a tile file path, false if not.
  */
 function isTile(filePath, options) {
-    var extension = path.extname(filePath);
+    const extension = path.extname(filePath);
     if (defined(options)) {
-        var version = options.version;
-        var tileset = options.tileset;
-        var extensionsUsed = defaultValue(tileset.extensionsUsed, emptyArray);
-        var hasContentGltfExtension = extensionsUsed.indexOf('3DTILES_content_gltf') > -1;
+        const version = options.version;
+        const tileset = options.tileset;
+        const extensionsUsed = defaultValue(tileset.extensionsUsed, EMPTY_ARRAY);
+        const hasContentGltfExtension = extensionsUsed.indexOf('3DTILES_content_gltf') > -1;
 
         // Version "2.0.0-alpha.0" was used during early development of 3D Tiles Next
         // and is included here for backwards compatibility purposes
         if (version === '2.0.0-alpha.0' || hasContentGltfExtension) {
             return (
                 extension === '.gltf' ||
-                extension === '.glb' || 
+                extension === '.glb' ||
                 extension === '.b3dm' ||
                 extension === '.i3dm' ||
                 extension === '.pnts' ||
@@ -38,15 +38,14 @@ function isTile(filePath, options) {
                 extension === '.i3dm' ||
                 extension === '.pnts' ||
                 extension === '.cmpt');
-        } else {
-            return false;
         }
+        return false;
     }
 
     // if no version specified, match any
     return (
         extension === '.gltf' ||
-        extension === '.glb' || 
+        extension === '.glb' ||
         extension === '.b3dm' ||
         extension === '.i3dm' ||
         extension === '.pnts' ||

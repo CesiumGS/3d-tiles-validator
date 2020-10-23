@@ -5,8 +5,6 @@ const Promise = require('bluebird');
 
 const isDataUri = require('./isDataUri');
 const isTile = require('./isTile');
-const readTile = require('./readTile');
-const readTileset = require('./readTileset');
 const utility = require('./utility');
 const validateExtensions = require('./validateExtensions');
 const validateTile = require('./validateTile');
@@ -66,7 +64,7 @@ function validateTopLevel(tileset) {
         return 'Tileset must declare a version in its asset property';
     }
 
-    if (tileset.asset.version !== "1.0" && tileset.asset.version !== "2.0.0-alpha.0") {
+    if (tileset.asset.version !== '1.0' && tileset.asset.version !== '2.0.0-alpha.0') {
         return `Tileset version must be 1.0 or 2.0.0-alpha.0. Tileset version provided: ${tileset.asset.version}`;
     }
 }
@@ -103,10 +101,8 @@ async function validateTileHierarchy(root, options) {
         if (defined(content) && defined(content.uri)) {
             if (isDataUri(content.uri)) {
                 contentPaths.push(content.uri);
-            } else {
-                if (!options.onlyValidateTilesets || content.uri.endsWith(".json")) {
-                    contentPaths.push(path.join(directory, content.uri));
-                }
+            } else if (!options.onlyValidateTilesets || content.uri.endsWith('.json')) {
+                contentPaths.push(path.join(directory, content.uri));
             }
         }
 
