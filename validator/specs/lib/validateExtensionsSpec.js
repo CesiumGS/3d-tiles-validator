@@ -19,6 +19,50 @@ const sampleTileset = {
 };
 
 describe('validateExtensions', () => {
+    it('returns error message when extensionsUsed is not an array of strings (1)', () => {
+        const tileset = clone(sampleTileset, true);
+        tileset.extensionsUsed = {};
+
+        const message = validateExtensions({
+            tileset: tileset
+        });
+        const error = 'extensionsUsed must be an array of strings';
+        expect(message).toBe(error);
+    });
+
+    it('returns error message when extensionsUsed is not an array of strings (2)', () => {
+        const tileset = clone(sampleTileset, true);
+        tileset.extensionsUsed = ['3DTILES_content_gltf', 10];
+
+        const message = validateExtensions({
+            tileset: tileset
+        });
+        const error = 'extensionsUsed must be an array of strings';
+        expect(message).toBe(error);
+    });
+
+    it('returns error message when extensionsRequired is not an array of strings (1)', () => {
+        const tileset = clone(sampleTileset, true);
+        tileset.extensionsRequired = {};
+
+        const message = validateExtensions({
+            tileset: tileset
+        });
+        const error = 'extensionsRequired must be an array of strings';
+        expect(message).toBe(error);
+    });
+
+    it('returns error message when extensionsRequired is not an array of strings (2)', () => {
+        const tileset = clone(sampleTileset, true);
+        tileset.extensionsRequired = ['3DTILES_content_gltf', 10];
+
+        const message = validateExtensions({
+            tileset: tileset
+        });
+        const error = 'extensionsRequired must be an array of strings';
+        expect(message).toBe(error);
+    });
+
     it('returns error message when extension is not included in extensionsUsed', () => {
         const tileset = clone(sampleTileset, true);
         tileset.extensions = {

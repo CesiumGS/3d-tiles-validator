@@ -23,6 +23,16 @@ function validateExtensions(options) {
     const extensionsUsed = defaultValue(tileset.extensionsUsed, EMPTY_ARRAY);
     const extensionsRequired = defaultValue(tileset.extensionsRequired, EMPTY_ARRAY);
 
+    let message = validateExtensionsArray(extensionsUsed, 'extensionsUsed');
+    if (defined(message)) {
+        return message;
+    }
+
+    message = validateExtensionsArray(extensionsRequired, 'extensionsRequired');
+    if (defined(message)) {
+        return message;
+    }
+
     if (defined(extensions)) {
         for (const extensionName in extensions) {
             if (extensions.hasOwnProperty(extensionName)) {
@@ -34,7 +44,6 @@ function validateExtensions(options) {
                     return `${extensionName} must be included in extensionsRequired`;
                 }
 
-                let message;
                 if (extensionName === '3DTILES_content_gltf') {
                     message = validate3DTilesContentGltf(extension);
                 }
@@ -50,23 +59,27 @@ function validate3DTilesContentGltf(extension) {
     const gltfExtensionsUsed = defaultValue(extension.extensionsUsed, EMPTY_ARRAY);
     const gltfExtensionsRequired = defaultValue(extension.extensionsRequired, EMPTY_ARRAY);
 
-    if (!Array.isArray(gltfExtensionsUsed)) {
-        return 'extensionsUsed must be an array of strings';
+    let message = validateExtensionsArray(gltfExtensionsUsed, 'extensionsUsed');
+    if (defined(message)) {
+        return message;
     }
 
-    if (!Array.isArray(gltfExtensionsRequired)) {
-        return 'extensionsRequired must be an array of strings';
+    message = validateExtensionsArray(gltfExtensionsRequired, 'extensionsRequired');
+    if (defined(message)) {
+        return message;
+    }
+}
+
+function validateExtensionsArray(array, name) {
+    const message = `${name} must be an array of strings`;
+
+    if (!Array.isArray(array)) {
+        return message;
     }
 
-    for (let i = 0; i < gltfExtensionsUsed.length; ++i) {
-        if (typeof gltfExtensionsUsed[i] !== 'string') {
-            return 'extensionsUsed must be an array of strings';
-        }
-    }
-
-    for (let i = 0; i < gltfExtensionsRequired.length; ++i) {
-        if (typeof gltfExtensionsRequired[i] !== 'string') {
-            return 'extensionsRequired must be an array of strings';
+    for (let i = 0; i < array.length; ++i) {
+        if (typeof array[i] !== 'string') {
+            return message;
         }
     }
 }
