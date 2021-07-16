@@ -1,6 +1,6 @@
 <p align="center"><img src="figures/Cesium3DTiles.png" /></p>
 
-Validator and sample data for [3D Tiles](https://github.com/CesiumGS/3d-tiles/blob/master/README.md) tilesets.
+Validator and sample data for [3D Tiles](https://github.com/CesiumGS/3d-tiles/blob/main/README.md) tilesets.
 
 | Tool | Description |
 | :--- | :--- |
@@ -13,7 +13,7 @@ To generate new 3D tilesets, see [Cesium ion](https://cesium.com/ion/).
 
 ## Contributions
 
-Pull requests are appreciated!  Please use the same [Contributor License Agreement (CLA)](https://github.com/CesiumGS/cesium/blob/master/CONTRIBUTING.md) and [Coding Guide](https://github.com/CesiumGS/cesium/blob/master/Documentation/Contributors/CodingGuide/README.md) used for [CesiumJS](https://cesium.com/cesiumjs/).
+Pull requests are appreciated!  Please use the same [Contributor License Agreement (CLA)](https://github.com/CesiumGS/cesium/blob/main/CONTRIBUTING.md) and [Coding Guide](https://github.com/CesiumGS/cesium/blob/main/Documentation/Contributors/CodingGuide/README.md) used for [CesiumJS](https://cesium.com/cesiumjs/).
 
 ---
 
