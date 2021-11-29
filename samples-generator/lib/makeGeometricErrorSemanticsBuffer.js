@@ -19,7 +19,6 @@ for (var i = 0; i < subtreeLevels; i++) {
   var nodesAtLevel = Math.pow(4, i);
   for (var j = 0; j < nodesAtLevel; j++) {
     var geometricError = (subtreeLevels - i) * 100 + j;
-    console.log(geometricError);
     geometricErrorValues[index] = geometricError;
     index++;
   }
