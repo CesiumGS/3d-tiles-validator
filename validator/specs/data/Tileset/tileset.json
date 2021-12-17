@@ -1,7 +1,10 @@
 {
   "asset": {
-    "version": "0.0",
+    "version": "1.0",
     "tilesetVersion": "1.2.3"
+  },
+  "extras": {
+    "name": "Sample Tileset"
   },
   "properties": {
     "id": {
@@ -9,16 +12,16 @@
       "maximum": 9
     },
     "Longitude": {
-      "minimum": -1.3197190069941716,
-      "maximum": -1.3196399825465384
+      "minimum": -1.3197192952275933,
+      "maximum": -1.319644104024109
     },
     "Latitude": {
-      "minimum": 0.6988468038519597,
-      "maximum": 0.6989046685398855
+      "minimum": 0.698848878034009,
+      "maximum": 0.6989046192460953
     },
     "Height": {
-      "minimum": 6,
-      "maximum": 84
+      "minimum": 6.161747192963958,
+      "maximum": 85.41026367992163
     }
   },
   "geometricError": 240,
@@ -34,9 +37,9 @@
       ]
     },
     "geometricError": 70,
-    "refine": "add",
+    "refine": "ADD",
     "content": {
-      "url": "parent.b3dm",
+      "uri": "parent.b3dm",
       "boundingVolume": {
         "region": [
           -1.3197004795898053,
@@ -62,7 +65,7 @@
         },
         "geometricError": 0,
         "content": {
-          "url": "ll.b3dm"
+          "uri": "ll.b3dm"
         }
       },
       {
@@ -78,7 +81,10 @@
         },
         "geometricError": 0,
         "content": {
-          "url": "lr.b3dm"
+          "uri": "lr.b3dm"
+        },
+        "extras": {
+          "id": "Special Tile"
         }
       },
       {
@@ -94,7 +100,7 @@
         },
         "geometricError": 0,
         "content": {
-          "url": "ur.b3dm"
+          "uri": "ur.b3dm"
         }
       },
       {
@@ -110,7 +116,7 @@
         },
         "geometricError": 0,
         "content": {
-          "url": "ul.b3dm"
+          "uri": "ul.b3dm"
         }
       }
     ]
