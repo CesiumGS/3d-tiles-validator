@@ -8,7 +8,7 @@ var defined = Cesium.defined;
 module.exports = createI3dm;
 
 /**
- * Create an Instanced 3D Model (i3dm) tile from a feature table, batch table, and gltf buffer or url.
+ * Create an Instanced 3D Model (i3dm) tile from a feature table, batch table, and gltf buffer or uri.
  *
  * @param {Object} options An object with the following properties:
  * @param {Object} options.featureTableJson The feature table JSON.
@@ -16,20 +16,21 @@ module.exports = createI3dm;
  * @param {Object} [options.batchTableJson] Batch table describing the per-feature metadata.
  * @param {Buffer} [options.batchTableBinary] The batch table binary.
  * @param {Buffer} [options.glb] The binary glTF buffer.
- * @param {String} [options.url] Url to an external glTF model when options.glb is not specified.
+ * @param {String} [options.uri] Uri to an external glTF model when options.glb is not specified.
  * @returns {Buffer} The generated i3dm tile buffer.
  */
 function createI3dm(options) {
-    var featureTableJson = getJsonBufferPadded(options.featureTableJson);
+    var version = 1;
+    var headerByteLength = 32;
+
+    var featureTableJson = getJsonBufferPadded(options.featureTableJson, headerByteLength);
     var featureTableBinary = getBufferPadded(options.featureTableBinary);
     var batchTableJson = getJsonBufferPadded(options.batchTableJson);
     var batchTableBinary = getBufferPadded(options.batchTableBinary);
 
     var gltfFormat = defined(options.glb) ? 1 : 0;
-    var gltfBuffer = defined(options.glb) ? options.glb : getGltfUrlBuffer(options.url);
+    var gltfBuffer = defined(options.glb) ? options.glb : getGltfUriBuffer(options.uri);
 
-    var version = 1;
-    var headerByteLength = 32;
     var featureTableJsonByteLength = featureTableJson.length;
     var featureTableBinaryByteLength = featureTableBinary.length;
     var batchTableJsonByteLength = batchTableJson.length;
@@ -50,7 +51,7 @@ function createI3dm(options) {
     return Buffer.concat([header, featureTableJson, featureTableBinary, batchTableJson, batchTableBinary, gltfBuffer]);
 }
 
-function getGltfUrlBuffer(url) {
-    url = url.replace(/\\/g, '/');
-    return Buffer.from(url);
+function getGltfUriBuffer(uri) {
+    uri = uri.replace(/\\/g, '/');
+    return Buffer.from(uri);
 }

@@ -1,26 +1,21 @@
 'use strict';
-var fs = require('fs-extra');
-var Promise = require('bluebird');
-var zlib = require('zlib');
-var isGzipped = require('./isGzipped');
+const fsExtra = require('fs-extra');
+const zlib = require('zlib');
 
-var fsReadFile = Promise.promisify(fs.readFile);
-var zlibGunzip = Promise.promisify(zlib.gunzip);
+const isGzipped = require('./isGzipped');
 
 module.exports = readTile;
 
 /**
- * Reads tile data from a file.
+ * Reads tile content from a file.
  *
- * @param {String} filePath The file path to read from.
- * @returns {Promise} A promise that resolves with the data when the read operation completes.
+ * @param {String} filePath The file path.
+ * @returns {Promise} A promise that resolves to a buffer containing the tile's content.
  */
-function readTile(filePath) {
-    return fsReadFile(filePath)
-        .then(function(buffer) {
-            if (isGzipped(buffer)) {
-                return zlibGunzip(buffer);
-            }
-            return buffer;
-        });
+async function readTile(filePath) {
+    let buffer = await fsExtra.readFile(filePath);
+    if (isGzipped(buffer)) {
+        buffer = zlib.gunzipSync(buffer);
+    }
+    return buffer;
 }

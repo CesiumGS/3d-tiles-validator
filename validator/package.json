@@ -1,51 +1,56 @@
 {
   "name": "3d-tiles-validator",
   "version": "0.1.0",
-  "license": "Apache-2.0",
   "description": "Tools for validating 3D Tiles tilesets.",
-  "author": {
-    "name": "Analytical Graphics, Inc. and Contributors"
-  },
+  "license": "Apache-2.0",
+  "contributors": [
+    {
+      "name": "Cesium GS, Inc. and Contributors",
+      "url": "https://github.com/CesiumGS/3d-tiles-validator/graphs/contributors"
+    }
+  ],
   "keywords": [
     "3D Tiles"
   ],
-  "homepage": "https://github.com/AnalyticalGraphicsInc/3d-tiles-tools",
+  "homepage": "https://github.com/CesiumGS/3d-tiles-validator",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AnalyticalGraphicsInc/3d-tiles-tools.git"
+    "url": "https://github.com/CesiumGS/3d-tiles-validator.git"
   },
   "bugs": {
-    "url": "https://github.com/AnalyticalGraphicsInc/3d-tiles-tools/issues"
+    "url": "https://github.com/CesiumGS/3d-tiles-validator/issues"
   },
   "main": "index.js",
   "engines": {
     "node": ">=4.0.0"
   },
   "dependencies": {
-    "bluebird": "3.4.1",
-    "cesium": "1.24",
-    "fs-extra": "0.30.0",
-    "yargs": "4.8.1"
+    "bluebird": "^3.7.2",
+    "cesium": "^1.67",
+    "fs-extra": "^8.1.0",
+    "gltf-validator": "^2.0.0-dev.3.2",
+    "yargs": "^15.3.0"
   },
   "devDependencies": {
-    "eslint": "^4.1.1",
-    "eslint-config-cesium": "^2.0.0",
-    "gulp": "3.9.1",
-    "jasmine": "2.4.1",
-    "jasmine-spec-reporter": "2.5.0",
-    "jsdoc": "3.4.0",
-    "nyc": "^11.0.3",
-    "open": "0.0.5",
-    "request": "2.74.0",
-    "requirejs": "2.2.0"
+    "cloc": "^2.5.1",
+    "eslint": "^6.8.0",
+    "eslint-config-cesium": "^8.0.1",
+    "gulp": "^4.0.2",
+    "jasmine": "^3.5.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "jsdoc": "^3.6.3",
+    "nyc": "^15.0.0",
+    "open": "^7.0.3",
+    "requirejs": "^2.3.6"
   },
   "scripts": {
+    "jsdoc": "jsdoc ./lib -R ./README.md -d doc",
     "eslint": "eslint \"./**/*.js\" --cache --quiet",
     "test": "gulp test",
     "test-watch": "gulp test-watch",
     "coverage": "gulp coverage",
-    "update-ts-definitions": "gulp update-ts-definitions",
-    "jsDoc": "gulp jsDoc"
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
+    "cloc": "gulp cloc"
   },
   "bin": {
     "3d-tiles-validator": "./bin/3d-tiles-validator.js"

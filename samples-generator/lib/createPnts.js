@@ -15,13 +15,14 @@ module.exports = createPnts;
  * @returns {Buffer} The generated pnts tile buffer.
  */
 function createPnts(options) {
-    var featureTableJson = getJsonBufferPadded(options.featureTableJson);
+    var version = 1;
+    var headerByteLength = 28;
+
+    var featureTableJson = getJsonBufferPadded(options.featureTableJson, headerByteLength);
     var featureTableBinary = getBufferPadded(options.featureTableBinary);
     var batchTableJson = getJsonBufferPadded(options.batchTableJson);
     var batchTableBinary = getBufferPadded(options.batchTableBinary);
 
-    var version = 1;
-    var headerByteLength = 28;
     var featureTableJsonByteLength = featureTableJson.length;
     var featureTableBinaryByteLength = featureTableBinary.length;
     var batchTableJsonByteLength = batchTableJson.length;

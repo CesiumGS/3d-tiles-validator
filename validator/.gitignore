@@ -1,15 +1,15 @@
 # NPM
 node_modules
 npm-debug.log
+package-lock.json
 
 # WebStorm user-specific
 .idea/workspace.xml
 .idea/tasks.xml
 
-# Generated files
-.nyc_output
+# Generate data
 .eslintcache
-doc
 coverage
 *.tgz
-*.zip
+.nyc_output
+doc/*
