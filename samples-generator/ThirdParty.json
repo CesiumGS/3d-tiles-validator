@@ -1,0 +1,58 @@
+[
+  {
+    "name": "bluebird",
+    "license": [
+      "MIT"
+    ],
+    "version": "3.7.2",
+    "url": "https://www.npmjs.com/package/bluebird"
+  },
+  {
+    "name": "cesium",
+    "license": [
+      "Apache-2.0"
+    ],
+    "version": "1.93.0",
+    "url": "https://www.npmjs.com/package/cesium"
+  },
+  {
+    "name": "draco3d",
+    "license": [
+      "Apache-2.0"
+    ],
+    "version": "1.3.6",
+    "url": "https://www.npmjs.com/package/draco3d"
+  },
+  {
+    "name": "fs-extra",
+    "license": [
+      "MIT"
+    ],
+    "version": "9.1.0",
+    "url": "https://www.npmjs.com/package/fs-extra"
+  },
+  {
+    "name": "gltf-pipeline",
+    "license": [
+      "Apache-2.0"
+    ],
+    "version": "3.0.4",
+    "url": "https://www.npmjs.com/package/gltf-pipeline"
+  },
+  {
+    "name": "mime",
+    "license": [
+      "MIT"
+    ],
+    "version": "2.6.0",
+    "url": "https://www.npmjs.com/package/mime"
+  },
+  {
+    "name": "simplex-noise",
+    "license": [
+      "MIT"
+    ],
+    "version": "2.4.0",
+    "url": "https://www.npmjs.com/package/simplex-noise"
+  }
+]

@@ -50,7 +50,8 @@
     "test-watch": "gulp test-watch",
     "coverage": "gulp coverage",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
-    "cloc": "gulp cloc"
+    "cloc": "gulp cloc",
+    "generate-third-party": "gulp generate-third-party"
   },
   "bin": {
     "3d-tiles-validator": "./bin/3d-tiles-validator.js"
