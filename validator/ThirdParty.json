@@ -1,0 +1,42 @@
+[
+  {
+    "name": "bluebird",
+    "license": [
+      "MIT"
+    ],
+    "version": "3.7.2",
+    "url": "https://www.npmjs.com/package/bluebird"
+  },
+  {
+    "name": "cesium",
+    "license": [
+      "Apache-2.0"
+    ],
+    "version": "1.93.0",
+    "url": "https://www.npmjs.com/package/cesium"
+  },
+  {
+    "name": "fs-extra",
+    "license": [
+      "MIT"
+    ],
+    "version": "8.1.0",
+    "url": "https://www.npmjs.com/package/fs-extra"
+  },
+  {
+    "name": "gltf-validator",
+    "license": [
+      "Apache-2.0"
+    ],
+    "version": "2.0.0-dev.3.7",
+    "url": "https://www.npmjs.com/package/gltf-validator"
+  },
+  {
+    "name": "yargs",
+    "license": [
+      "MIT"
+    ],
+    "version": "15.4.1",
+    "url": "https://www.npmjs.com/package/yargs"
+  }
+]
