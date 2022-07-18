@@ -1,9 +1,9 @@
 'use strict';
-var Cesium = require('cesium');
-var fsExtra = require('fs-extra');
-var saveBinary = require('./saveBinary');
+const Cesium = require('cesium');
+const fsExtra = require('fs-extra');
+const saveBinary = require('./saveBinary');
 
-var defaultValue = Cesium.defaultValue;
+const defaultValue = Cesium.defaultValue;
 
 module.exports = saveJson;
 
@@ -19,7 +19,7 @@ module.exports = saveJson;
  */
 function saveJson(path, json, prettyJson, gzip) {
     prettyJson = defaultValue(prettyJson, true);
-    var options = {};
+    const options = {};
     if (prettyJson) {
         options.spaces = 2;
     }

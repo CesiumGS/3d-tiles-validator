@@ -1,15 +1,15 @@
 'use strict';
-var Cesium = require('cesium');
-var getBufferPadded = require('./getBufferPadded');
-var defaultValue = Cesium.defaultValue;
-var defined = Cesium.defined;
-var getMinMax = require('./getMinMax');
+const Cesium = require('cesium');
+const getBufferPadded = require('./getBufferPadded');
+const defaultValue = Cesium.defaultValue;
+const defined = Cesium.defined;
+const getMinMax = require('./getMinMax');
 
 module.exports = createGltf;
 
-var sizeOfUint8 = 1;
-var sizeOfUint16 = 2;
-var sizeOfFloat32 = 4;
+const sizeOfUint8 = 1;
+const sizeOfUint16 = 2;
+const sizeOfFloat32 = 4;
 
 /**
  * Create a glTF from a Mesh.
@@ -28,23 +28,23 @@ var sizeOfFloat32 = 4;
  */
 
 function createGltf(options) {
-    var use3dTilesNext = defaultValue(options.use3dTilesNext, false);
-    var useBatchIds = defaultValue(options.useBatchIds, true);
-    var relativeToCenter = defaultValue(options.relativeToCenter, false);
-    var deprecated = defaultValue(options.deprecated, false);
-    var animated = defaultValue(options.animated, false);
+    const use3dTilesNext = defaultValue(options.use3dTilesNext, false);
+    const useBatchIds = defaultValue(options.useBatchIds, true);
+    const relativeToCenter = defaultValue(options.relativeToCenter, false);
+    const deprecated = defaultValue(options.deprecated, false);
+    const animated = defaultValue(options.animated, false);
 
-    var mesh = options.mesh;
-    var positions = mesh.positions;
-    var normals = mesh.normals;
-    var uvs = mesh.uvs;
-    var vertexColors = mesh.vertexColors;
-    var batchIds = mesh.batchIds;
-    var indices = mesh.indices;
-    var views = mesh.views;
+    const mesh = options.mesh;
+    const positions = mesh.positions;
+    const normals = mesh.normals;
+    const uvs = mesh.uvs;
+    const vertexColors = mesh.vertexColors;
+    const batchIds = mesh.batchIds;
+    const indices = mesh.indices;
+    const views = mesh.views;
 
     // If all the vertex colors are 0 then the mesh does not have vertex colors
-    var useVertexColors = !vertexColors.every(function(element) {return element === 0;});
+    const useVertexColors = !vertexColors.every(function(element) {return element === 0;});
 
     if (relativeToCenter) {
         mesh.setPositionsRelativeToCenter();
@@ -53,14 +53,14 @@ function createGltf(options) {
     // Models are z-up, so add a z-up to y-up transform.
     // The glTF spec defines the y-axis as up, so this is the default behavior.
     // In CesiumJS a y-up to z-up transform is applied later so that the glTF and 3D Tiles coordinate systems are consistent
-    var rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
+    const rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
 
-    var i;
-    var j;
-    var view;
-    var material;
-    var viewsLength = views.length;
-    var useUvs = false;
+    let i;
+    let j;
+    let view;
+    let material;
+    const viewsLength = views.length;
+    let useUvs = false;
     for (i = 0; i < viewsLength; ++i) {
         view = views[i];
         material = view.material;
@@ -70,49 +70,49 @@ function createGltf(options) {
         }
     }
 
-    var positionsMinMax = getMinMax(positions, 3);
-    var positionsLength = positions.length;
-    var positionsBuffer = Buffer.alloc(positionsLength * sizeOfFloat32);
+    const positionsMinMax = getMinMax(positions, 3);
+    const positionsLength = positions.length;
+    const positionsBuffer = Buffer.alloc(positionsLength * sizeOfFloat32);
     for (i = 0; i < positionsLength; ++i) {
         positionsBuffer.writeFloatLE(positions[i], i * sizeOfFloat32);
     }
 
-    var normalsMinMax = getMinMax(normals, 3);
-    var normalsLength = normals.length;
-    var normalsBuffer = Buffer.alloc(normalsLength * sizeOfFloat32);
+    const normalsMinMax = getMinMax(normals, 3);
+    const normalsLength = normals.length;
+    const normalsBuffer = Buffer.alloc(normalsLength * sizeOfFloat32);
     for (i = 0; i < normalsLength; ++i) {
         normalsBuffer.writeFloatLE(normals[i], i * sizeOfFloat32);
     }
 
-    var uvsMinMax;
-    var uvsBuffer = Buffer.alloc(0);
+    let uvsMinMax;
+    let uvsBuffer = Buffer.alloc(0);
     if (useUvs) {
         uvsMinMax = getMinMax(uvs, 2);
-        var uvsLength = uvs.length;
+        const uvsLength = uvs.length;
         uvsBuffer = Buffer.alloc(uvsLength * sizeOfFloat32);
         for (i = 0; i < uvsLength; ++i) {
             uvsBuffer.writeFloatLE(uvs[i], i * sizeOfFloat32);
         }
     }
 
-    var vertexColorsMinMax;
-    var vertexColorsBuffer = Buffer.alloc(0);
+    let vertexColorsMinMax;
+    let vertexColorsBuffer = Buffer.alloc(0);
     if (useVertexColors) {
         vertexColorsMinMax = getMinMax(vertexColors, 4);
-        var vertexColorsLength = vertexColors.length;
+        const vertexColorsLength = vertexColors.length;
         vertexColorsBuffer = Buffer.alloc(vertexColorsLength, sizeOfUint8);
         for (i = 0; i < vertexColorsLength; ++i) {
             vertexColorsBuffer.writeUInt8(vertexColors[i], i);
         }
     }
 
-    var batchIdsMinMax;
-    var batchIdsBuffer = Buffer.alloc(0);
-    var batchIdSemantic;
+    let batchIdsMinMax;
+    let batchIdsBuffer = Buffer.alloc(0);
+    let batchIdSemantic;
     batchIdSemantic = deprecated ? 'BATCHID' : '_BATCHID';
     batchIdSemantic = use3dTilesNext ? '_FEATURE_ID_0' : batchIdSemantic;
 
-    var batchIdsLength;
+    let batchIdsLength;
     if (useBatchIds) {
         batchIdsMinMax = getMinMax(batchIds, 1);
         batchIdsLength = batchIds.length;
@@ -122,24 +122,24 @@ function createGltf(options) {
         }
     }
 
-    var indicesLength = indices.length;
-    var indexBuffer = Buffer.alloc(indicesLength * sizeOfUint16);
+    const indicesLength = indices.length;
+    let indexBuffer = Buffer.alloc(indicesLength * sizeOfUint16);
     for (i = 0; i < indicesLength; ++i) {
         indexBuffer.writeUInt16LE(indices[i], i * sizeOfUint16);
     }
     indexBuffer = getBufferPadded(indexBuffer);
 
-    var translations = [
+    const translations = [
         [0.0, 0.0, 0.0],
         [1.0, 0.0, 0.0],
         [0.0, 0.0, 0.0]
     ];
-    var times = [0.0, 0.5, 1.0];
-    var keyframesLength = translations.length;
+    const times = [0.0, 0.5, 1.0];
+    const keyframesLength = translations.length;
 
-    var animationBuffer = Buffer.alloc(0);
-    var translationsBuffer = Buffer.alloc(0);
-    var timesBuffer = Buffer.alloc(0);
+    let animationBuffer = Buffer.alloc(0);
+    let translationsBuffer = Buffer.alloc(0);
+    let timesBuffer = Buffer.alloc(0);
 
     if (animated) {
         translationsBuffer = Buffer.alloc(keyframesLength * 3 * sizeOfFloat32);
@@ -147,7 +147,7 @@ function createGltf(options) {
 
         for (i = 0; i < keyframesLength; ++i) {
             for (j = 0; j < 3; ++j) {
-                var index = i * keyframesLength + j;
+                const index = i * keyframesLength + j;
                 translationsBuffer.writeFloatLE(translations[i][j], index * sizeOfFloat32);
             }
         }
@@ -158,58 +158,58 @@ function createGltf(options) {
         animationBuffer = getBufferPadded(Buffer.concat([translationsBuffer, timesBuffer]));
     }
 
-    var vertexCount = mesh.vertexCount;
+    const vertexCount = mesh.vertexCount;
 
-    var vertexBuffer = getBufferPadded(Buffer.concat([positionsBuffer, normalsBuffer, uvsBuffer, vertexColorsBuffer, batchIdsBuffer]));
-    var buffer = getBufferPadded(Buffer.concat([vertexBuffer, indexBuffer, animationBuffer]));
-    var bufferUri = 'data:application/octet-stream;base64,' + buffer.toString('base64');
-    var byteLength = buffer.byteLength;
+    const vertexBuffer = getBufferPadded(Buffer.concat([positionsBuffer, normalsBuffer, uvsBuffer, vertexColorsBuffer, batchIdsBuffer]));
+    const buffer = getBufferPadded(Buffer.concat([vertexBuffer, indexBuffer, animationBuffer]));
+    const bufferUri = `data:application/octet-stream;base64,${  buffer.toString('base64')}`;
+    const byteLength = buffer.byteLength;
 
-    var indexAccessors = [];
-    var materials = [];
-    var primitives = [];
+    const indexAccessors = [];
+    const materials = [];
+    const primitives = [];
 
-    var images;
-    var samplers;
-    var textures;
+    let images;
+    let samplers;
+    let textures;
 
-    var bufferViewIndex = 0;
-    var positionsBufferViewIndex = bufferViewIndex++;
-    var normalsBufferViewIndex = bufferViewIndex++;
-    var uvsBufferViewIndex = (useUvs) ? bufferViewIndex++ : 0;
-    var vertexColorsBufferViewIndex = (useVertexColors) ? bufferViewIndex++ : 0;
-    var batchIdsBufferViewIndex = (useBatchIds) ? bufferViewIndex++ : 0;
-    var indexBufferViewIndex = bufferViewIndex++;
-    var translationsBufferViewIndex = (animated) ? bufferViewIndex++ : 0;
-    var timesBufferViewIndex = (animated) ? bufferViewIndex++ : 0;
+    let bufferViewIndex = 0;
+    const positionsBufferViewIndex = bufferViewIndex++;
+    const normalsBufferViewIndex = bufferViewIndex++;
+    const uvsBufferViewIndex = (useUvs) ? bufferViewIndex++ : 0;
+    const vertexColorsBufferViewIndex = (useVertexColors) ? bufferViewIndex++ : 0;
+    const batchIdsBufferViewIndex = (useBatchIds) ? bufferViewIndex++ : 0;
+    const indexBufferViewIndex = bufferViewIndex++;
+    const translationsBufferViewIndex = (animated) ? bufferViewIndex++ : 0;
+    const timesBufferViewIndex = (animated) ? bufferViewIndex++ : 0;
 
-    var byteOffset = 0;
-    var positionsBufferByteOffset = byteOffset;
+    let byteOffset = 0;
+    const positionsBufferByteOffset = byteOffset;
     byteOffset += positionsBuffer.length;
-    var normalsBufferByteOffset = byteOffset;
+    const normalsBufferByteOffset = byteOffset;
     byteOffset += normalsBuffer.length;
-    var uvsBufferByteOffset = byteOffset;
+    const uvsBufferByteOffset = byteOffset;
     byteOffset += (useUvs) ? uvsBuffer.length : 0;
-    var vertexColorsBufferByteOffset = byteOffset;
+    const vertexColorsBufferByteOffset = byteOffset;
     byteOffset += (useVertexColors) ? vertexColorsBuffer.length : 0;
-    var batchIdsBufferByteOffset = byteOffset;
+    const batchIdsBufferByteOffset = byteOffset;
     byteOffset += (useBatchIds) ? batchIdsBuffer.length : 0;
 
     // Start index buffer at the padded byte offset
     byteOffset = vertexBuffer.length;
-    var indexBufferByteOffset = byteOffset;
+    const indexBufferByteOffset = byteOffset;
     byteOffset += indexBuffer.length;
 
     // Start animation buffer at the padded byte offset
-    var translationsByteOffset = vertexBuffer.length + indexBuffer.length;
+    const translationsByteOffset = vertexBuffer.length + indexBuffer.length;
     byteOffset += translationsBuffer.length;
-    var timesByteOffset = byteOffset;
+    const timesByteOffset = byteOffset;
     byteOffset += timesByteOffset;
 
     for (i = 0; i < viewsLength; ++i) {
         view = views[i];
         material = view.material;
-        var indicesMinMax = getMinMax(indices, 1, view.indexOffset, view.indexCount);
+        const indicesMinMax = getMinMax(indices, 1, view.indexOffset, view.indexCount);
         indexAccessors.push({
             bufferView : indexBufferViewIndex,
             byteOffset : sizeOfUint16 * view.indexOffset,
@@ -220,10 +220,10 @@ function createGltf(options) {
             max : indicesMinMax.max
         });
 
-        var baseColor = material.baseColor;
-        var baseColorFactor = baseColor;
-        var baseColorTexture;
-        var transparent = false;
+        const baseColor = material.baseColor;
+        let baseColorFactor = baseColor;
+        let baseColorTexture;
+        let transparent = false;
 
         if (typeof baseColor === 'string') {
             if (!defined(images)) {
@@ -249,8 +249,8 @@ function createGltf(options) {
             transparent = baseColor[3] < 1.0;
         }
 
-        var doubleSided = transparent;
-        var alphaMode = (transparent) ? 'BLEND' : 'OPAQUE';
+        const doubleSided = transparent;
+        const alphaMode = (transparent) ? 'BLEND' : 'OPAQUE';
 
         material = {
             pbrMetallicRoughness : {
@@ -270,7 +270,7 @@ function createGltf(options) {
 
         materials.push(material);
 
-        var attributes = {
+        const attributes = {
             POSITION : positionsBufferViewIndex,
             NORMAL : normalsBufferViewIndex
         };
@@ -295,7 +295,7 @@ function createGltf(options) {
         });
     }
 
-    var vertexAccessors = [
+    const vertexAccessors = [
         {
             bufferView : positionsBufferViewIndex,
             byteOffset : 0,
@@ -353,7 +353,7 @@ function createGltf(options) {
         });
     }
 
-    var animationAccessors = [];
+    const animationAccessors = [];
 
     if (animated) {
         animationAccessors.push({
@@ -374,9 +374,9 @@ function createGltf(options) {
         });
     }
 
-    var accessors = vertexAccessors.concat(indexAccessors, animationAccessors);
+    const accessors = vertexAccessors.concat(indexAccessors, animationAccessors);
 
-    var bufferViews = [
+    const bufferViews = [
         {
             buffer : 0,
             byteLength : positionsBuffer.length,
@@ -438,9 +438,9 @@ function createGltf(options) {
         });
     }
 
-    var hasRTC = use3dTilesNext && defined(options.featureTableJson) && defined(options.featureTableJson.RTC_CENTER);
-    var nodes;
-    var animationNode;
+    const hasRTC = use3dTilesNext && defined(options.featureTableJson) && defined(options.featureTableJson.RTC_CENTER);
+    let nodes;
+    let animationNode;
 
     if (animated && hasRTC) {
         nodes = [
@@ -490,7 +490,7 @@ function createGltf(options) {
         ];
     }
 
-    var animations;
+    let animations;
     if (animated) {
         animations = [
             {
@@ -514,7 +514,7 @@ function createGltf(options) {
         ];
     }
 
-    var gltf = {
+    const gltf = {
         accessors : accessors,
         animations : animations,
         asset : {

@@ -1,7 +1,7 @@
 'use strict';
-var Cesium = require('cesium');
+const Cesium = require('cesium');
 
-var defined  = Cesium.defined;
+const defined  = Cesium.defined;
 
 module.exports = getProperties;
 
@@ -16,14 +16,14 @@ function getProperties(batchTable) {
     if (!defined(batchTable)) {
         return undefined;
     }
-    var properties = {};
-    var batchTables = Array.isArray(batchTable) ? batchTable : [batchTable];
-    var batchTablesLength = batchTables.length;
-    for (var i = 0; i < batchTablesLength; ++i) {
+    const properties = {};
+    const batchTables = Array.isArray(batchTable) ? batchTable : [batchTable];
+    const batchTablesLength = batchTables.length;
+    for (let i = 0; i < batchTablesLength; ++i) {
         batchTable = batchTables[i];
-        for (var name in batchTable) {
+        for (const name in batchTable) {
             if (batchTable.hasOwnProperty(name)) {
-                var values = batchTable[name];
+                const values = batchTable[name];
                 if (Array.isArray(values)) {
                     if (typeof values[0] === 'number') {
                         if (!defined(properties[name])) {
@@ -32,11 +32,11 @@ function getProperties(batchTable) {
                                 maximum : Number.NEGATIVE_INFINITY
                             };
                         }
-                        var min = properties[name].minimum;
-                        var max = properties[name].maximum;
-                        var length = values.length;
-                        for (var j = 0; j < length; ++j) {
-                            var value = values[j];
+                        let min = properties[name].minimum;
+                        let max = properties[name].maximum;
+                        const length = values.length;
+                        for (let j = 0; j < length; ++j) {
+                            const value = values[j];
                             min = Math.min(value, min);
                             max = Math.max(value, max);
                         }

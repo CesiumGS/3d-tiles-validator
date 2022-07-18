@@ -1,9 +1,9 @@
 'use strict';
-var Cesium = require('cesium');
-var getBufferPadded = require('./getBufferPadded');
-var getJsonBufferPadded = require('./getJsonBufferPadded');
+const Cesium = require('cesium');
+const getBufferPadded = require('./getBufferPadded');
+const getJsonBufferPadded = require('./getJsonBufferPadded');
 
-var defaultValue = Cesium.defaultValue;
+const defaultValue = Cesium.defaultValue;
 
 module.exports = createB3dm;
 
@@ -21,21 +21,21 @@ module.exports = createB3dm;
  * @returns {Buffer} The generated b3dm tile buffer.
  */
 function createB3dm(options) {
-    var glb = options.glb;
-    var defaultFeatureTable = {
+    const glb = options.glb;
+    const defaultFeatureTable = {
         BATCH_LENGTH : 0
     };
-    var featureTableJson = defaultValue(options.featureTableJson, defaultFeatureTable);
-    var batchLength = featureTableJson.BATCH_LENGTH;
+    const featureTableJson = defaultValue(options.featureTableJson, defaultFeatureTable);
+    const batchLength = featureTableJson.BATCH_LENGTH;
 
-    var headerByteLength = 28;
-    var featureTableJsonBuffer = getJsonBufferPadded(featureTableJson, headerByteLength);
-    var featureTableBinary = getBufferPadded(options.featureTableBinary);
-    var batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
-    var batchTableBinary = getBufferPadded(options.batchTableBinary);
+    const headerByteLength = 28;
+    const featureTableJsonBuffer = getJsonBufferPadded(featureTableJson, headerByteLength);
+    const featureTableBinary = getBufferPadded(options.featureTableBinary);
+    const batchTableJsonBuffer = getJsonBufferPadded(options.batchTableJson);
+    const batchTableBinary = getBufferPadded(options.batchTableBinary);
 
-    var deprecated1 = defaultValue(options.deprecated1, false);
-    var deprecated2 = defaultValue(options.deprecated2, false);
+    const deprecated1 = defaultValue(options.deprecated1, false);
+    const deprecated2 = defaultValue(options.deprecated2, false);
 
     if (deprecated1) {
         return createB3dmDeprecated1(glb, batchLength, batchTableJsonBuffer);
@@ -47,16 +47,16 @@ function createB3dm(options) {
 }
 
 function createB3dmCurrent(glb, featureTableJson, featureTableBinary, batchTableJson, batchTableBinary) {
-    var version = 1;
-    var headerByteLength = 28;
-    var featureTableJsonByteLength = featureTableJson.length;
-    var featureTableBinaryByteLength = featureTableBinary.length;
-    var batchTableJsonByteLength = batchTableJson.length;
-    var batchTableBinaryByteLength = batchTableBinary.length;
-    var gltfByteLength = glb.length;
-    var byteLength = headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + gltfByteLength;
+    const version = 1;
+    const headerByteLength = 28;
+    const featureTableJsonByteLength = featureTableJson.length;
+    const featureTableBinaryByteLength = featureTableBinary.length;
+    const batchTableJsonByteLength = batchTableJson.length;
+    const batchTableBinaryByteLength = batchTableBinary.length;
+    const gltfByteLength = glb.length;
+    const byteLength = headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + gltfByteLength;
 
-    var header = Buffer.alloc(headerByteLength);
+    const header = Buffer.alloc(headerByteLength);
     header.write('b3dm', 0);
     header.writeUInt32LE(version, 4);
     header.writeUInt32LE(byteLength, 8);
@@ -69,13 +69,13 @@ function createB3dmCurrent(glb, featureTableJson, featureTableBinary, batchTable
 }
 
 function createB3dmDeprecated1(glb, batchLength, batchTableJson) {
-    var version = 1;
-    var headerByteLength = 20;
-    var batchTableJsonByteLength = batchTableJson.length;
-    var gltfByteLength = glb.length;
-    var byteLength = headerByteLength + batchTableJsonByteLength + gltfByteLength;
+    const version = 1;
+    const headerByteLength = 20;
+    const batchTableJsonByteLength = batchTableJson.length;
+    const gltfByteLength = glb.length;
+    const byteLength = headerByteLength + batchTableJsonByteLength + gltfByteLength;
 
-    var header = Buffer.alloc(headerByteLength);
+    const header = Buffer.alloc(headerByteLength);
     header.write('b3dm', 0);
     header.writeUInt32LE(version, 4);
     header.writeUInt32LE(byteLength, 8);
@@ -86,14 +86,14 @@ function createB3dmDeprecated1(glb, batchLength, batchTableJson) {
 }
 
 function createB3dmDeprecated2(glb, batchLength, batchTableJson, batchTableBinary) {
-    var version = 1;
-    var headerByteLength = 24;
-    var batchTableJsonByteLength = batchTableJson.length;
-    var batchTableBinaryByteLength = batchTableBinary.length;
-    var gltfByteLength = glb.length;
-    var byteLength = headerByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + gltfByteLength;
+    const version = 1;
+    const headerByteLength = 24;
+    const batchTableJsonByteLength = batchTableJson.length;
+    const batchTableBinaryByteLength = batchTableBinary.length;
+    const gltfByteLength = glb.length;
+    const byteLength = headerByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + gltfByteLength;
 
-    var header = Buffer.alloc(headerByteLength);
+    const header = Buffer.alloc(headerByteLength);
     header.write('b3dm', 0);
     header.writeUInt32LE(version, 4);
     header.writeUInt32LE(byteLength, 8);

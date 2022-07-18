@@ -5,8 +5,6 @@ const Promise = require('bluebird');
 
 const isDataUri = require('./isDataUri');
 const isTile = require('./isTile');
-const readTile = require('./readTile');
-const readTileset = require('./readTileset');
 const utility = require('./utility');
 const validateTile = require('./validateTile');
 
@@ -98,11 +96,9 @@ async function validateTileHierarchy(root, options) {
         if (defined(content) && defined(content.uri)) {
             if (isDataUri(content.uri)) {
                 contentPaths.push(content.uri);
-            } else {
-                if (!options.onlyValidateTilesets || content.uri.endsWith(".json")) {
+            } else if (!options.onlyValidateTilesets || content.uri.endsWith(".json")) {
                     contentPaths.push(path.join(directory, content.uri));
                 }
-            }
         }
 
         if (defined(content) && defined(content.boundingVolume)) {

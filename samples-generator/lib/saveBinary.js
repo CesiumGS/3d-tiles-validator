@@ -1,9 +1,9 @@
 'use strict';
-var Cesium = require('cesium');
-var fsExtra = require('fs-extra');
-var zlib = require('zlib');
+const Cesium = require('cesium');
+const fsExtra = require('fs-extra');
+const zlib = require('zlib');
 
-var defaultValue = Cesium.defaultValue;
+const defaultValue = Cesium.defaultValue;
 
 module.exports = saveBinary;
 

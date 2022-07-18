@@ -1,9 +1,9 @@
 'use strict';
-var Cesium = require('cesium');
-var getJsonBufferPadded = require('./getJsonBufferPadded');
-var getBufferPadded = require('./getBufferPadded');
+const Cesium = require('cesium');
+const getJsonBufferPadded = require('./getJsonBufferPadded');
+const getBufferPadded = require('./getBufferPadded');
 
-var defined = Cesium.defined;
+const defined = Cesium.defined;
 
 module.exports = createI3dm;
 
@@ -20,25 +20,25 @@ module.exports = createI3dm;
  * @returns {Buffer} The generated i3dm tile buffer.
  */
 function createI3dm(options) {
-    var version = 1;
-    var headerByteLength = 32;
+    const version = 1;
+    const headerByteLength = 32;
 
-    var featureTableJson = getJsonBufferPadded(options.featureTableJson, headerByteLength);
-    var featureTableBinary = getBufferPadded(options.featureTableBinary);
-    var batchTableJson = getJsonBufferPadded(options.batchTableJson);
-    var batchTableBinary = getBufferPadded(options.batchTableBinary);
+    const featureTableJson = getJsonBufferPadded(options.featureTableJson, headerByteLength);
+    const featureTableBinary = getBufferPadded(options.featureTableBinary);
+    const batchTableJson = getJsonBufferPadded(options.batchTableJson);
+    const batchTableBinary = getBufferPadded(options.batchTableBinary);
 
-    var gltfFormat = defined(options.glb) ? 1 : 0;
-    var gltfBuffer = defined(options.glb) ? options.glb : getGltfUriBuffer(options.uri);
+    const gltfFormat = defined(options.glb) ? 1 : 0;
+    const gltfBuffer = defined(options.glb) ? options.glb : getGltfUriBuffer(options.uri);
 
-    var featureTableJsonByteLength = featureTableJson.length;
-    var featureTableBinaryByteLength = featureTableBinary.length;
-    var batchTableJsonByteLength = batchTableJson.length;
-    var batchTableBinaryByteLength = batchTableBinary.length;
-    var gltfByteLength = gltfBuffer.length;
-    var byteLength = headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + gltfByteLength;
+    const featureTableJsonByteLength = featureTableJson.length;
+    const featureTableBinaryByteLength = featureTableBinary.length;
+    const batchTableJsonByteLength = batchTableJson.length;
+    const batchTableBinaryByteLength = batchTableBinary.length;
+    const gltfByteLength = gltfBuffer.length;
+    const byteLength = headerByteLength + featureTableJsonByteLength + featureTableBinaryByteLength + batchTableJsonByteLength + batchTableBinaryByteLength + gltfByteLength;
 
-    var header = Buffer.alloc(headerByteLength);
+    const header = Buffer.alloc(headerByteLength);
     header.write('i3dm', 0);
     header.writeUInt32LE(version, 4);
     header.writeUInt32LE(byteLength, 8);

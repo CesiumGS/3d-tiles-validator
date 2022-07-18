@@ -1,7 +1,7 @@
 'use strict';
-var Cesium = require('cesium');
-var defined = Cesium.defined;
-var typeConversion = require('./typeConversion');
+const Cesium = require('cesium');
+const defined = Cesium.defined;
+const typeConversion = require('./typeConversion');
 module.exports = createGltfFromPnts;
 
 function isImplicitBufferView(attributeBuffer) {
@@ -28,7 +28,7 @@ function isImplicitBufferView(attributeBuffer) {
  */
 
 function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
-    var megaBuffer = Buffer.concat(
+    let megaBuffer = Buffer.concat(
         attributeBuffers.map(function (ab) {
             return ab.buffer;
         })
@@ -40,8 +40,8 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
     return [
         {
             uri:
-                'data:application/octet-stream;base64,' +
-                Buffer.from(megaBuffer).toString('base64'),
+                `data:application/octet-stream;base64,${ 
+                Buffer.from(megaBuffer).toString('base64')}`,
             byteLength: megaBuffer.length
         }
     ];
@@ -58,15 +58,15 @@ function createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer) {
  * @returns {Object} a buffer views array
  */
 function createBufferViewsFromAttributeBuffers(attributeBuffers, indexBuffer) {
-    var result = [];
-    var byteOffset = 0;
+    const result = [];
+    let byteOffset = 0;
 
-    for (var i = 0; i < attributeBuffers.length; ++i) {
+    for (let i = 0; i < attributeBuffers.length; ++i) {
         if (isImplicitBufferView(attributeBuffers[i])) {
             continue;
         }
 
-        var bufferView = {
+        const bufferView = {
             buffer: 0,
             byteLength: attributeBuffers[i].buffer.byteLength,
             byteOffset: byteOffset,
@@ -105,12 +105,12 @@ function createBufferViewsFromAttributeBuffers(attributeBuffers, indexBuffer) {
 function createMeshFromAttributeBuffers(attributeBuffers, indexBuffer) {
     // the index of the attribute in the inputted bufferAttributes array directly
     // corresponds to the accessor ID
-    var primitives = {
+    const primitives = {
         attributes: {},
         mode: 0
     };
 
-    var i;
+    let i;
     for (i = 0; i < attributeBuffers.length; ++i) {
         primitives.attributes[attributeBuffers[i].propertyName] = i;
     }
@@ -135,11 +135,11 @@ function createMeshFromAttributeBuffers(attributeBuffers, indexBuffer) {
  */
 
 function createAccessorsFromAttributeBuffers(attributeBuffers, indexBuffer) {
-    var componentType;
-    var validComponentType;
-    var normalizedComponentType;
-    var accessors = [];
-    var i;
+    let componentType;
+    let validComponentType;
+    let normalizedComponentType;
+    const accessors = [];
+    let i;
 
     for (i = 0; i < attributeBuffers.length; ++i) {
         componentType = attributeBuffers[i].componentType;
@@ -150,7 +150,7 @@ function createAccessorsFromAttributeBuffers(attributeBuffers, indexBuffer) {
             ? componentType
             : typeConversion.componentTypeStringToInteger(componentType);
 
-        var accessor = {
+        const accessor = {
             componentType: normalizedComponentType,
             type: attributeBuffers[i].type,
             count: attributeBuffers[i].count,
@@ -206,7 +206,7 @@ function createAccessorsFromAttributeBuffers(attributeBuffers, indexBuffer) {
  */
 
 function createGltfFromPnts(attributeBuffers, indexBuffer, rtc) {
-    var gltf = {
+    const gltf = {
         asset: {
             generator: '3d-tiles-samples-generator',
             version: '2.0'
@@ -214,7 +214,7 @@ function createGltfFromPnts(attributeBuffers, indexBuffer, rtc) {
     };
 
     // z-up to y-up transform.
-    var rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
+    const rootMatrix = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
 
     gltf.buffers = createAmalgamatedGltfBuffer(attributeBuffers, indexBuffer);
     gltf.bufferViews = createBufferViewsFromAttributeBuffers(
