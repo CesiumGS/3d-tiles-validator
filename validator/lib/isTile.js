@@ -12,7 +12,7 @@ module.exports = isTile;
  * @returns {Boolean} True if the file path is a tile file path, false if not.
  */
 function isTile(filePath, version) {
-    var extension = path.extname(filePath);
+    const extension = path.extname(filePath);
     if (defined(version)) {
         if (version === '1.0') {
             return (
@@ -24,9 +24,9 @@ function isTile(filePath, version) {
             return (
                 extension === '.gltf' ||
                 extension === '.glb');
-        } else {
+        } 
             return false;
-        }
+        
     }
 
     // if no version specified, match any
