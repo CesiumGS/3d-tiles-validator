@@ -8,7 +8,7 @@ module.exports = {
 };
 
 function isValidWebGLDataTypeEnum(value) {
-    var isNumber = typeof value === 'number';
+    const isNumber = typeof value === 'number';
     return isNumber && value >= 0x1400 && value <= 0x1406;
 }
 
@@ -34,7 +34,7 @@ function componentTypeToInteger(value) {
     if (value === 'FLOAT') {
         return 0x1406;
     }
-    throw new Error('Unknown component type string: ' + value);
+    throw new Error(`Unknown component type string: ${  value}`);
 }
 
 function elementTypeToCount(value) {
@@ -50,7 +50,7 @@ function elementTypeToCount(value) {
     if (value === 'SCALAR') {
         return 1;
     }
-    throw Error('Unknown value' + value);
+    throw Error(`Unknown value${  value}`);
 }
 
 function webglDataTypeToByteSize(value) {
@@ -75,5 +75,5 @@ function webglDataTypeToByteSize(value) {
     if (value === 0x1406) {
         return 4;
     } // Float
-    throw new Error('Unknown WebGL data type: ' + value);
+    throw new Error(`Unknown WebGL data type: ${  value}`);
 }

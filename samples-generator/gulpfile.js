@@ -1,30 +1,30 @@
 'use strict';
 
-var Promise = require('bluebird');
-var Cesium = require('cesium');
-var child_process = require('child_process');
-var gulp = require('gulp');
-var Jasmine = require('jasmine');
-var SpecReporter = require('jasmine-spec-reporter').SpecReporter;
-var path = require('path');
-var yargs = require('yargs');
-var fsExtra = require('fs-extra');
-var open = require('open');
+const Promise = require('bluebird');
+const Cesium = require('cesium');
+const child_process = require('child_process');
+const gulp = require('gulp');
+const Jasmine = require('jasmine');
+const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
+const path = require('path');
+const yargs = require('yargs');
+const fsExtra = require('fs-extra');
+const open = require('open');
 
-var defaultValue = Cesium.defaultValue;
-var defined = Cesium.defined;
-var argv = yargs.argv;
+const defaultValue = Cesium.defaultValue;
+const defined = Cesium.defined;
+const argv = yargs.argv;
 
 // Add third-party node module binaries to the system path
 // since some tasks need to call them directly.
-var environmentSeparator = (process.platform === 'win32') ? ';' : ':';
-var nodeBinaries = path.join(__dirname, 'node_modules', '.bin');
+const environmentSeparator = (process.platform === 'win32') ? ';' : ':';
+const nodeBinaries = path.join(__dirname, 'node_modules', '.bin');
 process.env.PATH += environmentSeparator + nodeBinaries;
 
-var specFiles = ['**/*.js', '!node_modules/**'];
+const specFiles = ['**/*.js', '!node_modules/**'];
 
 gulp.task('test', function (done) {
-    var jasmine = new Jasmine();
+    const jasmine = new Jasmine();
     jasmine.loadConfigFile('specs/jasmine.json');
     jasmine.addReporter(new SpecReporter({
         displaySuccessfulSpec: !defined(argv.suppressPassed) || !argv.suppressPassed
@@ -67,13 +67,13 @@ gulp.task('coverage', function () {
 });
 
 gulp.task('cloc', function() {
-    var cmdLine;
-    var clocPath = path.join('node_modules', 'cloc', 'lib', 'cloc');
+    let cmdLine;
+    const clocPath = path.join('node_modules', 'cloc', 'lib', 'cloc');
 
     //Run cloc on primary Source files only
-    var source = new Promise(function(resolve, reject) {
-        cmdLine = 'perl ' + clocPath + ' --quiet --progress-rate=0' +
-            ' lib/ bin/';
+    const source = new Promise(function(resolve, reject) {
+        cmdLine = `perl ${  clocPath  } --quiet --progress-rate=0` +
+            ` lib/ bin/`;
 
         child_process.exec(cmdLine, function(error, stdout, stderr) {
             if (error) {
@@ -89,8 +89,8 @@ gulp.task('cloc', function() {
     //If running cloc on source succeeded, also run it on the tests.
     return source.then(function() {
         return new Promise(function(resolve, reject) {
-            cmdLine = 'perl ' + clocPath + ' --quiet --progress-rate=0' +
-                ' specs/lib/ specs/bin/';
+            cmdLine = `perl ${  clocPath  } --quiet --progress-rate=0` +
+                ` specs/lib/ specs/bin/`;
             child_process.exec(cmdLine, function(error, stdout, stderr) {
                 if (error) {
                     console.log(stderr);
@@ -106,16 +106,16 @@ gulp.task('cloc', function() {
 
 function getLicenseDataFromPackage(packageName, override) {
     override = defaultValue(override, defaultValue.EMPTY_OBJECT);
-    var packagePath = path.join('node_modules', packageName, 'package.json');
+    const packagePath = path.join('node_modules', packageName, 'package.json');
 
     if (!fsExtra.existsSync(packagePath)) {
         throw new Error(`Unable to find ${packageName} license information`);
     }
 
-    var contents = fsExtra.readFileSync(packagePath);
-    var packageJson = JSON.parse(contents);
+    const contents = fsExtra.readFileSync(packagePath);
+    const packageJson = JSON.parse(contents);
 
-    var licenseField = override.license;
+    let licenseField = override.license;
 
     if (!licenseField) {
         licenseField = [packageJson.license];
@@ -130,7 +130,7 @@ function getLicenseDataFromPackage(packageName, override) {
         licenseField = ['NONE'];
     }
 
-    var version = packageJson.version;
+    let version = packageJson.version;
     if (!packageJson.version) {
         console.log(`No version information found for ${packageName}`);
         version = 'NONE';
@@ -146,24 +146,24 @@ function getLicenseDataFromPackage(packageName, override) {
 }
 
 function readThirdPartyExtraJson() {
-    var path = 'ThirdParty.extra.json';
+    const path = 'ThirdParty.extra.json';
     if (fsExtra.existsSync(path)) {
-        var contents = fsExtra.readFileSync(path);
+        const contents = fsExtra.readFileSync(path);
         return JSON.parse(contents);
     }
     return [];
 }
 
 gulp.task('generate-third-party', async function() {
-    var packageJson = JSON.parse(fsExtra.readFileSync('package.json'));
-    var thirdPartyExtraJson = readThirdPartyExtraJson();
+    const packageJson = JSON.parse(fsExtra.readFileSync('package.json'));
+    const thirdPartyExtraJson = readThirdPartyExtraJson();
 
-    var thirdPartyJson = [];
+    const thirdPartyJson = [];
 
-    var dependencies = packageJson.dependencies;
-    for (var packageName in dependencies) {
+    const dependencies = packageJson.dependencies;
+    for (const packageName in dependencies) {
         if (dependencies.hasOwnProperty(packageName)) {
-            var override = thirdPartyExtraJson.find(
+            const override = thirdPartyExtraJson.find(
                 (entry) => entry.name === packageName
             );
             thirdPartyJson.push(
@@ -173,8 +173,8 @@ gulp.task('generate-third-party', async function() {
     }
 
     thirdPartyJson.sort(function (a, b) {
-        var nameA = a.name.toLowerCase();
-        var nameB = b.name.toLowerCase();
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
         if (nameA < nameB) {
             return -1;
         }

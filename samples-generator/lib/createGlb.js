@@ -1,9 +1,9 @@
 'use strict';
-var path = require('path');
-var createGltf = require('./createGltf');
-var gltfPipeline = require('gltf-pipeline');
-var gltfToGlb = gltfPipeline.gltfToGlb;
-var gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../') };
+const path = require('path');
+const createGltf = require('./createGltf');
+const gltfPipeline = require('gltf-pipeline');
+const gltfToGlb = gltfPipeline.gltfToGlb;
+const gltfConversionOptions = { resourceDirectory: path.join(__dirname, '../') };
 
 module.exports = createGlb;
 
@@ -20,7 +20,7 @@ module.exports = createGlb;
  */
 
 function createGlb(options) {
-    var gltf = createGltf(options);
+    const gltf = createGltf(options);
     return gltfToGlb(gltf, gltfConversionOptions).then(function (results) {
         return results.glb;
     });

@@ -1,5 +1,5 @@
 'use strict';
-var getBufferPadded = require('./getBufferPadded');
+const getBufferPadded = require('./getBufferPadded');
 
 module.exports = createCmpt;
 
@@ -10,22 +10,22 @@ module.exports = createCmpt;
  * @returns {Buffer} The generated cmpt tile buffer.
  */
 function createCmpt(tiles) {
-    var byteLength = 0;
-    var buffers = [];
-    var tilesLength = tiles.length;
-    for (var i = 0; i < tilesLength; i++) {
-        var tile = getBufferPadded(tiles[i]);
-        var tileByteLength = tile.length;
+    let byteLength = 0;
+    const buffers = [];
+    const tilesLength = tiles.length;
+    for (let i = 0; i < tilesLength; i++) {
+        const tile = getBufferPadded(tiles[i]);
+        const tileByteLength = tile.length;
         tile.writeUInt32LE(tileByteLength, 8); // Edit the tile's byte length
         buffers.push(tile);
         byteLength += tileByteLength;
     }
 
-    var version = 1;
-    var headerByteLength = 16;
+    const version = 1;
+    const headerByteLength = 16;
     byteLength += headerByteLength;
 
-    var header = Buffer.alloc(headerByteLength);
+    const header = Buffer.alloc(headerByteLength);
     header.write('cmpt', 0);
     header.writeUInt32LE(version, 4);
     header.writeUInt32LE(byteLength, 8);
