@@ -1,0 +1,71 @@
+import { Tile } from "../structure/Tile";
+import { Content } from "../structure/Content";
+
+/**
+ * An interface that summarizes context information for
+ * a tile during traversal.
+ */
+export interface TraversedTile {
+
+  /**
+   * Returns a `Tile` object that contains the "JSON"-representation
+   * of the tile. This is just a plain data structure corresponding
+   * the the tile.
+   * 
+   * Values that may be overridden (for example, via metadata semantics)
+   * are already substituted in the returned object.
+   * 
+   * @returns A `Tile` with information about this traversed tile
+   */
+  asTile() : Tile;
+
+  /**
+   * Returns the level of the tile in the traversed hierarchy, with
+   * 0 being the root tile.
+   * 
+   * @returns The level
+   */
+  get level(): number;
+
+  /**
+   * Returns a path that identifies this tile within the hierarchy.
+   * 
+   * This resembles a JSON path. But for cases like implicit tilesets,
+   * it may contain elements that are not part of the JSONPath format.
+   * It may therefore only be used as a semi-human-readable identifier.
+   * 
+   * @returns The path
+   */
+  get path(): string;
+
+  /**
+   * Returns the parent of this tile, or `undefined` if this is the
+   * root tile.
+   * 
+   * @returns The parent tile
+   */
+  getParent(): TraversedTile | undefined;
+
+  /**
+   * Returns the children of this tile. 
+   * 
+   * For external tilesets or implicit tiling, this may have to 
+   * resolve external resources, and therefore, returns a promise 
+   * that is resolved when the required child tiles are available.
+   * 
+   * @returns The children
+   */
+  getChildren(): Promise<TraversedTile[]>;
+
+  /**
+   * Returns the `Content` objects of the tile.
+   * 
+   * This is either an empty array (when the tile does not have
+   * content), or a single-element array (when the tile has a
+   * single `tile.content` object), or an array that resembles
+   * the `tile.contents` array.
+   * 
+   * @returns The contents
+   */
+  getContents(): Content[];
+}

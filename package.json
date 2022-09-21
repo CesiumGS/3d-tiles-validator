@@ -1,0 +1,36 @@
+{
+  "name": "3d-tiles-validator-1.1",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "description": "Tools for validating 3D Tiles tilesets.",
+  "keywords": [
+    "3D Tiles"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "ajv": "^8.11.0",
+    "ajv-errors": "^3.0.0",
+    "ajv-formats-draft2019": "^1.6.1",
+    "cesium": "^1.97.0",
+    "gltf-validator": "^2.0.0-dev.3.9",
+    "yargs": "^17.5.1"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
+    "@types/jasmine": "^4.0.3",
+    "eslint": "^8.0.1",
+    "eslint-config-cesium": "^9.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "jasmine": "^4.3.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4"
+  },
+  "scripts": {
+    "eslint": "eslint \"./**/*.*s\" --cache --quiet",
+    "build": "npx tsc",
+    "start": "npx ts-node src/main.ts",
+    "test": "ts-node node_modules/jasmine/bin/jasmine --config=specs/jasmine.json"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "EXAMPLE_ID",
+  "enums": {
+    "!!! NOT A VALID IDENTIFIER !!!": {
+      "values": [
+        {
+          "name": "EXAMPLE_ENUM_VALUE_A",
+          "value": 0
+        },
+        {
+          "name": "EXAMPLE_ENUM_VALUE_B",
+          "value": 1
+        }
+      ]
+    }
+  }
+}

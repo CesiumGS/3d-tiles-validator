@@ -1,0 +1,17 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "examplePropertyA": {
+          "type": "STRING",
+          "semantic": "EXAMPLE_SEMANTIC"
+        },
+        "examplePropertyB": {
+          "type": "STRING",
+          "semantic": "EXAMPLE_SEMANTIC"
+        }
+      }
+    }
+  }
+}

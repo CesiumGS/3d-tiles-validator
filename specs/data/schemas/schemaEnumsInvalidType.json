@@ -1,0 +1,6 @@
+{
+  "id": "EXAMPLE_ID",
+  "enums": {
+    "exampleEnum": "Should be an object"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "exampleProperty": {
+          "type": "SCALAR",
+          "componentType": "FLOAT32",
+          "array": true,
+          "count": 3,
+          "noData": [1.0, "NOT_A_NUMBER", 3.0]
+        }
+      }
+    }
+  }
+}

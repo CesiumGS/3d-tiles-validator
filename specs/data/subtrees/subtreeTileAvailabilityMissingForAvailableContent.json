@@ -1,0 +1,10 @@
+{
+  "buffers": [{ "uri": "bufferTileAvailabilityMissingForAvailableContent.bin", "byteLength": 16 }],
+  "bufferViews": [
+    { "buffer": 0, "byteOffset": 0, "byteLength": 3 },
+    { "buffer": 0, "byteOffset": 8, "byteLength": 3 }
+  ],
+  "tileAvailability": { "bitstream": 0, "availableCount": 7 },
+  "contentAvailability": [{ "bitstream": 1, "availableCount": 5 }],
+  "childSubtreeAvailability": { "availableCount": 0, "constant": 0 }
+}

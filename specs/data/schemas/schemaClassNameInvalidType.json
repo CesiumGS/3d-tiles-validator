@@ -1,0 +1,8 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "name": 123.456
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "exampleProperty": {
+          "type": "ENUM",
+          "enumType": "exampleEnum",
+          "noData": "INVALID_ENUM_VALUE_NAME"
+        }
+      }
+    }
+  },
+  "enums": {
+    "exampleEnum": {
+      "values": [
+        {
+          "name": "EXAMPLE_ENUM_VALUE_A",
+          "value": 0
+        },
+        {
+          "name": "EXAMPLE_ENUM_VALUE_B",
+          "value": 1
+        }
+      ]
+    }
+  }
+}

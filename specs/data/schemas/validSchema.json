@@ -1,0 +1,35 @@
+{
+  "id": "EXAMPLE_SCHEMA_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "examplePropertyInt16": {
+          "name": "Name of examplePropertyInt16",
+          "description": "Description for examplePropertyInt16",
+          "type": "SCALAR",
+          "componentType": "INT16"
+        },
+        "examplePropertyEnum": {
+          "name": "Name of examplePropertyEnum",
+          "description": "Description for examplePropertyEnum",
+          "type": "ENUM",
+          "enumType": "exampleEnum"
+        }
+      }
+    }
+  },
+  "enums": {
+    "exampleEnum": {
+      "values": [
+        {
+          "name": "EXAMPLE_ENUM_VALUE_A",
+          "value": 0
+        },
+        {
+          "name": "EXAMPLE_ENUM_VALUE_B",
+          "value": 1
+        }
+      ]
+    }
+  }
+}
