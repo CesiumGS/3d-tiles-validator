@@ -1,5 +1,5 @@
 {
-  "name": "3d-tiles-validator-1.1",
+  "name": "3d-tiles-validator",
   "version": "0.0.0",
   "license": "Apache-2.0",
   "description": "Tools for validating 3D Tiles tilesets.",
