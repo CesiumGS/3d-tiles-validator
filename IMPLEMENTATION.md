@@ -58,6 +58,10 @@ The `ValidationIssue` class and its types:
 
 - It should be possible to "batch process" a directory (with caveats - how to detect whether a file is a `tileset.json`, beyond its name?)
 - It should be possible to write reports into files.
+- Check that geometry is within tile.boundingVolume, content.boundingVolume, and parent.boundingVolume
+- Check that metadata statistics are correct. Or at the very least, check that metadata values fall within min/max
+- Check that metadata values fall within the class's min/max
+- Declarative styling validation
 
 ### Validation Options
 
@@ -89,10 +93,10 @@ These tests could then be processed programmatically, and things like the `descr
 
 The initial approach for the JSON schema based validation was to simply use the `ajv` library. This has some caveats, and has therefore been replaced with a manual validation of the schema compliance. However, there should be a mechansim for supporting JSON Schema based validation on demand - for example, for extensions that are not otherwise integrated into the validator. The `src/json` subdirectory contains some drafts for this. But in order to properly integrate this, some architectural questions will have to be answered, as well as the question where exactly the `.*schema.json` files will be stored. Eventually, the mechanism for adding a specific validation could/should boil down to a call like `validator.register("/node/**/boundingVolume", new ExtensionSchemaValidator("s2.schema"));`
 
+There should also be a generic solution for the validation of enum values. When there are extensions, then their set may not be fixed (and the glTF validator hasn't sorted that out either). For example, there may be a `componentType` like `UINT128` or `FLOAT16` at some point in time...
 
 
 ### Random Notes
 
 - The functions in `BasicValidator` should be made more consistent (see note at top of file). The functions should better reflect the `JsonValidationIssues`. The convenience functions that have been introduced (and will be introduced) should be used consistently at the call sites.
-- There should be a generic solution for the validation of enum values. When there are extensions, then their set may not be fixed (and the glTF validator hasn't sorted that out either). For example, there may be a `componentType` like `UINT128` or `FLOAT16` at some point in time...
 - The `extras` and `extensions` are not yet validated (this will just be the JSON-level check whether their properties are `object`s)
