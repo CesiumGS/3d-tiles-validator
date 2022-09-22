@@ -64,6 +64,7 @@ The `ValidationIssue` class and its types:
 
 - It should be possible to "batch process" a directory (with caveats - how to detect whether a file is a `tileset.json`, beyond its name?)
 - It should be possible to write reports into files.
+- It should detect ZIPped files, and uncompress them for validation
 - Check that geometry is within tile.boundingVolume, content.boundingVolume, and parent.boundingVolume
 - Check that metadata statistics are correct. Or at the very least, check that metadata values fall within min/max
 - Check that metadata values fall within the class's min/max
