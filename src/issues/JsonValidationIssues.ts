@@ -90,7 +90,7 @@ export class JsonValidationIssues {
    * @param actualType The actual type
    * @returns The `ValidationIssue`
    */
-  static ARRAY_ELELENT_TYPE_MISMATCH(
+  static ARRAY_ELEMENT_TYPE_MISMATCH(
     path: string,
     name: string,
     index: number,
@@ -100,12 +100,12 @@ export class JsonValidationIssues {
     const message =
       `The element at index ${index} of '${name}' must have type ` +
       `'${expectedType}', but has type '${actualType}'`;
-    return JsonValidationIssues._ARRAY_ELELENT_TYPE_MISMATCH(path, message);
+    return JsonValidationIssues._ARRAY_ELEMENT_TYPE_MISMATCH(path, message);
   }
 
-  // Internal method for ARRAY_ELELENT_TYPE_MISMATCH
-  private static _ARRAY_ELELENT_TYPE_MISMATCH(path: string, message: string) {
-    const type = "ARRAY_ELELENT_TYPE_MISMATCH";
+  // Internal method for ARRAY_ELEMENT_TYPE_MISMATCH
+  private static _ARRAY_ELEMENT_TYPE_MISMATCH(path: string, message: string) {
+    const type = "ARRAY_ELEMENT_TYPE_MISMATCH";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;

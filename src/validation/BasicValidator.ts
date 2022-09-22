@@ -181,7 +181,7 @@ export class BasicValidator {
       for (let index = 0; index < value.length; index++) {
         const element = value[index];
         if (typeof element !== expectedElementType) {
-          const issue = JsonValidationIssues.ARRAY_ELELENT_TYPE_MISMATCH(
+          const issue = JsonValidationIssues.ARRAY_ELEMENT_TYPE_MISMATCH(
             path + "/" + index,
             name,
             index,
