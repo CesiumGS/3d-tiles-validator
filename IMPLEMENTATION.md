@@ -54,6 +54,12 @@ The `ValidationIssue` class and its types:
 
 ## Discussion points
 
+### High Level
+
+- The build process has to be streamlined (e.g. considering CI)
+- The linting- and prettier configuration has to be finalized
+- The deployment options have to be evaluated (e.g.: Do we want a "Drag-And-Drop" version of the validator?)
+
 ### General functionality
 
 - It should be possible to "batch process" a directory (with caveats - how to detect whether a file is a `tileset.json`, beyond its name?)
