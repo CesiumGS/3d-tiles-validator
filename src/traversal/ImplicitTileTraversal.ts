@@ -1,3 +1,6 @@
+import path from "path";
+import { defined } from "../base/defined";
+
 import { DeveloperError } from "../base/DeveloperError";
 
 import { ResourceResolver } from "../io/ResourceResolver";
@@ -29,6 +32,10 @@ export class ImplicitTileTraversal {
         resourceResolver,
         rootCoordinates
       );
+      if (!defined(subtreeInfo)) {
+        console.error("Could not resolve subtree data");
+        return [];
+      }
       // TODO Assuming certain toString here:
       const childPath = parent.path + `/${rootCoordinates}`;
       const child = new ImplicitTraversedTile(
@@ -52,6 +59,10 @@ export class ImplicitTileTraversal {
         resourceResolver,
         rootCoordinates
       );
+      if (!defined(subtreeInfo)) {
+        console.error("Could not resolve subtree data");
+        return [];
+      }
       // TODO Assuming certain toString here:
       const childPath = parent.path + `/${rootCoordinates}`;
       const child = new ImplicitTraversedTile(
@@ -101,10 +112,12 @@ export class ImplicitTileTraversal {
     if (subtreeData == null) {
       return undefined;
     }
+    const subtreeDirectory = path.dirname(subtreeUri);
+    const subtreeResourceResolver = resourceResolver.derive(subtreeDirectory);
     const subtreeInfo = await SubtreeInfos.createFromBuffer(
       subtreeData!,
       implicitTiling,
-      resourceResolver
+      subtreeResourceResolver
     );
     return subtreeInfo;
   }

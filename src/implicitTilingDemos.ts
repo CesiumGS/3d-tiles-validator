@@ -1,4 +1,5 @@
 import path from "path";
+import { defined } from "./base/defined";
 
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
 
@@ -71,9 +72,13 @@ async function testSubtreeInfo() {
     implicitTiling,
     resourceResolver
   );
+  if (!defined(subtreeInfo)) {
+    console.log("Could not resolve subtree data");
+    return;
+  }
 
   console.log("Tile availability from indices:");
-  const tileAvailabilityInfo = subtreeInfo.getTileAvailabilityInfo()!;
+  const tileAvailabilityInfo = subtreeInfo!.getTileAvailabilityInfo()!;
   for (let i = 0; i < tileAvailabilityInfo.length; i++) {
     const available = tileAvailabilityInfo.isAvailable(i);
     console.log("  at index " + i + " available :" + available);

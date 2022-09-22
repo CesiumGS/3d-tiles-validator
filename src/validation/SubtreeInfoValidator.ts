@@ -36,14 +36,24 @@ export class SubtreeInfoValidator {
     resourceResolver: ResourceResolver,
     context: ValidationContext
   ): Promise<boolean> {
-    let result = true;
 
-    const subtreeInfo = await SubtreeInfos.create(
+    // Try to create the `SubtreeInfo`. The result may be 
+    // undefined when subtree buffers cannot be resolved.
+    const optionalSubtreeInfo = await SubtreeInfos.create(
       subtree,
       binaryBuffer,
       implicitTiling,
       resourceResolver
     );
+    if (!defined(optionalSubtreeInfo)) {
+      const message = `Could not read subtree data`;
+      const issue = SemanticValidationIssues.SUBTREE_ERROR(path, message);
+      context.addIssue(issue);
+      return false;
+    }
+    const subtreeInfo = optionalSubtreeInfo!;
+
+    let result = true;
 
     // Validate the tileAvailability
     const tileAvailabilityInfo = subtreeInfo.getTileAvailabilityInfo();
@@ -214,7 +224,7 @@ export class SubtreeInfoValidator {
     let result = true;
 
     const coordinates =
-    ImplicitTilings.createSubtreeCoordinatesIterator(implicitTiling);
+      ImplicitTilings.createSubtreeCoordinatesIterator(implicitTiling);
     for (const c of coordinates) {
       const p = c.parent();
       if (defined(p)) {
@@ -269,7 +279,7 @@ export class SubtreeInfoValidator {
     let result = true;
 
     const coordinates =
-    ImplicitTilings.createSubtreeCoordinatesIterator(implicitTiling);
+      ImplicitTilings.createSubtreeCoordinatesIterator(implicitTiling);
     for (const c of coordinates) {
       const index = c.toIndex();
       const contentAvailable = contentAvailabilityInfo.isAvailable(index);

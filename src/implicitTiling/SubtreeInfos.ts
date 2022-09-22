@@ -14,6 +14,13 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 
 /**
  * Methods to create `SubtreeInfo` instances.
+ * 
+ * TODO Some of these methods may throw a `DeveloperError` or
+ * return `undefined` to indicate errors. The error handling
+ * here has to be reviewed, generalized, and cleaned up, in
+ * the context of the question about how the validator will
+ * eventually handle missing resources. When this is decided,
+ * review all call sites of these functions!
  */
 export class SubtreeInfos {
   /**
@@ -28,7 +35,9 @@ export class SubtreeInfos {
    * defines the expected structure of the subtree data
    * @param resourceResolver The `ResourceResolver` that
    * will be used to resolve buffer URIs
-   * @returns A promise with the `SubtreeInfo`
+   * @returns A promise with the `SubtreeInfo`, or with `undefined`
+   * if one of the required external buffers could not be
+   * resolved.
    * @throws A DeveloperError when the subtree JSON could
    * not be parsed, or there was a buffer without a URI
    * and no binary buffer was given
@@ -37,7 +46,7 @@ export class SubtreeInfos {
     input: Buffer,
     implicitTiling: TileImplicitTiling,
     resourceResolver: ResourceResolver
-  ): Promise<SubtreeInfo> {
+  ): Promise<SubtreeInfo | undefined> {
     const headerByteLength = 24;
     const jsonByteLength = input.readBigUint64LE(8);
     const binaryByteLength = input.readBigUint64LE(16);
@@ -88,7 +97,9 @@ export class SubtreeInfos {
    * defines the expected structure of the subtree data
    * @param resourceResolver The `ResourceResolver` that
    * will be used to resolve buffer URIs
-   * @returns A promise with the `SubtreeInfo`
+   * @returns A promise with the `SubtreeInfo`, or with `undefined`
+   * if one of the required external buffers could not be
+   * resolved.
    * @throws A DeveloperError when there was a buffer without
    * a URI and no binary buffer was given
    */
@@ -97,7 +108,7 @@ export class SubtreeInfos {
     binaryBuffer: Buffer | undefined,
     implicitTiling: TileImplicitTiling,
     resourceResolver: ResourceResolver
-  ): Promise<SubtreeInfo> {
+  ): Promise<SubtreeInfo | undefined> {
     // Obtain the buffer data objects: One `Buffer` for
     // each `BufferObject` of the subtree
     const bufferDatas = [];
@@ -113,6 +124,9 @@ export class SubtreeInfos {
       } else {
         //console.log("Obtaining buffer data from " + buffer.uri);
         const bufferData = await resourceResolver.resolve(buffer.uri!);
+        if (!defined(bufferData)) {
+          return undefined;          
+        }
         bufferDatas.push(bufferData);
       }
     }
