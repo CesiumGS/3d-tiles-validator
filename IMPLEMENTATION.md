@@ -70,6 +70,17 @@ The `ValidationIssue` class and its types:
 - Check that metadata values fall within the class's min/max
 - Declarative styling validation
 
+### Resource Handling
+
+- Should absolute URIs be resolved?
+- When a resource could not be resolved, should that be an error or a warning?
+  - Should that depend on the resource type? (E.g. Warnings for missing tile content, but Errors for missing subtree buffers?)
+
+For a purely file-based validation, it should make sense to treat missing resources as ERRORs. 
+
+Further details should be configurable via validation options.
+
+
 ### Validation Options
 
 There are certain settings that one could imagine for the validation process. It should be possible to configure the validator accordingly. One also could consider an option to ignore certain issues, like `validator.ignore("/ ** /content/uri", PROPERTY_MISSING)`. But it would be necessary to check these 'ignored issues' literally _everywhere_. It would probably make more sense to offer a `filter` operation on the `ValidationResult`. 
