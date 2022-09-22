@@ -275,6 +275,16 @@ export class SemanticValidationIssues {
     return issue;
   }
 
+  static SUBTREE_ERROR(
+    path: string,
+    message: string,
+  ) {
+    const type = "SUBTREE_ERROR";
+    const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
   static SUBTREE_BUFFERS_INCONSISTENT(
     path: string,
     message: string,
