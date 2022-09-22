@@ -30,7 +30,7 @@ export class TilesetTraverser {
     tileset: Tileset,
     resourceResolver: ResourceResolver,
     traversalCallback: TraversalCallback,
-    depthFirst: boolean = false
+    depthFirst: false
   ): Promise<void> {
     const root = tileset.root;
     if (!defined(root)) {

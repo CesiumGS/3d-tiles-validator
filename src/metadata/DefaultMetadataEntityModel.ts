@@ -26,7 +26,7 @@ export class DefaultMetadataEntityModel implements MetadataEntityModel {
         `Schema class does not have property ${propertyId}`
       );
     }
-    let value = this._json[propertyId];
+    const value = this._json[propertyId];
     return MetadataValues.processValue(property, value);
   }
 }

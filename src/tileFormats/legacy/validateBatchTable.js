@@ -1,8 +1,8 @@
+/* eslint-disable */
 // Mostly taken from https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3
 'use strict';
 
 const utility = require('./utility');
-
 const defined = require("./defined.js");
 
 const componentTypeToByteLength = utility.componentTypeToByteLength;

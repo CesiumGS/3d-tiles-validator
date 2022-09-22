@@ -1,3 +1,4 @@
+//eslint-disable-next-line
 const yargs = require("yargs/yargs");
 
 import { ValidatorMain } from "./ValidatorMain";

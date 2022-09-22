@@ -117,8 +117,8 @@ async function runDemos() {
   testSubstituteQuadtree();
   testSubstituteOctree();
   await testSubtreeInfo();
-  let tilesetFile = "specs/data/Tilesets/SparseImplicitQuadtree/tileset.json";
-  //tilesetFile = "C:/Develop/CesiumGS/3d-tiles-samples/1.1/SparseImplicitOctree/tileset.json";
+  const tilesetFile = "specs/data/Tilesets/SparseImplicitQuadtree/tileset.json";
+  //const tilesetFile = "C:/Develop/CesiumGS/3d-tiles-samples/1.1/SparseImplicitOctree/tileset.json";
   await tilesetTraversalDemo(tilesetFile);
 }
 

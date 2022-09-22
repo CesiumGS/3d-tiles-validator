@@ -66,7 +66,7 @@ export class MetadataValueValidator {
         }
       } else {
         // For STRING array types, the value MUST be a string array
-        let expectedLength = count;
+        const expectedLength = count;
         if (
           !BasicValidator.validateArray(
             path,
@@ -149,7 +149,7 @@ export class MetadataValueValidator {
         }
       } else {
         // For BOOLEAN array types, the value MUST be a boolean array
-        let expectedLength = count;
+        const expectedLength = count;
         if (
           !BasicValidator.validateArray(
             path,

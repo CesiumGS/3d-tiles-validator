@@ -94,7 +94,7 @@ export class TileContentValidator {
       return true;
     }
     const tileBoundingVolume = tile.boundingVolume;
-    let outerTransform = tile.transform;
+    const outerTransform = tile.transform;
     const innerTransform = undefined;
     const errorMessage = BoundingVolumeChecks.checkBoundingVolume(
       contentBoundingVolume!,

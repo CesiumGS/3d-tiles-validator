@@ -1,3 +1,4 @@
+/* eslint-disable */
 // From https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3
 // (Some parts of that state have been omitted here)
 

@@ -139,7 +139,7 @@ export class SubtreeInfos {
 
     // Create the `AvailabilityInfo` objects, one for
     // each content availability
-    let contentAvailabilityInfos = [];
+    const contentAvailabilityInfos = [];
     const contentAvailabilities = subtree.contentAvailability;
     if (defined(contentAvailabilities)) {
       for (const contentAvailability of contentAvailabilities!) {

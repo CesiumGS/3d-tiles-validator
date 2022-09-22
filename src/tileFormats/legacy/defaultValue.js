@@ -1,6 +1,7 @@
+/* eslint-disable */
 // From https://github.com/CesiumGS/wetzel
 "use strict";
-var defined = require("./defined");
+const defined = require("./defined");
 
 module.exports = defaultValue;
 

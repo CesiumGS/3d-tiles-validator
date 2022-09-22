@@ -62,7 +62,7 @@ export class OctreeCoordinates implements TreeCoordinates {
 
   descendants(
     maxLevelInclusive: number,
-    depthFirst: boolean = false
+    depthFirst: false
   ): IterableIterator<OctreeCoordinates> {
     const queue: OctreeCoordinates[] = [this];
     const result = {

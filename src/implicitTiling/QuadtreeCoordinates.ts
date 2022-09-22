@@ -50,7 +50,7 @@ export class QuadtreeCoordinates implements TreeCoordinates {
 
   descendants(
     maxLevelInclusive: number,
-    depthFirst: boolean = false
+    depthFirst = false
   ): IterableIterator<QuadtreeCoordinates> {
     const queue: QuadtreeCoordinates[] = [this];
     const result = {

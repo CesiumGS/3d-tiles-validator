@@ -3,7 +3,11 @@ import fs from "fs";
 import { defined } from "../base/defined";
 
 import Ajv2020 from "ajv/dist/2020";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const addFormats = require("ajv-formats-draft2019");
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const ajvErrors = require("ajv-errors");
 import { ErrorObject } from "ajv";
 

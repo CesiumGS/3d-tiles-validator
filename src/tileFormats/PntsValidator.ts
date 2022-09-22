@@ -19,7 +19,10 @@ import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { BinaryValidationIssues } from "../issues/BinaryValidationIssues";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const validateFeatureTable = require("./legacy/validateFeatureTable.js");
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const validateBatchTable = require("./legacy/validateBatchTable.js");
 
 const featureTableSemantics = {
