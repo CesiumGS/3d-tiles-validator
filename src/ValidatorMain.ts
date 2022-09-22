@@ -5,7 +5,7 @@ import { Validators } from "./validation/Validators";
 
 import { TileImplicitTiling } from "./structure/TileImplicitTiling";
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
-import { Schema } from "ajv";
+import { Schema } from "./structure/Metadata/Schema";
 
 /**
  * A class summarizing the command-line functions of the validator.

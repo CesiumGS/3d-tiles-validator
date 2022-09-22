@@ -1,5 +1,5 @@
-import { Schema } from "./structure/Metadata/Schema";
-import { Group } from "./structure/Group";
+import { Schema } from "../structure/Metadata/Schema";
+import { Group } from "../structure/Group";
 
 /**
  * Preliminary:
