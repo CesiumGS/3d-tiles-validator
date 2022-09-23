@@ -45,7 +45,12 @@ export class ValidationResult {
   }
 
   private count(severity: string): number {
-    return this._issues.filter((i) => i.severity === severity).length;
+    return this._issues.reduce((accumulator, element) => {
+      if (element.severity === severity) {
+        return accumulator + 1;
+      }
+      return accumulator;
+    }, 0);
   }
 
   toJson(): any {
