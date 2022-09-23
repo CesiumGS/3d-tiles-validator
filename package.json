@@ -15,11 +15,13 @@
     "ajv-formats-draft2019": "^1.6.1",
     "cesium": "^1.97.0",
     "gltf-validator": "^2.0.0-dev.3.9",
+    "minimatch": "^5.1.0",
     "yargs": "^17.5.1"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",
     "@types/jasmine": "^4.0.3",
+    "@types/minimatch": "^5.1.2",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.38.0",
     "eslint": "^8.23.1",

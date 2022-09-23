@@ -6,6 +6,8 @@ import { Validators } from "./validation/Validators";
 import { TileImplicitTiling } from "./structure/TileImplicitTiling";
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
 import { Schema } from "./structure/Metadata/Schema";
+import { filterIterable } from "./base/filterIterable";
+import { globMatcher } from "./base/globMatcher";
 
 /**
  * A class summarizing the command-line functions of the validator.
@@ -23,6 +25,22 @@ export class ValidatorMain {
     const validationResult = await Validators.validateTilesetFile(fileName);
     console.log("Validation result:");
     console.log(validationResult.serialize());
+  }
+
+  static async validateTilesetsDirectory(
+    directoryName: string,
+    globPattern: string
+  ): Promise<void> {
+    console.log(
+      "Validating tilesets from " + directoryName + " matching " + globPattern
+    );
+    const allFiles = createFilesIterable(directoryName);
+    const ignoreCase = true;
+    const matcher = globMatcher(globPattern, ignoreCase);
+    const tilesetFiles = filterIterable(allFiles, matcher);
+    for (const tilesetFile of tilesetFiles) {
+      await ValidatorMain.validateTilesetFile(tilesetFile);
+    }
   }
 
   static async validateSchemaFile(fileName: string): Promise<void> {

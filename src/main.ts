@@ -1,6 +1,7 @@
 //eslint-disable-next-line
 const yargs = require("yargs/yargs");
 
+import { defaultValue } from "cesium";
 import { ValidatorMain } from "./ValidatorMain";
 
 /*/
@@ -20,6 +21,17 @@ const args = yargs(process.argv.slice(1))
       type: "string",
       alias: "t",
       describe: "The tileset input file path",
+    },
+    tilesetsDirectory: {
+      type: "string",
+      alias: "T",
+      describe: "The tileset input directory. ",
+    },
+    tilesetGlobPattern: {
+      type: "string",
+      alias: "g",
+      default: "**/*tileset*.json",
+      describe: "The glob pattern for matching tileset input files from directories"
     },
     metadataSchemaFile: {
       type: "string",
@@ -49,6 +61,8 @@ const argv = args.argv;
 
 if (argv.tilesetFile) {
   ValidatorMain.validateTilesetFile(argv.tilesetFile);
+} else if (argv.tilesetsDirectory) {
+  ValidatorMain.validateTilesetsDirectory(argv.tilesetsDirectory, argv.tilesetGlobPattern);
 } else if (argv.metadataSchemaFile) {
   ValidatorMain.validateSchemaFile(argv.metadataSchemaFile);
 } else if (argv.subtreeFile) {
