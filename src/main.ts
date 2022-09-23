@@ -24,13 +24,17 @@ const args = yargs(process.argv.slice(1))
     tilesetsDirectory: {
       type: "string",
       alias: "T",
-      describe: "The tileset input directory. ",
+      describe:
+        "The tileset input directory. This will validate all files " +
+        "in the given directory and its subdirectories that match " +
+        "the tilesetGlobPattern",
     },
     tilesetGlobPattern: {
       type: "string",
       alias: "g",
       default: "**/*tileset*.json",
-      describe: "The glob pattern for matching tileset input files from directories"
+      describe:
+        "The glob pattern for matching tileset input files from directories",
     },
     metadataSchemaFile: {
       type: "string",
@@ -61,7 +65,10 @@ const argv = args.argv;
 if (argv.tilesetFile) {
   ValidatorMain.validateTilesetFile(argv.tilesetFile);
 } else if (argv.tilesetsDirectory) {
-  ValidatorMain.validateTilesetsDirectory(argv.tilesetsDirectory, argv.tilesetGlobPattern);
+  ValidatorMain.validateTilesetsDirectory(
+    argv.tilesetsDirectory,
+    argv.tilesetGlobPattern
+  );
 } else if (argv.metadataSchemaFile) {
   ValidatorMain.validateSchemaFile(argv.metadataSchemaFile);
 } else if (argv.subtreeFile) {
