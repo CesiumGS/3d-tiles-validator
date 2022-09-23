@@ -1,7 +1,6 @@
 //eslint-disable-next-line
 const yargs = require("yargs/yargs");
 
-import { defaultValue } from "cesium";
 import { ValidatorMain } from "./ValidatorMain";
 
 /*/
