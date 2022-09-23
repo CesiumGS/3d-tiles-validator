@@ -20,7 +20,8 @@ export function* createFilesIterable(
 ): IterableIterator<string> {
   const fileNames = fs.readdirSync(directory);
   for (const fileName of fileNames) {
-    const fullPath = path.join(directory.toString(), fileName);
+    const rawPath = path.join(directory.toString(), fileName);
+    const fullPath = rawPath.replace(/\\/g, "/");
     const isDirectory = fs.statSync(fullPath).isDirectory();
     if (isDirectory && recurse) {
       yield* createFilesIterable(fullPath, recurse);
