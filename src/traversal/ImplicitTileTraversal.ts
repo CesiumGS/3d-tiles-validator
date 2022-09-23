@@ -33,7 +33,7 @@ export class ImplicitTileTraversal {
         rootCoordinates
       );
       if (!defined(subtreeInfo)) {
-        console.error("Could not resolve subtree data");
+        console.log(`Could not resolve subtree data for template URI ${implicitTiling.subtrees.uri}`);
         return [];
       }
       // TODO Assuming certain toString here:
@@ -60,7 +60,7 @@ export class ImplicitTileTraversal {
         rootCoordinates
       );
       if (!defined(subtreeInfo)) {
-        console.error("Could not resolve subtree data");
+        console.log(`Could not resolve subtree data for template URI ${implicitTiling.subtrees.uri}`);
         return [];
       }
       // TODO Assuming certain toString here:
