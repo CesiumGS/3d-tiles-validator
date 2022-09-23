@@ -9,9 +9,9 @@ import { BinaryValidationIssues } from "../issues/BinaryValidationIssues";
 export class BinaryValidator {
   /**
    * Validates that the actual length is at least the minimum length.
-   * 
+   *
    * This is mainly used for early sanity checks, to make sure
-   * that a buffer contains at least enough data for the 
+   * that a buffer contains at least enough data for the
    * expected header.
    *
    * If the length is valid, then `true` is returned.

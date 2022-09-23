@@ -17,7 +17,7 @@ export class Quadtrees {
 
   /**
    * Returns a generator over all coordinates in the given level.
-   * 
+   *
    * @param level The level
    * @returns The coordinates
    */
@@ -34,11 +34,11 @@ export class Quadtrees {
    * Returns whether the given coordinates are valid. This means
    * that the x and y components are in the range that is
    * determined by the level of the coordinates.
-   * 
+   *
    * @param c The coordinates
    * @returns Whether the coordinates are valid
    */
-   static isValid(c: QuadtreeCoordinates) {
+  static isValid(c: QuadtreeCoordinates) {
     const level = c.level;
     const x = c.x;
     const y = c.y;

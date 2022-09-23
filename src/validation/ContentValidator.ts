@@ -135,7 +135,7 @@ export class ContentValidator {
 
     // Validate the metadata
     const metadata = content.metadata;
-    const metadataPath = contentPath + "/metadata";
+    //const metadataPath = contentPath + "/metadata";
     if (defined(metadata)) {
       // TODO Validate content metadata!
       console.error("Content metadata is not yet validated");
@@ -146,13 +146,13 @@ export class ContentValidator {
   /**
    * Validate the actual data that is referred to by the URI in the
    * given content.
-   * 
+   *
    * This assumes that the given content has already been validated
    * to be structurally valid.
-   * 
+   *
    * It will resolve the actual content data, and pass it to
    * `validateContentDataInternal`.
-   * 
+   *
    * @param contentPath The path for the `ValidationIssue` instances
    * @param content The `Content` object
    * @param context The `ValidationContext`
@@ -162,7 +162,7 @@ export class ContentValidator {
     contentPath: string,
     content: Content,
     context: ValidationContext
-  ) : Promise<void> {
+  ): Promise<void> {
     // Validate the uri
     const uri = content.uri;
     // TODO: Assuming that absolute URIs should not be checked

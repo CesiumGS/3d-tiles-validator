@@ -44,7 +44,7 @@ export class ValidationResult {
     return this._issues[index];
   }
 
-  private count(severity: string) : number {
+  private count(severity: string): number {
     return this._issues.filter((i) => i.severity === severity).length;
   }
 

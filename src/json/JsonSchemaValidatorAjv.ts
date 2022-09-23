@@ -21,7 +21,7 @@ export class JsonSchemaValidatorAjv implements Validator<any> {
   private _ajv: Ajv2020;
   private _schemaIdentifier: string;
 
-  constructor(schemaIdentifier : string) {
+  constructor(schemaIdentifier: string) {
     this._ajv = new Ajv2020({
       strictTypes: false,
       allErrors: true,
@@ -58,10 +58,7 @@ export class JsonSchemaValidatorAjv implements Validator<any> {
     return issue;
   }
 
-  async validateObject(
-    input: any,
-    context: ValidationContext
-  ): Promise<void> {
+  async validateObject(input: any, context: ValidationContext): Promise<void> {
     const validate = this._ajv.getSchema(this._schemaIdentifier);
     if (validate) {
       const valid = validate(input);
@@ -69,7 +66,10 @@ export class JsonSchemaValidatorAjv implements Validator<any> {
         const errors = validate.errors ? validate.errors : [];
         //console.log(errors);
         for (const error of errors) {
-          const issue = this.createIssueFromAjvError(this._schemaIdentifier, error);
+          const issue = this.createIssueFromAjvError(
+            this._schemaIdentifier,
+            error
+          );
           context.addIssue(issue);
         }
       }

@@ -6,7 +6,6 @@ import { ValidationIssueSeverity } from "../validation/ValidationIssueSeverity";
  * generic, structural errors.
  */
 export class StructureValidationIssues {
-
   /**
    * Indicates that a certain identifier was not found as
    * a key in a dictionary.
@@ -15,7 +14,7 @@ export class StructureValidationIssues {
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
-   static IDENTIFIER_NOT_FOUND(path: string, message: string) {
+  static IDENTIFIER_NOT_FOUND(path: string, message: string) {
     const type = "IDENTIFIER_NOT_FOUND";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
@@ -30,11 +29,10 @@ export class StructureValidationIssues {
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
-   static REQUIRED_VALUE_NOT_FOUND(path: string, message: string) {
+  static REQUIRED_VALUE_NOT_FOUND(path: string, message: string) {
     const type = "REQUIRED_VALUE_NOT_FOUND";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-
 }

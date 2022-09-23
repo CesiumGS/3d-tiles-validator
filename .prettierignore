@@ -1,0 +1,9 @@
+*
+!src/**/
+!specs/**/
+!**/*.js
+!**/*.ts
+!**/*.json
+specs/data/**/
+tsconfig.json
+.prettierrc.json

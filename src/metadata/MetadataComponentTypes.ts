@@ -1,7 +1,7 @@
 import { defined } from "../base/defined";
 
 /**
- * Internal utilities related to the `componentType` of the 
+ * Internal utilities related to the `componentType` of the
  * `ClassProperty` instances of `MetadataClass` objects
  *
  * @private

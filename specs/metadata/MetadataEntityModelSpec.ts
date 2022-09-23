@@ -17,6 +17,7 @@ const equalsEpsilon = function (
     absDiff <= relativeEpsilon * Math.max(Math.abs(left), Math.abs(right))
   );
 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const arraysEqualsEpsilon = function (a: any, b: any, epsilon: number) {
   if (Array.isArray(a) && Array.isArray(b)) {
     if (a.length !== b.length) {
@@ -46,7 +47,7 @@ describe("metadata/MetadataEntityModel", function () {
         testSchemaClass,
         entityJson
       );
-      const value = entity.getPropertyValue("testProperty");
+      entity.getPropertyValue("testProperty");
     }).toThrow();
   });
 
@@ -229,5 +230,4 @@ describe("metadata/MetadataEntityModel", function () {
     const epsilon = 0.000001;
     expect(arraysEqualsEpsilon(value, expected, epsilon)).toBeTrue();
   });
-
 });

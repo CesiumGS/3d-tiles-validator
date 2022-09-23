@@ -1,4 +1,3 @@
-
 import { ResourceTypes } from "../src/io/ResourceTypes";
 
 describe("ResourceTypes", function () {

@@ -1,10 +1,8 @@
-
 /**
- * An enumeration of different severity levels for a 
+ * An enumeration of different severity levels for a
  * `ValidationIssue`
  */
 export enum ValidationIssueSeverity {
-
   /**
    * An error, indicating that the validation failed
    */
@@ -12,7 +10,7 @@ export enum ValidationIssueSeverity {
 
   /**
    * A warning, indicating that validation passed, but
-   * the input might cause unexpected or undesired 
+   * the input might cause unexpected or undesired
    * behavior in clients.
    */
   WARNING = "WARNING",

@@ -275,45 +275,31 @@ export class SemanticValidationIssues {
     return issue;
   }
 
-  static SUBTREE_ERROR(
-    path: string,
-    message: string,
-  ) {
+  static SUBTREE_ERROR(path: string, message: string) {
     const type = "SUBTREE_ERROR";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
 
-  static SUBTREE_BUFFERS_INCONSISTENT(
-    path: string,
-    message: string,
-  ) {
+  static SUBTREE_BUFFERS_INCONSISTENT(path: string, message: string) {
     const type = "SUBTREE_BUFFERS_INCONSISTENT";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
 
-  static SUBTREE_AVAILABILITY_INCONSISTENT(
-    path: string,
-    message: string,
-  ) {
+  static SUBTREE_AVAILABILITY_INCONSISTENT(path: string, message: string) {
     const type = "SUBTREE_AVAILABILITY_INCONSISTENT";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
 
-  static TRANSFORM_INVALID(
-    path: string,
-    message: string,
-  ) {
+  static TRANSFORM_INVALID(path: string, message: string) {
     const type = "TRANSFORM_INVALID";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-
-
 }

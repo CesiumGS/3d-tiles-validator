@@ -14,7 +14,7 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 
 /**
  * Methods to create `SubtreeInfo` instances.
- * 
+ *
  * TODO Some of these methods may throw a `DeveloperError` or
  * return `undefined` to indicate errors. The error handling
  * here has to be reviewed, generalized, and cleaned up, in
@@ -125,7 +125,7 @@ export class SubtreeInfos {
         //console.log("Obtaining buffer data from " + buffer.uri);
         const bufferData = await resourceResolver.resolve(buffer.uri!);
         if (!defined(bufferData)) {
-          return undefined;          
+          return undefined;
         }
         bufferDatas.push(bufferData);
       }

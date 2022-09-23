@@ -231,8 +231,7 @@ export class JsonValidationIssues {
    */
   static ONE_OF_ERROR(path: string, name: string, ...properties: string[]) {
     const options = ValidationIssueUtils.joinNames("or", ...properties);
-    const message =
-      `The '${name}' may define ${options}, but not all of them`;
+    const message = `The '${name}' may define ${options}, but not all of them`;
     return JsonValidationIssues._ONE_OF_ERROR(path, message);
   }
 

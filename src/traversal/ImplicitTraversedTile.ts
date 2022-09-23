@@ -10,10 +10,7 @@ import { SubtreeInfo } from "../implicitTiling/SubtreeInfo";
 
 import { Tile } from "../structure/Tile";
 import { Content } from "../structure/Content";
-import { MetadataEntity } from "../structure/MetadataEntity";
-import { BoundingVolume } from "../structure/BoundingVolume";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
-
 
 export class ImplicitTraversedTile implements TraversedTile {
   private readonly _implicitTiling: TileImplicitTiling;

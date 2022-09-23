@@ -18,22 +18,22 @@ import { SchemaEnumValidator } from "./SchemaEnumValidator";
 export class SchemaValidator implements Validator<Schema> {
   /**
    * Preliminary:
-   * 
+   *
    * An optional validator that will be applied to the `Schema`
    * object, after it has been parsed from the JSON, but before
    * any further validation takes place.
    */
-   private _genericValidator: Validator<any> | undefined;
+  private _genericValidator: Validator<any> | undefined;
 
   /**
    * Creates a new instance.
-   * 
-   * Preliminary: 
-   * 
+   *
+   * Preliminary:
+   *
    * The given validator will be applied to the `Schema`
    * object, after it has been parsed from the JSON, but before
    * any further validation takes place.
-   * 
+   *
    * @param genericValidator The optional generic validator
    */
   constructor(genericValidator: Validator<any> | undefined) {

@@ -55,7 +55,7 @@ if (argv.tilesetFile) {
   ValidatorMain.validateSubtreeSpecFile(argv.subtreeFile);
 } else if (argv.tilesetSpecs) {
   ValidatorMain.validateAllTilesetSpecFiles();
-} else  if (argv.metadataSchemaSpecs) {
+} else if (argv.metadataSchemaSpecs) {
   ValidatorMain.validateAllMetadataSchemaSpecFiles();
 } else if (argv.subtreeSpecs) {
   ValidatorMain.validateAllSubtreeSpecFiles();

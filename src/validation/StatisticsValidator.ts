@@ -33,16 +33,11 @@ export class StatisticsValidator {
   ): boolean {
     // Make sure that the given value is an object
     if (
-      !BasicValidator.validateObject(
-        path,
-        "statistics",
-        statistics,
-        context
-      )
+      !BasicValidator.validateObject(path, "statistics", statistics, context)
     ) {
       return false;
     }
-    
+
     let result = true;
 
     // Validate the classes
@@ -56,14 +51,16 @@ export class StatisticsValidator {
         result = false;
       } else {
         // The classes MUST have at least 1 property
-        if (!BasicValidator.validateNumberOfProperties(
-          classesPath,
-          "classes",
-          classes,
-          1,
-          undefined,
-          context
-        )) {
+        if (
+          !BasicValidator.validateNumberOfProperties(
+            classesPath,
+            "classes",
+            classes,
+            1,
+            undefined,
+            context
+          )
+        ) {
           result = false;
         }
 
@@ -81,12 +78,14 @@ export class StatisticsValidator {
           // Validate all entries of the classes dictionary
           for (const className of Object.keys(classes)) {
             const statisticsClass = classes[className];
-            if (!StatisticsClassValidator.validateStatisticsClass(
-              statisticsClass,
-              className,
-              validationState.validatedSchema!,
-              context
-            )) {
+            if (
+              !StatisticsClassValidator.validateStatisticsClass(
+                statisticsClass,
+                className,
+                validationState.validatedSchema!,
+                context
+              )
+            ) {
               result = false;
             }
           }

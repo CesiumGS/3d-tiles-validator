@@ -51,7 +51,7 @@ export class QuadtreeCoordinates implements TreeCoordinates {
   descendants(
     maxLevelInclusive: number,
     // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-    depthFirst : boolean = false
+    depthFirst: boolean = false
   ): IterableIterator<QuadtreeCoordinates> {
     const queue: QuadtreeCoordinates[] = [this];
     const result = {

@@ -1,7 +1,7 @@
 import { AvailabilityInfo } from "./AvailabilityInfo";
 
 /**
- * Implementation of an `AvailabilityInfo` that is backed by 
+ * Implementation of an `AvailabilityInfo` that is backed by
  * a Buffer.
  */
 export class BufferAvailabilityInfo implements AvailabilityInfo {
@@ -31,4 +31,3 @@ export class BufferAvailabilityInfo implements AvailabilityInfo {
     return result;
   }
 }
-

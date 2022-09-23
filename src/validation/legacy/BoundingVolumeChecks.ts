@@ -15,18 +15,17 @@ import { BoundingVolume } from "../../structure/BoundingVolume";
  * The checks for bounding volumes from the the original 3d-tiles-validator.
  */
 export class BoundingVolumeChecks {
-
   /**
-   * The only public method: 
-   * 
+   * The only public method:
+   *
    * Checks if the given inner bounding volume is contained in
    * the given outer bounding volume, taking the given transforms
    * into account.
-   * 
+   *
    * If the inner bounding volume is contained in the outer one,
    * then `undefined` is returned.
    * Otherwise, an error message is returned.
-   * 
+   *
    * @param innerBoundingVolume The inner `BoundingVolume`
    * @param outerBoundingVolume The outer `BoundingVolume`
    * @param innerTransformArray The inner transform as an array of 16 elements
@@ -38,8 +37,7 @@ export class BoundingVolumeChecks {
     outerBoundingVolume: BoundingVolume,
     innerTransformArray: number[] | undefined,
     outerTransformArray: number[] | undefined
-  ) : string | undefined {
-
+  ): string | undefined {
     let innerTransform = Matrix4.IDENTITY;
     if (defined(innerTransformArray)) {
       innerTransform = Matrix4.fromArray(innerTransformArray!);

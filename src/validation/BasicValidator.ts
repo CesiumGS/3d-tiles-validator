@@ -35,7 +35,7 @@ export class BasicValidator {
     name: string,
     value: string,
     context: ValidationContext
-  ) : boolean {
+  ): boolean {
     const idRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
     if (!idRegex.test(value)) {
       const issue = JsonValidationIssues.STRING_PATTERN_MISMATCH(
@@ -633,7 +633,7 @@ export class BasicValidator {
     minProperties: number | undefined,
     maxProperties: number | undefined,
     context: ValidationContext
-  ) : boolean {
+  ): boolean {
     if (!this.validateObject(path, name, value, context)) {
       return false;
     }

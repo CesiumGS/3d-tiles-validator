@@ -29,7 +29,7 @@ export class AvailabilityInfos {
     implicitTiling: TileImplicitTiling
   ): AvailabilityInfo {
     const length =
-    ImplicitTilings.computeNumberOfNodesPerSubtree(implicitTiling);
+      ImplicitTilings.computeNumberOfNodesPerSubtree(implicitTiling);
     const constant = availability.constant;
     if (defined(constant)) {
       const available = constant === 1;

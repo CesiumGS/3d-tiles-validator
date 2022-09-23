@@ -9,9 +9,9 @@ import { BoundingVolume } from "../../structure/BoundingVolume";
 
 /**
  * Methods to derive bounding volumes of implicit tiles.
- * 
- * Largely ported from CesiumJS Implicit3DTileContent.js 
- * 
+ *
+ * Largely ported from CesiumJS Implicit3DTileContent.js
+ *
  * @private
  */
 export class BoundingVolumeDerivation {
