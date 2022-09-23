@@ -100,20 +100,19 @@ export class ContentValidationIssues {
 
   /**
    * Indicates that the JSON part of a tile content was invalid.
-   * This may refer to not being able to parse the JSON data 
+   * This may refer to not being able to parse the JSON data
    * from a binary blob, or that the validation of the JSON
-   * structure itself (using the legacy validation) caused an 
-   * error. 
+   * structure itself (using the legacy validation) caused an
+   * error.
    *
    * @param path The JSON path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
-   static CONTENT_JSON_INVALID(path: string, message: string) {
+  static CONTENT_JSON_INVALID(path: string, message: string) {
     const type = "CONTENT_JSON_INVALID";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-
 }

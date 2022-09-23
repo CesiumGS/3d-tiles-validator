@@ -31,7 +31,7 @@ export class TilesetTraverser {
     resourceResolver: ResourceResolver,
     traversalCallback: TraversalCallback,
     // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-    depthFirst : boolean = false
+    depthFirst: boolean = false
   ): Promise<void> {
     const root = tileset.root;
     if (!defined(root)) {

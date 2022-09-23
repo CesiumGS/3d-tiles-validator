@@ -4,7 +4,6 @@ import { TemplateUriValidator } from "./TemplateUriValidator";
 
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 
-
 /**
  * A class for validations related to `implicitTiling` objects.
  *

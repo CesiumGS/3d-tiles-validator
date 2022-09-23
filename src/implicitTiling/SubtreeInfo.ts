@@ -2,7 +2,7 @@ import { AvailabilityInfo } from "./AvailabilityInfo";
 
 /**
  * Summarizes the information about a subtree.
- * 
+ *
  * It offers the availability information for tiles, child
  * subtrees, and contents, as `AvailabilityInfo` objects.
  */

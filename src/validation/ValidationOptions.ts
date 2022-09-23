@@ -1,7 +1,7 @@
 /**
  * A class describing the options for a validator within
  * a `ValidationContext`
- * 
+ *
  * TODO This is preliminary. The exact options will have to
  * be sorted out as we go. For example, there could be flags
  * - validateExternalResources
@@ -15,18 +15,17 @@
  * these, and boil down to `options.shouldValidate(uri)`.
  */
 export class ValidationOptions {
-
-  private _validateContentData : boolean;
+  private _validateContentData: boolean;
 
   constructor() {
     this._validateContentData = true;
   }
 
-  get validateContentData() : boolean {
+  get validateContentData(): boolean {
     return this._validateContentData;
   }
 
-  set validateContentData(value : boolean) {
+  set validateContentData(value: boolean) {
     this._validateContentData = value;
   }
 }

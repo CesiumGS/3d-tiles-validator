@@ -6,7 +6,6 @@ import { defined } from "../base/defined";
  * @private
  */
 export class ValidationIssueUtils {
-
   /**
    * Creates a short string with a verbal description of the
    * given range. This requires at least one of the given
@@ -16,7 +15,7 @@ export class ValidationIssueUtils {
    * @param max The maximum
    * @returns The description
    */
-   static describeRange(
+  static describeRange(
     min: number | undefined,
     max: number | undefined
   ): string {
@@ -38,9 +37,9 @@ export class ValidationIssueUtils {
   /**
    * Joins the given strings, enclosed in single quotes,
    * using commas and the given conjunction ("and" or "or").
-   * 
+   *
    * Examples:
-   * 
+   *
    * undefined : undefined
    * [] : ""
    * ["a"] : "'a'"

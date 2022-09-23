@@ -29,6 +29,7 @@ export class FileResourceResolver implements ResourceResolver {
     // does not work, that would be great.
     //return fs.readFileSync(resolved);
     //*/
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return new Promise((resolve, reject) => {
       fs.readFile(resolved, (err: any, data: Buffer) => {
         if (err) {

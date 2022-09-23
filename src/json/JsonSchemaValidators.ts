@@ -3,7 +3,6 @@ import path from "path";
 import { JsonSchemaValidatorAjv } from "./JsonSchemaValidatorAjv";
 
 export class JsonSchemaValidators {
-
   // prettier-ignore
   static create3DTiles(schemaRootDir : string, schemaIdentifier: string) {
 
@@ -82,5 +81,4 @@ export class JsonSchemaValidators {
 
     return v;
   }
-
 }

@@ -106,8 +106,10 @@ async function tilesetTraversalDemo(filePath: string) {
     tileset,
     resourceResolver,
     async (traversedTile) => {
-      const contentUris = traversedTile.getContents().map(c => c.uri);
-      console.log(`  Traversed tile: ${traversedTile} with contents [${contentUris}]`);
+      const contentUris = traversedTile.getContents().map((c) => c.uri);
+      console.log(
+        `  Traversed tile: ${traversedTile} with contents [${contentUris}]`
+      );
       return Promise.resolve(true);
     },
     depthFirst

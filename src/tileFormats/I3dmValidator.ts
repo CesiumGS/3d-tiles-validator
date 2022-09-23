@@ -136,10 +136,7 @@ export class I3dmValidator implements Validator<Buffer> {
       const message =
         `The input must have at least ${headerByteLength} bytes, ` +
         `but only has ${input.length} bytes`;
-      const issue = BinaryValidationIssues.BINARY_INVALID(
-        this._uri,
-        message
-      );
+      const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
       context.addIssue(issue);
       return;
     }

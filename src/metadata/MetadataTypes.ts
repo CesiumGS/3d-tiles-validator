@@ -1,10 +1,10 @@
 /**
- * Internal utilities related to the `type` of the 
+ * Internal utilities related to the `type` of the
  * `ClassProperty` instances of `MetadataClass` objects
  *
  * @private
  */
- export class MetadataTypes {
+export class MetadataTypes {
   /**
    * The valid values for the `class.property.type` property
    */

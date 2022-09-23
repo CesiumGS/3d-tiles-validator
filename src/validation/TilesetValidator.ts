@@ -25,7 +25,7 @@ import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 export class TilesetValidator implements Validator<Tileset> {
   /**
    * Preliminary:
-   * 
+   *
    * An optional validator that will be applied to the `Tileset`
    * object, after it has been parsed from the JSON, but before
    * any further validation takes place.
@@ -34,16 +34,16 @@ export class TilesetValidator implements Validator<Tileset> {
 
   /**
    * Creates a new instance.
-   * 
-   * Preliminary: 
-   * 
+   *
+   * Preliminary:
+   *
    * The given validator will be applied to the `Tileset`
    * object, after it has been parsed from the JSON, but before
    * any further validation takes place.
-   * 
+   *
    * @param genericValidator The optional generic validator
    */
-   constructor(genericValidator: Validator<any> | undefined) {
+  constructor(genericValidator: Validator<any> | undefined) {
     this._genericValidator = genericValidator;
   }
 

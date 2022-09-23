@@ -36,8 +36,7 @@ export class SubtreeInfoValidator {
     resourceResolver: ResourceResolver,
     context: ValidationContext
   ): Promise<boolean> {
-
-    // Try to create the `SubtreeInfo`. The result may be 
+    // Try to create the `SubtreeInfo`. The result may be
     // undefined when subtree buffers cannot be resolved.
     const optionalSubtreeInfo = await SubtreeInfos.create(
       subtree,

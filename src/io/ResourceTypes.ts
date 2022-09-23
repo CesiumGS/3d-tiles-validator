@@ -17,7 +17,7 @@ export class ResourceTypes {
     const actual = buffer.toString("utf8", 0, magic.length);
     return actual === magic;
   }
-  
+
   static isB3dm(buffer: Buffer): boolean {
     return this.startsWith(buffer, "b3dm");
   }

@@ -5,7 +5,7 @@ import { defined } from "../base/defined";
 /**
  * Morton Order (aka Z-Order Curve) helper functions.
  * @see {@link https://en.wikipedia.org/wiki/Z-order_curve}
- * 
+ *
  * @private
  */
 export class MortonOrder {

@@ -9,10 +9,10 @@ import { TreeCoordinates } from "./TreeCoordinates";
  * Utility methods related to `TileImplicitTiling` instances.
  *
  * Preliminary!
- * 
- * These methods might eventually be moved into something 
+ *
+ * These methods might eventually be moved into something
  * like an instantiable `ImplicitTilingInfo` class
- * 
+ *
  * @private
  */
 export class ImplicitTilings {

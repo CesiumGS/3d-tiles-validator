@@ -55,10 +55,7 @@ export class CmptValidator implements Validator<Buffer> {
       const message =
         `The input must have at least ${headerByteLength} bytes, ` +
         `but only has ${input.length} bytes`;
-      const issue = BinaryValidationIssues.BINARY_INVALID(
-        this._uri,
-        message
-      );
+      const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
       context.addIssue(issue);
       return;
     }
@@ -106,19 +103,13 @@ export class CmptValidator implements Validator<Buffer> {
       if (byteOffset + 12 > byteLength) {
         const message =
           "Cannot read byte length from inner tile, exceeds cmpt tile's byte length.";
-        const issue = BinaryValidationIssues.BINARY_INVALID(
-          this._uri,
-          message
-        );
+        const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
         context.addIssue(issue);
         return;
       }
       if (byteOffset % 8 > 0) {
         const message = "Inner tile must be aligned to an 8-byte boundary";
-        const issue = BinaryValidationIssues.BINARY_INVALID(
-          this._uri,
-          message
-        );
+        const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
         context.addIssue(issue);
         return;
       }
@@ -144,10 +135,7 @@ export class CmptValidator implements Validator<Buffer> {
         await innerValidator.validateObject(innerTile, context);
       } else {
         const message = `Invalid inner tile magic: ${innerTileMagic}`;
-        const issue = BinaryValidationIssues.BINARY_INVALID(
-          this._uri,
-          message
-        );
+        const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
         context.addIssue(issue);
         return;
       }

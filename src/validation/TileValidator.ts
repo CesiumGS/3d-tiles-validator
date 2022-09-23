@@ -247,7 +247,7 @@ export class TileValidator {
 
   /**
    * Validate the given tile, which is already determined to be
-   * a tile that is **NOT** the root of an implicit tileset 
+   * a tile that is **NOT** the root of an implicit tileset
    * (i.e. it does **NOT** define `implicitTiling`).
    *
    * @param tilePath The path for the `ValidationIssue`

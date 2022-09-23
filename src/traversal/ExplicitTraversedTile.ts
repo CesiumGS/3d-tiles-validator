@@ -1,8 +1,6 @@
 import { TraversedTile } from "./TraversedTile";
 import { Tile } from "../structure/Tile";
 import { Content } from "../structure/Content";
-import { MetadataEntity } from "../structure/MetadataEntity";
-import { BoundingVolume } from "../structure/BoundingVolume";
 import { defined } from "../base/defined";
 import { ImplicitTileTraversal } from "./ImplicitTileTraversal";
 import { ResourceResolver } from "../io/ResourceResolver";

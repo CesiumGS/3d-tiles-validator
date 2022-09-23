@@ -16,7 +16,7 @@ import { PathLike } from "fs";
 export function* createFilesIterable(
   directory: string | PathLike,
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-  recurse : boolean = true
+  recurse: boolean = true
 ): IterableIterator<string> {
   const fileNames = fs.readdirSync(directory);
   for (const fileName of fileNames) {
@@ -29,4 +29,3 @@ export function* createFilesIterable(
     }
   }
 }
-
