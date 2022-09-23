@@ -2,7 +2,7 @@
   "asset" : {
     "version" : "1.1"
   },
-  "schemaUri": "schemas/schemaIdMissing.json",
+  "schemaUri": "../schemas/schemaIdMissing.json",
   "geometricError" : 2.0,
   "root" : {
     "boundingVolume" : {

@@ -2,7 +2,7 @@
   "asset" : {
     "version" : "1.1"
   },
-  "schemaUri": "schemas/validSchema.json",
+  "schemaUri": "../schemas/validSchema.json",
   "geometricError" : 2.0,
   "root" : {
     "boundingVolume" : {
