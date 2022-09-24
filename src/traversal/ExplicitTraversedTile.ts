@@ -5,11 +5,38 @@ import { defined } from "../base/defined";
 import { ImplicitTileTraversal } from "./ImplicitTileTraversal";
 import { ResourceResolver } from "../io/ResourceResolver";
 
+/**
+ * An implementation of a `TraversedTile` that reflects a tile
+ * that actually appears as a JSON representation in the tileset.
+ */
 export class ExplicitTraversedTile implements TraversedTile {
+
+  /**
+   * The parent tile, or `undefined` if this is the root
+   */
   private readonly _parent: TraversedTile | undefined;
+
+  /**
+   * The `Tile` object that this traversed tile was created for
+   */
   private readonly _tile: Tile;
+
+  /**
+   * A JSON-path like path identifying this tile
+   */
   private readonly _path: string;
+
+  /**
+   * The global level. This is the level starting at the
+   * root of the tileset.
+   */
   private readonly _level: number;
+
+  /**
+   * The `ResourceResolver` that will resolve resources
+   * that may be required if this is the root of an
+   * implicit tileset (e.g. the subtree files). 
+   */
   private readonly _resourceResolver;
 
   constructor(
@@ -27,6 +54,10 @@ export class ExplicitTraversedTile implements TraversedTile {
   }
 
   asTile(): Tile {
+    // TODO: This should not return the internal tile.
+    // It should return a tile where the properties
+    // that may be affected by semantics have already
+    // been substituted.
     return this._tile;
   }
 

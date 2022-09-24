@@ -11,17 +11,70 @@ import { SubtreeInfo } from "../implicitTiling/SubtreeInfo";
 import { Tile } from "../structure/Tile";
 import { Content } from "../structure/Content";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { BoundingVolumeDerivation } from "./cesium/BoundingVolumeDerivation";
+import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
 
+/**
+ * An implementation of a `TraversedTile` that represents a tile
+ * within an implicit tileset during its traversal.
+ */
 export class ImplicitTraversedTile implements TraversedTile {
+  /**
+   * The `TileImplicitTiling` that this tile belongs to
+   */
   private readonly _implicitTiling: TileImplicitTiling;
+
+  /**
+   * The `ResourceResolver` that will be used for loading
+   * subtree files.
+   */
   private readonly _resourceResolver: ResourceResolver;
+
+  /**
+   * The `Tile` object from the tileset JSON that is the
+   * root of the implicit tile hierarchy (i.e. the one
+   * that contained the `TileImplicitTiling` object)
+   */
   private readonly _root: Tile;
+
+  /**
+   * A JSON-path like path identifying this tile
+   */
   private readonly _path: string;
+
+  /**
+   * The `SubtreeInfo` object that will be used for accessing
+   * the availability information for the subtree that this
+   * tile belongs to.
+   */
   private readonly _subtreeInfo: SubtreeInfo;
+
+  /**
+   * The global level of this tile. This refers to the
+   * root of the tileset.
+   */
   private readonly _globalLevel: number;
+
+  /**
+   * The global coordinate of this tile within the implicit tileset.
+   */
   private readonly _globalCoordinate: TreeCoordinates;
+
+  /**
+   * The root coordinate of the subtree that this tile belongs
+   * to, within the whole implicit tileset.
+   */
   private readonly _rootCoordinate: TreeCoordinates;
+
+  /**
+   * The local coordinate of this tile within the subtree that
+   * starts at the `_rootCoordinate`
+   */
   private readonly _localCoordinate: TreeCoordinates;
+
+  /**
+   * The parent tile
+   */
   private readonly _parent: TraversedTile;
 
   constructor(
@@ -49,16 +102,29 @@ export class ImplicitTraversedTile implements TraversedTile {
   }
 
   asTile(): Tile {
-    const boundingVolume = this._root.boundingVolume; // TODO Derive
+    // TODO The bounding volume and geometric error
+    // may be overridden via semantics!
+
+    const boundingVolume = BoundingVolumeDerivation.deriveBoundingVolume(
+      this._root.boundingVolume,
+      this._globalCoordinate.toArray()
+    );
+    if (!defined(boundingVolume)) {
+      // The bounding volume neither contained a region nor a box.
+      // This should have been detected by previous validation.
+      throw new ImplicitTilingError("Could not subdivide bounding volume");
+    }
+    const level = this._globalCoordinate.level;
+    const geometricError = this._root.geometricError / Math.pow(2, level);
+
     const viewerRequestVolume = this._root.viewerRequestVolume;
-    const geometricError = this._root.geometricError; // TODO Derive
     const refine = this._root.refine;
     const transform = undefined;
     const metadata = this._root.metadata; // TODO Look up!
     const contents = this.getContents();
 
     return {
-      boundingVolume: boundingVolume,
+      boundingVolume: boundingVolume!,
       viewerRequestVolume: viewerRequestVolume,
       geometricError: geometricError,
       refine: refine,
@@ -91,15 +157,21 @@ export class ImplicitTraversedTile implements TraversedTile {
             this._rootCoordinate,
             localChildCoordinate
           );
-        const childSubtreeInfo = await ImplicitTileTraversal.resolveSubtreeInfo(
-          this._implicitTiling,
-          this._resourceResolver,
-          globalChildCoordinate
+        const childSubtreeAvailability =
+          this._subtreeInfo.getChildSubtreeAvailabilityInfo();
+        const childSubtreeAvailable = childSubtreeAvailability.isAvailable(
+          localChildCoordinate.toIndexInLevel()
         );
-        const childLocalCoordinate = ImplicitTileTraversal.createRoot(
-          this._implicitTiling
-        );
-        if (defined(childSubtreeInfo)) {
+        if (childSubtreeAvailable) {
+          const childSubtreeInfo =
+            await ImplicitTileTraversal.resolveSubtreeInfo(
+              this._implicitTiling,
+              this._resourceResolver,
+              globalChildCoordinate
+            );
+          const childLocalCoordinate = ImplicitTileTraversal.createRoot(
+            this._implicitTiling
+          );
           // TODO Assuming certain toString here!!!
           const childPath = this._path + `/${globalChildCoordinate}`;
           const child = new ImplicitTraversedTile(

@@ -9,12 +9,14 @@ export interface TraversedTile {
   /**
    * Returns a `Tile` object that contains the "JSON"-representation
    * of the tile. This is just a plain data structure corresponding
-   * the the tile.
+   * the tile.
    *
    * Values that may be overridden (for example, via metadata semantics)
    * are already substituted in the returned object.
    *
    * @returns A `Tile` with information about this traversed tile
+   * @throws ImplicitTilingError If the representation of this traversed
+   * tile could not be created due to invalid input structures. 
    */
   asTile(): Tile;
 
