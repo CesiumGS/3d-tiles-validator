@@ -30,15 +30,7 @@ export class AvailabilityInfos {
   ): AvailabilityInfo {
     const length =
       ImplicitTilings.computeNumberOfNodesPerSubtree(implicitTiling);
-    const constant = availability.constant;
-    if (defined(constant)) {
-      const available = constant === 1;
-      return new ConstantAvailabilityInfo(available, length);
-    }
-    // The bitstream MUST be defined when constant is undefined
-    const bitstream = availability.bitstream!;
-    const bufferViewData = bufferViewDatas[bitstream];
-    return new BufferAvailabilityInfo(bufferViewData, length);
+    return AvailabilityInfos.create(availability, bufferViewDatas, length);
   }
 
   /**
@@ -59,6 +51,23 @@ export class AvailabilityInfos {
       implicitTiling,
       implicitTiling.subtreeLevels
     );
+    return AvailabilityInfos.create(availability, bufferViewDatas, length);
+  }
+
+  /**
+   * Creates a new `AvailabilityInfo` for the given availability
+   * information, for child subtree availability
+   *
+   * @param availability The `Availability` object
+   * @param bufferViewDatas The `BufferView` data chunks
+   * @param length The length of the availability info
+   * @returns The `AvailabilityInfo` object
+   */
+  private static create(
+    availability: Availability,
+    bufferViewDatas: Buffer[],
+    length: number
+  ): AvailabilityInfo {
     const constant = availability.constant;
     if (defined(constant)) {
       const available = constant === 1;
