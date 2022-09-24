@@ -8,7 +8,7 @@ A **draft** implementation of a validator for 3D Tiles 1.1.
 
 #### Validate a single tileset file:
 ```
-npx ts-node src/main.ts --tilesetFile specs/data/Tilesets/TilesetWithFullMetadata/tileset.json
+npx ts-node src/main.ts --tilesetFile specs/data/Samples/TilesetWithFullMetadata/tileset.json
 ```
 
 #### Validate a single metadata schema file:
@@ -36,7 +36,7 @@ npx ts-node src/main.ts --subtreeSpecs
 
 Validation reports are currently printed to the console. Options to write them into files may be added later. For example, validating an tileset from the `specs/data` directory like this:
 ```
-npx ts-node src/main.ts --tilesetFile specs/data/validTilesetWithInvalidB3dm.json
+npx ts-node src/main.ts --tilesetFile specs/data/tilesets/validTilesetWithInvalidB3dm.json
 ```
 may print a validation report like this:
 ```
