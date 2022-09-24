@@ -107,8 +107,11 @@ async function tilesetTraversalDemo(filePath: string) {
     resourceResolver,
     async (traversedTile) => {
       const contentUris = traversedTile.getContents().map((c) => c.uri);
+      const geometricError = traversedTile.asTile().geometricError;
       console.log(
-        `  Traversed tile: ${traversedTile} with contents [${contentUris}]`
+        `  Traversed tile: ${traversedTile}, ` +
+          ` contents [${contentUris}], ` +
+          `geometricError ${geometricError}`
       );
       return Promise.resolve(true);
     },
@@ -124,7 +127,7 @@ async function runDemos() {
   testSubstituteQuadtree();
   testSubstituteOctree();
   await testSubtreeInfo();
-  const tilesetFile = "specs/data/Tilesets/SparseImplicitQuadtree/tileset.json";
+  const tilesetFile = "specs/data/Samples/SparseImplicitQuadtree/tileset.json";
   //const tilesetFile = "C:/Develop/CesiumGS/3d-tiles-samples/1.1/SparseImplicitOctree/tileset.json";
   await tilesetTraversalDemo(tilesetFile);
 }
