@@ -74,6 +74,10 @@ export class QuadtreeCoordinates implements TreeCoordinates {
     return result;
   }
 
+  toArray(): number[] {
+    return [this.level, this.x, this.y];
+  }
+
   toIndex(): number {
     const offset = Quadtrees.computeNumberOfNodesForLevels(this._level);
     return offset + this.toIndexInLevel();

@@ -86,6 +86,10 @@ export class OctreeCoordinates implements TreeCoordinates {
     return result;
   }
 
+  toArray(): number[] {
+    return [this.level, this.x, this.y, this.z];
+  }
+
   toIndex(): number {
     const offset = Octrees.computeNumberOfNodesForLevels(this._level);
     return offset + this.toIndexInLevel();

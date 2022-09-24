@@ -41,11 +41,24 @@ export interface TreeCoordinates {
   /**
    * Preliminary:
    *
+   * Returns these coordinates as an array. This returns the
+   * level, x, and y coordinates (and z for octrees) in one
+   * array.
+   * 
+   * @returns The coordinates as an array
+   */
+  toArray() : number[];
+
+  /**
+   * Preliminary:
+   *
    * Returns the index that corresponds to these coordinates.
    *
    * This returns the (stacked) Morton index. This could be considered
    * as an implementation detail, but is frequently used in implicit
    * tiling, and therefore, part of this interface.
+   * 
+   * @returns The coordinates as an index
    */
   toIndex(): number;
 
@@ -58,6 +71,8 @@ export interface TreeCoordinates {
    * This returns the local Morton index. This could be considered
    * as an implementation detail, but is frequently used in implicit
    * tiling, and therefore, part of this interface.
+   * 
+   * @returns The index of these coordinates within their level
    */
   toIndexInLevel(): number;
 }
