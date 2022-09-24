@@ -456,6 +456,19 @@ export class TileValidator {
     // - The content.uri shall not point to an external tileset
     // TODO This can hardly be validated here...
 
+    // From the specification text of Implicit Tiling: Sphere bounding volumes
+    // are disallowed, as these cannot be divided into a quadtree or octree.
+    if (
+      !TileValidator.validateDisallowedInImplicitTilesetRoot(
+        tilePath,
+        "boundingVolume.sphere",
+        tile.boundingVolume?.sphere,
+        context
+      )
+    ) {
+      result = false;
+    }
+
     // Note: The check that content and contents may not be present
     // at the same time is done in `validateTile`!
 
