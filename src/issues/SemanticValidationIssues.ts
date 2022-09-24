@@ -275,8 +275,15 @@ export class SemanticValidationIssues {
     return issue;
   }
 
-  static SUBTREE_ERROR(path: string, message: string) {
-    const type = "SUBTREE_ERROR";
+  static TRAVERSAL_ERROR(path: string, message: string) {
+    const type = "TRAVERSAL_ERROR";
+    const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  static IMPLICIT_TILING_ERROR(path: string, message: string) {
+    const type = "IMPLICIT_TILING_ERROR";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;

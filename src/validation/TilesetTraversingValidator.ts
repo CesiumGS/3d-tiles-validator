@@ -11,6 +11,8 @@ import { TraversedTile } from "../traversal/TraversedTile";
 import { Tileset } from "../structure/Tileset";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
+import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
+import { ValidationIssues } from "../issues/ValidationIssues";
 
 /**
  * A validator for a `Tileset` that traverses the tile hierarchy
@@ -34,19 +36,46 @@ export class TilesetTraversingValidator {
   ): Promise<void> {
     const depthFirst = true;
     const resourceResolver = context.getResourceResolver();
-    await TilesetTraverser.traverse(
-      tileset,
-      resourceResolver,
-      async (traversedTile) => {
-        await TilesetTraversingValidator.validateTraversedTile(
-          validationState,
-          traversedTile,
-          context
+    try {
+      await TilesetTraverser.traverse(
+        tileset,
+        resourceResolver,
+        async (traversedTile) => {
+
+          // Validate the tile, and only continue the traversal 
+          // if it was found to be valid
+          const isValid = await TilesetTraversingValidator.validateTraversedTile(
+            validationState,
+            traversedTile,
+            context
+          );
+          return Promise.resolve(isValid);
+        },
+        depthFirst
+      );
+    } catch (error) {
+      // There may be different kinds of errors that are thrown
+      // during the traveral of the tileset and its validation.
+      // An `ImplicitTilingError` indicates that an implicit
+      // tileset was invalid (e.g. a missing subtree file or
+      // one of its buffers). The `ImplicitTilingError` is
+      // supposed to contain more detailed information.
+      if (error instanceof ImplicitTilingError) {
+        const message = `Could not traverse tileset: ${error.message}`;
+        const issue = SemanticValidationIssues.IMPLICIT_TILING_ERROR(
+          "",
+          message
         );
-        return Promise.resolve(true);
-      },
-      depthFirst
-    );
+        context.addIssue(issue);
+        return;
+      }
+      // Other kinds of errors should not bubble up to the caller,
+      // and are therefore collected here as `INTERNAL_ERROR`
+      const message = `Internal error while traversing tileset: ${error}`;
+      const issue = ValidationIssues.INTERNAL_ERROR("", message);
+      context.addIssue(issue);
+      return;
+    }
   }
 
   /**
@@ -65,38 +94,40 @@ export class TilesetTraversingValidator {
     validationState: ValidationState,
     traversedTile: TraversedTile,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     const path = traversedTile.path;
     const tile = traversedTile.asTile();
 
     // Validate the tile itself
-    if (TileValidator.validateTile(path, tile, validationState, context)) {
-      // Validate the content
-      const content = tile.content;
-      const contentPath = traversedTile.path + "/content";
-      if (defined(content)) {
+    if (!TileValidator.validateTile(path, tile, validationState, context)) {
+      return false;
+    }
+
+    // Validate the content
+    const content = tile.content;
+    const contentPath = traversedTile.path + "/content";
+    if (defined(content)) {
+      await TileContentValidator.validateContent(
+        contentPath,
+        content!,
+        tile,
+        context
+      );
+    }
+
+    // Validate the contents
+    const contents = tile.contents;
+    const contentsPath = traversedTile.path + "/contents";
+    if (defined(contents)) {
+      for (let i = 0; i < contents!.length; i++) {
+        const contentsElement = contents![i];
+        const contentsElementPath = contentsPath + "/" + i;
         await TileContentValidator.validateContent(
-          contentPath,
-          content!,
+          contentsElementPath,
+          contentsElement!,
           tile,
           context
         );
-      }
-
-      // Validate the contents
-      const contents = tile.contents;
-      const contentsPath = traversedTile.path + "/contents";
-      if (defined(contents)) {
-        for (let i = 0; i < contents!.length; i++) {
-          const contentsElement = contents![i];
-          const contentsElementPath = contentsPath + "/" + i;
-          await TileContentValidator.validateContent(
-            contentsElementPath,
-            contentsElement!,
-            tile,
-            context
-          );
-        }
       }
     }
 
@@ -110,6 +141,8 @@ export class TilesetTraversingValidator {
         context
       );
     }
+
+    return true;
   }
 
   /**

@@ -7,6 +7,7 @@ import { ImplicitTilings } from "./ImplicitTilings";
 
 import { Availability } from "../structure/Availability";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { ImplicitTilingError } from "./ImplicitTilingError";
 
 /**
  * Methods for creating `AvailabilityInfo` instances
@@ -22,6 +23,8 @@ export class AvailabilityInfos {
    * @param bufferViewDatas The `BufferView` data chunks
    * @param implicitTiling The `TileImplicitTiling` object
    * @returns The `AvailabilityInfo` object
+   * @throws ImplicitTilingError If the given data is structurally
+   * invalid.
    */
   static createTileOrContent(
     availability: Availability,
@@ -30,7 +33,13 @@ export class AvailabilityInfos {
   ): AvailabilityInfo {
     const length =
       ImplicitTilings.computeNumberOfNodesPerSubtree(implicitTiling);
-    return AvailabilityInfos.create(availability, bufferViewDatas, length);
+    if (!defined(length)) {
+      throw new ImplicitTilingError(
+        `Could not determine the number of nodes due to ` +
+          `an invalid subdivision scheme: ${implicitTiling.subdivisionScheme}`
+      );
+    }
+    return AvailabilityInfos.create(availability, bufferViewDatas, length!);
   }
 
   /**
@@ -41,6 +50,8 @@ export class AvailabilityInfos {
    * @param bufferViewDatas The `BufferView` data chunks
    * @param implicitTiling The `TileImplicitTiling` object
    * @returns The `AvailabilityInfo` object
+   * @throws ImplicitTilingError If the given data is structurally
+   * invalid.
    */
   static createChildSubtree(
     availability: Availability,
@@ -51,7 +62,13 @@ export class AvailabilityInfos {
       implicitTiling,
       implicitTiling.subtreeLevels
     );
-    return AvailabilityInfos.create(availability, bufferViewDatas, length);
+    if (!defined(length)) {
+      throw new ImplicitTilingError(
+        `Could not determine the number of nodes due to ` +
+          `an invalid subdivision scheme: ${implicitTiling.subdivisionScheme}`
+      );
+    }
+    return AvailabilityInfos.create(availability, bufferViewDatas, length!);
   }
 
   /**

@@ -12,5 +12,6 @@ export function bufferToJson(buffer?: Buffer): object {
   if (buffer.length === 0) {
     return {};
   }
-  return JSON.parse(buffer.toString());
+  const s = buffer.toString();
+  return JSON.parse(s);
 }

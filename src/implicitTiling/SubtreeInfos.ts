@@ -7,20 +7,13 @@ import { AvailabilityInfos } from "./AvailabilityInfos";
 
 import { ResourceResolver } from "../io/ResourceResolver";
 
-import { DeveloperError } from "../base/DeveloperError";
+import { ImplicitTilingError } from "./ImplicitTilingError";
 
 import { Subtree } from "../structure/Subtree";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 
 /**
  * Methods to create `SubtreeInfo` instances.
- *
- * TODO Some of these methods may throw a `DeveloperError` or
- * return `undefined` to indicate errors. The error handling
- * here has to be reviewed, generalized, and cleaned up, in
- * the context of the question about how the validator will
- * eventually handle missing resources. When this is decided,
- * review all call sites of these functions!
  */
 export class SubtreeInfos {
   /**
@@ -35,18 +28,17 @@ export class SubtreeInfos {
    * defines the expected structure of the subtree data
    * @param resourceResolver The `ResourceResolver` that
    * will be used to resolve buffer URIs
-   * @returns A promise with the `SubtreeInfo`, or with `undefined`
-   * if one of the required external buffers could not be
-   * resolved.
-   * @throws A DeveloperError when the subtree JSON could
+   * @returns A promise with the `SubtreeInfo`
+   * @throws An ImplicitTilingError when the subtree JSON could
    * not be parsed, or there was a buffer without a URI
-   * and no binary buffer was given
+   * and no binary buffer was given, or one of the requested
+   * buffers could not be resolved.
    */
   static async createFromBuffer(
     input: Buffer,
     implicitTiling: TileImplicitTiling,
     resourceResolver: ResourceResolver
-  ): Promise<SubtreeInfo | undefined> {
+  ): Promise<SubtreeInfo> {
     const headerByteLength = 24;
     const jsonByteLength = input.readBigUint64LE(8);
     const binaryByteLength = input.readBigUint64LE(16);
@@ -61,7 +53,7 @@ export class SubtreeInfos {
       subtreeJson = bufferToJson(jsonBuffer);
       subtree = subtreeJson;
     } catch (error) {
-      throw new DeveloperError("Could not parse subtree JSON data");
+      throw new ImplicitTilingError("Could not parse subtree JSON data");
     }
 
     // Extract the binary buffer
@@ -97,18 +89,17 @@ export class SubtreeInfos {
    * defines the expected structure of the subtree data
    * @param resourceResolver The `ResourceResolver` that
    * will be used to resolve buffer URIs
-   * @returns A promise with the `SubtreeInfo`, or with `undefined`
-   * if one of the required external buffers could not be
-   * resolved.
-   * @throws A DeveloperError when there was a buffer without
-   * a URI and no binary buffer was given
+   * @returns A promise with the `SubtreeInfo`
+   * @throws A ImplicitTilingError when there was a buffer without
+   * a URI and no binary buffer was given, or the requested buffer
+   * data could not be resolved.
    */
   static async create(
     subtree: Subtree,
     binaryBuffer: Buffer | undefined,
     implicitTiling: TileImplicitTiling,
     resourceResolver: ResourceResolver
-  ): Promise<SubtreeInfo | undefined> {
+  ): Promise<SubtreeInfo> {
     // Obtain the buffer data objects: One `Buffer` for
     // each `BufferObject` of the subtree
     const bufferDatas = [];
@@ -116,7 +107,7 @@ export class SubtreeInfos {
     for (const buffer of buffers) {
       if (!defined(buffer.uri)) {
         if (!defined(buffer)) {
-          throw new DeveloperError(
+          throw new ImplicitTilingError(
             "Expected a binary buffer, but got undefined"
           );
         }
@@ -125,7 +116,8 @@ export class SubtreeInfos {
         //console.log("Obtaining buffer data from " + buffer.uri);
         const bufferData = await resourceResolver.resolve(buffer.uri!);
         if (!defined(bufferData)) {
-          return undefined;
+          const message = `Could not resolve subtree buffer ${buffer.uri}`;
+          throw new ImplicitTilingError(message);
         }
         bufferDatas.push(bufferData);
       }

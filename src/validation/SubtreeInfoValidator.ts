@@ -13,6 +13,8 @@ import { Subtree } from "../structure/Subtree";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
+import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
+import { ValidationIssues } from "../issues/ValidationIssues";
 
 /**
  * A class for validation of subtree information.
@@ -36,17 +38,23 @@ export class SubtreeInfoValidator {
     resourceResolver: ResourceResolver,
     context: ValidationContext
   ): Promise<boolean> {
-    // Try to create the `SubtreeInfo`. The result may be
-    // undefined when subtree buffers cannot be resolved.
-    const optionalSubtreeInfo = await SubtreeInfos.create(
-      subtree,
-      binaryBuffer,
-      implicitTiling,
-      resourceResolver
-    );
-    if (!defined(optionalSubtreeInfo)) {
-      const message = `Could not read subtree data`;
-      const issue = SemanticValidationIssues.SUBTREE_ERROR(path, message);
+    let optionalSubtreeInfo = undefined;
+    try {
+      optionalSubtreeInfo = await SubtreeInfos.create(
+        subtree,
+        binaryBuffer,
+        implicitTiling,
+        resourceResolver
+      );
+    } catch (error) {
+      if (error instanceof ImplicitTilingError) {
+        const message = `Could not read subtree data: ${error.message}`;
+        const issue = SemanticValidationIssues.IMPLICIT_TILING_ERROR(path, message);
+        context.addIssue(issue);
+        return false;
+      }
+      const message = `Internal error while reading subtree data: ${error}`;
+      const issue = ValidationIssues.INTERNAL_ERROR(path, message);
       context.addIssue(issue);
       return false;
     }
@@ -222,9 +230,12 @@ export class SubtreeInfoValidator {
   ): boolean {
     let result = true;
 
+    // The subdivision scheme should already have been validated
+    // before calling this method. So the `coordinates` should
+    // never be undefined here.
     const coordinates =
       ImplicitTilings.createSubtreeCoordinatesIterator(implicitTiling);
-    for (const c of coordinates) {
+    for (const c of coordinates!) {
       const p = c.parent();
       if (defined(p)) {
         const cIndex = c.toIndex();
@@ -277,9 +288,12 @@ export class SubtreeInfoValidator {
   ): boolean {
     let result = true;
 
+    // The subdivision scheme should already have been validated
+    // before calling this method. So the `coordinates` should
+    // never be undefined here.
     const coordinates =
       ImplicitTilings.createSubtreeCoordinatesIterator(implicitTiling);
-    for (const c of coordinates) {
+    for (const c of coordinates!) {
       const index = c.toIndex();
       const contentAvailable = contentAvailabilityInfo.isAvailable(index);
       const tileAvailable = tileAvailabilityInfo.isAvailable(index);

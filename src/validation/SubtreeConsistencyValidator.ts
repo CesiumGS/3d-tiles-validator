@@ -162,11 +162,16 @@ export class SubtreeConsistencyValidator {
   ): boolean {
     let result = true;
 
+    // The implicitTiling has already been validated to have a valid
+    // subvisionScheme. Therefore, the methods from `ImplicitTilings`
+    // that compute the lengths will never return `undefined` here.
+
     // Validate the consistency of the tileAvailability
     const tileAvailability = subtree.tileAvailability;
     const tileAvailabilityPath = path + "/tileAvailability";
+
     const tileAvailabilityRequiredLengthInBits =
-      ImplicitTilings.computeNumberOfNodesPerSubtree(implicitTiling);
+      ImplicitTilings.computeNumberOfNodesPerSubtree(implicitTiling)!;
     if (
       !SubtreeConsistencyValidator.validateAvailabilityConsistency(
         tileAvailabilityPath,
@@ -184,7 +189,7 @@ export class SubtreeConsistencyValidator {
     const contentAvailability = subtree.contentAvailability;
     const contentAvailabilityPath = path + "/contentAvailability";
     const contentAvailabilityRequiredLengthInBits =
-      ImplicitTilings.computeNumberOfNodesPerSubtree(implicitTiling);
+      ImplicitTilings.computeNumberOfNodesPerSubtree(implicitTiling)!;
     if (defined(contentAvailability)) {
       // Validate the consistency of each contentAvailability
       for (let i = 0; i < contentAvailability!.length; i++) {
@@ -212,7 +217,7 @@ export class SubtreeConsistencyValidator {
       ImplicitTilings.computeNumberOfNodesInLevel(
         implicitTiling,
         implicitTiling.subtreeLevels
-      );
+      )!;
     if (
       !SubtreeConsistencyValidator.validateAvailabilityConsistency(
         childSubtreeAvailabilityPath,

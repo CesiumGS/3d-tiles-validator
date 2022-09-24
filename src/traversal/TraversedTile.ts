@@ -53,6 +53,11 @@ export interface TraversedTile {
    * that is resolved when the required child tiles are available.
    *
    * @returns The children
+   * @throws ImplicitTilingError When there was an error while
+   * trying to obtain the traversed children. This may be caused
+   * by invalid input structures, or when a required resource
+   * (like a subtree file or one of its buffers) could not
+   * be resolved.
    */
   getChildren(): Promise<TraversedTile[]>;
 

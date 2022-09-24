@@ -12,7 +12,7 @@
     "implicitTiling" : {
       "subdivisionScheme": "QUADTREE",
       "subtreeLevels": "NOT_AN_INTEGER",
-      "availableLevels": 8,
+      "availableLevels": 6,
       "subtrees": {
         "uri": "example-{level}-{x}-{y}.subtree"
       }

@@ -1,7 +1,6 @@
-
 /**
  * Returns filtered view on the given iterable
- * 
+ *
  * @param iterable The iterable
  * @param include The include predicate
  * @returns The filtered iterable
@@ -15,7 +14,7 @@ export function filterIterable<T>(
     [Symbol.iterator]() {
       return this;
     },
-    next() : IteratorResult<T, void> {
+    next(): IteratorResult<T, void> {
       for (;;) {
         const result = iterator.next();
         if (result.done) {

@@ -11,7 +11,7 @@
     "refine": "ADD",
     "implicitTiling" : {
       "subdivisionScheme": "QUADTREE",
-      "subtreeLevels": 2,
+      "subtreeLevels": 3,
       "availableLevels": 0,
       "subtrees": {
         "uri": "example-{level}-{x}-{y}.subtree"

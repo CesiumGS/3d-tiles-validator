@@ -1,5 +1,4 @@
 import path from "path";
-import { defined } from "../base/defined";
 
 import { DeveloperError } from "../base/DeveloperError";
 
@@ -17,7 +16,16 @@ import { QuadtreeCoordinates } from "../implicitTiling/QuadtreeCoordinates";
 import { TreeCoordinates } from "../implicitTiling/TreeCoordinates";
 import { OctreeCoordinates } from "../implicitTiling/OctreeCoordinates";
 import { SubtreeInfo } from "../implicitTiling/SubtreeInfo";
+import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
+import { ResourceTypes } from "../io/ResourceTypes";
+import { Subtree } from "../structure/Subtree";
+import { bufferToJson } from "../base/bufferToJson";
 
+/**
+ * Methods related to the traversal of implicit tilesets.
+ *
+ * @private
+ */
 export class ImplicitTileTraversal {
   static async createTraversedChildren(
     implicitTiling: TileImplicitTiling,
@@ -32,10 +40,6 @@ export class ImplicitTileTraversal {
         resourceResolver,
         rootCoordinates
       );
-      if (!defined(subtreeInfo)) {
-        console.log(`Could not resolve subtree data for template URI ${implicitTiling.subtrees.uri}`);
-        return [];
-      }
       // TODO Assuming certain toString here:
       const childPath = parent.path + `/${rootCoordinates}`;
       const child = new ImplicitTraversedTile(
@@ -59,10 +63,6 @@ export class ImplicitTileTraversal {
         resourceResolver,
         rootCoordinates
       );
-      if (!defined(subtreeInfo)) {
-        console.log(`Could not resolve subtree data for template URI ${implicitTiling.subtrees.uri}`);
-        return [];
-      }
       // TODO Assuming certain toString here:
       const childPath = parent.path + `/${rootCoordinates}`;
       const child = new ImplicitTraversedTile(
@@ -102,7 +102,7 @@ export class ImplicitTileTraversal {
     implicitTiling: TileImplicitTiling,
     resourceResolver: ResourceResolver,
     coordinates: TreeCoordinates
-  ): Promise<SubtreeInfo | undefined> {
+  ): Promise<SubtreeInfo> {
     const subtreeUri = ImplicitTileTraversal.substituteTemplateUri(
       implicitTiling.subdivisionScheme,
       implicitTiling.subtrees.uri,
@@ -110,16 +110,57 @@ export class ImplicitTileTraversal {
     );
     const subtreeData = await resourceResolver.resolve(subtreeUri);
     if (subtreeData == null) {
-      return undefined;
+      const message =
+        `Could not resolve subtree URI ${subtreeUri} that was ` +
+        `created from template URI ${implicitTiling.subtrees.uri} ` +
+        `for coordinates ${coordinates}`;
+      throw new ImplicitTilingError(message);
     }
+
     const subtreeDirectory = path.dirname(subtreeUri);
     const subtreeResourceResolver = resourceResolver.derive(subtreeDirectory);
-    const subtreeInfo = await SubtreeInfos.createFromBuffer(
-      subtreeData!,
-      implicitTiling,
-      subtreeResourceResolver
-    );
-    return subtreeInfo;
+
+    // If the subtree data was JSON, just parse it and
+    // create a SubtreeInfo without an internal buffer
+    const isJson = ResourceTypes.isProbablyJson(subtreeData);
+    if (isJson) {
+      let subtreeJson: any;
+      let subtree: Subtree;
+      try {
+        subtreeJson = bufferToJson(subtreeData);
+        subtree = subtreeJson;
+      } catch (error) {
+        const message =
+          `Could not parse subtree JSON from URI ${subtreeUri} that was ` +
+          `created from template URI ${implicitTiling.subtrees.uri} ` +
+          `for coordinates ${coordinates}`;
+        throw new ImplicitTilingError(message);
+      }
+      return SubtreeInfos.create(
+        subtree,
+        undefined,
+        implicitTiling,
+        subtreeResourceResolver
+      );
+    }
+
+    // For SUBT (binary subtree data), create the SubtreeInfo
+    // from the whole buffer
+    const isSubt = ResourceTypes.isSubt(subtreeData);
+    if (isSubt) {
+      const subtreeInfo = await SubtreeInfos.createFromBuffer(
+        subtreeData!,
+        implicitTiling,
+        subtreeResourceResolver
+      );
+      return subtreeInfo;
+    }
+
+    const message =
+      `Subtree data from URI ${subtreeUri} that was created from ` +
+      `template URI ${implicitTiling.subtrees.uri} for coordinates ` +
+      `${coordinates} did neither contain JSON nor binary subtree data`;
+    throw new ImplicitTilingError(message);
   }
 
   // TODO: The remaining functions are quickly ported from j3dtiles
