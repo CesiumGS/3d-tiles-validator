@@ -201,7 +201,7 @@ export class BoundingVolumeDerivation {
    * @returns An array of 6 numbers representing the bounding region of the descendant tile
    * @private
    */
-  static deriveBoundingRegion(
+  private static deriveBoundingRegion(
     rootRegion: number[],
     level: number,
     x: number,
