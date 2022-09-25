@@ -7,7 +7,6 @@ import { ImplicitTilings } from "./ImplicitTilings";
 
 import { Availability } from "../structure/Availability";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
-import { ImplicitTilingError } from "./ImplicitTilingError";
 
 /**
  * Methods for creating `AvailabilityInfo` instances
