@@ -119,13 +119,15 @@ export class ImplicitTilingValidator {
       // The uri MUST be a template URI
       const subtreesUri = subtrees.uri;
       const subtreesUriPath = subtreesPath + "/uri";
-      TemplateUriValidator.validateTemplateUri(
+      if (!TemplateUriValidator.validateTemplateUri(
         subtreesUriPath,
         "uri",
         subtreesUri,
         subdivisionScheme,
         context
-      );
+      )) {
+        result = false;
+      }
     }
     return result;
   }

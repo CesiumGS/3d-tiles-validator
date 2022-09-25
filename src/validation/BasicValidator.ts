@@ -36,6 +36,9 @@ export class BasicValidator {
     value: string,
     context: ValidationContext
   ): boolean {
+    if (!BasicValidator.validateDefined(path, name, value, context)) {
+      return false;
+    }
     const idRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
     if (!idRegex.test(value)) {
       const issue = JsonValidationIssues.STRING_PATTERN_MISMATCH(
@@ -77,7 +80,7 @@ export class BasicValidator {
     const value = containingObject[name];
     if (defined(value)) {
       const path = containingPath + "/" + name;
-      return this.validateString(path, name, value, context);
+      return BasicValidator.validateString(path, name, value, context);
     }
     return true;
   }
@@ -149,7 +152,7 @@ export class BasicValidator {
     expectedElementType: string | undefined,
     context: ValidationContext
   ): boolean {
-    if (!this.validateDefined(path, name, value, context)) {
+    if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
     if (!Array.isArray(value)) {
@@ -219,10 +222,10 @@ export class BasicValidator {
     value: any,
     context: ValidationContext
   ): boolean {
-    if (!this.validateDefined(path, name, value, context)) {
+    if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
-    return this.validateType(path, name, value, "object", context);
+    return BasicValidator.validateType(path, name, value, "object", context);
   }
 
   /**
@@ -248,10 +251,10 @@ export class BasicValidator {
     value: any,
     context: ValidationContext
   ): boolean {
-    if (!this.validateDefined(path, name, value, context)) {
+    if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
-    return this.validateType(path, name, value, "string", context);
+    return BasicValidator.validateType(path, name, value, "string", context);
   }
 
   /**
@@ -277,10 +280,10 @@ export class BasicValidator {
     value: any,
     context: ValidationContext
   ): boolean {
-    if (!this.validateDefined(path, name, value, context)) {
+    if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
-    return this.validateType(path, name, value, "number", context);
+    return BasicValidator.validateType(path, name, value, "number", context);
   }
 
   /**
@@ -306,10 +309,10 @@ export class BasicValidator {
     value: any,
     context: ValidationContext
   ): boolean {
-    if (!this.validateDefined(path, name, value, context)) {
+    if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
-    return this.validateType(path, name, value, "boolean", context);
+    return BasicValidator.validateType(path, name, value, "boolean", context);
   }
 
   /**
@@ -337,7 +340,7 @@ export class BasicValidator {
     expectedType: string,
     context: ValidationContext
   ): boolean {
-    if (!this.validateDefined(path, name, value, context)) {
+    if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
     if (typeof value === expectedType) {
@@ -376,7 +379,7 @@ export class BasicValidator {
     value: any,
     context: ValidationContext
   ): boolean {
-    if (!this.validateDefined(path, name, value, context)) {
+    if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
     if (Number.isInteger(value)) {
@@ -426,10 +429,10 @@ export class BasicValidator {
     maxInclusive: boolean,
     context: ValidationContext
   ): boolean {
-    if (!this.validateNumber(path, name, value, context)) {
+    if (!BasicValidator.validateNumber(path, name, value, context)) {
       return false;
     }
-    return this._validateNumberRangeInternal(
+    return BasicValidator._validateNumberRangeInternal(
       path,
       name,
       value,
@@ -475,10 +478,10 @@ export class BasicValidator {
     maxInclusive: boolean,
     context: ValidationContext
   ): boolean {
-    if (!this.validateInteger(path, name, value, context)) {
+    if (!BasicValidator.validateInteger(path, name, value, context)) {
       return false;
     }
-    return this._validateNumberRangeInternal(
+    return BasicValidator._validateNumberRangeInternal(
       path,
       name,
       value,
@@ -589,7 +592,7 @@ export class BasicValidator {
     allowedValues: any[],
     context: ValidationContext
   ): boolean {
-    if (!this.validateDefined(path, name, value, context)) {
+    if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
     if (!allowedValues.includes(value)) {
@@ -634,7 +637,7 @@ export class BasicValidator {
     maxProperties: number | undefined,
     context: ValidationContext
   ): boolean {
-    if (!this.validateObject(path, name, value, context)) {
+    if (!BasicValidator.validateObject(path, name, value, context)) {
       return false;
     }
     const numProperties = Object.keys(value).length;
@@ -690,7 +693,7 @@ export class BasicValidator {
     maxLength: number | undefined,
     context: ValidationContext
   ): boolean {
-    if (!this.validateString(path, name, value, context)) {
+    if (!BasicValidator.validateString(path, name, value, context)) {
       return false;
     }
     if (

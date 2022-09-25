@@ -163,8 +163,8 @@ export class TilesetValidator implements Validator<Tileset> {
     // Validate the schema
     const schema = schemaResult.schema;
     const schemaPath = path + "/schema";
-    if (schema) {
-      if (SchemaValidator.validateSchema(schemaPath, schema, context)) {
+    if (defined(schema)) {
+      if (SchemaValidator.validateSchema(schemaPath, schema!, context)) {
         validationState.validatedSchema = schema;
       }
     }

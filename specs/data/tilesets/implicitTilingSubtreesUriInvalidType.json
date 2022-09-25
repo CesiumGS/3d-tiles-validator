@@ -11,7 +11,7 @@
     "refine": "ADD",
     "implicitTiling" : {
       "subdivisionScheme": "QUADTREE",
-      "subtreeLevels": "NOT_AN_INTEGER",
+      "subtreeLevels": 3,
       "availableLevels": 6,
       "subtrees": {
         "uri": 123.456
