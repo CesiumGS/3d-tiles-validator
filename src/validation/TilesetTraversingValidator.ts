@@ -41,14 +41,14 @@ export class TilesetTraversingValidator {
         tileset,
         resourceResolver,
         async (traversedTile) => {
-
-          // Validate the tile, and only continue the traversal 
+          // Validate the tile, and only continue the traversal
           // if it was found to be valid
-          const isValid = await TilesetTraversingValidator.validateTraversedTile(
-            validationState,
-            traversedTile,
-            context
-          );
+          const isValid =
+            await TilesetTraversingValidator.validateTraversedTile(
+              validationState,
+              traversedTile,
+              context
+            );
           return Promise.resolve(isValid);
         },
         depthFirst

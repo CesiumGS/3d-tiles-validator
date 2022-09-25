@@ -10,7 +10,6 @@ import { ResourceResolver } from "../io/ResourceResolver";
  * that actually appears as a JSON representation in the tileset.
  */
 export class ExplicitTraversedTile implements TraversedTile {
-
   /**
    * The parent tile, or `undefined` if this is the root
    */
@@ -35,7 +34,7 @@ export class ExplicitTraversedTile implements TraversedTile {
   /**
    * The `ResourceResolver` that will resolve resources
    * that may be required if this is the root of an
-   * implicit tileset (e.g. the subtree files). 
+   * implicit tileset (e.g. the subtree files).
    */
   private readonly _resourceResolver;
 

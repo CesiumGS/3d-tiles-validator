@@ -49,7 +49,10 @@ export class SubtreeInfoValidator {
     } catch (error) {
       if (error instanceof ImplicitTilingError) {
         const message = `Could not read subtree data: ${error.message}`;
-        const issue = SemanticValidationIssues.IMPLICIT_TILING_ERROR(path, message);
+        const issue = SemanticValidationIssues.IMPLICIT_TILING_ERROR(
+          path,
+          message
+        );
         context.addIssue(issue);
         return false;
       }

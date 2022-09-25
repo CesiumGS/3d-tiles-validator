@@ -16,7 +16,7 @@ export interface TraversedTile {
    *
    * @returns A `Tile` with information about this traversed tile
    * @throws ImplicitTilingError If the representation of this traversed
-   * tile could not be created due to invalid input structures. 
+   * tile could not be created due to invalid input structures.
    */
   asTile(): Tile;
 
