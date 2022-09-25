@@ -68,7 +68,7 @@ export class ValidatorMain {
   static async validateAllTilesetSpecFiles(): Promise<void> {
     const recurse = true;
     const specFiles = createFilesIterable(
-      ValidatorMain.specsDataRootDir,
+      ValidatorMain.specsDataRootDir + "/tilesets",
       recurse
     );
     for (const specFile of specFiles) {
