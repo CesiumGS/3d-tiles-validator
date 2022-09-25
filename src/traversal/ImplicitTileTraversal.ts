@@ -1,25 +1,24 @@
 import path from "path";
-
-import { DeveloperError } from "../base/DeveloperError";
+import { defined } from "../base/defined";
+import { bufferToJson } from "../base/bufferToJson";
 
 import { ResourceResolver } from "../io/ResourceResolver";
+import { ResourceTypes } from "../io/ResourceTypes";
 
 import { TraversedTile } from "./TraversedTile";
 import { ExplicitTraversedTile } from "./ExplicitTraversedTile";
 import { ImplicitTraversedTile } from "./ImplicitTraversedTile";
 
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { Subtree } from "../structure/Subtree";
 
 import { SubtreeInfos } from "../implicitTiling/SubtreeInfos";
-import { TemplateUris } from "../implicitTiling/TemplateUris";
 import { QuadtreeCoordinates } from "../implicitTiling/QuadtreeCoordinates";
 import { TreeCoordinates } from "../implicitTiling/TreeCoordinates";
 import { OctreeCoordinates } from "../implicitTiling/OctreeCoordinates";
 import { SubtreeInfo } from "../implicitTiling/SubtreeInfo";
 import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
-import { ResourceTypes } from "../io/ResourceTypes";
-import { Subtree } from "../structure/Subtree";
-import { bufferToJson } from "../base/bufferToJson";
+import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
 
 /**
  * Methods related to the traversal of implicit tilesets.
@@ -27,6 +26,23 @@ import { bufferToJson } from "../base/bufferToJson";
  * @private
  */
 export class ImplicitTileTraversal {
+  /**
+   * Create the traversed children for the given explicit traversed tile.
+   *
+   * This method will be called from `ExplicitTraversedTile` instances
+   * when the contain `implicitTiling` information, in order to create
+   * the traversed children.
+   *
+   * The children will then be a single-element array that contains the
+   * root node of the implicit tileset, as an `ImplicitTraversedTile`.
+   *
+   * @param implicitTiling The `TileImplicitTiling`
+   * @param parent The `ExplicitTraversedTile`
+   * @param resourceResolver The `ResourceResolver` that
+   * will be used e.g. for subtree files
+   * @returns The traversed children
+   * @throws ImplicitTilingError If the input was structurally invalid
+   */
   static async createTraversedChildren(
     implicitTiling: TileImplicitTiling,
     parent: ExplicitTraversedTile,
@@ -34,81 +50,138 @@ export class ImplicitTileTraversal {
   ): Promise<TraversedTile[]> {
     const subdivisionScheme = implicitTiling.subdivisionScheme;
     if (subdivisionScheme === "QUADTREE") {
-      const rootCoordinates = new QuadtreeCoordinates(0, 0, 0);
-      const subtreeInfo = await ImplicitTileTraversal.resolveSubtreeInfo(
+      const child = await ImplicitTileTraversal.createImplicitQuadtreeRoot(
         implicitTiling,
-        resourceResolver,
-        rootCoordinates
-      );
-      // TODO Assuming certain toString here:
-      const childPath = parent.path + `/${rootCoordinates}`;
-      const child = new ImplicitTraversedTile(
-        implicitTiling,
-        resourceResolver,
-        parent.asTile(),
-        childPath,
-        subtreeInfo!,
-        parent.level + 1,
-        rootCoordinates,
-        rootCoordinates,
-        rootCoordinates,
-        parent
+        parent,
+        resourceResolver
       );
       return [child];
     }
     if (subdivisionScheme === "OCTREE") {
-      const rootCoordinates = new OctreeCoordinates(0, 0, 0, 0);
-      const subtreeInfo = await ImplicitTileTraversal.resolveSubtreeInfo(
+      const child = await ImplicitTileTraversal.createImplicitOctreeRoot(
         implicitTiling,
-        resourceResolver,
-        rootCoordinates
-      );
-      // TODO Assuming certain toString here:
-      const childPath = parent.path + `/${rootCoordinates}`;
-      const child = new ImplicitTraversedTile(
-        implicitTiling,
-        resourceResolver,
-        parent.asTile(),
-        childPath,
-        subtreeInfo!,
-        parent.level + 1,
-        rootCoordinates,
-        rootCoordinates,
-        rootCoordinates,
-        parent
+        parent,
+        resourceResolver
       );
       return [child];
     }
-    throw new DeveloperError("Invalid subdivisionScheme: " + subdivisionScheme);
+    throw new ImplicitTilingError(
+      "Invalid subdivisionScheme: " + subdivisionScheme
+    );
   }
 
-  static substituteTemplateUri(
-    subdivisionScheme: string,
-    templateUri: string,
-    coordinates: TreeCoordinates
-  ) {
-    if (subdivisionScheme === "QUADTREE") {
-      const quadtreeCoordinates = coordinates as QuadtreeCoordinates;
-      return TemplateUris.substituteQuadtree(templateUri, quadtreeCoordinates);
-    }
-    if (subdivisionScheme === "OCTREE") {
-      const octreeCoordinates = coordinates as OctreeCoordinates;
-      return TemplateUris.substituteOctree(templateUri, octreeCoordinates);
-    }
-    throw new DeveloperError("Invalid subdivisionScheme: " + subdivisionScheme);
+  /**
+   * Creates the root node for the traversal of an implicit quadtree.
+   *
+   * @param implicitTiling The `TileImplicitTiling`
+   * @param parent The `ExplicitTraversedTile`
+   * @param resourceResolver The `ResourceResolver` that
+   * will be used e.g. for subtree files
+   * @returns The root of an implicit quadtree
+   * @throws ImplicitTilingError If the input was structurally invalid
+   */
+  private static async createImplicitQuadtreeRoot(
+    implicitTiling: TileImplicitTiling,
+    parent: ExplicitTraversedTile,
+    resourceResolver: ResourceResolver
+  ): Promise<TraversedTile> {
+    const rootCoordinates = new QuadtreeCoordinates(0, 0, 0);
+    const subtreeInfo = await ImplicitTileTraversal.resolveSubtreeInfo(
+      implicitTiling,
+      resourceResolver,
+      rootCoordinates
+    );
+    // The path is composed from the path of the parent and the string
+    // representation of the root coordinates
+    const coordinateString = ImplicitTilings.createString(rootCoordinates);
+    const path = `${parent.path}/${coordinateString}`;
+    const root = new ImplicitTraversedTile(
+      implicitTiling,
+      resourceResolver,
+      parent,
+      path,
+      subtreeInfo,
+      parent.level + 1,
+      rootCoordinates,
+      rootCoordinates,
+      rootCoordinates,
+      parent
+    );
+    return root;
   }
 
+  /**
+   * Creates the root node for the traversal of an implicit octree.
+   *
+   * @param implicitTiling The `TileImplicitTiling`
+   * @param parent The `ExplicitTraversedTile`
+   * @param resourceResolver The `ResourceResolver` that
+   * will be used e.g. for subtree files
+   * @returns The root of an implicit octree
+   * @throws ImplicitTilingError If the input was structurally invalid
+   */
+  private static async createImplicitOctreeRoot(
+    implicitTiling: TileImplicitTiling,
+    parent: ExplicitTraversedTile,
+    resourceResolver: ResourceResolver
+  ): Promise<TraversedTile> {
+    const rootCoordinates = new OctreeCoordinates(0, 0, 0, 0);
+    const subtreeInfo = await ImplicitTileTraversal.resolveSubtreeInfo(
+      implicitTiling,
+      resourceResolver,
+      rootCoordinates
+    );
+    // The path is composed from the path of the parent and the string
+    // representation of the root coordinates
+    const coordinateString = ImplicitTilings.createString(rootCoordinates);
+    const path = `${parent.path}/${coordinateString}`;
+    const root = new ImplicitTraversedTile(
+      implicitTiling,
+      resourceResolver,
+      parent,
+      path,
+      subtreeInfo,
+      parent.level + 1,
+      rootCoordinates,
+      rootCoordinates,
+      rootCoordinates,
+      parent
+    );
+    return root;
+  }
+
+  /**
+   * Resolve the `SubtreeInfo` for the subtree with the given root coordinates.
+   *
+   * This will substitute the given coordinates into the subtree template
+   * URI from the given implicit tiling object. Then it will attempt to load
+   * the subtree data from this URI. The resulting data will be used to
+   * construct the `SubtreeInfo` object.
+   *
+   * @param implicitTiling The `TileImplicitTiling`
+   * @param resourceResolver The `ResourceResolver` for the subtree
+   * files and buffers
+   * @param coordinates The root coordinates of the subtree
+   * @returns The `SubtreeInfo`
+   * @throws ImplicitTilingError If the input was structurally invalid
+   */
   static async resolveSubtreeInfo(
     implicitTiling: TileImplicitTiling,
     resourceResolver: ResourceResolver,
     coordinates: TreeCoordinates
   ): Promise<SubtreeInfo> {
-    const subtreeUri = ImplicitTileTraversal.substituteTemplateUri(
+    const subtreeUri = ImplicitTilings.substituteTemplateUri(
       implicitTiling.subdivisionScheme,
       implicitTiling.subtrees.uri,
       coordinates
     );
-    const subtreeData = await resourceResolver.resolve(subtreeUri);
+    if (!defined(subtreeUri)) {
+      const message =
+        `Could not subtitute coordinates ${coordinates} in ` +
+        `template URI ${implicitTiling.subtrees.uri}`;
+      throw new ImplicitTilingError(message);
+    }
+    const subtreeData = await resourceResolver.resolve(subtreeUri!);
     if (subtreeData == null) {
       const message =
         `Could not resolve subtree URI ${subtreeUri} that was ` +
@@ -117,7 +190,7 @@ export class ImplicitTileTraversal {
       throw new ImplicitTilingError(message);
     }
 
-    const subtreeDirectory = path.dirname(subtreeUri);
+    const subtreeDirectory = path.dirname(subtreeUri!);
     const subtreeResourceResolver = resourceResolver.derive(subtreeDirectory);
 
     // If the subtree data was JSON, just parse it and
@@ -161,106 +234,5 @@ export class ImplicitTileTraversal {
       `template URI ${implicitTiling.subtrees.uri} for coordinates ` +
       `${coordinates} did neither contain JSON nor binary subtree data`;
     throw new ImplicitTilingError(message);
-  }
-
-  // TODO: The remaining functions are quickly ported from j3dtiles
-  // (Let's say "there's room for improvement"...)
-
-  static globalizeCoordinates(
-    implicitTiling: TileImplicitTiling,
-    rootCoordinates: TreeCoordinates,
-    coordinates: TreeCoordinates
-  ): TreeCoordinates {
-    const subdivisionScheme = implicitTiling.subdivisionScheme;
-    if (subdivisionScheme === "QUADTREE") {
-      const quadtreeRootCoordinates = rootCoordinates as QuadtreeCoordinates;
-      const quadtreeCoordinates = coordinates as QuadtreeCoordinates;
-      return ImplicitTileTraversal.globalizeQuadtreeCoords(
-        quadtreeRootCoordinates,
-        quadtreeCoordinates
-      );
-    }
-    if (subdivisionScheme === "OCTREE") {
-      const octreeRootCoordinates = rootCoordinates as OctreeCoordinates;
-      const octreeCoordinates = coordinates as OctreeCoordinates;
-      return ImplicitTileTraversal.globalizeOctreeCoords(
-        octreeRootCoordinates,
-        octreeCoordinates
-      );
-    }
-    throw new DeveloperError("Invalid subdivisionScheme: " + subdivisionScheme);
-  }
-
-  static createRoot(implicitTiling: TileImplicitTiling): TreeCoordinates {
-    const subdivisionScheme = implicitTiling.subdivisionScheme;
-    if (subdivisionScheme === "QUADTREE") {
-      return new QuadtreeCoordinates(0, 0, 0);
-    }
-    if (subdivisionScheme === "OCTREE") {
-      return new OctreeCoordinates(0, 0, 0, 0);
-    }
-    throw new DeveloperError("Invalid subdivisionScheme: " + subdivisionScheme);
-  }
-
-  /**
-   * Compute the global quadtree coordinates for the given coordinates.
-   *
-   * @param rootCoords The (global) root coordinates of the subtree
-   * @param localCoords The local coordinates inside the subtree
-   * @return The global coordinates
-   */
-  private static globalizeQuadtreeCoords(
-    rootCoords: QuadtreeCoordinates,
-    localCoords: QuadtreeCoordinates
-  ): QuadtreeCoordinates {
-    const rootLevel = rootCoords.level;
-    const rootX = rootCoords.x;
-    const rootY = rootCoords.y;
-
-    const localLevel = localCoords.level;
-    const localX = localCoords.x;
-    const localY = localCoords.y;
-
-    const globalLevel = rootLevel + localLevel;
-    const globalX = (rootX << localLevel) + localX;
-    const globalY = (rootY << localLevel) + localY;
-
-    const globalCoords = new QuadtreeCoordinates(globalLevel, globalX, globalY);
-    return globalCoords;
-  }
-
-  /**
-   * Compute the global octree coordinates for the given coordinates.
-   *
-   * @param rootCoords The (global) root coordinates of the subtree
-   * @param localCoords The local coordinates inside the subtree
-   * @return The global coordinates
-   */
-  private static globalizeOctreeCoords(
-    rootCoords: OctreeCoordinates,
-    localCoords: OctreeCoordinates
-  ): OctreeCoordinates {
-    const rootLevel = rootCoords.level;
-    const rootX = rootCoords.x;
-    const rootY = rootCoords.y;
-    const rootZ = rootCoords.z;
-
-    const localLevel = localCoords.level;
-    const localX = localCoords.x;
-    const localY = localCoords.y;
-    const localZ = localCoords.z;
-
-    const globalLevel = rootLevel + localLevel;
-    const globalX = (rootX << localLevel) + localX;
-    const globalY = (rootY << localLevel) + localY;
-    const globalZ = (rootZ << localLevel) + localZ;
-
-    const globalCoords = new OctreeCoordinates(
-      globalLevel,
-      globalX,
-      globalY,
-      globalZ
-    );
-    return globalCoords;
   }
 }

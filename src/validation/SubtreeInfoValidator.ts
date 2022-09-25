@@ -230,12 +230,9 @@ export class SubtreeInfoValidator {
   ): boolean {
     let result = true;
 
-    // The subdivision scheme should already have been validated
-    // before calling this method. So the `coordinates` should
-    // never be undefined here.
     const coordinates =
       ImplicitTilings.createSubtreeCoordinatesIterator(implicitTiling);
-    for (const c of coordinates!) {
+    for (const c of coordinates) {
       const p = c.parent();
       if (defined(p)) {
         const cIndex = c.toIndex();
@@ -288,12 +285,9 @@ export class SubtreeInfoValidator {
   ): boolean {
     let result = true;
 
-    // The subdivision scheme should already have been validated
-    // before calling this method. So the `coordinates` should
-    // never be undefined here.
     const coordinates =
       ImplicitTilings.createSubtreeCoordinatesIterator(implicitTiling);
-    for (const c of coordinates!) {
+    for (const c of coordinates) {
       const index = c.toIndex();
       const contentAvailable = contentAvailabilityInfo.isAvailable(index);
       const tileAvailable = tileAvailabilityInfo.isAvailable(index);

@@ -110,7 +110,8 @@ async function tilesetTraversalDemo(filePath: string) {
       const geometricError = traversedTile.asTile().geometricError;
       console.log(
         `  Traversed tile: ${traversedTile}, ` +
-          ` contents [${contentUris}], ` +
+          `path: ${traversedTile.path}, ` +
+          `contents [${contentUris}], ` +
           `geometricError ${geometricError}`
       );
       return Promise.resolve(true);

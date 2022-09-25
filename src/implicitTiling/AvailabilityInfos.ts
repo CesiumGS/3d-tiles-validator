@@ -33,13 +33,7 @@ export class AvailabilityInfos {
   ): AvailabilityInfo {
     const length =
       ImplicitTilings.computeNumberOfNodesPerSubtree(implicitTiling);
-    if (!defined(length)) {
-      throw new ImplicitTilingError(
-        `Could not determine the number of nodes due to ` +
-          `an invalid subdivision scheme: ${implicitTiling.subdivisionScheme}`
-      );
-    }
-    return AvailabilityInfos.create(availability, bufferViewDatas, length!);
+    return AvailabilityInfos.create(availability, bufferViewDatas, length);
   }
 
   /**
@@ -62,13 +56,7 @@ export class AvailabilityInfos {
       implicitTiling,
       implicitTiling.subtreeLevels
     );
-    if (!defined(length)) {
-      throw new ImplicitTilingError(
-        `Could not determine the number of nodes due to ` +
-          `an invalid subdivision scheme: ${implicitTiling.subdivisionScheme}`
-      );
-    }
-    return AvailabilityInfos.create(availability, bufferViewDatas, length!);
+    return AvailabilityInfos.create(availability, bufferViewDatas, length);
   }
 
   /**
