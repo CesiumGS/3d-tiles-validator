@@ -1,32 +1,28 @@
-/* eslint-disable */
-// Mostly taken from https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3
-"use strict";
+// Mostly ported from https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3
 
-const utility = require("./utility");
+import { defaultValue } from "../../base/defaultValue";
+import { defined } from "../../base/defined";
 
-const defaultValue = require("./defaultValue.js");
-const defined = require("./defined.js");
-
-const componentTypeToByteLength = utility.componentTypeToByteLength;
-const typeToComponentsLength = utility.typeToComponentsLength;
+import { typeToComponentsLength } from "./utility";
+import { componentTypeToByteLength } from "./utility";
 
 /**
  * Checks if the feature table JSON and feature table binary are valid
  *
- * @param {Object} featureTableJson Feature table JSON.
- * @param {Buffer} featureTableBinary Feature table binary.
- * @param {Number} featuresLength The number of features.
- * @param {Object} featureTableSemantics An object containing semantic information for each feature table property, specific to the tile format.
- * @returns {String} An error message if validation fails, otherwise undefined.
+ * @param featureTableJson Feature table JSON.
+ * @param featureTableBinary Feature table binary.
+ * @param featuresLength The number of features.
+ * @param featureTableSemantics An object containing semantic information for each feature table property, specific to the tile format.
+ * @returns An error message if validation fails, otherwise undefined.
  */
 function validateFeatureTable(
-  featureTableJson,
-  featureTableBinary,
-  featuresLength,
-  featureTableSemantics
-) {
+  featureTableJson: any,
+  featureTableBinary: Buffer,
+  featuresLength: number,
+  featureTableSemantics: any
+): string | undefined {
   for (const name in featureTableJson) {
-    if (featureTableJson.hasOwnProperty(name)) {
+    if (Object.prototype.hasOwnProperty.call(featureTableJson, name)) {
       if (name === "extensions" || name === "extras") {
         continue;
       }
@@ -49,6 +45,15 @@ function validateFeatureTable(
 
       const componentsLength = typeToComponentsLength(type);
       const componentByteLength = componentTypeToByteLength(componentType);
+
+      if (!defined(componentsLength)) {
+        return `Feature table binary property "${name}" has invalid type "${type}".`;
+      }
+
+      if (!defined(componentByteLength)) {
+        return `Feate table binary property "${name}" has invalid componentType "${componentType}".`;
+      }
+
       const itemsLength = definition.global ? 1 : featuresLength;
 
       if (defined(byteOffset)) {
@@ -62,11 +67,11 @@ function validateFeatureTable(
         ) {
           return `Feature table binary property "${name}" has invalid componentType "${componentType}".`;
         }
-        if (byteOffset % componentByteLength > 0) {
+        if (byteOffset % componentByteLength! > 0) {
           return `Feature table binary property "${name}" must be aligned to a ${componentByteLength}-byte boundary.`;
         }
         const propertyByteLength =
-          componentsLength * componentByteLength * itemsLength;
+          componentsLength! * componentByteLength! * itemsLength;
         if (byteOffset + propertyByteLength > featureTableBinary.length) {
           return `Feature table binary property "${name}" exceeds feature table binary byte length.`;
         }
@@ -75,7 +80,7 @@ function validateFeatureTable(
           return `Feature table property "${name}" must be a boolean.`;
         }
       } else {
-        const arrayLength = componentsLength * itemsLength;
+        const arrayLength = componentsLength! * itemsLength;
         if (definition.global && arrayLength === 1) {
           if (typeof property !== "number") {
             return `Feature table property "${name}" must be a number.`;
@@ -98,7 +103,10 @@ function validateFeatureTable(
   }
 }
 
-function hasDracoProperty(featureTableJson, propertyName) {
+function hasDracoProperty(
+  featureTableJson: any,
+  propertyName: string
+): boolean {
   const extensions = featureTableJson.extensions;
   if (defined(extensions)) {
     const dracoExtension = extensions["3DTILES_draco_point_compression"];
@@ -109,4 +117,4 @@ function hasDracoProperty(featureTableJson, propertyName) {
   return false;
 }
 
-module.exports = validateFeatureTable;
+export { validateFeatureTable };

@@ -1,15 +1,7 @@
-/* eslint-disable */
-// From https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3
+// Ported from https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3
 // (Some parts of that state have been omitted here)
 
-"use strict";
-
-module.exports = {
-  componentTypeToByteLength: componentTypeToByteLength,
-  typeToComponentsLength: typeToComponentsLength,
-};
-
-function typeToComponentsLength(type) {
+function typeToComponentsLength(type: string): number | undefined {
   switch (type) {
     case "SCALAR":
       return 1;
@@ -24,7 +16,7 @@ function typeToComponentsLength(type) {
   }
 }
 
-function componentTypeToByteLength(componentType) {
+function componentTypeToByteLength(componentType: string): number | undefined {
   switch (componentType) {
     case "BYTE":
     case "UNSIGNED_BYTE":
@@ -42,3 +34,5 @@ function componentTypeToByteLength(componentType) {
       return undefined;
   }
 }
+
+export { typeToComponentsLength, componentTypeToByteLength };

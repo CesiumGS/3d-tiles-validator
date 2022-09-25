@@ -1,24 +1,24 @@
-/* eslint-disable */
-// Mostly taken from https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3
-"use strict";
+// Mostly ported from https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3
+import { defined } from "../../base/defined";
 
-const utility = require("./utility");
-const defined = require("./defined.js");
-
-const componentTypeToByteLength = utility.componentTypeToByteLength;
-const typeToComponentsLength = utility.typeToComponentsLength;
+import { typeToComponentsLength } from "./utility";
+import { componentTypeToByteLength } from "./utility";
 
 /**
  * Checks if the batch table JSON and batch table binary are valid
  *
- * @param {Object} batchTableJson Batch table JSON.
- * @param {Buffer} batchTableBinary Batch table binary.
- * @param {Number} featuresLength The number of features.
- * @returns {String} An error message if validation fails, otherwise undefined.
+ * @param batchTableJson Batch table JSON.
+ * @param batchTableBinary Batch table binary.
+ * @param featuresLength The number of features.
+ * @returns An error message if validation fails, otherwise undefined.
  */
-function validateBatchTable(batchTableJson, batchTableBinary, featuresLength) {
+function validateBatchTable(
+  batchTableJson: any,
+  batchTableBinary: Buffer,
+  featuresLength: number
+): string | undefined {
   for (const name in batchTableJson) {
-    if (batchTableJson.hasOwnProperty(name)) {
+    if (Object.prototype.hasOwnProperty.call(batchTableJson, name)) {
       if (name === "extensions" || name === "extras") {
         continue;
       }
@@ -54,11 +54,11 @@ function validateBatchTable(batchTableJson, batchTableBinary, featuresLength) {
         if (!defined(componentByteLength)) {
           return `Batch table binary property "${name}" has invalid componentType "${componentType}".`;
         }
-        if (byteOffset % componentByteLength > 0) {
+        if (byteOffset % componentByteLength! > 0) {
           return `Batch table binary property "${name}" must be aligned to a ${componentByteLength}-byte boundary.`;
         }
         const propertyByteLength =
-          componentsLength * componentByteLength * featuresLength;
+          componentsLength! * componentByteLength! * featuresLength;
         if (byteOffset + propertyByteLength > batchTableBinary.length) {
           return `Batch table binary property "${name}" exceeds batch table binary byte length.`;
         }
@@ -74,7 +74,7 @@ function validateBatchTable(batchTableJson, batchTableBinary, featuresLength) {
   }
 }
 
-function hasDracoProperty(batchTableJson, propertyName) {
+function hasDracoProperty(batchTableJson: any, propertyName: string): boolean {
   const extensions = batchTableJson.extensions;
   if (defined(extensions)) {
     const dracoExtension = extensions["3DTILES_draco_point_compression"];
@@ -85,4 +85,4 @@ function hasDracoProperty(batchTableJson, propertyName) {
   return false;
 }
 
-module.exports = validateBatchTable;
+export { validateBatchTable };
