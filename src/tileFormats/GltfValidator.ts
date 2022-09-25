@@ -23,7 +23,14 @@ export class GltfValidator implements Validator<Buffer> {
     this._baseDirectory = path.dirname(uri);
   }
 
-  static createValidationIssueFromGltfMessage(
+  /**
+   * Creates a `ValidationIssue` object for the given 'message' object
+   * that appears in the output of the glTF validator.
+   *
+   * @param gltfMessage The glTF validator message
+   * @returns The `ValidationIssue`
+   */
+  private static createValidationIssueFromGltfMessage(
     gltfMessage: any
   ): ValidationIssue {
     const path = gltfMessage.pointer;
