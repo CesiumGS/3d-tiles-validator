@@ -1,6 +1,6 @@
 import { Validators } from "../src/validation/Validators";
 
-describe("ValidationIssues", function () {
+describe("Tileset validation", function () {
   it("detects issues in assetTilesetVersionInvalidType", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/assetTilesetVersionInvalidType.json"
