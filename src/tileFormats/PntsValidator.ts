@@ -18,12 +18,8 @@ import { Validator } from "../validation/Validator";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { BinaryValidationIssues } from "../issues/BinaryValidationIssues";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const validateFeatureTable = require("./legacy/validateFeatureTable.js");
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const validateBatchTable = require("./legacy/validateBatchTable.js");
+import { validateBatchTable } from "./legacy/validateBatchTable";
+import { validateFeatureTable } from "./legacy/validateFeatureTable";
 
 const featureTableSemantics = {
   POSITION: {
@@ -349,7 +345,7 @@ export class PntsValidator implements Validator<Buffer> {
     if (defined(featureTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
         this._uri,
-        featureTableMessage
+        featureTableMessage!
       );
       context.addIssue(issue);
     }
@@ -362,7 +358,7 @@ export class PntsValidator implements Validator<Buffer> {
     if (defined(batchTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
         this._uri,
-        batchTableMessage
+        batchTableMessage!
       );
       context.addIssue(issue);
     }
