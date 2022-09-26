@@ -107,7 +107,7 @@ export class TilesetTraversingValidator {
     const content = tile.content;
     const contentPath = traversedTile.path + "/content";
     if (defined(content)) {
-      await TileContentValidator.validateContent(
+      await TileContentValidator.validateTileContent(
         contentPath,
         content!,
         tile,
@@ -122,7 +122,7 @@ export class TilesetTraversingValidator {
       for (let i = 0; i < contents!.length; i++) {
         const contentsElement = contents![i];
         const contentsElementPath = contentsPath + "/" + i;
-        await TileContentValidator.validateContent(
+        await TileContentValidator.validateTileContent(
           contentsElementPath,
           contentsElement!,
           tile,

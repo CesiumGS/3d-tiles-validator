@@ -1,8 +1,8 @@
 import { defined } from "../base/defined";
 
 import { ValidationContext } from "./ValidationContext";
-import { ContentValidator } from "./ContentValidator";
 import { TemplateUriValidator } from "./TemplateUriValidator";
+import { ContentDataValidator } from "./ContentDataValidator";
 
 import { BoundingVolumeChecks } from "./legacy/BoundingVolumeChecks";
 
@@ -12,13 +12,13 @@ import { Content } from "../structure/Content";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
 /**
- * A class for validating tile content.
- *
+ * A class for validating a `Tile` and its associated `Content`.
+ * 
  * @private
  */
 export class TileContentValidator {
   /**
-   * Validates the given tile content.
+   * Validates the given tile content. 
    *
    * This assumes that the given content was already determined to
    * be _structurally_ valid on the JSON level, using the
@@ -30,7 +30,7 @@ export class TileContentValidator {
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
-  static async validateContent(
+  static async validateTileContent(
     contentPath: string,
     content: Content,
     tile: Tile,
@@ -55,7 +55,7 @@ export class TileContentValidator {
       // Validate the content data
       const options = context.getOptions();
       if (options.validateContentData) {
-        await ContentValidator.validateContentData(
+        await ContentDataValidator.validateContentData(
           contentPath,
           content,
           context
