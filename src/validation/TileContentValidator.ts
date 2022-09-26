@@ -13,12 +13,12 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
 /**
  * A class for validating a `Tile` and its associated `Content`.
- * 
+ *
  * @private
  */
 export class TileContentValidator {
   /**
-   * Validates the given tile content. 
+   * Validates the given tile content.
    *
    * This assumes that the given content was already determined to
    * be _structurally_ valid on the JSON level, using the
@@ -36,40 +36,32 @@ export class TileContentValidator {
     tile: Tile,
     context: ValidationContext
   ): Promise<void> {
-    // Check if the tile is the root of an implicit tileset
+    // If the tile is the root of an implicit tileset, then
+    // there is no content to validate here. This method 
+    // will be called for each implicit tile during traversal,
+    // and then receive the content where the appropriate
+    // substitution of the template URI has been done.
     const implicitTiling = tile.implicitTiling;
     if (defined(implicitTiling)) {
-      // Validate the content uri
-      const contentUri = content.uri;
-      const contentUriPath = contentPath + "/uri";
-      const subdivisionScheme = implicitTiling!.subdivisionScheme;
-      // The uri MUST be a template URI
-      TemplateUriValidator.validateTemplateUri(
-        contentUriPath,
-        "uri",
-        contentUri,
-        subdivisionScheme,
-        context
-      );
-    } else {
-      // Validate the content data
-      const options = context.getOptions();
-      if (options.validateContentData) {
-        await ContentDataValidator.validateContentData(
-          contentPath,
-          content,
-          context
-        );
-      }
+      return;
+    }
 
-      // Validate the content bounding volume consistency
-      TileContentValidator.validateContentBoundingVolumeConsistency(
-        tile,
+    // Validate the content data
+    const options = context.getOptions();
+    if (options.validateContentData) {
+      await ContentDataValidator.validateContentData(
         contentPath,
         content,
         context
       );
     }
+    // Validate the content bounding volume consistency
+    TileContentValidator.validateContentBoundingVolumeConsistency(
+      tile,
+      contentPath,
+      content,
+      context
+    );
   }
 
   /**
