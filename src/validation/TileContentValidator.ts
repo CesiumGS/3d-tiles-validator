@@ -1,7 +1,6 @@
 import { defined } from "../base/defined";
 
 import { ValidationContext } from "./ValidationContext";
-import { TemplateUriValidator } from "./TemplateUriValidator";
 import { ContentDataValidator } from "./ContentDataValidator";
 
 import { BoundingVolumeChecks } from "./legacy/BoundingVolumeChecks";
