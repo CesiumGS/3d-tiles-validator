@@ -2,6 +2,7 @@ import { defined } from "../base/defined";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 
 import { StatisticsClass } from "../structure/StatisticsClass";
 import { Schema } from "../structure/Metadata/Schema";
@@ -48,6 +49,18 @@ export class StatisticsClassValidator {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        classPath,
+        className,
+        statisticsClass,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     // Each class that appears in the statistics MUST be
     // one of the classes defined in the schema

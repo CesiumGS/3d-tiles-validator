@@ -16,6 +16,7 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 
 /**
  * The valid values for the `refine` property
@@ -60,6 +61,18 @@ export class TileValidator {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        tilePath,
+        "tile",
+        tile,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     // Validate the boundingVolume
     const boundingVolume = tile.boundingVolume;

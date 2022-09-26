@@ -5,6 +5,7 @@ import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { MetadataStructureValidator } from "./MetadataStructureValidator";
 import { MetadataValueValidator } from "./MetadataValueValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 
 import { Schema } from "../structure/Metadata/Schema";
 import { MetadataEntity } from "../structure/MetadataEntity";
@@ -39,6 +40,20 @@ export class MetadataEntityValidator {
       return false;
     }
 
+    let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        path,
+        name,
+        metadataEntity,
+        context
+      )
+    ) {
+      result = false;
+    }
+
     // Validate that the class and properties are structurally
     // valid and comply to the metadata schema
     const className = metadataEntity.class;
@@ -53,14 +68,14 @@ export class MetadataEntityValidator {
         context
       )
     ) {
+      result = false;
       // Bail out early if the structure is not valid!
-      return false;
+      return result;
     }
 
     // Here, the basic structure of the class and properties
     // have been determined to be valid. Continue to validate
     // the values of the properties.
-    let result = true;
     const schemaClasses = defaultValue(schema.classes, {});
     const schemaClass = schemaClasses[className];
     const classProperties = defaultValue(schemaClass.properties, {});

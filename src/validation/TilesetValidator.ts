@@ -18,6 +18,8 @@ import { Group } from "../structure/Group";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
+import { RootPropertyValidator } from "./RootPropertyValidator";
+import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
 /**
  * A class that can validate a 3D Tiles tileset.
@@ -110,6 +112,14 @@ export class TilesetValidator implements Validator<Tileset> {
     if (!BasicValidator.validateObject(path, "tileset", tileset, context)) {
       return;
     }
+
+    // Validate the object as a RootProperty
+    RootPropertyValidator.validateRootProperty(
+      path,
+      "tileset",
+      tileset,
+      context
+    );
 
     // The asset MUST be defined
     const asset = tileset.asset;
@@ -257,6 +267,132 @@ export class TilesetValidator implements Validator<Tileset> {
       validationState,
       context
     );
+
+    TilesetValidator.validateExtensionDeclarations(path, tileset, context);
+  }
+
+  /**
+   * Validate the extension declarations of the given tileset.
+   *
+   * This is supposed to be called at the end of the validation process
+   * of the tileset. It uses the extension names that have been added
+   * to the `ValidationContext` via `addExtensionFound`, to make sure
+   * that all extensions that are found have also been declared in
+   * the 'extensionsUsed' array.
+   *
+   * It also performs the JSON-schema level validation of the basic
+   * structure and consistency of the 'extensionsUsed' and
+   * 'extensionsRequired' arrays of the given tileset.
+   *
+   * @param path The path for `ValidationIssue` instances
+   * @param tileset The `Tileset`
+   * @param context The `ValidationContext`
+   */
+  private static validateExtensionDeclarations(
+    path: string,
+    tileset: Tileset,
+    context: ValidationContext
+  ): void {
+    // These are the actual sets of unique string values that
+    // are found in 'extensionsUsed' and 'extensionsRequired'
+    const actualExtensionsUsed = new Set<string>();
+    const actualExtensionsRequired = new Set<string>();
+
+    // Validate the extensionsUsed
+    const extensionsUsed = tileset.extensionsUsed;
+    const extensionsUsedPath = path + "/extensionsUsed";
+    if (defined(extensionsUsed)) {
+      // The extensionsUsed MUST be an array of strings with
+      // a length of at least 1
+      if (
+        BasicValidator.validateArray(
+          extensionsUsedPath,
+          "extensionsUsed",
+          extensionsUsed,
+          1,
+          undefined,
+          "string",
+          context
+        )
+      ) {
+        extensionsUsed!.forEach((e) => actualExtensionsUsed.add(e));
+
+        // The elements in extensionsUsed MUST be unique
+        BasicValidator.validateArrayElementsUnique(
+          extensionsUsedPath,
+          "extensionsUsed",
+          extensionsUsed,
+          context
+        );
+      }
+    }
+    // Validate the extensionsRequired
+    const extensionsRequired = tileset.extensionsRequired;
+    const extensionsRequiredPath = path + "/extensionsRequired";
+    if (defined(extensionsRequired)) {
+      // The extensionsRequired MUST be an array of strings with
+      // a length of at least 1
+      if (
+        BasicValidator.validateArray(
+          extensionsRequiredPath,
+          "extensionsRequired",
+          extensionsRequired,
+          1,
+          undefined,
+          "string",
+          context
+        )
+      ) {
+        extensionsRequired!.forEach((e) => actualExtensionsRequired.add(e));
+
+        // The elements in extensionsRequired MUST be unique
+        BasicValidator.validateArrayElementsUnique(
+          extensionsRequiredPath,
+          "extensionsRequired",
+          extensionsRequired,
+          context
+        );
+      }
+    }
+
+    // Each extension in extensionsRequired MUST also
+    // appear in extensionsUsed.
+    for (const extensionName of actualExtensionsRequired) {
+      if (!actualExtensionsUsed.has(extensionName)) {
+        const issue = SemanticValidationIssues.EXTENSION_REQUIRED_BUT_NOT_USED(
+          extensionsRequiredPath,
+          extensionName
+        );
+        context.addIssue(issue);
+      }
+    }
+
+    // Each extension that is found during the validation
+    // in the `RootPropertyValidator` also has to appear
+    // in the 'extensionsUsed'
+    const actualExtensionsFound = context.getExtensionsFound();
+    for (const extensionName of actualExtensionsFound) {
+      if (!actualExtensionsUsed.has(extensionName)) {
+        const issue = SemanticValidationIssues.EXTENSION_FOUND_BUT_NOT_USED(
+          extensionsRequiredPath,
+          extensionName
+        );
+        context.addIssue(issue);
+      }
+    }
+
+    // Each extension that is declared in the 'extensionsUsed'
+    // should also appear in the extensions that are found
+    // (but it does not have to - so this is just a warning)
+    for (const extensionName of actualExtensionsUsed) {
+      if (!actualExtensionsFound.has(extensionName)) {
+        const issue = SemanticValidationIssues.EXTENSION_USED_BUT_NOT_FOUND(
+          extensionsRequiredPath,
+          extensionName
+        );
+        context.addIssue(issue);
+      }
+    }
   }
 
   /**

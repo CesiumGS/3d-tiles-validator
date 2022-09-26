@@ -112,6 +112,24 @@ export class JsonValidationIssues {
   }
 
   /**
+   * Indicates that a value in an array was not unique, even though
+   * the items are required to be unique due to `uniqueItems:true`
+   * in the JSON schema.
+   *
+   * @param path The JSON path for the `ValidationIssue`
+   * @param name The name of the array property
+   * @param item The duplicate item
+   * @returns The `ValidationIssue`
+   */
+  static ARRAY_ELEMENT_NOT_UNIQUE(path: string, name: string, item: any) {
+    const type = "ARRAY_ELEMENT_NOT_UNIQUE";
+    const severity = ValidationIssueSeverity.ERROR;
+    const message = `The element '${item}' in array '${name}' is not unique`;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  /**
    * Indicates that a numeric value was not in the range that
    * is specified by the JSON schema via the `minimum` and
    * `maximum` constraints.
@@ -264,6 +282,39 @@ export class JsonValidationIssues {
   private static _ANY_OF_ERROR(path: string, message: string) {
     const type = "ANY_OF_ERROR";
     const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  /**
+   * Indicates that a property had a type that it should not have.
+   *
+   * This is ONLY used for the `rootProperty.extras` validation:
+   * While the `extras` may have any type, a general best practice
+   * is to let it be a dictionary (and not, for example, a string)
+   *
+   * @param path The JSON path for the `ValidationIssue`
+   * @param name The name of the property
+   * @param expectedType The expected type
+   * @param actualType The actual type
+   * @returns The `ValidationIssue`
+   */
+  static TYPE_UNEXPECTED(
+    path: string,
+    name: string,
+    expectedType: string,
+    actualType: string
+  ) {
+    const message =
+      `The '${name}' property should have ` +
+      `type '${expectedType}', but has type '${actualType}'`;
+    return JsonValidationIssues._TYPE_UNEXPECTED(path, message);
+  }
+
+  // Internal method for TYPE_UNEXPECTED
+  private static _TYPE_UNEXPECTED(path: string, message: string) {
+    const type = "TYPE_UNEXPECTED";
+    const severity = ValidationIssueSeverity.WARNING;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }

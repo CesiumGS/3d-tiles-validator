@@ -2,6 +2,7 @@ import { defined } from "../base/defined";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 
 import { BoundingVolume } from "../structure/BoundingVolume";
 
@@ -42,6 +43,18 @@ export class BoundingVolumeValidator {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        boundingVolumePath,
+        "boundingVolume",
+        boundingVolume,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     const box = boundingVolume.box;
     const region = boundingVolume.region;

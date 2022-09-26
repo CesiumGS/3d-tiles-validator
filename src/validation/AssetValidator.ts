@@ -1,9 +1,12 @@
 import { defined } from "../base/defined";
 
 import { ValidationContext } from "./ValidationContext";
-import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
-import { Asset } from "../structure/Asset";
 import { BasicValidator } from "./BasicValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
+
+import { Asset } from "../structure/Asset";
+
+import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
 /**
  * A class for validations related to `asset` objects.
@@ -32,6 +35,18 @@ export class AssetValidator {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        "/asset",
+        "asset",
+        asset,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     // Validate the version
     const version = asset.version;

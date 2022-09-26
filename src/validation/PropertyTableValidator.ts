@@ -3,7 +3,7 @@ import { defaultValue } from "../base/defaultValue";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
-
+import { RootPropertyValidator } from "./RootPropertyValidator";
 import { MetadataStructureValidator } from "./MetadataStructureValidator";
 
 import { Schema } from "../structure/Metadata/Schema";
@@ -44,6 +44,20 @@ export class PropertyTableValidator {
       return false;
     }
 
+    let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        path,
+        "propertyTable",
+        propertyTable,
+        context
+      )
+    ) {
+      result = false;
+    }
+
     // Validate that the class and properties are structurally
     // valid and comply to the metadata schema
     const className = propertyTable.class;
@@ -61,8 +75,6 @@ export class PropertyTableValidator {
       // Bail out early if the structure is not valid!
       return false;
     }
-
-    let result = true;
 
     // Validate the name.
     // If the name is defined, it MUST be a string.

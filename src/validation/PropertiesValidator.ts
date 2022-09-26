@@ -1,5 +1,6 @@
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 
 import { Properties } from "../structure/Properties";
 
@@ -37,6 +38,18 @@ export class PropertiesValidator {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        "/properties",
+        "properties",
+        properties,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     // Validate all entries of the properties dictionary
     for (const [key, value] of Object.entries(properties)) {

@@ -3,6 +3,7 @@ import { defined } from "../base/defined";
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { ValidationState } from "./ValidationState";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 
 import { Statistics } from "../structure/Statistics";
 
@@ -39,6 +40,18 @@ export class StatisticsValidator {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        path,
+        "statistics",
+        statistics,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     // Validate the classes
     const classes = statistics.classes;

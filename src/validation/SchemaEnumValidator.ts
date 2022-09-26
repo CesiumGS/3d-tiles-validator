@@ -2,6 +2,7 @@ import { defined } from "../base/defined";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 
 import { MetadataComponentTypes } from "../metadata/MetadataComponentTypes";
 
@@ -44,6 +45,18 @@ export class SchemaEnumValidator {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        schemaEnumPath,
+        enumName,
+        schemaEnum,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     // Validate the name.
     // If the name is defined, it MUST be a string.

@@ -200,6 +200,46 @@ export class BasicValidator {
   }
 
   /**
+   * Validates that the elements in the given array are unique.
+   *
+   * This assumes that the basic validation of the array has already
+   * been peformed. It **ONLY** checks the uniqueness of the elements.
+   *
+   * If the elements are unique, then `true` is returned.
+   *
+   * Otherwise, one `ARRAY_ELEMENT_NOT_UNIQUE` issue will be added
+   * for each non-unique element, and `false` is returned.
+   *
+   * @param path The path for the `ValidationIssue` message
+   * @param name The name for the `ValidationIssue` message
+   * @param array The array
+   * @param context The `ValidationContext` to add the issue to
+   * @returns Whether the elements have been unique
+   */
+  static validateArrayElementsUnique(
+    path: string,
+    name: string,
+    array: any,
+    context: ValidationContext
+  ): boolean {
+    let result = true;
+    for (let i = 0; i < array.length; i++) {
+      const value = array[i];
+      const index = array.indexOf(value);
+      if (index != i) {
+        const issue = JsonValidationIssues.ARRAY_ELEMENT_NOT_UNIQUE(
+          path,
+          name,
+          value
+        );
+        context.addIssue(issue);
+        result = false;
+      }
+    }
+    return result;
+  }
+
+  /**
    * Validate that the given value has the type `"object"`.
    *
    * If the value has the expected type, then `true` is returned.

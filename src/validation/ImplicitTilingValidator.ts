@@ -1,6 +1,7 @@
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { TemplateUriValidator } from "./TemplateUriValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 
@@ -42,6 +43,18 @@ export class ImplicitTilingValidator {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        path,
+        "implicitTiling",
+        implicitTiling,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     // Validate the subdivisionScheme
     // The subdivisionSchemes MUST be defined
@@ -119,13 +132,15 @@ export class ImplicitTilingValidator {
       // The uri MUST be a template URI
       const subtreesUri = subtrees.uri;
       const subtreesUriPath = subtreesPath + "/uri";
-      if (!TemplateUriValidator.validateTemplateUri(
-        subtreesUriPath,
-        "uri",
-        subtreesUri,
-        subdivisionScheme,
-        context
-      )) {
+      if (
+        !TemplateUriValidator.validateTemplateUri(
+          subtreesUriPath,
+          "uri",
+          subtreesUri,
+          subdivisionScheme,
+          context
+        )
+      ) {
         result = false;
       }
     }

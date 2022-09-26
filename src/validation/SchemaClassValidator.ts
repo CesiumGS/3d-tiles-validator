@@ -2,6 +2,7 @@ import { defined } from "../base/defined";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ClassPropertyValidator } from "./ClassPropertyValidator";
 
 import { Schema } from "../structure/Metadata/Schema";
@@ -45,6 +46,18 @@ export class SchemaClassValidator {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        schemaClassPath,
+        name,
+        schemaClass,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     // Validate the name.
     // If the name is defined, it MUST be a string.

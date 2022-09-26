@@ -9,6 +9,7 @@ import { Validators } from "./Validators";
 import { ValidationContext } from "./ValidationContext";
 import { BoundingVolumeValidator } from "./BoundingVolumeValidator";
 import { BasicValidator } from "./BasicValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 
 import { B3dmValidator } from "../tileFormats/B3dmValidator";
 import { I3dmValidator } from "../tileFormats/I3dmValidator";
@@ -61,6 +62,18 @@ export class ContentValidator {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        contentPath,
+        "content",
+        content,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     // Validate the group
     const group = content.group;

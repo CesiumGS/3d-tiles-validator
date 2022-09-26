@@ -3,12 +3,13 @@ import { defined } from "../base/defined";
 import { ValidationContext } from "./ValidationContext";
 import { Validator } from "./Validator";
 import { BasicValidator } from "./BasicValidator";
+import { SchemaClassValidator } from "./SchemaClassValidator";
+import { SchemaEnumValidator } from "./SchemaEnumValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 
 import { Schema } from "../structure/Metadata/Schema";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
-import { SchemaClassValidator } from "./SchemaClassValidator";
-import { SchemaEnumValidator } from "./SchemaEnumValidator";
 
 /**
  * A class for validations related to `schema` objects.
@@ -106,6 +107,18 @@ export class SchemaValidator implements Validator<Schema> {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        path,
+        "schema",
+        schema,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     // Validate the id
     const id = schema.id;

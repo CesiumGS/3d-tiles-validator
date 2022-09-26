@@ -309,4 +309,32 @@ export class SemanticValidationIssues {
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
+
+  static EXTENSION_REQUIRED_BUT_NOT_USED(path: string, extensionName: string) {
+    const type = "EXTENSION_REQUIRED_BUT_NOT_USED";
+    const severity = ValidationIssueSeverity.ERROR;
+    const message =
+      `The extension '${extensionName}' was declared in ` +
+      `'extensionsRequired' but not in 'extensionsUsed'`;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+  static EXTENSION_FOUND_BUT_NOT_USED(path: string, extensionName: string) {
+    const type = "EXTENSION_FOUND_BUT_NOT_USED";
+    const severity = ValidationIssueSeverity.ERROR;
+    const message =
+      `The extension '${extensionName}' was found, but not ` +
+      `declared in 'extensionsUsed'`;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+  static EXTENSION_USED_BUT_NOT_FOUND(path: string, extensionName: string) {
+    const type = "EXTENSION_USED_BUT_NOT_FOUND";
+    const severity = ValidationIssueSeverity.WARNING;
+    const message =
+      `The extension '${extensionName}' was declared in ` +
+      `'extensionsUsed', but not found`;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
 }

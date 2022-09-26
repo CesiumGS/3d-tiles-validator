@@ -34,6 +34,11 @@ export class ValidationContext {
   private _result: ValidationResult;
 
   /**
+   * The set of extensions that have been found during the validation
+   */
+  private _extensionsFound: Set<string>;
+
+  /**
    * The `ResourceResolver` that resolves resources that are given
    * as URI strings into Buffer objects, relative to the directory
    * in which the validation started.
@@ -44,6 +49,7 @@ export class ValidationContext {
     this._options = new ValidationOptions();
     this._result = new ValidationResult();
     this._resourceResolver = resourceResolver;
+    this._extensionsFound = new Set<string>();
   }
 
   /**
@@ -60,11 +66,20 @@ export class ValidationContext {
   derive(uri: string): ValidationContext {
     const derived = new ValidationContext(this._resourceResolver.derive(uri));
     derived._options = this._options;
+    derived._extensionsFound = this._extensionsFound;
     return derived;
   }
 
   addIssue(issue: ValidationIssue): void {
     this._result.add(issue);
+  }
+
+  addExtensionFound(extension: string) {
+    this._extensionsFound.add(extension);
+  }
+
+  getExtensionsFound(): Set<string> {
+    return new Set<string>(this._extensionsFound);
   }
 
   getResult(): ValidationResult {

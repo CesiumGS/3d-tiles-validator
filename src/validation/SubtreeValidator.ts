@@ -23,6 +23,7 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
+import { RootPropertyValidator } from "./RootPropertyValidator";
 
 /**
  * A class for validations related to `subtree` objects that have
@@ -288,6 +289,20 @@ export class SubtreeValidator implements Validator<Buffer> {
   ): Promise<boolean> {
     const hasBinaryBuffer = defined(binaryBuffer);
 
+    let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        path,
+        "subtree",
+        subtree,
+        context
+      )
+    ) {
+      result = false;
+    }
+
     // Validate the structure of the given subtree object,
     // on the level of JSON validity
     const structureIsValid = this.validateSubtreeObject(
@@ -296,7 +311,8 @@ export class SubtreeValidator implements Validator<Buffer> {
       context
     );
     if (!structureIsValid) {
-      return false;
+      result = false;
+      return result;
     }
 
     // If the structure was valid, perform the deeper consistency validation
@@ -308,7 +324,8 @@ export class SubtreeValidator implements Validator<Buffer> {
         context
       )
     ) {
-      return false;
+      result = false;
+      return result;
     }
 
     // If the structure was valid and consistent, perform the validity
@@ -323,11 +340,12 @@ export class SubtreeValidator implements Validator<Buffer> {
         context
       );
       if (!dataIsConsistent) {
-        return false;
+        result = false;
+        return result;
       }
     }
 
-    return true;
+    return result;
   }
 
   /**
