@@ -1,0 +1,21 @@
+{
+  "asset" : {
+    "version" : "1.1"
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0
+  },
+  "extensions": {
+    "EXAMPLE_EXTENSION_A" : {},
+    "EXAMPLE_EXTENSION_B" : {}
+  },
+  "extensionsUsed": [
+    "EXAMPLE_EXTENSION_A",
+    "EXAMPLE_EXTENSION_B",
+    "EXAMPLE_EXTENSION_A"
+  ]
+}

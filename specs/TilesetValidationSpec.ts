@@ -725,4 +725,101 @@ describe("Tileset validation", function () {
     );
     expect(result.length).toEqual(0);
   });
+
+  it("detects issues in extensionFoundButNotUsed", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionFoundButNotUsed.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("EXTENSION_FOUND_BUT_NOT_USED");
+  });
+
+  it("detects issues in extensionRequiredButNotUsed", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionRequiredButNotUsed.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("EXTENSION_REQUIRED_BUT_NOT_USED");
+  });
+
+  it("detects issues in extensionsInvalidType", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionsInvalidType.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("TYPE_MISMATCH");
+  });
+
+  it("detects issues in extensionsRequiredDuplicateElement", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionsRequiredDuplicateElement.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("ARRAY_ELEMENT_NOT_UNIQUE");
+  });
+
+  it("detects issues in extensionsRequiredInvalidArrayLength", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionsRequiredInvalidArrayLength.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
+  });
+
+  it("detects issues in extensionsRequiredInvalidType", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionsRequiredInvalidType.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("TYPE_MISMATCH");
+  });
+
+  it("detects issues in extensionsUsedDuplicateElement", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionsUsedDuplicateElement.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("ARRAY_ELEMENT_NOT_UNIQUE");
+  });
+
+  it("detects issues in extensionsUsedInvalidArrayLength", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionsUsedInvalidArrayLength.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
+  });
+
+  it("detects issues in extensionsUsedInvalidType", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionsUsedInvalidType.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("TYPE_MISMATCH");
+  });
+
+  it("detects issues in extensionsValueInvalidType", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionsValueInvalidType.json"
+    );
+    expect(result.length).toEqual(2);
+    expect(result.get(0).type).toEqual("TYPE_MISMATCH");
+    expect(result.get(1).type).toEqual("EXTENSION_USED_BUT_NOT_FOUND");
+  });
+
+  it("detects issues in extensionUsedButNotFound", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionUsedButNotFound.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("EXTENSION_USED_BUT_NOT_FOUND");
+  });
+
+  it("detects issues in extrasUnexpectedType", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extrasUnexpectedType.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("TYPE_UNEXPECTED");
+  });
 });
