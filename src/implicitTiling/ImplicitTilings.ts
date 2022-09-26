@@ -44,28 +44,8 @@ export class ImplicitTilings {
     implicitTiling: TileImplicitTiling
   ): IterableIterator<TreeCoordinates> {
     const r = this.createRootCoordinates(implicitTiling);
-    return r.descendants(implicitTiling.subtreeLevels - 1);
-  }
-
-  /**
-   * Returns the tile coordinates of the root node for the given
-   * implicit tiling object.
-   *
-   * @param implicitTiling The `TileImplicitTiling` object
-   * @returns The root coordinates
-   * @throws ImplicitTilingError if the given object does not
-   * have a valid `subdivisionScheme`.
-   */
-  private static createRootCoordinates(implicitTiling: TileImplicitTiling) {
-    if (implicitTiling.subdivisionScheme === "QUADTREE") {
-      return new QuadtreeCoordinates(0, 0, 0);
-    }
-    if (implicitTiling.subdivisionScheme === "OCTREE") {
-      return new OctreeCoordinates(0, 0, 0, 0);
-    }
-    throw new ImplicitTilingError(
-      `Invalid subdivisionScheme: ${implicitTiling.subdivisionScheme}`
-    );
+    const depthFirst = false;
+    return r.descendants(implicitTiling.subtreeLevels - 1, depthFirst);
   }
 
   /**
@@ -191,7 +171,7 @@ export class ImplicitTilings {
    * @throws ImplicitTilingError if the given object does not
    * have a valid `subdivisionScheme`.
    */
-  static createRoot(implicitTiling: TileImplicitTiling): TreeCoordinates {
+  static createRootCoordinates(implicitTiling: TileImplicitTiling): TreeCoordinates {
     const subdivisionScheme = implicitTiling.subdivisionScheme;
     if (subdivisionScheme === "QUADTREE") {
       return new QuadtreeCoordinates(0, 0, 0);

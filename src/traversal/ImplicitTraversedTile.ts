@@ -188,7 +188,7 @@ export class ImplicitTraversedTile implements TraversedTile {
           this._resourceResolver,
           globalChildCoordinate
         );
-        const childLocalCoordinate = ImplicitTilings.createRoot(
+        const childLocalCoordinate = ImplicitTilings.createRootCoordinates(
           this._implicitTiling
         );
         // The path is composed from the path of the root and the string
