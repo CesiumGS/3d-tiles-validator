@@ -3,10 +3,11 @@ import { Group } from "./Group";
 import { Schema } from "./Metadata/Schema";
 import { MetadataEntity } from "./MetadataEntity";
 import { Properties } from "./Properties";
+import { RootProperty } from "./RootProperty";
 import { Statistics } from "./Statistics";
 import { Tile } from "./Tile";
 
-export interface Tileset {
+export interface Tileset extends RootProperty {
   asset: Asset;
   properties?: Properties;
   schema?: Schema;

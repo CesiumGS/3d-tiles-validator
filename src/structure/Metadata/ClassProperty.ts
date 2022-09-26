@@ -1,4 +1,6 @@
-export interface ClassProperty {
+import { RootProperty } from "../RootProperty";
+
+export interface ClassProperty extends RootProperty {
   name?: string;
   description?: string;
   type: string;

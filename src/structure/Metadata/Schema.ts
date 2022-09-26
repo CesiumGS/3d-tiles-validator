@@ -1,7 +1,8 @@
+import { RootProperty } from "../RootProperty";
 import { SchemaClass } from "./SchemaClass";
 import { SchemaEnum } from "./SchemaEnum";
 
-export interface Schema {
+export interface Schema extends RootProperty {
   id: string;
   name?: string;
   description?: string;

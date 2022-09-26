@@ -1,4 +1,6 @@
-export interface PropertyTableProperty {
+import { RootProperty } from "./RootProperty";
+
+export interface PropertyTableProperty extends RootProperty {
   values: number;
   arrayOffsets?: number;
   stringOffsets?: number;

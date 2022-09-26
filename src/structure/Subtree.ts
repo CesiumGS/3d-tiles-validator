@@ -3,8 +3,9 @@ import { BufferObject } from "./BufferObject";
 import { BufferView } from "./BufferView";
 import { MetadataEntity } from "./MetadataEntity";
 import { PropertyTable } from "./PropertyTable";
+import { RootProperty } from "./RootProperty";
 
-export interface Subtree {
+export interface Subtree extends RootProperty {
   buffers?: BufferObject[];
   bufferViews?: BufferView[];
   propertyTables?: PropertyTable[];

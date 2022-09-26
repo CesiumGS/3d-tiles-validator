@@ -1,9 +1,10 @@
 import { BoundingVolume } from "./BoundingVolume";
 import { Content } from "./Content";
 import { MetadataEntity } from "./MetadataEntity";
+import { RootProperty } from "./RootProperty";
 import { TileImplicitTiling } from "./TileImplicitTiling";
 
-export interface Tile {
+export interface Tile extends RootProperty {
   boundingVolume: BoundingVolume;
   viewerRequestVolume?: BoundingVolume;
   geometricError: number;

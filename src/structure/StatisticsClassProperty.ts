@@ -1,4 +1,6 @@
-export interface StatisticsClassProperty {
+import { RootProperty } from "./RootProperty";
+
+export interface StatisticsClassProperty extends RootProperty {
   min: any;
   max: any;
   mean: any;
