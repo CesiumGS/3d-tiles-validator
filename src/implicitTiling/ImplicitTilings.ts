@@ -171,7 +171,9 @@ export class ImplicitTilings {
    * @throws ImplicitTilingError if the given object does not
    * have a valid `subdivisionScheme`.
    */
-  static createRootCoordinates(implicitTiling: TileImplicitTiling): TreeCoordinates {
+  static createRootCoordinates(
+    implicitTiling: TileImplicitTiling
+  ): TreeCoordinates {
     const subdivisionScheme = implicitTiling.subdivisionScheme;
     if (subdivisionScheme === "QUADTREE") {
       return new QuadtreeCoordinates(0, 0, 0);
