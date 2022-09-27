@@ -1,7 +1,7 @@
 import { BasicValidator } from "../src/validation/BasicValidator";
 import { ValidationContext } from "../src/validation/ValidationContext";
 
-import { FileResourceResolver } from "../src/io/FileResourceResolver";
+import { ResourceResolvers } from "../src/io/ResourceResolvers";
 
 function validateNumberRange(
   value: number,
@@ -10,7 +10,7 @@ function validateNumberRange(
   max: number | undefined,
   maxInclusive: boolean
 ): boolean {
-  const resourceResolver = new FileResourceResolver("");
+  const resourceResolver = ResourceResolvers.createFileResourceResolver("");
   const context = new ValidationContext(resourceResolver);
   const result = BasicValidator.validateNumberRange(
     "path",

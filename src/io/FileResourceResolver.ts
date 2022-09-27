@@ -5,10 +5,12 @@ import { ResourceResolver } from "./ResourceResolver";
 import { Uris } from "./Uris";
 
 /**
- * Implementation of a `ResourceResolver` based on a file system
+ * Implementation of a `ResourceResolver` based on a file system.
+ * 
+ * @private (Instantiated by the `ResourceResolvers` class)
  */
 export class FileResourceResolver implements ResourceResolver {
-  private _basePath: string;
+  private readonly _basePath: string;
 
   constructor(basePath: string) {
     this._basePath = basePath;

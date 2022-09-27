@@ -3,12 +3,13 @@ import { defined } from "./base/defined";
 
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
 
+import { ResourceResolvers } from "./io/ResourceResolvers";
+
 import { Quadtrees } from "./implicitTiling/Quadtrees";
 import { TemplateUris } from "./implicitTiling/TemplateUris";
 import { QuadtreeCoordinates } from "./implicitTiling/QuadtreeCoordinates";
 import { OctreeCoordinates } from "./implicitTiling/OctreeCoordinates";
 
-import { FileResourceResolver } from "./io/FileResourceResolver";
 import { TilesetTraverser } from "./traversal/TilesetTraverser";
 import { SubtreeInfos } from "./implicitTiling/SubtreeInfos";
 
@@ -65,7 +66,8 @@ async function testSubtreeInfo() {
   const implicitTiling = await readJsonUnchecked(implcitTilingFilePath);
   const subtree = await readJsonUnchecked(subtreeFilePath);
   const directory = path.dirname(subtreeFilePath);
-  const resourceResolver = new FileResourceResolver(directory);
+  const resourceResolver =
+    ResourceResolvers.createFileResourceResolver(directory);
   const subtreeInfo = await SubtreeInfos.create(
     subtree,
     undefined,
@@ -98,7 +100,8 @@ async function testSubtreeInfo() {
 
 async function tilesetTraversalDemo(filePath: string) {
   const directory = path.dirname(filePath);
-  const resourceResolver = new FileResourceResolver(directory);
+  const resourceResolver =
+    ResourceResolvers.createFileResourceResolver(directory);
   const tileset = await readJsonUnchecked(filePath);
   const depthFirst = false;
   console.log("Traversing tileset");

@@ -1,7 +1,7 @@
 import path from "path";
 import { defined } from "../base/defined";
 
-import { FileResourceResolver } from "../io/FileResourceResolver";
+import { ResourceResolvers } from "../io/ResourceResolvers";
 
 import { TilesetValidator } from "./TilesetValidator";
 import { ValidationContext } from "./ValidationContext";
@@ -60,7 +60,8 @@ export class Validators {
   ): Promise<ValidationResult> {
     const directory = path.dirname(filePath);
     const fileName = path.basename(filePath);
-    const resourceResolver = new FileResourceResolver(directory);
+    const resourceResolver =
+      ResourceResolvers.createFileResourceResolver(directory);
     const resourceData = await resourceResolver.resolve(fileName);
     const validator = Validators.createDefaultTilesetValidator();
     const context = new ValidationContext(resourceResolver);
@@ -97,7 +98,8 @@ export class Validators {
   static async validateSchemaFile(filePath: string): Promise<ValidationResult> {
     const directory = path.dirname(filePath);
     const fileName = path.basename(filePath);
-    const resourceResolver = new FileResourceResolver(directory);
+    const resourceResolver =
+      ResourceResolvers.createFileResourceResolver(directory);
     const resourceData = await resourceResolver.resolve(fileName);
     const validator = Validators.createDefaultSchemaValidator();
     const context = new ValidationContext(resourceResolver);
@@ -124,7 +126,8 @@ export class Validators {
       );
     }
     const directory = path.dirname(uri);
-    const resourceResolver = new FileResourceResolver(directory);
+    const resourceResolver =
+      ResourceResolvers.createFileResourceResolver(directory);
     const validator = new SubtreeValidator(
       jsonSchemaValidator,
       uri,
@@ -150,7 +153,8 @@ export class Validators {
   ): Promise<ValidationResult> {
     const directory = path.dirname(filePath);
     const fileName = path.basename(filePath);
-    const resourceResolver = new FileResourceResolver(directory);
+    const resourceResolver =
+      ResourceResolvers.createFileResourceResolver(directory);
     const resourceData = await resourceResolver.resolve(fileName);
     const validator = Validators.createDefaultSubtreeValidator(
       filePath,
