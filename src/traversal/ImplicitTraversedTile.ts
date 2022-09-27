@@ -143,6 +143,18 @@ export class ImplicitTraversedTile implements TraversedTile {
     return this._globalLevel;
   }
 
+  getImplicitTiling() : TileImplicitTiling {
+    return this._implicitTiling;
+  }
+
+  getLocalCoordinate() : TreeCoordinates {
+    return this._localCoordinate;
+  }
+
+  getGlobalCoordinate() : TreeCoordinates {
+    return this._globalCoordinate;
+  }
+
   getParent(): TraversedTile | undefined {
     return this._parent;
   }
