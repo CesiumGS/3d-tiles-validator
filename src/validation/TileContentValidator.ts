@@ -36,7 +36,7 @@ export class TileContentValidator {
     context: ValidationContext
   ): Promise<void> {
     // If the tile is the root of an implicit tileset, then
-    // there is no content to validate here. This method 
+    // there is no content to validate here. This method
     // will be called for each implicit tile during traversal,
     // and then receive the content where the appropriate
     // substitution of the template URI has been done.

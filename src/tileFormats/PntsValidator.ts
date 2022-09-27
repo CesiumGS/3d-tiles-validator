@@ -109,24 +109,25 @@ export class PntsValidator implements Validator<Buffer> {
   async validateObject(
     input: Buffer,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     // Create a new context to collect the issues that are
     // found in the data. If there are issues, then they
     // will be stored as the 'internal issues' of a
     // single content validation issue.
     const derivedContext = context.derive(".");
-    await this.validateObjectInternal(input, derivedContext);
+    const result = await this.validateObjectInternal(input, derivedContext);
     const derivedResult = derivedContext.getResult();
     const issue = ContentValidationIssues.createFrom(this._uri, derivedResult);
     if (issue) {
       context.addIssue(issue);
     }
+    return result;
   }
 
   async validateObjectInternal(
     input: Buffer,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     const headerByteLength = 28;
     if (input.length < headerByteLength) {
       const message =
@@ -134,7 +135,7 @@ export class PntsValidator implements Validator<Buffer> {
         `but only has ${input.length} bytes`;
       const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     const magic = input.toString("utf8", 0, 4);
@@ -153,7 +154,7 @@ export class PntsValidator implements Validator<Buffer> {
         magic
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     if (version !== 1) {
@@ -164,7 +165,7 @@ export class PntsValidator implements Validator<Buffer> {
         version
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     if (byteLength !== input.length) {
@@ -175,7 +176,7 @@ export class PntsValidator implements Validator<Buffer> {
         input.length
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     const featureTableJsonByteOffset = headerByteLength;
@@ -193,7 +194,7 @@ export class PntsValidator implements Validator<Buffer> {
         8
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     if (batchTableBinaryByteOffset % 8 > 0) {
@@ -203,7 +204,7 @@ export class PntsValidator implements Validator<Buffer> {
         8
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     const computedByteLength =
@@ -220,7 +221,7 @@ export class PntsValidator implements Validator<Buffer> {
         computedByteLength
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     const featureTableJsonBuffer = input.slice(
@@ -249,7 +250,7 @@ export class PntsValidator implements Validator<Buffer> {
       const message = `Could not parse feature table JSON: ${error}`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     try {
@@ -258,7 +259,10 @@ export class PntsValidator implements Validator<Buffer> {
       const message = `Could not parse batch table JSON: ${error}`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
+      return false;
     }
+
+    let result = true;
 
     const batchLength = defaultValue(featureTableJson.BATCH_LENGTH, 0);
     const pointsLength = featureTableJson.POINTS_LENGTH;
@@ -266,6 +270,7 @@ export class PntsValidator implements Validator<Buffer> {
       const message = "Feature table must contain a POINTS_LENGTH property.";
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
+      result = false;
     }
 
     if (
@@ -276,6 +281,7 @@ export class PntsValidator implements Validator<Buffer> {
         "Feature table must contain either the POSITION or POSITION_QUANTIZED property.";
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
+      result = false;
     }
 
     if (
@@ -287,6 +293,7 @@ export class PntsValidator implements Validator<Buffer> {
         "Feature table properties QUANTIZED_VOLUME_OFFSET and QUANTIZED_VOLUME_SCALE are required when POSITION_QUANTIZED is present.";
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
+      result = false;
     }
 
     if (
@@ -297,6 +304,7 @@ export class PntsValidator implements Validator<Buffer> {
         "Feature table property BATCH_LENGTH is required when BATCH_ID is present.";
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
+      result = false;
     }
 
     if (
@@ -307,6 +315,7 @@ export class PntsValidator implements Validator<Buffer> {
         "Feature table property BATCH_ID is required when BATCH_LENGTH is present.";
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
+      result = false;
     }
 
     if (batchLength > pointsLength) {
@@ -314,6 +323,7 @@ export class PntsValidator implements Validator<Buffer> {
         "Feature table property BATCH_LENGTH must be less than or equal to POINTS_LENGTH.";
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
+      result = false;
     }
 
     if (
@@ -348,6 +358,7 @@ export class PntsValidator implements Validator<Buffer> {
         featureTableMessage!
       );
       context.addIssue(issue);
+      result = false;
     }
 
     const batchTableMessage = validateBatchTable(
@@ -361,7 +372,9 @@ export class PntsValidator implements Validator<Buffer> {
         batchTableMessage!
       );
       context.addIssue(issue);
+      result = false;
     }
+    return result;
   }
 }
 

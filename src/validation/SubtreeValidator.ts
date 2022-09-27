@@ -108,24 +108,26 @@ export class SubtreeValidator implements Validator<Buffer> {
    * @param input The subtree data
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
+   * and indicates whether the object was valid or not.
    */
   async validateObject(
     input: Buffer,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     const isSubt = ResourceTypes.isSubt(input);
     if (isSubt) {
-      await this.validateSubtreeBinaryData(input, context);
-      return;
+      const result = await this.validateSubtreeBinaryData(input, context);
+      return result;
     }
     const isJson = ResourceTypes.isProbablyJson(input);
     if (isJson) {
-      await this.validateSubtreeJsonData(input, context);
-      return;
+      const result = await this.validateSubtreeJsonData(input, context);
+      return result;
     }
     const message = `Subtree input data was neither a subtree binary nor JSON`;
     const issue = IoValidationIssues.IO_ERROR("", message);
     context.addIssue(issue);
+    return false;
   }
 
   /**
@@ -135,11 +137,12 @@ export class SubtreeValidator implements Validator<Buffer> {
    * @param input The contents of a binary subtree file
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
+   * and indicates whether the object was valid or not.
    */
   private async validateSubtreeBinaryData(
     input: Buffer,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     const path = this._uri;
 
     // Validate the header length
@@ -153,7 +156,7 @@ export class SubtreeValidator implements Validator<Buffer> {
         context
       )
     ) {
-      return;
+      return false;
     }
 
     // Validate the magic (this was usually already done before entering
@@ -162,14 +165,14 @@ export class SubtreeValidator implements Validator<Buffer> {
     // The magic MUST be "subt"
     const magic = input.toString("utf8", 0, 4);
     if (!BinaryValidator.validateValue(path, "magic", "subt", magic, context)) {
-      return;
+      return false;
     }
 
     // Validate the version
     // The version MUST be 1
     const version = input.readUInt32LE(4);
     if (!BinaryValidator.validateValue(path, "version", 1, version, context)) {
-      return;
+      return false;
     }
 
     // Validate the jsonByteLength
@@ -184,7 +187,7 @@ export class SubtreeValidator implements Validator<Buffer> {
         context
       )
     ) {
-      return;
+      return false;
     }
 
     // Validate the binaryByteLength
@@ -199,7 +202,7 @@ export class SubtreeValidator implements Validator<Buffer> {
         context
       )
     ) {
-      return;
+      return false;
     }
 
     // Validate the that the total byte length from the
@@ -215,7 +218,7 @@ export class SubtreeValidator implements Validator<Buffer> {
         context
       )
     ) {
-      return;
+      return false;
     }
 
     // Extract the JSON buffer
@@ -233,7 +236,7 @@ export class SubtreeValidator implements Validator<Buffer> {
       const message = `Could not parse subtree JSON: ${error}`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     // Extract the binary buffer
@@ -246,7 +249,9 @@ export class SubtreeValidator implements Validator<Buffer> {
     );
     const binaryBuffer =
       binaryBufferSlice.length > 0 ? binaryBufferSlice : undefined;
-    await this.validateSubtree("", subtree, binaryBuffer, context);
+
+    const result = this.validateSubtree("", subtree, binaryBuffer, context);
+    return result;
   }
 
   /**
@@ -255,19 +260,27 @@ export class SubtreeValidator implements Validator<Buffer> {
    * @param input The buffer that contains the subtree JSON data
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
+   * and indicates whether the object was valid or not.
    */
   private async validateSubtreeJsonData(
     input: Buffer,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     try {
       const inputString = input.toString();
       const subtree: Subtree = JSON.parse(inputString);
-      await this.validateSubtree("", subtree, undefined, context);
+      const result = await this.validateSubtree(
+        "",
+        subtree,
+        undefined,
+        context
+      );
+      return result;
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       const issue = IoValidationIssues.JSON_PARSE_ERROR("", "" + error);
       context.addIssue(issue);
+      return false;
     }
   }
 
@@ -280,6 +293,7 @@ export class SubtreeValidator implements Validator<Buffer> {
    * @param binaryBuffer The optional binary buffer
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
+   * and indicates whether the object was valid or not.
    */
   private async validateSubtree(
     path: string,
@@ -363,8 +377,15 @@ export class SubtreeValidator implements Validator<Buffer> {
     hasBinaryBuffer: boolean,
     context: ValidationContext
   ): boolean {
+    let result = true;
     if (defined(this._genericValidator)) {
-      this._genericValidator!.validateObject(subtree, context);
+      const genericResult = this._genericValidator!.validateObject(
+        subtree,
+        context
+      );
+      if (!genericResult) {
+        result = false;
+      }
     }
     if (!this.validateSubtreeBasic("", subtree, hasBinaryBuffer, context)) {
       return false;
@@ -372,7 +393,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     if (!this.validateMetadata("", subtree, context)) {
       return false;
     }
-    return true;
+    return result;
   }
 
   /**

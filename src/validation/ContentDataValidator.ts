@@ -21,7 +21,7 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 /**
  * A class for validation of the data that is pointed to by a `content.uri`.
- * 
+ *
  *
  * @private
  */
@@ -38,7 +38,7 @@ export class ContentDataValidator {
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
-   static async validateContentData(
+  static async validateContentData(
     contentPath: string,
     content: Content,
     context: ValidationContext

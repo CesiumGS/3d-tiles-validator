@@ -52,32 +52,42 @@ export class GltfValidator implements Validator<Buffer> {
   async validateObject(
     input: Buffer,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     const resourceResolver = context.getResourceResolver();
     const gltfResourceResolver = resourceResolver.derive(this._baseDirectory);
     const uri = this._uri;
-    const result = await validator.validateBytes(input, {
+    const gltfResult = await validator.validateBytes(input, {
       uri: uri,
       externalResourceFunction: (gltfUri: string) => {
         return gltfResourceResolver.resolve(gltfUri);
       },
     });
-    if (result.issues.numErrors > 0) {
+
+    // If there are any errors, then summarize ALL issues from the glTF
+    // validation as 'internal issues' in a CONTENT_VALIDATION_ERROR
+    if (gltfResult.issues.numErrors > 0) {
       const path = uri;
       const message = `Content ${uri} caused validation errors`;
       const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
         path,
         message
       );
-      for (const gltfMessage of result.issues.messages) {
+      for (const gltfMessage of gltfResult.issues.messages) {
         //console.log(gltfMessage);
         const internalIssue =
           GltfValidator.createValidationIssueFromGltfMessage(gltfMessage);
         issue.addInternalIssue(internalIssue);
       }
       context.addIssue(issue);
+
+      // Consider the object to be invalid
+      return false;
     }
-    if (result.issues.numWarnings > 0) {
+
+    // If there are any warnings, then summarize them in a
+    // CONTENT_VALIDATION_WARNING, but still consider the
+    // object to be valid.
+    if (gltfResult.issues.numWarnings > 0) {
       const path = uri;
       const message = `Content ${uri} caused validation warnings`;
       const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
@@ -85,7 +95,7 @@ export class GltfValidator implements Validator<Buffer> {
         message
       );
 
-      for (const gltfMessage of result.issues.messages) {
+      for (const gltfMessage of gltfResult.issues.messages) {
         //console.log(gltfMessage);
         const internalIssue =
           GltfValidator.createValidationIssueFromGltfMessage(gltfMessage);
@@ -93,5 +103,6 @@ export class GltfValidator implements Validator<Buffer> {
       }
       context.addIssue(issue);
     }
+    return true;
   }
 }

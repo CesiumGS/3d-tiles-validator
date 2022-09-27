@@ -48,24 +48,25 @@ export class B3dmValidator implements Validator<Buffer> {
   async validateObject(
     input: Buffer,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     // Create a new context to collect the issues that are
     // found in the data. If there are issues, then they
     // will be stored as the 'internal issues' of a
     // single content validation issue.
     const derivedContext = context.derive(".");
-    await this.validateObjectInternal(input, derivedContext);
+    const result = await this.validateObjectInternal(input, derivedContext);
     const derivedResult = derivedContext.getResult();
     const issue = ContentValidationIssues.createFrom(this._uri, derivedResult);
     if (issue) {
       context.addIssue(issue);
     }
+    return result;
   }
 
   async validateObjectInternal(
     input: Buffer,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     const headerByteLength = 28;
     if (input.length < headerByteLength) {
       const message =
@@ -73,7 +74,7 @@ export class B3dmValidator implements Validator<Buffer> {
         `but only has ${input.length} bytes`;
       const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     const magic = input.toString("utf8", 0, 4);
@@ -92,7 +93,7 @@ export class B3dmValidator implements Validator<Buffer> {
         magic
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     if (version !== 1) {
@@ -103,7 +104,7 @@ export class B3dmValidator implements Validator<Buffer> {
         version
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     if (byteLength !== input.length) {
@@ -114,7 +115,7 @@ export class B3dmValidator implements Validator<Buffer> {
         input.length
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     // Legacy header #1: [batchLength] [batchTableByteLength]
@@ -135,7 +136,7 @@ export class B3dmValidator implements Validator<Buffer> {
         `[batchTableJsonByteLength] [batchTableBinaryByteLength].`;
       const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
       context.addIssue(issue);
-      return;
+      return false;
     }
     if (batchTableBinaryByteLength >= 570425344) {
       const message =
@@ -145,7 +146,7 @@ export class B3dmValidator implements Validator<Buffer> {
         `[batchTableJsonByteLength] [batchTableBinaryByteLength].`;
       const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     const featureTableJsonByteOffset = headerByteLength;
@@ -166,7 +167,7 @@ export class B3dmValidator implements Validator<Buffer> {
         8
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     if (batchTableBinaryByteOffset % 8 > 0) {
@@ -176,7 +177,7 @@ export class B3dmValidator implements Validator<Buffer> {
         8
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     if (glbByteOffset % 8 > 0) {
@@ -186,7 +187,7 @@ export class B3dmValidator implements Validator<Buffer> {
         8
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     const computedByteLength =
@@ -204,7 +205,7 @@ export class B3dmValidator implements Validator<Buffer> {
         computedByteLength
       );
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     const featureTableJsonBuffer = input.slice(
@@ -236,6 +237,7 @@ export class B3dmValidator implements Validator<Buffer> {
       const message = `Could not parse feature table JSON: ${error}`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
+      return false;
     }
 
     try {
@@ -244,6 +246,7 @@ export class B3dmValidator implements Validator<Buffer> {
       const message = `Could not parse batch table JSON: ${error}`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
+      return false;
     }
 
     const featuresLength = featureTableJson!.BATCH_LENGTH;
@@ -251,7 +254,7 @@ export class B3dmValidator implements Validator<Buffer> {
       const message = `Feature table must contain a BATCH_LENGTH property.`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     const featureTableMessage = validateFeatureTable(
@@ -266,6 +269,7 @@ export class B3dmValidator implements Validator<Buffer> {
         featureTableMessage!
       );
       context.addIssue(issue);
+      return false;
     }
 
     const batchTableMessage = validateBatchTable(
@@ -279,9 +283,11 @@ export class B3dmValidator implements Validator<Buffer> {
         batchTableMessage!
       );
       context.addIssue(issue);
+      return false;
     }
 
     const gltfValidator = new GltfValidator(this._uri);
-    await gltfValidator.validateObject(glb, context);
+    const result = gltfValidator.validateObject(glb, context);
+    return result;
   }
 }

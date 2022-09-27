@@ -58,7 +58,10 @@ export class JsonSchemaValidatorAjv implements Validator<any> {
     return issue;
   }
 
-  async validateObject(input: any, context: ValidationContext): Promise<void> {
+  async validateObject(
+    input: any,
+    context: ValidationContext
+  ): Promise<boolean> {
     const validate = this._ajv.getSchema(this._schemaIdentifier);
     if (validate) {
       const valid = validate(input);
@@ -72,7 +75,9 @@ export class JsonSchemaValidatorAjv implements Validator<any> {
           );
           context.addIssue(issue);
         }
+        return false;
       }
     }
+    return true;
   }
 }

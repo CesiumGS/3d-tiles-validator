@@ -48,18 +48,21 @@ export class SchemaValidator implements Validator<Schema> {
    * @param input The string that was read from a schema JSON file
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
+   * and indicates whether the object was valid or not.
    */
   async validateJsonString(
     input: string,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     try {
       const object: Schema = JSON.parse(input);
-      await this.validateObject(object, context);
+      const result = await this.validateObject(object, context);
+      return result;
     } catch (error) {
       //console.log(error);
       const issue = IoValidationIssues.JSON_PARSE_ERROR("", "" + error);
       context.addIssue(issue);
+      return false;
     }
   }
 
@@ -72,15 +75,26 @@ export class SchemaValidator implements Validator<Schema> {
    * @param input The `Schema` object
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
+   * and indicates whether the object was valid or not.
    */
   async validateObject(
     input: Schema,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
+    let result = true;
     if (defined(this._genericValidator)) {
-      this._genericValidator!.validateObject(input, context);
+      const genericResult = this._genericValidator!.validateObject(
+        input,
+        context
+      );
+      if (!genericResult) {
+        result = false;
+      }
     }
-    SchemaValidator.validateSchema("", input, context);
+    if (!SchemaValidator.validateSchema("", input, context)) {
+      result = false;
+    }
+    return result;
   }
 
   /**

@@ -1,4 +1,3 @@
-
 import { defined } from "../base/defined";
 
 import { ValidationContext } from "./ValidationContext";
@@ -142,5 +141,4 @@ export class ContentValidator {
     }
     return result;
   }
-
 }
