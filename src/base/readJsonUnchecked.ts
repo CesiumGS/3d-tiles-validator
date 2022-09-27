@@ -13,13 +13,13 @@ import { defined } from "../base/defined";
  * @returns A promise that resolves with the result or `undefined`
  */
 export async function readJsonUnchecked(filePath: string): Promise<any> {
-  const data = fs.readFileSync(filePath);
-  if (!defined(data)) {
-    console.error("Could not read " + filePath);
-    return undefined;
-  }
-  const jsonString = data.toString();
   try {
+    const data = fs.readFileSync(filePath);
+    if (!defined(data)) {
+      console.error("Could not read " + filePath);
+      return undefined;
+    }
+    const jsonString = data.toString();
     const result = JSON.parse(jsonString);
     return result;
   } catch (error) {

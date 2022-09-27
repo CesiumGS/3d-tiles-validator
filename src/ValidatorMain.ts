@@ -1,3 +1,4 @@
+import { defined } from "./base/defined";
 import { createFilesIterable } from "./base/createFilesIterable";
 
 import { ValidationState } from "./validation/ValidationState";
@@ -8,6 +9,7 @@ import { readJsonUnchecked } from "./base/readJsonUnchecked";
 import { Schema } from "./structure/Metadata/Schema";
 import { filterIterable } from "./base/filterIterable";
 import { globMatcher } from "./base/globMatcher";
+import { writeUnchecked } from "./base/writeUnchecked";
 
 /**
  * A class summarizing the command-line functions of the validator.
@@ -20,16 +22,24 @@ import { globMatcher } from "./base/globMatcher";
 export class ValidatorMain {
   static readonly specsDataRootDir = "specs/data/";
 
-  static async validateTilesetFile(fileName: string): Promise<void> {
+  static async validateTilesetFile(
+    fileName: string,
+    reportFileName: string | undefined
+  ): Promise<void> {
     console.log("Validating tileset " + fileName);
     const validationResult = await Validators.validateTilesetFile(fileName);
-    console.log("Validation result:");
-    console.log(validationResult.serialize());
+    if (defined(reportFileName)) {
+      await writeUnchecked(reportFileName!, validationResult.serialize());
+    } else {
+      console.log("Validation result:");
+      console.log(validationResult.serialize());
+    }
   }
 
   static async validateTilesetsDirectory(
     directoryName: string,
-    globPattern: string
+    globPattern: string,
+    writeReports: boolean
   ): Promise<void> {
     console.log(
       "Validating tilesets from " + directoryName + " matching " + globPattern
@@ -39,21 +49,33 @@ export class ValidatorMain {
     const matcher = globMatcher(globPattern, ignoreCase);
     const tilesetFiles = filterIterable(allFiles, matcher);
     for (const tilesetFile of tilesetFiles) {
-      await ValidatorMain.validateTilesetFile(tilesetFile);
+      let reportFileName = undefined;
+      if (writeReports) {
+        reportFileName = ValidatorMain.deriveReportFileName(tilesetFile);
+      }
+      await ValidatorMain.validateTilesetFile(tilesetFile, reportFileName);
     }
   }
 
-  static async validateSchemaFile(fileName: string): Promise<void> {
+  static async validateSchemaFile(
+    fileName: string,
+    reportFileName: string | undefined
+  ): Promise<void> {
     console.log("Validating schema " + fileName);
     const validationResult = await Validators.validateSchemaFile(fileName);
-    console.log("Validation result:");
-    console.log(validationResult.serialize());
+    if (defined(reportFileName)) {
+      await writeUnchecked(reportFileName!, validationResult.serialize());
+    } else {
+      console.log("Validation result:");
+      console.log(validationResult.serialize());
+    }
   }
 
   static async validateSubtreeFile(
     fileName: string,
     validationState: ValidationState,
-    implicitTiling: TileImplicitTiling | undefined
+    implicitTiling: TileImplicitTiling | undefined,
+    reportFileName: string | undefined
   ): Promise<void> {
     console.log("Validating subtree " + fileName);
     const validationResult = await Validators.validateSubtreeFile(
@@ -61,67 +83,78 @@ export class ValidatorMain {
       validationState,
       implicitTiling
     );
-    console.log("Validation result:");
-    console.log(validationResult.serialize());
+    if (defined(reportFileName)) {
+      await writeUnchecked(reportFileName!, validationResult.serialize());
+    } else {
+      console.log("Validation result:");
+      console.log(validationResult.serialize());
+    }
   }
 
-  static async validateAllTilesetSpecFiles(): Promise<void> {
+  static async validateAllTilesetSpecFiles(
+    writeReports: boolean
+  ): Promise<void> {
     const recurse = true;
-    const specFiles = createFilesIterable(
+    const allSpecFiles = createFilesIterable(
       ValidatorMain.specsDataRootDir + "/tilesets",
       recurse
     );
+    const ignoreCase = true;
+    const matcher = globMatcher("**/*.json", ignoreCase);
+    const specFiles = filterIterable(allSpecFiles, matcher);
     for (const specFile of specFiles) {
-      if (!specFile.toLowerCase().endsWith(".json")) {
-        continue;
+      let reportFileName = undefined;
+      if (writeReports) {
+        reportFileName = ValidatorMain.deriveReportFileName(specFile);
       }
-      // TODO The only way to differentiate tileset files and subtree
-      // JSON files for now is to replace backslashes with slashes
-      // and see whether the path contains `/subtrees/` - ouch...
-      const normalizedFileName = specFile.toLowerCase().replace(/\\/g, "/");
-      if (normalizedFileName.includes("/subtrees/")) {
-        continue;
-      }
-      // TODO We could also just look for "tileset*.json" at that point...
-      if (normalizedFileName.endsWith("style.json")) {
-        continue;
-      }
-      await ValidatorMain.validateTilesetFile(specFile);
+      await ValidatorMain.validateTilesetFile(specFile, reportFileName);
     }
   }
 
-  static async validateAllMetadataSchemaSpecFiles(): Promise<void> {
+  static async validateAllMetadataSchemaSpecFiles(
+    writeReports: boolean
+  ): Promise<void> {
     const recurse = false;
-    const specFiles = createFilesIterable(
+    const allSpecFiles = createFilesIterable(
       ValidatorMain.specsDataRootDir + "schemas",
       recurse
     );
+    const ignoreCase = true;
+    const matcher = globMatcher("**/*.json", ignoreCase);
+    const specFiles = filterIterable(allSpecFiles, matcher);
     for (const specFile of specFiles) {
-      if (!specFile.toLowerCase().endsWith(".json")) {
-        continue;
+      let reportFileName = undefined;
+      if (writeReports) {
+        reportFileName = ValidatorMain.deriveReportFileName(specFile);
       }
-      await ValidatorMain.validateSchemaFile(specFile);
+      await ValidatorMain.validateSchemaFile(specFile, reportFileName);
     }
   }
 
-  static async validateAllSubtreeSpecFiles(): Promise<void> {
+  static async validateAllSubtreeSpecFiles(
+    writeReports: boolean
+  ): Promise<void> {
     const recurse = false;
-    const specFiles = createFilesIterable(
+    const allSpecFiles = createFilesIterable(
       ValidatorMain.specsDataRootDir + "subtrees",
       recurse
     );
+    const ignoreCase = true;
+    const matcher = globMatcher("**/{*.json,*.subtree}", ignoreCase);
+    const specFiles = filterIterable(allSpecFiles, matcher);
     for (const specFile of specFiles) {
-      if (
-        !specFile.toLowerCase().endsWith(".json") &&
-        !specFile.toLowerCase().endsWith(".subtree")
-      ) {
-        continue;
+      let reportFileName = undefined;
+      if (writeReports) {
+        reportFileName = ValidatorMain.deriveReportFileName(specFile);
       }
-      await ValidatorMain.validateSubtreeSpecFile(specFile);
+      await ValidatorMain.validateSubtreeSpecFile(specFile, reportFileName);
     }
   }
 
-  static async validateSubtreeSpecFile(fileName: string): Promise<void> {
+  static async validateSubtreeSpecFile(
+    fileName: string,
+    reportFileName: string | undefined
+  ): Promise<void> {
     let implicitTiling = undefined;
     let validationState: ValidationState = {
       hasSchemaDefinition: false,
@@ -151,7 +184,26 @@ export class ValidatorMain {
     await ValidatorMain.validateSubtreeFile(
       fileName,
       validationState,
-      implicitTiling
+      implicitTiling,
+      reportFileName
     );
+  }
+
+  /**
+   * Derives a file name for a report from the given input file name.
+   * The resulting file name will be a file in the same directory as
+   * the given one. Further details are intentionally not specified here.
+   *
+   * @param inputFileName The input file name
+   * @returns The report file name
+   */
+  static deriveReportFileName(inputFileName: string): string | undefined {
+    let baseName = inputFileName;
+    const lastDotIndex = baseName.lastIndexOf(".");
+    if (lastDotIndex >= 0) {
+      baseName = baseName.substring(0, lastDotIndex);
+    }
+    const reportFileName = baseName + ".report.json";
+    return reportFileName;
   }
 }
