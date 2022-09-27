@@ -34,7 +34,7 @@ export class TileContentValidator {
     content: Content,
     tile: Tile,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     // If the tile is the root of an implicit tileset, then
     // there is no content to validate here. This method
     // will be called for each implicit tile during traversal,
@@ -42,25 +42,35 @@ export class TileContentValidator {
     // substitution of the template URI has been done.
     const implicitTiling = tile.implicitTiling;
     if (defined(implicitTiling)) {
-      return;
+      return true;
     }
+
+    let result = true;
 
     // Validate the content data
     const options = context.getOptions();
     if (options.validateContentData) {
-      await ContentDataValidator.validateContentData(
+      const contentResult = await ContentDataValidator.validateContentData(
         contentPath,
         content,
         context
       );
+      if (!contentResult) {
+        result = false;
+      }
     }
     // Validate the content bounding volume consistency
-    TileContentValidator.validateContentBoundingVolumeConsistency(
-      tile,
-      contentPath,
-      content,
-      context
-    );
+    if (
+      !TileContentValidator.validateContentBoundingVolumeConsistency(
+        tile,
+        contentPath,
+        content,
+        context
+      )
+    ) {
+      result = false;
+    }
+    return result;
   }
 
   /**

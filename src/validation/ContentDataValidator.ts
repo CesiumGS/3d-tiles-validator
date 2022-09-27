@@ -42,12 +42,12 @@ export class ContentDataValidator {
     contentPath: string,
     content: Content,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     // Validate the uri
     const uri = content.uri;
     // TODO: Assuming that absolute URIs should not be checked
     if (Uris.isAbsoluteUri(uri)) {
-      return;
+      return true;
     }
 
     const resourceResolver = context.getResourceResolver();
@@ -62,15 +62,16 @@ export class ContentDataValidator {
         `which could not be resolved`;
       const issue = IoValidationIssues.IO_WARNING(path, message);
       context.addIssue(issue);
-      return;
-    } else {
-      await ContentDataValidator.validateContentDataInternal(
-        contentPath,
-        uri,
-        contentData!,
-        context
-      );
+      return false;
     }
+
+    const result = await ContentDataValidator.validateContentDataInternal(
+      contentPath,
+      uri,
+      contentData!,
+      context
+    );
+    return result;
   }
 
   /**
@@ -99,7 +100,7 @@ export class ContentDataValidator {
     contentUri: string,
     contentData: Buffer,
     context: ValidationContext
-  ): Promise<void> {
+  ): Promise<boolean> {
     // Figure out the type of the content data and pass it
     // to the responsible validator.
 
@@ -107,52 +108,52 @@ export class ContentDataValidator {
     if (isGlb) {
       console.log("Validating GLB: " + contentUri);
       const dataValidator = new GltfValidator(contentUri);
-      await dataValidator.validateObject(contentData, context);
-      return;
+      const result = await dataValidator.validateObject(contentData, context);
+      return result;
     }
 
     const isB3dm = ResourceTypes.isB3dm(contentData);
     if (isB3dm) {
       console.log("Validating B3DM: " + contentUri);
       const dataValidator = new B3dmValidator(contentUri);
-      await dataValidator.validateObject(contentData, context);
-      return;
+      const result = await dataValidator.validateObject(contentData, context);
+      return result;
     }
 
     const isI3dm = ResourceTypes.isI3dm(contentData);
     if (isI3dm) {
       console.log("Validating I3DM: " + contentUri);
       const dataValidator = new I3dmValidator(contentUri);
-      await dataValidator.validateObject(contentData, context);
-      return;
+      const result = await dataValidator.validateObject(contentData, context);
+      return result;
     }
 
     const isPnts = ResourceTypes.isPnts(contentData);
     if (isPnts) {
       console.log("Validating PNTS: " + contentUri);
       const dataValidator = new PntsValidator(contentUri);
-      await dataValidator.validateObject(contentData, context);
-      return;
+      const result = await dataValidator.validateObject(contentData, context);
+      return result;
     }
 
     const isCmpt = ResourceTypes.isCmpt(contentData);
     if (isCmpt) {
       console.log("Validating CMPT: " + contentUri);
       const dataValidator = new CmptValidator(contentUri);
-      await dataValidator.validateObject(contentData, context);
-      return;
+      const result = await dataValidator.validateObject(contentData, context);
+      return result;
     }
 
     // When there is no known magic value, then it may be JSON.
     const isJson = ResourceTypes.isProbablyJson(contentData);
     if (isJson) {
-      await ContentDataValidator.validateJsonContentData(
+      const result = await ContentDataValidator.validateJsonContentData(
         contentPath,
         contentUri,
         contentData,
         context
       );
-      return;
+      return result;
     }
 
     const path = contentPath;
@@ -164,6 +165,7 @@ export class ContentDataValidator {
       message
     );
     context.addIssue(issue);
+    return true;
   }
 
   /**
@@ -191,7 +193,7 @@ export class ContentDataValidator {
     contentUri: string,
     contentData: Buffer,
     context: ValidationContext
-  ) {
+  ): Promise<boolean> {
     // If the data is probably JSON, try to parse it in any case,
     // and bail out if it cannot be parsed
     let parsedObject = undefined;
@@ -200,7 +202,7 @@ export class ContentDataValidator {
     } catch (error) {
       const issue = IoValidationIssues.JSON_PARSE_ERROR(contentUri, "" + error);
       context.addIssue(issue);
-      return;
+      return false;
     }
 
     // Try to rule out JSON files which will not be validated anyhow
@@ -212,7 +214,7 @@ export class ContentDataValidator {
         message
       );
       context.addIssue(issue);
-      return;
+      return true;
     }
 
     // An 'asset' may indicate an external tileset or a glTF...
@@ -228,7 +230,10 @@ export class ContentDataValidator {
         const dirName = paths.dirname(contentUri);
         const derivedContext = context.derive(dirName);
         const externalValidator = Validators.createDefaultTilesetValidator();
-        await externalValidator.validateObject(parsedObject, derivedContext);
+        const result = await externalValidator.validateObject(
+          parsedObject,
+          derivedContext
+        );
         const derivedResult = derivedContext.getResult();
         const issue = ContentValidationIssues.createFrom(
           contentUri,
@@ -237,15 +242,15 @@ export class ContentDataValidator {
         if (issue) {
           context.addIssue(issue);
         }
-        return;
+        return result;
       }
 
       // The parsed object has an 'asset', but is no tileset.
       // Assume that it is a glTF:
       console.log("Validating glTF: " + contentUri);
       const gltfValidator = new GltfValidator(contentUri);
-      await gltfValidator.validateObject(contentData, context);
-      return;
+      const result = await gltfValidator.validateObject(contentData, context);
+      return result;
     }
     const path = contentPath;
     const message =
@@ -256,5 +261,6 @@ export class ContentDataValidator {
       message
     );
     context.addIssue(issue);
+    return true;
   }
 }

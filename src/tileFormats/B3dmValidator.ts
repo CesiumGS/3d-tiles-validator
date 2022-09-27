@@ -287,7 +287,7 @@ export class B3dmValidator implements Validator<Buffer> {
     }
 
     const gltfValidator = new GltfValidator(this._uri);
-    const result = gltfValidator.validateObject(glb, context);
+    const result = await gltfValidator.validateObject(glb, context);
     return result;
   }
 }

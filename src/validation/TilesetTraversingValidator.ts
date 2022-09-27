@@ -114,16 +114,21 @@ export class TilesetTraversingValidator {
       return false;
     }
 
+    let result = true;
+
     // Validate the content
     const content = tile.content;
     const contentPath = traversedTile.path + "/content";
     if (defined(content)) {
-      await TileContentValidator.validateTileContent(
+      const contentResult = await TileContentValidator.validateTileContent(
         contentPath,
         content!,
         tile,
         context
       );
+      if (!contentResult) {
+        result = false;
+      }
     }
 
     // Validate the contents
@@ -133,12 +138,15 @@ export class TilesetTraversingValidator {
       for (let i = 0; i < contents!.length; i++) {
         const contentsElement = contents![i];
         const contentsElementPath = contentsPath + "/" + i;
-        await TileContentValidator.validateTileContent(
+        const contentResult = await TileContentValidator.validateTileContent(
           contentsElementPath,
           contentsElement!,
           tile,
           context
         );
+        if (!contentResult) {
+          result = false;
+        }
       }
     }
 
@@ -146,14 +154,18 @@ export class TilesetTraversingValidator {
     // the consistency of the hierarchy
     const parent = traversedTile.getParent();
     if (defined(parent)) {
-      TilesetTraversingValidator.validateTraversedTiles(
-        parent!,
-        traversedTile,
-        context
-      );
+      if (
+        !TilesetTraversingValidator.validateTraversedTiles(
+          parent!,
+          traversedTile,
+          context
+        )
+      ) {
+        result = false;
+      }
     }
 
-    return true;
+    return result;
   }
 
   /**
@@ -170,7 +182,7 @@ export class TilesetTraversingValidator {
     traversedParent: TraversedTile,
     traversedTile: TraversedTile,
     context: ValidationContext
-  ): void {
+  ): boolean {
     const path = traversedTile.path;
     const tile = traversedTile.asTile();
     const parent = traversedParent.asTile();
@@ -193,6 +205,9 @@ export class TilesetTraversingValidator {
         message
       );
       context.addIssue(issue);
+      return false;
     }
+
+    return true;
   }
 }

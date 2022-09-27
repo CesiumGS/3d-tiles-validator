@@ -56,12 +56,24 @@ export class GltfValidator implements Validator<Buffer> {
     const resourceResolver = context.getResourceResolver();
     const gltfResourceResolver = resourceResolver.derive(this._baseDirectory);
     const uri = this._uri;
-    const gltfResult = await validator.validateBytes(input, {
-      uri: uri,
-      externalResourceFunction: (gltfUri: string) => {
-        return gltfResourceResolver.resolve(gltfUri);
-      },
-    });
+    let gltfResult = undefined;
+    try {
+      gltfResult = await validator.validateBytes(input, {
+        uri: uri,
+        externalResourceFunction: (gltfUri: string) => {
+          return gltfResourceResolver.resolve(gltfUri);
+        },
+      });
+    } catch (error) {
+      const path = uri;
+      const message = `Content ${uri} caused internal validation error`;
+      const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
+        path,
+        message
+      );
+      context.addIssue(issue);
+      return false;
+    }
 
     // If there are any errors, then summarize ALL issues from the glTF
     // validation as 'internal issues' in a CONTENT_VALIDATION_ERROR

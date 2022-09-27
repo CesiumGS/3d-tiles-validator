@@ -400,7 +400,8 @@ export class I3dmValidator implements Validator<Buffer> {
     }
 
     const gltfValidator = new GltfValidator(this._uri);
-    if (!gltfValidator.validateObject(glb, context)) {
+    const gltfResult = await gltfValidator.validateObject(glb, context);
+    if (!gltfResult) {
       result = false;
     }
     return result;
