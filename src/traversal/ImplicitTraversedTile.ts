@@ -143,15 +143,15 @@ export class ImplicitTraversedTile implements TraversedTile {
     return this._globalLevel;
   }
 
-  getImplicitTiling() : TileImplicitTiling {
+  getImplicitTiling(): TileImplicitTiling {
     return this._implicitTiling;
   }
 
-  getLocalCoordinate() : TreeCoordinates {
+  getLocalCoordinate(): TreeCoordinates {
     return this._localCoordinate;
   }
 
-  getGlobalCoordinate() : TreeCoordinates {
+  getGlobalCoordinate(): TreeCoordinates {
     return this._globalCoordinate;
   }
 

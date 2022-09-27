@@ -85,7 +85,8 @@ export class ImplicitTileTraversal {
     parent: ExplicitTraversedTile,
     resourceResolver: ResourceResolver
   ): Promise<TraversedTile> {
-    const rootCoordinates = ImplicitTilings.createRootCoordinates(implicitTiling);
+    const rootCoordinates =
+      ImplicitTilings.createRootCoordinates(implicitTiling);
     const subtreeInfo = await ImplicitTileTraversal.resolveSubtreeInfo(
       implicitTiling,
       resourceResolver,
@@ -125,7 +126,8 @@ export class ImplicitTileTraversal {
     parent: ExplicitTraversedTile,
     resourceResolver: ResourceResolver
   ): Promise<TraversedTile> {
-    const rootCoordinates = ImplicitTilings.createRootCoordinates(implicitTiling);
+    const rootCoordinates =
+      ImplicitTilings.createRootCoordinates(implicitTiling);
     const subtreeInfo = await ImplicitTileTraversal.resolveSubtreeInfo(
       implicitTiling,
       resourceResolver,

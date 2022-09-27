@@ -190,7 +190,7 @@ export class TilesetTraversingValidator {
   /**
    * Check if the given traversed tile is the root of a subtree, and
    * if it is, perform the validation of the associated subtree data.
-   * 
+   *
    * @param traversedTile The `TraversedTile`
    * @param validationState The `ValidationState`
    * @param context The `ValidationContext`
@@ -201,8 +201,7 @@ export class TilesetTraversingValidator {
     validationState: ValidationState,
     context: ValidationContext
   ): Promise<boolean> {
-
-    // NOTE: This is somewhat ugly. It HAS to drill a hole into 
+    // NOTE: This is somewhat ugly. It HAS to drill a hole into
     // the abstraction that is achieved with the `TraversedTile`,
     // in order to detect whether the tile is a root of a subtree,
     // (which is otherwise intentionally hidden in the interface)
@@ -255,12 +254,12 @@ export class TilesetTraversingValidator {
   /**
    * Performs the validation to make sure that the specified subtree
    * root is valid.
-   * 
+   *
    * This will attempt to resolve the `.subtree` (or subtree JSON)
    * data from the URI that is created by substituting the given
    * coordinates into the subtree template URI of the implicit tiling,
    * resolve the resulting data, and pass it to a `SubtreeValidator`.
-   * 
+   *
    * @param path The path for `ValidationIssue` instances
    * @param implicitTiling The `TileImpllicitTiling`
    * @param coordinates The coordinates of the subtree root
