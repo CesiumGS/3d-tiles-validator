@@ -1,3 +1,4 @@
+import path from "path";
 import { defined } from "./base/defined";
 import { createFilesIterable } from "./base/createFilesIterable";
 
@@ -198,12 +199,8 @@ export class ValidatorMain {
    * @returns The report file name
    */
   static deriveReportFileName(inputFileName: string): string | undefined {
-    let baseName = inputFileName;
-    const lastDotIndex = baseName.lastIndexOf(".");
-    if (lastDotIndex >= 0) {
-      baseName = baseName.substring(0, lastDotIndex);
-    }
-    const reportFileName = baseName + ".report.json";
-    return reportFileName;
+    const basename = path.basename(inputFileName, path.extname(inputFileName));
+    const extension = ".report.json";
+    return path.join(path.dirname(inputFileName), basename + extension);
   }
 }
