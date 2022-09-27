@@ -85,7 +85,7 @@ export class ImplicitTileTraversal {
     parent: ExplicitTraversedTile,
     resourceResolver: ResourceResolver
   ): Promise<TraversedTile> {
-    const rootCoordinates = new QuadtreeCoordinates(0, 0, 0);
+    const rootCoordinates = ImplicitTilings.createRootCoordinates(implicitTiling);
     const subtreeInfo = await ImplicitTileTraversal.resolveSubtreeInfo(
       implicitTiling,
       resourceResolver,
@@ -125,7 +125,7 @@ export class ImplicitTileTraversal {
     parent: ExplicitTraversedTile,
     resourceResolver: ResourceResolver
   ): Promise<TraversedTile> {
-    const rootCoordinates = new OctreeCoordinates(0, 0, 0, 0);
+    const rootCoordinates = ImplicitTilings.createRootCoordinates(implicitTiling);
     const subtreeInfo = await ImplicitTileTraversal.resolveSubtreeInfo(
       implicitTiling,
       resourceResolver,
@@ -177,7 +177,7 @@ export class ImplicitTileTraversal {
     );
     if (!defined(subtreeUri)) {
       const message =
-        `Could not subtitute coordinates ${coordinates} in ` +
+        `Could not substitute coordinates ${coordinates} in ` +
         `template URI ${implicitTiling.subtrees.uri}`;
       throw new ImplicitTilingError(message);
     }
