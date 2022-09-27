@@ -5,6 +5,8 @@ import { ValidationContext } from "../validation/ValidationContext";
 import { ValidationIssue } from "../validation/ValidationIssue";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
+import { defined } from "../base/defined";
+import RuntimeError from "cesium/Source/Core/RuntimeError";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const validator = require("gltf-validator");
@@ -61,7 +63,13 @@ export class GltfValidator implements Validator<Buffer> {
       gltfResult = await validator.validateBytes(input, {
         uri: uri,
         externalResourceFunction: (gltfUri: string) => {
-          return gltfResourceResolver.resolve(gltfUri);
+          const resolvedDataPromise = gltfResourceResolver.resolve(gltfUri);
+          return resolvedDataPromise.then((resolvedData) => {
+            if (!defined(resolvedData)) {
+              throw "Could not resolve data from " + gltfUri;
+            }
+            return resolvedData;
+          });
         },
       });
     } catch (error) {

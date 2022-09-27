@@ -7,6 +7,7 @@
 // (i.e. which ones should cause the validation to end)
 // The part for validating the magic/version/.../alignment in all
 // content validators is redundant, and redundancy is redundant.
+import path from "path";
 
 import { defined } from "../base/defined";
 import { bufferToJson } from "../base/bufferToJson";
@@ -421,14 +422,29 @@ export class I3dmValidator implements Validator<Buffer> {
         context.addIssue(issue);
         result = false;
       } else {
+        // Create a new context to collect the issues that are
+        // found in the data. If there are issues, then they
+        // will be stored as the 'internal issues' of a
+        // single content validation issue.
+        const glbDirectory = path.dirname(glbUri);
+        const derivedContext = context.derive(glbDirectory);
         const gltfValidator = new GltfValidator(this._uri);
         const gltfResult = await gltfValidator.validateObject(
           glbData!,
-          context
+          derivedContext
         );
         if (!gltfResult) {
           result = false;
         }
+        const derivedResult = derivedContext.getResult();
+        const issue = ContentValidationIssues.createFrom(
+          this._uri,
+          derivedResult
+        );
+        if (issue) {
+          context.addIssue(issue);
+        }
+        return result;
       }
     }
 
