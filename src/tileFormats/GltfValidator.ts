@@ -66,7 +66,7 @@ export class GltfValidator implements Validator<Buffer> {
       });
     } catch (error) {
       const path = uri;
-      const message = `Content ${uri} caused internal validation error`;
+      const message = `Content ${uri} caused internal validation error: ${error}`;
       const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
         path,
         message

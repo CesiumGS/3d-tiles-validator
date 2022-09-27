@@ -399,11 +399,39 @@ export class I3dmValidator implements Validator<Buffer> {
       result = false;
     }
 
-    const gltfValidator = new GltfValidator(this._uri);
-    const gltfResult = await gltfValidator.validateObject(glb, context);
-    if (!gltfResult) {
-      result = false;
+    // If the GLB data was embdedded, validate it directly
+    if (embeddedGlb) {
+      const gltfValidator = new GltfValidator(this._uri);
+      const gltfResult = await gltfValidator.validateObject(glb, context);
+      if (!gltfResult) {
+        result = false;
+      }
+    } else {
+      // The GLB data was a URI. Create the URI from the buffer, and remove
+      // any zero-bytes from the string that may be introduced by padding
+      const glbUri = glb.toString().replace(/\0/g, "");
+      const resourceResolver = context.getResourceResolver();
+      const glbData = await resourceResolver.resolve(glbUri);
+      if (!defined(glbData)) {
+        const message = `Could not resolve GLB URI ${glbUri} from I3DM`;
+        const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
+          this._uri,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      } else {
+        const gltfValidator = new GltfValidator(this._uri);
+        const gltfResult = await gltfValidator.validateObject(
+          glbData!,
+          context
+        );
+        if (!gltfResult) {
+          result = false;
+        }
+      }
     }
+
     return result;
   }
 }
