@@ -13,9 +13,7 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 import { Subtree } from "../structure/Subtree";
 
 import { SubtreeInfos } from "../implicitTiling/SubtreeInfos";
-import { QuadtreeCoordinates } from "../implicitTiling/QuadtreeCoordinates";
 import { TreeCoordinates } from "../implicitTiling/TreeCoordinates";
-import { OctreeCoordinates } from "../implicitTiling/OctreeCoordinates";
 import { SubtreeInfo } from "../implicitTiling/SubtreeInfo";
 import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
 import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
