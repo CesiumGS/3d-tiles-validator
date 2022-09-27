@@ -6,7 +6,7 @@ import { Uris } from "./Uris";
 
 /**
  * Implementation of a `ResourceResolver` based on a file system.
- * 
+ *
  * @private (Instantiated by the `ResourceResolvers` class)
  */
 export class FileResourceResolver implements ResourceResolver {

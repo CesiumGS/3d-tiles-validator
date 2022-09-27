@@ -5,7 +5,7 @@ import { ResourceTypes } from "./ResourceTypes";
 /**
  * Implementation of a `ResourceResolver` that obtains the resource
  * data from a delegate, and unzips the data if necessary.
- * 
+ *
  * @private (Instantiated by the `ResourceResolvers` class)
  */
 export class UnzippingResourceResolver implements ResourceResolver {
