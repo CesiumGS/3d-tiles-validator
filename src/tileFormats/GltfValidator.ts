@@ -6,7 +6,6 @@ import { ValidationIssue } from "../validation/ValidationIssue";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { defined } from "../base/defined";
-import RuntimeError from "cesium/Source/Core/RuntimeError";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const validator = require("gltf-validator");
