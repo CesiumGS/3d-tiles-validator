@@ -7,6 +7,6 @@ export interface Schema extends RootProperty {
   name?: string;
   description?: string;
   version?: string;
-  classes?: SchemaClass[];
-  enums?: SchemaEnum[];
+  classes?: { [key: string]: SchemaClass };
+  enums?: { [key: string]: SchemaEnum };
 }
