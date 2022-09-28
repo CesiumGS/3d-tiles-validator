@@ -54,8 +54,8 @@ export class TilesetTraversingValidator {
           // if it was found to be valid
           const isValid =
             await TilesetTraversingValidator.validateTraversedTile(
-              validationState,
               traversedTile,
+              validationState,
               context
             );
           if (!isValid) {
@@ -103,14 +103,14 @@ export class TilesetTraversingValidator {
    * traversed tile, its contents, and the consistency of the given
    * traversed tile and its parent (if present).
    *
-   * @param validationState The `ValidationState`
    * @param traversedTile The `TraversedTile`
+   * @param validationState The `ValidationState`
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
   private static async validateTraversedTile(
-    validationState: ValidationState,
     traversedTile: TraversedTile,
+    validationState: ValidationState,
     context: ValidationContext
   ): Promise<boolean> {
     const path = traversedTile.path;

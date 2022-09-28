@@ -1,8 +1,8 @@
 import { readJsonUnchecked } from "../../src/base/readJsonUnchecked";
 import { genericEquals } from "./genericEquals";
 
-import { DefaultMetadataEntityModel } from "../../src/metadata/DefaultMetadataEntityModel";
 import { MetadataEntityModel } from "../../src/metadata/MetadataEntityModel";
+import { MetadataEntityModels } from "../../src/metadata/MetadataEntityModels";
 
 describe("metadata/MetadataEntityModelBasic", function () {
   const epsilon = 0.000001;
@@ -12,13 +12,9 @@ describe("metadata/MetadataEntityModelBasic", function () {
     const tileset = await readJsonUnchecked(
       "specs/data/Samples/TilesetWithFullMetadata/tileset.json"
     );
-    const schemaClasses = tileset.schema?.classes;
-    const schemaClass = schemaClasses!["exampleClass"];
-    const entityJson = tileset.metadata!;
-    const metadataEntityProperties = entityJson.properties!;
-    metadataEntityModel = new DefaultMetadataEntityModel(
-      schemaClass,
-      metadataEntityProperties
+    metadataEntityModel = MetadataEntityModels.create(
+      tileset.schema,
+      tileset.metadata
     );
   });
 

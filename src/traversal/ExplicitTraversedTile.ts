@@ -53,11 +53,30 @@ export class ExplicitTraversedTile implements TraversedTile {
   }
 
   asTile(): Tile {
-    // TODO: This should not return the internal tile.
-    // It should return a tile where the properties
-    // that may be affected by semantics have already
-    // been substituted.
-    return this._tile;
+
+    const tile = this._tile;
+
+    // TODO Look these up in the metadata!
+    const boundingVolume = tile.boundingVolume;
+    const geometricError = tile.geometricError;
+    
+    const viewerRequestVolume = tile.viewerRequestVolume;
+    const refine = tile.refine;
+    const transform = undefined;
+    const metadata = tile.metadata; // TODO Look up!
+    const contents = this.getContents();
+    const implicitTiling = tile.implicitTiling;
+
+    return {
+      boundingVolume: boundingVolume,
+      viewerRequestVolume: viewerRequestVolume,
+      geometricError: geometricError,
+      refine: refine,
+      transform: transform,
+      contents: contents,
+      metadata: metadata,
+      implicitTiling: implicitTiling,
+    }
   }
 
   get path(): string {

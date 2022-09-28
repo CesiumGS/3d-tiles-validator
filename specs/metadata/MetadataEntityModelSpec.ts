@@ -1,38 +1,7 @@
 import { DefaultMetadataEntityModel } from "../../src/metadata/DefaultMetadataEntityModel";
+import { MetadataEntityModels } from "../../src/metadata/MetadataEntityModels";
 import { SchemaClass } from "../../src/structure/Metadata/SchemaClass";
-import { defaultValue } from "../../src/base/defaultValue";
-
-// TODO Do this Jasmine hookup thing instead of this:
-const equalsEpsilon = function (
-  left: number,
-  right: number,
-  relativeEpsilon: number,
-  absoluteEpsilon?: number
-) {
-  relativeEpsilon = defaultValue(relativeEpsilon, 0.0);
-  absoluteEpsilon = defaultValue(absoluteEpsilon, relativeEpsilon);
-  const absDiff = Math.abs(left - right);
-  return (
-    absDiff <= absoluteEpsilon! ||
-    absDiff <= relativeEpsilon * Math.max(Math.abs(left), Math.abs(right))
-  );
-};
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const arraysEqualsEpsilon = function (a: any, b: any, epsilon: number) {
-  if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length) {
-      return false;
-    }
-
-    for (let i = 0; i < a.length; ++i) {
-      if (!equalsEpsilon(a[i], b[i], epsilon)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-};
+import { genericEquals } from "./genericEquals";
 
 describe("metadata/MetadataEntityModel", function () {
   it("throws when the value of an unknown property is accessed", function () {
@@ -43,7 +12,7 @@ describe("metadata/MetadataEntityModel", function () {
       const entityJson = {
         testProperty: 1234,
       };
-      const entity = new DefaultMetadataEntityModel(
+      const entity = MetadataEntityModels.createFromClass(
         testSchemaClass,
         entityJson
       );
@@ -63,7 +32,10 @@ describe("metadata/MetadataEntityModel", function () {
     const entityJson = {
       testProperty: 1234,
     };
-    const entity = new DefaultMetadataEntityModel(testSchemaClass, entityJson);
+    const entity = MetadataEntityModels.createFromClass(
+      testSchemaClass,
+      entityJson
+    );
     const value = entity.getPropertyValue("testProperty");
     expect(value).toBe(1234);
   });
@@ -79,7 +51,10 @@ describe("metadata/MetadataEntityModel", function () {
     const entityJson = {
       testProperty: "example",
     };
-    const entity = new DefaultMetadataEntityModel(testSchemaClass, entityJson);
+    const entity = MetadataEntityModels.createFromClass(
+      testSchemaClass,
+      entityJson
+    );
     const value = entity.getPropertyValue("testProperty");
     expect(value).toBe("example");
   });
@@ -97,7 +72,10 @@ describe("metadata/MetadataEntityModel", function () {
     const entityJson = {
       testProperty: undefined,
     };
-    const entity = new DefaultMetadataEntityModel(testSchemaClass, entityJson);
+    const entity = MetadataEntityModels.createFromClass(
+      testSchemaClass,
+      entityJson
+    );
     const value = entity.getPropertyValue("testProperty");
     expect(value).toBe(1234);
   });
@@ -116,7 +94,10 @@ describe("metadata/MetadataEntityModel", function () {
     const entityJson = {
       testProperty: 2345,
     };
-    const entity = new DefaultMetadataEntityModel(testSchemaClass, entityJson);
+    const entity = MetadataEntityModels.createFromClass(
+      testSchemaClass,
+      entityJson
+    );
     const value = entity.getPropertyValue("testProperty");
     expect(value).toBe(1234);
   });
@@ -134,7 +115,10 @@ describe("metadata/MetadataEntityModel", function () {
     const entityJson = {
       testProperty: [1.2, 2.3, 3.4, 4.5],
     };
-    const entity = new DefaultMetadataEntityModel(testSchemaClass, entityJson);
+    const entity = MetadataEntityModels.createFromClass(
+      testSchemaClass,
+      entityJson
+    );
     const value = entity.getPropertyValue("testProperty");
     expect(value).toEqual([1.2, 2.3, 3.4, 4.5]);
   });
@@ -151,7 +135,10 @@ describe("metadata/MetadataEntityModel", function () {
     const entityJson = {
       testProperty: [1.2, 2.3, 3.4],
     };
-    const entity = new DefaultMetadataEntityModel(testSchemaClass, entityJson);
+    const entity = MetadataEntityModels.createFromClass(
+      testSchemaClass,
+      entityJson
+    );
     const value = entity.getPropertyValue("testProperty");
     expect(value).toEqual([1.2, 2.3, 3.4]);
   });
@@ -168,7 +155,10 @@ describe("metadata/MetadataEntityModel", function () {
     const entityJson = {
       testProperty: [1.2, 2.3, 3.4, 4.5],
     };
-    const entity = new DefaultMetadataEntityModel(testSchemaClass, entityJson);
+    const entity = MetadataEntityModels.createFromClass(
+      testSchemaClass,
+      entityJson
+    );
     const value = entity.getPropertyValue("testProperty");
     expect(value).toEqual([1.2, 2.3, 3.4, 4.5]);
   });
@@ -186,7 +176,10 @@ describe("metadata/MetadataEntityModel", function () {
     const entityJson = {
       testProperty: [1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8, 8.9],
     };
-    const entity = new DefaultMetadataEntityModel(testSchemaClass, entityJson);
+    const entity = MetadataEntityModels.createFromClass(
+      testSchemaClass,
+      entityJson
+    );
     const value = entity.getPropertyValue("testProperty");
     expect(value).toEqual([1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8, 8.9]);
   });
@@ -204,11 +197,14 @@ describe("metadata/MetadataEntityModel", function () {
     const entityJson = {
       testProperty: [4.5, 5.6, 6.7],
     };
-    const entity = new DefaultMetadataEntityModel(testSchemaClass, entityJson);
+    const entity = MetadataEntityModels.createFromClass(
+      testSchemaClass,
+      entityJson
+    );
     const value = entity.getPropertyValue("testProperty");
     const expected = [5.7, 7.9, 10.1];
     const epsilon = 0.000001;
-    expect(arraysEqualsEpsilon(value, expected, epsilon)).toBeTrue();
+    expect(genericEquals(value, expected, epsilon)).toBeTrue();
   });
 
   it("obtains a value for a vec3 float32 value with scale", function () {
@@ -224,10 +220,13 @@ describe("metadata/MetadataEntityModel", function () {
     const entityJson = {
       testProperty: [3.0, 4.0, 5.0],
     };
-    const entity = new DefaultMetadataEntityModel(testSchemaClass, entityJson);
+    const entity = MetadataEntityModels.createFromClass(
+      testSchemaClass,
+      entityJson
+    );
     const value = entity.getPropertyValue("testProperty");
     const expected = [6.0, 12.0, 20.0];
     const epsilon = 0.000001;
-    expect(arraysEqualsEpsilon(value, expected, epsilon)).toBeTrue();
+    expect(genericEquals(value, expected, epsilon)).toBeTrue();
   });
 });
