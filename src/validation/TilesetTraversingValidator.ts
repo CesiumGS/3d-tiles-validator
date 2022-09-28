@@ -1,3 +1,4 @@
+import path from "path";
 import { defined } from "../base/defined";
 
 import { ValidationContext } from "./ValidationContext";
@@ -267,7 +268,7 @@ export class TilesetTraversingValidator {
    * coordinates into the subtree template URI of the implicit tiling,
    * resolve the resulting data, and pass it to a `SubtreeValidator`.
    *
-   * @param path The path for `ValidationIssue` instances
+   * @param tilePath The path for `ValidationIssue` instances
    * @param implicitTiling The `TileImpllicitTiling`
    * @param coordinates The coordinates of the subtree root
    * @param validationState The `ValidationState`
@@ -275,7 +276,7 @@ export class TilesetTraversingValidator {
    * @returns A promise that resolves when the validation is finished
    */
   private static async validateSubtreeRootInternal(
-    path: string,
+    tilePath: string,
     implicitTiling: TileImplicitTiling,
     coordinates: TreeCoordinates,
     validationState: ValidationState,
@@ -291,7 +292,7 @@ export class TilesetTraversingValidator {
         `Could not substitute coordinates ${coordinates} in ` +
         `template URI ${implicitTiling.subtrees.uri}`;
       const issue = SemanticValidationIssues.TILE_IMPLICIT_ROOT_INVALID(
-        path,
+        tilePath,
         message
       );
       context.addIssue(issue);
@@ -299,6 +300,9 @@ export class TilesetTraversingValidator {
     }
 
     const resourceResolver = context.getResourceResolver();
+    const subtreeDirectory = path.dirname(subtreeUri!);
+    const subtreeResourceResolver = resourceResolver.derive(subtreeDirectory);
+
     const subtreeData = await resourceResolver.resolve(subtreeUri!);
     if (subtreeData == null) {
       const message =
@@ -306,7 +310,7 @@ export class TilesetTraversingValidator {
         `created from template URI ${implicitTiling.subtrees.uri} ` +
         `for coordinates ${coordinates}`;
       const issue = SemanticValidationIssues.TILE_IMPLICIT_ROOT_INVALID(
-        path,
+        tilePath,
         message
       );
       context.addIssue(issue);
@@ -318,7 +322,7 @@ export class TilesetTraversingValidator {
       subtreeUri,
       validationState,
       implicitTiling,
-      resourceResolver
+      subtreeResourceResolver
     );
     const result = await subtreeValidator.validateObject(subtreeData, context);
     return result;
