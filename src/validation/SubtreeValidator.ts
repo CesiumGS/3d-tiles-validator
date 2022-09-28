@@ -125,7 +125,8 @@ export class SubtreeValidator implements Validator<Buffer> {
       return result;
     }
     const message = `Subtree input data was neither a subtree binary nor JSON`;
-    const issue = IoValidationIssues.IO_ERROR("", message);
+    const path = this._uri;
+    const issue = IoValidationIssues.IO_ERROR(path, message);
     context.addIssue(issue);
     return false;
   }
@@ -250,7 +251,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     const binaryBuffer =
       binaryBufferSlice.length > 0 ? binaryBufferSlice : undefined;
 
-    const result = this.validateSubtree("", subtree, binaryBuffer, context);
+    const result = this.validateSubtree(path, subtree, binaryBuffer, context);
     return result;
   }
 
@@ -266,11 +267,12 @@ export class SubtreeValidator implements Validator<Buffer> {
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
+    const path = this._uri;
     try {
       const inputString = input.toString();
       const subtree: Subtree = JSON.parse(inputString);
       const result = await this.validateSubtree(
-        "",
+        path,
         subtree,
         undefined,
         context
@@ -278,7 +280,7 @@ export class SubtreeValidator implements Validator<Buffer> {
       return result;
     } catch (error) {
       //console.log(error);
-      const issue = IoValidationIssues.JSON_PARSE_ERROR("", "" + error);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(path, `${error}`);
       context.addIssue(issue);
       return false;
     }
@@ -387,10 +389,11 @@ export class SubtreeValidator implements Validator<Buffer> {
         result = false;
       }
     }
-    if (!this.validateSubtreeBasic("", subtree, hasBinaryBuffer, context)) {
+    const path = this._uri;
+    if (!this.validateSubtreeBasic(path, subtree, hasBinaryBuffer, context)) {
       return false;
     }
-    if (!this.validateMetadata("", subtree, context)) {
+    if (!this.validateMetadata(path, subtree, context)) {
       return false;
     }
     return result;
