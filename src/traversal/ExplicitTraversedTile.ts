@@ -53,13 +53,12 @@ export class ExplicitTraversedTile implements TraversedTile {
   }
 
   asTile(): Tile {
-
     const tile = this._tile;
 
     // TODO Look these up in the metadata!
     const boundingVolume = tile.boundingVolume;
     const geometricError = tile.geometricError;
-    
+
     const viewerRequestVolume = tile.viewerRequestVolume;
     const refine = tile.refine;
     const transform = undefined;
@@ -76,7 +75,7 @@ export class ExplicitTraversedTile implements TraversedTile {
       contents: contents,
       metadata: metadata,
       implicitTiling: implicitTiling,
-    }
+    };
   }
 
   get path(): string {
@@ -108,16 +107,16 @@ export class ExplicitTraversedTile implements TraversedTile {
     const childLevel = this._level + 1;
     const traversedChildren = [];
     for (let i = 0; i < children.length; i++) {
-      const c = children[i];
+      const child = children[i];
       const childPath = this.path + "/children/" + i;
-      const child = new ExplicitTraversedTile(
-        c,
+      const traversedChild = new ExplicitTraversedTile(
+        child,
         childPath,
         childLevel,
         this,
         this._resourceResolver
       );
-      traversedChildren.push(child);
+      traversedChildren.push(traversedChild);
     }
     return traversedChildren;
   }

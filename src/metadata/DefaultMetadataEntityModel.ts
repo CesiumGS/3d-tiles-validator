@@ -9,10 +9,10 @@ import { SchemaClass } from "../structure/Metadata/SchemaClass";
 /**
  * Defalt implementation of a `MetadataEntityModel` that is backed
  * by the JSON representation of the metadata.
- * 
+ *
  * (The JSON representation are just the `metadataEntity.properties`
  * from the input JSON)
- * 
+ *
  * @private
  */
 export class DefaultMetadataEntityModel implements MetadataEntityModel {
@@ -20,9 +20,11 @@ export class DefaultMetadataEntityModel implements MetadataEntityModel {
   private readonly _json: any;
   private readonly _semanticToPropertyId: { [key: string]: string };
 
-  constructor(schemaClass: SchemaClass, 
+  constructor(
+    schemaClass: SchemaClass,
     semanticToPropertyId: { [key: string]: string },
-    json: any) {
+    json: any
+  ) {
     this._schemaClass = schemaClass;
     this._semanticToPropertyId = semanticToPropertyId;
     this._json = json;
@@ -43,12 +45,11 @@ export class DefaultMetadataEntityModel implements MetadataEntityModel {
     return MetadataValues.processValue(property, value);
   }
 
-  getPropertyValueBySemantic(semantic: string) : any {
+  getPropertyValueBySemantic(semantic: string): any {
     const propertyId = this._semanticToPropertyId[semantic];
     if (!defined(propertyId)) {
       return undefined;
     }
     return this.getPropertyValue(propertyId);
   }
-
 }

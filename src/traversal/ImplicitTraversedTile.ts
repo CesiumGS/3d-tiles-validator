@@ -181,7 +181,7 @@ export class ImplicitTraversedTile implements TraversedTile {
    * @throws ImplicitTilingError If the input data was invalid
    */
   private async createNextSubtreeLevelChildren(): Promise<TraversedTile[]> {
-    const children = [];
+    const traversedChildren = [];
     const localChildCoordinates = this._localCoordinate.children();
     for (const localChildCoordinate of localChildCoordinates) {
       const globalChildCoordinate = ImplicitTilings.globalizeCoordinates(
@@ -210,7 +210,7 @@ export class ImplicitTraversedTile implements TraversedTile {
         );
         const childPath = `${this._root.path}/${coordinateString}`;
 
-        const child = new ImplicitTraversedTile(
+        const traversedChild = new ImplicitTraversedTile(
           this._implicitTiling,
           this._resourceResolver,
           this._root,
@@ -222,10 +222,10 @@ export class ImplicitTraversedTile implements TraversedTile {
           childLocalCoordinate,
           this
         );
-        children.push(child);
+        traversedChildren.push(traversedChild);
       }
     }
-    return children;
+    return traversedChildren;
   }
 
   /**
@@ -241,7 +241,7 @@ export class ImplicitTraversedTile implements TraversedTile {
   private async createDirectChildren(): Promise<TraversedTile[]> {
     const tileAvailabilityInfo = this._subtreeInfo.getTileAvailabilityInfo();
     const localChildCoordinates = this._localCoordinate.children();
-    const children = [];
+    const traversedChildren = [];
     for (const localChildCoordinate of localChildCoordinates) {
       const available = tileAvailabilityInfo.isAvailable(
         localChildCoordinate.toIndex()
@@ -260,7 +260,7 @@ export class ImplicitTraversedTile implements TraversedTile {
         );
         const childPath = `${this._root.path}/${coordinateString}`;
 
-        const child = new ImplicitTraversedTile(
+        const traversedChild = new ImplicitTraversedTile(
           this._implicitTiling,
           this._resourceResolver,
           this._root,
@@ -272,10 +272,10 @@ export class ImplicitTraversedTile implements TraversedTile {
           localChildCoordinate,
           this
         );
-        children.push(child);
+        traversedChildren.push(traversedChild);
       }
     }
-    return children;
+    return traversedChildren;
   }
 
   getContents(): Content[] {

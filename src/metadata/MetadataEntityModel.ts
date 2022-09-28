@@ -2,7 +2,7 @@
  * A minimalistic interface for a model that describes a
  * metadata entity, in the context of the 3D Metadata
  * specification.
- * 
+ *
  * @private
  */
 export interface MetadataEntityModel {
@@ -24,15 +24,15 @@ export interface MetadataEntityModel {
 
   /**
    * Obtains the value of the metadata property with the given semantic.
-   * 
-   * This return the result of calling `getPropertyValue` with the 
-   * name/ID of the property that has the given semantic, or 
+   *
+   * This return the result of calling `getPropertyValue` with the
+   * name/ID of the property that has the given semantic, or
    * `undefined` if there is no property with this semantic.
-   * 
+   *
    * @param semantic The semantic
    * @throws MetadataError If the schema class that this entity
-   * is an instance of does not define a property with the 
+   * is an instance of does not define a property with the
    * resulting name/ID.
    */
-  getPropertyValueBySemantic(semantic: string) : any;
+  getPropertyValueBySemantic(semantic: string): any;
 }
