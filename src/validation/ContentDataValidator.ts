@@ -207,7 +207,7 @@ export class ContentDataValidator {
 
     // Try to rule out JSON files which will not be validated anyhow
     const ext = paths.extname(contentUri).toLowerCase();
-    if (ext === "geojson") {
+    if (ext === ".geojson") {
       const message = `Skipping validation of apparent GeoJson file: ${contentUri}`;
       const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
         contentUri,
