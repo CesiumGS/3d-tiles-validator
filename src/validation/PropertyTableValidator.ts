@@ -170,6 +170,7 @@ export class PropertyTableValidator {
       return false;
     }
     // TODO This validation is not complete yet!
+    console.log("Property table properties are not validated yet");
     return true;
   }
 }
