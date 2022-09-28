@@ -45,18 +45,17 @@ function validateFeatureTable(
 
       const componentsLength = typeToComponentsLength(type);
       const componentByteLength = componentTypeToByteLength(componentType);
-
-      if (!defined(componentsLength)) {
-        return `Feature table binary property "${name}" has invalid type "${type}".`;
-      }
-
-      if (!defined(componentByteLength)) {
-        return `Feate table binary property "${name}" has invalid componentType "${componentType}".`;
-      }
-
       const itemsLength = definition.global ? 1 : featuresLength;
 
       if (defined(byteOffset)) {
+        if (!defined(componentsLength)) {
+          return `Feature table binary property "${name}" has invalid type "${type}".`;
+        }
+
+        if (!defined(componentByteLength)) {
+          return `Feate table binary property "${name}" has invalid componentType "${componentType}".`;
+        }
+
         if (typeof byteOffset !== "number") {
           return `Feature table binary property "${name}" byteOffset must be a number.`;
         }
@@ -80,6 +79,9 @@ function validateFeatureTable(
           return `Feature table property "${name}" must be a boolean.`;
         }
       } else {
+        if (!defined(componentsLength)) {
+          return `Feature table binary property "${name}" has invalid type "${type}".`;
+        }
         const arrayLength = componentsLength! * itemsLength;
         if (definition.global && arrayLength === 1) {
           if (typeof property !== "number") {
