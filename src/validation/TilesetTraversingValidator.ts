@@ -205,6 +205,13 @@ export class TilesetTraversingValidator {
     // the abstraction that is achieved with the `TraversedTile`,
     // in order to detect whether the tile is a root of a subtree,
     // (which is otherwise intentionally hidden in the interface)
+    // TODO The concepts of subtrees is so prominent and important
+    // that it MIGHT be justified to introduce some access mechanism
+    // for that. This could be a function in `TraversedTile` like
+    // getSubtreeData() that
+    // returns { subtree, buffer } for tiles that are subtree roots
+    // returns undefined for tiles that are not subtree roots.
+
     const path = traversedTile.path;
 
     // An `ExplicitTraversedTile` that has an `implicitTiling`
