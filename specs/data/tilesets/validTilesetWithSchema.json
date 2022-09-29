@@ -6,10 +6,12 @@
     "id": "EXAMPLE_SCHEMA_ID",
     "classes" : {
       "exampleClass" : {
-        "exampleFloatScalar": {
-          "type": "SCALAR",
-          "componentType": "FLOAT32"
-        }        
+        "properties": {
+            "exampleFloatScalar": {
+            "type": "SCALAR",
+            "componentType": "FLOAT32"
+          }        
+        }
       }
     }
   },
