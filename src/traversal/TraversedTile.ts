@@ -12,7 +12,10 @@ export interface TraversedTile {
    * the tile.
    *
    * Values that may be overridden (for example, via metadata semantics)
-   * are already substituted in the returned object.
+   * are already substituted in the returned object. 
+   * 
+   * This means that the return value of this method reflects the
+   * actual tile if and only if the underlying metadat was valid.
    *
    * @returns A `Tile` with information about this traversed tile
    * @throws ImplicitTilingError If the representation of this traversed

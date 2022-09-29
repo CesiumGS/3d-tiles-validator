@@ -7,6 +7,7 @@ import { TraversalCallback } from "./TraversalCallback";
 import { ResourceResolver } from "../io/ResourceResolver";
 
 import { Tileset } from "../structure/Tileset";
+import { Schema } from "../structure/Metadata/Schema";
 
 /**
  * A class that can traverse the tiles of a tileset.
@@ -20,6 +21,9 @@ export class TilesetTraverser {
    * as `TraversedTile` instances.
    *
    * @param tileset The `Tileset`
+   * @param schema The schema from the `tileset.schema` or the
+   * `tileset.schemaUri`. If this is defined, then it is assumed 
+   * to be a valid schema definition.
    * @param resourceResolver The `ResourceResolver` that is used to
    * resolve resources for implicit tilesets (subtree files)
    * @param traversalCallback The `TraversalCallback`
@@ -28,6 +32,7 @@ export class TilesetTraverser {
    */
   static async traverse(
     tileset: Tileset,
+    schema: Schema | undefined,
     resourceResolver: ResourceResolver,
     traversalCallback: TraversalCallback,
     // eslint-disable-next-line @typescript-eslint/no-inferrable-types
@@ -44,6 +49,7 @@ export class TilesetTraverser {
       "/root",
       0,
       undefined,
+      schema, 
       resourceResolver
     );
     stack.push(traversedRoot);

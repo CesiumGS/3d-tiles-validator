@@ -4,6 +4,9 @@ import { Content } from "../structure/Content";
 import { defined } from "../base/defined";
 import { ImplicitTileTraversal } from "./ImplicitTileTraversal";
 import { ResourceResolver } from "../io/ResourceResolver";
+import { MetadataEntityModels } from "../metadata/MetadataEntityModels";
+import { Schema } from "../structure/Metadata/Schema";
+import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
 
 /**
  * An implementation of a `TraversedTile` that reflects a tile
@@ -32,6 +35,16 @@ export class ExplicitTraversedTile implements TraversedTile {
   private readonly _level: number;
 
   /**
+   * The metadata schema in the context of which this tile
+   * is created. This is the schema that was obtained from
+   * the `tileset.schema` or `tileset.schemaUri`. If this
+   * is defined, it is assumed to be valid. If it is
+   * undefined and a tile with metadata is encountered,
+   * then an error will be thrown in `asTile`.
+   */
+  private readonly _schema: Schema | undefined;
+
+  /**
    * The `ResourceResolver` that will resolve resources
    * that may be required if this is the root of an
    * implicit tileset (e.g. the subtree files).
@@ -43,26 +56,48 @@ export class ExplicitTraversedTile implements TraversedTile {
     path: string,
     level: number,
     parent: TraversedTile | undefined,
+    schema: Schema | undefined,
     resourceResolver: ResourceResolver
   ) {
     this._tile = tile;
     this._path = path;
     this._level = level;
     this._parent = parent;
+    this._schema = schema;
     this._resourceResolver = resourceResolver;
   }
 
   asTile(): Tile {
     const tile = this._tile;
 
-    // TODO Look these up in the metadata!
+    const schema = this._schema;
+    const metadata = tile.metadata;
+    if (defined(metadata) && !defined(schema)) {
+      const message =
+        `Tile ${this.path} defines metadata, ` +
+        `but no valid schema definition was found`;
+      throw new ImplicitTilingError(message);
+    }
+
+    // TODO These can be overridden by semantics!
     const boundingVolume = tile.boundingVolume;
-    const geometricError = tile.geometricError;
+    const transform = undefined;
+    const refine = tile.refine;
+
+    let geometricError = tile.geometricError;
+    if (defined(metadata)) {
+      const metadataEntityModel = MetadataEntityModels.create(
+        schema!,
+        metadata!
+      );
+      const semanticGeometricError =
+        metadataEntityModel.getPropertyValueBySemantic("TILE_GEOMETRIC_ERROR");
+      if (defined(semanticGeometricError)) {
+        geometricError = semanticGeometricError;
+      }
+    }
 
     const viewerRequestVolume = tile.viewerRequestVolume;
-    const refine = tile.refine;
-    const transform = undefined;
-    const metadata = tile.metadata; // TODO Look up!
     const contents = this.getContents();
     const implicitTiling = tile.implicitTiling;
 
@@ -114,6 +149,7 @@ export class ExplicitTraversedTile implements TraversedTile {
         childPath,
         childLevel,
         this,
+        this._schema,
         this._resourceResolver
       );
       traversedChildren.push(traversedChild);

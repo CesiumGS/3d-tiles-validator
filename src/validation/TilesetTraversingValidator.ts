@@ -49,6 +49,7 @@ export class TilesetTraversingValidator {
     try {
       await TilesetTraverser.traverse(
         tileset,
+        validationState.validatedSchema,
         resourceResolver,
         async (traversedTile) => {
           // Validate the tile, and only continue the traversal
@@ -114,16 +115,15 @@ export class TilesetTraversingValidator {
     validationState: ValidationState,
     context: ValidationContext
   ): Promise<boolean> {
-    const path = traversedTile.path;
-    const tile = traversedTile.asTile();
-
-    // Validate the tile itself
-    if (!TileValidator.validateTile(path, tile, validationState, context)) {
-      return false;
-    }
 
     // Check if the given traversed tile is the root of a subtree,
-    // and perform the validation of the associated subtree data
+    // and perform the validation of the associated subtree data.
+    // If the subtree data is not valid, then there is no point
+    // in proceeding with the validation: The children of the
+    // tile may not be available, and properties like the
+    // geometric error or bounding volume that may be overridden
+    // by the semantics of the tile metadata that is stored in
+    // the subtree may not be available.
     const subtreeRootValid =
       await TilesetTraversingValidator.validateSubtreeRoot(
         traversedTile,
@@ -133,6 +133,15 @@ export class TilesetTraversingValidator {
     if (!subtreeRootValid) {
       return false;
     }
+
+    const path = traversedTile.path;
+    const tile = traversedTile.asTile();
+
+    // Validate the tile itself
+    if (!TileValidator.validateTile(path, tile, validationState, context)) {
+      return false;
+    }
+
 
     let result = true;
 
@@ -282,6 +291,9 @@ export class TilesetTraversingValidator {
     validationState: ValidationState,
     context: ValidationContext
   ): Promise<boolean> {
+
+    // Create the subtree URI by substituting the coordinates
+    // into the subtree template URI
     const subtreeUri = ImplicitTilings.substituteTemplateUri(
       implicitTiling.subdivisionScheme,
       implicitTiling.subtrees.uri,
@@ -299,10 +311,13 @@ export class TilesetTraversingValidator {
       return false;
     }
 
+    // Resolve resources (like buffers) relative to the
+    // directory of the subtree file
     const resourceResolver = context.getResourceResolver();
     const subtreeDirectory = path.dirname(subtreeUri!);
     const subtreeResourceResolver = resourceResolver.derive(subtreeDirectory);
 
+    // Obtain the raw subtree data (binary subtree file or JSON)
     const subtreeData = await resourceResolver.resolve(subtreeUri!);
     if (subtreeData == null) {
       const message =
@@ -317,6 +332,7 @@ export class TilesetTraversingValidator {
       return false;
     }
 
+    // Validate the subtree data with a `SubtreeValidator`
     const subtreeValidator = new SubtreeValidator(
       undefined,
       subtreeUri,
