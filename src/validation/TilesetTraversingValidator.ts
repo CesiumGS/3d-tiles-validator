@@ -115,7 +115,6 @@ export class TilesetTraversingValidator {
     validationState: ValidationState,
     context: ValidationContext
   ): Promise<boolean> {
-
     // Check if the given traversed tile is the root of a subtree,
     // and perform the validation of the associated subtree data.
     // If the subtree data is not valid, then there is no point
@@ -141,7 +140,6 @@ export class TilesetTraversingValidator {
     if (!TileValidator.validateTile(path, tile, validationState, context)) {
       return false;
     }
-
 
     let result = true;
 
@@ -291,7 +289,6 @@ export class TilesetTraversingValidator {
     validationState: ValidationState,
     context: ValidationContext
   ): Promise<boolean> {
-
     // Create the subtree URI by substituting the coordinates
     // into the subtree template URI
     const subtreeUri = ImplicitTilings.substituteTemplateUri(

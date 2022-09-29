@@ -1,0 +1,14 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "exampleProperty": {
+          "type": "VEC2",
+          "componentType": "FLOAT32",
+          "semantic": "TILE_GEOMETRIC_ERROR"
+        }
+      }
+    }
+  }
+}

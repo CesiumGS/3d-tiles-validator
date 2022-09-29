@@ -1,4 +1,3 @@
-import { DefaultMetadataEntityModel } from "../../src/metadata/DefaultMetadataEntityModel";
 import { MetadataEntityModels } from "../../src/metadata/MetadataEntityModels";
 import { SchemaClass } from "../../src/structure/Metadata/SchemaClass";
 import { genericEquals } from "./genericEquals";

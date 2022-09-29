@@ -22,7 +22,7 @@ export class TilesetTraverser {
    *
    * @param tileset The `Tileset`
    * @param schema The schema from the `tileset.schema` or the
-   * `tileset.schemaUri`. If this is defined, then it is assumed 
+   * `tileset.schemaUri`. If this is defined, then it is assumed
    * to be a valid schema definition.
    * @param resourceResolver The `ResourceResolver` that is used to
    * resolve resources for implicit tilesets (subtree files)
@@ -49,7 +49,7 @@ export class TilesetTraverser {
       "/root",
       0,
       undefined,
-      schema, 
+      schema,
       resourceResolver
     );
     stack.push(traversedRoot);

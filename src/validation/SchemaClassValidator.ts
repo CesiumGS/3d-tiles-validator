@@ -4,11 +4,10 @@ import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ClassPropertyValidator } from "./ClassPropertyValidator";
+import { ClassPropertySemanticsValidator } from "./ClassPropertySemanticsValidator";
 
 import { Schema } from "../structure/Metadata/Schema";
 import { SchemaClass } from "../structure/Metadata/SchemaClass";
-
-import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
 /**
  * A class for validations related to `SchemaClass` objects.
@@ -86,7 +85,7 @@ export class SchemaClassValidator {
     }
 
     // Validate the properties
-    const properties = schemaClass.properties as any;
+    const properties = schemaClass.properties;
     const propertiesPath = schemaClassPath + "/properties";
     if (defined(properties)) {
       // The properties MUST have at least 1 property
@@ -104,7 +103,9 @@ export class SchemaClassValidator {
       }
 
       // Validate each property
-      for (const [propertyName, property] of Object.entries(properties)) {
+      let allPropertiesValid = true;
+      for (const propertyName of Object.keys(properties!)) {
+        const property = properties![propertyName];
         const propertyPath = propertiesPath + "/" + propertyName;
 
         // Each property name MUST match the ID regex
@@ -116,6 +117,7 @@ export class SchemaClassValidator {
             context
           )
         ) {
+          allPropertiesValid = false;
           result = false;
         }
 
@@ -128,32 +130,23 @@ export class SchemaClassValidator {
             context
           )
         ) {
+          allPropertiesValid = false;
           result = false;
         }
       }
 
-      // Validate that the 'semantic' of all properties
-      // in this class are unique
-      const semanticsToPropertyNames: any = {};
-      for (const propertyName of Object.keys(properties)) {
-        const property = properties[propertyName];
-        if (defined(property)) {
-          const semantic = property.semantic;
-          if (defined(semantic)) {
-            const otherPropertyName = semanticsToPropertyNames[semantic];
-            if (defined(otherPropertyName)) {
-              const issue =
-                SemanticValidationIssues.CLASS_PROPERTIES_DUPLICATE_SEMANTIC(
-                  schemaClassPath,
-                  propertyName,
-                  otherPropertyName,
-                  semantic
-                );
-              context.addIssue(issue);
-              result = false;
-            }
-            semanticsToPropertyNames[semantic] = propertyName;
-          }
+      // If all properties are valid, validate the semantics of all
+      // properties, i.e. their uniqueness, and compliance to the
+      // semantic definitions
+      if (allPropertiesValid) {
+        if (
+          !ClassPropertySemanticsValidator.validateSemantics(
+            schemaClassPath,
+            properties!,
+            context
+          )
+        ) {
+          result = false;
         }
       }
     }
