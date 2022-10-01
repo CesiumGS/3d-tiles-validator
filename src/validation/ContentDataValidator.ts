@@ -144,6 +144,29 @@ export class ContentDataValidator {
       return result;
     }
 
+    const isGeom = ResourceTypes.isGeom(contentData);
+    if (isGeom) {
+      const message = `Skipping validation of apparent GEOM file: ${contentUri}`;
+      const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
+        contentUri,
+        message
+      );
+      context.addIssue(issue);
+      return true;
+    }
+
+    const isVctr = ResourceTypes.isVctr(contentData);
+    if (isVctr) {
+      const message = `Skipping validation of apparent VCTR file: ${contentUri}`;
+      const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
+        contentUri,
+        message
+      );
+      context.addIssue(issue);
+      return true;
+    }
+
+
     // When there is no known magic value, then it may be JSON.
     const isJson = ResourceTypes.isProbablyJson(contentData);
     if (isJson) {

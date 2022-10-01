@@ -19,27 +19,35 @@ export class ResourceTypes {
   }
 
   static isB3dm(buffer: Buffer): boolean {
-    return this.startsWith(buffer, "b3dm");
+    return ResourceTypes.startsWith(buffer, "b3dm");
   }
 
   static isI3dm(buffer: Buffer): boolean {
-    return this.startsWith(buffer, "i3dm");
+    return ResourceTypes.startsWith(buffer, "i3dm");
   }
 
   static isPnts(buffer: Buffer): boolean {
-    return this.startsWith(buffer, "pnts");
+    return ResourceTypes.startsWith(buffer, "pnts");
   }
 
   static isCmpt(buffer: Buffer): boolean {
-    return this.startsWith(buffer, "cmpt");
+    return ResourceTypes.startsWith(buffer, "cmpt");
   }
 
   static isGlb(buffer: Buffer): boolean {
-    return this.startsWith(buffer, "glTF");
+    return ResourceTypes.startsWith(buffer, "glTF");
   }
 
   static isSubt(buffer: Buffer): boolean {
-    return this.startsWith(buffer, "subt");
+    return ResourceTypes.startsWith(buffer, "subt");
+  }
+
+  static isGeom(buffer: Buffer): boolean {
+    return ResourceTypes.startsWith(buffer, "geom");
+  }
+
+  static isVctr(buffer: Buffer): boolean {
+    return ResourceTypes.startsWith(buffer, "vctr");
   }
 
   static isProbablyJson(buffer: Buffer): boolean {
