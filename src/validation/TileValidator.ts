@@ -288,8 +288,7 @@ export class TileValidator {
         !ContentValidator.validateContent(
           contentPath,
           content!,
-          validationState.hasGroupsDefinition,
-          validationState.validatedGroups,
+          validationState,
           context
         )
       ) {
@@ -324,8 +323,7 @@ export class TileValidator {
             !ContentValidator.validateContent(
               contentsElementPath,
               contentsElement,
-              validationState.hasGroupsDefinition,
-              validationState.validatedGroups,
+              validationState,
               context
             )
           ) {

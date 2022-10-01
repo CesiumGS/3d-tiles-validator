@@ -4,11 +4,13 @@ import { ValidationContext } from "./ValidationContext";
 import { BoundingVolumeValidator } from "./BoundingVolumeValidator";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
+import { MetadataEntityValidator } from "./MetadataEntityValidator";
 
 import { Content } from "../structure/Content";
 import { Group } from "../structure/Group";
 
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
+import { ValidationState } from "./ValidationState";
 
 /**
  * A class for validations related to `content` objects.
@@ -27,17 +29,14 @@ export class ContentValidator {
    *
    * @param contentPath The path for the `ValidationIssue` instances
    * @param content The object to validate
-   * @param hasGroupsDefinition Whether the tileset defined `tileset.groups`
-   * @param validatedGroups The validated groups. This is the `tileset.groups`
-   * if they had been defined and could be validated, and `undefined` otherwise.
+   * @param validationState The `ValidationState`
    * @param context The `ValidationContext` that any issues will be added to
    * @returns Whether the given object was valid
    */
   static validateContent(
     contentPath: string,
     content: Content,
-    hasGroupsDefinition: boolean,
-    validatedGroups: Group[] | undefined,
+    validationState: ValidationState,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
@@ -81,7 +80,7 @@ export class ContentValidator {
         result = false;
       } else {
         // When a group is given, the tileset MUST define groups
-        if (!hasGroupsDefinition) {
+        if (!validationState.hasGroupsDefinition) {
           const message =
             `Tile content has a group index ${group}, ` +
             `but the containing tileset does not define groups`;
@@ -91,12 +90,12 @@ export class ContentValidator {
           );
           context.addIssue(issue);
           result = false;
-        } else if (defined(validatedGroups)) {
-          if (group! >= validatedGroups!.length) {
+        } else if (defined(validationState.validatedGroups)) {
+          if (group! >= validationState.validatedGroups!.length) {
             const message =
               `Tile content has a group index ${group}, ` +
               `but the containing tileset only contains ` +
-              `${validatedGroups!.length} groups`;
+              `${validationState.validatedGroups!.length} groups`;
             const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
               groupPath,
               message
@@ -107,6 +106,16 @@ export class ContentValidator {
         }
       }
     }
+
+    // TODO XXX Temporary, for CesiumJS spec files
+    /*/
+    const url = (content as any).url;
+    if (defined(url)) {
+      const message = `Using content.url as content.uri`;
+      console.error(message);
+      content.uri = url;
+    }
+    //*/
 
     // Validate the uri
     const uri = content.uri;
@@ -134,10 +143,31 @@ export class ContentValidator {
 
     // Validate the metadata
     const metadata = content.metadata;
-    //const metadataPath = contentPath + "/metadata";
+    const metadataPath = contentPath + "/metadata";
     if (defined(metadata)) {
-      // TODO Validate content metadata!
-      console.error("Content metadata is not yet validated");
+      if (!validationState.hasSchemaDefinition) {
+        // If there is metadata, then there must be a schema definition
+        const message =
+          "The content defines 'metadata' but the tileset does not have a schema";
+        const issue = StructureValidationIssues.REQUIRED_VALUE_NOT_FOUND(
+          contentPath,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      } else if (defined(validationState.validatedSchema)) {
+        if (
+          !MetadataEntityValidator.validateMetadataEntity(
+            metadataPath,
+            "content.metadata",
+            metadata!,
+            validationState.validatedSchema!,
+            context
+          )
+        ) {
+          result = false;
+        }
+      }
     }
     return result;
   }
