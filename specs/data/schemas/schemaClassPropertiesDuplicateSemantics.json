@@ -4,12 +4,14 @@
     "exampleClass": {
       "properties": {
         "examplePropertyA": {
-          "type": "STRING",
-          "semantic": "EXAMPLE_SEMANTIC"
+          "type": "SCALAR",
+          "componentType": "FLOAT32",
+          "semantic": "TILE_GEOMETRIC_ERROR"
         },
         "examplePropertyB": {
-          "type": "STRING",
-          "semantic": "EXAMPLE_SEMANTIC"
+          "type": "SCALAR",
+          "componentType": "FLOAT32",
+          "semantic": "TILE_GEOMETRIC_ERROR"
         }
       }
     }

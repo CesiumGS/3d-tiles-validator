@@ -196,7 +196,8 @@ export class ClassPropertySemanticsValidator {
     }
 
     const matcherNormalized = defaultValue(semanticMatcher.normalized, false);
-    if (property.normalized !== matcherNormalized) {
+    const propertyNormalized = defaultValue(property.normalized, false);
+    if (propertyNormalized !== matcherNormalized) {
       const message =
         `Property '${propertyName} has semantic '${semantic}', which ` +
         `requires the 'normalized' property to be '${matcherNormalized}' ` +

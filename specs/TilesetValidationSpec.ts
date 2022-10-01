@@ -185,9 +185,8 @@ describe("Tileset validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/implicitTilingRootWithMetadata.json"
     );
-    expect(result.length).toEqual(2);
-    expect(result.get(0).type).toEqual("REQUIRED_VALUE_NOT_FOUND");
-    expect(result.get(1).type).toEqual("TILE_IMPLICIT_ROOT_INVALID");
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("TILE_IMPLICIT_ROOT_INVALID");
   });
 
   it("detects issues in implicitTilingSubdivisionSchemeInvalidType", async function () {
@@ -266,10 +265,10 @@ describe("Tileset validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/implicitTilingValid.json"
     );
-    // Expect the IMPLICIT_TILING_ERROR here, because the file
+    // Expect the TILE_IMPLICIT_ROOT_INVALID here, because the file
     // for the template URI for the test cannot be resolved
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("IMPLICIT_TILING_ERROR");
+    expect(result.get(0).type).toEqual("TILE_IMPLICIT_ROOT_INVALID");
   });
 
   it("detects issues in implicitTilingWithBoundingSphere", async function () {

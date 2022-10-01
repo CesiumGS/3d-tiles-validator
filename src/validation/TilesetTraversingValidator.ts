@@ -9,18 +9,17 @@ import { SubtreeValidator } from "./SubtreeValidator";
 
 import { TilesetTraverser } from "../traversal/TilesetTraverser";
 import { TraversedTile } from "../traversal/TraversedTile";
-import { ImplicitTraversedTile } from "../traversal/ImplicitTraversedTile";
-import { ExplicitTraversedTile } from "../traversal/ExplicitTraversedTile";
 
 import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
-import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
-import { TreeCoordinates } from "../implicitTiling/TreeCoordinates";
 
 import { Tileset } from "../structure/Tileset";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 import { ValidationIssues } from "../issues/ValidationIssues";
+import { ImplicitTilingValidator } from "./ImplicitTilingValidator";
+import { StructureValidationIssues } from "../issues/StructureValidationIssues";
+import { MetadataEntityValidator } from "./MetadataEntityValidator";
 
 /**
  * A validator for a `Tileset` that traverses the tile hierarchy
@@ -115,25 +114,76 @@ export class TilesetTraversingValidator {
     validationState: ValidationState,
     context: ValidationContext
   ): Promise<boolean> {
-    // Check if the given traversed tile is the root of a subtree,
-    // and perform the validation of the associated subtree data.
-    // If the subtree data is not valid, then there is no point
-    // in proceeding with the validation: The children of the
-    // tile may not be available, and properties like the
-    // geometric error or bounding volume that may be overridden
-    // by the semantics of the tile metadata that is stored in
-    // the subtree may not be available.
-    const subtreeRootValid =
-      await TilesetTraversingValidator.validateSubtreeRoot(
-        traversedTile,
-        validationState,
-        context
-      );
-    if (!subtreeRootValid) {
-      return false;
+    const path = traversedTile.path;
+
+    // If the tile defines implicit tiling, validate this
+    // first. All subsequent checks depend on the validity
+    // of the implicit tiling information.
+    const implicitTiling = traversedTile.getImplicitTiling();
+    const implicitTilingPath = path + "/implicitTiling";
+    if (defined(implicitTiling)) {
+      if (
+        !ImplicitTilingValidator.validateImplicitTiling(
+          implicitTilingPath,
+          implicitTiling!,
+          context
+        )
+      ) {
+        return false;
+      }
+
+      // If the tile is the root of a subtree, then
+      // validate the subtree data
+      const subtreeUri = traversedTile.getSubtreeUri();
+      if (defined(subtreeUri)) {
+        const subtreeRootValid =
+          await TilesetTraversingValidator.validateSubtreeRoot(
+            path,
+            implicitTiling!,
+            subtreeUri!,
+            validationState,
+            context
+          );
+        if (!subtreeRootValid) {
+          return false;
+        }
+      }
     }
 
-    const path = traversedTile.path;
+    // Validate the metadata.
+    // This is also done in `TileValidator#validateTile`, but
+    // the following steps require the metadat to already be
+    // valid.
+    const metadata = traversedTile.getMetadata();
+    const metadataPath = path + "/metadata";
+    if (defined(metadata)) {
+      if (!validationState.hasSchemaDefinition) {
+        // If there is metadata, then there must be a schema definition
+        const message =
+          "The tile defines 'metadata' but the tileset does not have a schema";
+        const issue = StructureValidationIssues.REQUIRED_VALUE_NOT_FOUND(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        return false;
+      }
+      if (!defined(validationState.validatedSchema)) {
+        return false;
+      }
+      if (
+        !MetadataEntityValidator.validateMetadataEntity(
+          metadataPath,
+          "tile.metadata",
+          metadata!,
+          validationState.validatedSchema!,
+          context
+        )
+      ) {
+        return false;
+      }
+    }
+
     const tile = traversedTile.asTile();
 
     // Validate the tile itself
@@ -196,77 +246,6 @@ export class TilesetTraversingValidator {
   }
 
   /**
-   * Check if the given traversed tile is the root of a subtree, and
-   * if it is, perform the validation of the associated subtree data.
-   *
-   * @param traversedTile The `TraversedTile`
-   * @param validationState The `ValidationState`
-   * @param context The `ValidationContext`
-   * @returns A promise that resolves when the validation is finished
-   */
-  private static async validateSubtreeRoot(
-    traversedTile: TraversedTile,
-    validationState: ValidationState,
-    context: ValidationContext
-  ): Promise<boolean> {
-    // NOTE: This is somewhat ugly. It HAS to drill a hole into
-    // the abstraction that is achieved with the `TraversedTile`,
-    // in order to detect whether the tile is a root of a subtree,
-    // (which is otherwise intentionally hidden in the interface)
-    // TODO The concepts of subtrees is so prominent and important
-    // that it MIGHT be justified to introduce some access mechanism
-    // for that. This could be a function in `TraversedTile` like
-    // getSubtreeData() that
-    // returns { subtree, buffer } for tiles that are subtree roots
-    // returns undefined for tiles that are not subtree roots.
-
-    const path = traversedTile.path;
-
-    // An `ExplicitTraversedTile` that has an `implicitTiling`
-    // is the root of a subtree.
-    if (traversedTile instanceof ExplicitTraversedTile) {
-      const explicitTraversedTile = traversedTile as ExplicitTraversedTile;
-      const tile = explicitTraversedTile.asTile();
-      const implicitTiling = tile.implicitTiling;
-      if (defined(implicitTiling)) {
-        const rootCoordinates = ImplicitTilings.createRootCoordinates(
-          implicitTiling!
-        );
-        const result =
-          await TilesetTraversingValidator.validateSubtreeRootInternal(
-            path,
-            implicitTiling!,
-            rootCoordinates,
-            validationState,
-            context
-          );
-        return result;
-      }
-    }
-
-    // An `ImplicitTraversedTile` is the root of a subtree when
-    // its local coordinates within that tree have level 0
-    if (traversedTile instanceof ImplicitTraversedTile) {
-      const implicitTraversedTile = traversedTile as ImplicitTraversedTile;
-      const localCoordinate = implicitTraversedTile.getLocalCoordinate();
-      if (localCoordinate.level === 0) {
-        const rootCoordinates = implicitTraversedTile.getGlobalCoordinate();
-        const implicitTiling = implicitTraversedTile.getImplicitTiling();
-        const result =
-          await TilesetTraversingValidator.validateSubtreeRootInternal(
-            path,
-            implicitTiling!,
-            rootCoordinates,
-            validationState,
-            context
-          );
-        return result;
-      }
-    }
-    return true;
-  }
-
-  /**
    * Performs the validation to make sure that the specified subtree
    * root is valid.
    *
@@ -282,32 +261,13 @@ export class TilesetTraversingValidator {
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
-  private static async validateSubtreeRootInternal(
+  private static async validateSubtreeRoot(
     tilePath: string,
     implicitTiling: TileImplicitTiling,
-    coordinates: TreeCoordinates,
+    subtreeUri: string,
     validationState: ValidationState,
     context: ValidationContext
   ): Promise<boolean> {
-    // Create the subtree URI by substituting the coordinates
-    // into the subtree template URI
-    const subtreeUri = ImplicitTilings.substituteTemplateUri(
-      implicitTiling.subdivisionScheme,
-      implicitTiling.subtrees.uri,
-      coordinates
-    );
-    if (!defined(subtreeUri)) {
-      const message =
-        `Could not substitute coordinates ${coordinates} in ` +
-        `template URI ${implicitTiling.subtrees.uri}`;
-      const issue = SemanticValidationIssues.TILE_IMPLICIT_ROOT_INVALID(
-        tilePath,
-        message
-      );
-      context.addIssue(issue);
-      return false;
-    }
-
     // Resolve resources (like buffers) relative to the
     // directory of the subtree file
     const resourceResolver = context.getResourceResolver();
@@ -319,8 +279,7 @@ export class TilesetTraversingValidator {
     if (subtreeData == null) {
       const message =
         `Could not resolve subtree URI ${subtreeUri} that was ` +
-        `created from template URI ${implicitTiling.subtrees.uri} ` +
-        `for coordinates ${coordinates}`;
+        `created from template URI ${implicitTiling.subtrees.uri} `;
       const issue = SemanticValidationIssues.TILE_IMPLICIT_ROOT_INVALID(
         tilePath,
         message

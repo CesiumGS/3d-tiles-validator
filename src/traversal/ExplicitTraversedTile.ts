@@ -7,6 +7,9 @@ import { ResourceResolver } from "../io/ResourceResolver";
 import { MetadataEntityModels } from "../metadata/MetadataEntityModels";
 import { Schema } from "../structure/Metadata/Schema";
 import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
+import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
+import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { MetadataEntity } from "../structure/MetadataEntity";
 
 /**
  * An implementation of a `TraversedTile` that reflects a tile
@@ -81,7 +84,7 @@ export class ExplicitTraversedTile implements TraversedTile {
 
     // TODO These can be overridden by semantics!
     const boundingVolume = tile.boundingVolume;
-    const transform = undefined;
+    const transform = tile.transform;
     const refine = tile.refine;
 
     let geometricError = tile.geometricError;
@@ -98,8 +101,12 @@ export class ExplicitTraversedTile implements TraversedTile {
     }
 
     const viewerRequestVolume = tile.viewerRequestVolume;
-    const contents = this.getContents();
+    const content = tile.content;
+    const contents = tile.contents;
+    const children = tile.children;
     const implicitTiling = tile.implicitTiling;
+    const extensions = tile.extensions;
+    const extras = tile.extras;
 
     return {
       boundingVolume: boundingVolume,
@@ -107,9 +114,13 @@ export class ExplicitTraversedTile implements TraversedTile {
       geometricError: geometricError,
       refine: refine,
       transform: transform,
+      content: content,
       contents: contents,
+      children: children,
       metadata: metadata,
       implicitTiling: implicitTiling,
+      extensions: extensions,
+      extras: extras,
     };
   }
 
@@ -165,6 +176,30 @@ export class ExplicitTraversedTile implements TraversedTile {
       return this._tile.contents!;
     }
     return [];
+  }
+
+  getSubtreeUri(): string | undefined {
+    const implicitTiling = this._tile.implicitTiling;
+    if (defined(implicitTiling)) {
+      const rootCoordinates = ImplicitTilings.createRootCoordinates(
+        implicitTiling!
+      );
+      const subtreeUri = ImplicitTilings.substituteTemplateUri(
+        implicitTiling!.subdivisionScheme,
+        implicitTiling!.subtrees.uri,
+        rootCoordinates
+      );
+      return subtreeUri;
+    }
+    return undefined;
+  }
+
+  getImplicitTiling(): TileImplicitTiling | undefined {
+    return this._tile.implicitTiling;
+  }
+
+  getMetadata(): MetadataEntity | undefined {
+    return this._tile.metadata;
   }
 
   // TODO For debugging

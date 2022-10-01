@@ -14,6 +14,7 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 import { BoundingVolumeDerivation } from "./cesium/BoundingVolumeDerivation";
 import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
 import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
+import { MetadataEntity } from "../structure/MetadataEntity";
 
 /**
  * An implementation of a `TraversedTile` that represents a tile
@@ -122,8 +123,11 @@ export class ImplicitTraversedTile implements TraversedTile {
     const viewerRequestVolume = rootTile.viewerRequestVolume;
     const refine = rootTile.refine;
     const transform = undefined;
-    const metadata = rootTile.metadata; // TODO Look up!
+    const metadata = undefined;
     const contents = this.getContents();
+    const implicitTiling = undefined;
+    const extensions = undefined;
+    const extras = undefined;
 
     return {
       boundingVolume: boundingVolume!,
@@ -133,6 +137,9 @@ export class ImplicitTraversedTile implements TraversedTile {
       transform: transform,
       metadata: metadata,
       contents: contents,
+      implicitTiling: implicitTiling,
+      extensions: extensions,
+      extras: extras,
     };
   }
 
@@ -142,11 +149,6 @@ export class ImplicitTraversedTile implements TraversedTile {
   get level(): number {
     return this._globalLevel;
   }
-
-  getImplicitTiling(): TileImplicitTiling {
-    return this._implicitTiling;
-  }
-
   getLocalCoordinate(): TreeCoordinates {
     return this._localCoordinate;
   }
@@ -309,6 +311,32 @@ export class ImplicitTraversedTile implements TraversedTile {
       }
     }
     return contents;
+  }
+
+  getSubtreeUri(): string | undefined {
+    const localCoordinate = this._localCoordinate;
+    if (localCoordinate.level === 0) {
+      const globalCoordinate = this._globalCoordinate;
+      const implicitTiling = this._implicitTiling;
+      const subtreeUri = ImplicitTilings.substituteTemplateUri(
+        implicitTiling.subdivisionScheme,
+        implicitTiling.subtrees.uri,
+        globalCoordinate
+      );
+      return subtreeUri;
+    }
+    return undefined;
+  }
+
+  getImplicitTiling(): TileImplicitTiling | undefined {
+    const localCoordinate = this._localCoordinate;
+    if (localCoordinate.level === 0) {
+      return this._implicitTiling;
+    }
+  }
+
+  getMetadata(): MetadataEntity | undefined {
+    return undefined;
   }
 
   // TODO For debugging

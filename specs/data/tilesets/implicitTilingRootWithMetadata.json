@@ -2,6 +2,19 @@
   "asset" : {
     "version" : "1.1"
   },
+  "schema" : {
+    "id": "EXAMPLE_SCHEMA_ID",
+    "classes": {
+      "exampleClass" : {
+        "properties": {
+          "exampleFloatScalar": {
+            "type": "SCALAR",
+            "componentType": "FLOAT32"
+          }
+        }
+      }
+    }
+  },
   "geometricError" : 2.0,
   "root" : {
     "boundingVolume" : {
@@ -20,7 +33,11 @@
         "uri": "example-{level}-{x}-{y}.subtree"
       }
     },
-    "metadata": [
-    ]
+    "metadata": {
+      "class": "exampleClass",
+      "properties": {
+        "exampleFloatScalar": 1.0
+      }
+    }
   }
 }

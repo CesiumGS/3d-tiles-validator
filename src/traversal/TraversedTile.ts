@@ -1,5 +1,7 @@
 import { Tile } from "../structure/Tile";
 import { Content } from "../structure/Content";
+import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { MetadataEntity } from "../structure/MetadataEntity";
 
 /**
  * An interface that summarizes context information for
@@ -77,4 +79,8 @@ export interface TraversedTile {
    * @returns The contents
    */
   getContents(): Content[];
+
+  getSubtreeUri(): string | undefined;
+  getImplicitTiling(): TileImplicitTiling | undefined;
+  getMetadata(): MetadataEntity | undefined;
 }
