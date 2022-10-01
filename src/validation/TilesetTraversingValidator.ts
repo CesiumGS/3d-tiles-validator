@@ -116,6 +116,14 @@ export class TilesetTraversingValidator {
   ): Promise<boolean> {
     const path = traversedTile.path;
 
+    // TODO The validation of the implicit tiling and the
+    // metadata that are done here are redundant. They
+    // are also done in `TileValidator#validateTile`. 
+    // It is not entirely clear which types of invonsistencies
+    // should cause the validation to fail with which message.
+    // Maybe some of these validation steps should be pulled
+    // out of "validateTile", or enabled/disabled via flags.
+
     // If the tile defines implicit tiling, validate this
     // first. All subsequent checks depend on the validity
     // of the implicit tiling information.
@@ -152,7 +160,7 @@ export class TilesetTraversingValidator {
 
     // Validate the metadata.
     // This is also done in `TileValidator#validateTile`, but
-    // the following steps require the metadat to already be
+    // the following steps require the metadata to already be
     // valid.
     const metadata = traversedTile.getMetadata();
     const metadataPath = path + "/metadata";
