@@ -423,7 +423,7 @@ export class TilesetValidator implements Validator<Tileset> {
     for (const extensionName of actualExtensionsRequired) {
       if (!actualExtensionsUsed.has(extensionName)) {
         const issue = SemanticValidationIssues.EXTENSION_REQUIRED_BUT_NOT_USED(
-          extensionsRequiredPath,
+          extensionsUsedPath,
           extensionName
         );
         context.addIssue(issue);
@@ -438,7 +438,7 @@ export class TilesetValidator implements Validator<Tileset> {
     for (const extensionName of actualExtensionsFound) {
       if (!actualExtensionsUsed.has(extensionName)) {
         const issue = SemanticValidationIssues.EXTENSION_FOUND_BUT_NOT_USED(
-          extensionsRequiredPath,
+          extensionsUsedPath,
           extensionName
         );
         context.addIssue(issue);
@@ -452,7 +452,7 @@ export class TilesetValidator implements Validator<Tileset> {
     for (const extensionName of actualExtensionsUsed) {
       if (!actualExtensionsFound.has(extensionName)) {
         const issue = SemanticValidationIssues.EXTENSION_USED_BUT_NOT_FOUND(
-          extensionsRequiredPath,
+          extensionsUsedPath,
           extensionName
         );
         context.addIssue(issue);
