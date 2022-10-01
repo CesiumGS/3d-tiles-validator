@@ -176,19 +176,18 @@ export class TilesetTraversingValidator {
         context.addIssue(issue);
         return false;
       }
-      if (!defined(validationState.validatedSchema)) {
-        return false;
-      }
-      if (
-        !MetadataEntityValidator.validateMetadataEntity(
-          metadataPath,
-          "tile.metadata",
-          metadata!,
-          validationState.validatedSchema!,
-          context
-        )
-      ) {
-        return false;
+      if (defined(validationState.validatedSchema)) {
+        if (
+          !MetadataEntityValidator.validateMetadataEntity(
+            metadataPath,
+            "tile.metadata",
+            metadata!,
+            validationState.validatedSchema!,
+            context
+          )
+        ) {
+          return false;
+        }
       }
     }
 
