@@ -10,6 +10,7 @@ import { SchemaEnum } from "../structure/Metadata/SchemaEnum";
 import { EnumValue } from "../structure/Metadata/EnumValue";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
+import { NumberValidator } from "./NumberValidator";
 
 /**
  * A class for validations related to `SchemaEnum` objects.
@@ -85,9 +86,12 @@ export class SchemaEnumValidator {
     }
 
     // Validate the valueType
+    let validatedValueType = undefined;
     const valueType = schemaEnum.valueType;
     const valueTypePath = schemaEnumPath + "/valueType";
-    if (defined(valueType)) {
+    if (!defined(valueType)) {
+      validatedValueType = "UINT16";
+    } else {
       // The valueType MUST be a string
       if (
         !BasicValidator.validateString(
@@ -110,6 +114,8 @@ export class SchemaEnumValidator {
           )
         ) {
           result = false;
+        } else {
+          validatedValueType = valueType;
         }
       }
     }
@@ -120,6 +126,7 @@ export class SchemaEnumValidator {
       !SchemaEnumValidator.validateSchemaEnumValues(
         schemaEnumPath,
         values,
+        validatedValueType,
         context
       )
     ) {
@@ -134,12 +141,16 @@ export class SchemaEnumValidator {
    *
    * @param schemaEnumPath The path of the enum for `ValidationIssue` instances
    * @param values The actual values array
+   * @param validatedValueType The valueType from the enum definition.
+   * If there was no valueType definition, then this is the default
+   * ("UINT16"). If the valueType was not valid, this is `undefined`.
    * @param context The `ValidationContext`
    * @returns Whether the enum values are valid
    */
   private static validateSchemaEnumValues(
     schemaEnumPath: string,
     values: EnumValue[],
+    validatedValueType: string | undefined,
     context: ValidationContext
   ): boolean {
     const valuesPath = schemaEnumPath + "/values";
@@ -167,7 +178,12 @@ export class SchemaEnumValidator {
       const value = values[i];
       const valuePath = valuesPath + "/" + i;
       if (
-        !SchemaEnumValidator.validateSchemaEnumValue(valuePath, value, context)
+        !SchemaEnumValidator.validateSchemaEnumValue(
+          valuePath,
+          value,
+          validatedValueType,
+          context
+        )
       ) {
         result = false;
       }
@@ -265,12 +281,16 @@ export class SchemaEnumValidator {
    *
    * @param enumValuePath The path for the `ValidationIssue` instances
    * @param enumValue The actual `EnumValue`
+   * @param validatedValueType The valueType from the enum definition.
+   * If there was no valueType definition, then this is the default
+   * ("UINT16"). If the valueType was not valid, this is `undefined`.
    * @param context The `ValidationContext`
    * @returns Whether the `EnumValue` is valid
    */
   private static validateSchemaEnumValue(
     enumValuePath: string,
     enumValue: EnumValue,
+    validatedValueType: string | undefined,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
@@ -313,8 +333,19 @@ export class SchemaEnumValidator {
       result = false;
     }
 
-    // TODO The value should be checked to be
-    // in the range defined by the `valueType`.
+    if (defined(validatedValueType)) {
+      if (
+        !NumberValidator.validateRange(
+          valuePath,
+          "value",
+          value,
+          validatedValueType!,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
 
     return result;
   }

@@ -40,11 +40,11 @@ export class MetadataComponentTypes {
   ];
 
   /**
-   * Returns whether the given type is an integer component
+   * Returns whether the given component type is an integer component
    * type.
    *
-   * @param type The type
-   * @returns Whether the type is an integer component type
+   * @param componentType The component type
+   * @returns Whether the component type is an integer component type
    */
   static isIntegerComponentType(componentType: string | undefined) {
     if (!defined(componentType)) {
@@ -68,7 +68,9 @@ export class MetadataComponentTypes {
   }
 
   // Partially adapted from CesiumJS
-  private static maximumValue(componentType: string | undefined) {
+  private static maximumValue(
+    componentType: string | undefined
+  ): number | bigint | undefined {
     switch (componentType) {
       case "INT8":
         return 127;

@@ -169,7 +169,7 @@ export class BasicValidator {
       (defined(minLength) && value.length < minLength!) ||
       (defined(maxLength) && value.length > maxLength!)
     ) {
-      const rangeDescription = ValidationIssueUtils.describeRange(
+      const rangeDescription = ValidationIssueUtils.describeSimpleRange(
         minLength,
         maxLength
       );
@@ -463,9 +463,9 @@ export class BasicValidator {
     path: string,
     name: string,
     value: number,
-    min: number | undefined,
+    min: number | bigint | undefined,
     minInclusive: boolean,
-    max: number | undefined,
+    max: number | bigint | undefined,
     maxInclusive: boolean,
     context: ValidationContext
   ): boolean {
@@ -556,9 +556,9 @@ export class BasicValidator {
     path: string,
     name: string,
     value: number,
-    min: number | undefined,
+    min: number | bigint | undefined,
     minInclusive: boolean,
-    max: number | undefined,
+    max: number | bigint | undefined,
     maxInclusive: boolean,
     context: ValidationContext
   ): boolean {
@@ -568,10 +568,9 @@ export class BasicValidator {
       if (!validMin || !validMax) {
         const minBracket = minInclusive ? "[" : "(";
         const maxBracket = maxInclusive ? "]" : ")";
+        const rangeDescription = `in ${minBracket}${min},${max}${maxBracket}`;
         const message =
-          `The '${name}' property must be in ` +
-          `${minBracket}${min},${max}${maxBracket}` +
-          `, but is ${value}`;
+          `The '${name}' property must be ${rangeDescription}, but is ${value}`;
         const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(path, message);
         context.addIssue(issue);
         return false;
@@ -685,7 +684,7 @@ export class BasicValidator {
       (defined(minProperties) && numProperties < minProperties!) ||
       (defined(maxProperties) && numProperties > maxProperties!)
     ) {
-      const rangeDescription = ValidationIssueUtils.describeRange(
+      const rangeDescription = ValidationIssueUtils.describeSimpleRange(
         minProperties,
         maxProperties
       );
@@ -740,7 +739,7 @@ export class BasicValidator {
       (defined(minLength) && value.length < minLength!) ||
       (defined(maxLength) && value.length > maxLength!)
     ) {
-      const rangeDescription = ValidationIssueUtils.describeRange(
+      const rangeDescription = ValidationIssueUtils.describeSimpleRange(
         minLength,
         maxLength
       );

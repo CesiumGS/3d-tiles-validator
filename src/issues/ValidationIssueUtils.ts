@@ -15,7 +15,7 @@ export class ValidationIssueUtils {
    * @param max The maximum
    * @returns The description
    */
-  static describeRange(
+  static describeSimpleRange(
     min: number | undefined,
     max: number | undefined
   ): string {
