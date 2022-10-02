@@ -45,8 +45,13 @@ export class ContentDataValidator {
   ): Promise<boolean> {
     // Validate the uri
     const uri = content.uri;
-    // TODO: Assuming that absolute URIs should not be checked
     if (Uris.isAbsoluteUri(uri)) {
+      const path = contentPath;
+      const message =
+        `Tile content ${contentPath} refers to absolute URI ${uri}, ` +
+        `which is not validated`;
+      const issue = IoValidationIssues.IO_WARNING(path, message);
+      context.addIssue(issue);
       return true;
     }
 
@@ -62,7 +67,7 @@ export class ContentDataValidator {
         `which could not be resolved`;
       const issue = IoValidationIssues.IO_WARNING(path, message);
       context.addIssue(issue);
-      return false;
+      return true;
     }
 
     const result = await ContentDataValidator.validateContentDataInternal(
