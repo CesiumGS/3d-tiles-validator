@@ -119,7 +119,7 @@ export class TilesetTraversingValidator {
     // TODO The validation of the implicit tiling and the
     // metadata that are done here are redundant. They
     // are also done in `TileValidator#validateTile`. 
-    // It is not entirely clear which types of invonsistencies
+    // It is not entirely clear which types of inconsistencies
     // should cause the validation to fail with which message.
     // Maybe some of these validation steps should be pulled
     // out of "validateTile", or enabled/disabled via flags.
@@ -263,7 +263,7 @@ export class TilesetTraversingValidator {
    *
    * @param tilePath The path for `ValidationIssue` instances
    * @param implicitTiling The `TileImpllicitTiling`
-   * @param coordinates The coordinates of the subtree root
+   * @param subtreeUri The subtree URI
    * @param validationState The `ValidationState`
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
@@ -278,11 +278,11 @@ export class TilesetTraversingValidator {
     // Resolve resources (like buffers) relative to the
     // directory of the subtree file
     const resourceResolver = context.getResourceResolver();
-    const subtreeDirectory = path.dirname(subtreeUri!);
+    const subtreeDirectory = path.dirname(subtreeUri);
     const subtreeResourceResolver = resourceResolver.derive(subtreeDirectory);
 
     // Obtain the raw subtree data (binary subtree file or JSON)
-    const subtreeData = await resourceResolver.resolve(subtreeUri!);
+    const subtreeData = await resourceResolver.resolve(subtreeUri);
     if (subtreeData == null) {
       const message =
         `Could not resolve subtree URI ${subtreeUri} that was ` +
