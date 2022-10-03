@@ -1,11 +1,11 @@
 import path from "path";
+import { defined } from "../base/defined";
 
 import { Validator } from "../validation/Validator";
 import { ValidationContext } from "../validation/ValidationContext";
 import { ValidationIssue } from "../validation/ValidationIssue";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
-import { defined } from "../base/defined";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const validator = require("gltf-validator");
@@ -93,9 +93,9 @@ export class GltfValidator implements Validator<Buffer> {
       );
       for (const gltfMessage of gltfResult.issues.messages) {
         //console.log(gltfMessage);
-        const internalIssue =
+        const cause =
           GltfValidator.createValidationIssueFromGltfMessage(gltfMessage);
-        issue.addInternalIssue(internalIssue);
+        issue.addCause(cause);
       }
       context.addIssue(issue);
 
@@ -116,9 +116,9 @@ export class GltfValidator implements Validator<Buffer> {
 
       for (const gltfMessage of gltfResult.issues.messages) {
         //console.log(gltfMessage);
-        const internalIssue =
+        const cause =
           GltfValidator.createValidationIssueFromGltfMessage(gltfMessage);
-        issue.addInternalIssue(internalIssue);
+        issue.addCause(cause);
       }
       context.addIssue(issue);
     }

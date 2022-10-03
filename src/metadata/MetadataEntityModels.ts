@@ -1,4 +1,4 @@
-import { defined } from "cesium";
+import { defined } from "../base/defined";
 import { defaultValue } from "../base/defaultValue";
 
 import { DefaultMetadataEntityModel } from "./DefaultMetadataEntityModel";

@@ -32,11 +32,11 @@ export class ValidationIssue {
    * Validation issues that are individual issues, which, as a whole,
    * caused this validation issue.
    *
-   * (Right now, this is mainly used to summarize issues that may
-   * occur during the validation of tile content, and which are
-   * combined into a general `CONTENT_VALIDATION_ERROR`)
+   * This is used to summarize issues that may occur during the 
+   * validation of tile content, and which are combined into a 
+   * general `CONTENT_VALIDATION_ERROR`.
    */
-  private _internalIssues: ValidationIssue[];
+  private _causes: ValidationIssue[];
 
   constructor(
     type: string,
@@ -48,7 +48,7 @@ export class ValidationIssue {
     this._path = path;
     this._message = message;
     this._severity = severity;
-    this._internalIssues = [];
+    this._causes = [];
   }
 
   get type(): string {
@@ -67,25 +67,25 @@ export class ValidationIssue {
     return this._severity;
   }
 
-  addInternalIssue(issue: ValidationIssue) {
-    this._internalIssues.push(issue);
+  addCause(issue: ValidationIssue) {
+    this._causes.push(issue);
   }
 
-  get internalIssues(): ValidationIssue[] {
-    return this._internalIssues;
+  get causes(): ValidationIssue[] {
+    return this._causes;
   }
 
   toJson(): any {
-    const internalIssuesJson =
-      this.internalIssues.length > 0
-        ? this.internalIssues.map((i) => i.toJson())
+    const causesJson =
+      this.causes.length > 0
+        ? this.causes.map((i) => i.toJson())
         : undefined;
     return {
       type: this.type,
       path: this.path,
       message: this.message,
       severity: this.severity,
-      internalIssues: internalIssuesJson,
+      causes: causesJson,
     };
   }
   serialize() {

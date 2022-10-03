@@ -15,11 +15,11 @@ export class ContentValidationIssues {
    *
    * If the given result contains errors, then a
    * `CONTENT_VALIDATION_ERROR` will be created, with the
-   * issues from the given result as its internal issues,
+   * issues from the given result as its causes.
    *
    * Otherwsie, if the given result contains warnings, then a
    * `CONTENT_VALIDATION_WARNING` will be created, with the
-   * issues from the given result as its internal issues,
+   * issues from the given result as its causes.
    *
    * @param path The path
    * @param result The `ValidationResult`
@@ -59,7 +59,7 @@ export class ContentValidationIssues {
     }
     for (let i = 0; i < result.length; i++) {
       const issue = result.get(i);
-      resultIssue.addInternalIssue(issue);
+      resultIssue.addCause(issue);
     }
     return resultIssue;
   }
@@ -67,7 +67,7 @@ export class ContentValidationIssues {
   /**
    * Indicates that the validation of content caused an error.
    *
-   * The returned issue may have `internalIssues` that summarize
+   * The returned issue may have `causes` that summarize
    * the warnings and errors that eventually caused this issue.
    *
    * @param path The JSON path for the `ValidationIssue`
@@ -84,7 +84,7 @@ export class ContentValidationIssues {
   /**
    * Indicates that the validation of content caused a warning.
    *
-   * The returned issue may have `internalIssues` that summarize
+   * The returned issue may have `causes` that summarize
    * the warnings that eventually caused this issue.
    *
    * @param path The JSON path for the `ValidationIssue`
