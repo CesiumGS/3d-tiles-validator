@@ -558,4 +558,84 @@ describe("Metadata schema validation", function () {
     );
     expect(result.length).toEqual(0);
   });
+
+  it("detects issues in schemaClassPropertySemanticArrayMismatchA", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/schemaClassPropertySemanticArrayMismatchA.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+  });
+
+  it("detects issues in schemaClassPropertySemanticArrayMismatchB", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/schemaClassPropertySemanticArrayMismatchB.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+  });
+
+  it("detects issues in schemaClassPropertySemanticComponentTypeMismatch", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/schemaClassPropertySemanticComponentTypeMismatch.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+  });
+
+  it("detects issues in schemaClassPropertySemanticCountMismatch", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/schemaClassPropertySemanticCountMismatch.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+  });
+
+  it("detects issues in schemaClassPropertySemanticInvalidType", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/schemaClassPropertySemanticInvalidType.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("TYPE_MISMATCH");
+  });
+
+  it("detects issues in schemaClassPropertySemanticNormalizedMismatch", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/schemaClassPropertySemanticNormalizedMismatch.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+  });
+
+  it("detects issues in schemaClassPropertySemanticTypeMismatch", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/schemaClassPropertySemanticTypeMismatch.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+  });
+
+  it("detects issues in schemaClassPropertySemanticUnknown", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/schemaClassPropertySemanticUnknown.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("SEMANTIC_UNKNOWN");
+  });
+
+  it("detects issues in schemaEnumValueNotInValueTypeRange", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/schemaEnumValueNotInValueTypeRange.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
+  });
+
+  it("detects issues in schemaEnumValueNotInDefaultValueTypeRange", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/schemaEnumValueNotInDefaultValueTypeRange.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
+  });
 });
