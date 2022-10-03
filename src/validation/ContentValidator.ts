@@ -7,7 +7,6 @@ import { RootPropertyValidator } from "./RootPropertyValidator";
 import { MetadataEntityValidator } from "./MetadataEntityValidator";
 
 import { Content } from "../structure/Content";
-import { Group } from "../structure/Group";
 
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { ValidationState } from "./ValidationState";
@@ -108,7 +107,7 @@ export class ContentValidator {
     }
 
     // TODO XXX Temporary, for CesiumJS spec files
-    /*/
+    //*/
     const url = (content as any).url;
     if (defined(url)) {
       const message = `Using content.url as content.uri`;

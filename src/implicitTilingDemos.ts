@@ -128,15 +128,15 @@ async function tilesetTraversalDemo(filePath: string) {
 }
 
 async function runDemos() {
-  //testQuadtreeChildren();
-  //testQuadtreeDescendants();
-  //testQuadtreeLevel();
-  //testSubstituteQuadtree();
-  //testSubstituteOctree();
-  //await testSubtreeInfo();
-  //const tilesetFile = "specs/data/Samples/SparseImplicitQuadtree/tileset.json";
+  testQuadtreeChildren();
+  testQuadtreeDescendants();
+  testQuadtreeLevel();
+  testSubstituteQuadtree();
+  testSubstituteOctree();
+  await testSubtreeInfo();
+  const tilesetFile = "specs/data/Samples/SparseImplicitQuadtree/tileset.json";
   //const tilesetFile = "C:/Develop/CesiumGS/3d-tiles-samples/1.1/SparseImplicitOctree/tileset.json";
-  const tilesetFile = "specs/data/tilesets/validTilesetWithTileMetadata.json";
+  //const tilesetFile = "specs/data/tilesets/validTilesetWithTileMetadata.json";
   await tilesetTraversalDemo(tilesetFile);
 }
 

@@ -9,19 +9,18 @@ import { JsonValidationIssues } from "../issues/JsonValidationIssues";
  * A class for validations related to numbers. Specifically,
  * for checks whether numbers are in the range that is
  * determined by a (metadata) component type.
- * 
+ *
  * @private
  */
 export class NumberValidator {
-
   /**
    * Validates that the given value is in the range that is determined
    * by the given component type.
-   * 
+   *
    * This assumes that the given `componentType` has already been
    * determined to be a valid one, i.e. is contained in the set of
    * `MetadataComponentTypes#allComponentTypes`.
-   * 
+   *
    * @param path The path for `ValidationIssue` instances
    * @param name The name of the value
    * @param value The value

@@ -9,6 +9,8 @@ import { MetadataStructureValidator } from "./MetadataStructureValidator";
 import { Schema } from "../structure/Metadata/Schema";
 import { PropertyTable } from "../structure/PropertyTable";
 import { PropertyTableProperty } from "../structure/PropertyTableProperty";
+import { Subtree } from "../structure/Subtree";
+import { ClassProperty } from "../structure/Metadata/ClassProperty";
 
 /**
  * A class for validations related to `propertyTable` objects.
@@ -22,6 +24,7 @@ export class PropertyTableValidator {
    *
    * @param path The path for the `ValidationIssue` instances
    * @param propertyTable The object to validate
+   * @param subtree The `Subtree` object
    * @param schema The `Schema` object
    * @param context The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
@@ -29,6 +32,7 @@ export class PropertyTableValidator {
   static validatePropertyTable(
     path: string,
     propertyTable: PropertyTable,
+    subtree: Subtree,
     schema: Schema,
     context: ValidationContext
   ): boolean {
@@ -114,10 +118,14 @@ export class PropertyTableValidator {
     // the values of the properties.
     const validProperties = defaultValue(tableProperties, {});
     const validPropertyNames = Object.keys(validProperties);
+    const classes = defaultValue(schema.classes, {});
+    const schemaClass = classes[className];
+    const classProperties = defaultValue(schemaClass.properties, {});
 
     // Validate each property
     for (const propertyName of validPropertyNames) {
       const propertyPath = path + "/" + propertyName;
+      const classProperty = classProperties[propertyName];
 
       // Note: The check whether 'required' properties are
       // present and have values was already done by the
@@ -129,7 +137,8 @@ export class PropertyTableValidator {
             propertyPath,
             propertyName,
             propertyValue,
-            schema,
+            subtree,
+            classProperty,
             context
           )
         ) {
@@ -147,7 +156,7 @@ export class PropertyTableValidator {
    * @param path The path for the `ValidationIssue` instances
    * @param propertyName The name of the property
    * @param propertyTableProperty The object to validate
-   * @param schema The `Schema` object
+   * @param classProperty The `ClassProperty` definition from the schema
    * @param context The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
@@ -155,7 +164,8 @@ export class PropertyTableValidator {
     path: string,
     propertyName: string,
     propertyTableProperty: PropertyTableProperty,
-    schema: Schema,
+    subtree: Subtree,
+    classProperty: ClassProperty,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
@@ -169,8 +179,8 @@ export class PropertyTableValidator {
     ) {
       return false;
     }
-    // TODO This validation is not complete yet!
-    console.log("Property table properties are not validated yet");
+    // TODO Validate property table properties
+    console.log("Property table properties are not validated yet.");
     return true;
   }
 }

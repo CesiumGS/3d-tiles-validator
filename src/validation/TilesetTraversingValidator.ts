@@ -118,7 +118,7 @@ export class TilesetTraversingValidator {
 
     // TODO The validation of the implicit tiling and the
     // metadata that are done here are redundant. They
-    // are also done in `TileValidator#validateTile`. 
+    // are also done in `TileValidator#validateTile`.
     // It is not entirely clear which types of inconsistencies
     // should cause the validation to fail with which message.
     // Maybe some of these validation steps should be pulled

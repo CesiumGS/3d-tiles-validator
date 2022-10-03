@@ -569,8 +569,7 @@ export class BasicValidator {
         const minBracket = minInclusive ? "[" : "(";
         const maxBracket = maxInclusive ? "]" : ")";
         const rangeDescription = `in ${minBracket}${min},${max}${maxBracket}`;
-        const message =
-          `The '${name}' property must be ${rangeDescription}, but is ${value}`;
+        const message = `The '${name}' property must be ${rangeDescription}, but is ${value}`;
         const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(path, message);
         context.addIssue(issue);
         return false;

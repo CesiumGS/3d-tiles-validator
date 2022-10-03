@@ -10,7 +10,6 @@ import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
 import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 import { MetadataEntity } from "../structure/MetadataEntity";
-import { MetadataError } from "../metadata/MetadataError";
 
 /**
  * An implementation of a `TraversedTile` that reflects a tile
@@ -88,14 +87,16 @@ export class ExplicitTraversedTile implements TraversedTile {
       try {
         metadataEntityModel = MetadataEntityModels.create(schema!, metadata!);
       } catch (error) {
-          // Errors from creating the entity model should have been 
-          // prevented by the metadata- and schema validation:
-          const message = `Error while traversing tileset: ${error}`;
+        // Errors from creating the entity model should have been
+        // prevented by the metadata- and schema validation:
+        const message = `Error while traversing tileset: ${error}`;
         throw new ImplicitTilingError(message);
       }
       if (defined(metadataEntityModel)) {
         const semanticGeometricError =
-          metadataEntityModel!.getPropertyValueBySemantic("TILE_GEOMETRIC_ERROR");
+          metadataEntityModel!.getPropertyValueBySemantic(
+            "TILE_GEOMETRIC_ERROR"
+          );
         if (defined(semanticGeometricError)) {
           geometricError = semanticGeometricError;
         }

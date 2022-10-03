@@ -171,7 +171,6 @@ export class ContentDataValidator {
       return true;
     }
 
-
     // When there is no known magic value, then it may be JSON.
     const isJson = ResourceTypes.isProbablyJson(contentData);
     if (isJson) {

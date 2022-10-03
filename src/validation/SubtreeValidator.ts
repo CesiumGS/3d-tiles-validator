@@ -947,6 +947,7 @@ export class SubtreeValidator implements Validator<Buffer> {
               !PropertyTableValidator.validatePropertyTable(
                 propertyTablePath,
                 propertyTable,
+                subtree,
                 this._validationState.validatedSchema!,
                 context
               )
