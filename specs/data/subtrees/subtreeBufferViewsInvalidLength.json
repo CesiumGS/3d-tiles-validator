@@ -1,0 +1,7 @@
+{
+  "buffers": [{ "uri": "validBuffer.bin", "byteLength": 16 }],
+  "bufferViews": [],
+  "tileAvailability": { "bitstream": 0, "availableCount": 7 },
+  "contentAvailability": [{ "availableCount": 0, "constant": 0 }],
+  "childSubtreeAvailability": { "bitstream": 1, "availableCount": 8 }
+}

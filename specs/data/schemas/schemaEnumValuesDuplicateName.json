@@ -1,0 +1,17 @@
+{
+  "id": "EXAMPLE_ID",
+  "enums": {
+    "exampleEnum": {
+      "values": [
+        {
+          "name": "EXAMPLE_ENUM_VALUE_A",
+          "value": 0
+        },
+        {
+          "name": "EXAMPLE_ENUM_VALUE_A",
+          "value": 1
+        }
+      ]
+    }
+  }
+}

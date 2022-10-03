@@ -1,0 +1,58 @@
+{
+  "asset" : {
+    "version" : "1.1"
+  },
+  "schema": {
+    "id": "EXAMPLE_SCHEMA_ID",
+    "classes" : {
+      "exampleClass" : {
+        "properties": {
+            "exampleFloatScalarAsGeometricError": {
+            "type": "SCALAR",
+            "componentType": "FLOAT32",
+            "semantic": "TILE_GEOMETRIC_ERROR"
+          }        
+        }
+      }
+    }
+  },
+  "geometricError" : 4.0,
+  "root" : {
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 2.0,
+    "metadata": {
+      "class": "exampleClass",
+      "properties": {
+        "exampleFloatScalarAsGeometricError": 3.5
+      }
+    },
+    "children": [
+      {
+        "boundingVolume" : {
+          "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+        },
+        "geometricError" : 1.0,
+        "metadata": {
+          "class": "exampleClass",
+          "properties": {
+            "exampleFloatScalarAsGeometricError": 3.6
+          }
+        }
+      },
+      {
+        "boundingVolume" : {
+          "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+        },
+        "geometricError" : 1.0,
+        "metadata": {
+          "class": "exampleClass",
+          "properties": {
+            "exampleFloatScalarAsGeometricError": 2.5
+          }
+        }
+      }            
+    ]
+  }
+}

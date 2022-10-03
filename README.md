@@ -1,22 +1,69 @@
-<p align="center"><img src="figures/Cesium3DTiles.png" /></p>
+# 3D Tiles Validator 1.1
 
-Validator and sample data for [3D Tiles](https://github.com/CesiumGS/3d-tiles/blob/main/README.md) tilesets.
+A validator for 3D Tiles 1.1.
 
-| Tool | Description |
-| :--- | :--- |
-| [3D Tiles Validator](./validator/) | Open source Node.js library and command-line tools for validating that a tileset conforms to the 3D Tiles specification. |
-| [3D Tiles Samples](./samples-generator/) | Open source command-line tools for generating sample 3D Tiles in [3d-tiles-samples](https://github.com/CesiumGS/3d-tiles-samples) |
+> **A note about the repository structure**
+> 
+> This repository originally contained multiple projects. Now, these project are maintained in separate repositories:
+> 
+> - The `3d-tiles-tools` can be found in [the `3d-tiles-tools` repository](https://github.com/CesiumGS/3d-tiles-tools)
+> - The `3d-tiles-samples-generator` can be found in [the `3d-tiles-samples-generator` repository](https://github.com/CesiumGS/3d-tiles-samples-generator)
+> 
 
-Created by the <a href="https://cesium.com/">Cesium team</a> and University of Pennsylvania students.
+## Usage
 
-To generate new 3D tilesets, see [Cesium ion](https://cesium.com/ion/).
+**Note**: Some of the implementation and interfaces may still change. This refers to the source code as well as details of the command line interface and report format.
 
-## Contributions
+#### Validate a single tileset file:
+```
+npx ts-node src/main.ts --tilesetFile specs/data/Samples/TilesetWithFullMetadata/tileset.json
+```
 
-Pull requests are appreciated!  Please use the same [Contributor License Agreement (CLA)](https://github.com/CesiumGS/cesium/blob/main/CONTRIBUTING.md) and [Coding Guide](https://github.com/CesiumGS/cesium/blob/main/Documentation/Contributors/CodingGuide/README.md) used for [CesiumJS](https://cesium.com/cesiumjs/).
+#### Validate a set of tileset files:
+```
+npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/
+```
+This will validate all tileset files in the given directory and all its subdirectories. The tileset files are identified by matching the file name against the glob pattern `**/*tileset*.json`. The pattern can be configured with the `tilesetGlobPattern` parameter. For example, in order to treat all .json files as tileset files:
+```
+npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/ --tilesetGlobPattern **/*.json
+```
 
----
+#### Validate a single metadata schema file:
+```
+npx ts-node src/main.ts --metadataSchemaFile specs/data/schemas/validSchema.json
+```
 
-<p align="center">
-<a href="https://cesium.com/"><img src="figures/cesium.png" /></a>
-</p>
+#### Validate a single subtree file:
+
+**Note:** For the actual validation of standalone subtree files, there has to be a mechanism for passing in the information about the expected _structure_ of the subtree (namely, the information from the `implicitTiling` object). This example only refers to the files in the `specs` directory, which all assume the same subtree structure for now.
+```
+npx ts-node src/main.ts --subtreeFile specs/data/subtrees/binarySubtreeValid.subtree
+```
+
+#### Batch runs for the spec files
+
+The `specs/data` directory contains sample files that cause different validation issues. These files can be processed with
+```
+npx ts-node src/main.ts --tilesetSpecs
+npx ts-node src/main.ts --metadataSchemaSpecs
+npx ts-node src/main.ts --subtreeSpecs
+```
+
+## Reports
+
+By default, validation reports are printed to the console. 
+
+When validating a single file, then the `reportFile` argument can be used to specify the output file for the validation report. For example:
+```
+npx ts-node src/main.ts --tilesetFile specs/data/Samples/TilesetWithFullMetadata/tileset.json --reportFile MY_REPORT.json
+```
+
+Alternatively, or when validating multiple files, the `writeReports` argument can be used to write report files into the same directory as the input files. The name of the report file will be derived from the input file name. 
+```
+npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/ --writeReports
+```
+
+## Implementation notes
+
+See [`IMPLEMENTATION.md`](IMPLEMENTATION.md) for implementation notes.
+

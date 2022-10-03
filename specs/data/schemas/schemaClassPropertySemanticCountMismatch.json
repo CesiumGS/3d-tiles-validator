@@ -1,0 +1,16 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "exampleProperty": {
+          "type": "SCALAR",
+          "componentType": "FLOAT32",
+          "semantic": "TILE_BOUNDING_BOX",
+          "array": true,
+          "count": 42
+        }
+      }
+    }
+  }
+}

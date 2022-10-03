@@ -1,6 +1,4 @@
-All the tools are licensed with the Apache 2.0 license. Check the LICENSE.md in each directory for more information on third-party libraries.
-
-Copyright 2016-2020 CesiumGS, Inc. and Contributors
+Copyright 2016-2022 CesiumGS, Inc. and Contributors
 
                                  Apache License
                            Version 2.0, January 2004

@@ -1,0 +1,12 @@
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "build",
+    "strict": true,
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "noImplicitOverride": true,
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

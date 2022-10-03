@@ -1,0 +1,18 @@
+{
+  "asset" : {
+    "version" : "1.1"
+  },
+  "properties": {
+    "exampleProperty": {
+      "minimum" : 10.0,
+      "maximum": "Should be a number"
+    }
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0
+  }
+}

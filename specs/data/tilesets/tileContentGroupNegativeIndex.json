@@ -1,0 +1,28 @@
+{
+  "asset" : {
+    "version" : "1.1"
+  },
+  "schema": {
+    "id": "EXAMPLE_SCHEMA_ID",
+    "classes" : {
+      "exampleClass" : {
+      }
+    }
+  },
+  "groups": [
+    {
+      "class": "exampleClass"
+    }
+  ],
+  "geometricError" : 2.0,
+  "root" : {
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0,
+    "content": {
+      "uri": "http://example.com/example.glb",
+      "group": -2
+    }
+  }
+}

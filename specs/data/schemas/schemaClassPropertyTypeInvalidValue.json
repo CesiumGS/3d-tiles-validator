@@ -1,0 +1,12 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "exampleProperty": {
+          "type": "NOT_A_VALID_TYPE"
+        }
+      }
+    }
+  }
+}

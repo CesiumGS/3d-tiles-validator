@@ -1,0 +1,25 @@
+{
+  "asset" : {
+    "version" : "1.1"
+  },
+  "schema": {
+    "id": "EXAMPLE_SCHEMA_ID",
+    "classes" : {
+      "exampleClass" : {
+        "properties": {
+            "exampleFloatScalar": {
+            "type": "SCALAR",
+            "componentType": "FLOAT32"
+          }        
+        }
+      }
+    }
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0
+  }
+}

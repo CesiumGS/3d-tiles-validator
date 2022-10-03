@@ -1,0 +1,15 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "exampleProperty": {
+          "type": "SCALAR",
+          "componentType": "UINT8",
+          "normalized": true,
+          "semantic": "TILE_REFINE"
+        }
+      }
+    }
+  }
+}

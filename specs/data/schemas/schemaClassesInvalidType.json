@@ -1,0 +1,6 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": "Should be an object"
+  }
+}

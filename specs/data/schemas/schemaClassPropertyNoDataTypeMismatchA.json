@@ -1,0 +1,13 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "exampleProperty": {
+          "type": "STRING",
+          "noData": 123
+        }
+      }
+    }
+  }
+}

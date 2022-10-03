@@ -1,0 +1,6 @@
+The `valid.b3dm` is the `parent.b3dm` from the original validator.
+
+The `invalid.b3dm` is the same, but with an invalid `version` in the header.
+
+The `invalidWithInvalidGlb.b3dm` is the same as the `valid.b3dm`, 
+but with an invalid length in the GLB header.

@@ -1,0 +1,13 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "exampleProperty": {
+          "description": 123.456,
+          "type": "SCALAR"
+        }
+      }
+    }
+  }
+}

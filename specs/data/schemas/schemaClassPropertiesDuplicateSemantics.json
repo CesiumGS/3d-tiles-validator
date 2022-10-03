@@ -1,0 +1,19 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "examplePropertyA": {
+          "type": "SCALAR",
+          "componentType": "FLOAT32",
+          "semantic": "TILE_GEOMETRIC_ERROR"
+        },
+        "examplePropertyB": {
+          "type": "SCALAR",
+          "componentType": "FLOAT32",
+          "semantic": "TILE_GEOMETRIC_ERROR"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "exampleProperty": {
+          "type": "MAT2",
+          "componentType": "UINT16",
+          "offset": [1.0,1.0,1.0,1.0]
+        }
+      }
+    }
+  }
+}
