@@ -3,15 +3,6 @@ const yargs = require("yargs/yargs");
 
 import { ValidatorMain } from "./ValidatorMain";
 
-/*/
-// TODO This is only used for local verification, to run the AJV-based 
-// JSON schema validation in the background
-import { Validators } from "./validation/Validators";
-const tilesSchemaRootDir = "C:/Develop/CesiumGS/3d-tiles/specification/schema";
-console.warn("Using fixed root directory for schema: " + tilesSchemaRootDir);
-Validators.setSchemaRootDir(tilesSchemaRootDir);
-//*/
-
 const args = yargs(process.argv.slice(1))
   .help("help")
   .alias("help", "h")

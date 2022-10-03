@@ -39,15 +39,6 @@ import { RootPropertyValidator } from "./RootPropertyValidator";
  */
 export class SubtreeValidator implements Validator<Buffer> {
   /**
-   * Preliminary:
-   *
-   * An optional validator that will be applied to the `Subtree`
-   * object, after it has been parsed from the JSON, but before
-   * any further validation takes place.
-   */
-  private _genericValidator: Validator<any> | undefined;
-
-  /**
    * The URI that the subtree data was read from
    */
   private _uri: string;
@@ -79,7 +70,6 @@ export class SubtreeValidator implements Validator<Buffer> {
    * object, after it has been parsed from the JSON, but before
    * any further validation takes place.
    *
-   * @param genericValidator The optional generic validator
    * @param uri The URI that the subtree data was read from
    * @param validationState The `ValidationState`
    * @param implicitTiling The `TileImplicitTiling` that
@@ -88,13 +78,11 @@ export class SubtreeValidator implements Validator<Buffer> {
    * will be used to resolve buffer URIs.
    */
   constructor(
-    genericValidator: Validator<any> | undefined,
     uri: string,
     validationState: ValidationState,
     implicitTiling: TileImplicitTiling | undefined,
     resourceResolver: ResourceResolver
   ) {
-    this._genericValidator = genericValidator;
     this._uri = uri;
     this._validationState = validationState;
     this._implicitTiling = implicitTiling;
@@ -379,16 +367,6 @@ export class SubtreeValidator implements Validator<Buffer> {
     hasBinaryBuffer: boolean,
     context: ValidationContext
   ): boolean {
-    let result = true;
-    if (defined(this._genericValidator)) {
-      const genericResult = this._genericValidator!.validateObject(
-        subtree,
-        context
-      );
-      if (!genericResult) {
-        result = false;
-      }
-    }
     const path = this._uri;
     if (!this.validateSubtreeBasic(path, subtree, hasBinaryBuffer, context)) {
       return false;
@@ -396,7 +374,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     if (!this.validateMetadata(path, subtree, context)) {
       return false;
     }
-    return result;
+    return true;
   }
 
   /**

@@ -18,30 +18,6 @@ import { IoValidationIssues } from "../issues/IoValidationIssue";
  */
 export class SchemaValidator implements Validator<Schema> {
   /**
-   * Preliminary:
-   *
-   * An optional validator that will be applied to the `Schema`
-   * object, after it has been parsed from the JSON, but before
-   * any further validation takes place.
-   */
-  private _genericValidator: Validator<any> | undefined;
-
-  /**
-   * Creates a new instance.
-   *
-   * Preliminary:
-   *
-   * The given validator will be applied to the `Schema`
-   * object, after it has been parsed from the JSON, but before
-   * any further validation takes place.
-   *
-   * @param genericValidator The optional generic validator
-   */
-  constructor(genericValidator: Validator<any> | undefined) {
-    this._genericValidator = genericValidator;
-  }
-
-  /**
    * Performs the validation of the schema that is parsed from the
    * given input string.
    *
@@ -67,10 +43,8 @@ export class SchemaValidator implements Validator<Schema> {
   }
 
   /**
-   * Internal method that performs the ajv-based JSON schema validation, and
-   * then passes the input to `validateSchema`.
-   *
-   * TODO The ajv-based JSON schema validator will be removed
+   * Implementation of the `Validator` interface that just passes the
+   * input to `validateSchema`.
    *
    * @param input The `Schema` object
    * @param context The `ValidationContext`
@@ -81,20 +55,7 @@ export class SchemaValidator implements Validator<Schema> {
     input: Schema,
     context: ValidationContext
   ): Promise<boolean> {
-    let result = true;
-    if (defined(this._genericValidator)) {
-      const genericResult = this._genericValidator!.validateObject(
-        input,
-        context
-      );
-      if (!genericResult) {
-        result = false;
-      }
-    }
-    if (!SchemaValidator.validateSchema("", input, context)) {
-      result = false;
-    }
-    return result;
+    return SchemaValidator.validateSchema("", input, context);
   }
 
   /**

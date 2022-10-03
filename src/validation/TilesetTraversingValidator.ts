@@ -297,7 +297,6 @@ export class TilesetTraversingValidator {
 
     // Validate the subtree data with a `SubtreeValidator`
     const subtreeValidator = new SubtreeValidator(
-      undefined,
       subtreeUri,
       validationState,
       implicitTiling,

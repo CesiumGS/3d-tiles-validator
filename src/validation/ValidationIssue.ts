@@ -32,8 +32,8 @@ export class ValidationIssue {
    * Validation issues that are individual issues, which, as a whole,
    * caused this validation issue.
    *
-   * This is used to summarize issues that may occur during the 
-   * validation of tile content, and which are combined into a 
+   * This is used to summarize issues that may occur during the
+   * validation of tile content, and which are combined into a
    * general `CONTENT_VALIDATION_ERROR`.
    */
   private _causes: ValidationIssue[];
@@ -77,9 +77,7 @@ export class ValidationIssue {
 
   toJson(): any {
     const causesJson =
-      this.causes.length > 0
-        ? this.causes.map((i) => i.toJson())
-        : undefined;
+      this.causes.length > 0 ? this.causes.map((i) => i.toJson()) : undefined;
     return {
       type: this.type,
       path: this.path,

@@ -1,16 +1,17 @@
 import path from "path";
+
 import { defined } from "./base/defined";
 import { createFilesIterable } from "./base/createFilesIterable";
+import { readJsonUnchecked } from "./base/readJsonUnchecked";
+import { filterIterable } from "./base/filterIterable";
+import { globMatcher } from "./base/globMatcher";
+import { writeUnchecked } from "./base/writeUnchecked";
 
 import { ValidationState } from "./validation/ValidationState";
 import { Validators } from "./validation/Validators";
 
 import { TileImplicitTiling } from "./structure/TileImplicitTiling";
-import { readJsonUnchecked } from "./base/readJsonUnchecked";
 import { Schema } from "./structure/Metadata/Schema";
-import { filterIterable } from "./base/filterIterable";
-import { globMatcher } from "./base/globMatcher";
-import { writeUnchecked } from "./base/writeUnchecked";
 
 /**
  * A class summarizing the command-line functions of the validator.

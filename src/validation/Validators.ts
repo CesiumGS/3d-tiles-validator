@@ -10,8 +10,6 @@ import { SchemaValidator } from "./SchemaValidator";
 import { SubtreeValidator } from "./SubtreeValidator";
 import { ValidationState } from "./ValidationState";
 
-import { JsonSchemaValidators } from "../json/JsonSchemaValidators";
-
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
@@ -20,30 +18,13 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
  * Utility methods related to `Validator` instances.
  */
 export class Validators {
-  // TODO Preliminary: The root directory of the 3D Tiles schema,
-  // for the generic, AJV-based JSON schema validation
-  private static _schemaRootDir: string;
-
-  // TODO Preliminary: Set the root directory of the 3D Tiles schema,
-  // for the generic, AJV-based JSON schema validation
-  static setSchemaRootDir(schemaRootDir: string) {
-    Validators._schemaRootDir = schemaRootDir;
-  }
-
   /**
    * Creates a `TilesetValidator` with an unspecified default configuration.
    *
    * @returns The `TilesetValidator`
    */
   static createDefaultTilesetValidator(): TilesetValidator {
-    let jsonSchemaValidator = undefined;
-    if (defined(Validators._schemaRootDir)) {
-      jsonSchemaValidator = JsonSchemaValidators.create3DTiles(
-        Validators._schemaRootDir,
-        "tileset"
-      );
-    }
-    const validator = new TilesetValidator(jsonSchemaValidator);
+    const validator = new TilesetValidator();
     return validator;
   }
 
@@ -76,14 +57,7 @@ export class Validators {
    * @returns The `SchemaValidator`
    */
   static createDefaultSchemaValidator(): SchemaValidator {
-    let jsonSchemaValidator = undefined;
-    if (defined(Validators._schemaRootDir)) {
-      jsonSchemaValidator = JsonSchemaValidators.create3DTiles(
-        Validators._schemaRootDir,
-        "Schema/schema"
-      );
-    }
-    const validator = new SchemaValidator(jsonSchemaValidator);
+    const validator = new SchemaValidator();
     return validator;
   }
 
@@ -118,18 +92,10 @@ export class Validators {
     validationState: ValidationState,
     implicitTiling: TileImplicitTiling | undefined
   ): SubtreeValidator {
-    let jsonSchemaValidator = undefined;
-    if (defined(Validators._schemaRootDir)) {
-      jsonSchemaValidator = JsonSchemaValidators.create3DTiles(
-        Validators._schemaRootDir,
-        "Subtree/subtree"
-      );
-    }
     const directory = path.dirname(uri);
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
     const validator = new SubtreeValidator(
-      jsonSchemaValidator,
       uri,
       validationState,
       implicitTiling,

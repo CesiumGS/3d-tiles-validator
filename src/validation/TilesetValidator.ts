@@ -26,30 +26,6 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
  */
 export class TilesetValidator implements Validator<Tileset> {
   /**
-   * Preliminary:
-   *
-   * An optional validator that will be applied to the `Tileset`
-   * object, after it has been parsed from the JSON, but before
-   * any further validation takes place.
-   */
-  private _genericValidator: Validator<any> | undefined;
-
-  /**
-   * Creates a new instance.
-   *
-   * Preliminary:
-   *
-   * The given validator will be applied to the `Tileset`
-   * object, after it has been parsed from the JSON, but before
-   * any further validation takes place.
-   *
-   * @param genericValidator The optional generic validator
-   */
-  constructor(genericValidator: Validator<any> | undefined) {
-    this._genericValidator = genericValidator;
-  }
-
-  /**
    * Performs the validation of the tileset that is parsed from the
    * given input string.
    *
@@ -72,10 +48,8 @@ export class TilesetValidator implements Validator<Tileset> {
   }
 
   /**
-   * Internal method that performs the ajv-based JSON schema validation, and
-   * then passes the input to `validateTileset`.
-   *
-   * TODO The ajv-based JSON schema validator will be removed
+   * Implementation of the `Validator` interface that just the
+   * input to `validateTileset`.
    *
    * @param input The `Tileset` object
    * @param context The `ValidationContext`
@@ -86,23 +60,7 @@ export class TilesetValidator implements Validator<Tileset> {
     input: Tileset,
     context: ValidationContext
   ): Promise<boolean> {
-    let result = true;
-    if (defined(this._genericValidator)) {
-      const genericResult = this._genericValidator!.validateObject(
-        input,
-        context
-      );
-      if (!genericResult) {
-        result = false;
-      }
-    }
-    const tilesetResult = await TilesetValidator.validateTileset(
-      input,
-      context
-    );
-    if (!tilesetResult) {
-      result = false;
-    }
+    const result = await TilesetValidator.validateTileset(input, context);
     return result;
   }
 

@@ -1,9 +1,4 @@
-import {
-  Cartesian3,
-  Math as CesiumMath,
-  Matrix3,
-  Rectangle,
-} from "cesium";
+import { Cartesian3, Math as CesiumMath, Matrix3, Rectangle } from "cesium";
 import { defined } from "../../base/defined";
 import { BoundingVolume } from "../../structure/BoundingVolume";
 

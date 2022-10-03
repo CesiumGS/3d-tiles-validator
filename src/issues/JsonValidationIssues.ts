@@ -11,24 +11,6 @@ import { ValidationIssueUtils } from "./ValidationIssueUtils";
  */
 export class JsonValidationIssues {
   /**
-   * A generic, unspecified error on the level of the JSON schema
-   * of the specification.
-   *
-   * TODO: This is curently used for the generic issues that are
-   * reported by the `JsonSchemaValidator` classes
-   *
-   * @param path The JSON path for the `ValidationIssue`
-   * @param message The message for the `ValidationIssue`
-   * @returns The `ValidationIssue`
-   */
-  static SCHEMA_ERROR(path: string, message: string) {
-    const type = "SCHEMA_ERROR";
-    const severity = ValidationIssueSeverity.ERROR;
-    const issue = new ValidationIssue(type, path, message, severity);
-    return issue;
-  }
-
-  /**
    * Indicates that a property that is marked as 'required' in the
    * schema was missing.
    *
