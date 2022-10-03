@@ -107,7 +107,7 @@ export class ContentValidator {
     }
 
     // TODO XXX Temporary, for CesiumJS spec files
-    //*/
+    /*/
     const url = (content as any).url;
     if (defined(url)) {
       const message = `Using content.url as content.uri`;
