@@ -11,15 +11,10 @@ Parts of the current implementation are still in a **DRAFT** state.
 - `./src/issues`: Classes defining the categories of detected issues
 - `./src/structure`: Plain old objects for the 3D Tiles types
 - `./src/tileFormats`: Validators for tile content
-
-- `./src/json`: Classes for generic JSON-schema based validation. This currently only contains an implementation based on `ajv` that is used for internal verification. This is supposed to be extended to support JSON-schema based validation of extensions, with some sort of a "plugin" concept. 
- 
-- Work in progress: 
-  - `./src/implicitTiling`: Classes that support accessing implicit tiling information
-  - `./src/traversal`: Classes for traversing tilesets
-  - `./src/metadata`: Classes that support accessing 3D Metadata
-
-- `./specs`: Jasmine spec drafts
+- `./src/implicitTiling`: Classes that support accessing implicit tiling information
+- `./src/traversal`: Classes for traversing tilesets
+- `./src/metadata`: Classes that support accessing 3D Metadata
+- `./specs`: Jasmine specs
 - `./specs/data`: Test data
 
 ## Overview
@@ -50,21 +45,25 @@ The `ValidationIssue` class and its types:
   - `issues/StructureValidationIssues.ts`: General issues related to an inconsistent structure, like `IDENTIFIER_NOT_FOUND` 
   - `issues/SemanticValidationIssues.ts`: Issues related to inconsistent property values, like `TILE_GEOMETRIC_ERROR_INCONSISTENT` 
   - `ContentValidationIssues.ts`: An error or warning in a tile content
-- For validation issues that refer to the tile content, each `ValidationIssue` can have an array of `internalIssues`. This can be filled, for example, with the information from the glTF validator that caused the validation to fail
+- For validation issues that refer to the tile content, each `ValidationIssue` can have an array of `causes`. This can be filled, for example, with the information from the glTF validator that caused the validation to fail
 
 ## Discussion points
 
 ### High Level
 
 - The build process has to be streamlined (e.g. considering CI)
-- The linting- and prettier configuration has to be finalized
 - The deployment options have to be evaluated (e.g.: Do we want a "Drag-And-Drop" version of the validator?)
+- The linting- and prettier configuration has to be finalized
+  - Started with basic prettier- and eslint configurations and CLI scripts
 
 ### General functionality
 
 - It should be possible to "batch process" a directory (with caveats - how to detect whether a file is a `tileset.json`, beyond its name?)
+  - Addressed via `tilesetsDirectory` CLI argument
 - It should be possible to write reports into files.
+  - Addressed via `reportFile` and `writeReports` CLI arguments
 - It should detect ZIPped files, and uncompress them for validation
+  - Addressed via `UnzippingResourceResolver`
 - Check that geometry is within tile.boundingVolume, content.boundingVolume, and parent.boundingVolume
 - Check that metadata statistics are correct. Or at the very least, check that metadata values fall within min/max
 - Check that metadata values fall within the class's min/max
@@ -87,9 +86,9 @@ There are certain settings that one could imagine for the validation process. It
 
 ### Test approaches 
 
-The current state of the testing is that there is bunch of tilesets with all kinds of issues in the `./specs/data` directory, and a `ValidationIssuesSpec.ts` that should test the validation issues:
-- Run the validation on each file from the `specs/data` directory
-- Check whether the actual issues match the expected ones
+The current state of the testing is that there is bunch of tilesets with all kinds of issues in the `./specs/data` directory, and Jasmine tests like `TilesetValidationSpec.ts` that test the validation issues:
+- They the validation on each file from the `specs/data` directory
+- They check whether the actual issues match the expected ones
 
 It _might_ make sense to describe these tests in a more structured form, where each "spec" could contain a summary like this:
 ```
@@ -114,7 +113,9 @@ The initial approach for the JSON schema based validation was to simply use the 
 There should also be a generic solution for the validation of enum values. When there are extensions, then their set may not be fixed (and the glTF validator hasn't sorted that out either). For example, there may be a `componentType` like `UINT128` or `FLOAT16` at some point in time...
 
 
-### Random Notes
+### Internal Notes
 
 - The functions in `BasicValidator` should be made more consistent (see note at top of file). The functions should better reflect the `JsonValidationIssues`. The convenience functions that have been introduced (and will be introduced) should be used consistently at the call sites.
 - The `extras` and `extensions` are not yet validated (this will just be the JSON-level check whether their properties are `object`s)
+  - Addressed via `RootPropertyValidator`
+- Check the handling of `additionalProperties` in the JSON validation part

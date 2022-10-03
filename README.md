@@ -1,14 +1,31 @@
 # 3D Tiles Validator 1.1
 
-A **draft** implementation of a validator for 3D Tiles 1.1.
+A validator for 3D Tiles 1.1.
+
+> **A note about the repository structure**
+> 
+> This repository originally contained multiple projects. Now, these project are maintained in separate repositories:
+> 
+> - The `3d-tiles-tools` can be found in [the `3d-tiles-tools` repository](https://github.com/CesiumGS/3d-tiles-tools)
+> - The `3d-tiles-samples-generator` can be found in [the `3d-tiles-samples-generator` repository](https://github.com/CesiumGS/3d-tiles-samples-generator)
+> 
 
 ## Usage
 
-**Note**: The command line interface is preliminary. It will change based on the feedback and desired functionality for passing in validiation configuration settings!
+**Note**: Some of the implementation and interfaces may still change. This refers to the source code as well as details of the command line interface and report format.
 
 #### Validate a single tileset file:
 ```
 npx ts-node src/main.ts --tilesetFile specs/data/Samples/TilesetWithFullMetadata/tileset.json
+```
+
+#### Validate a set of tileset files:
+```
+npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/
+```
+This will validate all tileset files in the given directory and all its subdirectories. The tileset files are identified by matching the file name against the glob pattern `**/*tileset*.json`. The pattern can be configured with the `tilesetGlobPattern` parameter. For example, in order to treat all .json files as tileset files:
+```
+npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/ --tilesetGlobPattern **/*.json
 ```
 
 #### Validate a single metadata schema file:
@@ -34,33 +51,16 @@ npx ts-node src/main.ts --subtreeSpecs
 
 ## Reports
 
-Validation reports are currently printed to the console. Options to write them into files may be added later. For example, validating an tileset from the `specs/data` directory like this:
+By default, validation reports are printed to the console. 
+
+When validating a single file, then the `reportFile` argument can be used to specify the output file for the validation report. For example:
 ```
-npx ts-node src/main.ts --tilesetFile specs/data/tilesets/validTilesetWithInvalidB3dm.json
+npx ts-node src/main.ts --tilesetFile specs/data/Samples/TilesetWithFullMetadata/tileset.json --reportFile MY_REPORT.json
 ```
-may print a validation report like this:
+
+Alternatively, or when validating multiple files, the `writeReports` argument can be used to write report files into the same directory as the input files. The name of the report file will be derived from the input file name. 
 ```
-{
-  "date": "2022-09-21T18:41:45.562Z",
-  "numErrors": 1,
-  "numWarnings": 0,
-  "issues": [
-    {
-      "type": "CONTENT_VALIDATION_ERROR",
-      "path": "tiles/b3dm/invalid.b3dm",
-      "message": "Content tiles/b3dm/invalid.b3dm caused validation errors",
-      "severity": "ERROR",
-      "internalIssues": [
-        {
-          "type": "BINARY_INVALID_VALUE",
-          "path": "tiles/b3dm/invalid.b3dm",
-          "message": "The version must be 1 but is 2",
-          "severity": "ERROR"
-        }
-      ]
-    }
-  ]
-}
+npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/ --writeReports
 ```
 
 ## Implementation notes
