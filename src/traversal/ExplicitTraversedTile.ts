@@ -76,12 +76,11 @@ export class ExplicitTraversedTile implements TraversedTile {
     const schema = this._schema;
     const metadata = tile.metadata;
 
-    // TODO These can be overridden by semantics!
     const boundingVolume = tile.boundingVolume;
-    const transform = tile.transform;
-    const refine = tile.refine;
-
+    let transform = tile.transform;
+    let refine = tile.refine;
     let geometricError = tile.geometricError;
+
     if (defined(metadata) && defined(schema)) {
       let metadataEntityModel = undefined;
       try {
@@ -93,12 +92,49 @@ export class ExplicitTraversedTile implements TraversedTile {
         throw new ImplicitTilingError(message);
       }
       if (defined(metadataEntityModel)) {
+        // Apply the semantic-based overrides from the metadata
+        const semanticBoundingBox =
+          metadataEntityModel!.getPropertyValueBySemantic("TILE_BOUNDING_BOX");
+        if (defined(semanticBoundingBox)) {
+          boundingVolume.box = semanticBoundingBox;
+        }
+
+        const semanticBoundingRegion =
+          metadataEntityModel!.getPropertyValueBySemantic(
+            "TILE_BOUNDING_REGION"
+          );
+        if (defined(semanticBoundingRegion)) {
+          boundingVolume.region = semanticBoundingRegion;
+        }
+
+        const semanticBoundingSphere =
+          metadataEntityModel!.getPropertyValueBySemantic(
+            "TILE_BOUNDING_SPHERE"
+          );
+        if (defined(semanticBoundingSphere)) {
+          boundingVolume.sphere = semanticBoundingSphere;
+        }
+
         const semanticGeometricError =
           metadataEntityModel!.getPropertyValueBySemantic(
             "TILE_GEOMETRIC_ERROR"
           );
         if (defined(semanticGeometricError)) {
           geometricError = semanticGeometricError;
+        }
+
+        const semanticRefine =
+          metadataEntityModel!.getPropertyValueBySemantic("TILE_REFINE");
+        if (semanticRefine === 0) {
+          refine = "ADD";
+        } else if (semanticRefine === 1) {
+          refine = "REPLACE";
+        }
+
+        const semanticTransform =
+          metadataEntityModel!.getPropertyValueBySemantic("TILE_TRANSFORM");
+        if (defined(semanticTransform)) {
+          transform = semanticTransform;
         }
       }
     }
