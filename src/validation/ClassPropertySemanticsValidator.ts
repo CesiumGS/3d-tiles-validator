@@ -111,7 +111,7 @@ export class ClassPropertySemanticsValidator {
     // by the semantics are not validated yet. For example,
     // this should apply the `BoundingVolumeValidator` to
     // properties with the TILE_BOUNDING_REGION, or check
-    // that TILE_REFINE only has a value of 0 or 1. 
+    // that TILE_REFINE only has a value of 0 or 1.
 
     return result;
   }

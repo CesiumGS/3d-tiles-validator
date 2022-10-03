@@ -3,9 +3,9 @@ import { equalsEpsilon } from "./equalsEpsilon";
 /**
  * A function for checking values for equality, taking into account the
  * possibility that the values are arrays or numbers.
- * 
+ *
  * This is ONLY used in the specs, to compare metadata values.
- * 
+ *
  * @param a The first element
  * @param b The second element
  * @param epsilon A relative epsilon
