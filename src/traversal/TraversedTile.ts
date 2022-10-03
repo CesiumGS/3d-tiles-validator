@@ -80,6 +80,10 @@ export interface TraversedTile {
    */
   getContents(): Content[];
 
+  // TODO Some information has to be exposed here solely
+  // for the validation. This should preferably not be
+  // visible in this interface. The traversal might be
+  // refactored to hide this information here.
   getSubtreeUri(): string | undefined;
   getImplicitTiling(): TileImplicitTiling | undefined;
   getMetadata(): MetadataEntity | undefined;
