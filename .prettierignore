@@ -7,3 +7,4 @@
 specs/data/**/
 tsconfig.json
 .prettierrc.json
+ThirdParty.json

@@ -1,22 +1,16 @@
 // This was, to some extent, "ported" (or at least "inspired") from
 // https://github.com/CesiumGS/3d-tiles-validator/blob/e84202480eb6572383008076150c8e52c99af3c3/validator/lib/validatePnts.js
-
-// TODO This is still pretty messy. The legacy JSON validation should
-// be replaced, and the class as a whole should be cleaned up.
-// It has to be decided which messages cause an "early bailout"
-// (i.e. which ones should cause the validation to end)
-// The part for validating the magic/version/.../alignment in all
-// content validators is redundant, and redundancy is redundant.
+// It still contains legacy elements that may be cleaned up at some point.
 
 import { defined } from "../base/defined";
 import { defaultValue } from "../base/defaultValue";
-import { bufferToJson } from "../base/bufferToJson";
 
 import { ValidationContext } from "../validation/ValidationContext";
 import { Validator } from "../validation/Validator";
 
+import { TileFormatValidator } from "./TileFormatValidator";
+
 import { IoValidationIssues } from "../issues/IoValidationIssue";
-import { BinaryValidationIssues } from "../issues/BinaryValidationIssues";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { validateBatchTable } from "./legacy/validateBatchTable";
 import { validateFeatureTable } from "./legacy/validateFeatureTable";
@@ -129,138 +123,34 @@ export class PntsValidator implements Validator<Buffer> {
     context: ValidationContext
   ): Promise<boolean> {
     const headerByteLength = 28;
-    if (input.length < headerByteLength) {
-      const message =
-        `The input must have at least ${headerByteLength} bytes, ` +
-        `but only has ${input.length} bytes`;
-      const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
-      context.addIssue(issue);
-      return false;
-    }
 
-    const magic = input.toString("utf8", 0, 4);
-    const version = input.readUInt32LE(4);
-    const byteLength = input.readUInt32LE(8);
-    const featureTableJsonByteLength = input.readUInt32LE(12);
-    const featureTableBinaryByteLength = input.readUInt32LE(16);
-    const batchTableJsonByteLength = input.readUInt32LE(20);
-    const batchTableBinaryByteLength = input.readUInt32LE(24);
-
-    if (magic !== "pnts") {
-      const issue = BinaryValidationIssues.BINARY_INVALID_VALUE(
+    if (
+      !TileFormatValidator.validateHeader(
         this._uri,
-        "magic",
+        input,
+        headerByteLength,
         "pnts",
-        magic
-      );
-      context.addIssue(issue);
+        context
+      )
+    ) {
       return false;
     }
 
-    if (version !== 1) {
-      const issue = BinaryValidationIssues.BINARY_INVALID_VALUE(
-        this._uri,
-        "version",
-        1,
-        version
-      );
-      context.addIssue(issue);
-      return false;
-    }
-
-    if (byteLength !== input.length) {
-      const issue = BinaryValidationIssues.BINARY_INVALID_LENGTH(
-        this._uri,
-        "content",
-        byteLength,
-        input.length
-      );
-      context.addIssue(issue);
-      return false;
-    }
-
-    const featureTableJsonByteOffset = headerByteLength;
-    const featureTableBinaryByteOffset =
-      featureTableJsonByteOffset + featureTableJsonByteLength;
-    const batchTableJsonByteOffset =
-      featureTableBinaryByteOffset + featureTableBinaryByteLength;
-    const batchTableBinaryByteOffset =
-      batchTableJsonByteOffset + batchTableJsonByteLength;
-
-    if (featureTableBinaryByteOffset % 8 > 0) {
-      const issue = BinaryValidationIssues.BINARY_INVALID_ALIGNMENT_legacy(
-        this._uri,
-        "feature table binary",
-        8
-      );
-      context.addIssue(issue);
-      return false;
-    }
-
-    if (batchTableBinaryByteOffset % 8 > 0) {
-      const issue = BinaryValidationIssues.BINARY_INVALID_ALIGNMENT_legacy(
-        this._uri,
-        "batch table binary",
-        8
-      );
-      context.addIssue(issue);
-      return false;
-    }
-
-    const computedByteLength =
-      headerByteLength +
-      featureTableJsonByteLength +
-      featureTableBinaryByteLength +
-      batchTableJsonByteLength +
-      batchTableBinaryByteLength;
-    if (computedByteLength > byteLength) {
-      const issue = BinaryValidationIssues.BINARY_INVALID_LENGTH(
-        this._uri,
-        "header, feature table, batch table, and GLB",
-        byteLength,
-        computedByteLength
-      );
-      context.addIssue(issue);
-      return false;
-    }
-
-    const featureTableJsonBuffer = input.slice(
-      featureTableJsonByteOffset,
-      featureTableBinaryByteOffset
+    const binaryTableData = TileFormatValidator.extractBinaryTableData(
+      this._uri,
+      input,
+      headerByteLength,
+      false,
+      context
     );
-    const featureTableBinary = input.slice(
-      featureTableBinaryByteOffset,
-      batchTableJsonByteOffset
-    );
-    const batchTableJsonBuffer = input.slice(
-      batchTableJsonByteOffset,
-      batchTableBinaryByteOffset
-    );
-    const batchTableBinary = input.slice(
-      batchTableBinaryByteOffset,
-      byteLength
-    );
-
-    let featureTableJson: any;
-    let batchTableJson: any;
-
-    try {
-      featureTableJson = bufferToJson(featureTableJsonBuffer);
-    } catch (error) {
-      const message = `Could not parse feature table JSON: ${error}`;
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
-      context.addIssue(issue);
+    if (!defined(binaryTableData)) {
       return false;
     }
 
-    try {
-      batchTableJson = bufferToJson(batchTableJsonBuffer);
-    } catch (error) {
-      const message = `Could not parse batch table JSON: ${error}`;
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
-      context.addIssue(issue);
-      return false;
-    }
+    const featureTableJson = binaryTableData!.featureTableJson;
+    const featureTableBinary = binaryTableData!.featureTableBinary;
+    const batchTableJson = binaryTableData!.batchTableJson;
+    const batchTableBinary = binaryTableData!.batchTableBinary;
 
     let result = true;
 
