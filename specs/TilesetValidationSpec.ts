@@ -821,4 +821,12 @@ describe("Tileset validation", function () {
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_UNEXPECTED");
   });
+
+  it("detects issues in validTilesetWithIB3dmWithInvalidAlignment", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithIB3dmWithInvalidAlignment.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
+  });
 });
