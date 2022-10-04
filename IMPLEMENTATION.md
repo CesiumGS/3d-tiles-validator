@@ -1,6 +1,6 @@
 # 3D Tiles Validator 1.1 Implementation Notes
 
-Parts of the current implementation are still in a **DRAFT** state. 
+Parts of the current implementation may still change. This page is only a short description of the overall structure.
 
 ## Directory structure:
 
@@ -49,73 +49,10 @@ The `ValidationIssue` class and its types:
 
 ## Discussion points
 
-### High Level
-
-- The build process has to be streamlined (e.g. considering CI)
-- The deployment options have to be evaluated (e.g.: Do we want a "Drag-And-Drop" version of the validator?)
-- The linting- and prettier configuration has to be finalized
-  - Started with basic prettier- and eslint configurations and CLI scripts
-
 ### General functionality
 
-- It should be possible to "batch process" a directory (with caveats - how to detect whether a file is a `tileset.json`, beyond its name?)
-  - Addressed via `tilesetsDirectory` CLI argument
-- It should be possible to write reports into files.
-  - Addressed via `reportFile` and `writeReports` CLI arguments
-- It should detect ZIPped files, and uncompress them for validation
-  - Addressed via `UnzippingResourceResolver`
 - Check that geometry is within tile.boundingVolume, content.boundingVolume, and parent.boundingVolume
 - Check that metadata statistics are correct. Or at the very least, check that metadata values fall within min/max
 - Check that metadata values fall within the class's min/max
 - Declarative styling validation
-
-### Resource Handling
-
 - Should absolute URIs be resolved?
-- When a resource could not be resolved, should that be an error or a warning?
-  - Should that depend on the resource type? (E.g. Warnings for missing tile content, but Errors for missing subtree buffers?)
-
-For a purely file-based validation, it should make sense to treat missing resources as ERRORs. 
-
-Further details should be configurable via validation options.
-
-
-### Validation Options
-
-There are certain settings that one could imagine for the validation process. It should be possible to configure the validator accordingly. One also could consider an option to ignore certain issues, like `validator.ignore("/ ** /content/uri", PROPERTY_MISSING)`. But it would be necessary to check these 'ignored issues' literally _everywhere_. It would probably make more sense to offer a `filter` operation on the `ValidationResult`. 
-
-### Test approaches 
-
-The current state of the testing is that there is bunch of tilesets with all kinds of issues in the `./specs/data` directory, and Jasmine tests like `TilesetValidationSpec.ts` that test the validation issues:
-- They the validation on each file from the `specs/data` directory
-- They check whether the actual issues match the expected ones
-
-It _might_ make sense to describe these tests in a more structured form, where each "spec" could contain a summary like this:
-```
-  {
-    "fileName": "assetVersionInvalidType.json",
-    "description": "The tileset.asset.version does not have the type `string`",
-    "expected": [
-      {
-        "type": "TYPE_MISMATCH",
-        "severity": 0
-      }
-    ]
-  },
-```
-These tests could then be processed programmatically, and things like the `description` may be useful as a documentation for more complex issues. But it would no longer use the Jasmine infrastructure (e.g. for running individual tests, and certain forms of reports). 
-
-
-### JSON Schema Based Validation
-
-The initial approach for the JSON schema based validation was to simply use the `ajv` library. This has some caveats, and has therefore been replaced with a manual validation of the schema compliance. However, there should be a mechansim for supporting JSON Schema based validation on demand - for example, for extensions that are not otherwise integrated into the validator. The `src/json` subdirectory contains some drafts for this. But in order to properly integrate this, some architectural questions will have to be answered, as well as the question where exactly the `.*schema.json` files will be stored. Eventually, the mechanism for adding a specific validation could/should boil down to a call like `validator.register("/node/**/boundingVolume", new ExtensionSchemaValidator("s2.schema"));`
-
-There should also be a generic solution for the validation of enum values. When there are extensions, then their set may not be fixed (and the glTF validator hasn't sorted that out either). For example, there may be a `componentType` like `UINT128` or `FLOAT16` at some point in time...
-
-
-### Internal Notes
-
-- The functions in `BasicValidator` should be made more consistent (see note at top of file). The functions should better reflect the `JsonValidationIssues`. The convenience functions that have been introduced (and will be introduced) should be used consistently at the call sites.
-- The `extras` and `extensions` are not yet validated (this will just be the JSON-level check whether their properties are `object`s)
-  - Addressed via `RootPropertyValidator`
-- Check the handling of `additionalProperties` in the JSON validation part
