@@ -14,6 +14,45 @@ import { JsonValidationIssues } from "../issues/JsonValidationIssues";
  */
 export class NumberValidator {
   /**
+   * Validates that each element of the given array in is in the range 
+   * that is determined by the given component type.
+   *
+   * This assumes that the given `componentType` has already been
+   * determined to be a valid one, i.e. is contained in the set of
+   * `MetadataComponentTypes#allComponentTypes`.
+   *
+   * @param path The path for `ValidationIssue` instances
+   * @param values The values
+   * @param componentType The component type
+   * @param context The `ValidationContext`
+   * @returns Whether the value was in the required range
+   */
+  static validateRanges(
+    path: string,
+    values: number[] | bigint[],
+    componentType: string,
+    context: ValidationContext
+  ) {
+    let result = true;
+    for (let i = 0; i < values.length; i++) {
+      const value = values[i];
+      const valuePath = path + "/" + i;
+      if (
+        !NumberValidator.validateRange(
+          valuePath,
+          "array element",
+          value,
+          componentType!,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+    return result;
+  }
+
+  /**
    * Validates that the given value is in the range that is determined
    * by the given component type.
    *
@@ -45,7 +84,7 @@ export class NumberValidator {
     }
     if (value < min! || value > max!) {
       const message =
-        `The '${name}' has type ${componentType} and must be ` +
+        `The ${name} has type ${componentType} and must be ` +
         `in [${min},${max}], but is ${value}`;
       const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(path, message);
       context.addIssue(issue);
