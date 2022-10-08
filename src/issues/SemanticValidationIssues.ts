@@ -59,6 +59,19 @@ export class SemanticValidationIssues {
     return issue;
   }
 
+  static CLASS_PROPERTY_COMPONENT_TYPE_MISSING(
+    path: string,
+    theType: string
+  ) {
+    const type = "CLASS_PROPERTY_COMPONENT_TYPE_MISSING";
+    const severity = ValidationIssueSeverity.ERROR;
+    const message =
+      `The 'componentType' must be defined for a ` +
+      `property with type '${theType}'`;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
   static CLASS_PROPERTY_ENUMTYPE_WITH_NON_ENUM_TYPE(
     path: string,
     enumType: string,

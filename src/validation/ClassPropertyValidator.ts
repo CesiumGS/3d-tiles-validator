@@ -128,7 +128,31 @@ export class ClassPropertyValidator {
     // Validate the componentType
     const componentType = property.componentType;
     const componentTypePath = propertyPath + "/componentType";
-    if (defined(componentType)) {
+    const isNumericType = MetadataTypes.isNumericType(type);
+    if (isNumericType && !defined(componentType)) {
+      // For numeric types (SCALAR, VECn, or MATn) the
+      // componentType MUST be defined
+      if (isNumericType) {
+        const issue =
+          SemanticValidationIssues.CLASS_PROPERTY_COMPONENT_TYPE_MISSING(
+            componentTypePath,
+            type
+          );
+        context.addIssue(issue);
+        result = false;
+      }
+    }
+    if (!isNumericType && defined(componentType)) {
+      // For non-numeric types the componentType MUST NOT be defined
+      const issue =
+        SemanticValidationIssues.CLASS_PROPERTY_COMPONENT_TYPE_WITH_INVALID_TYPE(
+          componentTypePath,
+          componentType!,
+          type
+        );
+      context.addIssue(issue);
+      result = false;
+    } else if (defined(componentType)) {
       // The componentType MUST be a string
       if (
         !BasicValidator.validateString(
@@ -151,18 +175,6 @@ export class ClassPropertyValidator {
           )
         ) {
           result = false;
-        } else {
-          // When the componentType is given, the type MUST be SCALAR, VECn, or MATn
-          if (!MetadataTypes.isNumericType(type)) {
-            const issue =
-              SemanticValidationIssues.CLASS_PROPERTY_COMPONENT_TYPE_WITH_INVALID_TYPE(
-                componentTypePath,
-                componentType!,
-                type
-              );
-            context.addIssue(issue);
-            result = false;
-          }
         }
       }
     }
