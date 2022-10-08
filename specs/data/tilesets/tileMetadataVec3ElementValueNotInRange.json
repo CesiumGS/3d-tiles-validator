@@ -1,0 +1,32 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "schema": {
+    "id": "EXAMPLE_SCHEMA_ID",
+    "classes": {
+      "exampleClass": {
+        "properties": {
+          "examplePropertyVec3Int16": {
+            "type": "VEC3",
+            "componentType": "INT16"
+          }
+        }
+      }
+    }
+  },
+
+  "geometricError": 2.0,
+  "root": {
+    "boundingVolume": {
+      "box": [0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5]
+    },
+    "geometricError": 1.0,
+    "metadata": {
+      "class": "exampleClass",
+      "properties": {
+        "examplePropertyVec3Int16": [ 88888, 12345, 99999 ]
+      }
+    }
+  }
+}
