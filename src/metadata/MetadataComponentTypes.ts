@@ -40,6 +40,16 @@ export class MetadataComponentTypes {
   ];
 
   /**
+   * Unsigned component types.
+   */
+  static unsignedComponentTypes: string[] = [
+    "UINT8",
+    "UINT16",
+    "UINT32",
+    "UINT64",
+  ];
+
+  /**
    * Returns whether the given component type is an integer component
    * type.
    *
@@ -51,6 +61,22 @@ export class MetadataComponentTypes {
       return false;
     }
     return MetadataComponentTypes.integerComponentTypes.includes(
+      componentType!
+    );
+  }
+
+  /**
+   * Returns whether the given component type is an unsigned component
+   * type.
+   *
+   * @param componentType The component type
+   * @returns Whether the component type is an unsigned component type
+   */
+  static isUnsignedComponentType(componentType: string | undefined) {
+    if (!defined(componentType)) {
+      return false;
+    }
+    return MetadataComponentTypes.unsignedComponentTypes.includes(
       componentType!
     );
   }
