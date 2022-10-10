@@ -32,12 +32,12 @@ export class ContentValidator {
    * @param context The `ValidationContext` that any issues will be added to
    * @returns Whether the given object was valid
    */
-  static validateContent(
+  static async validateContent(
     contentPath: string,
     content: Content,
     validationState: ValidationState,
     context: ValidationContext
-  ): boolean {
+  ): Promise<boolean> {
     // Make sure that the given value is an object
     if (
       !BasicValidator.validateObject(contentPath, "content", content, context)
@@ -129,13 +129,12 @@ export class ContentValidator {
     const boundingVolume = content.boundingVolume;
     const boundingVolumePath = contentPath + "/boundingVolume";
     if (defined(boundingVolume)) {
-      if (
-        !BoundingVolumeValidator.validateBoundingVolume(
-          boundingVolumePath,
-          boundingVolume!,
-          context
-        )
-      ) {
+      const boundingVolumeValid = await BoundingVolumeValidator.validateBoundingVolume(
+        boundingVolumePath,
+        boundingVolume!,
+        context
+      );
+      if (!boundingVolumeValid) {
         result = false;
       }
     }

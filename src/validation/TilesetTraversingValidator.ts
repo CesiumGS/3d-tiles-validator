@@ -194,7 +194,8 @@ export class TilesetTraversingValidator {
     const tile = traversedTile.asTile();
 
     // Validate the tile itself
-    if (!TileValidator.validateTile(path, tile, validationState, context)) {
+    const tileValid = await TileValidator.validateTile(path, tile, validationState, context);
+    if (!tileValid) {
       return false;
     }
 

@@ -49,12 +49,12 @@ export class TileValidator {
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
-  static validateTile(
+  static async validateTile(
     tilePath: string,
     tile: Tile,
     validationState: ValidationState,
     context: ValidationContext
-  ): boolean {
+  ): Promise<boolean> {
     // Make sure that the given value is an object
     if (!BasicValidator.validateObject(tilePath, "tile", tile, context)) {
       return false;
@@ -78,13 +78,12 @@ export class TileValidator {
     const boundingVolume = tile.boundingVolume;
     const boundingVolumePath = tilePath + "/boundingVolume";
     // The boundingVolume MUST be defined
-    if (
-      !BoundingVolumeValidator.validateBoundingVolume(
-        boundingVolumePath,
-        boundingVolume,
-        context
-      )
-    ) {
+    const boundingVolumeValid = await BoundingVolumeValidator.validateBoundingVolume(
+      boundingVolumePath,
+      boundingVolume,
+      context
+    );
+    if (!boundingVolumeValid) {
       result = false;
     }
 
@@ -243,13 +242,14 @@ export class TileValidator {
         result = false;
       }
     } else {
+      const simpleTileValid = await TileValidator.validateSimpleTile(
+        tilePath,
+        tile,
+        validationState,
+        context
+      );
       if (
-        !TileValidator.validateSimpleTile(
-          tilePath,
-          tile,
-          validationState,
-          context
-        )
+        !simpleTileValid
       ) {
         result = false;
       }
@@ -269,12 +269,12 @@ export class TileValidator {
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
-  private static validateSimpleTile(
+  private static async validateSimpleTile(
     tilePath: string,
     tile: Tile,
     validationState: ValidationState,
     context: ValidationContext
-  ): boolean {
+  ): Promise<boolean> {
     let result = true;
 
     // Note: The check that content and contents may not be present
@@ -284,13 +284,14 @@ export class TileValidator {
     const content = tile.content;
     const contentPath = tilePath + "/content";
     if (defined(content)) {
+      const contentValid = await ContentValidator.validateContent(
+        contentPath,
+        content!,
+        validationState,
+        context
+      );
       if (
-        !ContentValidator.validateContent(
-          contentPath,
-          content!,
-          validationState,
-          context
-        )
+        !contentValid
       ) {
         result = false;
       }
@@ -319,13 +320,14 @@ export class TileValidator {
         for (let index = 0; index < contents!.length; index++) {
           const contentsElementPath = contentsPath + "/" + index;
           const contentsElement = contents![index];
+          const contentValid = await ContentValidator.validateContent(
+            contentsElementPath,
+            contentsElement,
+            validationState,
+            context
+          );
           if (
-            !ContentValidator.validateContent(
-              contentsElementPath,
-              contentsElement,
-              validationState,
-              context
-            )
+            !contentValid
           ) {
             result = false;
           }
