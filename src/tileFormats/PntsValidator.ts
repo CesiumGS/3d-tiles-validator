@@ -94,7 +94,6 @@ const featureTableSemantics = {
  * given as a Buffer.
  */
 export class PntsValidator implements Validator<Buffer> {
-
   async validateObject(
     uri: string,
     input: Buffer,
@@ -105,7 +104,11 @@ export class PntsValidator implements Validator<Buffer> {
     // will be stored as the 'internal issues' of a
     // single content validation issue.
     const derivedContext = context.derive(".");
-    const result = await this.validateObjectInternal(uri, input, derivedContext);
+    const result = await this.validateObjectInternal(
+      uri,
+      input,
+      derivedContext
+    );
     const derivedResult = derivedContext.getResult();
     const issue = ContentValidationIssues.createFrom(uri, derivedResult);
     if (issue) {

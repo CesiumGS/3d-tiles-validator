@@ -113,7 +113,11 @@ export class ContentDataValidator {
     if (isGlb) {
       console.log("Validating GLB: " + contentUri);
       const dataValidator = new GltfValidator();
-      const result = await dataValidator.validateObject(contentUri, contentData, context);
+      const result = await dataValidator.validateObject(
+        contentUri,
+        contentData,
+        context
+      );
       return result;
     }
 
@@ -121,7 +125,11 @@ export class ContentDataValidator {
     if (isB3dm) {
       console.log("Validating B3DM: " + contentUri);
       const dataValidator = new B3dmValidator();
-      const result = await dataValidator.validateObject(contentUri, contentData, context);
+      const result = await dataValidator.validateObject(
+        contentUri,
+        contentData,
+        context
+      );
       return result;
     }
 
@@ -129,7 +137,11 @@ export class ContentDataValidator {
     if (isI3dm) {
       console.log("Validating I3DM: " + contentUri);
       const dataValidator = new I3dmValidator();
-      const result = await dataValidator.validateObject(contentUri, contentData, context);
+      const result = await dataValidator.validateObject(
+        contentUri,
+        contentData,
+        context
+      );
       return result;
     }
 
@@ -137,7 +149,11 @@ export class ContentDataValidator {
     if (isPnts) {
       console.log("Validating PNTS: " + contentUri);
       const dataValidator = new PntsValidator();
-      const result = await dataValidator.validateObject(contentUri, contentData, context);
+      const result = await dataValidator.validateObject(
+        contentUri,
+        contentData,
+        context
+      );
       return result;
     }
 
@@ -145,7 +161,11 @@ export class ContentDataValidator {
     if (isCmpt) {
       console.log("Validating CMPT: " + contentUri);
       const dataValidator = new CmptValidator();
-      const result = await dataValidator.validateObject(contentUri, contentData, context);
+      const result = await dataValidator.validateObject(
+        contentUri,
+        contentData,
+        context
+      );
       return result;
     }
 
@@ -277,7 +297,11 @@ export class ContentDataValidator {
       // Assume that it is a glTF:
       console.log("Validating glTF: " + contentUri);
       const gltfValidator = new GltfValidator();
-      const result = await gltfValidator.validateObject(contentUri, contentData, context);
+      const result = await gltfValidator.validateObject(
+        contentUri,
+        contentData,
+        context
+      );
       return result;
     }
     const path = contentPath;

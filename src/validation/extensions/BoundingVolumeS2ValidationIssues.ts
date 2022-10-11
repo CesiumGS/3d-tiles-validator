@@ -8,5 +8,4 @@ export class BoundingVolumeS2ValidationIssues {
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-
 }

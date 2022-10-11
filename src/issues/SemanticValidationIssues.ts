@@ -341,8 +341,7 @@ export class SemanticValidationIssues {
     const type = "EXTENSION_NOT_SUPPORTED";
     const severity = ValidationIssueSeverity.WARNING;
     const message =
-      `The extension '${extensionName}' was used, but ` +
-      `is not supported`;
+      `The extension '${extensionName}' was used, but ` + `is not supported`;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }

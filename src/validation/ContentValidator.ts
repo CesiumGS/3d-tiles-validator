@@ -129,11 +129,12 @@ export class ContentValidator {
     const boundingVolume = content.boundingVolume;
     const boundingVolumePath = contentPath + "/boundingVolume";
     if (defined(boundingVolume)) {
-      const boundingVolumeValid = await BoundingVolumeValidator.validateBoundingVolume(
-        boundingVolumePath,
-        boundingVolume!,
-        context
-      );
+      const boundingVolumeValid =
+        await BoundingVolumeValidator.validateBoundingVolume(
+          boundingVolumePath,
+          boundingVolume!,
+          context
+        );
       if (!boundingVolumeValid) {
         result = false;
       }

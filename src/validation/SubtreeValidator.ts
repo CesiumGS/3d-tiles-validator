@@ -38,7 +38,6 @@ import { RootPropertyValidator } from "./RootPropertyValidator";
  * @private
  */
 export class SubtreeValidator implements Validator<Buffer> {
-
   /**
    * The `ValidationState` that carries information about
    * the metadata schema
@@ -77,7 +76,7 @@ export class SubtreeValidator implements Validator<Buffer> {
   }
 
   /**
-   * Implementation of the `Validator` interface that performs the 
+   * Implementation of the `Validator` interface that performs the
    * validation of the given buffer, which is supposed to
    * contain subtree data, either in binary form or as JSON.
    *
@@ -123,7 +122,6 @@ export class SubtreeValidator implements Validator<Buffer> {
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
-
     // Validate the header length
     const headerByteLength = 24;
     if (

@@ -78,11 +78,12 @@ export class TileValidator {
     const boundingVolume = tile.boundingVolume;
     const boundingVolumePath = tilePath + "/boundingVolume";
     // The boundingVolume MUST be defined
-    const boundingVolumeValid = await BoundingVolumeValidator.validateBoundingVolume(
-      boundingVolumePath,
-      boundingVolume,
-      context
-    );
+    const boundingVolumeValid =
+      await BoundingVolumeValidator.validateBoundingVolume(
+        boundingVolumePath,
+        boundingVolume,
+        context
+      );
     if (!boundingVolumeValid) {
       result = false;
     }
@@ -248,9 +249,7 @@ export class TileValidator {
         validationState,
         context
       );
-      if (
-        !simpleTileValid
-      ) {
+      if (!simpleTileValid) {
         result = false;
       }
     }
@@ -290,9 +289,7 @@ export class TileValidator {
         validationState,
         context
       );
-      if (
-        !contentValid
-      ) {
+      if (!contentValid) {
         result = false;
       }
     }
@@ -326,9 +323,7 @@ export class TileValidator {
             validationState,
             context
           );
-          if (
-            !contentValid
-          ) {
+          if (!contentValid) {
             result = false;
           }
         }

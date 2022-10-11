@@ -16,7 +16,6 @@ const validator = require("gltf-validator");
  * in a Buffer.
  */
 export class GltfValidator implements Validator<Buffer> {
-
   /**
    * Creates a `ValidationIssue` object for the given 'message' object
    * that appears in the output of the glTF validator.

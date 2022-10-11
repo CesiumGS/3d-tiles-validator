@@ -96,7 +96,6 @@ const featureTableSemantics = {
  * given as a Buffer.
  */
 export class I3dmValidator implements Validator<Buffer> {
-
   async validateObject(
     uri: string,
     input: Buffer,
@@ -107,7 +106,11 @@ export class I3dmValidator implements Validator<Buffer> {
     // will be stored as the 'internal issues' of a
     // single content validation issue.
     const derivedContext = context.derive(".");
-    const result = await this.validateObjectInternal(uri, input, derivedContext);
+    const result = await this.validateObjectInternal(
+      uri,
+      input,
+      derivedContext
+    );
     const derivedResult = derivedContext.getResult();
     const issue = ContentValidationIssues.createFrom(uri, derivedResult);
     if (issue) {
@@ -274,7 +277,11 @@ export class I3dmValidator implements Validator<Buffer> {
     // If the GLB data was embdedded, validate it directly
     if (hasEmbeddedGlb) {
       const gltfValidator = new GltfValidator();
-      const gltfResult = await gltfValidator.validateObject(uri, glbData, context);
+      const gltfResult = await gltfValidator.validateObject(
+        uri,
+        glbData,
+        context
+      );
       if (!gltfResult) {
         result = false;
       }
@@ -309,10 +316,7 @@ export class I3dmValidator implements Validator<Buffer> {
           result = false;
         }
         const derivedResult = derivedContext.getResult();
-        const issue = ContentValidationIssues.createFrom(
-          uri,
-          derivedResult
-        );
+        const issue = ContentValidationIssues.createFrom(uri, derivedResult);
         if (issue) {
           context.addIssue(issue);
         }

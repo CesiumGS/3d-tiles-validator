@@ -84,7 +84,6 @@ export class TilesetValidator implements Validator<Tileset> {
     tileset: Tileset,
     context: ValidationContext
   ): Promise<boolean> {
-
     // Make sure that the given value is an object
     if (!BasicValidator.validateObject(path, "tileset", tileset, context)) {
       return false;
