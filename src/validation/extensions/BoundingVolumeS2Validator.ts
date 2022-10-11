@@ -14,28 +14,20 @@ import { BoundingVolumeS2ValidationIssues } from "./BoundingVolumeS2ValidationIs
  * @private
  */
 export class BoundingVolumeS2Validator implements Validator<any> {
-
-  // TODO The path should probably be passed into validateObject
-  private readonly _path: string;
-
-  constructor(path: string) {
-    this._path = path;
-  }
-
   /**
    * Performs the validation to ensure that the given object is a
    * valid `3DTILES_bounding_volume_S2` object.
    *
+   * @param path The path for `ValidationIssue` instances
    * @param object The object to validate
    * @param context The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   async validateObject(
+    path: string,
     object: any,
     context: ValidationContext
   ): Promise<boolean> {
-    const path = this._path;
-
     // Make sure that the given value is an object
     if (!BasicValidator.validateObject(path, "object", object, context)) {
       return false;

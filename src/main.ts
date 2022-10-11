@@ -1,15 +1,9 @@
 //eslint-disable-next-line
 const yargs = require("yargs/yargs");
 
-import { BoundingVolumeS2Validator } from "./validation/extensions/BoundingVolumeS2Validator";
-import { ExtensionsValidator } from "./validation/ExtensionsValidator";
 import { ValidatorMain } from "./ValidatorMain";
 
-// XXX Experimental extension validation
-const s2Validator = new BoundingVolumeS2Validator("");
-const performDefaultValidation = false;
-ExtensionsValidator.register("3DTILES_bounding_volume_S2", s2Validator, performDefaultValidation);
-// XXX Experimental extension validation
+ValidatorMain.registerExtensionValidators();
 
 const args = yargs(process.argv.slice(1))
   .help("help")

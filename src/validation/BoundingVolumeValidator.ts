@@ -57,26 +57,30 @@ export class BoundingVolumeValidator {
       result = false;
     }
 
+    // Validate the extensions in the given object
     const extensionsValidationResult =
       await ExtensionsValidator.validateExtensions(
         boundingVolumePath,
-        "boundingVolume",
         boundingVolume,
         context
       );
     if (!extensionsValidationResult.allValid) {
       result = false;
     }
-    if (extensionsValidationResult.performDefaultValidation) {
-      if (
-        !BoundingVolumeValidator.validateBoundingVolumeInternal(
-          boundingVolumePath,
-          boundingVolume,
-          context
-        )
-      ) {
-        result = false;
-      }
+    // Only proceed with the default validation if it was
+    // not requested to be skipped for any extension
+    if (!extensionsValidationResult.performDefaultValidation) {
+      return result;
+    }
+
+    if (
+      !BoundingVolumeValidator.validateBoundingVolumeInternal(
+        boundingVolumePath,
+        boundingVolume,
+        context
+      )
+    ) {
+      result = false;
     }
     return result;
   }
