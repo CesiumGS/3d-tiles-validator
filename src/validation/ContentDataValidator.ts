@@ -18,6 +18,13 @@ import { Content } from "../structure/Content";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
+import { Validator } from "./Validator";
+import { ContentData } from "./ContentData";
+
+type Entry = {
+  predicate: (contentData: ContentData) => boolean;
+  dataValidator: Validator<Buffer>;
+};
 
 /**
  * A class for validation of the data that is pointed to by a `content.uri`.
@@ -26,6 +33,94 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
  * @private
  */
 export class ContentDataValidator {
+
+  static dataValidators: Entry[] = [];
+
+  static registerDefaults() {
+    ContentDataValidator.registerByMagic("glTF", new GltfValidator());
+    ContentDataValidator.registerByMagic("b3dm", new B3dmValidator());
+    ContentDataValidator.registerByMagic("i3dm", new I3dmValidator());
+    ContentDataValidator.registerByMagic("cmpt", new CmptValidator());
+    ContentDataValidator.registerByMagic("pnts", new PntsValidator());
+    ContentDataValidator.registerByMagic("geom", Validators.createEmpty("Skipping 'geom' validation"));
+    ContentDataValidator.registerByMagic("vctr", Validators.createEmpty("Skipping 'vctr' validation"));
+    ContentDataValidator.registerByExtension(".geojson", Validators.createEmpty("Skipping 'GeoJSON' validation"));
+    ContentDataValidator.registerTileset();
+    ContentDataValidator.registerGltf();
+  }
+
+  static registerByMagic(magic: string, dataValidator: Validator<Buffer>) {
+    ContentDataValidator.registerByPredicate(
+      (contentData: ContentData) => contentData.magic === magic,
+      dataValidator
+    );
+  }
+
+  static registerByExtension(extension: string, dataValidator: Validator<Buffer>) {
+    ContentDataValidator.registerByPredicate(
+      (contentData: ContentData) => contentData.extension === extension.toLowerCase(),
+      dataValidator
+    );
+  }
+
+  static registerTileset() {
+    const predicate = (contentData: ContentData) => ContentDataValidator.isProbablyTileset(contentData);
+    const externalValidator = Validators.createDefaultTilesetValidator();
+    const dataValidator = Validators.wrap(externalValidator);
+    ContentDataValidator.registerByPredicate(predicate, dataValidator);
+  }
+
+  static registerGltf() {
+    const predicate = (contentData: ContentData) => ContentDataValidator.isProbablyGltf(contentData);
+    const dataValidator = new GltfValidator();
+    ContentDataValidator.registerByPredicate(predicate, dataValidator);
+  }
+
+  private static isProbablyTileset(contentData : ContentData) {
+    const parsedObject = contentData.parsedObject;
+    if (!defined(parsedObject)) {
+      return false;
+    }
+    if (!defined(parsedObject.asset)) {
+      return false;
+    }
+    return defined(parsedObject.geometricError) || defined(parsedObject.root);
+  }
+
+  private static isProbablyGltf(contentData : ContentData) {
+    const parsedObject = contentData.parsedObject;
+    if (!defined(parsedObject)) {
+      return false;
+    }
+    if (!defined(parsedObject.asset)) {
+      return false;
+    }
+    return true;
+  }
+
+
+  static registerByPredicate(
+    predicate: (contentData: ContentData) => boolean,
+    dataValidator: Validator<Buffer>
+  ) {
+    const entry = {
+      predicate: predicate,
+      dataValidator: dataValidator,
+    };
+    ContentDataValidator.dataValidators.push(entry);
+  }
+
+  private static findDataValidator(
+    contentData: ContentData
+  ): Validator<Buffer> | undefined {
+    for (const entry of ContentDataValidator.dataValidators) {
+      if (entry.predicate(contentData)) {
+        return entry.dataValidator;
+      }
+    }
+    return undefined;
+  }
+
   /**
    * Validate the actual data that is referred to by the URI in the
    * given content.
@@ -96,123 +191,68 @@ export class ContentDataValidator {
    *
    * @param contentPath The path for the `ValidationIssue` instances.
    * @param contentUri The URI of the content
-   * @param contentData The buffer containing the actual content data
+   * @param contentDataBuffer The buffer containing the actual content data
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
   private static async validateContentDataInternal(
     contentPath: string,
     contentUri: string,
-    contentData: Buffer,
+    contentDataBuffer: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
-    // Figure out the type of the content data and pass it
-    // to the responsible validator.
 
-    const isGlb = ResourceTypes.isGlb(contentData);
-    if (isGlb) {
-      console.log("Validating GLB: " + contentUri);
-      const dataValidator = new GltfValidator();
-      const result = await dataValidator.validateObject(
-        contentUri,
-        contentData,
-        context
-      );
-      return result;
-    }
-
-    const isB3dm = ResourceTypes.isB3dm(contentData);
-    if (isB3dm) {
-      console.log("Validating B3DM: " + contentUri);
-      const dataValidator = new B3dmValidator();
-      const result = await dataValidator.validateObject(
-        contentUri,
-        contentData,
-        context
-      );
-      return result;
-    }
-
-    const isI3dm = ResourceTypes.isI3dm(contentData);
-    if (isI3dm) {
-      console.log("Validating I3DM: " + contentUri);
-      const dataValidator = new I3dmValidator();
-      const result = await dataValidator.validateObject(
-        contentUri,
-        contentData,
-        context
-      );
-      return result;
-    }
-
-    const isPnts = ResourceTypes.isPnts(contentData);
-    if (isPnts) {
-      console.log("Validating PNTS: " + contentUri);
-      const dataValidator = new PntsValidator();
-      const result = await dataValidator.validateObject(
-        contentUri,
-        contentData,
-        context
-      );
-      return result;
-    }
-
-    const isCmpt = ResourceTypes.isCmpt(contentData);
-    if (isCmpt) {
-      console.log("Validating CMPT: " + contentUri);
-      const dataValidator = new CmptValidator();
-      const result = await dataValidator.validateObject(
-        contentUri,
-        contentData,
-        context
-      );
-      return result;
-    }
-
-    const isGeom = ResourceTypes.isGeom(contentData);
-    if (isGeom) {
-      const message = `Skipping validation of apparent GEOM file: ${contentUri}`;
-      const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
-        contentUri,
-        message
-      );
-      context.addIssue(issue);
-      return true;
-    }
-
-    const isVctr = ResourceTypes.isVctr(contentData);
-    if (isVctr) {
-      const message = `Skipping validation of apparent VCTR file: ${contentUri}`;
-      const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
-        contentUri,
-        message
-      );
-      context.addIssue(issue);
-      return true;
-    }
-
-    // When there is no known magic value, then it may be JSON.
-    const isJson = ResourceTypes.isProbablyJson(contentData);
+    // If the data is probably JSON, try to parse it in any case,
+    // and bail out if it cannot be parsed
+    const isJson = ResourceTypes.isProbablyJson(contentDataBuffer);
+    let parsedObject = undefined;
     if (isJson) {
-      const result = await ContentDataValidator.validateJsonContentData(
-        contentPath,
-        contentUri,
-        contentData,
-        context
-      );
-      return result;
+      try {
+        parsedObject = JSON.parse(contentDataBuffer.toString());
+      } catch (error) {
+        const issue = IoValidationIssues.JSON_PARSE_ERROR(contentUri, "" + error);
+        context.addIssue(issue);
+        return false;
+      }
     }
 
-    const path = contentPath;
-    const message =
-      `Tile content ${contentPath} refers to URI ${contentUri}, ` +
-      `for which no tile content type could be determined`;
-    const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
-      path,
-      message
+    // Create the `ContentData`, and look up a 
+    // matching content data validator
+    const contentData = new ContentData(contentUri, contentDataBuffer, parsedObject);
+    const dataValidator = ContentDataValidator.findDataValidator(contentData);
+    if (!defined(dataValidator)) {
+      const path = contentPath;
+      const message =
+        `Tile content ${contentPath} refers to URI ${contentUri}, ` +
+        `for which no tile content type could be determined`;
+      const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
+        path,
+        message
+      );
+      context.addIssue(issue);
+      return true;
+    }
+
+    // Create a new context to collect the issues that are
+    // found in the data. If there are issues, then they
+    // will be stored as the 'internal issues' of a
+    // single content validation issue.
+    const dirName = paths.dirname(contentData.uri);
+    const derivedContext = context.derive(dirName);
+    const result = await dataValidator!.validateObject(
+      contentUri,
+      contentDataBuffer,
+      derivedContext
     );
-    context.addIssue(issue);
-    return true;
+    const derivedResult = derivedContext.getResult();
+    const issue = ContentValidationIssues.createFrom(
+      contentUri,
+      derivedResult
+    );
+    if (issue) {
+      context.addIssue(issue);
+    }
+    return result;
   }
 
   /**

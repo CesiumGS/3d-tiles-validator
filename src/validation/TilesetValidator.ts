@@ -48,7 +48,7 @@ export class TilesetValidator implements Validator<Tileset> {
   }
 
   /**
-   * Implementation of the `Validator` interface that just the
+   * Implementation of the `Validator` interface that just passes the
    * input to `validateTileset`.
    *
    * @param path The path for `ValidationIssue` instances

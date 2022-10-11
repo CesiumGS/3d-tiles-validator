@@ -48,14 +48,12 @@ export class GltfValidator implements Validator<Buffer> {
     context: ValidationContext
   ): Promise<boolean> {
     const resourceResolver = context.getResourceResolver();
-    const baseDirectory = path.dirname(uri);
-    const gltfResourceResolver = resourceResolver.derive(baseDirectory);
     let gltfResult = undefined;
     try {
       gltfResult = await validator.validateBytes(input, {
         uri: uri,
         externalResourceFunction: (gltfUri: string) => {
-          const resolvedDataPromise = gltfResourceResolver.resolve(gltfUri);
+          const resolvedDataPromise = resourceResolver.resolve(gltfUri);
           return resolvedDataPromise.then((resolvedData) => {
             if (!defined(resolvedData)) {
               throw "Could not resolve data from " + gltfUri;

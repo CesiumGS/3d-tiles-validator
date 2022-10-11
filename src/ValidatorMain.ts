@@ -9,11 +9,12 @@ import { writeUnchecked } from "./base/writeUnchecked";
 
 import { ValidationState } from "./validation/ValidationState";
 import { Validators } from "./validation/Validators";
+import { ExtendedObjectsValidators } from "./validation/ExtendedObjectsValidators";
+
+import { BoundingVolumeS2Validator } from "./validation/extensions/BoundingVolumeS2Validator";
 
 import { TileImplicitTiling } from "./structure/TileImplicitTiling";
 import { Schema } from "./structure/Metadata/Schema";
-import { BoundingVolumeS2Validator } from "./validation/extensions/BoundingVolumeS2Validator";
-import { ExtendedObjectsValidators } from "./validation/ExtendedObjectsValidators";
 
 /**
  * A class summarizing the command-line functions of the validator.

@@ -13,6 +13,8 @@ import { ValidationState } from "./ValidationState";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { Validator } from "./Validator";
+import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 /**
  * Utility methods related to `Validator` instances.
@@ -135,5 +137,47 @@ export class Validators {
       await validator.validateObject(filePath, resourceData!, context);
     }
     return context.getResult();
+  }
+
+  static wrap<T>(delegate: Validator<T>): Validator<Buffer> {
+    return {
+      async validateObject(
+        inputPath: string,
+        input: Buffer,
+        context: ValidationContext
+      ): Promise<boolean> {
+        try {
+          const object: T = JSON.parse(input.toString());
+          const delegateResult = await delegate.validateObject(
+            "",
+            object,
+            context
+          );
+          return delegateResult;
+        } catch (error) {
+          const message = `${error}`;
+          const issue = IoValidationIssues.JSON_PARSE_ERROR(inputPath, message);
+          context.addIssue(issue);
+          return false;
+        }
+      },
+    };
+  }
+
+  static createEmpty<T>(message: string): Validator<T> {
+    return {
+      async validateObject(
+        inputPath: string,
+        input: T,
+        context: ValidationContext
+      ): Promise<boolean> {
+        const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
+          inputPath,
+          message
+        );
+        context.addIssue(issue);
+        return true;
+      },
+    };
   }
 }

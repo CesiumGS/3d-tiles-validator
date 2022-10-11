@@ -1,9 +1,12 @@
 //eslint-disable-next-line
 const yargs = require("yargs/yargs");
 
+import { ContentDataValidator } from "./validation/ContentDataValidator";
 import { ValidatorMain } from "./ValidatorMain";
 
 ValidatorMain.registerExtensionValidators();
+ContentDataValidator.registerDefaults();
+
 
 const args = yargs(process.argv.slice(1))
   .help("help")

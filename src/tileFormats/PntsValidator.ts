@@ -99,29 +99,6 @@ export class PntsValidator implements Validator<Buffer> {
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
-    // Create a new context to collect the issues that are
-    // found in the data. If there are issues, then they
-    // will be stored as the 'internal issues' of a
-    // single content validation issue.
-    const derivedContext = context.derive(".");
-    const result = await this.validateObjectInternal(
-      uri,
-      input,
-      derivedContext
-    );
-    const derivedResult = derivedContext.getResult();
-    const issue = ContentValidationIssues.createFrom(uri, derivedResult);
-    if (issue) {
-      context.addIssue(issue);
-    }
-    return result;
-  }
-
-  async validateObjectInternal(
-    uri: string,
-    input: Buffer,
-    context: ValidationContext
-  ): Promise<boolean> {
     const headerByteLength = 28;
 
     if (
