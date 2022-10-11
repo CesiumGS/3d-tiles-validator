@@ -93,7 +93,7 @@ export class ExtensionsValidator {
     extensionValidator: Validator<any>,
     context: ValidationContext
   ): Promise<boolean> {
-    const result = await extensionValidator.validateObject(extension, context);
+    const result = await extensionValidator.validateObject(path, extension, context);
     return result;
   }
 }

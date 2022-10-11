@@ -94,13 +94,9 @@ const featureTableSemantics = {
  * given as a Buffer.
  */
 export class PntsValidator implements Validator<Buffer> {
-  private _uri: string;
-
-  constructor(uri: string) {
-    this._uri = uri;
-  }
 
   async validateObject(
+    uri: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
@@ -109,9 +105,9 @@ export class PntsValidator implements Validator<Buffer> {
     // will be stored as the 'internal issues' of a
     // single content validation issue.
     const derivedContext = context.derive(".");
-    const result = await this.validateObjectInternal(input, derivedContext);
+    const result = await this.validateObjectInternal(uri, input, derivedContext);
     const derivedResult = derivedContext.getResult();
-    const issue = ContentValidationIssues.createFrom(this._uri, derivedResult);
+    const issue = ContentValidationIssues.createFrom(uri, derivedResult);
     if (issue) {
       context.addIssue(issue);
     }
@@ -119,6 +115,7 @@ export class PntsValidator implements Validator<Buffer> {
   }
 
   async validateObjectInternal(
+    uri: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
@@ -126,7 +123,7 @@ export class PntsValidator implements Validator<Buffer> {
 
     if (
       !TileFormatValidator.validateHeader(
-        this._uri,
+        uri,
         input,
         headerByteLength,
         "pnts",
@@ -137,7 +134,7 @@ export class PntsValidator implements Validator<Buffer> {
     }
 
     const binaryTableData = TileFormatValidator.extractBinaryTableData(
-      this._uri,
+      uri,
       input,
       headerByteLength,
       false,
@@ -158,7 +155,7 @@ export class PntsValidator implements Validator<Buffer> {
     const pointsLength = featureTableJson.POINTS_LENGTH;
     if (!defined(pointsLength)) {
       const message = "Feature table must contain a POINTS_LENGTH property.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -169,7 +166,7 @@ export class PntsValidator implements Validator<Buffer> {
     ) {
       const message =
         "Feature table must contain either the POSITION or POSITION_QUANTIZED property.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -181,7 +178,7 @@ export class PntsValidator implements Validator<Buffer> {
     ) {
       const message =
         "Feature table properties QUANTIZED_VOLUME_OFFSET and QUANTIZED_VOLUME_SCALE are required when POSITION_QUANTIZED is present.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -192,7 +189,7 @@ export class PntsValidator implements Validator<Buffer> {
     ) {
       const message =
         "Feature table property BATCH_LENGTH is required when BATCH_ID is present.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -203,7 +200,7 @@ export class PntsValidator implements Validator<Buffer> {
     ) {
       const message =
         "Feature table property BATCH_ID is required when BATCH_LENGTH is present.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -211,7 +208,7 @@ export class PntsValidator implements Validator<Buffer> {
     if (batchLength > pointsLength) {
       const message =
         "Feature table property BATCH_LENGTH must be less than or equal to POINTS_LENGTH.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -229,7 +226,7 @@ export class PntsValidator implements Validator<Buffer> {
         for (let i = 0; i < length; i++) {
             if (batchIds[i] >= featureTableJson.BATCH_LENGTH) {
               const message = 'All the BATCH_IDs must have values less than feature table property BATCH_LENGTH.';
-              const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+              const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
               context.addIssue(issue);
                     }
         }
@@ -244,7 +241,7 @@ export class PntsValidator implements Validator<Buffer> {
     );
     if (defined(featureTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
-        this._uri,
+        uri,
         featureTableMessage!
       );
       context.addIssue(issue);
@@ -258,7 +255,7 @@ export class PntsValidator implements Validator<Buffer> {
     );
     if (defined(batchTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
-        this._uri,
+        uri,
         batchTableMessage!
       );
       context.addIssue(issue);

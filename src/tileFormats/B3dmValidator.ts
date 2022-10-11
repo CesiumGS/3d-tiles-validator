@@ -34,13 +34,9 @@ const featureTableSemantics = {
  * given as a Buffer.
  */
 export class B3dmValidator implements Validator<Buffer> {
-  private _uri: string;
-
-  constructor(uri: string) {
-    this._uri = uri;
-  }
 
   async validateObject(
+    uri: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
@@ -49,9 +45,9 @@ export class B3dmValidator implements Validator<Buffer> {
     // will be stored as the 'internal issues' of a
     // single content validation issue.
     const derivedContext = context.derive(".");
-    const result = await this.validateObjectInternal(input, derivedContext);
+    const result = await this.validateObjectInternal(uri, input, derivedContext);
     const derivedResult = derivedContext.getResult();
-    const issue = ContentValidationIssues.createFrom(this._uri, derivedResult);
+    const issue = ContentValidationIssues.createFrom(uri, derivedResult);
     if (issue) {
       context.addIssue(issue);
     }
@@ -59,6 +55,7 @@ export class B3dmValidator implements Validator<Buffer> {
   }
 
   async validateObjectInternal(
+    uri: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
@@ -66,7 +63,7 @@ export class B3dmValidator implements Validator<Buffer> {
 
     if (
       !TileFormatValidator.validateHeader(
-        this._uri,
+        uri,
         input,
         headerByteLength,
         "b3dm",
@@ -94,7 +91,7 @@ export class B3dmValidator implements Validator<Buffer> {
         `[batchTableByteLength]. The new format is ` +
         `[featureTableJsonByteLength] [featureTableBinaryByteLength] ` +
         `[batchTableJsonByteLength] [batchTableBinaryByteLength].`;
-      const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
+      const issue = BinaryValidationIssues.BINARY_INVALID(uri, message);
       context.addIssue(issue);
       return false;
     }
@@ -104,13 +101,13 @@ export class B3dmValidator implements Validator<Buffer> {
         `[batchTableBinaryByteLength] [batchLength]. The new format is ` +
         `[featureTableJsonByteLength] [featureTableBinaryByteLength] ` +
         `[batchTableJsonByteLength] [batchTableBinaryByteLength].`;
-      const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
+      const issue = BinaryValidationIssues.BINARY_INVALID(uri, message);
       context.addIssue(issue);
       return false;
     }
 
     const binaryTableData = TileFormatValidator.extractBinaryTableData(
-      this._uri,
+      uri,
       input,
       headerByteLength,
       true,
@@ -129,7 +126,7 @@ export class B3dmValidator implements Validator<Buffer> {
     const featuresLength = featureTableJson.BATCH_LENGTH;
     if (!defined(featuresLength)) {
       const message = `Feature table must contain a BATCH_LENGTH property.`;
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       return false;
     }
@@ -142,7 +139,7 @@ export class B3dmValidator implements Validator<Buffer> {
     );
     if (defined(featureTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
-        this._uri,
+        uri,
         featureTableMessage!
       );
       context.addIssue(issue);
@@ -156,15 +153,15 @@ export class B3dmValidator implements Validator<Buffer> {
     );
     if (defined(batchTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
-        this._uri,
+        uri,
         batchTableMessage!
       );
       context.addIssue(issue);
       return false;
     }
 
-    const gltfValidator = new GltfValidator(this._uri);
-    const result = await gltfValidator.validateObject(glbData, context);
+    const gltfValidator = new GltfValidator();
+    const result = await gltfValidator.validateObject(uri, glbData, context);
     return result;
   }
 }

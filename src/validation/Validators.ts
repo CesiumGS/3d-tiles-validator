@@ -96,7 +96,6 @@ export class Validators {
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
     const validator = new SubtreeValidator(
-      uri,
       validationState,
       implicitTiling,
       resourceResolver
@@ -133,7 +132,7 @@ export class Validators {
       const issue = IoValidationIssues.IO_ERROR(filePath, message);
       context.addIssue(issue);
     } else {
-      await validator.validateObject(resourceData!, context);
+      await validator.validateObject(filePath, resourceData!, context);
     }
     return context.getResult();
   }

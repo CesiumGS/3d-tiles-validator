@@ -32,7 +32,7 @@ export class SchemaValidator implements Validator<Schema> {
   ): Promise<boolean> {
     try {
       const object: Schema = JSON.parse(input);
-      const result = await this.validateObject(object, context);
+      const result = await this.validateObject("", object, context);
       return result;
     } catch (error) {
       //console.log(error);
@@ -52,10 +52,11 @@ export class SchemaValidator implements Validator<Schema> {
    * and indicates whether the object was valid or not.
    */
   async validateObject(
+    path: string,
     input: Schema,
     context: ValidationContext
   ): Promise<boolean> {
-    return SchemaValidator.validateSchema("", input, context);
+    return SchemaValidator.validateSchema(path, input, context);
   }
 
   /**

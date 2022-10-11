@@ -16,13 +16,6 @@ const validator = require("gltf-validator");
  * in a Buffer.
  */
 export class GltfValidator implements Validator<Buffer> {
-  private _baseDirectory: string;
-  private _uri: string;
-
-  constructor(uri: string) {
-    this._uri = uri;
-    this._baseDirectory = path.dirname(uri);
-  }
 
   /**
    * Creates a `ValidationIssue` object for the given 'message' object
@@ -51,12 +44,13 @@ export class GltfValidator implements Validator<Buffer> {
   }
 
   async validateObject(
+    uri: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
     const resourceResolver = context.getResourceResolver();
-    const gltfResourceResolver = resourceResolver.derive(this._baseDirectory);
-    const uri = this._uri;
+    const baseDirectory = path.dirname(uri);
+    const gltfResourceResolver = resourceResolver.derive(baseDirectory);
     let gltfResult = undefined;
     try {
       gltfResult = await validator.validateBytes(input, {
@@ -72,10 +66,9 @@ export class GltfValidator implements Validator<Buffer> {
         },
       });
     } catch (error) {
-      const path = uri;
       const message = `Content ${uri} caused internal validation error: ${error}`;
       const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
-        path,
+        uri,
         message
       );
       context.addIssue(issue);

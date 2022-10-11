@@ -39,7 +39,7 @@ export class TilesetValidator implements Validator<Tileset> {
   ): Promise<void> {
     try {
       const object: Tileset = JSON.parse(input);
-      await this.validateObject(object, context);
+      await this.validateObject("", object, context);
     } catch (error) {
       //console.log(error);
       const issue = IoValidationIssues.JSON_PARSE_ERROR("", "" + error);
@@ -51,16 +51,18 @@ export class TilesetValidator implements Validator<Tileset> {
    * Implementation of the `Validator` interface that just the
    * input to `validateTileset`.
    *
+   * @param path The path for `ValidationIssue` instances
    * @param input The `Tileset` object
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
   async validateObject(
+    path: string,
     input: Tileset,
     context: ValidationContext
   ): Promise<boolean> {
-    const result = await TilesetValidator.validateTileset(input, context);
+    const result = await TilesetValidator.validateTileset(path, input, context);
     return result;
   }
 
@@ -71,16 +73,17 @@ export class TilesetValidator implements Validator<Tileset> {
    * Issues that are encountered during the validation will be added
    * as `ValidationIssue` instances to the given `ValidationContext`.
    *
+   * @param path The path for `ValidationIssue` instances
    * @param tileset The `Tileset` object
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
   static async validateTileset(
+    path: string,
     tileset: Tileset,
     context: ValidationContext
   ): Promise<boolean> {
-    const path = "";
 
     // Make sure that the given value is an object
     if (!BasicValidator.validateObject(path, "tileset", tileset, context)) {

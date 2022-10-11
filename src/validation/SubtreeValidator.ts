@@ -38,10 +38,6 @@ import { RootPropertyValidator } from "./RootPropertyValidator";
  * @private
  */
 export class SubtreeValidator implements Validator<Buffer> {
-  /**
-   * The URI that the subtree data was read from
-   */
-  private _uri: string;
 
   /**
    * The `ValidationState` that carries information about
@@ -64,13 +60,6 @@ export class SubtreeValidator implements Validator<Buffer> {
   /**
    * Creates a new instance.
    *
-   * Preliminary:
-   *
-   * The given validator will be applied to the `Subtree`
-   * object, after it has been parsed from the JSON, but before
-   * any further validation takes place.
-   *
-   * @param uri The URI that the subtree data was read from
    * @param validationState The `ValidationState`
    * @param implicitTiling The `TileImplicitTiling` that
    * defines the expected structure of the subtree
@@ -78,42 +67,42 @@ export class SubtreeValidator implements Validator<Buffer> {
    * will be used to resolve buffer URIs.
    */
   constructor(
-    uri: string,
     validationState: ValidationState,
     implicitTiling: TileImplicitTiling | undefined,
     resourceResolver: ResourceResolver
   ) {
-    this._uri = uri;
     this._validationState = validationState;
     this._implicitTiling = implicitTiling;
     this._resourceResolver = resourceResolver;
   }
 
   /**
-   * Performs the validation of the given buffer, which is supposed to
+   * Implementation of the `Validator` interface that performs the 
+   * validation of the given buffer, which is supposed to
    * contain subtree data, either in binary form or as JSON.
    *
+   * @param path The path for `ValidationIssue` instances
    * @param input The subtree data
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
   async validateObject(
+    path: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
     const isSubt = ResourceTypes.isSubt(input);
     if (isSubt) {
-      const result = await this.validateSubtreeBinaryData(input, context);
+      const result = await this.validateSubtreeBinaryData(path, input, context);
       return result;
     }
     const isJson = ResourceTypes.isProbablyJson(input);
     if (isJson) {
-      const result = await this.validateSubtreeJsonData(input, context);
+      const result = await this.validateSubtreeJsonData(path, input, context);
       return result;
     }
     const message = `Subtree input data was neither a subtree binary nor JSON`;
-    const path = this._uri;
     const issue = IoValidationIssues.IO_ERROR(path, message);
     context.addIssue(issue);
     return false;
@@ -123,16 +112,17 @@ export class SubtreeValidator implements Validator<Buffer> {
    * Performs the validation of the given buffer, which contains the
    * data from a binary subtree file
    *
+   * @param path The path for `ValidationIssue` instances
    * @param input The contents of a binary subtree file
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
   private async validateSubtreeBinaryData(
+    path: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
-    const path = this._uri;
 
     // Validate the header length
     const headerByteLength = 24;
@@ -223,7 +213,7 @@ export class SubtreeValidator implements Validator<Buffer> {
       subtree = subtreeJson;
     } catch (error) {
       const message = `Could not parse subtree JSON: ${error}`;
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(path, message);
       context.addIssue(issue);
       return false;
     }
@@ -246,16 +236,17 @@ export class SubtreeValidator implements Validator<Buffer> {
   /**
    * Performs the validation of the subtree JSON data in the given buffer
    *
+   * @param path The path for `ValidationIssue` instances
    * @param input The buffer that contains the subtree JSON data
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
   private async validateSubtreeJsonData(
+    path: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
-    const path = this._uri;
     try {
       const inputString = input.toString();
       const subtree: Subtree = JSON.parse(inputString);
@@ -310,6 +301,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     // Validate the structure of the given subtree object,
     // on the level of JSON validity
     const structureIsValid = this.validateSubtreeObject(
+      path,
       subtree,
       hasBinaryBuffer,
       context
@@ -356,6 +348,7 @@ export class SubtreeValidator implements Validator<Buffer> {
    * Performs the validation of the given `Subtree` object, on
    * the level of JSON validity.
    *
+   * @param path The path for `ValidationIssue` instances
    * @param subtree The `Subtree` object
    * @param hasBinaryBuffer Whether the subtree has an associated
    * binary buffer
@@ -363,11 +356,11 @@ export class SubtreeValidator implements Validator<Buffer> {
    * @returns A promise that resolves when the validation is finished
    */
   private validateSubtreeObject(
+    path: string,
     subtree: Subtree,
     hasBinaryBuffer: boolean,
     context: ValidationContext
   ): boolean {
-    const path = this._uri;
     if (!this.validateSubtreeBasic(path, subtree, hasBinaryBuffer, context)) {
       return false;
     }

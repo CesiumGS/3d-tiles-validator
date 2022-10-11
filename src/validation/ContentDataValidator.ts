@@ -112,40 +112,40 @@ export class ContentDataValidator {
     const isGlb = ResourceTypes.isGlb(contentData);
     if (isGlb) {
       console.log("Validating GLB: " + contentUri);
-      const dataValidator = new GltfValidator(contentUri);
-      const result = await dataValidator.validateObject(contentData, context);
+      const dataValidator = new GltfValidator();
+      const result = await dataValidator.validateObject(contentUri, contentData, context);
       return result;
     }
 
     const isB3dm = ResourceTypes.isB3dm(contentData);
     if (isB3dm) {
       console.log("Validating B3DM: " + contentUri);
-      const dataValidator = new B3dmValidator(contentUri);
-      const result = await dataValidator.validateObject(contentData, context);
+      const dataValidator = new B3dmValidator();
+      const result = await dataValidator.validateObject(contentUri, contentData, context);
       return result;
     }
 
     const isI3dm = ResourceTypes.isI3dm(contentData);
     if (isI3dm) {
       console.log("Validating I3DM: " + contentUri);
-      const dataValidator = new I3dmValidator(contentUri);
-      const result = await dataValidator.validateObject(contentData, context);
+      const dataValidator = new I3dmValidator();
+      const result = await dataValidator.validateObject(contentUri, contentData, context);
       return result;
     }
 
     const isPnts = ResourceTypes.isPnts(contentData);
     if (isPnts) {
       console.log("Validating PNTS: " + contentUri);
-      const dataValidator = new PntsValidator(contentUri);
-      const result = await dataValidator.validateObject(contentData, context);
+      const dataValidator = new PntsValidator();
+      const result = await dataValidator.validateObject(contentUri, contentData, context);
       return result;
     }
 
     const isCmpt = ResourceTypes.isCmpt(contentData);
     if (isCmpt) {
       console.log("Validating CMPT: " + contentUri);
-      const dataValidator = new CmptValidator(contentUri);
-      const result = await dataValidator.validateObject(contentData, context);
+      const dataValidator = new CmptValidator();
+      const result = await dataValidator.validateObject(contentUri, contentData, context);
       return result;
     }
 
@@ -258,6 +258,7 @@ export class ContentDataValidator {
         const derivedContext = context.derive(dirName);
         const externalValidator = Validators.createDefaultTilesetValidator();
         const result = await externalValidator.validateObject(
+          contentUri,
           parsedObject,
           derivedContext
         );
@@ -275,8 +276,8 @@ export class ContentDataValidator {
       // The parsed object has an 'asset', but is no tileset.
       // Assume that it is a glTF:
       console.log("Validating glTF: " + contentUri);
-      const gltfValidator = new GltfValidator(contentUri);
-      const result = await gltfValidator.validateObject(contentData, context);
+      const gltfValidator = new GltfValidator();
+      const result = await gltfValidator.validateObject(contentUri, contentData, context);
       return result;
     }
     const path = contentPath;

@@ -14,5 +14,5 @@ export interface Validator<T> {
    * @returns A promise that is fulfilled when the validation is finished
    * and indicates whether the object was valid or not.
    */
-  validateObject(input: T, context: ValidationContext): Promise<boolean>;
+  validateObject(path: string, input: T, context: ValidationContext): Promise<boolean>;
 }
