@@ -3,7 +3,7 @@ import { defined } from "../base/defined";
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
-import { ExtensionsValidator } from "./ExtensionsValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { BoundingVolume } from "../structure/BoundingVolume";
 
@@ -57,22 +57,22 @@ export class BoundingVolumeValidator {
       result = false;
     }
 
-    // Validate the extensions in the given object
-    const extensionsValidationResult =
-      await ExtensionsValidator.validateExtensions(
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(
         boundingVolumePath,
         boundingVolume,
         context
-      );
-    if (!extensionsValidationResult.allValid) {
+      )
+    ) {
       result = false;
     }
-    // Only proceed with the default validation if it was
-    // not requested to be skipped for any extension
-    if (!extensionsValidationResult.performDefaultValidation) {
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(boundingVolume)) {
       return result;
     }
-
     if (
       !BoundingVolumeValidator.validateBoundingVolumeInternal(
         boundingVolumePath,
@@ -99,6 +99,18 @@ export class BoundingVolumeValidator {
     boundingVolume: BoundingVolume,
     context: ValidationContext
   ): boolean {
+    // Make sure that the given value is an object
+    if (
+      !BasicValidator.validateObject(
+        boundingVolumePath,
+        "boundingVolume",
+        boundingVolume,
+        context
+      )
+    ) {
+      return false;
+    }
+
     let result = true;
 
     const box = boundingVolume.box;
@@ -167,7 +179,7 @@ export class BoundingVolumeValidator {
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
-  private static validateBoundingBox(
+  static validateBoundingBox(
     path: string,
     box: number[],
     context: ValidationContext
@@ -200,7 +212,7 @@ export class BoundingVolumeValidator {
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
-  private static validateBoundingSphere(
+  static validateBoundingSphere(
     path: string,
     sphere: number[],
     context: ValidationContext
@@ -247,7 +259,7 @@ export class BoundingVolumeValidator {
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
-  private static validateBoundingRegion(
+  static validateBoundingRegion(
     path: string,
     region: number[],
     context: ValidationContext

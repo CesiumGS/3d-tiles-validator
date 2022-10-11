@@ -7,29 +7,39 @@ import { RootPropertyValidator } from "../RootPropertyValidator";
 
 import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
 import { BoundingVolumeS2ValidationIssues } from "./BoundingVolumeS2ValidationIssues";
+import { BoundingVolumeValidator } from "../BoundingVolumeValidator";
+import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
 /**
- * A class for the validation of `3DTILES_bounding_volume_S2` extension objects
+ * A class for the validation of bounding volumes that contain
+ * `3DTILES_bounding_volume_S2` extension objects
  *
  * @private
  */
 export class BoundingVolumeS2Validator implements Validator<any> {
   /**
-   * Performs the validation to ensure that the given object is a
-   * valid `3DTILES_bounding_volume_S2` object.
+   * Performs the validation of a `BoundungVolume` object that
+   * contains a `3DTILES_bounding_volume_S2` extension object.
    *
    * @param path The path for `ValidationIssue` instances
-   * @param object The object to validate
+   * @param boundingVolume The object to validate
    * @param context The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   async validateObject(
     path: string,
-    object: any,
+    boundingVolume: any,
     context: ValidationContext
   ): Promise<boolean> {
     // Make sure that the given value is an object
-    if (!BasicValidator.validateObject(path, "object", object, context)) {
+    if (
+      !BasicValidator.validateObject(
+        path,
+        "boundingVolume",
+        boundingVolume,
+        context
+      )
+    ) {
       return false;
     }
 
@@ -39,13 +49,109 @@ export class BoundingVolumeS2Validator implements Validator<any> {
     if (
       !RootPropertyValidator.validateRootProperty(
         path,
-        "object",
-        object,
+        "boundingVolume",
+        boundingVolume,
         context
       )
     ) {
       result = false;
     }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(
+        path,
+        boundingVolume,
+        context
+      )
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(boundingVolume)) {
+      return result;
+    }
+
+    // Validate the box
+    const box = boundingVolume.box;
+    const boxPath = path + "/box";
+    if (defined(box)) {
+      if (
+        !BoundingVolumeValidator.validateBoundingBox(boxPath, box!, context)
+      ) {
+        result = false;
+      }
+    }
+
+    // Validate the region
+    const region = boundingVolume.region;
+    const regionPath = path + "/region";
+    if (defined(region)) {
+      if (
+        !BoundingVolumeValidator.validateBoundingRegion(
+          regionPath,
+          region!,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+
+    // Validate the sphere
+    const sphere = boundingVolume.sphere;
+    const spherePath = path + "/sphere";
+    if (defined(sphere)) {
+      if (
+        !BoundingVolumeValidator.validateBoundingSphere(
+          spherePath,
+          sphere!,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+
+    // If there is a 3DTILES_bounding_volume_S2 extension,
+    // perform the corresponding object
+    const extensions = boundingVolume.extensions;
+    if (defined(extensions)) {
+      const key = "3DTILES_bounding_volume_S2";
+      const s2 = extensions[key];
+      const s2Path = path + "/" + key;
+      if (
+        !BoundingVolumeS2Validator.validateBoundingVolumeS2(s2Path, s2, context)
+      ) {
+        result = false;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Performs the validation to ensure that the given object is a
+   * valid `3DTILES_bounding_volume_S2` object.
+   *
+   * @param path The path for `ValidationIssue` instances
+   * @param object The object to validate
+   * @param context The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
+  static validateBoundingVolumeS2(
+    path: string,
+    object: any,
+    context: ValidationContext
+  ): boolean {
+    // Make sure that the given value is an object
+    if (!BasicValidator.validateObject(path, "object", object, context)) {
+      return false;
+    }
+
+    let result = true;
 
     // Validate the token
     const token = object.token;
@@ -117,6 +223,12 @@ export class BoundingVolumeS2Validator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Peforms a basic validation that the given string is a valid S2 cell token
+   *
+   * @param token The token
+   * @returns Whether the token is valid
+   */
   private static isValidToken(token: string): boolean {
     // According to cesium/Source/Core/S2Cell.js
     if (!/^[0-9a-fA-F]{1,16}$/.test(token)) {

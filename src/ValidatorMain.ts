@@ -13,7 +13,7 @@ import { Validators } from "./validation/Validators";
 import { TileImplicitTiling } from "./structure/TileImplicitTiling";
 import { Schema } from "./structure/Metadata/Schema";
 import { BoundingVolumeS2Validator } from "./validation/extensions/BoundingVolumeS2Validator";
-import { ExtensionsValidator } from "./validation/ExtensionsValidator";
+import { ExtendedObjectsValidators } from "./validation/ExtendedObjectsValidators";
 
 /**
  * A class summarizing the command-line functions of the validator.
@@ -197,19 +197,16 @@ export class ValidatorMain {
    * Register the validators for known extensions
    */
   static registerExtensionValidators() {
-
     // Register the validator for 3DTILES_bounding_volume_S2
     {
       const s2Validator = new BoundingVolumeS2Validator();
-      const performDefaultValidation = false;
-      ExtensionsValidator.register(
+      const override = true;
+      ExtendedObjectsValidators.register(
         "3DTILES_bounding_volume_S2",
         s2Validator,
-        performDefaultValidation
+        override
       );
     }
-
-
   }
 
   /**
