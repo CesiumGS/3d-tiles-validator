@@ -140,15 +140,15 @@ export class Validators {
   }
 
   /**
-   * Creates a validator for `Buffer` objects that parses an 
+   * Creates a validator for `Buffer` objects that parses an
    * object of type `T` from the (JSON) string representation
    * of the buffer contents, and applies the given delegate
    * to the result.
-   * 
+   *
    * If the object cannot be parsed, a `JSON_PARSE_ERROR`
    * will be added to the given context.
-   * 
-   * @param delegate The delegate 
+   *
+   * @param delegate The delegate
    * @returns The new validator
    */
   static parseFromBuffer<T>(delegate: Validator<T>): Validator<Buffer> {
@@ -179,11 +179,11 @@ export class Validators {
   /**
    * Creates a `Validator` that only adds a `CONTENT_VALIDATION_WARNING`
    * with the given message to the given context when it is called.
-   * 
+   *
    * This is used for "dummy" validators that handle content data types
    * that are already anticipated (like VCTR or GEOM), but not validated
    * explicitly.
-   * 
+   *
    * @param message The message for the warning
    * @returns The new validator
    */

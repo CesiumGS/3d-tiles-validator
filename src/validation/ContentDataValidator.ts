@@ -20,7 +20,6 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
  * @private
  */
 export class ContentDataValidator {
-
   /**
    * Validate the actual data that is referred to by the URI in the
    * given content.
@@ -101,7 +100,6 @@ export class ContentDataValidator {
     contentDataBuffer: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
-
     // If the data is probably JSON, try to parse it in any case,
     // and bail out if it cannot be parsed
     const isJson = ResourceTypes.isProbablyJson(contentDataBuffer);
@@ -117,10 +115,15 @@ export class ContentDataValidator {
       }
     }
 
-    // Create the `ContentData`, and look up a 
+    // Create the `ContentData`, and look up a
     // matching content data validator
-    const contentData = new ContentData(contentUri, contentDataBuffer, parsedObject);
-    const dataValidator = ContentDataValidators.findContentDataValidator(contentData);
+    const contentData = new ContentData(
+      contentUri,
+      contentDataBuffer,
+      parsedObject
+    );
+    const dataValidator =
+      ContentDataValidators.findContentDataValidator(contentData);
     if (!defined(dataValidator)) {
       const path = contentPath;
       const message =
@@ -134,8 +137,8 @@ export class ContentDataValidator {
       return true;
     }
 
-    // Create a new context to collect the issues that are found in 
-    // the data. If there are issues, then they will be stored as 
+    // Create a new context to collect the issues that are found in
+    // the data. If there are issues, then they will be stored as
     // the 'causes' of a single content validation issue.
     const dirName = paths.dirname(contentData.uri);
     const derivedContext = context.derive(dirName);
@@ -145,10 +148,7 @@ export class ContentDataValidator {
       derivedContext
     );
     const derivedResult = derivedContext.getResult();
-    const issue = ContentValidationIssues.createFrom(
-      contentUri,
-      derivedResult
-    );
+    const issue = ContentValidationIssues.createFrom(contentUri, derivedResult);
     if (issue) {
       context.addIssue(issue);
     }

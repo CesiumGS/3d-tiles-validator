@@ -11,13 +11,13 @@ export class ResourceTypes {
 
   /**
    * Returns the magic header of the given buffer, as a string.
-   * 
+   *
    * This is a string that consists of the first 4 bytes of
    * the buffer data, or fewer bytes if the buffer has less
-   * than 4 bytes. 
-   * 
+   * than 4 bytes.
+   *
    * @param buffer The buffer
-   * @returns 
+   * @returns The magic header
    */
   static getMagic(buffer: Buffer): string {
     const length = Math.min(buffer.length, 4);
@@ -35,7 +35,7 @@ export class ResourceTypes {
 
   static isSubt(buffer: Buffer): boolean {
     return ResourceTypes.startsWith(buffer, "subt");
-  }  
+  }
 
   static isProbablyJson(buffer: Buffer): boolean {
     for (let i = 0; i < buffer.length; i++) {

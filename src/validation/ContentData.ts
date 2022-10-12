@@ -4,12 +4,12 @@ import { ResourceTypes } from "../io/ResourceTypes";
 
 /**
  * A class summarizing information about content data.
- * 
+ *
  * This is only used in the `ContentDataValidator` and
  * `ContentDataValidators` classes, to facilitate the
  * lookup up validators for given content data, based
  * on criteria like the file extension or magic header.
- * 
+ *
  * @private
  */
 export class ContentData {
@@ -26,8 +26,8 @@ export class ContentData {
     this._data = data;
     this._parsedObject = parsedObject;
   }
-  
-  get uri() : string {
+
+  get uri(): string {
     return this._uri;
   }
 
@@ -36,7 +36,7 @@ export class ContentData {
    * of the buffer data (or fewer, if the buffer contains
    * less than 4 bytes)
    */
-  get magic() : string  {
+  get magic(): string {
     return this._magic;
   }
 
@@ -45,16 +45,15 @@ export class ContentData {
    * the buffer data was read, in lowercase, including
    * the `.` dot.
    */
-  get extension() : string {
+  get extension(): string {
     return this._extension;
   }
 
-  get data() : Buffer {
+  get data(): Buffer {
     return this._data;
   }
 
-  get parsedObject() : any {
+  get parsedObject(): any {
     return this._parsedObject;
   }
-
 }

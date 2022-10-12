@@ -7,7 +7,6 @@ import { ValidatorMain } from "./ValidatorMain";
 ValidatorMain.registerExtensionValidators();
 ContentDataValidators.registerDefaults();
 
-
 const args = yargs(process.argv.slice(1))
   .help("help")
   .alias("help", "h")
