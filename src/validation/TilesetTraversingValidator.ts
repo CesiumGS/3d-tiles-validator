@@ -62,6 +62,32 @@ export class TilesetTraversingValidator {
           if (!isValid) {
             result = false;
           }
+          if (isValid) {
+            // If the traversed tile is generally valid, then
+            // validate its content
+            const contentValid =
+              await TilesetTraversingValidator.validateTraversedTileContent(
+                traversedTile,
+                context
+              );
+            if (!contentValid) {
+              result = false;
+            }
+            // If the traversed tile is not the root tile, validate
+            // the consistency of the hierarchy
+            const parent = traversedTile.getParent();
+            if (defined(parent)) {
+              const hierarchyValid =
+                TilesetTraversingValidator.validateTraversedTiles(
+                  parent!,
+                  traversedTile,
+                  context
+                );
+              if (!hierarchyValid) {
+                result = false;
+              }
+            }
+          }
           return isValid;
         },
         depthFirst
@@ -101,8 +127,11 @@ export class TilesetTraversingValidator {
    * Validates the given traversed tile.
    *
    * This will validate the tile that is represented with the given
-   * traversed tile, its contents, and the consistency of the given
-   * traversed tile and its parent (if present).
+   * traversed tile, so far that it ensures that it is a valid
+   * tile object and can be traversed further.
+   *
+   * It will not validate the tile content. This is done with
+   * `validateTraversedTileContent`
    *
    * @param traversedTile The `TraversedTile`
    * @param validationState The `ValidationState`
@@ -203,6 +232,24 @@ export class TilesetTraversingValidator {
     if (!tileValid) {
       return false;
     }
+    return true;
+  }
+
+  /**
+   * Validates the content in given traversed tile.
+   *
+   * This assumes that the given tile already has been determined to
+   * be basically valid, as of `validateTraversedTile`.
+   *
+   * @param traversedTile The `TraversedTile`
+   * @param context The `ValidationContext`
+   * @returns A promise that resolves when the validation is finished
+   */
+  private static async validateTraversedTileContent(
+    traversedTile: TraversedTile,
+    context: ValidationContext
+  ): Promise<boolean> {
+    const tile = traversedTile.asTile();
 
     let result = true;
 
@@ -239,22 +286,6 @@ export class TilesetTraversingValidator {
         }
       }
     }
-
-    // If the traversed tile is not the root tile, validate
-    // the consistency of the hierarchy
-    const parent = traversedTile.getParent();
-    if (defined(parent)) {
-      if (
-        !TilesetTraversingValidator.validateTraversedTiles(
-          parent!,
-          traversedTile,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
     return result;
   }
 
