@@ -37,6 +37,10 @@ export class ResourceTypes {
     return ResourceTypes.startsWith(buffer, "subt");
   }
 
+  static isGlb(buffer: Buffer): boolean {
+    return ResourceTypes.startsWith(buffer, "glTF");
+  }
+
   static isProbablyJson(buffer: Buffer): boolean {
     for (let i = 0; i < buffer.length; i++) {
       const c = String.fromCharCode(buffer[i]);

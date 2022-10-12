@@ -137,6 +137,8 @@ export class ContentDataValidator {
       return true;
     }
 
+    ContentDataValidator.trackExtensionsFound(contentData, context);
+
     // Create a new context to collect the issues that are found in
     // the data. If there are issues, then they will be stored as
     // the 'causes' of a single content validation issue.
@@ -153,5 +155,28 @@ export class ContentDataValidator {
       context.addIssue(issue);
     }
     return result;
+  }
+
+  /**
+   * Track the extensions that are used, and which only refer to
+   * allowing certain content data types.
+   *
+   * When a certain content data type that requires an extension
+   * is encountered, then the respective extension will be added
+   * as a "used" extension to the given context.
+   *
+   * @param contentData The `ContentData`
+   * @param context The `ValidationContext`
+   */
+  private static trackExtensionsFound(
+    contentData: ContentData,
+    context: ValidationContext
+  ) {
+    if (
+      ResourceTypes.isGlb(contentData.data) ||
+      ContentDataValidators.isProbablyGltf(contentData)
+    ) {
+      context.addExtensionFound("3DTILES_content_gltf");
+    }
   }
 }
