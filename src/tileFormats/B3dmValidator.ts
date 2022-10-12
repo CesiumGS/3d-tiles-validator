@@ -140,6 +140,13 @@ export class B3dmValidator implements Validator<Buffer> {
       return false;
     }
 
+    if (defined(batchTableJson.extensions)) {
+      const extensionNames = Object.keys(batchTableJson.extensions);
+      for (const extensionFound of extensionNames) {
+        context.addExtensionFound(extensionFound);
+      }
+    }
+
     const gltfValidator = new GltfValidator();
     const result = await gltfValidator.validateObject(uri, glbData, context);
     return result;
