@@ -10,7 +10,6 @@ import { PntsValidator } from "./PntsValidator";
 import { B3dmValidator } from "./B3dmValidator";
 import { TileFormatValidator } from "./TileFormatValidator";
 
-import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { BinaryValidationIssues } from "../issues/BinaryValidationIssues";
 
 /**

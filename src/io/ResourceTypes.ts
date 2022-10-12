@@ -9,11 +9,19 @@ export class ResourceTypes {
     return buffer[0] === 0x1f && buffer[1] === 0x8b;
   }
 
-  static getMagic(buffer: Buffer): string | undefined {
-    if (buffer.length < 4) {
-      return undefined;
-    }
-    const magic = buffer.toString("utf8", 0, 4);
+  /**
+   * Returns the magic header of the given buffer, as a string.
+   * 
+   * This is a string that consists of the first 4 bytes of
+   * the buffer data, or fewer bytes if the buffer has less
+   * than 4 bytes. 
+   * 
+   * @param buffer The buffer
+   * @returns 
+   */
+  static getMagic(buffer: Buffer): string {
+    const length = Math.min(buffer.length, 4);
+    const magic = buffer.toString("utf8", 0, length);
     return magic;
   }
 

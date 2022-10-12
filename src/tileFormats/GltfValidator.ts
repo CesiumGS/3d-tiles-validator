@@ -1,4 +1,3 @@
-import path from "path";
 import { defined } from "../base/defined";
 
 import { Validator } from "../validation/Validator";
