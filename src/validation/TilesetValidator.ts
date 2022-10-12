@@ -392,9 +392,17 @@ export class TilesetValidator implements Validator<Tileset> {
     }
 
     // Each extension that is found during the validation
-    // in the `RootPropertyValidator` also has to appear
+    // in the `RootPropertyValidator` or one of the
+    // content data validators also has to appear
     // in the 'extensionsUsed'
     const actualExtensionsFound = context.getExtensionsFound();
+
+    // TODO: A cleaner solution has to be found for this. See
+    // https://github.com/CesiumGS/3d-tiles-validator/issues/231
+    if (tileset.asset.version === "1.1") {
+      actualExtensionsFound.delete("3DTILES_content_gltf");
+    }
+
     for (const extensionName of actualExtensionsFound) {
       if (!actualExtensionsUsed.has(extensionName)) {
         const issue = SemanticValidationIssues.EXTENSION_FOUND_BUT_NOT_USED(

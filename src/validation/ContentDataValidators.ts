@@ -42,18 +42,31 @@ export class ContentDataValidators {
     ContentDataValidators.registerByMagic("i3dm", new I3dmValidator());
     ContentDataValidators.registerByMagic("cmpt", new CmptValidator());
     ContentDataValidators.registerByMagic("pnts", new PntsValidator());
-    ContentDataValidators.registerByMagic(
-      "geom",
-      Validators.createContentValidationWarning("Skipping 'geom' validation")
-    );
-    ContentDataValidators.registerByMagic(
-      "vctr",
-      Validators.createContentValidationWarning("Skipping 'vctr' validation")
-    );
-    ContentDataValidators.registerByExtension(
-      ".geojson",
-      Validators.createContentValidationWarning("Skipping 'GeoJSON' validation")
-    );
+
+    // Certain content types are known to be encountered,
+    // but are not (yet) validated. These can either be
+    // ignored, or cause a warning. In the future, this
+    // should be configurable, probably even on a per-type
+    // basis, via the command line or a config file
+    const ignoreUnhandledContentTypes = true;
+    let geomValidator = Validators.createEmptyValidator();
+    let vctrValidator = Validators.createEmptyValidator();
+    let geojsonValidator = Validators.createEmptyValidator();
+    if (!ignoreUnhandledContentTypes) {
+      geomValidator = Validators.createContentValidationWarning(
+        "Skipping 'geom' validation"
+      );
+      vctrValidator = Validators.createContentValidationWarning(
+        "Skipping 'vctr' validation"
+      );
+      geojsonValidator = Validators.createContentValidationWarning(
+        "Skipping 'geojson' validation"
+      );
+    }
+
+    ContentDataValidators.registerByMagic("geom", geomValidator);
+    ContentDataValidators.registerByMagic("vctr", vctrValidator);
+    ContentDataValidators.registerByExtension(".geojson", geojsonValidator);
     ContentDataValidators.registerTileset();
     ContentDataValidators.registerGltf();
   }
@@ -177,7 +190,10 @@ export class ContentDataValidators {
    * @param contentData The content data
    * @returns Whether the content data is probably glTF
    */
-  private static isProbablyGltf(contentData: ContentData) {
+  static isProbablyGltf(contentData: ContentData) {
+    if (ContentDataValidators.isProbablyTileset(contentData)) {
+      return false;
+    }
     const parsedObject = contentData.parsedObject;
     if (!defined(parsedObject)) {
       return false;
