@@ -203,4 +203,24 @@ export class Validators {
       },
     };
   }
+
+  /**
+   * Creates an empty validator that does nothing.
+   *
+   * This is used for "dummy" validators for content types that
+   * are ignored.
+   *
+   * @returns The new validator
+   */
+  static createEmptyValidator<T>(): Validator<T> {
+    return {
+      async validateObject(
+        inputPath: string,
+        input: T,
+        context: ValidationContext
+      ): Promise<boolean> {
+        return true;
+      },
+    };
+  }
 }

@@ -46,6 +46,8 @@ export class GltfValidator implements Validator<Buffer> {
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
+    context.addExtensionFound("3DTILES_content_gltf");
+
     const resourceResolver = context.getResourceResolver();
     let gltfResult = undefined;
     try {
