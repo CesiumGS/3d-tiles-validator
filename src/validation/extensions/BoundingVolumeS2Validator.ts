@@ -45,35 +45,6 @@ export class BoundingVolumeS2Validator implements Validator<any> {
 
     let result = true;
 
-    // Validate the object as a RootProperty
-    if (
-      !RootPropertyValidator.validateRootProperty(
-        path,
-        "boundingVolume",
-        boundingVolume,
-        context
-      )
-    ) {
-      result = false;
-    }
-
-    // Perform the validation of the object in view of the
-    // extensions that it may contain
-    if (
-      !ExtendedObjectsValidators.validateExtendedObject(
-        path,
-        boundingVolume,
-        context
-      )
-    ) {
-      result = false;
-    }
-    // If there was an extension validator that overrides the
-    // default validation, then skip the remaining validation.
-    if (ExtendedObjectsValidators.hasOverride(boundingVolume)) {
-      return result;
-    }
-
     // Validate the box
     const box = boundingVolume.box;
     const boxPath = path + "/box";
@@ -152,6 +123,31 @@ export class BoundingVolumeS2Validator implements Validator<any> {
     }
 
     let result = true;
+
+    // Validate the object as a RootProperty
+    if (
+      !RootPropertyValidator.validateRootProperty(
+        path,
+        "3DTILES_bounding_volume_S2",
+        object,
+        context
+      )
+    ) {
+      result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(path, object, context)
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(object)) {
+      return result;
+    }
 
     // Validate the token
     const token = object.token;
