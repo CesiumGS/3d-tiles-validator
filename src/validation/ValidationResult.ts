@@ -40,6 +40,14 @@ export class ValidationResult {
     return this._issues.length;
   }
 
+  get numErrors(): number {
+    return this.count(ValidationIssueSeverity.ERROR);
+  }
+
+  get numWarnings(): number {
+    return this.count(ValidationIssueSeverity.WARNING);
+  }
+
   get(index: number): ValidationIssue {
     return this._issues[index];
   }
@@ -56,8 +64,8 @@ export class ValidationResult {
   toJson(): any {
     const issuesJson =
       this._issues.length > 0 ? this._issues.map((i) => i.toJson()) : undefined;
-    const numErrors = this.count(ValidationIssueSeverity.ERROR);
-    const numWarnings = this.count(ValidationIssueSeverity.WARNING);
+    const numErrors = this.numErrors;
+    const numWarnings = this.numWarnings;
     return {
       date: this._date,
       numErrors: numErrors,
