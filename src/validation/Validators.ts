@@ -191,6 +191,7 @@ export class Validators {
     return {
       async validateObject(
         inputPath: string,
+        //eslint-disable-next-line @typescript-eslint/no-unused-vars
         input: Buffer,
         context: ValidationContext
       ): Promise<boolean> {
@@ -215,8 +216,11 @@ export class Validators {
   static createEmptyValidator<T>(): Validator<T> {
     return {
       async validateObject(
+        //eslint-disable-next-line @typescript-eslint/no-unused-vars
         inputPath: string,
+        //eslint-disable-next-line @typescript-eslint/no-unused-vars
         input: T,
+        //eslint-disable-next-line @typescript-eslint/no-unused-vars
         context: ValidationContext
       ): Promise<boolean> {
         return true;
