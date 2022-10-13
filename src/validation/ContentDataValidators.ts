@@ -35,7 +35,7 @@ export class ContentDataValidators {
    */
   static registerDefaults() {
     // The validators will be checked in the order in which they are
-    // registered. In the futhre, there might be a mechanism for
+    // registered. In the future, there might be a mechanism for
     // 'overriding' a previously registered validator.
     ContentDataValidators.registerByMagic("glTF", new GltfValidator());
     ContentDataValidators.registerByMagic("b3dm", new B3dmValidator());
@@ -48,7 +48,7 @@ export class ContentDataValidators {
     // ignored, or cause a warning. In the future, this
     // should be configurable, probably even on a per-type
     // basis, via the command line or a config file
-    const ignoreUnhandledContentTypes = true;
+    const ignoreUnhandledContentTypes = false;
     let geomValidator = Validators.createEmptyValidator();
     let vctrValidator = Validators.createEmptyValidator();
     let geojsonValidator = Validators.createEmptyValidator();
