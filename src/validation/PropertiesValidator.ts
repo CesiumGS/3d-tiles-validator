@@ -1,6 +1,7 @@
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Properties } from "../structure/Properties";
 
@@ -25,14 +26,11 @@ export class PropertiesValidator {
     properties: Properties,
     context: ValidationContext
   ): boolean {
+    const path = "/properties";
+
     // Make sure that the given value is an object
     if (
-      !BasicValidator.validateObject(
-        "/properties",
-        "properties",
-        properties,
-        context
-      )
+      !BasicValidator.validateObject(path, "properties", properties, context)
     ) {
       return false;
     }
@@ -42,13 +40,30 @@ export class PropertiesValidator {
     // Validate the object as a RootProperty
     if (
       !RootPropertyValidator.validateRootProperty(
-        "/properties",
+        path,
         "properties",
         properties,
         context
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(
+        path,
+        properties,
+        context
+      )
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(properties)) {
+      return result;
     }
 
     // Validate all entries of the properties dictionary

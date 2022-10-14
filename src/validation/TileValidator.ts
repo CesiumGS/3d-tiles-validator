@@ -9,6 +9,8 @@ import { ImplicitTilingValidator } from "./ImplicitTilingValidator";
 import { TransformValidator } from "./TransformValidator";
 import { ValidationState } from "./ValidationState";
 import { TemplateUriValidator } from "./TemplateUriValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Tile } from "../structure/Tile";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
@@ -16,7 +18,6 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { RootPropertyValidator } from "./RootPropertyValidator";
 
 /**
  * The valid values for the `refine` property
@@ -72,6 +73,19 @@ export class TileValidator {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(tilePath, tile, context)
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(tile)) {
+      return result;
     }
 
     // Validate the boundingVolume

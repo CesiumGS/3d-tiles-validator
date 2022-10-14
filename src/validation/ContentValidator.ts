@@ -1,15 +1,16 @@
 import { defined } from "../base/defined";
 
 import { ValidationContext } from "./ValidationContext";
+import { ValidationState } from "./ValidationState";
 import { BoundingVolumeValidator } from "./BoundingVolumeValidator";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { MetadataEntityValidator } from "./MetadataEntityValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Content } from "../structure/Content";
 
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { ValidationState } from "./ValidationState";
 
 /**
  * A class for validations related to `content` objects.
@@ -57,6 +58,23 @@ export class ContentValidator {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(
+        contentPath,
+        content,
+        context
+      )
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(content)) {
+      return result;
     }
 
     // Validate the group

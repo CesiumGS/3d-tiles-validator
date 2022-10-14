@@ -3,12 +3,12 @@ import { defined } from "../../base/defined";
 import { Validator } from "../Validator";
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
+import { BoundingVolumeValidator } from "../BoundingVolumeValidator";
 import { RootPropertyValidator } from "../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
 import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
 import { BoundingVolumeS2ValidationIssues } from "./BoundingVolumeS2ValidationIssues";
-import { BoundingVolumeValidator } from "../BoundingVolumeValidator";
-import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
 /**
  * A class for the validation of bounding volumes that contain

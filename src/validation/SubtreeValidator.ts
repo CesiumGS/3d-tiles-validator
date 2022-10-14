@@ -13,6 +13,8 @@ import { MetadataEntityValidator } from "./MetadataEntityValidator";
 import { SubtreeConsistencyValidator } from "./SubtreeConsistencyValidator";
 import { PropertyTableValidator } from "./PropertyTableValidator";
 import { SubtreeInfoValidator } from "./SubtreeInfoValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { BufferObject } from "../structure/BufferObject";
 import { Subtree } from "../structure/Subtree";
@@ -23,7 +25,6 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { RootPropertyValidator } from "./RootPropertyValidator";
 
 /**
  * A class for validations related to `subtree` objects that have
@@ -42,19 +43,19 @@ export class SubtreeValidator implements Validator<Buffer> {
    * The `ValidationState` that carries information about
    * the metadata schema
    */
-  private _validationState: ValidationState;
+  private readonly _validationState: ValidationState;
 
   /**
    * The `TileImplicitTiling` object that carries information
    * about the expected structure of the subtree
    */
-  private _implicitTiling: TileImplicitTiling | undefined;
+  private readonly _implicitTiling: TileImplicitTiling | undefined;
 
   /**
    * The `ResourceResolver` that will be used to resolve
    * buffer URIs
    */
-  private _resourceResolver: ResourceResolver;
+  private readonly _resourceResolver: ResourceResolver;
 
   /**
    * Creates a new instance.
@@ -294,6 +295,19 @@ export class SubtreeValidator implements Validator<Buffer> {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(path, subtree, context)
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(subtree)) {
+      return result;
     }
 
     // Validate the structure of the given subtree object,

@@ -10,6 +10,8 @@ import { MetadataEntityValidator } from "./MetadataEntityValidator";
 import { AssetValidator } from "./AssetValidator";
 import { SchemaValidator } from "./SchemaValidator";
 import { TilesetTraversingValidator } from "./TilesetTraversingValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Tileset } from "../structure/Tileset";
 import { Schema } from "../structure/Metadata/Schema";
@@ -18,7 +20,6 @@ import { Group } from "../structure/Group";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
-import { RootPropertyValidator } from "./RootPropertyValidator";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
 /**
@@ -101,6 +102,19 @@ export class TilesetValidator implements Validator<Tileset> {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(path, tileset, context)
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(tileset)) {
+      return result;
     }
 
     // The asset MUST be defined

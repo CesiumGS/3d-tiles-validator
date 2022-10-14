@@ -6,6 +6,7 @@ import { BasicValidator } from "./BasicValidator";
 import { SchemaClassValidator } from "./SchemaClassValidator";
 import { SchemaEnumValidator } from "./SchemaEnumValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Schema } from "../structure/Metadata/Schema";
 
@@ -94,6 +95,19 @@ export class SchemaValidator implements Validator<Schema> {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(path, schema, context)
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(schema)) {
+      return result;
     }
 
     // Validate the id

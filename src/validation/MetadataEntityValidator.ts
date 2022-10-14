@@ -6,6 +6,7 @@ import { BasicValidator } from "./BasicValidator";
 import { MetadataStructureValidator } from "./MetadataStructureValidator";
 import { MetadataValueValidator } from "./MetadataValueValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Schema } from "../structure/Metadata/Schema";
 import { MetadataEntity } from "../structure/MetadataEntity";
@@ -52,6 +53,23 @@ export class MetadataEntityValidator {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(
+        path,
+        metadataEntity,
+        context
+      )
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(metadataEntity)) {
+      return result;
     }
 
     // Validate that the class and properties are structurally
