@@ -87,7 +87,7 @@ export class BoundingVolumeS2Validator implements Validator<any> {
     }
 
     // If there is a 3DTILES_bounding_volume_S2 extension,
-    // perform the corresponding object
+    // perform the validation of the corresponding object
     const extensions = boundingVolume.extensions;
     if (defined(extensions)) {
       const key = "3DTILES_bounding_volume_S2";
