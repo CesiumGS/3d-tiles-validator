@@ -1,6 +1,5 @@
 /**
- * Methods to determine resource types based on the magic
- * bytes of buffer data.
+ * Methods to determine resource type from buffer data.
  */
 export class ResourceTypes {
   static isGzipped(buffer: Buffer): boolean {
@@ -8,6 +7,22 @@ export class ResourceTypes {
       return false;
     }
     return buffer[0] === 0x1f && buffer[1] === 0x8b;
+  }
+
+  /**
+   * Returns the magic header of the given buffer, as a string.
+   *
+   * This is a string that consists of the first 4 bytes of
+   * the buffer data, or fewer bytes if the buffer has less
+   * than 4 bytes.
+   *
+   * @param buffer The buffer
+   * @returns The magic header
+   */
+  static getMagic(buffer: Buffer): string {
+    const length = Math.min(buffer.length, 4);
+    const magic = buffer.toString("utf8", 0, length);
+    return magic;
   }
 
   static startsWith(buffer: Buffer, magic: string) {
@@ -18,36 +33,12 @@ export class ResourceTypes {
     return actual === magic;
   }
 
-  static isB3dm(buffer: Buffer): boolean {
-    return ResourceTypes.startsWith(buffer, "b3dm");
-  }
-
-  static isI3dm(buffer: Buffer): boolean {
-    return ResourceTypes.startsWith(buffer, "i3dm");
-  }
-
-  static isPnts(buffer: Buffer): boolean {
-    return ResourceTypes.startsWith(buffer, "pnts");
-  }
-
-  static isCmpt(buffer: Buffer): boolean {
-    return ResourceTypes.startsWith(buffer, "cmpt");
-  }
-
-  static isGlb(buffer: Buffer): boolean {
-    return ResourceTypes.startsWith(buffer, "glTF");
-  }
-
   static isSubt(buffer: Buffer): boolean {
     return ResourceTypes.startsWith(buffer, "subt");
   }
 
-  static isGeom(buffer: Buffer): boolean {
-    return ResourceTypes.startsWith(buffer, "geom");
-  }
-
-  static isVctr(buffer: Buffer): boolean {
-    return ResourceTypes.startsWith(buffer, "vctr");
+  static isGlb(buffer: Buffer): boolean {
+    return ResourceTypes.startsWith(buffer, "glTF");
   }
 
   static isProbablyJson(buffer: Buffer): boolean {

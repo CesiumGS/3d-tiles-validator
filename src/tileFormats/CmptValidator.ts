@@ -10,7 +10,6 @@ import { PntsValidator } from "./PntsValidator";
 import { B3dmValidator } from "./B3dmValidator";
 import { TileFormatValidator } from "./TileFormatValidator";
 
-import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { BinaryValidationIssues } from "../issues/BinaryValidationIssues";
 
 /**
@@ -18,31 +17,8 @@ import { BinaryValidationIssues } from "../issues/BinaryValidationIssues";
  * given as a Buffer.
  */
 export class CmptValidator implements Validator<Buffer> {
-  private _uri: string;
-
-  constructor(uri: string) {
-    this._uri = uri;
-  }
-
   async validateObject(
-    input: Buffer,
-    context: ValidationContext
-  ): Promise<boolean> {
-    // Create a new context to collect the issues that are
-    // found in the data. If there are issues, then they
-    // will be stored as the 'internal issues' of a
-    // single content validation issue.
-    const derivedContext = context.derive(".");
-    const result = await this.validateObjectInternal(input, derivedContext);
-    const derivedResult = derivedContext.getResult();
-    const issue = ContentValidationIssues.createFrom(this._uri, derivedResult);
-    if (issue) {
-      context.addIssue(issue);
-    }
-    return result;
-  }
-
-  async validateObjectInternal(
+    uri: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
@@ -50,7 +26,7 @@ export class CmptValidator implements Validator<Buffer> {
 
     if (
       !TileFormatValidator.validateHeader(
-        this._uri,
+        uri,
         input,
         headerByteLength,
         "cmpt",
@@ -68,13 +44,13 @@ export class CmptValidator implements Validator<Buffer> {
       if (byteOffset + 12 > byteLength) {
         const message =
           "Cannot read byte length from inner tile, exceeds cmpt tile's byte length.";
-        const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
+        const issue = BinaryValidationIssues.BINARY_INVALID(uri, message);
         context.addIssue(issue);
         return false;
       }
       if (byteOffset % 8 > 0) {
         const message = "Inner tile must be aligned to an 8-byte boundary";
-        const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
+        const issue = BinaryValidationIssues.BINARY_INVALID(uri, message);
         context.addIssue(issue);
         return false;
       }
@@ -87,8 +63,9 @@ export class CmptValidator implements Validator<Buffer> {
       );
 
       if (innerTileMagic === "b3dm") {
-        const innerValidator = new B3dmValidator(this._uri);
+        const innerValidator = new B3dmValidator();
         const innerResult = await innerValidator.validateObject(
+          uri,
           innerTile,
           context
         );
@@ -96,8 +73,9 @@ export class CmptValidator implements Validator<Buffer> {
           result = false;
         }
       } else if (innerTileMagic === "i3dm") {
-        const innerValidator = new I3dmValidator(this._uri);
+        const innerValidator = new I3dmValidator();
         const innerResult = await innerValidator.validateObject(
+          uri,
           innerTile,
           context
         );
@@ -105,8 +83,9 @@ export class CmptValidator implements Validator<Buffer> {
           result = false;
         }
       } else if (innerTileMagic === "pnts") {
-        const innerValidator = new PntsValidator(this._uri);
+        const innerValidator = new PntsValidator();
         const innerResult = await innerValidator.validateObject(
+          uri,
           innerTile,
           context
         );
@@ -114,8 +93,9 @@ export class CmptValidator implements Validator<Buffer> {
           result = false;
         }
       } else if (innerTileMagic === "cmpt") {
-        const innerValidator = new CmptValidator(this._uri);
+        const innerValidator = new CmptValidator();
         const innerResult = await innerValidator.validateObject(
+          uri,
           innerTile,
           context
         );
@@ -124,7 +104,7 @@ export class CmptValidator implements Validator<Buffer> {
         }
       } else {
         const message = `Invalid inner tile magic: ${innerTileMagic}`;
-        const issue = BinaryValidationIssues.BINARY_INVALID(this._uri, message);
+        const issue = BinaryValidationIssues.BINARY_INVALID(uri, message);
         context.addIssue(issue);
         result = false;
       }

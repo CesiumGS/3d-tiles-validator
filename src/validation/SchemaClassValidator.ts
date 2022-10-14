@@ -5,6 +5,7 @@ import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ClassPropertyValidator } from "./ClassPropertyValidator";
 import { ClassPropertySemanticsValidator } from "./ClassPropertySemanticsValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Schema } from "../structure/Metadata/Schema";
 import { SchemaClass } from "../structure/Metadata/SchemaClass";
@@ -56,6 +57,23 @@ export class SchemaClassValidator {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(
+        schemaClassPath,
+        schemaClass,
+        context
+      )
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(schemaClass)) {
+      return result;
     }
 
     // Validate the name.

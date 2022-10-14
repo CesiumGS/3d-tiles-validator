@@ -337,7 +337,14 @@ export class SemanticValidationIssues {
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-
+  static EXTENSION_NOT_SUPPORTED(path: string, extensionName: string) {
+    const type = "EXTENSION_NOT_SUPPORTED";
+    const severity = ValidationIssueSeverity.WARNING;
+    const message =
+      `The extension '${extensionName}' was used, but ` + `is not supported`;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
   static SEMANTIC_UNKNOWN(
     path: string,
     propertyName: string,

@@ -2,6 +2,7 @@ import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { TemplateUriValidator } from "./TemplateUriValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 
@@ -54,6 +55,23 @@ export class ImplicitTilingValidator {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(
+        path,
+        implicitTiling,
+        context
+      )
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(implicitTiling)) {
+      return result;
     }
 
     // Validate the subdivisionScheme

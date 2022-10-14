@@ -10,23 +10,23 @@ export class ValidationIssue {
    * type of the issue, in `UPPER_SNAKE_CASE`, describing what
    * caused the issue.
    */
-  private _type: string;
+  private readonly _type: string;
 
   /**
    * The JSON path leading to the element that caused the issue.
    */
-  private _path: string;
+  private readonly _path: string;
 
   /**
    * The human-readable message that describes the issue, preferably
    * with information that indicates how to resolve the issue.
    */
-  private _message: string;
+  private readonly _message: string;
 
   /**
    * A severity level for the issue (e.g. WARNING or ERROR)
    */
-  private _severity: ValidationIssueSeverity;
+  private readonly _severity: ValidationIssueSeverity;
 
   /**
    * Validation issues that are individual issues, which, as a whole,
@@ -36,7 +36,7 @@ export class ValidationIssue {
    * validation of tile content, and which are combined into a
    * general `CONTENT_VALIDATION_ERROR`.
    */
-  private _causes: ValidationIssue[];
+  private readonly _causes: ValidationIssue[];
 
   constructor(
     type: string,

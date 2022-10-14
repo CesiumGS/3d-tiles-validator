@@ -4,6 +4,7 @@ import { defaultValue } from "../base/defaultValue";
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 import { MetadataStructureValidator } from "./MetadataStructureValidator";
 
 import { Schema } from "../structure/Metadata/Schema";
@@ -60,6 +61,23 @@ export class PropertyTableValidator {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(
+        path,
+        propertyTable,
+        context
+      )
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(propertyTable)) {
+      return result;
     }
 
     // Validate that the class and properties are structurally

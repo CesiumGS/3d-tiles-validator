@@ -9,9 +9,13 @@ import { writeUnchecked } from "./base/writeUnchecked";
 
 import { ValidationState } from "./validation/ValidationState";
 import { Validators } from "./validation/Validators";
+import { ExtendedObjectsValidators } from "./validation/ExtendedObjectsValidators";
+
+import { BoundingVolumeS2Validator } from "./validation/extensions/BoundingVolumeS2Validator";
 
 import { TileImplicitTiling } from "./structure/TileImplicitTiling";
 import { Schema } from "./structure/Metadata/Schema";
+import { ValidationResult } from "./validation/ValidationResult";
 
 /**
  * A class summarizing the command-line functions of the validator.
@@ -27,7 +31,7 @@ export class ValidatorMain {
   static async validateTilesetFile(
     fileName: string,
     reportFileName: string | undefined
-  ): Promise<void> {
+  ): Promise<ValidationResult> {
     console.log("Validating tileset " + fileName);
     const validationResult = await Validators.validateTilesetFile(fileName);
     if (defined(reportFileName)) {
@@ -36,6 +40,7 @@ export class ValidatorMain {
       console.log("Validation result:");
       console.log(validationResult.serialize());
     }
+    return validationResult;
   }
 
   static async validateTilesetsDirectory(
@@ -50,19 +55,35 @@ export class ValidatorMain {
     const ignoreCase = true;
     const matcher = globMatcher(globPattern, ignoreCase);
     const tilesetFiles = filterIterable(allFiles, matcher);
+    let numFiles = 0;
+    let numFilesWithErrors = 0;
+    let numFilesWithWarnings = 0;
     for (const tilesetFile of tilesetFiles) {
       let reportFileName = undefined;
       if (writeReports) {
         reportFileName = ValidatorMain.deriveReportFileName(tilesetFile);
       }
-      await ValidatorMain.validateTilesetFile(tilesetFile, reportFileName);
+      const validationResult = await ValidatorMain.validateTilesetFile(
+        tilesetFile,
+        reportFileName
+      );
+      numFiles++;
+      if (validationResult.numErrors > 0) {
+        numFilesWithErrors++;
+      }
+      if (validationResult.numWarnings > 0) {
+        numFilesWithWarnings++;
+      }
     }
+    console.log("Validated " + numFiles + " files");
+    console.log("    " + numFilesWithErrors + " files with errors");
+    console.log("    " + numFilesWithWarnings + " files with warnings");
   }
 
   static async validateSchemaFile(
     fileName: string,
     reportFileName: string | undefined
-  ): Promise<void> {
+  ): Promise<ValidationResult> {
     console.log("Validating schema " + fileName);
     const validationResult = await Validators.validateSchemaFile(fileName);
     if (defined(reportFileName)) {
@@ -71,6 +92,7 @@ export class ValidatorMain {
       console.log("Validation result:");
       console.log(validationResult.serialize());
     }
+    return validationResult;
   }
 
   static async validateSubtreeFile(
@@ -78,7 +100,7 @@ export class ValidatorMain {
     validationState: ValidationState,
     implicitTiling: TileImplicitTiling | undefined,
     reportFileName: string | undefined
-  ): Promise<void> {
+  ): Promise<ValidationResult> {
     console.log("Validating subtree " + fileName);
     const validationResult = await Validators.validateSubtreeFile(
       fileName,
@@ -91,6 +113,7 @@ export class ValidatorMain {
       console.log("Validation result:");
       console.log(validationResult.serialize());
     }
+    return validationResult;
   }
 
   static async validateAllTilesetSpecFiles(
@@ -189,6 +212,22 @@ export class ValidatorMain {
       implicitTiling,
       reportFileName
     );
+  }
+
+  /**
+   * Register the validators for known extensions
+   */
+  static registerExtensionValidators() {
+    // Register the validator for 3DTILES_bounding_volume_S2
+    {
+      const s2Validator = new BoundingVolumeS2Validator();
+      const override = true;
+      ExtendedObjectsValidators.register(
+        "3DTILES_bounding_volume_S2",
+        s2Validator,
+        override
+      );
+    }
   }
 
   /**

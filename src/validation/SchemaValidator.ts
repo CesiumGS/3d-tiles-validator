@@ -6,6 +6,7 @@ import { BasicValidator } from "./BasicValidator";
 import { SchemaClassValidator } from "./SchemaClassValidator";
 import { SchemaEnumValidator } from "./SchemaEnumValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Schema } from "../structure/Metadata/Schema";
 
@@ -32,7 +33,7 @@ export class SchemaValidator implements Validator<Schema> {
   ): Promise<boolean> {
     try {
       const object: Schema = JSON.parse(input);
-      const result = await this.validateObject(object, context);
+      const result = await this.validateObject("", object, context);
       return result;
     } catch (error) {
       //console.log(error);
@@ -52,10 +53,11 @@ export class SchemaValidator implements Validator<Schema> {
    * and indicates whether the object was valid or not.
    */
   async validateObject(
+    path: string,
     input: Schema,
     context: ValidationContext
   ): Promise<boolean> {
-    return SchemaValidator.validateSchema("", input, context);
+    return SchemaValidator.validateSchema(path, input, context);
   }
 
   /**
@@ -93,6 +95,19 @@ export class SchemaValidator implements Validator<Schema> {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(path, schema, context)
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(schema)) {
+      return result;
     }
 
     // Validate the id

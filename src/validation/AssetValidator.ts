@@ -3,6 +3,7 @@ import { defined } from "../base/defined";
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Asset } from "../structure/Asset";
 
@@ -29,8 +30,9 @@ export class AssetValidator {
    * @returns Whether the object was valid
    */
   static validateAsset(asset: Asset, context: ValidationContext): boolean {
+    const path = "/asset";
     // Make sure that the given value is an object
-    if (!BasicValidator.validateObject("/asset", "asset", asset, context)) {
+    if (!BasicValidator.validateObject(path, "asset", asset, context)) {
       return false;
     }
 
@@ -38,14 +40,22 @@ export class AssetValidator {
 
     // Validate the object as a RootProperty
     if (
-      !RootPropertyValidator.validateRootProperty(
-        "/asset",
-        "asset",
-        asset,
-        context
-      )
+      !RootPropertyValidator.validateRootProperty(path, "asset", asset, context)
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(path, asset, context)
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(asset)) {
+      return result;
     }
 
     // Validate the version

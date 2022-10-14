@@ -1,4 +1,3 @@
-import path from "path";
 import { defined } from "../base/defined";
 
 import { Validator } from "../validation/Validator";
@@ -16,14 +15,6 @@ const validator = require("gltf-validator");
  * in a Buffer.
  */
 export class GltfValidator implements Validator<Buffer> {
-  private _baseDirectory: string;
-  private _uri: string;
-
-  constructor(uri: string) {
-    this._uri = uri;
-    this._baseDirectory = path.dirname(uri);
-  }
-
   /**
    * Creates a `ValidationIssue` object for the given 'message' object
    * that appears in the output of the glTF validator.
@@ -51,18 +42,17 @@ export class GltfValidator implements Validator<Buffer> {
   }
 
   async validateObject(
+    uri: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
     const resourceResolver = context.getResourceResolver();
-    const gltfResourceResolver = resourceResolver.derive(this._baseDirectory);
-    const uri = this._uri;
     let gltfResult = undefined;
     try {
       gltfResult = await validator.validateBytes(input, {
         uri: uri,
         externalResourceFunction: (gltfUri: string) => {
-          const resolvedDataPromise = gltfResourceResolver.resolve(gltfUri);
+          const resolvedDataPromise = resourceResolver.resolve(gltfUri);
           return resolvedDataPromise.then((resolvedData) => {
             if (!defined(resolvedData)) {
               throw "Could not resolve data from " + gltfUri;
@@ -72,10 +62,9 @@ export class GltfValidator implements Validator<Buffer> {
         },
       });
     } catch (error) {
-      const path = uri;
       const message = `Content ${uri} caused internal validation error: ${error}`;
       const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
-        path,
+        uri,
         message
       );
       context.addIssue(issue);
