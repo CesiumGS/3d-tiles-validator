@@ -96,31 +96,8 @@ const featureTableSemantics = {
  * given as a Buffer.
  */
 export class I3dmValidator implements Validator<Buffer> {
-  private _uri: string;
-
-  constructor(uri: string) {
-    this._uri = uri;
-  }
-
   async validateObject(
-    input: Buffer,
-    context: ValidationContext
-  ): Promise<boolean> {
-    // Create a new context to collect the issues that are
-    // found in the data. If there are issues, then they
-    // will be stored as the 'internal issues' of a
-    // single content validation issue.
-    const derivedContext = context.derive(".");
-    const result = await this.validateObjectInternal(input, derivedContext);
-    const derivedResult = derivedContext.getResult();
-    const issue = ContentValidationIssues.createFrom(this._uri, derivedResult);
-    if (issue) {
-      context.addIssue(issue);
-    }
-    return result;
-  }
-
-  async validateObjectInternal(
+    uri: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
@@ -128,7 +105,7 @@ export class I3dmValidator implements Validator<Buffer> {
 
     if (
       !TileFormatValidator.validateHeader(
-        this._uri,
+        uri,
         input,
         headerByteLength,
         "i3dm",
@@ -142,7 +119,7 @@ export class I3dmValidator implements Validator<Buffer> {
 
     if (gltfFormat > 1) {
       const issue = BinaryValidationIssues.BINARY_INVALID_VALUE(
-        this._uri,
+        uri,
         "gltfFormat",
         "<=1",
         gltfFormat
@@ -153,7 +130,7 @@ export class I3dmValidator implements Validator<Buffer> {
     const hasEmbeddedGlb = gltfFormat === 1;
 
     const binaryTableData = TileFormatValidator.extractBinaryTableData(
-      this._uri,
+      uri,
       input,
       headerByteLength,
       hasEmbeddedGlb,
@@ -174,7 +151,7 @@ export class I3dmValidator implements Validator<Buffer> {
     const featuresLength = featureTableJson!.INSTANCES_LENGTH;
     if (!defined(featuresLength)) {
       const message = `Feature table must contain a INSTANCES_LENGTH property.`;
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
     }
 
@@ -184,7 +161,7 @@ export class I3dmValidator implements Validator<Buffer> {
     ) {
       const message =
         "Feature table must contain either the POSITION or POSITION_QUANTIZED property.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -195,7 +172,7 @@ export class I3dmValidator implements Validator<Buffer> {
     ) {
       const message =
         "Feature table property NORMAL_RIGHT is required when NORMAL_UP is present.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -206,7 +183,7 @@ export class I3dmValidator implements Validator<Buffer> {
     ) {
       const message =
         "Feature table property NORMAL_UP is required when NORMAL_RIGHT is present.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -217,7 +194,7 @@ export class I3dmValidator implements Validator<Buffer> {
     ) {
       const message =
         "Feature table property NORMAL_RIGHT_OCT32P is required when NORMAL_UP_OCT32P is present.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -228,7 +205,7 @@ export class I3dmValidator implements Validator<Buffer> {
     ) {
       const message =
         "Feature table property NORMAL_UP_OCT32P is required when NORMAL_RIGHT_OCT32P is present.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -240,7 +217,7 @@ export class I3dmValidator implements Validator<Buffer> {
     ) {
       const message =
         "Feature table properties QUANTIZED_VOLUME_OFFSET and QUANTIZED_VOLUME_SCALE are required when POSITION_QUANTIZED is present.";
-      const issue = IoValidationIssues.JSON_PARSE_ERROR(this._uri, message);
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
       context.addIssue(issue);
       result = false;
     }
@@ -253,7 +230,7 @@ export class I3dmValidator implements Validator<Buffer> {
     );
     if (defined(featureTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
-        this._uri,
+        uri,
         featureTableMessage!
       );
       context.addIssue(issue);
@@ -267,7 +244,7 @@ export class I3dmValidator implements Validator<Buffer> {
     );
     if (defined(batchTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
-        this._uri,
+        uri,
         batchTableMessage!
       );
       context.addIssue(issue);
@@ -276,8 +253,12 @@ export class I3dmValidator implements Validator<Buffer> {
 
     // If the GLB data was embdedded, validate it directly
     if (hasEmbeddedGlb) {
-      const gltfValidator = new GltfValidator(this._uri);
-      const gltfResult = await gltfValidator.validateObject(glbData, context);
+      const gltfValidator = new GltfValidator();
+      const gltfResult = await gltfValidator.validateObject(
+        uri,
+        glbData,
+        context
+      );
       if (!gltfResult) {
         result = false;
       }
@@ -290,7 +271,7 @@ export class I3dmValidator implements Validator<Buffer> {
       if (!defined(resolvedGlbData)) {
         const message = `Could not resolve GLB URI ${glbUri} from I3DM`;
         const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
-          this._uri,
+          uri,
           message
         );
         context.addIssue(issue);
@@ -302,8 +283,9 @@ export class I3dmValidator implements Validator<Buffer> {
         // single content validation issue.
         const glbDirectory = path.dirname(glbUri);
         const derivedContext = context.derive(glbDirectory);
-        const gltfValidator = new GltfValidator(this._uri);
+        const gltfValidator = new GltfValidator();
         const gltfResult = await gltfValidator.validateObject(
+          uri,
           resolvedGlbData!,
           derivedContext
         );
@@ -311,10 +293,7 @@ export class I3dmValidator implements Validator<Buffer> {
           result = false;
         }
         const derivedResult = derivedContext.getResult();
-        const issue = ContentValidationIssues.createFrom(
-          this._uri,
-          derivedResult
-        );
+        const issue = ContentValidationIssues.createFrom(uri, derivedResult);
         if (issue) {
           context.addIssue(issue);
         }

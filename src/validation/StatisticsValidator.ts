@@ -4,6 +4,7 @@ import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { ValidationState } from "./ValidationState";
 import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Statistics } from "../structure/Statistics";
 
@@ -51,6 +52,23 @@ export class StatisticsValidator {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(
+        path,
+        statistics,
+        context
+      )
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(statistics)) {
+      return result;
     }
 
     // Validate the classes

@@ -13,6 +13,8 @@ import { ValidationState } from "./ValidationState";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { Validator } from "./Validator";
+import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 /**
  * Utility methods related to `Validator` instances.
@@ -96,7 +98,6 @@ export class Validators {
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
     const validator = new SubtreeValidator(
-      uri,
       validationState,
       implicitTiling,
       resourceResolver
@@ -133,8 +134,97 @@ export class Validators {
       const issue = IoValidationIssues.IO_ERROR(filePath, message);
       context.addIssue(issue);
     } else {
-      await validator.validateObject(resourceData!, context);
+      await validator.validateObject(filePath, resourceData!, context);
     }
     return context.getResult();
+  }
+
+  /**
+   * Creates a validator for `Buffer` objects that parses an
+   * object of type `T` from the (JSON) string representation
+   * of the buffer contents, and applies the given delegate
+   * to the result.
+   *
+   * If the object cannot be parsed, a `JSON_PARSE_ERROR`
+   * will be added to the given context.
+   *
+   * @param delegate The delegate
+   * @returns The new validator
+   */
+  static parseFromBuffer<T>(delegate: Validator<T>): Validator<Buffer> {
+    return {
+      async validateObject(
+        inputPath: string,
+        input: Buffer,
+        context: ValidationContext
+      ): Promise<boolean> {
+        try {
+          const object: T = JSON.parse(input.toString());
+          const delegateResult = await delegate.validateObject(
+            inputPath,
+            object,
+            context
+          );
+          return delegateResult;
+        } catch (error) {
+          const message = `${error}`;
+          const issue = IoValidationIssues.JSON_PARSE_ERROR(inputPath, message);
+          context.addIssue(issue);
+          return false;
+        }
+      },
+    };
+  }
+
+  /**
+   * Creates a `Validator` that only adds a `CONTENT_VALIDATION_WARNING`
+   * with the given message to the given context when it is called.
+   *
+   * This is used for "dummy" validators that handle content data types
+   * that are already anticipated (like VCTR or GEOM), but not validated
+   * explicitly.
+   *
+   * @param message The message for the warning
+   * @returns The new validator
+   */
+  static createContentValidationWarning(message: string): Validator<Buffer> {
+    return {
+      async validateObject(
+        inputPath: string,
+        //eslint-disable-next-line @typescript-eslint/no-unused-vars
+        input: Buffer,
+        context: ValidationContext
+      ): Promise<boolean> {
+        const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
+          inputPath,
+          message
+        );
+        context.addIssue(issue);
+        return true;
+      },
+    };
+  }
+
+  /**
+   * Creates an empty validator that does nothing.
+   *
+   * This is used for "dummy" validators for content types that
+   * are ignored.
+   *
+   * @returns The new validator
+   */
+  static createEmptyValidator<T>(): Validator<T> {
+    return {
+      async validateObject(
+        //eslint-disable-next-line @typescript-eslint/no-unused-vars
+        inputPath: string,
+        //eslint-disable-next-line @typescript-eslint/no-unused-vars
+        input: T,
+        //eslint-disable-next-line @typescript-eslint/no-unused-vars
+        context: ValidationContext
+      ): Promise<boolean> {
+        return true;
+      },
+    };
   }
 }

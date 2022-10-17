@@ -9,6 +9,8 @@ import { ImplicitTilingValidator } from "./ImplicitTilingValidator";
 import { TransformValidator } from "./TransformValidator";
 import { ValidationState } from "./ValidationState";
 import { TemplateUriValidator } from "./TemplateUriValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Tile } from "../structure/Tile";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
@@ -16,7 +18,6 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { RootPropertyValidator } from "./RootPropertyValidator";
 
 /**
  * The valid values for the `refine` property
@@ -49,12 +50,12 @@ export class TileValidator {
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
-  static validateTile(
+  static async validateTile(
     tilePath: string,
     tile: Tile,
     validationState: ValidationState,
     context: ValidationContext
-  ): boolean {
+  ): Promise<boolean> {
     // Make sure that the given value is an object
     if (!BasicValidator.validateObject(tilePath, "tile", tile, context)) {
       return false;
@@ -74,17 +75,30 @@ export class TileValidator {
       result = false;
     }
 
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(tilePath, tile, context)
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(tile)) {
+      return result;
+    }
+
     // Validate the boundingVolume
     const boundingVolume = tile.boundingVolume;
     const boundingVolumePath = tilePath + "/boundingVolume";
     // The boundingVolume MUST be defined
-    if (
-      !BoundingVolumeValidator.validateBoundingVolume(
+    const boundingVolumeValid =
+      await BoundingVolumeValidator.validateBoundingVolume(
         boundingVolumePath,
         boundingVolume,
         context
-      )
-    ) {
+      );
+    if (!boundingVolumeValid) {
       result = false;
     }
 
@@ -243,14 +257,13 @@ export class TileValidator {
         result = false;
       }
     } else {
-      if (
-        !TileValidator.validateSimpleTile(
-          tilePath,
-          tile,
-          validationState,
-          context
-        )
-      ) {
+      const simpleTileValid = await TileValidator.validateSimpleTile(
+        tilePath,
+        tile,
+        validationState,
+        context
+      );
+      if (!simpleTileValid) {
         result = false;
       }
     }
@@ -269,12 +282,12 @@ export class TileValidator {
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
-  private static validateSimpleTile(
+  private static async validateSimpleTile(
     tilePath: string,
     tile: Tile,
     validationState: ValidationState,
     context: ValidationContext
-  ): boolean {
+  ): Promise<boolean> {
     let result = true;
 
     // Note: The check that content and contents may not be present
@@ -284,14 +297,13 @@ export class TileValidator {
     const content = tile.content;
     const contentPath = tilePath + "/content";
     if (defined(content)) {
-      if (
-        !ContentValidator.validateContent(
-          contentPath,
-          content!,
-          validationState,
-          context
-        )
-      ) {
+      const contentValid = await ContentValidator.validateContent(
+        contentPath,
+        content!,
+        validationState,
+        context
+      );
+      if (!contentValid) {
         result = false;
       }
     }
@@ -319,14 +331,13 @@ export class TileValidator {
         for (let index = 0; index < contents!.length; index++) {
           const contentsElementPath = contentsPath + "/" + index;
           const contentsElement = contents![index];
-          if (
-            !ContentValidator.validateContent(
-              contentsElementPath,
-              contentsElement,
-              validationState,
-              context
-            )
-          ) {
+          const contentValid = await ContentValidator.validateContent(
+            contentsElementPath,
+            contentsElement,
+            validationState,
+            context
+          );
+          if (!contentValid) {
             result = false;
           }
         }

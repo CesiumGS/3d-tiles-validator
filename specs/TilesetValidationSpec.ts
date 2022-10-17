@@ -1,4 +1,7 @@
 import { Validators } from "../src/validation/Validators";
+import { ContentDataValidators } from "../src/validation/ContentDataValidators";
+
+ContentDataValidators.registerDefaults();
 
 describe("Tileset validation", function () {
   it("detects issues in assetTilesetVersionInvalidType", async function () {
@@ -729,8 +732,9 @@ describe("Tileset validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/extensionFoundButNotUsed.json"
     );
-    expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("EXTENSION_FOUND_BUT_NOT_USED");
+    expect(result.length).toEqual(2);
+    expect(result.get(0).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(1).type).toEqual("EXTENSION_FOUND_BUT_NOT_USED");
   });
 
   it("detects issues in extensionRequiredButNotUsed", async function () {
@@ -810,8 +814,9 @@ describe("Tileset validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/extensionUsedButNotFound.json"
     );
-    expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("EXTENSION_USED_BUT_NOT_FOUND");
+    expect(result.length).toEqual(2);
+    expect(result.get(0).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(1).type).toEqual("EXTENSION_USED_BUT_NOT_FOUND");
   });
 
   it("detects issues in extrasUnexpectedType", async function () {

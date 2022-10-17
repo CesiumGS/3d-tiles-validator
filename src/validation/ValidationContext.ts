@@ -31,7 +31,7 @@ export class ValidationContext {
   /**
    * The `ValidationResult` that receives the `ValidationIssue` instances
    */
-  private _result: ValidationResult;
+  private readonly _result: ValidationResult;
 
   /**
    * The set of extensions that have been found during the validation
@@ -43,7 +43,7 @@ export class ValidationContext {
    * as URI strings into Buffer objects, relative to the directory
    * in which the validation started.
    */
-  private _resourceResolver: ResourceResolver;
+  private readonly _resourceResolver: ResourceResolver;
 
   constructor(resourceResolver: ResourceResolver) {
     this._options = new ValidationOptions();

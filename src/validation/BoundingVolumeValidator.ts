@@ -3,6 +3,7 @@ import { defined } from "../base/defined";
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { BoundingVolume } from "../structure/BoundingVolume";
 
@@ -25,11 +26,11 @@ export class BoundingVolumeValidator {
    * @param context The `ValidationContext` that any issues will be added to
    * @returns Whether the given object is valid
    */
-  static validateBoundingVolume(
+  static async validateBoundingVolume(
     boundingVolumePath: string,
     boundingVolume: BoundingVolume,
     context: ValidationContext
-  ): boolean {
+  ): Promise<boolean> {
     // Make sure that the given value is an object
     if (
       !BasicValidator.validateObject(
@@ -55,6 +56,62 @@ export class BoundingVolumeValidator {
     ) {
       result = false;
     }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(
+        boundingVolumePath,
+        boundingVolume,
+        context
+      )
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(boundingVolume)) {
+      return result;
+    }
+    if (
+      !BoundingVolumeValidator.validateBoundingVolumeInternal(
+        boundingVolumePath,
+        boundingVolume,
+        context
+      )
+    ) {
+      result = false;
+    }
+    return result;
+  }
+
+  /**
+   * Implementation for validateBoundingVolume
+   *
+   * @param boundingVolumePath The path that indicates the location of
+   * the given object, to be used in the validation issue message.
+   * @param boundingVolume The object to validate
+   * @param context The `ValidationContext` that any issues will be added to
+   * @returns Whether the given object is valid
+   */
+  private static validateBoundingVolumeInternal(
+    boundingVolumePath: string,
+    boundingVolume: BoundingVolume,
+    context: ValidationContext
+  ): boolean {
+    // Make sure that the given value is an object
+    if (
+      !BasicValidator.validateObject(
+        boundingVolumePath,
+        "boundingVolume",
+        boundingVolume,
+        context
+      )
+    ) {
+      return false;
+    }
+
+    let result = true;
 
     const box = boundingVolume.box;
     const region = boundingVolume.region;
@@ -122,7 +179,7 @@ export class BoundingVolumeValidator {
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
-  private static validateBoundingBox(
+  static validateBoundingBox(
     path: string,
     box: number[],
     context: ValidationContext
@@ -155,7 +212,7 @@ export class BoundingVolumeValidator {
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
-  private static validateBoundingSphere(
+  static validateBoundingSphere(
     path: string,
     sphere: number[],
     context: ValidationContext
@@ -202,7 +259,7 @@ export class BoundingVolumeValidator {
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
-  private static validateBoundingRegion(
+  static validateBoundingRegion(
     path: string,
     region: number[],
     context: ValidationContext
@@ -225,19 +282,19 @@ export class BoundingVolumeValidator {
       return false;
     }
 
-    const west = region[0];
-    const south = region[1];
-    const east = region[2];
-    const north = region[3];
+    const westRad = region[0];
+    const southRad = region[1];
+    const eastRad = region[2];
+    const northRad = region[3];
     const minimumHeight = region[4];
     const maximumHeight = region[5];
 
     let result = true;
 
-    if (west < -180.0 || west > 180) {
+    if (westRad < -Math.PI || westRad > Math.PI) {
       const message =
         `The 'west' entry of the bounding region ` +
-        `must be in [-180,180], but is ${west}`;
+        `must be in [-PI,PI], but is ${westRad}`;
       const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
         path + "/0",
         message
@@ -245,10 +302,10 @@ export class BoundingVolumeValidator {
       context.addIssue(issue);
       result = false;
     }
-    if (south < -90.0 || south > 90) {
+    if (southRad < -Math.PI / 2 || southRad > Math.PI / 2) {
       const message =
         `The 'south' entry of the bounding region ` +
-        `must be in [-90,90], but is ${south}`;
+        `must be in [-PI/2,PI/2], but is ${southRad}`;
       const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
         path + "/1",
         message
@@ -256,10 +313,10 @@ export class BoundingVolumeValidator {
       context.addIssue(issue);
       result = false;
     }
-    if (east < -180.0 || east > 180) {
+    if (eastRad < -Math.PI || eastRad > Math.PI) {
       const message =
         `The 'east' entry of the bounding region ` +
-        `must be in [-180,180], but is ${east}`;
+        `must be in [-PI,PI], but is ${eastRad}`;
       const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
         path + "/2",
         message
@@ -267,10 +324,10 @@ export class BoundingVolumeValidator {
       context.addIssue(issue);
       result = false;
     }
-    if (north < -90.0 || north > 90) {
+    if (northRad < -Math.PI / 2 || northRad > Math.PI / 2) {
       const message =
         `The 'north' entry of the bounding region ` +
-        `must be in [-90,90], but is ${north}`;
+        `must be in [-PI/2,PI/2], but is ${northRad}`;
       const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
         path + "/3",
         message
@@ -278,11 +335,11 @@ export class BoundingVolumeValidator {
       context.addIssue(issue);
       result = false;
     }
-    if (south > north) {
+    if (southRad > northRad) {
       const message =
         `The 'south' entry of the bounding region ` +
         `may not be larger than the 'north' entry, but the south ` +
-        `is ${south} and the north is ${north}`;
+        `is ${southRad} and the north is ${northRad}`;
       const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
         path,
         message

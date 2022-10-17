@@ -10,6 +10,8 @@ import { MetadataEntityValidator } from "./MetadataEntityValidator";
 import { AssetValidator } from "./AssetValidator";
 import { SchemaValidator } from "./SchemaValidator";
 import { TilesetTraversingValidator } from "./TilesetTraversingValidator";
+import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { Tileset } from "../structure/Tileset";
 import { Schema } from "../structure/Metadata/Schema";
@@ -18,7 +20,6 @@ import { Group } from "../structure/Group";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
-import { RootPropertyValidator } from "./RootPropertyValidator";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
 /**
@@ -39,7 +40,7 @@ export class TilesetValidator implements Validator<Tileset> {
   ): Promise<void> {
     try {
       const object: Tileset = JSON.parse(input);
-      await this.validateObject(object, context);
+      await this.validateObject("", object, context);
     } catch (error) {
       //console.log(error);
       const issue = IoValidationIssues.JSON_PARSE_ERROR("", "" + error);
@@ -48,19 +49,21 @@ export class TilesetValidator implements Validator<Tileset> {
   }
 
   /**
-   * Implementation of the `Validator` interface that just the
+   * Implementation of the `Validator` interface that just passes the
    * input to `validateTileset`.
    *
+   * @param path The path for `ValidationIssue` instances
    * @param input The `Tileset` object
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
   async validateObject(
+    path: string,
     input: Tileset,
     context: ValidationContext
   ): Promise<boolean> {
-    const result = await TilesetValidator.validateTileset(input, context);
+    const result = await TilesetValidator.validateTileset(path, input, context);
     return result;
   }
 
@@ -71,17 +74,17 @@ export class TilesetValidator implements Validator<Tileset> {
    * Issues that are encountered during the validation will be added
    * as `ValidationIssue` instances to the given `ValidationContext`.
    *
+   * @param path The path for `ValidationIssue` instances
    * @param tileset The `Tileset` object
    * @param context The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
   static async validateTileset(
+    path: string,
     tileset: Tileset,
     context: ValidationContext
   ): Promise<boolean> {
-    const path = "";
-
     // Make sure that the given value is an object
     if (!BasicValidator.validateObject(path, "tileset", tileset, context)) {
       return false;
@@ -99,6 +102,19 @@ export class TilesetValidator implements Validator<Tileset> {
       )
     ) {
       result = false;
+    }
+
+    // Perform the validation of the object in view of the
+    // extensions that it may contain
+    if (
+      !ExtendedObjectsValidators.validateExtendedObject(path, tileset, context)
+    ) {
+      result = false;
+    }
+    // If there was an extension validator that overrides the
+    // default validation, then skip the remaining validation.
+    if (ExtendedObjectsValidators.hasOverride(tileset)) {
+      return result;
     }
 
     // The asset MUST be defined
@@ -390,9 +406,17 @@ export class TilesetValidator implements Validator<Tileset> {
     }
 
     // Each extension that is found during the validation
-    // in the `RootPropertyValidator` also has to appear
+    // in the `RootPropertyValidator` or the
+    // `ContentDataValidator` also has to appear
     // in the 'extensionsUsed'
     const actualExtensionsFound = context.getExtensionsFound();
+
+    // TODO: A cleaner solution has to be found for this. See
+    // https://github.com/CesiumGS/3d-tiles-validator/issues/231
+    if (tileset.asset?.version === "1.1") {
+      actualExtensionsFound.delete("3DTILES_content_gltf");
+    }
+
     for (const extensionName of actualExtensionsFound) {
       if (!actualExtensionsUsed.has(extensionName)) {
         const issue = SemanticValidationIssues.EXTENSION_FOUND_BUT_NOT_USED(
