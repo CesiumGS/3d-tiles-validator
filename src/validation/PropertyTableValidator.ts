@@ -198,7 +198,7 @@ export class PropertyTableValidator {
       return false;
     }
     // TODO Validate property table properties
-    console.log("Property table properties are not validated yet.");
+    //console.log("Property table properties are not validated yet.");
     return true;
   }
 }
