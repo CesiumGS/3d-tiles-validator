@@ -1,6 +1,9 @@
 import { Cartesian3, Math as CesiumMath, Matrix3, Rectangle } from "cesium";
 import { defined } from "../../base/defined";
+import { HilbertOrder } from "./HilbertOrder";
 import { BoundingVolume } from "../../structure/BoundingVolume";
+import { BoundingVolumeS2 } from "../../validation/extensions/BoundingVolumeS2";
+import { S2Cell } from "./S2Cell";
 
 /**
  * Methods to derive bounding volumes of implicit tiles.
@@ -28,6 +31,30 @@ export class BoundingVolumeDerivation {
     const z =
       implicitCoordinates.length > 3 ? implicitCoordinates[3] : undefined;
 
+    if (
+      BoundingVolumeDerivation.hasExtension(
+        rootBoundingVolume,
+        "3DTILES_bounding_volume_S2"
+      )
+    ) {
+      const extensions = rootBoundingVolume.extensions!;
+      const s2Object = extensions["3DTILES_bounding_volume_S2"];
+      const boundingVolumeS2 = s2Object as BoundingVolumeS2;
+      const childBoundingVolumeS2 =
+        BoundingVolumeDerivation.deriveBoundingVolumeS2(
+          boundingVolumeS2,
+          level,
+          x,
+          y,
+          z
+        );
+      return {
+        extensions: {
+          "3DTILES_bounding_volume_S2": childBoundingVolumeS2,
+        },
+      };
+    }
+
     if (defined(rootBoundingVolume.region)) {
       const childRegion = BoundingVolumeDerivation.deriveBoundingRegion(
         rootBoundingVolume.region!,
@@ -54,6 +81,22 @@ export class BoundingVolumeDerivation {
         box: childBox,
       };
     }
+  }
+
+  /**
+   * Check if a specific extension is present on a JSON object. This can be used
+   * for either 3D Tiles extensions or glTF extensions
+   * @param {Object} json The JSON object
+   * @param {String} extensionName The name of the extension, e.g. '3DTILES_implicit_tiling'
+   * @returns {Boolean} True if the extension is present
+   * @private
+   */
+  private static hasExtension(json: any, extensionName: string): boolean {
+    return (
+      defined(json) &&
+      defined(json.extensions) &&
+      defined(json.extensions[extensionName])
+    );
   }
 
   // See https://github.com/CesiumGS/cesium/issues/10801
@@ -235,5 +278,68 @@ export class BoundingVolumeDerivation {
     }
 
     return [west, south, east, north, minimumHeight, maximumHeight];
+  }
+
+  /**
+   * Derive a bounding volume for a descendant tile (child, grandchild, etc.),
+   * assuming a quadtree or octree implicit tiling scheme. The (level, x, y, [z])
+   * coordinates are given to select the descendant tile and compute its position
+   * and dimensions.
+   * <p>
+   * If z is present, octree subdivision is used. Otherwise, quadtree subdivision
+   * is used. Quadtrees are always divided at the midpoint of the the horizontal
+   * dimensions, i.e. (x, y), leaving the z axis unchanged.
+   * </p>
+   *
+   * @param level The level of the descendant tile relative to the root implicit tile
+   * @param x The x coordinate of the descendant tile
+   * @param y The y coordinate of the descendant tile
+   * @param z The z coordinate of the descendant tile (octree only)
+   * @returns The new bounding volume
+   * @private
+   */
+  private static deriveBoundingVolumeS2(
+    boundingVolumeS2: BoundingVolumeS2,
+    level: number,
+    x: number,
+    y: number,
+    z: number | undefined
+  ): BoundingVolumeS2 {
+    if (level === 0) {
+      return boundingVolumeS2;
+    }
+    // Extract the first 3 face bits from the 64-bit S2 cell ID.
+    // eslint-disable-next-line no-undef
+    const baseCellId = S2Cell.getIdFromToken(boundingVolumeS2.token);
+    const face = Number(baseCellId >> BigInt(61));
+    // The Hilbert curve is rotated for the "odd" faces on the S2 Earthcube.
+    // See http://s2geometry.io/devguide/img/s2cell_global.jpg
+    const position =
+      face % 2 === 0
+        ? HilbertOrder.encode2D(level, x, y)
+        : HilbertOrder.encode2D(level, y, x);
+    const cellId = S2Cell.fromFacePositionLevel(face, BigInt(position), level);
+
+    let minHeight, maxHeight;
+    if (defined(z)) {
+      // In CesiumJS, this information was computed from
+      // the "childIndex" that was passed along, i.e. this
+      // is equivalent to the condition "childIndex < 4"
+      const lower = (z! & 1) === 0;
+
+      const midpointHeight =
+        (boundingVolumeS2.maximumHeight + boundingVolumeS2.minimumHeight) / 2;
+      minHeight = lower ? boundingVolumeS2.minimumHeight : midpointHeight;
+      maxHeight = lower ? midpointHeight : boundingVolumeS2.maximumHeight;
+    } else {
+      minHeight = boundingVolumeS2.minimumHeight;
+      maxHeight = boundingVolumeS2.maximumHeight;
+    }
+
+    return {
+      token: S2Cell.getTokenFromId(cellId),
+      minimumHeight: minHeight,
+      maximumHeight: maxHeight,
+    };
   }
 }
