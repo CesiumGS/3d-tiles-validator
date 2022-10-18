@@ -1,20 +1,16 @@
 import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
-import { RootPropertyValidator } from "./RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
-import { MetadataStructureValidator } from "./MetadataStructureValidator";
+import { MetadataPropertyValidator } from "./MetadataPropertyValidator";
 
-import { Schema } from "../structure/Metadata/Schema";
-import { PropertyTable } from "../structure/PropertyTable";
 import { PropertyTableProperty } from "../structure/PropertyTableProperty";
 import { Subtree } from "../structure/Subtree";
 import { ClassProperty } from "../structure/Metadata/ClassProperty";
-import { StructureValidationIssues } from "../issues/StructureValidationIssues";
+
 import { MetadataComponentTypes } from "../metadata/MetadataComponentTypes";
-import { ClassPropertyValidator } from "./ClassPropertyValidator";
+
+import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 
 /**
  * A class for validations related to `propertyTable.property` objects.
@@ -195,8 +191,22 @@ export class PropertyTablePropertyValidator {
       }
     }
 
-    console.log("The property table property validation is not complete yet");
-    const isEffectivelyFloatingPoint = ClassPropertyValidator.hasEffectivelyFloatingPointType(classProperty);
+    // Validate the offset
+    const offset = propertyTableProperty.offset;
+    if (defined(offset)) {
+      if (
+        !MetadataPropertyValidator.validateOffsetScale(
+          path,
+          propertyName,
+          classProperty,
+          "offset",
+          offset,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
 
     return result;
   }

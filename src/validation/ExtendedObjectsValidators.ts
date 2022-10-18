@@ -6,6 +6,7 @@ import { ValidationContext } from "./ValidationContext";
 import { RootProperty } from "../structure/RootProperty";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
+import { BasicValidator } from "./BasicValidator";
 
 /**
  * A class for managing the validation of objects that contain extensions.
@@ -107,6 +108,12 @@ export class ExtendedObjectsValidators {
     // If there are no extensions, consider the object to be valid
     const extensions = rootProperty.extensions;
     if (!defined(extensions)) {
+      return true;
+    }
+    // The extensions MUST be an object. This is checked and reported
+    // by the RootPropertyValidator, and therefore, will not reported
+    // again here
+    if (typeof extensions !== "object") {
       return true;
     }
 

@@ -13,6 +13,7 @@ import { MetadataComponentTypes } from "../metadata/MetadataComponentTypes";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
+import { MetadataPropertyValidator } from "./MetadataPropertyValidator";
 
 /**
  * A class for validations related to `class.property` objects.
@@ -318,74 +319,6 @@ export class ClassPropertyValidator {
       }
     }
 
-    // Validate the offset
-    const offset = property.offset;
-    if (defined(offset)) {
-      if (
-        !ClassPropertyValidator.validateOffsetScale(
-          propertyPath,
-          propertyName,
-          property,
-          "offset",
-          offset,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
-    // Validate the scale
-    const scale = property.scale;
-    if (defined(scale)) {
-      if (
-        !ClassPropertyValidator.validateOffsetScale(
-          propertyPath,
-          propertyName,
-          property,
-          "scale",
-          scale,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
-    // Validate the max
-    const max = property.max;
-    if (defined(max)) {
-      if (
-        !ClassPropertyValidator.validateMaxMin(
-          propertyPath,
-          propertyName,
-          property,
-          "max",
-          max,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
-    // Validate the min
-    const min = property.min;
-    if (defined(min)) {
-      if (
-        !ClassPropertyValidator.validateMaxMin(
-          propertyPath,
-          propertyName,
-          property,
-          "min",
-          min,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
     // Validate the 'required' property
     const required = property.required;
     const requiredPath = propertyPath + "/required";
@@ -429,21 +362,6 @@ export class ClassPropertyValidator {
         );
         context.addIssue(issue);
         result = false;
-      } else {
-        // Validate the structure of the noData value
-        if (
-          !MetadataValueValidator.validateValueStructure(
-            propertyPath,
-            propertyName,
-            property,
-            "noData",
-            noData,
-            schema,
-            context
-          )
-        ) {
-          result = false;
-        }
       }
     }
 
@@ -462,21 +380,6 @@ export class ClassPropertyValidator {
         );
         context.addIssue(issue);
         result = false;
-      } else {
-        // Validate the structure of the default value
-        if (
-          !MetadataValueValidator.validateValueStructure(
-            propertyPath,
-            propertyName,
-            property,
-            "default",
-            theDefault,
-            schema,
-            context
-          )
-        ) {
-          result = false;
-        }
       }
     }
 
@@ -510,61 +413,14 @@ export class ClassPropertyValidator {
         }
       }
     }
-    return result;
-  }
 
-  /**
-   * Validates that the given value is a proper `max` or `min` value
-   * for the given property.
-   *
-   * If the property does not have a numeric type, then a
-   * `CLASS_PROPERTY_MIN_MAX_FOR_NON_NUMERIC_TYPE` validation
-   * issue will be added to the given context.
-   *
-   * If the structure of the given value does not match the
-   * structure that is defined by the property type, then an
-   * appropriate issue will be added to the given context.
-   *
-   * @param propertyPath The path for the `ValidationIssue` instances
-   * @param propertyName The name for the `ValidationIssue` instances
-   * @param property The `ClassProperty`
-   * @param maxOrMin The name, "max" or "min"
-   * @param value The actual value
-   * @param context The `ValidationContext`
-   * @returns Whether the object was valid
-   */
-  private static validateMaxMin(
-    propertyPath: string,
-    propertyName: string,
-    property: ClassProperty,
-    maxOrMin: string,
-    value: any,
-    context: ValidationContext
-  ): boolean {
-    let result = true;
-
-    const path = propertyPath + "/" + maxOrMin;
-    const type = property.type;
-
-    // When the max/min is given, the property MUST have a numeric type
-    if (!ClassPropertyValidator.hasNumericType(property)) {
-      const issue =
-        SemanticValidationIssues.CLASS_PROPERTY_MIN_MAX_FOR_NON_NUMERIC_TYPE(
-          path,
-          propertyName,
-          maxOrMin,
-          type
-        );
-      context.addIssue(issue);
-      result = false;
-    } else {
-      // The max/min MUST match the structure of the defined type
+    if (result) {
       if (
-        !MetadataValueValidator.validateNumericValueStructure(
+        !ClassPropertyValidator.validateClassPropertyValues(
+          schema,
+          propertyPath,
+          propertyName,
           property,
-          path,
-          maxOrMin,
-          value,
           context
         )
       ) {
@@ -575,61 +431,128 @@ export class ClassPropertyValidator {
   }
 
   /**
-   * Validates that the given value is a proper `offset` or `scale` value
-   * for the given property.
+   * Validate the values that are given for certain properties of
+   * the `ClassProperty`.
    *
-   * If the property does not have a numeric type, then a
-   * `CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE` validation
-   * issue will be added to the given context.
+   * This validates the `offset/scale/max/min/default/noData` values
+   * of the given `ClassProperty`. This is supposed to be called
+   * after (i.e. at the end of) `validateClassProperty`, when the
+   * basic structure of the class property has already been
+   * determined to be valid.
    *
-   * If the structure of the given value does not match the
-   * structure that is defined by the property type, then an
-   * appropriate issue will be added to the given context.
-   *
+   * @param schema The `Schema`
    * @param propertyPath The path for the `ValidationIssue` instances
-   * @param propertyName The name for the `ValidationIssue` instances
-   * @param property The `ClassProperty`
-   * @param offsetOrScale The name, "offset" or "scale"
-   * @param value The actual value
+   * @param propertyName The name of the property
+   * @param property The property
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
-  private static validateOffsetScale(
+  private static validateClassPropertyValues(
+    schema: Schema,
     propertyPath: string,
     propertyName: string,
     property: ClassProperty,
-    offsetOrScale: string,
-    value: any,
     context: ValidationContext
   ): boolean {
     let result = true;
 
-    const path = propertyPath + "/" + offsetOrScale;
-    const type = property.type;
-    const componentType = property.componentType;
-    const normalized = property.normalized;
-
-    // When the offset/scale is given, the property MUST have a 'floating point type'
-    if (!ClassPropertyValidator.hasEffectivelyFloatingPointType(property)) {
-      const issue =
-        SemanticValidationIssues.CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE(
-          path,
-          propertyName,
-          offsetOrScale,
-          type,
-          componentType,
-          normalized
-        );
-      context.addIssue(issue);
-      result = false;
-    } else {
-      // The offset/scale MUST match the structure of the defined type
+    // Validate the offset
+    const offset = property.offset;
+    if (defined(offset)) {
       if (
-        !MetadataValueValidator.validateNumericValueStructure(
+        !MetadataPropertyValidator.validateOffsetScale(
+          propertyPath,
+          propertyName,
           property,
-          path,
-          offsetOrScale,
-          value,
+          "offset",
+          offset,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+
+    // Validate the scale
+    const scale = property.scale;
+    if (defined(scale)) {
+      if (
+        !MetadataPropertyValidator.validateOffsetScale(
+          propertyPath,
+          propertyName,
+          property,
+          "scale",
+          scale,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+
+    // Validate the max
+    const max = property.max;
+    if (defined(max)) {
+      if (
+        !MetadataPropertyValidator.validateMaxMin(
+          propertyPath,
+          propertyName,
+          property,
+          "max",
+          max,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+
+    // Validate the min
+    const min = property.min;
+    if (defined(min)) {
+      if (
+        !MetadataPropertyValidator.validateMaxMin(
+          propertyPath,
+          propertyName,
+          property,
+          "min",
+          min,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+
+    const theDefault = property.default;
+    if (defined(theDefault)) {
+      // Validate the structure of the default value
+      if (
+        !MetadataValueValidator.validateValueStructure(
+          propertyPath,
+          propertyName,
+          property,
+          "default",
+          theDefault,
+          schema,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+
+    const noData = property.noData;
+    if (defined(noData)) {
+      // Validate the structure of the noData value
+      if (
+        !MetadataValueValidator.validateValueStructure(
+          propertyPath,
+          propertyName,
+          property,
+          "noData",
+          noData,
+          schema,
           context
         )
       ) {
@@ -637,68 +560,5 @@ export class ClassPropertyValidator {
       }
     }
     return result;
-  }
-
-  /**
-   * Returns whether the given property effectively describes a floating
-   * point type.
-   *
-   * These are the properties for which 'offset' and 'scale' may be defined.
-   *
-   * This means that the value has the type SCALAR, VECn, or MATn, and
-   * - either has the componentType FLOAT32 or FLOAT46
-   * - or has an integer component type AND is 'normalized'
-   *
-   * @param property The property
-   * @returns Whether the property is a floating point property
-   */
-  static hasEffectivelyFloatingPointType(
-    property: ClassProperty
-  ): boolean {
-    const type = property.type;
-    if (!MetadataTypes.numericTypes.includes(type)) {
-      return false;
-    }
-    const componentType = property.componentType;
-    if (!defined(componentType)) {
-      return false;
-    }
-    if (componentType === "FLOAT32" || componentType === "FLOAT64") {
-      return true;
-    }
-    if (MetadataComponentTypes.isIntegerComponentType(componentType!)) {
-      const normalized = property.normalized;
-      if (!defined(normalized)) {
-        return false;
-      }
-      return normalized!;
-    }
-    return false;
-  }
-
-  /**
-   * Returns whether the given property describes a numeric type.
-   *
-   * These are the properties for which 'max' and 'min' may be defined.
-   *
-   * This means tha the value has the type SCALAR, VECn, or MATn, and
-   * one of the allowed component types.
-   *
-   * @param property The property
-   * @returns Whether the property is a numeric property
-   */
-  private static hasNumericType(property: ClassProperty): boolean {
-    const type = property.type;
-    if (!MetadataTypes.numericTypes.includes(type)) {
-      return false;
-    }
-    const componentType = property.componentType;
-    if (!defined(componentType)) {
-      return false;
-    }
-    if (!MetadataComponentTypes.allComponentTypes.includes(componentType!)) {
-      return false;
-    }
-    return true;
   }
 }
