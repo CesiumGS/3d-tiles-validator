@@ -1,16 +1,16 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "../../base/defined";
+import { defaultValue } from "../../base/defaultValue";
 
-import { ValidationContext } from "./ValidationContext";
-import { BasicValidator } from "./BasicValidator";
+import { ValidationContext } from "./../ValidationContext";
+import { BasicValidator } from "./../BasicValidator";
+import { NumberValidator } from "./../NumberValidator";
 
-import { MetadataTypes } from "../metadata/MetadataTypes";
+import { MetadataTypes } from "../../metadata/MetadataTypes";
 
-import { Schema } from "../structure/Metadata/Schema";
-import { ClassProperty } from "../structure/Metadata/ClassProperty";
+import { Schema } from "../../structure/Metadata/Schema";
+import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 
-import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
-import { NumberValidator } from "./NumberValidator";
+import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
 
 /**
  * A class for validations of metadata values against the definitions

@@ -9,12 +9,13 @@ import { ValidationContext } from "./ValidationContext";
 import { ValidationState } from "./ValidationState";
 import { BasicValidator } from "./BasicValidator";
 import { BinaryValidator } from "./BinaryValidator";
-import { MetadataEntityValidator } from "./MetadataEntityValidator";
 import { SubtreeConsistencyValidator } from "./SubtreeConsistencyValidator";
-import { PropertyTableValidator } from "./PropertyTableValidator";
 import { SubtreeInfoValidator } from "./SubtreeInfoValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
+
+import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
+import { PropertyTableValidator } from "./metadata/PropertyTableValidator";
 
 import { BufferObject } from "../structure/BufferObject";
 import { Subtree } from "../structure/Subtree";

@@ -1,16 +1,17 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "../../base/defined";
+import { defaultValue } from "../../base/defaultValue";
 
-import { ValidationContext } from "./ValidationContext";
-import { BasicValidator } from "./BasicValidator";
-import { RootPropertyValidator } from "./RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
+import { ValidationContext } from "./../ValidationContext";
+import { BasicValidator } from "./../BasicValidator";
+import { RootPropertyValidator } from "./../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
+
 import { MetadataStructureValidator } from "./MetadataStructureValidator";
 import { PropertyTablePropertyValidator } from "./PropertyTablePropertyValidator";
 
-import { Schema } from "../structure/Metadata/Schema";
-import { PropertyTable } from "../structure/PropertyTable";
-import { Subtree } from "../structure/Subtree";
+import { Schema } from "../../structure/Metadata/Schema";
+import { PropertyTable } from "../../structure/PropertyTable";
+import { Subtree } from "../../structure/Subtree";
 
 /**
  * A class for validations related to `propertyTable` objects.

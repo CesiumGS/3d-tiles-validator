@@ -1,19 +1,20 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "../../base/defined";
+import { defaultValue } from "../../base/defaultValue";
 
-import { ValidationContext } from "./ValidationContext";
-import { BasicValidator } from "./BasicValidator";
+import { ValidationContext } from "./../ValidationContext";
+import { BasicValidator } from "./../BasicValidator";
+
 import { MetadataValueValidator } from "./MetadataValueValidator";
-
-import { Schema } from "../structure/Metadata/Schema";
-import { ClassProperty } from "../structure/Metadata/ClassProperty";
-
-import { MetadataTypes } from "../metadata/MetadataTypes";
-import { MetadataComponentTypes } from "../metadata/MetadataComponentTypes";
-
-import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
-import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { MetadataPropertyValidator } from "./MetadataPropertyValidator";
+
+import { Schema } from "../../structure/Metadata/Schema";
+import { ClassProperty } from "../../structure/Metadata/ClassProperty";
+
+import { MetadataTypes } from "../../metadata/MetadataTypes";
+import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
+
+import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
+import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
 
 /**
  * A class for validations related to `class.property` objects.

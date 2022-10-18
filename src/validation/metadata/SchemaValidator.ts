@@ -1,16 +1,17 @@
-import { defined } from "../base/defined";
+import { defined } from "../../base/defined";
 
-import { ValidationContext } from "./ValidationContext";
-import { Validator } from "./Validator";
-import { BasicValidator } from "./BasicValidator";
+import { ValidationContext } from "./../ValidationContext";
+import { Validator } from "./../Validator";
+import { BasicValidator } from "./../BasicValidator";
+import { RootPropertyValidator } from "./../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
+
 import { SchemaClassValidator } from "./SchemaClassValidator";
 import { SchemaEnumValidator } from "./SchemaEnumValidator";
-import { RootPropertyValidator } from "./RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
-import { Schema } from "../structure/Metadata/Schema";
+import { Schema } from "../../structure/Metadata/Schema";
 
-import { IoValidationIssues } from "../issues/IoValidationIssue";
+import { IoValidationIssues } from "../../issues/IoValidationIssue";
 
 /**
  * A class for validations related to `schema` objects.

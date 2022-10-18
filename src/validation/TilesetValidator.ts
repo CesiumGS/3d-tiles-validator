@@ -6,12 +6,13 @@ import { BasicValidator } from "./BasicValidator";
 import { ValidationContext } from "./ValidationContext";
 import { PropertiesValidator } from "./PropertiesValidator";
 import { StatisticsValidator } from "./StatisticsValidator";
-import { MetadataEntityValidator } from "./MetadataEntityValidator";
 import { AssetValidator } from "./AssetValidator";
-import { SchemaValidator } from "./SchemaValidator";
 import { TilesetTraversingValidator } from "./TilesetTraversingValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
+
+import { SchemaValidator } from "./metadata/SchemaValidator";
+import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 
 import { Tileset } from "../structure/Tileset";
 import { Schema } from "../structure/Metadata/Schema";

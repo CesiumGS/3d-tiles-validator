@@ -1,14 +1,15 @@
-import { defined } from "../base/defined";
+import { defined } from "../../base/defined";
 
-import { ValidationContext } from "./ValidationContext";
-import { BasicValidator } from "./BasicValidator";
-import { RootPropertyValidator } from "./RootPropertyValidator";
+import { ValidationContext } from "./../ValidationContext";
+import { BasicValidator } from "./../BasicValidator";
+import { RootPropertyValidator } from "./../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
+
 import { ClassPropertyValidator } from "./ClassPropertyValidator";
 import { ClassPropertySemanticsValidator } from "./ClassPropertySemanticsValidator";
-import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
-import { Schema } from "../structure/Metadata/Schema";
-import { SchemaClass } from "../structure/Metadata/SchemaClass";
+import { Schema } from "../../structure/Metadata/Schema";
+import { SchemaClass } from "../../structure/Metadata/SchemaClass";
 
 /**
  * A class for validations related to `SchemaClass` objects.

@@ -5,8 +5,9 @@ import { ValidationState } from "./ValidationState";
 import { BoundingVolumeValidator } from "./BoundingVolumeValidator";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
-import { MetadataEntityValidator } from "./MetadataEntityValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
+
+import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 
 import { Content } from "../structure/Content";
 

@@ -1,11 +1,11 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "../../base/defined";
+import { defaultValue } from "../../base/defaultValue";
 
-import { ValidationContext } from "./ValidationContext";
+import { ValidationContext } from "./../ValidationContext";
 
-import { ClassProperty } from "../structure/Metadata/ClassProperty";
+import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 
-import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
+import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
 
 /**
  * A class for validations of the `semantic` values of

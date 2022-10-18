@@ -1,13 +1,13 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "../../base/defined";
+import { defaultValue } from "../../base/defaultValue";
 
-import { ValidationContext } from "./ValidationContext";
-import { BasicValidator } from "./BasicValidator";
+import { ValidationContext } from "./../ValidationContext";
+import { BasicValidator } from "./../BasicValidator";
 
-import { Schema } from "../structure/Metadata/Schema";
+import { Schema } from "../../structure/Metadata/Schema";
 
-import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
+import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
+import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
 
 /**
  * A class for validations related to instance definitions of

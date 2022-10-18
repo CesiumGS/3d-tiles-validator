@@ -1,17 +1,17 @@
-import { defined } from "../base/defined";
+import { defined } from "../../base/defined";
 
-import { ValidationContext } from "./ValidationContext";
-import { BasicValidator } from "./BasicValidator";
-import { RootPropertyValidator } from "./RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
+import { ValidationContext } from "./../ValidationContext";
+import { BasicValidator } from "./../BasicValidator";
+import { RootPropertyValidator } from "./../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
+import { NumberValidator } from "./../NumberValidator";
 
-import { MetadataComponentTypes } from "../metadata/MetadataComponentTypes";
+import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
 
-import { SchemaEnum } from "../structure/Metadata/SchemaEnum";
-import { EnumValue } from "../structure/Metadata/EnumValue";
+import { SchemaEnum } from "../../structure/Metadata/SchemaEnum";
+import { EnumValue } from "../../structure/Metadata/EnumValue";
 
-import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
-import { NumberValidator } from "./NumberValidator";
+import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
 
 /**
  * A class for validations related to `SchemaEnum` objects.

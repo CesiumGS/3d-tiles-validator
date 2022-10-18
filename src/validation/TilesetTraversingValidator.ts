@@ -10,6 +10,8 @@ import { SubtreeValidator } from "./SubtreeValidator";
 import { TilesetTraverser } from "../traversal/TilesetTraverser";
 import { TraversedTile } from "../traversal/TraversedTile";
 
+import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
+
 import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
 
 import { Tileset } from "../structure/Tileset";
@@ -19,7 +21,6 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 import { ValidationIssues } from "../issues/ValidationIssues";
 import { ImplicitTilingValidator } from "./ImplicitTilingValidator";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { MetadataEntityValidator } from "./MetadataEntityValidator";
 
 /**
  * A validator for a `Tileset` that traverses the tile hierarchy

@@ -1,15 +1,16 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "../../base/defined";
+import { defaultValue } from "../../base/defaultValue";
 
-import { ValidationContext } from "./ValidationContext";
-import { BasicValidator } from "./BasicValidator";
+import { ValidationContext } from "./../ValidationContext";
+import { BasicValidator } from "./../BasicValidator";
+import { RootPropertyValidator } from "./../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
+
 import { MetadataStructureValidator } from "./MetadataStructureValidator";
 import { MetadataValueValidator } from "./MetadataValueValidator";
-import { RootPropertyValidator } from "./RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
-import { Schema } from "../structure/Metadata/Schema";
-import { MetadataEntity } from "../structure/MetadataEntity";
+import { Schema } from "../../structure/Metadata/Schema";
+import { MetadataEntity } from "../../structure/MetadataEntity";
 
 /**
  * A class for validations related to `metadataEntity` objects.
