@@ -5,6 +5,7 @@
       "properties": {
         "exampleProperty": {
           "type": "SCALAR",
+          "componentType": "FLOAT32",
           "enumType": "exampleEnum"
         }
       }

@@ -741,8 +741,10 @@ describe("Tileset validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/extensionRequiredButNotUsed.json"
     );
-    expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("EXTENSION_REQUIRED_BUT_NOT_USED");
+    expect(result.length).toEqual(3);
+    expect(result.get(0).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(1).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(2).type).toEqual("EXTENSION_REQUIRED_BUT_NOT_USED");
   });
 
   it("detects issues in extensionsInvalidType", async function () {
@@ -757,8 +759,10 @@ describe("Tileset validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/extensionsRequiredDuplicateElement.json"
     );
-    expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("ARRAY_ELEMENT_NOT_UNIQUE");
+    expect(result.length).toEqual(3);
+    expect(result.get(0).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(1).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(2).type).toEqual("ARRAY_ELEMENT_NOT_UNIQUE");
   });
 
   it("detects issues in extensionsRequiredInvalidArrayLength", async function () {
@@ -781,8 +785,10 @@ describe("Tileset validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/extensionsUsedDuplicateElement.json"
     );
-    expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("ARRAY_ELEMENT_NOT_UNIQUE");
+    expect(result.length).toEqual(3);
+    expect(result.get(0).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(1).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(2).type).toEqual("ARRAY_ELEMENT_NOT_UNIQUE");
   });
 
   it("detects issues in extensionsUsedInvalidArrayLength", async function () {
@@ -805,9 +811,10 @@ describe("Tileset validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/extensionsValueInvalidType.json"
     );
-    expect(result.length).toEqual(2);
+    expect(result.length).toEqual(3);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
-    expect(result.get(1).type).toEqual("EXTENSION_USED_BUT_NOT_FOUND");
+    expect(result.get(1).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(2).type).toEqual("EXTENSION_USED_BUT_NOT_FOUND");
   });
 
   it("detects issues in extensionUsedButNotFound", async function () {

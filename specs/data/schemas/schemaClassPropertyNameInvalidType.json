@@ -5,7 +5,8 @@
       "properties": {
         "exampleProperty": {
           "name": 123.456,
-          "type": "SCALAR"
+          "type": "SCALAR",
+          "componentType": "FLOAT32"
         }
       }
     }

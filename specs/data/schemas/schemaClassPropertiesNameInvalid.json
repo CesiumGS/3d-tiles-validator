@@ -4,7 +4,8 @@
     "exampleClass": {
       "properties": {
         "!!! NOT A VALID IDENTIFIER !!!": {
-          "type": "SCALAR"
+          "type": "SCALAR",
+          "componentType": "FLOAT32"
         }
       }
     }
