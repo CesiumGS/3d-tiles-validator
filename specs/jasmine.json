@@ -1,6 +1,6 @@
 {
   "spec_dir": "specs",
-  "spec_files": ["**/*Spec.*s"],
+  "spec_files": ["**/metadata/PropertyTablesSpec.ts"],
   "helpers": [],
   "random": false
 }

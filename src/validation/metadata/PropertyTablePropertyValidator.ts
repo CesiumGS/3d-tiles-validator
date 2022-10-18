@@ -6,12 +6,12 @@ import { BasicValidator } from "./../BasicValidator";
 import { MetadataPropertyValidator } from "./MetadataPropertyValidator";
 
 import { PropertyTableProperty } from "../../structure/PropertyTableProperty";
-import { Subtree } from "../../structure/Subtree";
 import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 
 import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
+import { BinaryMetadata } from "./BinaryMetadata";
 
 /**
  * A class for validations related to `propertyTable.property` objects.
@@ -26,6 +26,7 @@ export class PropertyTablePropertyValidator {
    * @param path The path for the `ValidationIssue` instances
    * @param propertyName The name of the property
    * @param propertyTableProperty The object to validate
+   * @param binaryMetadata The binary metadata (buffers and buffer views)
    * @param classProperty The `ClassProperty` definition from the schema
    * @param context The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
@@ -34,7 +35,7 @@ export class PropertyTablePropertyValidator {
     path: string,
     propertyName: string,
     propertyTableProperty: PropertyTableProperty,
-    subtree: Subtree,
+    binaryMetadata: BinaryMetadata,
     classProperty: ClassProperty,
     context: ValidationContext
   ): boolean {
@@ -52,9 +53,10 @@ export class PropertyTablePropertyValidator {
 
     let result = true;
 
-    // The basic structure of the subtree was already
-    // validated by the `SubtreeValidator`
-    const numBufferViews = subtree.bufferViews ? subtree.bufferViews.length : 0;
+    // The basic structure of the binary metdata was already
+    // validated (for example, by a `SubtreeValidator` when
+    // this data is part of a `Subtree`)
+    const numBufferViews = binaryMetadata.bufferViews ? binaryMetadata.bufferViews.length : 0;
 
     // The basic structure of the class property was already
     // validated by the `MatadataStructureValidator`
@@ -202,6 +204,57 @@ export class PropertyTablePropertyValidator {
           classProperty,
           "offset",
           offset,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+    
+    // Validate the scale
+    const scale = propertyTableProperty.scale;
+    if (defined(scale)) {
+      if (
+        !MetadataPropertyValidator.validateOffsetScale(
+          path,
+          propertyName,
+          classProperty,
+          "scale",
+          scale,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+
+    // Validate the max
+    const max = propertyTableProperty.max;
+    if (defined(max)) {
+      if (
+        !MetadataPropertyValidator.validateMaxMin(
+          path,
+          propertyName,
+          classProperty,
+          "max",
+          max,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+
+    // Validate the min
+    const min = propertyTableProperty.min;
+    if (defined(min)) {
+      if (
+        !MetadataPropertyValidator.validateMaxMin(
+          path,
+          propertyName,
+          classProperty,
+          "min",
+          min,
           context
         )
       ) {

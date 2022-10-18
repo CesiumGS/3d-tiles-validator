@@ -11,7 +11,7 @@ import { PropertyTablePropertyValidator } from "./PropertyTablePropertyValidator
 
 import { Schema } from "../../structure/Metadata/Schema";
 import { PropertyTable } from "../../structure/PropertyTable";
-import { Subtree } from "../../structure/Subtree";
+import { BinaryMetadata } from "./BinaryMetadata";
 
 /**
  * A class for validations related to `propertyTable` objects.
@@ -25,7 +25,7 @@ export class PropertyTableValidator {
    *
    * @param path The path for the `ValidationIssue` instances
    * @param propertyTable The object to validate
-   * @param subtree The `Subtree` object
+   * @param binaryMetadata The binary metadata (buffers and buffer views)
    * @param schema The `Schema` object
    * @param context The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
@@ -33,7 +33,7 @@ export class PropertyTableValidator {
   static validatePropertyTable(
     path: string,
     propertyTable: PropertyTable,
-    subtree: Subtree,
+    binaryMetadata: BinaryMetadata,
     schema: Schema,
     context: ValidationContext
   ): boolean {
@@ -155,7 +155,7 @@ export class PropertyTableValidator {
             propertyPath,
             propertyName,
             propertyValue,
-            subtree,
+            binaryMetadata,
             classProperty,
             context
           )

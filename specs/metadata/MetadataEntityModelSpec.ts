@@ -19,45 +19,6 @@ describe("metadata/MetadataEntityModel", function () {
     }).toThrow();
   });
 
-  it("obtains a scalar int32 value", function () {
-    const testSchemaClass: SchemaClass = {
-      properties: {
-        testProperty: {
-          type: "SCALAR",
-          componentType: "INT32",
-        },
-      },
-    };
-    const entityJson = {
-      testProperty: 1234,
-    };
-    const entity = MetadataEntityModels.createFromClass(
-      testSchemaClass,
-      entityJson
-    );
-    const value = entity.getPropertyValue("testProperty");
-    expect(value).toBe(1234);
-  });
-
-  it("obtains a string value", function () {
-    const testSchemaClass: SchemaClass = {
-      properties: {
-        testProperty: {
-          type: "STRING",
-        },
-      },
-    };
-    const entityJson = {
-      testProperty: "example",
-    };
-    const entity = MetadataEntityModels.createFromClass(
-      testSchemaClass,
-      entityJson
-    );
-    const value = entity.getPropertyValue("testProperty");
-    expect(value).toBe("example");
-  });
-
   it("obtains a default value for a scalar int32 value", function () {
     const testSchemaClass: SchemaClass = {
       properties: {
@@ -99,88 +60,6 @@ describe("metadata/MetadataEntityModel", function () {
     );
     const value = entity.getPropertyValue("testProperty");
     expect(value).toBe(1234);
-  });
-
-  it("obtains an array float32 value", function () {
-    const testSchemaClass: SchemaClass = {
-      properties: {
-        testProperty: {
-          type: "SCALAR",
-          array: true,
-          componentType: "FLOAT32",
-        },
-      },
-    };
-    const entityJson = {
-      testProperty: [1.2, 2.3, 3.4, 4.5],
-    };
-    const entity = MetadataEntityModels.createFromClass(
-      testSchemaClass,
-      entityJson
-    );
-    const value = entity.getPropertyValue("testProperty");
-    expect(value).toEqual([1.2, 2.3, 3.4, 4.5]);
-  });
-
-  it("obtains a vec3 float32 value", function () {
-    const testSchemaClass: SchemaClass = {
-      properties: {
-        testProperty: {
-          type: "VEC3",
-          componentType: "FLOAT32",
-        },
-      },
-    };
-    const entityJson = {
-      testProperty: [1.2, 2.3, 3.4],
-    };
-    const entity = MetadataEntityModels.createFromClass(
-      testSchemaClass,
-      entityJson
-    );
-    const value = entity.getPropertyValue("testProperty");
-    expect(value).toEqual([1.2, 2.3, 3.4]);
-  });
-
-  it("obtains a mat2 float32 value", function () {
-    const testSchemaClass: SchemaClass = {
-      properties: {
-        testProperty: {
-          type: "MAT2",
-          componentType: "FLOAT32",
-        },
-      },
-    };
-    const entityJson = {
-      testProperty: [1.2, 2.3, 3.4, 4.5],
-    };
-    const entity = MetadataEntityModels.createFromClass(
-      testSchemaClass,
-      entityJson
-    );
-    const value = entity.getPropertyValue("testProperty");
-    expect(value).toEqual([1.2, 2.3, 3.4, 4.5]);
-  });
-
-  it("obtains a an array of mat2 float32 values", function () {
-    const testSchemaClass: SchemaClass = {
-      properties: {
-        testProperty: {
-          type: "MAT2",
-          array: true,
-          componentType: "FLOAT32",
-        },
-      },
-    };
-    const entityJson = {
-      testProperty: [1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8, 8.9],
-    };
-    const entity = MetadataEntityModels.createFromClass(
-      testSchemaClass,
-      entityJson
-    );
-    const value = entity.getPropertyValue("testProperty");
-    expect(value).toEqual([1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8, 8.9]);
   });
 
   it("obtains a value for a vec3 float32 value with offset", function () {

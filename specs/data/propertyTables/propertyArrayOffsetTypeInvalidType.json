@@ -1,0 +1,20 @@
+{
+  "buffers": [{ "uri": "validBuffer.bin", "byteLength": 16 }],
+  "bufferViews": [
+    { "buffer": 0, "byteOffset": 0, "byteLength": 3 },
+    { "buffer": 0, "byteOffset": 8, "byteLength": 8 }
+  ],
+  "propertyTables": [
+    {
+      "class": "fullMetadataClass",
+      "count": 1,
+      "properties": {
+        "example_variable_length_INT8_SCALAR_array": {
+          "values": 0,
+          "arrayOffsets": 0,
+          "arrayOffsetType": 12345
+        }
+      }
+    }
+  ]
+}
