@@ -6,7 +6,6 @@ import { ValidationContext } from "./ValidationContext";
 import { RootProperty } from "../structure/RootProperty";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
-import { BasicValidator } from "./BasicValidator";
 
 /**
  * A class for managing the validation of objects that contain extensions.
