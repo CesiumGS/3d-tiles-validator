@@ -645,14 +645,14 @@ export class ClassPropertyValidator {
    *
    * These are the properties for which 'offset' and 'scale' may be defined.
    *
-   * This means tha the value has the type SCALAR, VECn, or MATn, and
+   * This means that the value has the type SCALAR, VECn, or MATn, and
    * - either has the componentType FLOAT32 or FLOAT46
    * - or has an integer component type AND is 'normalized'
    *
    * @param property The property
    * @returns Whether the property is a floating point property
    */
-  private static hasEffectivelyFloatingPointType(
+  static hasEffectivelyFloatingPointType(
     property: ClassProperty
   ): boolean {
     const type = property.type;
