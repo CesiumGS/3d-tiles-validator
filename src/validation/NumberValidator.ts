@@ -14,7 +14,7 @@ import { JsonValidationIssues } from "../issues/JsonValidationIssues";
  */
 export class NumberValidator {
   /**
-   * Validates that each element of the given array in is in the range 
+   * Validates that each element of the given array in is in the range
    * that is determined by the given component type.
    *
    * This assumes that the given `componentType` has already been

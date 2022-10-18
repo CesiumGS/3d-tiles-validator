@@ -165,5 +165,4 @@ export class PropertyTableValidator {
     }
     return result;
   }
-
 }

@@ -31,7 +31,7 @@ export class TileFormatValidator {
    *
    * This validates that the given input has at least the
    * given header byte length, and whether the 'magic',
-   * and 'byteLength' fields of the header have the expected 
+   * and 'byteLength' fields of the header have the expected
    * values. (The 'version' is validated to always be '1')
    *
    * @param path The path for `ValidationIssue` instances

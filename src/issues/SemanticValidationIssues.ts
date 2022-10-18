@@ -59,10 +59,7 @@ export class SemanticValidationIssues {
     return issue;
   }
 
-  static CLASS_PROPERTY_COMPONENT_TYPE_MISSING(
-    path: string,
-    theType: string
-  ) {
+  static CLASS_PROPERTY_COMPONENT_TYPE_MISSING(path: string, theType: string) {
     const type = "CLASS_PROPERTY_COMPONENT_TYPE_MISSING";
     const severity = ValidationIssueSeverity.ERROR;
     const message =
