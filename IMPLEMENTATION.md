@@ -51,8 +51,5 @@ The `ValidationIssue` class and its types:
 
 ### General functionality
 
-- Check that geometry is within tile.boundingVolume, content.boundingVolume, and parent.boundingVolume
 - Check that metadata statistics are correct. Or at the very least, check that metadata values fall within min/max
 - Check that metadata values fall within the class's min/max
-- Declarative styling validation
-- Should absolute URIs be resolved?
