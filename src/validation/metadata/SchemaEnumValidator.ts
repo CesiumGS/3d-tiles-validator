@@ -139,7 +139,7 @@ export class SchemaEnumValidator {
     }
 
     // Validate the values
-    const values = schemaEnum!.values;
+    const values = schemaEnum.values;
     if (
       !SchemaEnumValidator.validateSchemaEnumValues(
         schemaEnumPath,
@@ -345,8 +345,8 @@ export class SchemaEnumValidator {
     // Validate the value
     const value = enumValue.value;
     const valuePath = enumValuePath + "/value";
-    // The name MUST be defined
-    // The name MUST be an integer
+    // The value MUST be defined
+    // The value MUST be an integer
     if (!BasicValidator.validateInteger(valuePath, "value", value, context)) {
       result = false;
     }
