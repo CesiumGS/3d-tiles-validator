@@ -7,7 +7,7 @@ import { MetadataError } from "./MetadataError";
 import { MetadataClass } from "../structure/Metadata/MetadataClass";
 
 /**
- * Defalt implementation of a `MetadataEntityModel` that is backed
+ * Default implementation of a `MetadataEntityModel` that is backed
  * by the JSON representation of the metadata.
  *
  * (The JSON representation are just the `metadataEntity.properties`
