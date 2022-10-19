@@ -19,7 +19,10 @@ function test_exampleScalarInt32() {
   const entityJson = {
     testProperty: 1234,
   };
-  const entity = MetadataEntityModels.createFromClass(metadataClass, entityJson);
+  const entity = MetadataEntityModels.createFromClass(
+    metadataClass,
+    entityJson
+  );
 
   const value = entity.getPropertyValue("testProperty");
   console.log("  Property value: " + value);
@@ -42,7 +45,10 @@ function test_exampleArrayInt16WithDefault() {
   const entityJson = {
     testProperty: undefined,
   };
-  const entity = MetadataEntityModels.createFromClass(metadataClass, entityJson);
+  const entity = MetadataEntityModels.createFromClass(
+    metadataClass,
+    entityJson
+  );
   const value = entity.getPropertyValue("testProperty");
   console.log("  Property value: " + value);
 }
@@ -61,7 +67,10 @@ function test_exampleVec3Uint16Normalized() {
   const entityJson = {
     testProperty: [0, 32767, 65535],
   };
-  const entity = MetadataEntityModels.createFromClass(metadataClass, entityJson);
+  const entity = MetadataEntityModels.createFromClass(
+    metadataClass,
+    entityJson
+  );
   const value = entity.getPropertyValue("testProperty");
   console.log("  Property value: " + value);
 }

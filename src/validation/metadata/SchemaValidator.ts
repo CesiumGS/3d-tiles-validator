@@ -6,13 +6,12 @@ import { BasicValidator } from "./../BasicValidator";
 import { RootPropertyValidator } from "./../RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
 
-import { ClassPropertyValueValidator } from "./ClassPropertyValueValidator";
+import { MetadataClassValidator } from "./MetadataClassValidator";
 import { MetadataEnumValidator } from "./MetadataEnumValidator";
 
 import { Schema } from "../../structure/Metadata/Schema";
 
 import { IoValidationIssues } from "../../issues/IoValidationIssue";
-import { MetadataClassValidator } from "./MetadataClassValidator";
 
 /**
  * A class for validations related to `schema` objects.

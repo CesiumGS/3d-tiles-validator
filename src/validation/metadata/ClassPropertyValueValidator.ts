@@ -118,7 +118,9 @@ export class ClassPropertyValueValidator {
     const normalized = property.normalized;
 
     // When the offset/scale is given, the property MUST have a 'floating point type'
-    if (!ClassPropertyValueValidator.hasEffectivelyFloatingPointType(property)) {
+    if (
+      !ClassPropertyValueValidator.hasEffectivelyFloatingPointType(property)
+    ) {
       const issue =
         SemanticValidationIssues.CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE(
           path,

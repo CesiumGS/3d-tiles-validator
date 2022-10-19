@@ -56,7 +56,9 @@ export class PropertyTablePropertyValidator {
     // The basic structure of the binary metdata was already
     // validated (for example, by a `SubtreeValidator` when
     // this data is part of a `Subtree`)
-    const numBufferViews = binaryMetadata.bufferViews ? binaryMetadata.bufferViews.length : 0;
+    const numBufferViews = binaryMetadata.bufferViews
+      ? binaryMetadata.bufferViews.length
+      : 0;
 
     // The basic structure of the class property was already
     // validated by the `MatadataStructureValidator`
@@ -210,7 +212,7 @@ export class PropertyTablePropertyValidator {
         result = false;
       }
     }
-    
+
     // Validate the scale
     const scale = propertyTableProperty.scale;
     if (defined(scale)) {

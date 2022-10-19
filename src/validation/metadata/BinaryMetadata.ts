@@ -7,6 +7,6 @@ import { BufferView } from "../../structure/BufferView";
  * a `Subtree` object.
  */
 export interface BinaryMetadata {
-    buffers?: BufferObject[];
-    bufferViews?: BufferView[];
+  buffers?: BufferObject[];
+  bufferViews?: BufferView[];
 }
