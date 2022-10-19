@@ -3,7 +3,7 @@ import { defined } from "../../base/defined";
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
 
-import { MetadataPropertyValidator } from "./ClassPropertyValueValidator";
+import { ClassPropertyValueValidator } from "./ClassPropertyValueValidator";
 
 import { PropertyTableProperty } from "../../structure/PropertyTableProperty";
 import { ClassProperty } from "../../structure/Metadata/ClassProperty";
@@ -200,7 +200,7 @@ export class PropertyTablePropertyValidator {
     const offset = propertyTableProperty.offset;
     if (defined(offset)) {
       if (
-        !MetadataPropertyValidator.validateOffsetScale(
+        !ClassPropertyValueValidator.validateOffsetScale(
           path,
           propertyName,
           classProperty,
@@ -217,7 +217,7 @@ export class PropertyTablePropertyValidator {
     const scale = propertyTableProperty.scale;
     if (defined(scale)) {
       if (
-        !MetadataPropertyValidator.validateOffsetScale(
+        !ClassPropertyValueValidator.validateOffsetScale(
           path,
           propertyName,
           classProperty,
@@ -234,7 +234,7 @@ export class PropertyTablePropertyValidator {
     const max = propertyTableProperty.max;
     if (defined(max)) {
       if (
-        !MetadataPropertyValidator.validateMaxMin(
+        !ClassPropertyValueValidator.validateMaxMin(
           path,
           propertyName,
           classProperty,
@@ -251,7 +251,7 @@ export class PropertyTablePropertyValidator {
     const min = propertyTableProperty.min;
     if (defined(min)) {
       if (
-        !MetadataPropertyValidator.validateMaxMin(
+        !ClassPropertyValueValidator.validateMaxMin(
           path,
           propertyName,
           classProperty,
