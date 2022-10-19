@@ -1,45 +1,45 @@
 import { defined } from "../../base/defined";
 
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
-import { RootPropertyValidator } from "./../RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
-import { NumberValidator } from "./../NumberValidator";
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
+import { RootPropertyValidator } from "../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
+import { NumberValidator } from "../NumberValidator";
 
 import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
 
-import { SchemaEnum } from "../../structure/Metadata/SchemaEnum";
+import { MetadataEnum } from "../../structure/Metadata/MetadataEnum";
 import { EnumValue } from "../../structure/Metadata/EnumValue";
 
 import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
 
 /**
- * A class for validations related to `SchemaEnum` objects.
+ * A class for validations related to `MetadataEnum` objects.
  *
  * @private
  */
-export class SchemaEnumValidator {
+export class MetadataEnumValidator {
   /**
-   * Validate the given `SchemaEnum` object
+   * Validate the given `MetadataEnum` object
    *
-   * @param schemaEnumPath The path for `ValidationIssue` instances
+   * @param metadataEnumPath The path for `ValidationIssue` instances
    * @param enumName The name of the enum
-   * @param schemaEnum The actual `SchemaEnum`
+   * @param metadataEnum The actual `MetadataEnum`
    * @param context The `ValidatonContext`
    * @returns Whether the object was valid
    */
-  static validateSchemaEnum(
-    schemaEnumPath: string,
+  static validateMetadataEnum(
+    metadataEnumPath: string,
     enumName: string,
-    schemaEnum: SchemaEnum,
+    metadataEnum: MetadataEnum,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
     if (
       !BasicValidator.validateObject(
-        schemaEnumPath,
+        metadataEnumPath,
         enumName,
-        schemaEnum,
+        metadataEnum,
         context
       )
     ) {
@@ -51,9 +51,9 @@ export class SchemaEnumValidator {
     // Validate the object as a RootProperty
     if (
       !RootPropertyValidator.validateRootProperty(
-        schemaEnumPath,
+        metadataEnumPath,
         enumName,
-        schemaEnum,
+        metadataEnum,
         context
       )
     ) {
@@ -64,8 +64,8 @@ export class SchemaEnumValidator {
     // extensions that it may contain
     if (
       !ExtendedObjectsValidators.validateExtendedObject(
-        schemaEnumPath,
-        schemaEnum,
+        metadataEnumPath,
+        metadataEnum,
         context
       )
     ) {
@@ -73,7 +73,7 @@ export class SchemaEnumValidator {
     }
     // If there was an extension validator that overrides the
     // default validation, then skip the remaining validation.
-    if (ExtendedObjectsValidators.hasOverride(schemaEnum)) {
+    if (ExtendedObjectsValidators.hasOverride(metadataEnum)) {
       return result;
     }
 
@@ -81,8 +81,8 @@ export class SchemaEnumValidator {
     // If the name is defined, it MUST be a string.
     if (
       !BasicValidator.validateOptionalString(
-        schemaEnumPath,
-        schemaEnum,
+        metadataEnumPath,
+        metadataEnum,
         "name",
         context
       )
@@ -94,8 +94,8 @@ export class SchemaEnumValidator {
     // If the description is defined, it MUST be a string.
     if (
       !BasicValidator.validateOptionalString(
-        schemaEnumPath,
-        schemaEnum,
+        metadataEnumPath,
+        metadataEnum,
         "description",
         context
       )
@@ -105,8 +105,8 @@ export class SchemaEnumValidator {
 
     // Validate the valueType
     let validatedValueType = undefined;
-    const valueType = schemaEnum.valueType;
-    const valueTypePath = schemaEnumPath + "/valueType";
+    const valueType = metadataEnum.valueType;
+    const valueTypePath = metadataEnumPath + "/valueType";
     if (!defined(valueType)) {
       validatedValueType = "UINT16";
     } else {
@@ -139,10 +139,10 @@ export class SchemaEnumValidator {
     }
 
     // Validate the values
-    const values = schemaEnum.values;
+    const values = metadataEnum.values;
     if (
-      !SchemaEnumValidator.validateSchemaEnumValues(
-        schemaEnumPath,
+      !MetadataEnumValidator.validateMetadataEnumValues(
+        metadataEnumPath,
         values,
         validatedValueType,
         context
@@ -157,7 +157,7 @@ export class SchemaEnumValidator {
   /**
    * Validates the given `enum.values` array
    *
-   * @param schemaEnumPath The path of the enum for `ValidationIssue` instances
+   * @param metadataEnumPath The path of the enum for `ValidationIssue` instances
    * @param values The actual values array
    * @param validatedValueType The valueType from the enum definition.
    * If there was no valueType definition, then this is the default
@@ -165,13 +165,13 @@ export class SchemaEnumValidator {
    * @param context The `ValidationContext`
    * @returns Whether the enum values are valid
    */
-  private static validateSchemaEnumValues(
-    schemaEnumPath: string,
+  private static validateMetadataEnumValues(
+    metadataEnumPath: string,
     values: EnumValue[],
     validatedValueType: string | undefined,
     context: ValidationContext
   ): boolean {
-    const valuesPath = schemaEnumPath + "/values";
+    const valuesPath = metadataEnumPath + "/values";
     // The values MUST be defined
     // The values MUST be an array of "object"
     // The values MUST have at least 1 item
@@ -196,7 +196,7 @@ export class SchemaEnumValidator {
       const value = values[i];
       const valuePath = valuesPath + "/" + i;
       if (
-        !SchemaEnumValidator.validateSchemaEnumValue(
+        !MetadataEnumValidator.validateMetadataEnumValue(
           valuePath,
           value,
           validatedValueType,
@@ -211,8 +211,8 @@ export class SchemaEnumValidator {
     // duplicates for `values[i].name` or `values[i].value`
     if (result) {
       if (
-        !SchemaEnumValidator.validateUniqueNames(
-          schemaEnumPath,
+        !MetadataEnumValidator.validateUniqueNames(
+          metadataEnumPath,
           values,
           context
         )
@@ -220,8 +220,8 @@ export class SchemaEnumValidator {
         result = false;
       }
       if (
-        !SchemaEnumValidator.validateUniqueValues(
-          schemaEnumPath,
+        !MetadataEnumValidator.validateUniqueValues(
+          metadataEnumPath,
           values,
           context
         )
@@ -305,7 +305,7 @@ export class SchemaEnumValidator {
    * @param context The `ValidationContext`
    * @returns Whether the `EnumValue` is valid
    */
-  private static validateSchemaEnumValue(
+  private static validateMetadataEnumValue(
     enumValuePath: string,
     enumValue: EnumValue,
     validatedValueType: string | undefined,

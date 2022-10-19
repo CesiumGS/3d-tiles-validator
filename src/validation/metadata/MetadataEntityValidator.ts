@@ -95,9 +95,9 @@ export class MetadataEntityValidator {
     // Here, the basic structure of the class and properties
     // have been determined to be valid. Continue to validate
     // the values of the properties.
-    const schemaClasses = defaultValue(schema.classes, {});
-    const schemaClass = schemaClasses[className];
-    const classProperties = defaultValue(schemaClass.properties, {});
+    const metadataClasses = defaultValue(schema.classes, {});
+    const metadataClass = metadataClasses[className];
+    const classProperties = defaultValue(metadataClass.properties, {});
     const validProperties = defaultValue(entityProperties, {});
     const validPropertyNames = Object.keys(validProperties);
 

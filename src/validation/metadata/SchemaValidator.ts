@@ -6,12 +6,13 @@ import { BasicValidator } from "./../BasicValidator";
 import { RootPropertyValidator } from "./../RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
 
-import { SchemaClassValidator } from "./SchemaClassValidator";
-import { SchemaEnumValidator } from "./SchemaEnumValidator";
+import { ClassPropertyValueValidator } from "./ClassPropertyValueValidator";
+import { MetadataEnumValidator } from "./MetadataEnumValidator";
 
 import { Schema } from "../../structure/Metadata/Schema";
 
 import { IoValidationIssues } from "../../issues/IoValidationIssue";
+import { MetadataClassValidator } from "./MetadataClassValidator";
 
 /**
  * A class for validations related to `schema` objects.
@@ -158,13 +159,13 @@ export class SchemaValidator implements Validator<Schema> {
       ) {
         result = false;
       } else {
-        for (const [className, schemaClass] of Object.entries(classes!)) {
-          const schemaClassPath = classesPath + "/" + className;
+        for (const [className, metadataClass] of Object.entries(classes!)) {
+          const metadataClassPath = classesPath + "/" + className;
 
           // Each class name name MUST match the ID regex
           if (
             !BasicValidator.validateIdentifierString(
-              schemaClassPath,
+              metadataClassPath,
               className,
               className,
               context
@@ -173,10 +174,10 @@ export class SchemaValidator implements Validator<Schema> {
             result = false;
           }
           if (
-            !SchemaClassValidator.validateSchemaClass(
-              schemaClassPath,
+            !MetadataClassValidator.validateMetadataClass(
+              metadataClassPath,
               className,
-              schemaClass,
+              metadataClass,
               schema,
               context
             )
@@ -195,13 +196,13 @@ export class SchemaValidator implements Validator<Schema> {
       if (!BasicValidator.validateObject(enumsPath, "enums", enums, context)) {
         result = false;
       } else {
-        for (const [enumName, schemaEnum] of Object.entries(enums!)) {
-          const schemaEnumPath = enumsPath + "/" + enumName;
+        for (const [enumName, metadataEnum] of Object.entries(enums!)) {
+          const metadataEnumPath = enumsPath + "/" + enumName;
 
           // Each enum name name MUST match the ID regex
           if (
             !BasicValidator.validateIdentifierString(
-              schemaEnumPath,
+              metadataEnumPath,
               enumName,
               enumName,
               context
@@ -211,10 +212,10 @@ export class SchemaValidator implements Validator<Schema> {
           }
 
           if (
-            !SchemaEnumValidator.validateSchemaEnum(
-              schemaEnumPath,
+            !MetadataEnumValidator.validateMetadataEnum(
+              metadataEnumPath,
               enumName,
-              schemaEnum,
+              metadataEnum,
               context
             )
           ) {

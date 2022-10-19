@@ -1,18 +1,18 @@
 import { MetadataEntityModels } from "../../src/metadata/MetadataEntityModels";
-import { SchemaClass } from "../../src/structure/Metadata/SchemaClass";
+import { MetadataClass } from "../../src/structure/Metadata/MetadataClass";
 import { genericEquals } from "./genericEquals";
 
 describe("metadata/MetadataEntityModel", function () {
   it("throws when the value of an unknown property is accessed", function () {
     expect(function () {
-      const testSchemaClass: SchemaClass = {
+      const testMetadataClass: MetadataClass = {
         properties: {},
       };
       const entityJson = {
         testProperty: 1234,
       };
       const entity = MetadataEntityModels.createFromClass(
-        testSchemaClass,
+        testMetadataClass,
         entityJson
       );
       entity.getPropertyValue("testProperty");
@@ -20,7 +20,7 @@ describe("metadata/MetadataEntityModel", function () {
   });
 
   it("obtains a default value for a scalar int32 value", function () {
-    const testSchemaClass: SchemaClass = {
+    const testMetadataClass: MetadataClass = {
       properties: {
         testProperty: {
           type: "SCALAR",
@@ -33,7 +33,7 @@ describe("metadata/MetadataEntityModel", function () {
       testProperty: undefined,
     };
     const entity = MetadataEntityModels.createFromClass(
-      testSchemaClass,
+      testMetadataClass,
       entityJson
     );
     const value = entity.getPropertyValue("testProperty");
@@ -41,7 +41,7 @@ describe("metadata/MetadataEntityModel", function () {
   });
 
   it("obtains a default value for a scalar int32 noData value", function () {
-    const testSchemaClass: SchemaClass = {
+    const testMetadataClass: MetadataClass = {
       properties: {
         testProperty: {
           type: "SCALAR",
@@ -55,7 +55,7 @@ describe("metadata/MetadataEntityModel", function () {
       testProperty: 2345,
     };
     const entity = MetadataEntityModels.createFromClass(
-      testSchemaClass,
+      testMetadataClass,
       entityJson
     );
     const value = entity.getPropertyValue("testProperty");
@@ -63,7 +63,7 @@ describe("metadata/MetadataEntityModel", function () {
   });
 
   it("obtains a value for a vec3 float32 value with offset", function () {
-    const testSchemaClass: SchemaClass = {
+    const testMetadataClass: MetadataClass = {
       properties: {
         testProperty: {
           type: "VEC3",
@@ -76,7 +76,7 @@ describe("metadata/MetadataEntityModel", function () {
       testProperty: [4.5, 5.6, 6.7],
     };
     const entity = MetadataEntityModels.createFromClass(
-      testSchemaClass,
+      testMetadataClass,
       entityJson
     );
     const value = entity.getPropertyValue("testProperty");
@@ -86,7 +86,7 @@ describe("metadata/MetadataEntityModel", function () {
   });
 
   it("obtains a value for a vec3 float32 value with scale", function () {
-    const testSchemaClass: SchemaClass = {
+    const testMetadataClass: MetadataClass = {
       properties: {
         testProperty: {
           type: "VEC3",
@@ -99,7 +99,7 @@ describe("metadata/MetadataEntityModel", function () {
       testProperty: [3.0, 4.0, 5.0],
     };
     const entity = MetadataEntityModels.createFromClass(
-      testSchemaClass,
+      testMetadataClass,
       entityJson
     );
     const value = entity.getPropertyValue("testProperty");

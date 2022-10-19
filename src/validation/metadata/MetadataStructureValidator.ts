@@ -65,9 +65,9 @@ export class MetadataStructureValidator {
     }
 
     // The class MUST appear in the schema.classes dictionary
-    const schemaClasses: any = defaultValue(schema.classes, {});
-    const schemaClass = schemaClasses[className];
-    if (!defined(schemaClass)) {
+    const metadataClasses: any = defaultValue(schema.classes, {});
+    const metadataClass = metadataClasses[className];
+    if (!defined(metadataClass)) {
       const message =
         `The ${name} has a class name '${className}', ` +
         `but the schema does not define this class`;
@@ -79,10 +79,10 @@ export class MetadataStructureValidator {
       return false;
     }
 
-    // Here, the schemaClass is defined
+    // Here, the metadataClass is defined
     let result = true;
 
-    const classProperties = defaultValue(schemaClass.properties, {});
+    const classProperties = defaultValue(metadataClass.properties, {});
     const classPropertyNames = Object.keys(classProperties);
 
     // Validate the properties

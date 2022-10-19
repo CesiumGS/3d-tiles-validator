@@ -4,7 +4,7 @@ import { MetadataEntityModel } from "./MetadataEntityModel";
 import { MetadataValues } from "./MetadataValues";
 import { MetadataError } from "./MetadataError";
 
-import { SchemaClass } from "../structure/Metadata/SchemaClass";
+import { MetadataClass } from "../structure/Metadata/MetadataClass";
 
 /**
  * Defalt implementation of a `MetadataEntityModel` that is backed
@@ -16,22 +16,22 @@ import { SchemaClass } from "../structure/Metadata/SchemaClass";
  * @private
  */
 export class DefaultMetadataEntityModel implements MetadataEntityModel {
-  private readonly _schemaClass: SchemaClass;
+  private readonly _metadataClass: MetadataClass;
   private readonly _json: any;
   private readonly _semanticToPropertyId: { [key: string]: string };
 
   constructor(
-    schemaClass: SchemaClass,
+    metadataClass: MetadataClass,
     semanticToPropertyId: { [key: string]: string },
     json: any
   ) {
-    this._schemaClass = schemaClass;
+    this._metadataClass = metadataClass;
     this._semanticToPropertyId = semanticToPropertyId;
     this._json = json;
   }
 
   getPropertyValue(propertyId: string): any {
-    const properties = this._schemaClass.properties;
+    const properties = this._metadataClass.properties;
     if (!defined(properties)) {
       throw new MetadataError(`Schema class does not have any properties`);
     }

@@ -1,6 +1,6 @@
 import { defined } from "../../base/defined";
 
-import { ValidationContext } from "./../ValidationContext";
+import { ValidationContext } from "../ValidationContext";
 
 import { MetadataValueValidator } from "./MetadataValueValidator";
 
@@ -20,7 +20,7 @@ import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
  *
  * @private
  */
-export class MetadataPropertyValidator {
+export class ClassPropertyValueValidator {
   /**
    * Validates that the given value is a proper `max` or `min` value
    * for the given property.
@@ -55,7 +55,7 @@ export class MetadataPropertyValidator {
     const type = property.type;
 
     // When the max/min is given, the property MUST have a numeric type
-    if (!MetadataPropertyValidator.hasNumericType(property)) {
+    if (!ClassPropertyValueValidator.hasNumericType(property)) {
       const issue =
         SemanticValidationIssues.CLASS_PROPERTY_MIN_MAX_FOR_NON_NUMERIC_TYPE(
           path,
@@ -118,7 +118,7 @@ export class MetadataPropertyValidator {
     const normalized = property.normalized;
 
     // When the offset/scale is given, the property MUST have a 'floating point type'
-    if (!MetadataPropertyValidator.hasEffectivelyFloatingPointType(property)) {
+    if (!ClassPropertyValueValidator.hasEffectivelyFloatingPointType(property)) {
       const issue =
         SemanticValidationIssues.CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE(
           path,

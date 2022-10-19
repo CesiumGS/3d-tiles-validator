@@ -1,7 +1,7 @@
 import { RootProperty } from "../RootProperty";
 import { ClassProperty } from "./ClassProperty";
 
-export interface SchemaClass extends RootProperty {
+export interface MetadataClass extends RootProperty {
   name?: string;
   description?: string;
   properties?: { [key: string]: ClassProperty };

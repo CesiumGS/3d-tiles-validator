@@ -1,45 +1,45 @@
 import { defined } from "../../base/defined";
 
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
-import { RootPropertyValidator } from "./../RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
+import { RootPropertyValidator } from "../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
 import { ClassPropertyValidator } from "./ClassPropertyValidator";
 import { ClassPropertySemanticsValidator } from "./ClassPropertySemanticsValidator";
 
 import { Schema } from "../../structure/Metadata/Schema";
-import { SchemaClass } from "../../structure/Metadata/SchemaClass";
+import { MetadataClass } from "../../structure/Metadata/MetadataClass";
 
 /**
- * A class for validations related to `SchemaClass` objects.
+ * A class for validations related to `MetadataClass` objects.
  *
  * @private
  */
-export class SchemaClassValidator {
+export class MetadataClassValidator {
   /**
-   * Validate the given `SchemaClass` object
+   * Validate the given `MetadataClass` object
    *
-   * @param schemaClassPath The path for `ValidationIssue` instances
+   * @param metadataClassPath The path for `ValidationIssue` instances
    * @param name The name of the class
-   * @param schemaClass The actual `SchemaClass`
+   * @param metadataClass The actual `MetadataClass`
    * @param schema The `Schema`
    * @param context The `ValidatonContext`
    * @returns Whether the object was valid
    */
-  static validateSchemaClass(
-    schemaClassPath: string,
+  static validateMetadataClass(
+    metadataClassPath: string,
     name: string,
-    schemaClass: SchemaClass,
+    metadataClass: MetadataClass,
     schema: Schema,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
     if (
       !BasicValidator.validateObject(
-        schemaClassPath,
+        metadataClassPath,
         name,
-        schemaClass,
+        metadataClass,
         context
       )
     ) {
@@ -51,9 +51,9 @@ export class SchemaClassValidator {
     // Validate the object as a RootProperty
     if (
       !RootPropertyValidator.validateRootProperty(
-        schemaClassPath,
+        metadataClassPath,
         name,
-        schemaClass,
+        metadataClass,
         context
       )
     ) {
@@ -64,8 +64,8 @@ export class SchemaClassValidator {
     // extensions that it may contain
     if (
       !ExtendedObjectsValidators.validateExtendedObject(
-        schemaClassPath,
-        schemaClass,
+        metadataClassPath,
+        metadataClass,
         context
       )
     ) {
@@ -73,7 +73,7 @@ export class SchemaClassValidator {
     }
     // If there was an extension validator that overrides the
     // default validation, then skip the remaining validation.
-    if (ExtendedObjectsValidators.hasOverride(schemaClass)) {
+    if (ExtendedObjectsValidators.hasOverride(metadataClass)) {
       return result;
     }
 
@@ -81,8 +81,8 @@ export class SchemaClassValidator {
     // If the name is defined, it MUST be a string.
     if (
       !BasicValidator.validateOptionalString(
-        schemaClassPath,
-        schemaClass,
+        metadataClassPath,
+        metadataClass,
         "name",
         context
       )
@@ -94,8 +94,8 @@ export class SchemaClassValidator {
     // If the description is defined, it MUST be a string.
     if (
       !BasicValidator.validateOptionalString(
-        schemaClassPath,
-        schemaClass,
+        metadataClassPath,
+        metadataClass,
         "description",
         context
       )
@@ -104,8 +104,8 @@ export class SchemaClassValidator {
     }
 
     // Validate the properties
-    const properties = schemaClass.properties;
-    const propertiesPath = schemaClassPath + "/properties";
+    const properties = metadataClass.properties;
+    const propertiesPath = metadataClassPath + "/properties";
     if (defined(properties)) {
       // The properties MUST have at least 1 property
       if (
@@ -160,7 +160,7 @@ export class SchemaClassValidator {
       if (allPropertiesValid) {
         if (
           !ClassPropertySemanticsValidator.validateSemantics(
-            schemaClassPath,
+            metadataClassPath,
             properties!,
             context
           )

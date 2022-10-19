@@ -137,8 +137,8 @@ export class PropertyTableValidator {
     const validProperties = defaultValue(tableProperties, {});
     const validPropertyNames = Object.keys(validProperties);
     const classes = defaultValue(schema.classes, {});
-    const schemaClass = classes[className];
-    const classProperties = defaultValue(schemaClass.properties, {});
+    const metadataClass = classes[className];
+    const classProperties = defaultValue(metadataClass.properties, {});
 
     // Validate each property
     for (const propertyName of validPropertyNames) {

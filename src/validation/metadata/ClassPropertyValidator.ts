@@ -5,7 +5,7 @@ import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
 
 import { MetadataValueValidator } from "./MetadataValueValidator";
-import { MetadataPropertyValidator } from "./MetadataPropertyValidator";
+import { ClassPropertyValueValidator } from "./ClassPropertyValueValidator";
 
 import { Schema } from "../../structure/Metadata/Schema";
 import { ClassProperty } from "../../structure/Metadata/ClassProperty";
@@ -461,7 +461,7 @@ export class ClassPropertyValidator {
     const offset = property.offset;
     if (defined(offset)) {
       if (
-        !MetadataPropertyValidator.validateOffsetScale(
+        !ClassPropertyValueValidator.validateOffsetScale(
           propertyPath,
           propertyName,
           property,
@@ -478,7 +478,7 @@ export class ClassPropertyValidator {
     const scale = property.scale;
     if (defined(scale)) {
       if (
-        !MetadataPropertyValidator.validateOffsetScale(
+        !ClassPropertyValueValidator.validateOffsetScale(
           propertyPath,
           propertyName,
           property,
@@ -495,7 +495,7 @@ export class ClassPropertyValidator {
     const max = property.max;
     if (defined(max)) {
       if (
-        !MetadataPropertyValidator.validateMaxMin(
+        !ClassPropertyValueValidator.validateMaxMin(
           propertyPath,
           propertyName,
           property,
@@ -512,7 +512,7 @@ export class ClassPropertyValidator {
     const min = property.min;
     if (defined(min)) {
       if (
-        !MetadataPropertyValidator.validateMaxMin(
+        !ClassPropertyValueValidator.validateMaxMin(
           propertyPath,
           propertyName,
           property,

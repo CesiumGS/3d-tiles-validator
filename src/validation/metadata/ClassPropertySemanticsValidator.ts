@@ -21,13 +21,13 @@ export class ClassPropertySemanticsValidator {
    * with the `ClassPropertyValidator`, ensuring that the `semantic`
    * values are valid strings.
    *
-   * @param schemaClassPath The path for `ValidationIssue` instances
+   * @param metadataClassPath The path for `ValidationIssue` instances
    * @param properties The properties of the schema class
    * @param context The `ValidatonContext`
    * @returns Whether the object was valid
    */
   static validateSemantics(
-    schemaClassPath: string,
+    metadataClassPath: string,
     properties: { [key: string]: ClassProperty },
     context: ValidationContext
   ): boolean {
@@ -45,7 +45,7 @@ export class ClassPropertySemanticsValidator {
           if (defined(otherPropertyName)) {
             const issue =
               SemanticValidationIssues.CLASS_PROPERTIES_DUPLICATE_SEMANTIC(
-                schemaClassPath,
+                metadataClassPath,
                 propertyName,
                 otherPropertyName,
                 semantic!
@@ -71,7 +71,7 @@ export class ClassPropertySemanticsValidator {
       if (!defined(semantic)) {
         continue;
       }
-      const propertyPath = schemaClassPath + "/properties/" + propertyName;
+      const propertyPath = metadataClassPath + "/properties/" + propertyName;
 
       // Find the "matcher" for the given semantic. This is just
       // the "property" in the `matchingSchema` whose name is

@@ -3,7 +3,7 @@ import { defined } from "../../base/defined";
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
 
-import { MetadataPropertyValidator } from "./MetadataPropertyValidator";
+import { MetadataPropertyValidator } from "./ClassPropertyValueValidator";
 
 import { PropertyTableProperty } from "../../structure/PropertyTableProperty";
 import { ClassProperty } from "../../structure/Metadata/ClassProperty";

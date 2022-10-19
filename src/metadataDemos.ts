@@ -1,14 +1,14 @@
 import { defaultValue } from "./base/defaultValue";
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
 
-import { SchemaClass } from "./structure/Metadata/SchemaClass";
+import { MetadataClass } from "./structure/Metadata/MetadataClass";
 import { Tileset } from "./structure/Tileset";
 
 import { MetadataEntityModels } from "./metadata/MetadataEntityModels";
 
 function test_exampleScalarInt32() {
   console.log("exampleScalarInt32:");
-  const schemaClass: SchemaClass = {
+  const metadataClass: MetadataClass = {
     properties: {
       testProperty: {
         type: "SCALAR",
@@ -19,7 +19,7 @@ function test_exampleScalarInt32() {
   const entityJson = {
     testProperty: 1234,
   };
-  const entity = MetadataEntityModels.createFromClass(schemaClass, entityJson);
+  const entity = MetadataEntityModels.createFromClass(metadataClass, entityJson);
 
   const value = entity.getPropertyValue("testProperty");
   console.log("  Property value: " + value);
@@ -27,7 +27,7 @@ function test_exampleScalarInt32() {
 
 function test_exampleArrayInt16WithDefault() {
   console.log("exampleArrayInt16WithDefault:");
-  const schemaClass: SchemaClass = {
+  const metadataClass: MetadataClass = {
     properties: {
       testProperty: {
         array: true,
@@ -42,14 +42,14 @@ function test_exampleArrayInt16WithDefault() {
   const entityJson = {
     testProperty: undefined,
   };
-  const entity = MetadataEntityModels.createFromClass(schemaClass, entityJson);
+  const entity = MetadataEntityModels.createFromClass(metadataClass, entityJson);
   const value = entity.getPropertyValue("testProperty");
   console.log("  Property value: " + value);
 }
 
 function test_exampleVec3Uint16Normalized() {
   console.log("exampleVec3Uint16Normalized:");
-  const schemaClass: SchemaClass = {
+  const metadataClass: MetadataClass = {
     properties: {
       testProperty: {
         type: "VEC3",
@@ -61,7 +61,7 @@ function test_exampleVec3Uint16Normalized() {
   const entityJson = {
     testProperty: [0, 32767, 65535],
   };
-  const entity = MetadataEntityModels.createFromClass(schemaClass, entityJson);
+  const entity = MetadataEntityModels.createFromClass(metadataClass, entityJson);
   const value = entity.getPropertyValue("testProperty");
   console.log("  Property value: " + value);
 }
@@ -95,9 +95,9 @@ async function testTilesetWithFullMetadata() {
   const entity = MetadataEntityModels.create(metadataSchema, metadataEntity);
 
   console.log("Metadata property values:");
-  const schemaClasses = defaultValue(metadataSchema.classes, {});
-  const schemaClass = schemaClasses!["exampleClass"];
-  for (const propertyName of Object.keys(schemaClass.properties!)) {
+  const metadataClasses = defaultValue(metadataSchema.classes, {});
+  const metadataClass = metadataClasses!["exampleClass"];
+  for (const propertyName of Object.keys(metadataClass.properties!)) {
     const nameString = propertyName.padStart(60);
     const value = entity.getPropertyValue(propertyName);
     const valueString = createValueString(value);
