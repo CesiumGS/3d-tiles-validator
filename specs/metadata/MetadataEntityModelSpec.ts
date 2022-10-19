@@ -3,6 +3,8 @@ import { MetadataClass } from "../../src/structure/Metadata/MetadataClass";
 import { genericEquals } from "./genericEquals";
 
 describe("metadata/MetadataEntityModel", function () {
+  const epsilon = 0.000001;
+
   it("throws when the value of an unknown property is accessed", function () {
     expect(function () {
       const testMetadataClass: MetadataClass = {
@@ -81,7 +83,6 @@ describe("metadata/MetadataEntityModel", function () {
     );
     const value = entity.getPropertyValue("testProperty");
     const expected = [5.7, 7.9, 10.1];
-    const epsilon = 0.000001;
     expect(genericEquals(value, expected, epsilon)).toBeTrue();
   });
 
@@ -104,7 +105,6 @@ describe("metadata/MetadataEntityModel", function () {
     );
     const value = entity.getPropertyValue("testProperty");
     const expected = [6.0, 12.0, 20.0];
-    const epsilon = 0.000001;
     expect(genericEquals(value, expected, epsilon)).toBeTrue();
   });
 });
