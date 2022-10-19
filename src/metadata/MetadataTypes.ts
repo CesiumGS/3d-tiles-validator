@@ -49,6 +49,7 @@ export class MetadataTypes {
 
   /**
    * Returns the number of components for the given type
+   *
    * @param type The type
    * @returns The number of components
    */
@@ -68,6 +69,38 @@ export class MetadataTypes {
         return 9;
       case "MAT4":
         return 16;
+    }
+    return 0;
+  }
+
+  /**
+   * Returns the size of the given component type in bytes
+   *
+   * @param componentType The type
+   * @returns The size in bytes
+   */
+  static byteSizeForComponentType(componentType: string): number {
+    switch (componentType) {
+      case "INT8":
+        return 1;
+      case "UINT8":
+        return 1;
+      case "INT16":
+        return 2;
+      case "UINT16":
+        return 2;
+      case "INT32":
+        return 4;
+      case "UINT32":
+        return 4;
+      case "INT64":
+        return 8;
+      case "UINT64":
+        return 8;
+      case "FLOAT32":
+        return 4;
+      case "FLOAT64":
+        return 8;
     }
     return 0;
   }
