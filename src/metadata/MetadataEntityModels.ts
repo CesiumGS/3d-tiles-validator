@@ -75,7 +75,7 @@ export class MetadataEntityModels {
     for (const classPropertyId of Object.keys(classProperties)) {
       const property = classProperties[classPropertyId];
       if (defined(property.semantic)) {
-        semanticToPropertyId[property.semantic] = classPropertyId;
+        semanticToPropertyId[property.semantic!] = classPropertyId;
       }
     }
     const metadataEntityModel = new DefaultMetadataEntityModel(
