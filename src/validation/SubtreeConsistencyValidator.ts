@@ -11,6 +11,8 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
 import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
+import { BinaryBufferStructureValidator } from "./BinaryBufferStructureValidator";
+import { BinaryBufferStructure } from "./metadata/BinaryBufferStructure";
 
 /**
  * A class for the validation of the consistency of subtrees.
@@ -50,15 +52,23 @@ export class SubtreeConsistencyValidator {
     implicitTiling: TileImplicitTiling | undefined,
     context: ValidationContext
   ): boolean {
+    // Only if the buffers and buffer views have been valid
+    // on the JSON level, validate their consistency
+    // in terms of memory layout
+    const binaryBufferStructure: BinaryBufferStructure = {
+      buffers: subtree.buffers,
+      bufferViews: subtree.bufferViews,
+    };
     if (
-      !SubtreeConsistencyValidator.validateSubtreeBufferConsistency(
+      !BinaryBufferStructureValidator.validateBinaryBufferStructureConsistency(
         path,
-        subtree,
+        binaryBufferStructure,
         context
       )
     ) {
       return false;
     }
+
     if (defined(implicitTiling)) {
       if (
         !SubtreeConsistencyValidator.validateSubtreeAvailabilityConsistency(
@@ -72,74 +82,6 @@ export class SubtreeConsistencyValidator {
       }
     }
     return true;
-  }
-
-  /**
-   * Validate the consistency of the `buffer` and `bufferView` objects
-   * in the given subtree.
-   *
-   * This assumes that the basic (JSON-level) structural validations
-   * have already been performed. It will only validate the consistency
-   * of the memory layout of buffer views and buffers.
-   *
-   * @param path The path for the `ValidationIssue` instances
-   * @param subtree The `Subtree` object
-   * @param context The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validateSubtreeBufferConsistency(
-    path: string,
-    subtree: Subtree,
-    context: ValidationContext
-  ): boolean {
-    let result = true;
-
-    // Validate the consistency of the bufferViews
-    const buffers = defaultValue(subtree.buffers, []);
-    const bufferViews = defaultValue(subtree.bufferViews, []);
-    for (let i = 0; i < bufferViews.length; i++) {
-      const bufferView = bufferViews[i];
-      const bufferViewPath = path + "/bufferViews/" + i;
-
-      // The buffer (index) MUST be smaller than the number of buffers
-      if (
-        !BasicValidator.validateIntegerRange(
-          bufferViewPath + "/buffer",
-          "buffer",
-          bufferView.buffer,
-          0,
-          true,
-          buffers.length,
-          false,
-          context
-        )
-      ) {
-        result = false;
-      } else {
-        const bufferViewEnd = bufferView.byteOffset + bufferView.byteLength;
-        const buffer = buffers[bufferView.buffer];
-
-        // The end of the buffer view MUST be at most the buffer length
-        if (bufferViewEnd > buffer.byteLength) {
-          const message =
-            `The bufferView has an offset of ${bufferView.byteOffset} ` +
-            `and a length of ${bufferView.byteLength}, yielding ` +
-            `${bufferView.byteOffset + bufferView.byteLength}, but buffer ` +
-            `${bufferView.buffer} only has a length of ${buffer.byteLength}`;
-          const issue = SemanticValidationIssues.SUBTREE_BUFFERS_INCONSISTENT(
-            bufferViewPath,
-            message
-          );
-          context.addIssue(issue);
-          result = false;
-        }
-      }
-    }
-
-    // NOTE: One could consider to require bufferViews to NOT overlap.
-    // But there does not seem to be a strong, convincing reason for that...
-
-    return result;
   }
 
   /**

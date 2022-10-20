@@ -2,6 +2,8 @@ import { ValidationIssue } from "../validation/ValidationIssue";
 import { ValidationIssueSeverity } from "../validation/ValidationIssueSeverity";
 import { ValidationIssueUtils } from "./ValidationIssueUtils";
 
+// TODO Each of these issues should be documented,
+// even more extensively than the basic ones!
 export class SemanticValidationIssues {
   static ASSET_VERSION_UNKNOWN(path: string, message: string) {
     const type = "ASSET_VERSION_UNKNOWN";
@@ -299,8 +301,8 @@ export class SemanticValidationIssues {
     return issue;
   }
 
-  static SUBTREE_BUFFERS_INCONSISTENT(path: string, message: string) {
-    const type = "SUBTREE_BUFFERS_INCONSISTENT";
+  static BUFFERS_INCONSISTENT(path: string, message: string) {
+    const type = "BUFFERS_INCONSISTENT";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
@@ -350,8 +352,7 @@ export class SemanticValidationIssues {
   static EXTENSION_NOT_SUPPORTED(path: string, extensionName: string) {
     const type = "EXTENSION_NOT_SUPPORTED";
     const severity = ValidationIssueSeverity.WARNING;
-    const message =
-      `The extension '${extensionName}' was used, but ` + `is not supported`;
+    const message = `The extension '${extensionName}' was used, but is not supported`;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
@@ -362,8 +363,7 @@ export class SemanticValidationIssues {
   ) {
     const type = "SEMANTIC_UNKNOWN";
     const severity = ValidationIssueSeverity.WARNING;
-    const message =
-      `The property '${propertyName}' has ` + `unknown semantic '${semantic}'`;
+    const message = `The property '${propertyName}' has unknown semantic '${semantic}'`;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
