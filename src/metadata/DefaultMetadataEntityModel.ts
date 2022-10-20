@@ -33,12 +33,12 @@ export class DefaultMetadataEntityModel implements MetadataEntityModel {
   getPropertyValue(propertyId: string): any {
     const properties = this._metadataClass.properties;
     if (!defined(properties)) {
-      throw new MetadataError(`Schema class does not have any properties`);
+      throw new MetadataError(`Metadata class does not have any properties`);
     }
     const property = properties![propertyId];
     if (!defined(property)) {
       throw new MetadataError(
-        `Schema class does not have property ${propertyId}`
+        `Metadata class does not have property ${propertyId}`
       );
     }
     const value = this._json[propertyId];
