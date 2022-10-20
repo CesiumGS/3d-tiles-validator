@@ -415,12 +415,12 @@ export class SubtreeValidator implements Validator<Buffer> {
       buffers: subtree.buffers,
       bufferViews: subtree.bufferViews,
     };
-    const bufferUriIsRequired = !hasBinaryBuffer;
+    const firstBufferUriIsRequired = !hasBinaryBuffer;
     if (
       !BinaryBufferStructureValidator.validateBinaryBufferStructure(
         path,
         binaryBufferStructure,
-        bufferUriIsRequired,
+        firstBufferUriIsRequired,
         context
       )
     ) {

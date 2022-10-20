@@ -36,17 +36,16 @@ export class BinaryBufferStructureValidator {
    *
    * @param path The path for `ValidationIssue` instances
    * @param binaryBufferStructure The `BinaryBufferStructure` object
-   * @param bufferUriIsRequired Whether each buffer is required to
-   * have a `uri` property. If this is `false`, then **one** buffer
-   * may omit this property, namely when it refers to a binary
-   * chunk, for example, of a binary `.subtree` file.
+   * @param firstBufferUriIsRequired If this is `false`, then the
+   * first buffer may omit the `uri` property, namely when it refers
+   * to a  binary chunk, for example, of a binary `.subtree` file.
    * @param context The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateBinaryBufferStructure(
     path: string,
     binaryBufferStructure: BinaryBufferStructure,
-    bufferUriIsRequired: boolean,
+    firstBufferUriIsRequired: boolean,
     context: ValidationContext
   ): boolean {
     let result = true;
@@ -73,6 +72,7 @@ export class BinaryBufferStructureValidator {
         for (let i = 0; i < buffers!.length; i++) {
           const buffer = buffers![i];
           const bufferPath = buffersPath + "/" + i;
+          const bufferUriIsRequired = firstBufferUriIsRequired || i > 0;
           if (
             !this.validateBuffer(
               bufferPath,
@@ -83,11 +83,6 @@ export class BinaryBufferStructureValidator {
             )
           ) {
             result = false;
-          }
-          // As soon as one buffer without a uri is found,
-          // all remaining buffers MUST have a uri
-          if (defined(buffer) && !defined(buffer.uri)) {
-            bufferUriIsRequired = true;
           }
         }
       }
