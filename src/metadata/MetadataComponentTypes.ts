@@ -1,4 +1,5 @@
 import { defined } from "../base/defined";
+import { DeveloperError } from "../base/DeveloperError";
 
 /**
  * Internal utilities related to the `componentType` of the
@@ -81,6 +82,40 @@ export class MetadataComponentTypes {
     );
   }
 
+  /**
+   * Returns the size of the given component type in bytes
+   *
+   * @param componentType The type
+   * @returns The size in bytes
+   * @throws DeveloperError If the given component type is not
+   * one of the `allComponentTypes`
+   */
+  static byteSizeForComponentType(componentType: string): number {
+    switch (componentType) {
+      case "INT8":
+        return 1;
+      case "UINT8":
+        return 1;
+      case "INT16":
+        return 2;
+      case "UINT16":
+        return 2;
+      case "INT32":
+        return 4;
+      case "UINT32":
+        return 4;
+      case "INT64":
+        return 8;
+      case "UINT64":
+        return 8;
+      case "FLOAT32":
+        return 4;
+      case "FLOAT64":
+        return 8;
+    }
+    throw new DeveloperError(`Invalid component type: ${componentType}`);
+  }
+
   // Partially adapted from CesiumJS
   static normalize(value: number, componentType: string | undefined): number {
     if (MetadataComponentTypes.isIntegerComponentType(componentType)) {
@@ -119,6 +154,6 @@ export class MetadataComponentTypes {
       case "FLOAT64":
         return Number.MAX_VALUE;
     }
-    return undefined;
+    throw new DeveloperError(`Invalid component type: ${componentType}`);
   }
 }

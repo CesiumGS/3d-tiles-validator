@@ -66,10 +66,28 @@ export class MetadataEntityModels {
     metadataClass: MetadataClass,
     entityProperties: { [key: string]: any }
   ) {
-    // Compute the mapping from 'semantic' strings to property IDs
-    // that have this semantic.
     // TODO This should not be done for each entity. The lookup
     // should be computed once, and associated with the class.
+    const semanticToPropertyId =
+      MetadataEntityModels.computeSemanticToPropertyIdMapping(metadataClass);
+    const metadataEntityModel = new DefaultMetadataEntityModel(
+      metadataClass,
+      semanticToPropertyId,
+      entityProperties
+    );
+    return metadataEntityModel;
+  }
+
+  /**
+   * Compute the mapping from 'semantic' strings to property IDs
+   * that have the respective semantic in the given metadata class.
+   *
+   * @param metadataClass The `MetadataClass`
+   * @returns The mapping
+   */
+  static computeSemanticToPropertyIdMapping(metadataClass: MetadataClass): {
+    [key: string]: string;
+  } {
     const semanticToPropertyId: { [key: string]: string } = {};
     const classProperties = defaultValue(metadataClass.properties, {});
     for (const classPropertyId of Object.keys(classProperties)) {
@@ -78,11 +96,6 @@ export class MetadataEntityModels {
         semanticToPropertyId[property.semantic!] = classPropertyId;
       }
     }
-    const metadataEntityModel = new DefaultMetadataEntityModel(
-      metadataClass,
-      semanticToPropertyId,
-      entityProperties
-    );
-    return metadataEntityModel;
+    return semanticToPropertyId;
   }
 }
