@@ -44,6 +44,7 @@ export class NumericArrayPropertyModel implements PropertyModel {
     const arrayOffsetsBuffer = this._arrayOffsetsBuffer;
     const arrayOffsetType = this._arrayOffsetType;
     const count = this._count;
+    const componentCount = MetadataTypes.componentCountForType(type);
 
     const arraySlice = PropertyModels.computeSlice(
       index,
@@ -65,14 +66,14 @@ export class NumericArrayPropertyModel implements PropertyModel {
           n,
           componentType
         );
+      } else {
+        element = NumericBuffers.getNumericArrayFromBuffer(
+          valuesBuffer,
+          n,
+          componentCount,
+          componentType
+        );
       }
-      const componentCount = MetadataTypes.componentCountForType(type);
-      element = NumericBuffers.getNumericArrayFromBuffer(
-        valuesBuffer,
-        n,
-        componentCount,
-        componentType
-      );
       result[i] = element;
     }
     return result;
