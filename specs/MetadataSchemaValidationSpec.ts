@@ -75,6 +75,14 @@ describe("Metadata schema validation", function () {
     );
   });
 
+  it("detects issues in metadataClassPropertyComponentTypeMissing", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/metadataClassPropertyComponentTypeMissing.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CLASS_PROPERTY_COMPONENT_TYPE_MISSING");
+  });
+
   it("detects issues in metadataClassPropertyComponentTypeInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
       "specs/data/schemas/metadataClassPropertyComponentTypeInvalidType.json"
@@ -564,7 +572,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertySemanticArrayMismatchA.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
   it("detects issues in metadataClassPropertySemanticArrayMismatchB", async function () {
@@ -572,7 +580,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertySemanticArrayMismatchB.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
   it("detects issues in metadataClassPropertySemanticComponentTypeMismatch", async function () {
@@ -580,7 +588,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertySemanticComponentTypeMismatch.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
   it("detects issues in metadataClassPropertySemanticCountMismatch", async function () {
@@ -588,7 +596,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertySemanticCountMismatch.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
   it("detects issues in metadataClassPropertySemanticInvalidType", async function () {
@@ -604,7 +612,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertySemanticNormalizedMismatch.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
   it("detects issues in metadataClassPropertySemanticTypeMismatch", async function () {
@@ -612,7 +620,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertySemanticTypeMismatch.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
   it("detects issues in metadataClassPropertySemanticUnknown", async function () {
@@ -620,7 +628,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertySemanticUnknown.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_UNKNOWN");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_UNKNOWN");
   });
 
   it("detects issues in metadataEnumValueNotInValueTypeRange", async function () {

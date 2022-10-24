@@ -28,15 +28,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_INT16_SCALAR;
     const values = example_INT16_SCALAR_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];
@@ -59,15 +58,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_variable_length_INT16_SCALAR_array;
     const values = example_variable_length_INT16_SCALAR_array_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];
@@ -91,15 +89,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_fixed_length_INT16_SCALAR_array;
     const values = example_fixed_length_INT16_SCALAR_array_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];
@@ -117,15 +114,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_BOOLEAN;
     const values = example_BOOLEAN_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];
@@ -147,15 +143,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_variable_length_BOOLEAN_array;
     const values = example_variable_length_BOOLEAN_array_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];
@@ -177,15 +172,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_fixed_length_BOOLEAN_array;
     const values = example_fixed_length_BOOLEAN_array_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];
@@ -203,15 +197,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_STRING;
     const values = example_STRING_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];
@@ -233,15 +226,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_variable_length_STRING_array;
     const values = example_variable_length_STRING_array_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];
@@ -264,15 +256,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_fixed_length_STRING_array;
     const values = example_fixed_length_STRING_array_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];
@@ -294,15 +285,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_FLOAT32_VEC2;
     const values = example_FLOAT32_VEC2_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];
@@ -332,15 +322,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_variable_length_UINT32_VEC2_array;
     const values = example_variable_length_UINT32_VEC2_array_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];
@@ -370,15 +359,14 @@ describe("metadata/PropertyTableModelSpec", function () {
     const classProperty = example_fixed_length_UINT32_VEC2_array;
     const values = example_fixed_length_UINT32_VEC2_array_values;
 
-    const count = values.length;
     const propertyTableModel =
       PropertyTableModels.createPropertyTableModelFromProperty(
         "testProperty",
         classProperty,
         values,
-        count,
         undefined
       );
+    const count = values.length;
     for (let i = 0; i < count; i++) {
       const entity = propertyTableModel.getMetadataEntityModel(i);
       const expected = values[i];

@@ -356,19 +356,19 @@ export class SemanticValidationIssues {
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-  static SEMANTIC_UNKNOWN(
+  static METADATA_SEMANTIC_UNKNOWN(
     path: string,
     propertyName: string,
     semantic: string
   ) {
-    const type = "SEMANTIC_UNKNOWN";
+    const type = "METADATA_SEMANTIC_UNKNOWN";
     const severity = ValidationIssueSeverity.WARNING;
     const message = `The property '${propertyName}' has unknown semantic '${semantic}'`;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-  static SEMANTIC_INVALID(path: string, message: string) {
-    const type = "SEMANTIC_INVALID";
+  static METADATA_SEMANTIC_INVALID(path: string, message: string) {
+    const type = "METADATA_SEMANTIC_INVALID";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;

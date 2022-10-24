@@ -24,7 +24,7 @@ describe("metadata/PropertyTablesSpec", function () {
     context = new ValidationContext(resourceResolver);
   });
 
-  it("TODO", async function () {
+  it("detects issues in propertiesInvalidType", async function () {
     const inputData = await readJsonUnchecked(
       "specs/data/propertyTables/propertiesInvalidType.json"
     );

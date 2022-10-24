@@ -19,7 +19,38 @@ import { MetadataEnum } from "../structure/Metadata/MetadataEnum";
  * Methods to create `PropertyTableModel` instances from individual
  * properties and their associated data.
  *
- * TODO Add proper documentation here!!!
+ * Right now, the methods in this class are mainly intended for
+ * generating test data. They can be used to create property
+ * tables based on single properties and their associated values.
+ *
+ * When a method expects such `values` to be passed in, then the
+ * structure is assumed to be a "JSON-representation" of the data
+ * that corresponds to one column of the table:
+ *
+ * - scalar properties are given as an array of values
+ * - properties of structured types (VECn or MATn) are given
+ *   as an array of arrays
+ * - array properties are given as an array of the aforementioned
+ *   inputs.
+ *
+ * For example:
+ * - a string property will be ["row0", "row1"]
+ * - a string array property will be
+ *   [ ["row0-col0", "row0-col1"],
+ *     ["row1-col0", "row1-col1"] ]
+ * - a VEC2 property will be [ [0,0], [1,1] ]
+ * - a VEC2 array property will be
+ *   [ [ [0,0], [0,1], [0,2] ],
+ *     [ [1,0], [1,1], [1,2] ] ]
+ *
+ *
+ * TODO Some methods in this class are creating plain JSON
+ * structures programmatically (e.g. a Schema that contains
+ * a single class with a single property). Some of these
+ * methods may be omitted in the future, of if these structures
+ * have to be created manually for unit tests anyhow.
+ *
+ * @private
  */
 export class PropertyTableModels {
   /**
@@ -29,14 +60,12 @@ export class PropertyTableModels {
    * @param propertyName The name of the property
    * @param classProperty The actual `ClassProperty`
    * @param values The values for the property
-   * @param count The count (number of rows of the table)
    * @returns The `PropertyTableModel`
    */
   static createPropertyTableModelFromProperty(
     propertyName: string,
     classProperty: ClassProperty,
     values: any,
-    count: number,
     metadataEnum: MetadataEnum | undefined
   ): PropertyTableModel {
     const binaryPropertyTable =
@@ -44,13 +73,19 @@ export class PropertyTableModels {
         propertyName,
         classProperty,
         values,
-        count,
         metadataEnum
       );
     const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
     return propertyTableModel;
   }
 
+  /**
+   * Creates a (dummy) `MetadataClass` that only contains the given property
+   *
+   * @param propertyName The property name
+   * @param classProperty The `ClassProperty`
+   * @returns The `MetadataClass`
+   */
   private static createMetadataClassFromClassProperty(
     propertyName: string,
     classProperty: ClassProperty
@@ -65,6 +100,13 @@ export class PropertyTableModels {
     return metadataClass;
   }
 
+  /**
+   * Creates a (dummy) `Schema` that only contains the given class
+   *
+   * @param className The class name
+   * @param metadataClass The `MetadataClass`
+   * @returns The metadata `Schema`
+   */
   private static createSchemaFromMetadataClass(
     className: string,
     metadataClass: MetadataClass
@@ -79,6 +121,20 @@ export class PropertyTableModels {
     return metadataSchema;
   }
 
+  /**
+   * Creates a `PropertyTable` from the given input.
+   *
+   * This creates a dummy `PropertyTable` with a single property,
+   * which is used for the other methods in this class that can
+   * create `BinaryPropertyTable` or `PropertyTableModel` objects
+   * from single properties.
+   *
+   * @param className The class name
+   * @param propertyName The property name
+   * @param count The count (number of rows) of the table
+   * @param propertyTableProperty The `PropertyTableProperty`
+   * @returns The `PropertyTable`
+   */
   private static createPropertyTableFromProperty(
     className: string,
     propertyName: string,
@@ -97,99 +153,27 @@ export class PropertyTableModels {
     return propertyTable;
   }
 
-  private static createBinaryPropertyTableFromProperty(
-    propertyName: string,
-    classProperty: ClassProperty,
-    values: any,
-    count: number,
-    metadataEnum: MetadataEnum | undefined
-  ): BinaryPropertyTable {
-    const className = "generatedClass";
-
-    const metadataClass =
-      PropertyTableModels.createMetadataClassFromClassProperty(
-        propertyName,
-        classProperty
-      );
-    const schema = PropertyTableModels.createSchemaFromMetadataClass(
-      className,
-      metadataClass
-    );
-    if (defined(metadataEnum)) {
-      const enums : { [key: string]: MetadataEnum } = {};
-      enums["generatedEnum"] = metadataEnum!;
-      schema.enums = enums;
-    }
-    const createdBufferViewsData: Buffer[] = [];
-    const arrayOffsetType = "UINT32";
-    const stringOffsetType = "UINT32";
-    const propertyTableProperty =
-      PropertyTableModels.createPropertyTableProperty(
-        classProperty,
-        schema,
-        values,
-        arrayOffsetType,
-        stringOffsetType,
-        createdBufferViewsData
-      );
-
-    const propertyTable = PropertyTableModels.createPropertyTableFromProperty(
-      className,
-      propertyName,
-      count,
-      propertyTableProperty
-    );
-
-    const binaryBufferData: BinaryBufferData = {
-      bufferViewsData: [],
-      buffersData: [],
-    };
-
-    const binaryBufferStructure = BinaryBuffers.createBinaryBufferStructure(
-      binaryBufferData,
-      createdBufferViewsData
-    );
-
-    const enumValueTypes = PropertyTableModels.computeEnumValueTypes(schema);
-
-    const binaryPropertyTable: BinaryPropertyTable = {
-      metadataClass: metadataClass,
-      propertyTable: propertyTable,
-      enumValueTypes: enumValueTypes,
-      binaryBufferStructure: binaryBufferStructure,
-      binaryBufferData: binaryBufferData,
-    };
-    return binaryPropertyTable;
-  }
-
   /**
-   * Computes a mapping from enum type names to the `valueType` that
-   * the respective `MetdataEnum` has (defaulting to `UINT16` if it
-   * did not define one)
-   * 
-   * @param schema The metadata `Schema`
-   * @returns The mapping from enum type names to enum value types
-   */
-  private static computeEnumValueTypes(schema: Schema) : { [key: string]: string } {
-    const enumValueTypes : { [key: string]: string } = {};
-    const enums = defaultValue(schema.enums, {});
-    for (const enumName of Object.keys(enums)) {
-      const metadataEnum = enums[enumName];
-      const valueType = defaultValue(metadataEnum.valueType, "UINT16");
-      enumValueTypes[enumName] = valueType;
-    }
-    return enumValueTypes;
-  }
-
-  /**
-   * 
+   * Creates a `PropertyTableProperty` from the given inputs.
+   *
+   * This receives the `ClassProperty` itself and the associated values,
+   * and generates the `PropertyTableProperty` and its associated
+   * binary data. The binary data will include the buffer views for the
+   * `values`, `arrayOffsets`, and `stringOffsets`, which will be
+   * added to the given `bufferViewsData` array.
+   *
    * @param classProperty The `ClassProperty`
-   * @param schema The metadata `Schema`
-   * @param values 
-   * @param arrayOffsetType 
-   * @param stringOffsetType 
-   * @param bufferViewsData 
-   * @returns 
+   * @param schema The metadata `Schema`. This is only used internally
+   * for looking up information about (binary) enum values, if the
+   * given property is an ENUM property.
+   * @param values The values for the property
+   * @param arrayOffsetType The `arrayOffsetType` for the property
+   * (only used when the property is a variable-length array)
+   * @param stringOffsetType The `stringOffsetType` for the property
+   * (only used when the property is a STRING property)
+   * @param bufferViewsData The array that will receive the buffer
+   * view buffers
+   * @returns The `PropertyTableProperty`
    */
   private static createPropertyTableProperty(
     classProperty: ClassProperty,
@@ -198,7 +182,7 @@ export class PropertyTableModels {
     arrayOffsetType: string,
     stringOffsetType: string,
     bufferViewsData: Buffer[]
-  ) : PropertyTableProperty {
+  ): PropertyTableProperty {
     const valuesBuffer = PropertyTableModels.createValuesBuffer(
       classProperty,
       schema,
@@ -238,6 +222,170 @@ export class PropertyTableModels {
     }
 
     return propertyTableProperty;
+  }
+
+  /**
+   * Creates a `Schema` from the given input.
+   *
+   * This function is mainly intended for generating test data.
+   * It generates a "dummy" schema that only contains a class
+   * with the given property, and the given enum.
+   *
+   * @param propertyName The property name
+   * @param classProperty The `ClassProperty`
+   * @param metadataEnum The optional `MetadataEnum` when the
+   * property is an enum property
+   * @returns The schema
+   */
+  static createSchemaFromClassProperty(
+    propertyName: string,
+    classProperty: ClassProperty,
+    metadataEnum: MetadataEnum | undefined
+  ): Schema {
+    const className = "generatedClass";
+    const metadataClass =
+      PropertyTableModels.createMetadataClassFromClassProperty(
+        propertyName,
+        classProperty
+      );
+    const schema = PropertyTableModels.createSchemaFromMetadataClass(
+      className,
+      metadataClass
+    );
+    if (defined(metadataEnum)) {
+      const enums: { [key: string]: MetadataEnum } = {};
+      enums["generatedEnum"] = metadataEnum!;
+      schema.enums = enums;
+    }
+    return schema;
+  }
+
+  /**
+   * Creates a `BinaryPropertyTable` from the given input.
+   *
+   * This function is mainly intended for generating test data:
+   * It receives a predefined `ClassProperty` and associated
+   * values, and generates a ("dummy") class, schema, and
+   * property table for exactly this single property, together
+   * with the associated binary data.
+   *
+   * @param propertyName The property name
+   * @param classProperty The `ClassProperty`
+   * @param values The property values
+   * @param metadataEnum The optional `MetadataEnum` that defines
+   * the (numeric) values that are written into the binary data,
+   * based on the (string) values from the `values` parameter
+   * @returns The `BinaryPropertyTable`
+   */
+  static createBinaryPropertyTableFromProperty(
+    propertyName: string,
+    classProperty: ClassProperty,
+    values: any,
+    metadataEnum: MetadataEnum | undefined
+  ): BinaryPropertyTable {
+    const schema = PropertyTableModels.createSchemaFromClassProperty(
+      propertyName,
+      classProperty,
+      metadataEnum
+    );
+    const className = "generatedClass";
+    const binaryPropertyTable = PropertyTableModels.createBinaryPropertyTable(
+      schema,
+      className,
+      propertyName,
+      values
+    );
+    return binaryPropertyTable;
+  }
+
+  /**
+   * Creates a `BinaryPropertyTable` from the given input.
+   *
+   * This function is mainly intended for generating test data.
+   * It receives information about the property (via the `className`
+   * and the `propertyName`, referring to the given schema), and the
+   * values for the property, and generates a property table for
+   * exactly this single property, together with the associated
+   * binary data.
+   *
+   * @param schema The `Schema`
+   * @param className The class name
+   * @param propertyName The property name
+   * @param values The property values
+   * @returns The `BinaryPropertyTable`
+   */
+  static createBinaryPropertyTable(
+    schema: Schema,
+    className: string,
+    propertyName: string,
+    values: any
+  ) {
+    const classes = defaultValue(schema.classes, {});
+    const metadataClass = classes[className];
+    const classProperties = defaultValue(metadataClass.properties, {});
+    const classProperty = classProperties[propertyName];
+
+    const createdBufferViewsData: Buffer[] = [];
+    const arrayOffsetType = "UINT32";
+    const stringOffsetType = "UINT32";
+    const propertyTableProperty =
+      PropertyTableModels.createPropertyTableProperty(
+        classProperty,
+        schema,
+        values,
+        arrayOffsetType,
+        stringOffsetType,
+        createdBufferViewsData
+      );
+    const count = values.length;
+    const propertyTable = PropertyTableModels.createPropertyTableFromProperty(
+      className,
+      propertyName,
+      count,
+      propertyTableProperty
+    );
+
+    const binaryBufferData: BinaryBufferData = {
+      bufferViewsData: [],
+      buffersData: [],
+    };
+
+    const binaryBufferStructure = BinaryBuffers.createBinaryBufferStructure(
+      binaryBufferData,
+      createdBufferViewsData
+    );
+
+    const enumValueTypes = PropertyTableModels.computeEnumValueTypes(schema);
+
+    const binaryPropertyTable: BinaryPropertyTable = {
+      metadataClass: metadataClass,
+      propertyTable: propertyTable,
+      enumValueTypes: enumValueTypes,
+      binaryBufferStructure: binaryBufferStructure,
+      binaryBufferData: binaryBufferData,
+    };
+    return binaryPropertyTable;
+  }
+
+  /**
+   * Computes a mapping from enum type names to the `valueType` that
+   * the respective `MetdataEnum` has (defaulting to `UINT16` if it
+   * did not define one)
+   *
+   * @param schema The metadata `Schema`
+   * @returns The mapping from enum type names to enum value types
+   */
+  private static computeEnumValueTypes(schema: Schema): {
+    [key: string]: string;
+  } {
+    const enumValueTypes: { [key: string]: string } = {};
+    const enums = defaultValue(schema.enums, {});
+    for (const enumName of Object.keys(enums)) {
+      const metadataEnum = enums[enumName];
+      const valueType = defaultValue(metadataEnum.valueType, "UINT16");
+      enumValueTypes[enumName] = valueType;
+    }
+    return enumValueTypes;
   }
 
   // Parts of the following are ""ported""" from the CesiumJS 'MetadataTester' class at

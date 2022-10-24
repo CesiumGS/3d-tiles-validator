@@ -83,7 +83,7 @@ export class ClassPropertySemanticsValidator {
           semantic!
         );
       if (!defined(semanticMatcher)) {
-        const issue = SemanticValidationIssues.SEMANTIC_UNKNOWN(
+        const issue = SemanticValidationIssues.METADATA_SEMANTIC_UNKNOWN(
           propertyPath,
           propertyName,
           semantic!
@@ -146,7 +146,7 @@ export class ClassPropertySemanticsValidator {
         `Property '${propertyName} has semantic '${semantic}', ` +
         `which requires type '${semanticMatcher.type}', but the ` +
         `property has type '${property.type}'`;
-      const issue = SemanticValidationIssues.SEMANTIC_INVALID(
+      const issue = SemanticValidationIssues.METADATA_SEMANTIC_INVALID(
         propertyPath,
         message
       );
@@ -163,7 +163,7 @@ export class ClassPropertySemanticsValidator {
           `which requires the component type to match ` +
           `'${semanticMatcher.componentType}', but the ` +
           `property has component type '${componentType}'`;
-        const issue = SemanticValidationIssues.SEMANTIC_INVALID(
+        const issue = SemanticValidationIssues.METADATA_SEMANTIC_INVALID(
           propertyPath,
           message
         );
@@ -178,7 +178,7 @@ export class ClassPropertySemanticsValidator {
         `Property '${propertyName} has semantic '${semantic}', ` +
         `which requires the 'array' property to be '${matcherArray}' ` +
         `but the 'array' property is '${property.array}'`;
-      const issue = SemanticValidationIssues.SEMANTIC_INVALID(
+      const issue = SemanticValidationIssues.METADATA_SEMANTIC_INVALID(
         propertyPath,
         message
       );
@@ -192,7 +192,7 @@ export class ClassPropertySemanticsValidator {
           `Property '${propertyName} has semantic '${semantic}', which ` +
           `requires the 'count' property to be '${semanticMatcher.count}' ` +
           `but the 'count' property is '${property.count}'`;
-        const issue = SemanticValidationIssues.SEMANTIC_INVALID(
+        const issue = SemanticValidationIssues.METADATA_SEMANTIC_INVALID(
           propertyPath,
           message
         );
@@ -208,7 +208,7 @@ export class ClassPropertySemanticsValidator {
         `Property '${propertyName} has semantic '${semantic}', which ` +
         `requires the 'normalized' property to be '${matcherNormalized}' ` +
         `but the 'normalized' property is '${property.normalized}'`;
-      const issue = SemanticValidationIssues.SEMANTIC_INVALID(
+      const issue = SemanticValidationIssues.METADATA_SEMANTIC_INVALID(
         propertyPath,
         message
       );
@@ -223,7 +223,7 @@ export class ClassPropertySemanticsValidator {
         `Property '${propertyName} has semantic '${semantic}', ` +
         `which requires enumType '${semanticMatcher.enumType}', but the ` +
         `property has enumType '${property.enumType}'`;
-      const issue = SemanticValidationIssues.SEMANTIC_INVALID(
+      const issue = SemanticValidationIssues.METADATA_SEMANTIC_INVALID(
         propertyPath,
         message
       );

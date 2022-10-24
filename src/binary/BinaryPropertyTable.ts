@@ -33,7 +33,7 @@ export interface BinaryPropertyTable {
    * A mapping from enum names to the `valueType` of the respective
    * enum
    */
-  enumValueTypes : { [key: string]: string };
+  enumValueTypes: { [key: string]: string };
 
   /**
    * The binary buffer structure, containing the `BufferObject` and

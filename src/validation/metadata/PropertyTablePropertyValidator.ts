@@ -53,9 +53,8 @@ export class PropertyTablePropertyValidator {
 
     let result = true;
 
-    // The basic structure of the binary metdata was already
-    // validated (for example, by a `SubtreeValidator` when
-    // this data is part of a `Subtree`)
+    // The basic structure of the binary buffer structure was already
+    // validated with the `BinaryBufferStructureValidator`
     const numBufferViews = binaryBufferStructure.bufferViews
       ? binaryBufferStructure.bufferViews.length
       : 0;
