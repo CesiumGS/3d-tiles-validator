@@ -178,9 +178,8 @@ export class PropertyTableModel {
     const enumType = classProperty.enumType;
     let enumValueType = undefined;
     if (defined(enumType)) {
-      // TODO This has to be looked up in the schema. Ouch.
-      console.log("Assuming enumValueType UINT16");
-      enumValueType = "UINT16";
+      const enumValueTypes = this._binaryPropertyTable.enumValueTypes;
+      enumValueType = defaultValue(enumValueTypes[enumType!], "UINT16");
     }
 
     // Create the `PropertyModel` implementation that matches

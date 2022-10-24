@@ -30,6 +30,12 @@ export interface BinaryPropertyTable {
   metadataClass: MetadataClass;
 
   /**
+   * A mapping from enum names to the `valueType` of the respective
+   * enum
+   */
+  enumValueTypes : { [key: string]: string };
+
+  /**
    * The binary buffer structure, containing the `BufferObject` and
    * `BufferView` objects. The `PropertyTableProperty` objects
    * from the `PropertyTable` contain indices (e.g. the `values`

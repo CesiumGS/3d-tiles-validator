@@ -13,6 +13,7 @@ import { ClassProperty } from "../structure/Metadata/ClassProperty";
 import { PropertyTable } from "../structure/PropertyTable";
 import { EnumValue } from "../structure/Metadata/EnumValue";
 import { PropertyTableProperty } from "../structure/PropertyTableProperty";
+import { MetadataEnum } from "../structure/Metadata/MetadataEnum";
 
 /**
  * Methods to create `PropertyTableModel` instances from individual
@@ -35,14 +36,16 @@ export class PropertyTableModels {
     propertyName: string,
     classProperty: ClassProperty,
     values: any,
-    count: number
+    count: number,
+    metadataEnum: MetadataEnum | undefined
   ): PropertyTableModel {
     const binaryPropertyTable =
       PropertyTableModels.createBinaryPropertyTableFromProperty(
         propertyName,
         classProperty,
         values,
-        count
+        count,
+        metadataEnum
       );
     const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
     return propertyTableModel;
@@ -98,7 +101,8 @@ export class PropertyTableModels {
     propertyName: string,
     classProperty: ClassProperty,
     values: any,
-    count: number
+    count: number,
+    metadataEnum: MetadataEnum | undefined
   ): BinaryPropertyTable {
     const className = "generatedClass";
 
@@ -111,6 +115,11 @@ export class PropertyTableModels {
       className,
       metadataClass
     );
+    if (defined(metadataEnum)) {
+      const enums : { [key: string]: MetadataEnum } = {};
+      enums["generatedEnum"] = metadataEnum!;
+      schema.enums = enums;
+    }
     const createdBufferViewsData: Buffer[] = [];
     const arrayOffsetType = "UINT32";
     const stringOffsetType = "UINT32";
@@ -141,15 +150,47 @@ export class PropertyTableModels {
       createdBufferViewsData
     );
 
+    const enumValueTypes = PropertyTableModels.computeEnumValueTypes(schema);
+
     const binaryPropertyTable: BinaryPropertyTable = {
       metadataClass: metadataClass,
       propertyTable: propertyTable,
+      enumValueTypes: enumValueTypes,
       binaryBufferStructure: binaryBufferStructure,
       binaryBufferData: binaryBufferData,
     };
     return binaryPropertyTable;
   }
 
+  /**
+   * Computes a mapping from enum type names to the `valueType` that
+   * the respective `MetdataEnum` has (defaulting to `UINT16` if it
+   * did not define one)
+   * 
+   * @param schema The metadata `Schema`
+   * @returns The mapping from enum type names to enum value types
+   */
+  private static computeEnumValueTypes(schema: Schema) : { [key: string]: string } {
+    const enumValueTypes : { [key: string]: string } = {};
+    const enums = defaultValue(schema.enums, {});
+    for (const enumName of Object.keys(enums)) {
+      const metadataEnum = enums[enumName];
+      const valueType = defaultValue(metadataEnum.valueType, "UINT16");
+      enumValueTypes[enumName] = valueType;
+    }
+    return enumValueTypes;
+  }
+
+  /**
+   * 
+   * @param classProperty The `ClassProperty`
+   * @param schema The metadata `Schema`
+   * @param values 
+   * @param arrayOffsetType 
+   * @param stringOffsetType 
+   * @param bufferViewsData 
+   * @returns 
+   */
   private static createPropertyTableProperty(
     classProperty: ClassProperty,
     schema: Schema,
@@ -157,7 +198,7 @@ export class PropertyTableModels {
     arrayOffsetType: string,
     stringOffsetType: string,
     bufferViewsData: Buffer[]
-  ) {
+  ) : PropertyTableProperty {
     const valuesBuffer = PropertyTableModels.createValuesBuffer(
       classProperty,
       schema,
