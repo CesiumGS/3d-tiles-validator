@@ -1,5 +1,5 @@
 {
-  "buffers": [{ "uri": "bufferTileAvailabilityMissingForAvailableContent.bin", "byteLength": 16 }],
+  "buffers": [{ "uri": "subtreeBufferTileAvailabilityMissingForAvailableContent.bin", "byteLength": 16 }],
   "bufferViews": [
     { "buffer": 0, "byteOffset": 0, "byteLength": 3 },
     { "buffer": 0, "byteOffset": 8, "byteLength": 3 }
