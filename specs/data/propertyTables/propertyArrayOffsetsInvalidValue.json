@@ -9,9 +9,9 @@
       "class": "fullMetadataClass",
       "count": 1,
       "properties": {
-        "example_STRING": {
+        "example_variable_length_INT8_SCALAR_array": {
           "values": 0,
-          "stringOffsets": 12345
+          "arrayOffsets": 12345
         }
       }
     }
