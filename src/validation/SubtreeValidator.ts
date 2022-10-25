@@ -26,6 +26,7 @@ import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { BinaryBufferStructure } from "./metadata/BinaryBufferStructure";
 import { BinaryBufferStructureValidator } from "./BinaryBufferStructureValidator";
+import { defaultValue } from "../base/defaultValue";
 
 /**
  * A class for validations related to `subtree` objects that have
@@ -644,6 +645,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     const propertyTablesPath = path + "/propertyTables";
     if (defined(propertyTables)) {
       hasPropertyTablesDefinition = true;
+      const numBufferViews = defaultValue(subtree.bufferViews?.length, 0);
 
       if (!this._validationState.hasSchemaDefinition) {
         // If there are property tables, then there MUST be a schema definition
@@ -680,7 +682,7 @@ export class SubtreeValidator implements Validator<Buffer> {
               !PropertyTableValidator.validatePropertyTable(
                 propertyTablePath,
                 propertyTable,
-                subtree,
+                numBufferViews,
                 this._validationState.validatedSchema!,
                 context
               )

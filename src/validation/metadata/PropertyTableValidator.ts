@@ -11,10 +11,13 @@ import { PropertyTablePropertyValidator } from "./PropertyTablePropertyValidator
 
 import { Schema } from "../../structure/Metadata/Schema";
 import { PropertyTable } from "../../structure/PropertyTable";
-import { BinaryBufferStructure } from "./BinaryBufferStructure";
 
 /**
  * A class for validations related to `propertyTable` objects.
+ * 
+ * This class performs the basic JSON-level validation of the
+ * property table. The validation of binary data is done with
+ * the BinaryPropertyTableValidator.
  *
  * @private
  */
@@ -25,7 +28,7 @@ export class PropertyTableValidator {
    *
    * @param path The path for the `ValidationIssue` instances
    * @param propertyTable The object to validate
-   * @param binaryBufferStructure The binary buffer structure
+   * @param numBufferViews The number of buffer views that are available
    * @param schema The `Schema` object
    * @param context The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
@@ -33,7 +36,7 @@ export class PropertyTableValidator {
   static validatePropertyTable(
     path: string,
     propertyTable: PropertyTable,
-    binaryBufferStructure: BinaryBufferStructure,
+    numBufferViews: number,
     schema: Schema,
     context: ValidationContext
   ): boolean {
@@ -155,7 +158,7 @@ export class PropertyTableValidator {
             propertyPath,
             propertyName,
             propertyValue,
-            binaryBufferStructure,
+            numBufferViews,
             classProperty,
             context
           )

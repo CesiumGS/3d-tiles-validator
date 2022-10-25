@@ -11,7 +11,6 @@ import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
-import { BinaryBufferStructure } from "./BinaryBufferStructure";
 
 /**
  * A class for validations related to `propertyTable.property` objects.
@@ -26,7 +25,7 @@ export class PropertyTablePropertyValidator {
    * @param path The path for the `ValidationIssue` instances
    * @param propertyName The name of the property
    * @param propertyTableProperty The object to validate
-   * @param binaryBufferStructure The binary buffer structure
+   * @param numBufferViews The number of buffer views that are available
    * @param classProperty The `ClassProperty` definition from the schema
    * @param context The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
@@ -35,7 +34,7 @@ export class PropertyTablePropertyValidator {
     path: string,
     propertyName: string,
     propertyTableProperty: PropertyTableProperty,
-    binaryBufferStructure: BinaryBufferStructure,
+    numBufferViews: number,
     classProperty: ClassProperty,
     context: ValidationContext
   ): boolean {
@@ -52,12 +51,6 @@ export class PropertyTablePropertyValidator {
     }
 
     let result = true;
-
-    // The basic structure of the binary buffer structure was already
-    // validated with the `BinaryBufferStructureValidator`
-    const numBufferViews = binaryBufferStructure.bufferViews
-      ? binaryBufferStructure.bufferViews.length
-      : 0;
 
     // The basic structure of the class property was already
     // validated by the `MatadataStructureValidator`
