@@ -1,10 +1,8 @@
-import { defined } from "../../base/defined";
-import { defaultValue } from "../../base/defaultValue";
-
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
 import { NumberValidator } from "./../NumberValidator";
 
+import { MetadataUtilities } from "../../metadata/MetadataUtilities";
 import { MetadataTypes } from "../../metadata/MetadataTypes";
 
 import { Schema } from "../../structure/Metadata/Schema";
@@ -178,7 +176,7 @@ export class MetadataValueValidator {
     if (!array) {
       // For non-array ENUM types, the enum value MUST be a string
       // that appears in the names of the enum values
-      const enumValueNames = MetadataValueValidator.obtainEnumValueNames(
+      const enumValueNames = MetadataUtilities.obtainEnumValueNames(
         property,
         schema
       );
@@ -217,7 +215,7 @@ export class MetadataValueValidator {
 
     // Each element of the array MUST appear in the
     // names of the enum values
-    const enumValueNames = MetadataValueValidator.obtainEnumValueNames(
+    const enumValueNames = MetadataUtilities.obtainEnumValueNames(
       property,
       schema
     );
@@ -504,41 +502,4 @@ export class MetadataValueValidator {
     return allElementsValid;
   }
 
-  /**
-   * Internal method to obtain the names of enum values for the
-   * given property.
-   *
-   * This tries to return the list of all
-   * `schema.enums[classProperty.enumType].values[i].name`
-   * values, returning the empty list the property does not have an
-   * enum type or any element is not defined.
-   *
-   * @param classProperty The `ClassProperty`
-   * @param schema The `Schema`
-   * @returns The enum value names
-   */
-  private static obtainEnumValueNames(
-    classProperty: ClassProperty,
-    schema: Schema
-  ): string[] {
-    const type = classProperty.type;
-    if (type !== "ENUM") {
-      return [];
-    }
-    const enumType = classProperty.enumType;
-    if (!defined(enumType)) {
-      return [];
-    }
-    const enums = defaultValue(schema.enums, {});
-    const theEnum = enums[enumType!];
-    if (!defined(theEnum)) {
-      return [];
-    }
-    const enumValues = theEnum.values;
-    if (!defined(enumValues)) {
-      return [];
-    }
-    const enumValueNames = enumValues.map((e: { name: string }) => e.name);
-    return enumValueNames;
-  }
 }

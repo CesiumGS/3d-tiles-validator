@@ -1,4 +1,5 @@
 import { defined } from "../base/defined";
+import { defaultValue } from "../base/defaultValue";
 import { bufferToJson } from "../base/bufferToJson";
 
 import { ResourceTypes } from "../io/ResourceTypes";
@@ -14,8 +15,16 @@ import { SubtreeInfoValidator } from "./SubtreeInfoValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
+import { BinaryBufferStructureValidator } from "./BinaryBufferStructureValidator";
+
+import { BinaryPropertyTable } from "../binary/BinaryPropertyTable";
+import { BinaryBufferData } from "../binary/BinaryBufferData";
+import { BinaryBufferDataResolver } from "../binary/BinaryBufferDataResolver";
+
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 import { PropertyTableValidator } from "./metadata/PropertyTableValidator";
+import { MetadataUtilities } from "../metadata/MetadataUtilities";
+import { BinaryBufferStructure } from "./metadata/BinaryBufferStructure";
 
 import { Subtree } from "../structure/Subtree";
 import { Availability } from "../structure/Availability";
@@ -24,9 +33,7 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { BinaryBufferStructure } from "./metadata/BinaryBufferStructure";
-import { BinaryBufferStructureValidator } from "./BinaryBufferStructureValidator";
-import { defaultValue } from "../base/defaultValue";
+import { BinaryPropertyTableValidator } from "./metadata/BinaryPropertyTableValidator";
 
 /**
  * A class for validations related to `subtree` objects that have
@@ -41,6 +48,12 @@ import { defaultValue } from "../base/defaultValue";
  * @private
  */
 export class SubtreeValidator implements Validator<Buffer> {
+  // TODO Currently, the binary data is resolved twice,
+  // once for validating the availability, and once for
+  // validating the binary metadata. While these should
+  // be clearly separated, the binary data should only
+  // be resolved once.
+
   /**
    * The `ValidationState` that carries information about
    * the metadata schema
@@ -326,6 +339,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     }
 
     // If the structure was valid, perform the deeper consistency validation
+    // of the binary buffer structure and availability consistency
     if (
       !SubtreeConsistencyValidator.validateSubtreeConsistency(
         path,
@@ -338,8 +352,21 @@ export class SubtreeValidator implements Validator<Buffer> {
       return result;
     }
 
-    // If the structure was valid and consistent, perform the validity
-    // checks for the actual buffer data
+    // If the structure was valid and consistent, perform the
+    // validation that actually involves reading the binary data
+
+    // Validate the binary representation of the property tables
+    const binaryPropertyTablesValid = await this.validateBinaryPropertyTables(
+      path,
+      subtree,
+      binaryBuffer,
+      context
+    );
+    if (!binaryPropertyTablesValid) {
+      result = false;
+    }
+
+    // Validate the consistency of the binary availability data
     if (defined(this._implicitTiling)) {
       const dataIsConsistent = await SubtreeInfoValidator.validateSubtreeInfo(
         path,
@@ -858,6 +885,74 @@ export class SubtreeValidator implements Validator<Buffer> {
         ) {
           result = false;
         }
+      }
+    }
+    return result;
+  }
+
+  private async validateBinaryPropertyTables(
+    path: string,
+    subtree: Subtree,
+    binaryBuffer: Buffer | undefined,
+    context: ValidationContext
+  ): Promise<boolean> {
+    if (!defined(subtree.propertyTables)) {
+      return true;
+    }
+
+    // Resolve the binary data that is pointed to by
+    // the buffer URIs
+    let binaryBufferData;
+    const resourceResolver = this._resourceResolver;
+    const binaryBufferStructure: BinaryBufferStructure = {
+      buffers: subtree.buffers,
+      bufferViews: subtree.bufferViews,
+    };
+    try {
+      binaryBufferData = await BinaryBufferDataResolver.resolve(
+        binaryBufferStructure,
+        binaryBuffer,
+        resourceResolver
+      );
+    } catch (error) {
+      const message = `Could not read subtree data: ${error}`;
+      const issue = IoValidationIssues.IO_ERROR(path, message);
+      context.addIssue(issue);
+      return false;
+    }
+
+    let result = true;
+
+    // Obtain the structural information about the schema
+    // that is required for validating each property table
+    const schema = this._validationState.validatedSchema!;
+    const classes = defaultValue(schema.classes, {});
+    const enumValueTypes = MetadataUtilities.computeEnumValueTypes(schema!);
+    const propertyTables = defaultValue(subtree.propertyTables, []);
+    for (const propertyTable of propertyTables) {
+      const classId = propertyTable.class;
+      const metadataClass = classes[classId];
+
+      // Create the `BinaryPropertyTable` for each property table,
+      // which contains everything that is required for the
+      // validation of the binary representation of the
+      // property table
+      const binaryPropertyTable: BinaryPropertyTable = {
+        propertyTable: propertyTable,
+        metadataClass: metadataClass,
+        enumValueTypes: enumValueTypes,
+        binaryBufferStructure: binaryBufferStructure,
+        binaryBufferData: binaryBufferData,
+      };
+
+      if (
+        !BinaryPropertyTableValidator.validateBinaryPropertyTable(
+          path,
+          binaryPropertyTable,
+          context
+        )
+      ) {
+        result = false;
       }
     }
     return result;

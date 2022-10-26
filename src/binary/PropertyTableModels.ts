@@ -7,6 +7,8 @@ import { BinaryPropertyTable } from "./BinaryPropertyTable";
 import { BinaryBufferData } from "./BinaryBufferData";
 import { BinaryBuffers } from "./BinaryBuffers";
 
+import { MetadataUtilities } from "../metadata/MetadataUtilities";
+
 import { Schema } from "../structure/Metadata/Schema";
 import { MetadataClass } from "../structure/Metadata/MetadataClass";
 import { ClassProperty } from "../structure/Metadata/ClassProperty";
@@ -47,7 +49,7 @@ import { MetadataEnum } from "../structure/Metadata/MetadataEnum";
  * TODO Some methods in this class are creating plain JSON
  * structures programmatically (e.g. a Schema that contains
  * a single class with a single property). Some of these
- * methods may be omitted in the future, of if these structures
+ * methods may be omitted in the future, if these structures
  * have to be created manually for unit tests anyhow.
  *
  * @private
@@ -68,11 +70,15 @@ export class PropertyTableModels {
     values: any,
     metadataEnum: MetadataEnum | undefined
   ): PropertyTableModel {
+    const arrayOffsetType = "UINT32";
+    const stringOffsetType = "UINT32";
     const binaryPropertyTable =
       PropertyTableModels.createBinaryPropertyTableFromProperty(
         propertyName,
         classProperty,
         values,
+        arrayOffsetType,
+        stringOffsetType,
         metadataEnum
       );
     const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
@@ -168,9 +174,11 @@ export class PropertyTableModels {
    * given property is an ENUM property.
    * @param values The values for the property
    * @param arrayOffsetType The `arrayOffsetType` for the property
-   * (only used when the property is a variable-length array)
+   * (only used when the property is a variable-length array,
+   * defaulting to `UINT32`)
    * @param stringOffsetType The `stringOffsetType` for the property
-   * (only used when the property is a STRING property)
+   * (only used when the property is a STRING property,
+   * defaulting to `UINT32`))
    * @param bufferViewsData The array that will receive the buffer
    * view buffers
    * @returns The `PropertyTableProperty`
@@ -179,8 +187,8 @@ export class PropertyTableModels {
     classProperty: ClassProperty,
     schema: Schema,
     values: any,
-    arrayOffsetType: string,
-    stringOffsetType: string,
+    arrayOffsetType: string | undefined,
+    stringOffsetType: string | undefined,
     bufferViewsData: Buffer[]
   ): PropertyTableProperty {
     const valuesBuffer = PropertyTableModels.createValuesBuffer(
@@ -272,6 +280,10 @@ export class PropertyTableModels {
    * @param propertyName The property name
    * @param classProperty The `ClassProperty`
    * @param values The property values
+   * @param arrayOffsetType The `arrayOffsetType`, only used
+   * for variable-length array properties, defaulting to `UINT32`
+   * @param stringOffsetType The `stringOffsetType`, only used
+   * for STRING properties, defaulting to `UINT32`
    * @param metadataEnum The optional `MetadataEnum` that defines
    * the (numeric) values that are written into the binary data,
    * based on the (string) values from the `values` parameter
@@ -281,6 +293,8 @@ export class PropertyTableModels {
     propertyName: string,
     classProperty: ClassProperty,
     values: any,
+    arrayOffsetType: string | undefined,
+    stringOffsetType: string | undefined,
     metadataEnum: MetadataEnum | undefined
   ): BinaryPropertyTable {
     const schema = PropertyTableModels.createSchemaFromClassProperty(
@@ -293,7 +307,9 @@ export class PropertyTableModels {
       schema,
       className,
       propertyName,
-      values
+      values,
+      arrayOffsetType,
+      stringOffsetType
     );
     return binaryPropertyTable;
   }
@@ -312,13 +328,19 @@ export class PropertyTableModels {
    * @param className The class name
    * @param propertyName The property name
    * @param values The property values
+   * @param arrayOffsetType The `arrayOffsetType`, only used
+   * for variable-length array properties, defaulting to `UINT32`
+   * @param stringOffsetType The `stringOffsetType`, only used
+   * for STRING properties, defaulting to `UINT32`
    * @returns The `BinaryPropertyTable`
    */
   static createBinaryPropertyTable(
     schema: Schema,
     className: string,
     propertyName: string,
-    values: any
+    values: any,
+    arrayOffsetType: string | undefined,
+    stringOffsetType: string | undefined
   ) {
     const classes = defaultValue(schema.classes, {});
     const metadataClass = classes[className];
@@ -326,8 +348,6 @@ export class PropertyTableModels {
     const classProperty = classProperties[propertyName];
 
     const createdBufferViewsData: Buffer[] = [];
-    const arrayOffsetType = "UINT32";
-    const stringOffsetType = "UINT32";
     const propertyTableProperty =
       PropertyTableModels.createPropertyTableProperty(
         classProperty,
@@ -355,7 +375,7 @@ export class PropertyTableModels {
       createdBufferViewsData
     );
 
-    const enumValueTypes = PropertyTableModels.computeEnumValueTypes(schema);
+    const enumValueTypes = MetadataUtilities.computeEnumValueTypes(schema);
 
     const binaryPropertyTable: BinaryPropertyTable = {
       metadataClass: metadataClass,
@@ -365,27 +385,6 @@ export class PropertyTableModels {
       binaryBufferData: binaryBufferData,
     };
     return binaryPropertyTable;
-  }
-
-  /**
-   * Computes a mapping from enum type names to the `valueType` that
-   * the respective `MetdataEnum` has (defaulting to `UINT16` if it
-   * did not define one)
-   *
-   * @param schema The metadata `Schema`
-   * @returns The mapping from enum type names to enum value types
-   */
-  private static computeEnumValueTypes(schema: Schema): {
-    [key: string]: string;
-  } {
-    const enumValueTypes: { [key: string]: string } = {};
-    const enums = defaultValue(schema.enums, {});
-    for (const enumName of Object.keys(enums)) {
-      const metadataEnum = enums[enumName];
-      const valueType = defaultValue(metadataEnum.valueType, "UINT16");
-      enumValueTypes[enumName] = valueType;
-    }
-    return enumValueTypes;
   }
 
   // Parts of the following are ""ported""" from the CesiumJS 'MetadataTester' class at
@@ -518,7 +517,10 @@ export class PropertyTableModels {
     return PropertyTableModels.createBuffer(flattenedValues, componentType);
   }
 
-  private static createStringOffsetBuffer(values: any, offsetType: string) {
+  private static createStringOffsetBuffer(
+    values: any,
+    offsetType: string | undefined
+  ) {
     const encoder = new TextEncoder();
     const strings = PropertyTableModels.flattenFully(values);
     const length = strings.length;
@@ -533,7 +535,10 @@ export class PropertyTableModels {
     return PropertyTableModels.createBuffer(offsets, offsetType);
   }
 
-  private static createArrayOffsetBuffer(values: any, offsetType: string) {
+  private static createArrayOffsetBuffer(
+    values: any,
+    offsetType: string | undefined
+  ) {
     const length = values.length;
     const offsets = new Array(length + 1);
     let offset = 0;

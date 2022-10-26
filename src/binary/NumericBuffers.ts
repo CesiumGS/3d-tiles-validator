@@ -127,4 +127,30 @@ export class NumericBuffers {
     }
     throw new DeveloperError(`Unknown component type: ${componentType}`);
   }
+
+  /**
+   * Returns an array that contains the `number`- or `bigint` values
+   * that are stored in the given buffer
+   *
+   * @param buffer The buffer
+   * @param componentType The component type
+   * @returns The number or bigint array
+   * @throws DeveloperError If the given `componentType` is not valid
+   */
+   static getNumericBufferAsArray(
+    buffer: Buffer,
+    componentType: string
+  ): any {
+    const size = MetadataComponentTypes.byteSizeForComponentType(componentType);
+    const arrayLength = buffer.length / size;
+    const typedArray = NumericBuffers.getTypedArrayFromBuffer(
+      buffer,
+      0,
+      arrayLength,
+      componentType
+    );
+    const array = [...typedArray];
+    return array;
+  }
+
 }

@@ -1,6 +1,6 @@
 import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
 import { bufferToJson } from "../base/bufferToJson";
+import { ResourceError } from "../base/ResourceError";
 
 import { SubtreeInfo } from "./SubtreeInfo";
 import { AvailabilityInfos } from "./AvailabilityInfos";
@@ -11,6 +11,10 @@ import { ImplicitTilingError } from "./ImplicitTilingError";
 
 import { Subtree } from "../structure/Subtree";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+
+import { BinaryBufferDataResolver } from "../binary/BinaryBufferDataResolver";
+
+import { BinaryBufferStructure } from "../validation/metadata/BinaryBufferStructure";
 
 /**
  * Methods to create `SubtreeInfo` instances.
@@ -100,46 +104,31 @@ export class SubtreeInfos {
     implicitTiling: TileImplicitTiling,
     resourceResolver: ResourceResolver
   ): Promise<SubtreeInfo> {
-    // Obtain the buffer data objects: One `Buffer` for
-    // each `BufferObject` of the subtree
-    const bufferDatas = [];
-    const buffers = defaultValue(subtree.buffers, []);
-    for (const buffer of buffers) {
-      if (!defined(buffer.uri)) {
-        if (!defined(buffer)) {
-          throw new ImplicitTilingError(
-            "Expected a binary buffer, but got undefined"
-          );
-        }
-        bufferDatas.push(binaryBuffer);
-      } else {
-        //console.log("Obtaining buffer data from " + buffer.uri);
-        const bufferData = await resourceResolver.resolve(buffer.uri!);
-        if (!defined(bufferData)) {
-          const message = `Could not resolve subtree buffer ${buffer.uri}`;
-          throw new ImplicitTilingError(message);
-        }
-        bufferDatas.push(bufferData);
+    const binaryBufferStructure: BinaryBufferStructure = {
+      buffers: subtree.buffers,
+      bufferViews: subtree.bufferViews,
+    };
+    let binaryBufferData;
+    try {
+      binaryBufferData = await BinaryBufferDataResolver.resolve(
+        binaryBufferStructure,
+        binaryBuffer,
+        resourceResolver
+      );
+    } catch (error) {
+      if (error instanceof ResourceError) {
+        const message = `Could not read subtree data: ${error.message}`;
+        throw new ImplicitTilingError(message);
       }
+      throw error;
     }
-
-    // Obtain the buffer view data objects: One `Buffer` for
-    // each `BufferView` of the subtree
-    const bufferViewDatas = [];
-    const bufferViews = defaultValue(subtree.bufferViews, []);
-    for (const bufferView of bufferViews) {
-      const bufferData = bufferDatas[bufferView.buffer];
-      const start = bufferView.byteOffset;
-      const end = start + bufferView.byteLength;
-      const bufferViewData = bufferData!.subarray(start, end);
-      bufferViewDatas.push(bufferViewData);
-    }
+    const bufferViewsData = binaryBufferData.bufferViewsData;
 
     // Create the `AvailabilityInfo` for the tile availability
     const tileAvailability = subtree.tileAvailability;
     const tileAvailabilityInfo = AvailabilityInfos.createTileOrContent(
       tileAvailability,
-      bufferViewDatas,
+      bufferViewsData,
       implicitTiling
     );
 
@@ -151,7 +140,7 @@ export class SubtreeInfos {
       for (const contentAvailability of contentAvailabilities!) {
         const contentAvailabilityInfo = AvailabilityInfos.createTileOrContent(
           contentAvailability,
-          bufferViewDatas,
+          bufferViewsData,
           implicitTiling
         );
         contentAvailabilityInfos.push(contentAvailabilityInfo);
@@ -162,7 +151,7 @@ export class SubtreeInfos {
     const childSubtreeAvailability = subtree.childSubtreeAvailability;
     const childSubtreeAvailabilityInfo = AvailabilityInfos.createChildSubtree(
       childSubtreeAvailability,
-      bufferViewDatas,
+      bufferViewsData,
       implicitTiling
     );
 
