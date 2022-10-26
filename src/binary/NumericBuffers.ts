@@ -137,10 +137,7 @@ export class NumericBuffers {
    * @returns The number or bigint array
    * @throws DeveloperError If the given `componentType` is not valid
    */
-   static getNumericBufferAsArray(
-    buffer: Buffer,
-    componentType: string
-  ): any {
+  static getNumericBufferAsArray(buffer: Buffer, componentType: string): any {
     const size = MetadataComponentTypes.byteSizeForComponentType(componentType);
     const arrayLength = buffer.length / size;
     const typedArray = NumericBuffers.getTypedArrayFromBuffer(
@@ -152,5 +149,4 @@ export class NumericBuffers {
     const array = [...typedArray];
     return array;
   }
-
 }

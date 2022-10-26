@@ -6,7 +6,6 @@ import { ValidationIssueSeverity } from "../validation/ValidationIssueSeverity";
  * issues related to (binary) metadata)
  */
 export class MetadataValidationIssues {
-
   static METADATA_INVALID_SIZE(path: string, message: string) {
     const type = "METADATA_INVALID_SIZE";
     const severity = ValidationIssueSeverity.ERROR;
@@ -25,5 +24,4 @@ export class MetadataValidationIssues {
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-
 }

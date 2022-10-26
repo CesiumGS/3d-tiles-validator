@@ -14,7 +14,7 @@ import { PropertyTable } from "../../structure/PropertyTable";
 
 /**
  * A class for validations related to `propertyTable` objects.
- * 
+ *
  * This class performs the basic JSON-level validation of the
  * property table. The validation of binary data is done with
  * the BinaryPropertyTableValidator.

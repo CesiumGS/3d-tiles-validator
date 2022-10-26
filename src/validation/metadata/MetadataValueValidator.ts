@@ -501,5 +501,4 @@ export class MetadataValueValidator {
     }
     return allElementsValid;
   }
-
 }

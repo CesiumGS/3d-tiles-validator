@@ -18,7 +18,7 @@ export class MetadataUtilities {
    * @param schema The metadata `Schema`
    * @returns The mapping from enum type names to enum value types
    */
-   static computeEnumValueTypes(schema: Schema): {
+  static computeEnumValueTypes(schema: Schema): {
     [key: string]: string;
   } {
     const enumValueTypes: { [key: string]: string } = {};
@@ -44,7 +44,7 @@ export class MetadataUtilities {
    * @param schema The `Schema`
    * @returns The enum value names
    */
-   static obtainEnumValueNames(
+  static obtainEnumValueNames(
     classProperty: ClassProperty,
     schema: Schema
   ): string[] {
@@ -68,5 +68,4 @@ export class MetadataUtilities {
     const enumValueNames = enumValues.map((e: { name: string }) => e.name);
     return enumValueNames;
   }
-
 }

@@ -12,10 +12,10 @@ import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
 /**
  * Creates an unspecified valid default `BinaryPropertyTable`, containing
  * a single example_INT16_SCALAR property
- * 
- * @returns The `BinaryPropertyTable` 
+ *
+ * @returns The `BinaryPropertyTable`
  */
- function createDefaultBinaryPropertyTable_example_INT16_SCALAR(): BinaryPropertyTable {
+function createDefaultBinaryPropertyTable_example_INT16_SCALAR(): BinaryPropertyTable {
   const example_INT16_SCALAR: ClassProperty = {
     type: "SCALAR",
     componentType: "INT16",
@@ -52,10 +52,10 @@ import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
 /**
  * Creates an unspecified valid default `BinaryPropertyTable`, containing
  * a single example_variable_length_INT16_SCALAR_array property
- * 
- * @returns The `BinaryPropertyTable` 
+ *
+ * @returns The `BinaryPropertyTable`
  */
- function createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array(): BinaryPropertyTable {
+function createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array(): BinaryPropertyTable {
   const example_variable_length_INT16_SCALAR_array: ClassProperty = {
     type: "SCALAR",
     componentType: "INT16",
@@ -93,18 +93,17 @@ import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
   return binaryPropertyTable;
 }
 
-
 /**
  * Creates an unspecified valid default `BinaryPropertyTable`, containing
  * a single example_STRING property
- * 
- * @returns The `BinaryPropertyTable` 
+ *
+ * @returns The `BinaryPropertyTable`
  */
- function createDefaultBinaryPropertyTable_example_STRING(): BinaryPropertyTable {
+function createDefaultBinaryPropertyTable_example_STRING(): BinaryPropertyTable {
   const example_STRING: ClassProperty = {
     type: "STRING",
   };
-  const example_STRING_values = [ "FirstString", "SecondString" ];
+  const example_STRING_values = ["FirstString", "SecondString"];
 
   const classProperty = example_STRING;
   const values = example_STRING_values;
@@ -132,13 +131,6 @@ import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
   );
   return binaryPropertyTable;
 }
-
-
-
-
-
-
-
 
 // TODO Add the cases that should NOT report issues from the
 // PropertyTableModelsSpec file (and think about how the
@@ -315,6 +307,4 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
     });
   });
-
-
 });
