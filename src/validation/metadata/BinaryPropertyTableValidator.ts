@@ -692,8 +692,9 @@ export class BinaryPropertyTableValidator {
     }
 
     // For non-STRING properties, the number of values
-    // is given by the component count
-    return componentCount;
+    // is given by the property table count (number of rows)
+    // times the component count
+    return propertyTableCount * componentCount;
   }
 
   // Note: The getValidatedArrayOffset and getValidatedStringOffset methods
