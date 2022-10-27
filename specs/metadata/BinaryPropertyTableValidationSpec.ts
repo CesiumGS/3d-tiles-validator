@@ -178,7 +178,6 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         context
       );
       const result = context.getResult();
-      console.log(result.toJson()); // TODO DEBUG
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
     });
@@ -215,7 +214,6 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         context
       );
       const result = context.getResult();
-      console.log(result.toJson()); // TODO DEBUG
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
     });
@@ -239,7 +237,6 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         context
       );
       const result = context.getResult();
-      console.log(result.toJson()); // TODO DEBUG
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
     });
@@ -265,7 +262,6 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         context
       );
       const result = context.getResult();
-      console.log(result.toJson()); // TODO DEBUG
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_OFFSETS");
     });
@@ -302,7 +298,6 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         context
       );
       const result = context.getResult();
-      console.log(result.toJson()); // TODO DEBUG
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
     });
