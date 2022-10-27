@@ -18,7 +18,6 @@ import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 import { BinaryBufferStructureValidator } from "./BinaryBufferStructureValidator";
 
 import { BinaryPropertyTable } from "../binary/BinaryPropertyTable";
-import { BinaryBufferData } from "../binary/BinaryBufferData";
 import { BinaryBufferDataResolver } from "../binary/BinaryBufferDataResolver";
 
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
