@@ -1,0 +1,7 @@
+{
+  "buffers": [{ "uri": "validBuffer.bin", "byteLength": 16 }],
+  "bufferViews": [
+    "NOT_AN_OBJECT",
+    { "buffer": 0, "byteOffset": 8, "byteLength": 8 }
+  ]
+}

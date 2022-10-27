@@ -1,0 +1,3235 @@
+{
+  "id": "FullMetadataSchemaId",
+  "classes": {
+    "fullMetadataClass": {
+      "name": "Full example metadata class",
+      "description": "An example metadata class with all property types",
+      "properties": {
+        "example_STRING": {
+          "name": "Example STRING property",
+          "description": "An example property, with type STRING",
+          "type": "STRING",
+          "array": false
+        },
+        "example_variable_length_STRING_array": {
+          "name": "Example variable-length STRING array property",
+          "description": "An example variable length array property, with type STRING",
+          "type": "STRING",
+          "array": true
+        },
+        "example_fixed_length_STRING_array": {
+          "name": "Example fixed-length STRING array property",
+          "description": "An example fixed length array property, with type STRING",
+          "type": "STRING",
+          "array": true,
+          "count": 5
+        },
+        "example_BOOLEAN": {
+          "name": "Example BOOLEAN property",
+          "description": "An example property, with type BOOLEAN",
+          "type": "BOOLEAN",
+          "array": false
+        },
+        "example_variable_length_BOOLEAN_array": {
+          "name": "Example variable-length BOOLEAN array property",
+          "description": "An example variable length array property, with type BOOLEAN",
+          "type": "BOOLEAN",
+          "array": true
+        },
+        "example_fixed_length_BOOLEAN_array": {
+          "name": "Example fixed-length BOOLEAN array property",
+          "description": "An example fixed length array property, with type BOOLEAN",
+          "type": "BOOLEAN",
+          "array": true,
+          "count": 5
+        },
+        "example_ENUM": {
+          "name": "Example ENUM property",
+          "description": "An example property, with type ENUM, enum type exampleEnumType",
+          "type": "ENUM",
+          "enumType": "exampleEnumType",
+          "array": false
+        },
+        "example_variable_length_ENUM_array": {
+          "name": "Example variable-length ENUM array property",
+          "description": "An example variable length array property, with type ENUM, enum type exampleEnumType",
+          "type": "ENUM",
+          "enumType": "exampleEnumType",
+          "array": true
+        },
+        "example_fixed_length_ENUM_array": {
+          "name": "Example fixed-length ENUM array property",
+          "description": "An example fixed length array property, with type ENUM, enum type exampleEnumType",
+          "type": "ENUM",
+          "enumType": "exampleEnumType",
+          "array": true,
+          "count": 5
+        },
+        "example_INT8_SCALAR": {
+          "name": "Example SCALAR property with INT8 components",
+          "description": "An example property, with type SCALAR, with component type INT8",
+          "type": "SCALAR",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT8_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with INT8 components",
+          "description": "An example variable length array property, with type SCALAR, with component type INT8",
+          "type": "SCALAR",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT8_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with INT8 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type INT8",
+          "type": "SCALAR",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT8_SCALAR": {
+          "name": "Example SCALAR property with normalized INT8 components",
+          "description": "An example property, with type SCALAR, with component type INT8, normalized",
+          "type": "SCALAR",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT8_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with normalized INT8 components",
+          "description": "An example variable length array property, with type SCALAR, with component type INT8, normalized",
+          "type": "SCALAR",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT8_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with normalized INT8 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type INT8, normalized",
+          "type": "SCALAR",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT8_SCALAR": {
+          "name": "Example SCALAR property with UINT8 components",
+          "description": "An example property, with type SCALAR, with component type UINT8",
+          "type": "SCALAR",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT8_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with UINT8 components",
+          "description": "An example variable length array property, with type SCALAR, with component type UINT8",
+          "type": "SCALAR",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT8_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with UINT8 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type UINT8",
+          "type": "SCALAR",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT8_SCALAR": {
+          "name": "Example SCALAR property with normalized UINT8 components",
+          "description": "An example property, with type SCALAR, with component type UINT8, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT8_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with normalized UINT8 components",
+          "description": "An example variable length array property, with type SCALAR, with component type UINT8, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT8_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with normalized UINT8 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type UINT8, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT16_SCALAR": {
+          "name": "Example SCALAR property with INT16 components",
+          "description": "An example property, with type SCALAR, with component type INT16",
+          "type": "SCALAR",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT16_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with INT16 components",
+          "description": "An example variable length array property, with type SCALAR, with component type INT16",
+          "type": "SCALAR",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT16_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with INT16 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type INT16",
+          "type": "SCALAR",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT16_SCALAR": {
+          "name": "Example SCALAR property with normalized INT16 components",
+          "description": "An example property, with type SCALAR, with component type INT16, normalized",
+          "type": "SCALAR",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT16_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with normalized INT16 components",
+          "description": "An example variable length array property, with type SCALAR, with component type INT16, normalized",
+          "type": "SCALAR",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT16_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with normalized INT16 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type INT16, normalized",
+          "type": "SCALAR",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT16_SCALAR": {
+          "name": "Example SCALAR property with UINT16 components",
+          "description": "An example property, with type SCALAR, with component type UINT16",
+          "type": "SCALAR",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT16_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with UINT16 components",
+          "description": "An example variable length array property, with type SCALAR, with component type UINT16",
+          "type": "SCALAR",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT16_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with UINT16 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type UINT16",
+          "type": "SCALAR",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT16_SCALAR": {
+          "name": "Example SCALAR property with normalized UINT16 components",
+          "description": "An example property, with type SCALAR, with component type UINT16, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT16_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with normalized UINT16 components",
+          "description": "An example variable length array property, with type SCALAR, with component type UINT16, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT16_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with normalized UINT16 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type UINT16, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT32_SCALAR": {
+          "name": "Example SCALAR property with INT32 components",
+          "description": "An example property, with type SCALAR, with component type INT32",
+          "type": "SCALAR",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT32_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with INT32 components",
+          "description": "An example variable length array property, with type SCALAR, with component type INT32",
+          "type": "SCALAR",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT32_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with INT32 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type INT32",
+          "type": "SCALAR",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT32_SCALAR": {
+          "name": "Example SCALAR property with normalized INT32 components",
+          "description": "An example property, with type SCALAR, with component type INT32, normalized",
+          "type": "SCALAR",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT32_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with normalized INT32 components",
+          "description": "An example variable length array property, with type SCALAR, with component type INT32, normalized",
+          "type": "SCALAR",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT32_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with normalized INT32 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type INT32, normalized",
+          "type": "SCALAR",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT32_SCALAR": {
+          "name": "Example SCALAR property with UINT32 components",
+          "description": "An example property, with type SCALAR, with component type UINT32",
+          "type": "SCALAR",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT32_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with UINT32 components",
+          "description": "An example variable length array property, with type SCALAR, with component type UINT32",
+          "type": "SCALAR",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT32_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with UINT32 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type UINT32",
+          "type": "SCALAR",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT32_SCALAR": {
+          "name": "Example SCALAR property with normalized UINT32 components",
+          "description": "An example property, with type SCALAR, with component type UINT32, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT32_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with normalized UINT32 components",
+          "description": "An example variable length array property, with type SCALAR, with component type UINT32, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT32_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with normalized UINT32 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type UINT32, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT64_SCALAR": {
+          "name": "Example SCALAR property with INT64 components",
+          "description": "An example property, with type SCALAR, with component type INT64",
+          "type": "SCALAR",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT64_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with INT64 components",
+          "description": "An example variable length array property, with type SCALAR, with component type INT64",
+          "type": "SCALAR",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT64_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with INT64 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type INT64",
+          "type": "SCALAR",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT64_SCALAR": {
+          "name": "Example SCALAR property with normalized INT64 components",
+          "description": "An example property, with type SCALAR, with component type INT64, normalized",
+          "type": "SCALAR",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT64_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with normalized INT64 components",
+          "description": "An example variable length array property, with type SCALAR, with component type INT64, normalized",
+          "type": "SCALAR",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT64_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with normalized INT64 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type INT64, normalized",
+          "type": "SCALAR",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT64_SCALAR": {
+          "name": "Example SCALAR property with UINT64 components",
+          "description": "An example property, with type SCALAR, with component type UINT64",
+          "type": "SCALAR",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT64_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with UINT64 components",
+          "description": "An example variable length array property, with type SCALAR, with component type UINT64",
+          "type": "SCALAR",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT64_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with UINT64 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type UINT64",
+          "type": "SCALAR",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT64_SCALAR": {
+          "name": "Example SCALAR property with normalized UINT64 components",
+          "description": "An example property, with type SCALAR, with component type UINT64, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT64_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with normalized UINT64 components",
+          "description": "An example variable length array property, with type SCALAR, with component type UINT64, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT64_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with normalized UINT64 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type UINT64, normalized",
+          "type": "SCALAR",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_FLOAT32_SCALAR": {
+          "name": "Example SCALAR property with FLOAT32 components",
+          "description": "An example property, with type SCALAR, with component type FLOAT32",
+          "type": "SCALAR",
+          "componentType": "FLOAT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT32_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with FLOAT32 components",
+          "description": "An example variable length array property, with type SCALAR, with component type FLOAT32",
+          "type": "SCALAR",
+          "componentType": "FLOAT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT32_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with FLOAT32 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type FLOAT32",
+          "type": "SCALAR",
+          "componentType": "FLOAT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_FLOAT64_SCALAR": {
+          "name": "Example SCALAR property with FLOAT64 components",
+          "description": "An example property, with type SCALAR, with component type FLOAT64",
+          "type": "SCALAR",
+          "componentType": "FLOAT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT64_SCALAR_array": {
+          "name": "Example variable-length SCALAR array property with FLOAT64 components",
+          "description": "An example variable length array property, with type SCALAR, with component type FLOAT64",
+          "type": "SCALAR",
+          "componentType": "FLOAT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT64_SCALAR_array": {
+          "name": "Example fixed-length SCALAR array property with FLOAT64 components",
+          "description": "An example fixed length array property, with type SCALAR, with component type FLOAT64",
+          "type": "SCALAR",
+          "componentType": "FLOAT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_INT8_VEC2": {
+          "name": "Example VEC2 property with INT8 components",
+          "description": "An example property, with type VEC2, with component type INT8",
+          "type": "VEC2",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT8_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with INT8 components",
+          "description": "An example variable length array property, with type VEC2, with component type INT8",
+          "type": "VEC2",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT8_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with INT8 components",
+          "description": "An example fixed length array property, with type VEC2, with component type INT8",
+          "type": "VEC2",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT8_VEC2": {
+          "name": "Example VEC2 property with normalized INT8 components",
+          "description": "An example property, with type VEC2, with component type INT8, normalized",
+          "type": "VEC2",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT8_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with normalized INT8 components",
+          "description": "An example variable length array property, with type VEC2, with component type INT8, normalized",
+          "type": "VEC2",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT8_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with normalized INT8 components",
+          "description": "An example fixed length array property, with type VEC2, with component type INT8, normalized",
+          "type": "VEC2",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT8_VEC2": {
+          "name": "Example VEC2 property with UINT8 components",
+          "description": "An example property, with type VEC2, with component type UINT8",
+          "type": "VEC2",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT8_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with UINT8 components",
+          "description": "An example variable length array property, with type VEC2, with component type UINT8",
+          "type": "VEC2",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT8_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with UINT8 components",
+          "description": "An example fixed length array property, with type VEC2, with component type UINT8",
+          "type": "VEC2",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT8_VEC2": {
+          "name": "Example VEC2 property with normalized UINT8 components",
+          "description": "An example property, with type VEC2, with component type UINT8, normalized",
+          "type": "VEC2",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT8_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with normalized UINT8 components",
+          "description": "An example variable length array property, with type VEC2, with component type UINT8, normalized",
+          "type": "VEC2",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT8_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with normalized UINT8 components",
+          "description": "An example fixed length array property, with type VEC2, with component type UINT8, normalized",
+          "type": "VEC2",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT16_VEC2": {
+          "name": "Example VEC2 property with INT16 components",
+          "description": "An example property, with type VEC2, with component type INT16",
+          "type": "VEC2",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT16_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with INT16 components",
+          "description": "An example variable length array property, with type VEC2, with component type INT16",
+          "type": "VEC2",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT16_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with INT16 components",
+          "description": "An example fixed length array property, with type VEC2, with component type INT16",
+          "type": "VEC2",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT16_VEC2": {
+          "name": "Example VEC2 property with normalized INT16 components",
+          "description": "An example property, with type VEC2, with component type INT16, normalized",
+          "type": "VEC2",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT16_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with normalized INT16 components",
+          "description": "An example variable length array property, with type VEC2, with component type INT16, normalized",
+          "type": "VEC2",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT16_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with normalized INT16 components",
+          "description": "An example fixed length array property, with type VEC2, with component type INT16, normalized",
+          "type": "VEC2",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT16_VEC2": {
+          "name": "Example VEC2 property with UINT16 components",
+          "description": "An example property, with type VEC2, with component type UINT16",
+          "type": "VEC2",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT16_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with UINT16 components",
+          "description": "An example variable length array property, with type VEC2, with component type UINT16",
+          "type": "VEC2",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT16_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with UINT16 components",
+          "description": "An example fixed length array property, with type VEC2, with component type UINT16",
+          "type": "VEC2",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT16_VEC2": {
+          "name": "Example VEC2 property with normalized UINT16 components",
+          "description": "An example property, with type VEC2, with component type UINT16, normalized",
+          "type": "VEC2",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT16_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with normalized UINT16 components",
+          "description": "An example variable length array property, with type VEC2, with component type UINT16, normalized",
+          "type": "VEC2",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT16_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with normalized UINT16 components",
+          "description": "An example fixed length array property, with type VEC2, with component type UINT16, normalized",
+          "type": "VEC2",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT32_VEC2": {
+          "name": "Example VEC2 property with INT32 components",
+          "description": "An example property, with type VEC2, with component type INT32",
+          "type": "VEC2",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT32_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with INT32 components",
+          "description": "An example variable length array property, with type VEC2, with component type INT32",
+          "type": "VEC2",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT32_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with INT32 components",
+          "description": "An example fixed length array property, with type VEC2, with component type INT32",
+          "type": "VEC2",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT32_VEC2": {
+          "name": "Example VEC2 property with normalized INT32 components",
+          "description": "An example property, with type VEC2, with component type INT32, normalized",
+          "type": "VEC2",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT32_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with normalized INT32 components",
+          "description": "An example variable length array property, with type VEC2, with component type INT32, normalized",
+          "type": "VEC2",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT32_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with normalized INT32 components",
+          "description": "An example fixed length array property, with type VEC2, with component type INT32, normalized",
+          "type": "VEC2",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT32_VEC2": {
+          "name": "Example VEC2 property with UINT32 components",
+          "description": "An example property, with type VEC2, with component type UINT32",
+          "type": "VEC2",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT32_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with UINT32 components",
+          "description": "An example variable length array property, with type VEC2, with component type UINT32",
+          "type": "VEC2",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT32_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with UINT32 components",
+          "description": "An example fixed length array property, with type VEC2, with component type UINT32",
+          "type": "VEC2",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT32_VEC2": {
+          "name": "Example VEC2 property with normalized UINT32 components",
+          "description": "An example property, with type VEC2, with component type UINT32, normalized",
+          "type": "VEC2",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT32_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with normalized UINT32 components",
+          "description": "An example variable length array property, with type VEC2, with component type UINT32, normalized",
+          "type": "VEC2",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT32_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with normalized UINT32 components",
+          "description": "An example fixed length array property, with type VEC2, with component type UINT32, normalized",
+          "type": "VEC2",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT64_VEC2": {
+          "name": "Example VEC2 property with INT64 components",
+          "description": "An example property, with type VEC2, with component type INT64",
+          "type": "VEC2",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT64_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with INT64 components",
+          "description": "An example variable length array property, with type VEC2, with component type INT64",
+          "type": "VEC2",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT64_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with INT64 components",
+          "description": "An example fixed length array property, with type VEC2, with component type INT64",
+          "type": "VEC2",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT64_VEC2": {
+          "name": "Example VEC2 property with normalized INT64 components",
+          "description": "An example property, with type VEC2, with component type INT64, normalized",
+          "type": "VEC2",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT64_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with normalized INT64 components",
+          "description": "An example variable length array property, with type VEC2, with component type INT64, normalized",
+          "type": "VEC2",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT64_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with normalized INT64 components",
+          "description": "An example fixed length array property, with type VEC2, with component type INT64, normalized",
+          "type": "VEC2",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT64_VEC2": {
+          "name": "Example VEC2 property with UINT64 components",
+          "description": "An example property, with type VEC2, with component type UINT64",
+          "type": "VEC2",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT64_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with UINT64 components",
+          "description": "An example variable length array property, with type VEC2, with component type UINT64",
+          "type": "VEC2",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT64_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with UINT64 components",
+          "description": "An example fixed length array property, with type VEC2, with component type UINT64",
+          "type": "VEC2",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT64_VEC2": {
+          "name": "Example VEC2 property with normalized UINT64 components",
+          "description": "An example property, with type VEC2, with component type UINT64, normalized",
+          "type": "VEC2",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT64_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with normalized UINT64 components",
+          "description": "An example variable length array property, with type VEC2, with component type UINT64, normalized",
+          "type": "VEC2",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT64_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with normalized UINT64 components",
+          "description": "An example fixed length array property, with type VEC2, with component type UINT64, normalized",
+          "type": "VEC2",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_FLOAT32_VEC2": {
+          "name": "Example VEC2 property with FLOAT32 components",
+          "description": "An example property, with type VEC2, with component type FLOAT32",
+          "type": "VEC2",
+          "componentType": "FLOAT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT32_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with FLOAT32 components",
+          "description": "An example variable length array property, with type VEC2, with component type FLOAT32",
+          "type": "VEC2",
+          "componentType": "FLOAT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT32_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with FLOAT32 components",
+          "description": "An example fixed length array property, with type VEC2, with component type FLOAT32",
+          "type": "VEC2",
+          "componentType": "FLOAT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_FLOAT64_VEC2": {
+          "name": "Example VEC2 property with FLOAT64 components",
+          "description": "An example property, with type VEC2, with component type FLOAT64",
+          "type": "VEC2",
+          "componentType": "FLOAT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT64_VEC2_array": {
+          "name": "Example variable-length VEC2 array property with FLOAT64 components",
+          "description": "An example variable length array property, with type VEC2, with component type FLOAT64",
+          "type": "VEC2",
+          "componentType": "FLOAT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT64_VEC2_array": {
+          "name": "Example fixed-length VEC2 array property with FLOAT64 components",
+          "description": "An example fixed length array property, with type VEC2, with component type FLOAT64",
+          "type": "VEC2",
+          "componentType": "FLOAT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_INT8_VEC3": {
+          "name": "Example VEC3 property with INT8 components",
+          "description": "An example property, with type VEC3, with component type INT8",
+          "type": "VEC3",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT8_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with INT8 components",
+          "description": "An example variable length array property, with type VEC3, with component type INT8",
+          "type": "VEC3",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT8_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with INT8 components",
+          "description": "An example fixed length array property, with type VEC3, with component type INT8",
+          "type": "VEC3",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT8_VEC3": {
+          "name": "Example VEC3 property with normalized INT8 components",
+          "description": "An example property, with type VEC3, with component type INT8, normalized",
+          "type": "VEC3",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT8_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with normalized INT8 components",
+          "description": "An example variable length array property, with type VEC3, with component type INT8, normalized",
+          "type": "VEC3",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT8_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with normalized INT8 components",
+          "description": "An example fixed length array property, with type VEC3, with component type INT8, normalized",
+          "type": "VEC3",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT8_VEC3": {
+          "name": "Example VEC3 property with UINT8 components",
+          "description": "An example property, with type VEC3, with component type UINT8",
+          "type": "VEC3",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT8_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with UINT8 components",
+          "description": "An example variable length array property, with type VEC3, with component type UINT8",
+          "type": "VEC3",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT8_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with UINT8 components",
+          "description": "An example fixed length array property, with type VEC3, with component type UINT8",
+          "type": "VEC3",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT8_VEC3": {
+          "name": "Example VEC3 property with normalized UINT8 components",
+          "description": "An example property, with type VEC3, with component type UINT8, normalized",
+          "type": "VEC3",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT8_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with normalized UINT8 components",
+          "description": "An example variable length array property, with type VEC3, with component type UINT8, normalized",
+          "type": "VEC3",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT8_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with normalized UINT8 components",
+          "description": "An example fixed length array property, with type VEC3, with component type UINT8, normalized",
+          "type": "VEC3",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT16_VEC3": {
+          "name": "Example VEC3 property with INT16 components",
+          "description": "An example property, with type VEC3, with component type INT16",
+          "type": "VEC3",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT16_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with INT16 components",
+          "description": "An example variable length array property, with type VEC3, with component type INT16",
+          "type": "VEC3",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT16_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with INT16 components",
+          "description": "An example fixed length array property, with type VEC3, with component type INT16",
+          "type": "VEC3",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT16_VEC3": {
+          "name": "Example VEC3 property with normalized INT16 components",
+          "description": "An example property, with type VEC3, with component type INT16, normalized",
+          "type": "VEC3",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT16_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with normalized INT16 components",
+          "description": "An example variable length array property, with type VEC3, with component type INT16, normalized",
+          "type": "VEC3",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT16_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with normalized INT16 components",
+          "description": "An example fixed length array property, with type VEC3, with component type INT16, normalized",
+          "type": "VEC3",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT16_VEC3": {
+          "name": "Example VEC3 property with UINT16 components",
+          "description": "An example property, with type VEC3, with component type UINT16",
+          "type": "VEC3",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT16_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with UINT16 components",
+          "description": "An example variable length array property, with type VEC3, with component type UINT16",
+          "type": "VEC3",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT16_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with UINT16 components",
+          "description": "An example fixed length array property, with type VEC3, with component type UINT16",
+          "type": "VEC3",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT16_VEC3": {
+          "name": "Example VEC3 property with normalized UINT16 components",
+          "description": "An example property, with type VEC3, with component type UINT16, normalized",
+          "type": "VEC3",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT16_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with normalized UINT16 components",
+          "description": "An example variable length array property, with type VEC3, with component type UINT16, normalized",
+          "type": "VEC3",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT16_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with normalized UINT16 components",
+          "description": "An example fixed length array property, with type VEC3, with component type UINT16, normalized",
+          "type": "VEC3",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT32_VEC3": {
+          "name": "Example VEC3 property with INT32 components",
+          "description": "An example property, with type VEC3, with component type INT32",
+          "type": "VEC3",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT32_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with INT32 components",
+          "description": "An example variable length array property, with type VEC3, with component type INT32",
+          "type": "VEC3",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT32_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with INT32 components",
+          "description": "An example fixed length array property, with type VEC3, with component type INT32",
+          "type": "VEC3",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT32_VEC3": {
+          "name": "Example VEC3 property with normalized INT32 components",
+          "description": "An example property, with type VEC3, with component type INT32, normalized",
+          "type": "VEC3",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT32_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with normalized INT32 components",
+          "description": "An example variable length array property, with type VEC3, with component type INT32, normalized",
+          "type": "VEC3",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT32_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with normalized INT32 components",
+          "description": "An example fixed length array property, with type VEC3, with component type INT32, normalized",
+          "type": "VEC3",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT32_VEC3": {
+          "name": "Example VEC3 property with UINT32 components",
+          "description": "An example property, with type VEC3, with component type UINT32",
+          "type": "VEC3",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT32_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with UINT32 components",
+          "description": "An example variable length array property, with type VEC3, with component type UINT32",
+          "type": "VEC3",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT32_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with UINT32 components",
+          "description": "An example fixed length array property, with type VEC3, with component type UINT32",
+          "type": "VEC3",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT32_VEC3": {
+          "name": "Example VEC3 property with normalized UINT32 components",
+          "description": "An example property, with type VEC3, with component type UINT32, normalized",
+          "type": "VEC3",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT32_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with normalized UINT32 components",
+          "description": "An example variable length array property, with type VEC3, with component type UINT32, normalized",
+          "type": "VEC3",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT32_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with normalized UINT32 components",
+          "description": "An example fixed length array property, with type VEC3, with component type UINT32, normalized",
+          "type": "VEC3",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT64_VEC3": {
+          "name": "Example VEC3 property with INT64 components",
+          "description": "An example property, with type VEC3, with component type INT64",
+          "type": "VEC3",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT64_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with INT64 components",
+          "description": "An example variable length array property, with type VEC3, with component type INT64",
+          "type": "VEC3",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT64_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with INT64 components",
+          "description": "An example fixed length array property, with type VEC3, with component type INT64",
+          "type": "VEC3",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT64_VEC3": {
+          "name": "Example VEC3 property with normalized INT64 components",
+          "description": "An example property, with type VEC3, with component type INT64, normalized",
+          "type": "VEC3",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT64_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with normalized INT64 components",
+          "description": "An example variable length array property, with type VEC3, with component type INT64, normalized",
+          "type": "VEC3",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT64_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with normalized INT64 components",
+          "description": "An example fixed length array property, with type VEC3, with component type INT64, normalized",
+          "type": "VEC3",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT64_VEC3": {
+          "name": "Example VEC3 property with UINT64 components",
+          "description": "An example property, with type VEC3, with component type UINT64",
+          "type": "VEC3",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT64_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with UINT64 components",
+          "description": "An example variable length array property, with type VEC3, with component type UINT64",
+          "type": "VEC3",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT64_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with UINT64 components",
+          "description": "An example fixed length array property, with type VEC3, with component type UINT64",
+          "type": "VEC3",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT64_VEC3": {
+          "name": "Example VEC3 property with normalized UINT64 components",
+          "description": "An example property, with type VEC3, with component type UINT64, normalized",
+          "type": "VEC3",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT64_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with normalized UINT64 components",
+          "description": "An example variable length array property, with type VEC3, with component type UINT64, normalized",
+          "type": "VEC3",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT64_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with normalized UINT64 components",
+          "description": "An example fixed length array property, with type VEC3, with component type UINT64, normalized",
+          "type": "VEC3",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_FLOAT32_VEC3": {
+          "name": "Example VEC3 property with FLOAT32 components",
+          "description": "An example property, with type VEC3, with component type FLOAT32",
+          "type": "VEC3",
+          "componentType": "FLOAT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT32_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with FLOAT32 components",
+          "description": "An example variable length array property, with type VEC3, with component type FLOAT32",
+          "type": "VEC3",
+          "componentType": "FLOAT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT32_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with FLOAT32 components",
+          "description": "An example fixed length array property, with type VEC3, with component type FLOAT32",
+          "type": "VEC3",
+          "componentType": "FLOAT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_FLOAT64_VEC3": {
+          "name": "Example VEC3 property with FLOAT64 components",
+          "description": "An example property, with type VEC3, with component type FLOAT64",
+          "type": "VEC3",
+          "componentType": "FLOAT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT64_VEC3_array": {
+          "name": "Example variable-length VEC3 array property with FLOAT64 components",
+          "description": "An example variable length array property, with type VEC3, with component type FLOAT64",
+          "type": "VEC3",
+          "componentType": "FLOAT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT64_VEC3_array": {
+          "name": "Example fixed-length VEC3 array property with FLOAT64 components",
+          "description": "An example fixed length array property, with type VEC3, with component type FLOAT64",
+          "type": "VEC3",
+          "componentType": "FLOAT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_INT8_VEC4": {
+          "name": "Example VEC4 property with INT8 components",
+          "description": "An example property, with type VEC4, with component type INT8",
+          "type": "VEC4",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT8_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with INT8 components",
+          "description": "An example variable length array property, with type VEC4, with component type INT8",
+          "type": "VEC4",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT8_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with INT8 components",
+          "description": "An example fixed length array property, with type VEC4, with component type INT8",
+          "type": "VEC4",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT8_VEC4": {
+          "name": "Example VEC4 property with normalized INT8 components",
+          "description": "An example property, with type VEC4, with component type INT8, normalized",
+          "type": "VEC4",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT8_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with normalized INT8 components",
+          "description": "An example variable length array property, with type VEC4, with component type INT8, normalized",
+          "type": "VEC4",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT8_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with normalized INT8 components",
+          "description": "An example fixed length array property, with type VEC4, with component type INT8, normalized",
+          "type": "VEC4",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT8_VEC4": {
+          "name": "Example VEC4 property with UINT8 components",
+          "description": "An example property, with type VEC4, with component type UINT8",
+          "type": "VEC4",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT8_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with UINT8 components",
+          "description": "An example variable length array property, with type VEC4, with component type UINT8",
+          "type": "VEC4",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT8_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with UINT8 components",
+          "description": "An example fixed length array property, with type VEC4, with component type UINT8",
+          "type": "VEC4",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT8_VEC4": {
+          "name": "Example VEC4 property with normalized UINT8 components",
+          "description": "An example property, with type VEC4, with component type UINT8, normalized",
+          "type": "VEC4",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT8_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with normalized UINT8 components",
+          "description": "An example variable length array property, with type VEC4, with component type UINT8, normalized",
+          "type": "VEC4",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT8_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with normalized UINT8 components",
+          "description": "An example fixed length array property, with type VEC4, with component type UINT8, normalized",
+          "type": "VEC4",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT16_VEC4": {
+          "name": "Example VEC4 property with INT16 components",
+          "description": "An example property, with type VEC4, with component type INT16",
+          "type": "VEC4",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT16_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with INT16 components",
+          "description": "An example variable length array property, with type VEC4, with component type INT16",
+          "type": "VEC4",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT16_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with INT16 components",
+          "description": "An example fixed length array property, with type VEC4, with component type INT16",
+          "type": "VEC4",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT16_VEC4": {
+          "name": "Example VEC4 property with normalized INT16 components",
+          "description": "An example property, with type VEC4, with component type INT16, normalized",
+          "type": "VEC4",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT16_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with normalized INT16 components",
+          "description": "An example variable length array property, with type VEC4, with component type INT16, normalized",
+          "type": "VEC4",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT16_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with normalized INT16 components",
+          "description": "An example fixed length array property, with type VEC4, with component type INT16, normalized",
+          "type": "VEC4",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT16_VEC4": {
+          "name": "Example VEC4 property with UINT16 components",
+          "description": "An example property, with type VEC4, with component type UINT16",
+          "type": "VEC4",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT16_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with UINT16 components",
+          "description": "An example variable length array property, with type VEC4, with component type UINT16",
+          "type": "VEC4",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT16_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with UINT16 components",
+          "description": "An example fixed length array property, with type VEC4, with component type UINT16",
+          "type": "VEC4",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT16_VEC4": {
+          "name": "Example VEC4 property with normalized UINT16 components",
+          "description": "An example property, with type VEC4, with component type UINT16, normalized",
+          "type": "VEC4",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT16_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with normalized UINT16 components",
+          "description": "An example variable length array property, with type VEC4, with component type UINT16, normalized",
+          "type": "VEC4",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT16_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with normalized UINT16 components",
+          "description": "An example fixed length array property, with type VEC4, with component type UINT16, normalized",
+          "type": "VEC4",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT32_VEC4": {
+          "name": "Example VEC4 property with INT32 components",
+          "description": "An example property, with type VEC4, with component type INT32",
+          "type": "VEC4",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT32_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with INT32 components",
+          "description": "An example variable length array property, with type VEC4, with component type INT32",
+          "type": "VEC4",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT32_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with INT32 components",
+          "description": "An example fixed length array property, with type VEC4, with component type INT32",
+          "type": "VEC4",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT32_VEC4": {
+          "name": "Example VEC4 property with normalized INT32 components",
+          "description": "An example property, with type VEC4, with component type INT32, normalized",
+          "type": "VEC4",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT32_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with normalized INT32 components",
+          "description": "An example variable length array property, with type VEC4, with component type INT32, normalized",
+          "type": "VEC4",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT32_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with normalized INT32 components",
+          "description": "An example fixed length array property, with type VEC4, with component type INT32, normalized",
+          "type": "VEC4",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT32_VEC4": {
+          "name": "Example VEC4 property with UINT32 components",
+          "description": "An example property, with type VEC4, with component type UINT32",
+          "type": "VEC4",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT32_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with UINT32 components",
+          "description": "An example variable length array property, with type VEC4, with component type UINT32",
+          "type": "VEC4",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT32_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with UINT32 components",
+          "description": "An example fixed length array property, with type VEC4, with component type UINT32",
+          "type": "VEC4",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT32_VEC4": {
+          "name": "Example VEC4 property with normalized UINT32 components",
+          "description": "An example property, with type VEC4, with component type UINT32, normalized",
+          "type": "VEC4",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT32_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with normalized UINT32 components",
+          "description": "An example variable length array property, with type VEC4, with component type UINT32, normalized",
+          "type": "VEC4",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT32_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with normalized UINT32 components",
+          "description": "An example fixed length array property, with type VEC4, with component type UINT32, normalized",
+          "type": "VEC4",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT64_VEC4": {
+          "name": "Example VEC4 property with INT64 components",
+          "description": "An example property, with type VEC4, with component type INT64",
+          "type": "VEC4",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT64_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with INT64 components",
+          "description": "An example variable length array property, with type VEC4, with component type INT64",
+          "type": "VEC4",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT64_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with INT64 components",
+          "description": "An example fixed length array property, with type VEC4, with component type INT64",
+          "type": "VEC4",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT64_VEC4": {
+          "name": "Example VEC4 property with normalized INT64 components",
+          "description": "An example property, with type VEC4, with component type INT64, normalized",
+          "type": "VEC4",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT64_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with normalized INT64 components",
+          "description": "An example variable length array property, with type VEC4, with component type INT64, normalized",
+          "type": "VEC4",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT64_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with normalized INT64 components",
+          "description": "An example fixed length array property, with type VEC4, with component type INT64, normalized",
+          "type": "VEC4",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT64_VEC4": {
+          "name": "Example VEC4 property with UINT64 components",
+          "description": "An example property, with type VEC4, with component type UINT64",
+          "type": "VEC4",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT64_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with UINT64 components",
+          "description": "An example variable length array property, with type VEC4, with component type UINT64",
+          "type": "VEC4",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT64_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with UINT64 components",
+          "description": "An example fixed length array property, with type VEC4, with component type UINT64",
+          "type": "VEC4",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT64_VEC4": {
+          "name": "Example VEC4 property with normalized UINT64 components",
+          "description": "An example property, with type VEC4, with component type UINT64, normalized",
+          "type": "VEC4",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT64_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with normalized UINT64 components",
+          "description": "An example variable length array property, with type VEC4, with component type UINT64, normalized",
+          "type": "VEC4",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT64_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with normalized UINT64 components",
+          "description": "An example fixed length array property, with type VEC4, with component type UINT64, normalized",
+          "type": "VEC4",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_FLOAT32_VEC4": {
+          "name": "Example VEC4 property with FLOAT32 components",
+          "description": "An example property, with type VEC4, with component type FLOAT32",
+          "type": "VEC4",
+          "componentType": "FLOAT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT32_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with FLOAT32 components",
+          "description": "An example variable length array property, with type VEC4, with component type FLOAT32",
+          "type": "VEC4",
+          "componentType": "FLOAT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT32_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with FLOAT32 components",
+          "description": "An example fixed length array property, with type VEC4, with component type FLOAT32",
+          "type": "VEC4",
+          "componentType": "FLOAT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_FLOAT64_VEC4": {
+          "name": "Example VEC4 property with FLOAT64 components",
+          "description": "An example property, with type VEC4, with component type FLOAT64",
+          "type": "VEC4",
+          "componentType": "FLOAT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT64_VEC4_array": {
+          "name": "Example variable-length VEC4 array property with FLOAT64 components",
+          "description": "An example variable length array property, with type VEC4, with component type FLOAT64",
+          "type": "VEC4",
+          "componentType": "FLOAT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT64_VEC4_array": {
+          "name": "Example fixed-length VEC4 array property with FLOAT64 components",
+          "description": "An example fixed length array property, with type VEC4, with component type FLOAT64",
+          "type": "VEC4",
+          "componentType": "FLOAT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_INT8_MAT2": {
+          "name": "Example MAT2 property with INT8 components",
+          "description": "An example property, with type MAT2, with component type INT8",
+          "type": "MAT2",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT8_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with INT8 components",
+          "description": "An example variable length array property, with type MAT2, with component type INT8",
+          "type": "MAT2",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT8_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with INT8 components",
+          "description": "An example fixed length array property, with type MAT2, with component type INT8",
+          "type": "MAT2",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT8_MAT2": {
+          "name": "Example MAT2 property with normalized INT8 components",
+          "description": "An example property, with type MAT2, with component type INT8, normalized",
+          "type": "MAT2",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT8_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with normalized INT8 components",
+          "description": "An example variable length array property, with type MAT2, with component type INT8, normalized",
+          "type": "MAT2",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT8_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with normalized INT8 components",
+          "description": "An example fixed length array property, with type MAT2, with component type INT8, normalized",
+          "type": "MAT2",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT8_MAT2": {
+          "name": "Example MAT2 property with UINT8 components",
+          "description": "An example property, with type MAT2, with component type UINT8",
+          "type": "MAT2",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT8_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with UINT8 components",
+          "description": "An example variable length array property, with type MAT2, with component type UINT8",
+          "type": "MAT2",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT8_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with UINT8 components",
+          "description": "An example fixed length array property, with type MAT2, with component type UINT8",
+          "type": "MAT2",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT8_MAT2": {
+          "name": "Example MAT2 property with normalized UINT8 components",
+          "description": "An example property, with type MAT2, with component type UINT8, normalized",
+          "type": "MAT2",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT8_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with normalized UINT8 components",
+          "description": "An example variable length array property, with type MAT2, with component type UINT8, normalized",
+          "type": "MAT2",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT8_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with normalized UINT8 components",
+          "description": "An example fixed length array property, with type MAT2, with component type UINT8, normalized",
+          "type": "MAT2",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT16_MAT2": {
+          "name": "Example MAT2 property with INT16 components",
+          "description": "An example property, with type MAT2, with component type INT16",
+          "type": "MAT2",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT16_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with INT16 components",
+          "description": "An example variable length array property, with type MAT2, with component type INT16",
+          "type": "MAT2",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT16_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with INT16 components",
+          "description": "An example fixed length array property, with type MAT2, with component type INT16",
+          "type": "MAT2",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT16_MAT2": {
+          "name": "Example MAT2 property with normalized INT16 components",
+          "description": "An example property, with type MAT2, with component type INT16, normalized",
+          "type": "MAT2",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT16_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with normalized INT16 components",
+          "description": "An example variable length array property, with type MAT2, with component type INT16, normalized",
+          "type": "MAT2",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT16_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with normalized INT16 components",
+          "description": "An example fixed length array property, with type MAT2, with component type INT16, normalized",
+          "type": "MAT2",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT16_MAT2": {
+          "name": "Example MAT2 property with UINT16 components",
+          "description": "An example property, with type MAT2, with component type UINT16",
+          "type": "MAT2",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT16_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with UINT16 components",
+          "description": "An example variable length array property, with type MAT2, with component type UINT16",
+          "type": "MAT2",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT16_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with UINT16 components",
+          "description": "An example fixed length array property, with type MAT2, with component type UINT16",
+          "type": "MAT2",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT16_MAT2": {
+          "name": "Example MAT2 property with normalized UINT16 components",
+          "description": "An example property, with type MAT2, with component type UINT16, normalized",
+          "type": "MAT2",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT16_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with normalized UINT16 components",
+          "description": "An example variable length array property, with type MAT2, with component type UINT16, normalized",
+          "type": "MAT2",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT16_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with normalized UINT16 components",
+          "description": "An example fixed length array property, with type MAT2, with component type UINT16, normalized",
+          "type": "MAT2",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT32_MAT2": {
+          "name": "Example MAT2 property with INT32 components",
+          "description": "An example property, with type MAT2, with component type INT32",
+          "type": "MAT2",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT32_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with INT32 components",
+          "description": "An example variable length array property, with type MAT2, with component type INT32",
+          "type": "MAT2",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT32_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with INT32 components",
+          "description": "An example fixed length array property, with type MAT2, with component type INT32",
+          "type": "MAT2",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT32_MAT2": {
+          "name": "Example MAT2 property with normalized INT32 components",
+          "description": "An example property, with type MAT2, with component type INT32, normalized",
+          "type": "MAT2",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT32_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with normalized INT32 components",
+          "description": "An example variable length array property, with type MAT2, with component type INT32, normalized",
+          "type": "MAT2",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT32_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with normalized INT32 components",
+          "description": "An example fixed length array property, with type MAT2, with component type INT32, normalized",
+          "type": "MAT2",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT32_MAT2": {
+          "name": "Example MAT2 property with UINT32 components",
+          "description": "An example property, with type MAT2, with component type UINT32",
+          "type": "MAT2",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT32_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with UINT32 components",
+          "description": "An example variable length array property, with type MAT2, with component type UINT32",
+          "type": "MAT2",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT32_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with UINT32 components",
+          "description": "An example fixed length array property, with type MAT2, with component type UINT32",
+          "type": "MAT2",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT32_MAT2": {
+          "name": "Example MAT2 property with normalized UINT32 components",
+          "description": "An example property, with type MAT2, with component type UINT32, normalized",
+          "type": "MAT2",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT32_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with normalized UINT32 components",
+          "description": "An example variable length array property, with type MAT2, with component type UINT32, normalized",
+          "type": "MAT2",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT32_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with normalized UINT32 components",
+          "description": "An example fixed length array property, with type MAT2, with component type UINT32, normalized",
+          "type": "MAT2",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT64_MAT2": {
+          "name": "Example MAT2 property with INT64 components",
+          "description": "An example property, with type MAT2, with component type INT64",
+          "type": "MAT2",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT64_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with INT64 components",
+          "description": "An example variable length array property, with type MAT2, with component type INT64",
+          "type": "MAT2",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT64_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with INT64 components",
+          "description": "An example fixed length array property, with type MAT2, with component type INT64",
+          "type": "MAT2",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT64_MAT2": {
+          "name": "Example MAT2 property with normalized INT64 components",
+          "description": "An example property, with type MAT2, with component type INT64, normalized",
+          "type": "MAT2",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT64_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with normalized INT64 components",
+          "description": "An example variable length array property, with type MAT2, with component type INT64, normalized",
+          "type": "MAT2",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT64_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with normalized INT64 components",
+          "description": "An example fixed length array property, with type MAT2, with component type INT64, normalized",
+          "type": "MAT2",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT64_MAT2": {
+          "name": "Example MAT2 property with UINT64 components",
+          "description": "An example property, with type MAT2, with component type UINT64",
+          "type": "MAT2",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT64_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with UINT64 components",
+          "description": "An example variable length array property, with type MAT2, with component type UINT64",
+          "type": "MAT2",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT64_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with UINT64 components",
+          "description": "An example fixed length array property, with type MAT2, with component type UINT64",
+          "type": "MAT2",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT64_MAT2": {
+          "name": "Example MAT2 property with normalized UINT64 components",
+          "description": "An example property, with type MAT2, with component type UINT64, normalized",
+          "type": "MAT2",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT64_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with normalized UINT64 components",
+          "description": "An example variable length array property, with type MAT2, with component type UINT64, normalized",
+          "type": "MAT2",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT64_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with normalized UINT64 components",
+          "description": "An example fixed length array property, with type MAT2, with component type UINT64, normalized",
+          "type": "MAT2",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_FLOAT32_MAT2": {
+          "name": "Example MAT2 property with FLOAT32 components",
+          "description": "An example property, with type MAT2, with component type FLOAT32",
+          "type": "MAT2",
+          "componentType": "FLOAT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT32_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with FLOAT32 components",
+          "description": "An example variable length array property, with type MAT2, with component type FLOAT32",
+          "type": "MAT2",
+          "componentType": "FLOAT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT32_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with FLOAT32 components",
+          "description": "An example fixed length array property, with type MAT2, with component type FLOAT32",
+          "type": "MAT2",
+          "componentType": "FLOAT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_FLOAT64_MAT2": {
+          "name": "Example MAT2 property with FLOAT64 components",
+          "description": "An example property, with type MAT2, with component type FLOAT64",
+          "type": "MAT2",
+          "componentType": "FLOAT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT64_MAT2_array": {
+          "name": "Example variable-length MAT2 array property with FLOAT64 components",
+          "description": "An example variable length array property, with type MAT2, with component type FLOAT64",
+          "type": "MAT2",
+          "componentType": "FLOAT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT64_MAT2_array": {
+          "name": "Example fixed-length MAT2 array property with FLOAT64 components",
+          "description": "An example fixed length array property, with type MAT2, with component type FLOAT64",
+          "type": "MAT2",
+          "componentType": "FLOAT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_INT8_MAT3": {
+          "name": "Example MAT3 property with INT8 components",
+          "description": "An example property, with type MAT3, with component type INT8",
+          "type": "MAT3",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT8_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with INT8 components",
+          "description": "An example variable length array property, with type MAT3, with component type INT8",
+          "type": "MAT3",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT8_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with INT8 components",
+          "description": "An example fixed length array property, with type MAT3, with component type INT8",
+          "type": "MAT3",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT8_MAT3": {
+          "name": "Example MAT3 property with normalized INT8 components",
+          "description": "An example property, with type MAT3, with component type INT8, normalized",
+          "type": "MAT3",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT8_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with normalized INT8 components",
+          "description": "An example variable length array property, with type MAT3, with component type INT8, normalized",
+          "type": "MAT3",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT8_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with normalized INT8 components",
+          "description": "An example fixed length array property, with type MAT3, with component type INT8, normalized",
+          "type": "MAT3",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT8_MAT3": {
+          "name": "Example MAT3 property with UINT8 components",
+          "description": "An example property, with type MAT3, with component type UINT8",
+          "type": "MAT3",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT8_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with UINT8 components",
+          "description": "An example variable length array property, with type MAT3, with component type UINT8",
+          "type": "MAT3",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT8_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with UINT8 components",
+          "description": "An example fixed length array property, with type MAT3, with component type UINT8",
+          "type": "MAT3",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT8_MAT3": {
+          "name": "Example MAT3 property with normalized UINT8 components",
+          "description": "An example property, with type MAT3, with component type UINT8, normalized",
+          "type": "MAT3",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT8_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with normalized UINT8 components",
+          "description": "An example variable length array property, with type MAT3, with component type UINT8, normalized",
+          "type": "MAT3",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT8_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with normalized UINT8 components",
+          "description": "An example fixed length array property, with type MAT3, with component type UINT8, normalized",
+          "type": "MAT3",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT16_MAT3": {
+          "name": "Example MAT3 property with INT16 components",
+          "description": "An example property, with type MAT3, with component type INT16",
+          "type": "MAT3",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT16_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with INT16 components",
+          "description": "An example variable length array property, with type MAT3, with component type INT16",
+          "type": "MAT3",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT16_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with INT16 components",
+          "description": "An example fixed length array property, with type MAT3, with component type INT16",
+          "type": "MAT3",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT16_MAT3": {
+          "name": "Example MAT3 property with normalized INT16 components",
+          "description": "An example property, with type MAT3, with component type INT16, normalized",
+          "type": "MAT3",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT16_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with normalized INT16 components",
+          "description": "An example variable length array property, with type MAT3, with component type INT16, normalized",
+          "type": "MAT3",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT16_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with normalized INT16 components",
+          "description": "An example fixed length array property, with type MAT3, with component type INT16, normalized",
+          "type": "MAT3",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT16_MAT3": {
+          "name": "Example MAT3 property with UINT16 components",
+          "description": "An example property, with type MAT3, with component type UINT16",
+          "type": "MAT3",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT16_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with UINT16 components",
+          "description": "An example variable length array property, with type MAT3, with component type UINT16",
+          "type": "MAT3",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT16_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with UINT16 components",
+          "description": "An example fixed length array property, with type MAT3, with component type UINT16",
+          "type": "MAT3",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT16_MAT3": {
+          "name": "Example MAT3 property with normalized UINT16 components",
+          "description": "An example property, with type MAT3, with component type UINT16, normalized",
+          "type": "MAT3",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT16_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with normalized UINT16 components",
+          "description": "An example variable length array property, with type MAT3, with component type UINT16, normalized",
+          "type": "MAT3",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT16_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with normalized UINT16 components",
+          "description": "An example fixed length array property, with type MAT3, with component type UINT16, normalized",
+          "type": "MAT3",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT32_MAT3": {
+          "name": "Example MAT3 property with INT32 components",
+          "description": "An example property, with type MAT3, with component type INT32",
+          "type": "MAT3",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT32_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with INT32 components",
+          "description": "An example variable length array property, with type MAT3, with component type INT32",
+          "type": "MAT3",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT32_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with INT32 components",
+          "description": "An example fixed length array property, with type MAT3, with component type INT32",
+          "type": "MAT3",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT32_MAT3": {
+          "name": "Example MAT3 property with normalized INT32 components",
+          "description": "An example property, with type MAT3, with component type INT32, normalized",
+          "type": "MAT3",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT32_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with normalized INT32 components",
+          "description": "An example variable length array property, with type MAT3, with component type INT32, normalized",
+          "type": "MAT3",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT32_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with normalized INT32 components",
+          "description": "An example fixed length array property, with type MAT3, with component type INT32, normalized",
+          "type": "MAT3",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT32_MAT3": {
+          "name": "Example MAT3 property with UINT32 components",
+          "description": "An example property, with type MAT3, with component type UINT32",
+          "type": "MAT3",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT32_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with UINT32 components",
+          "description": "An example variable length array property, with type MAT3, with component type UINT32",
+          "type": "MAT3",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT32_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with UINT32 components",
+          "description": "An example fixed length array property, with type MAT3, with component type UINT32",
+          "type": "MAT3",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT32_MAT3": {
+          "name": "Example MAT3 property with normalized UINT32 components",
+          "description": "An example property, with type MAT3, with component type UINT32, normalized",
+          "type": "MAT3",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT32_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with normalized UINT32 components",
+          "description": "An example variable length array property, with type MAT3, with component type UINT32, normalized",
+          "type": "MAT3",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT32_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with normalized UINT32 components",
+          "description": "An example fixed length array property, with type MAT3, with component type UINT32, normalized",
+          "type": "MAT3",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT64_MAT3": {
+          "name": "Example MAT3 property with INT64 components",
+          "description": "An example property, with type MAT3, with component type INT64",
+          "type": "MAT3",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT64_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with INT64 components",
+          "description": "An example variable length array property, with type MAT3, with component type INT64",
+          "type": "MAT3",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT64_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with INT64 components",
+          "description": "An example fixed length array property, with type MAT3, with component type INT64",
+          "type": "MAT3",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT64_MAT3": {
+          "name": "Example MAT3 property with normalized INT64 components",
+          "description": "An example property, with type MAT3, with component type INT64, normalized",
+          "type": "MAT3",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT64_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with normalized INT64 components",
+          "description": "An example variable length array property, with type MAT3, with component type INT64, normalized",
+          "type": "MAT3",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT64_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with normalized INT64 components",
+          "description": "An example fixed length array property, with type MAT3, with component type INT64, normalized",
+          "type": "MAT3",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT64_MAT3": {
+          "name": "Example MAT3 property with UINT64 components",
+          "description": "An example property, with type MAT3, with component type UINT64",
+          "type": "MAT3",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT64_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with UINT64 components",
+          "description": "An example variable length array property, with type MAT3, with component type UINT64",
+          "type": "MAT3",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT64_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with UINT64 components",
+          "description": "An example fixed length array property, with type MAT3, with component type UINT64",
+          "type": "MAT3",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT64_MAT3": {
+          "name": "Example MAT3 property with normalized UINT64 components",
+          "description": "An example property, with type MAT3, with component type UINT64, normalized",
+          "type": "MAT3",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT64_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with normalized UINT64 components",
+          "description": "An example variable length array property, with type MAT3, with component type UINT64, normalized",
+          "type": "MAT3",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT64_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with normalized UINT64 components",
+          "description": "An example fixed length array property, with type MAT3, with component type UINT64, normalized",
+          "type": "MAT3",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_FLOAT32_MAT3": {
+          "name": "Example MAT3 property with FLOAT32 components",
+          "description": "An example property, with type MAT3, with component type FLOAT32",
+          "type": "MAT3",
+          "componentType": "FLOAT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT32_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with FLOAT32 components",
+          "description": "An example variable length array property, with type MAT3, with component type FLOAT32",
+          "type": "MAT3",
+          "componentType": "FLOAT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT32_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with FLOAT32 components",
+          "description": "An example fixed length array property, with type MAT3, with component type FLOAT32",
+          "type": "MAT3",
+          "componentType": "FLOAT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_FLOAT64_MAT3": {
+          "name": "Example MAT3 property with FLOAT64 components",
+          "description": "An example property, with type MAT3, with component type FLOAT64",
+          "type": "MAT3",
+          "componentType": "FLOAT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT64_MAT3_array": {
+          "name": "Example variable-length MAT3 array property with FLOAT64 components",
+          "description": "An example variable length array property, with type MAT3, with component type FLOAT64",
+          "type": "MAT3",
+          "componentType": "FLOAT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT64_MAT3_array": {
+          "name": "Example fixed-length MAT3 array property with FLOAT64 components",
+          "description": "An example fixed length array property, with type MAT3, with component type FLOAT64",
+          "type": "MAT3",
+          "componentType": "FLOAT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_INT8_MAT4": {
+          "name": "Example MAT4 property with INT8 components",
+          "description": "An example property, with type MAT4, with component type INT8",
+          "type": "MAT4",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT8_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with INT8 components",
+          "description": "An example variable length array property, with type MAT4, with component type INT8",
+          "type": "MAT4",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT8_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with INT8 components",
+          "description": "An example fixed length array property, with type MAT4, with component type INT8",
+          "type": "MAT4",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT8_MAT4": {
+          "name": "Example MAT4 property with normalized INT8 components",
+          "description": "An example property, with type MAT4, with component type INT8, normalized",
+          "type": "MAT4",
+          "componentType": "INT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT8_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with normalized INT8 components",
+          "description": "An example variable length array property, with type MAT4, with component type INT8, normalized",
+          "type": "MAT4",
+          "componentType": "INT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT8_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with normalized INT8 components",
+          "description": "An example fixed length array property, with type MAT4, with component type INT8, normalized",
+          "type": "MAT4",
+          "componentType": "INT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT8_MAT4": {
+          "name": "Example MAT4 property with UINT8 components",
+          "description": "An example property, with type MAT4, with component type UINT8",
+          "type": "MAT4",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT8_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with UINT8 components",
+          "description": "An example variable length array property, with type MAT4, with component type UINT8",
+          "type": "MAT4",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT8_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with UINT8 components",
+          "description": "An example fixed length array property, with type MAT4, with component type UINT8",
+          "type": "MAT4",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT8_MAT4": {
+          "name": "Example MAT4 property with normalized UINT8 components",
+          "description": "An example property, with type MAT4, with component type UINT8, normalized",
+          "type": "MAT4",
+          "componentType": "UINT8",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT8_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with normalized UINT8 components",
+          "description": "An example variable length array property, with type MAT4, with component type UINT8, normalized",
+          "type": "MAT4",
+          "componentType": "UINT8",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT8_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with normalized UINT8 components",
+          "description": "An example fixed length array property, with type MAT4, with component type UINT8, normalized",
+          "type": "MAT4",
+          "componentType": "UINT8",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT16_MAT4": {
+          "name": "Example MAT4 property with INT16 components",
+          "description": "An example property, with type MAT4, with component type INT16",
+          "type": "MAT4",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT16_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with INT16 components",
+          "description": "An example variable length array property, with type MAT4, with component type INT16",
+          "type": "MAT4",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT16_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with INT16 components",
+          "description": "An example fixed length array property, with type MAT4, with component type INT16",
+          "type": "MAT4",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT16_MAT4": {
+          "name": "Example MAT4 property with normalized INT16 components",
+          "description": "An example property, with type MAT4, with component type INT16, normalized",
+          "type": "MAT4",
+          "componentType": "INT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT16_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with normalized INT16 components",
+          "description": "An example variable length array property, with type MAT4, with component type INT16, normalized",
+          "type": "MAT4",
+          "componentType": "INT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT16_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with normalized INT16 components",
+          "description": "An example fixed length array property, with type MAT4, with component type INT16, normalized",
+          "type": "MAT4",
+          "componentType": "INT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT16_MAT4": {
+          "name": "Example MAT4 property with UINT16 components",
+          "description": "An example property, with type MAT4, with component type UINT16",
+          "type": "MAT4",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT16_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with UINT16 components",
+          "description": "An example variable length array property, with type MAT4, with component type UINT16",
+          "type": "MAT4",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT16_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with UINT16 components",
+          "description": "An example fixed length array property, with type MAT4, with component type UINT16",
+          "type": "MAT4",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT16_MAT4": {
+          "name": "Example MAT4 property with normalized UINT16 components",
+          "description": "An example property, with type MAT4, with component type UINT16, normalized",
+          "type": "MAT4",
+          "componentType": "UINT16",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT16_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with normalized UINT16 components",
+          "description": "An example variable length array property, with type MAT4, with component type UINT16, normalized",
+          "type": "MAT4",
+          "componentType": "UINT16",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT16_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with normalized UINT16 components",
+          "description": "An example fixed length array property, with type MAT4, with component type UINT16, normalized",
+          "type": "MAT4",
+          "componentType": "UINT16",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT32_MAT4": {
+          "name": "Example MAT4 property with INT32 components",
+          "description": "An example property, with type MAT4, with component type INT32",
+          "type": "MAT4",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT32_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with INT32 components",
+          "description": "An example variable length array property, with type MAT4, with component type INT32",
+          "type": "MAT4",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT32_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with INT32 components",
+          "description": "An example fixed length array property, with type MAT4, with component type INT32",
+          "type": "MAT4",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT32_MAT4": {
+          "name": "Example MAT4 property with normalized INT32 components",
+          "description": "An example property, with type MAT4, with component type INT32, normalized",
+          "type": "MAT4",
+          "componentType": "INT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT32_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with normalized INT32 components",
+          "description": "An example variable length array property, with type MAT4, with component type INT32, normalized",
+          "type": "MAT4",
+          "componentType": "INT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT32_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with normalized INT32 components",
+          "description": "An example fixed length array property, with type MAT4, with component type INT32, normalized",
+          "type": "MAT4",
+          "componentType": "INT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT32_MAT4": {
+          "name": "Example MAT4 property with UINT32 components",
+          "description": "An example property, with type MAT4, with component type UINT32",
+          "type": "MAT4",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT32_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with UINT32 components",
+          "description": "An example variable length array property, with type MAT4, with component type UINT32",
+          "type": "MAT4",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT32_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with UINT32 components",
+          "description": "An example fixed length array property, with type MAT4, with component type UINT32",
+          "type": "MAT4",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT32_MAT4": {
+          "name": "Example MAT4 property with normalized UINT32 components",
+          "description": "An example property, with type MAT4, with component type UINT32, normalized",
+          "type": "MAT4",
+          "componentType": "UINT32",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT32_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with normalized UINT32 components",
+          "description": "An example variable length array property, with type MAT4, with component type UINT32, normalized",
+          "type": "MAT4",
+          "componentType": "UINT32",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT32_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with normalized UINT32 components",
+          "description": "An example fixed length array property, with type MAT4, with component type UINT32, normalized",
+          "type": "MAT4",
+          "componentType": "UINT32",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_INT64_MAT4": {
+          "name": "Example MAT4 property with INT64 components",
+          "description": "An example property, with type MAT4, with component type INT64",
+          "type": "MAT4",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_INT64_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with INT64 components",
+          "description": "An example variable length array property, with type MAT4, with component type INT64",
+          "type": "MAT4",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_INT64_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with INT64 components",
+          "description": "An example fixed length array property, with type MAT4, with component type INT64",
+          "type": "MAT4",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_INT64_MAT4": {
+          "name": "Example MAT4 property with normalized INT64 components",
+          "description": "An example property, with type MAT4, with component type INT64, normalized",
+          "type": "MAT4",
+          "componentType": "INT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_INT64_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with normalized INT64 components",
+          "description": "An example variable length array property, with type MAT4, with component type INT64, normalized",
+          "type": "MAT4",
+          "componentType": "INT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_INT64_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with normalized INT64 components",
+          "description": "An example fixed length array property, with type MAT4, with component type INT64, normalized",
+          "type": "MAT4",
+          "componentType": "INT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_UINT64_MAT4": {
+          "name": "Example MAT4 property with UINT64 components",
+          "description": "An example property, with type MAT4, with component type UINT64",
+          "type": "MAT4",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_UINT64_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with UINT64 components",
+          "description": "An example variable length array property, with type MAT4, with component type UINT64",
+          "type": "MAT4",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_UINT64_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with UINT64 components",
+          "description": "An example fixed length array property, with type MAT4, with component type UINT64",
+          "type": "MAT4",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_normalized_UINT64_MAT4": {
+          "name": "Example MAT4 property with normalized UINT64 components",
+          "description": "An example property, with type MAT4, with component type UINT64, normalized",
+          "type": "MAT4",
+          "componentType": "UINT64",
+          "array": false,
+          "normalized": true
+        },
+        "example_variable_length_normalized_UINT64_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with normalized UINT64 components",
+          "description": "An example variable length array property, with type MAT4, with component type UINT64, normalized",
+          "type": "MAT4",
+          "componentType": "UINT64",
+          "array": true,
+          "normalized": true
+        },
+        "example_fixed_length_normalized_UINT64_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with normalized UINT64 components",
+          "description": "An example fixed length array property, with type MAT4, with component type UINT64, normalized",
+          "type": "MAT4",
+          "componentType": "UINT64",
+          "array": true,
+          "count": 5,
+          "normalized": true
+        },
+        "example_FLOAT32_MAT4": {
+          "name": "Example MAT4 property with FLOAT32 components",
+          "description": "An example property, with type MAT4, with component type FLOAT32",
+          "type": "MAT4",
+          "componentType": "FLOAT32",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT32_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with FLOAT32 components",
+          "description": "An example variable length array property, with type MAT4, with component type FLOAT32",
+          "type": "MAT4",
+          "componentType": "FLOAT32",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT32_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with FLOAT32 components",
+          "description": "An example fixed length array property, with type MAT4, with component type FLOAT32",
+          "type": "MAT4",
+          "componentType": "FLOAT32",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        },
+        "example_FLOAT64_MAT4": {
+          "name": "Example MAT4 property with FLOAT64 components",
+          "description": "An example property, with type MAT4, with component type FLOAT64",
+          "type": "MAT4",
+          "componentType": "FLOAT64",
+          "array": false,
+          "normalized": false
+        },
+        "example_variable_length_FLOAT64_MAT4_array": {
+          "name": "Example variable-length MAT4 array property with FLOAT64 components",
+          "description": "An example variable length array property, with type MAT4, with component type FLOAT64",
+          "type": "MAT4",
+          "componentType": "FLOAT64",
+          "array": true,
+          "normalized": false
+        },
+        "example_fixed_length_FLOAT64_MAT4_array": {
+          "name": "Example fixed-length MAT4 array property with FLOAT64 components",
+          "description": "An example fixed length array property, with type MAT4, with component type FLOAT64",
+          "type": "MAT4",
+          "componentType": "FLOAT64",
+          "array": true,
+          "count": 5,
+          "normalized": false
+        }
+      }
+    }
+  }, 
+  "enums" : {
+    "exampleEnumType" : {
+      "values" : [ {
+        "name" : "ExampleEnumValueA",
+        "value" : 0
+      }, {
+        "name" : "ExampleEnumValueB",
+        "value" : 1
+      }, {
+        "name" : "ExampleEnumValueC",
+        "value" : 2
+      } ]
+    }
+  }
+}

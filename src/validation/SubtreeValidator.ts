@@ -1,4 +1,5 @@
 import { defined } from "../base/defined";
+import { defaultValue } from "../base/defaultValue";
 import { bufferToJson } from "../base/bufferToJson";
 
 import { ResourceTypes } from "../io/ResourceTypes";
@@ -9,22 +10,29 @@ import { ValidationContext } from "./ValidationContext";
 import { ValidationState } from "./ValidationState";
 import { BasicValidator } from "./BasicValidator";
 import { BinaryValidator } from "./BinaryValidator";
-import { MetadataEntityValidator } from "./MetadataEntityValidator";
 import { SubtreeConsistencyValidator } from "./SubtreeConsistencyValidator";
-import { PropertyTableValidator } from "./PropertyTableValidator";
 import { SubtreeInfoValidator } from "./SubtreeInfoValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
-import { BufferObject } from "../structure/BufferObject";
+import { BinaryBufferStructureValidator } from "./BinaryBufferStructureValidator";
+
+import { BinaryPropertyTable } from "../binary/BinaryPropertyTable";
+import { BinaryBufferDataResolver } from "../binary/BinaryBufferDataResolver";
+
+import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
+import { PropertyTableValidator } from "./metadata/PropertyTableValidator";
+import { MetadataUtilities } from "../metadata/MetadataUtilities";
+import { BinaryBufferStructure } from "./metadata/BinaryBufferStructure";
+
 import { Subtree } from "../structure/Subtree";
-import { BufferView } from "../structure/BufferView";
 import { Availability } from "../structure/Availability";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
+import { BinaryPropertyTableValidator } from "./metadata/BinaryPropertyTableValidator";
 
 /**
  * A class for validations related to `subtree` objects that have
@@ -39,6 +47,12 @@ import { StructureValidationIssues } from "../issues/StructureValidationIssues";
  * @private
  */
 export class SubtreeValidator implements Validator<Buffer> {
+  // TODO Currently, the binary data is resolved twice,
+  // once for validating the availability, and once for
+  // validating the binary metadata. While these should
+  // be clearly separated, the binary data should only
+  // be resolved once.
+
   /**
    * The `ValidationState` that carries information about
    * the metadata schema
@@ -324,6 +338,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     }
 
     // If the structure was valid, perform the deeper consistency validation
+    // of the binary buffer structure and availability consistency
     if (
       !SubtreeConsistencyValidator.validateSubtreeConsistency(
         path,
@@ -336,8 +351,21 @@ export class SubtreeValidator implements Validator<Buffer> {
       return result;
     }
 
-    // If the structure was valid and consistent, perform the validity
-    // checks for the actual buffer data
+    // If the structure was valid and consistent, perform the
+    // validation that actually involves reading the binary data
+
+    // Validate the binary representation of the property tables
+    const binaryPropertyTablesValid = await this.validateBinaryPropertyTables(
+      path,
+      subtree,
+      binaryBuffer,
+      context
+    );
+    if (!binaryPropertyTablesValid) {
+      result = false;
+    }
+
+    // Validate the consistency of the binary availability data
     if (defined(this._implicitTiling)) {
       const dataIsConsistent = await SubtreeInfoValidator.validateSubtreeInfo(
         path,
@@ -408,76 +436,22 @@ export class SubtreeValidator implements Validator<Buffer> {
 
     let result = true;
 
-    // Validate the buffers
-    const buffers = subtree.buffers;
-    const buffersPath = path + "/buffers";
-    if (defined(buffers)) {
-      // The buffers MUST be an array of at least 1 objects
-      if (
-        !BasicValidator.validateArray(
-          buffersPath,
-          "buffers",
-          buffers,
-          1,
-          undefined,
-          "object",
-          context
-        )
-      ) {
-        result = false;
-      } else {
-        // Validate each buffer
-        for (let i = 0; i < buffers!.length; i++) {
-          const buffer = buffers![i];
-          const bufferPath = buffersPath + "/" + i;
-          if (
-            !this.validateBuffer(
-              bufferPath,
-              "buffers/" + i,
-              buffer,
-              hasBinaryBuffer,
-              context
-            )
-          ) {
-            result = false;
-          }
-        }
-      }
-    }
-    // Validate the bufferViews
-    const bufferViews = subtree.bufferViews;
-    const bufferViewsPath = path + "/bufferViews";
-    if (defined(bufferViews)) {
-      //The bufferViews MUST be an array of at least 1 objects
-      if (
-        !BasicValidator.validateArray(
-          bufferViewsPath,
-          "bufferViews",
-          bufferViews,
-          1,
-          undefined,
-          "object",
-          context
-        )
-      ) {
-        result = false;
-      } else {
-        // Validate each bufferView
-        for (let i = 0; i < bufferViews!.length; i++) {
-          const bufferView = bufferViews![i];
-          const bufferViewPath = bufferViewsPath + "/" + i;
-          if (
-            !SubtreeValidator.validateBufferView(
-              bufferViewPath,
-              "bufferViews/" + i,
-              bufferView,
-              context
-            )
-          ) {
-            result = false;
-          }
-        }
-      }
+    // Validate the binary buffer structure, i.e. the `buffers`
+    // and `bufferViews`
+    const binaryBufferStructure: BinaryBufferStructure = {
+      buffers: subtree.buffers,
+      bufferViews: subtree.bufferViews,
+    };
+    const firstBufferUriIsRequired = !hasBinaryBuffer;
+    if (
+      !BinaryBufferStructureValidator.validateBinaryBufferStructure(
+        path,
+        binaryBufferStructure,
+        firstBufferUriIsRequired,
+        context
+      )
+    ) {
+      result = false;
     }
 
     // Validate the tileAvailability
@@ -547,203 +521,6 @@ export class SubtreeValidator implements Validator<Buffer> {
       )
     ) {
       result = false;
-    }
-    return result;
-  }
-
-  /**
-   * Performs the validation to ensure that the given object is a
-   * valid `BufferObject` object.
-   *
-   * @param path The path for the `ValidationIssue` instances
-   * @param name The name of the object
-   * @param buffer The `BufferObject` object
-   * @param hasBinaryBuffer Whether the subtree has an internal buffer
-   * (i.e. it was read from a binary subtree file)
-   * @param context The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private validateBuffer(
-    path: string,
-    name: string,
-    buffer: BufferObject,
-    hasBinaryBuffer: boolean,
-    context: ValidationContext
-  ): boolean {
-    // Make sure that the given value is an object
-    if (!BasicValidator.validateObject(path, name, buffer, context)) {
-      return false;
-    }
-
-    let result = true;
-
-    // Validate the uri
-    const uri = buffer.uri;
-    const uriPath = path + "/uri";
-
-    // When there is no binary buffer (from a binary subtree file),
-    // then the uri MUST be defined
-    if (!hasBinaryBuffer && !defined(uri)) {
-      const message =
-        `The 'uri' property of a buffer is required ` +
-        `when there is no binary buffer`;
-      const issue = StructureValidationIssues.REQUIRED_VALUE_NOT_FOUND(
-        uriPath,
-        message
-      );
-      context.addIssue(issue);
-      result = false;
-    }
-    if (defined(uri)) {
-      // The uri MUST be a string
-      if (!BasicValidator.validateString(uriPath, "uri", uri, context)) {
-        result = false;
-      }
-    }
-
-    // Validate the byteLength
-    // The byteLength MUST be defined
-    // The byteLength MUST be an integer of at least 1
-    const byteLength = buffer.byteLength;
-    const byteLengthPath = path + "/byteLength";
-    if (
-      !BasicValidator.validateIntegerRange(
-        byteLengthPath,
-        "byteLength",
-        byteLength,
-        1,
-        true,
-        undefined,
-        false,
-        context
-      )
-    ) {
-      result = false;
-    }
-
-    // Validate the name
-    const theName = buffer.name;
-    const namePath = path + "/name";
-    if (defined(theName)) {
-      // The name MUST be a string
-      // The name MUST have a length of at least 1
-      if (
-        !BasicValidator.validateStringLength(
-          namePath,
-          "name",
-          theName,
-          1,
-          undefined,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Performs the validation to ensure that the given object is a
-   * valid `BufferView` object.
-   *
-   * @param path The path for the `ValidationIssue` instances
-   * @param name The name of the object
-   * @param bufferView The `BufferView` object
-   * @param context The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validateBufferView(
-    path: string,
-    name: string,
-    bufferView: BufferView,
-    context: ValidationContext
-  ): boolean {
-    // Make sure that the given value is an object
-    if (!BasicValidator.validateObject(path, name, bufferView, context)) {
-      return false;
-    }
-
-    let result = true;
-
-    // Validate the buffer
-    // The buffer MUST be defined
-    // The buffer MUST be an integer of at least 0
-    const buffer = bufferView.buffer;
-    const bufferPath = path + "/buffer";
-    if (
-      !BasicValidator.validateIntegerRange(
-        bufferPath,
-        "buffer",
-        buffer,
-        0,
-        true,
-        undefined,
-        false,
-        context
-      )
-    ) {
-      result = false;
-    }
-
-    // Validate the byteOffset
-    // The byteOffset MUST be defined
-    // The byteOffset MUST be an integer of at least 0
-    const byteOffset = bufferView.byteOffset;
-    const byteOffsetPath = path + "/byteOffset";
-    if (
-      !BasicValidator.validateIntegerRange(
-        byteOffsetPath,
-        "byteOffset",
-        byteOffset,
-        0,
-        true,
-        undefined,
-        false,
-        context
-      )
-    ) {
-      result = false;
-    }
-
-    // Validate the byteLength
-    // The byteLength MUST be defined
-    // The byteLength MUST be an integer of at least 1
-    const byteLength = bufferView.byteLength;
-    const byteLengthPath = path + "/byteLength";
-    if (
-      !BasicValidator.validateIntegerRange(
-        byteLengthPath,
-        "byteLength",
-        byteLength,
-        1,
-        true,
-        undefined,
-        false,
-        context
-      )
-    ) {
-      result = false;
-    }
-
-    // Validate the name
-    const theName = bufferView.name;
-    const namePath = path + "/name";
-    if (defined(theName)) {
-      // The name MUST be a string
-      // The name MUST have a length of at least 1
-      if (
-        !BasicValidator.validateStringLength(
-          namePath,
-          "name",
-          theName,
-          1,
-          undefined,
-          context
-        )
-      ) {
-        result = false;
-      }
     }
     return result;
   }
@@ -894,6 +671,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     const propertyTablesPath = path + "/propertyTables";
     if (defined(propertyTables)) {
       hasPropertyTablesDefinition = true;
+      const numBufferViews = defaultValue(subtree.bufferViews?.length, 0);
 
       if (!this._validationState.hasSchemaDefinition) {
         // If there are property tables, then there MUST be a schema definition
@@ -930,7 +708,7 @@ export class SubtreeValidator implements Validator<Buffer> {
               !PropertyTableValidator.validatePropertyTable(
                 propertyTablePath,
                 propertyTable,
-                subtree,
+                numBufferViews,
                 this._validationState.validatedSchema!,
                 context
               )
@@ -1106,6 +884,74 @@ export class SubtreeValidator implements Validator<Buffer> {
         ) {
           result = false;
         }
+      }
+    }
+    return result;
+  }
+
+  private async validateBinaryPropertyTables(
+    path: string,
+    subtree: Subtree,
+    binaryBuffer: Buffer | undefined,
+    context: ValidationContext
+  ): Promise<boolean> {
+    if (!defined(subtree.propertyTables)) {
+      return true;
+    }
+
+    // Resolve the binary data that is pointed to by
+    // the buffer URIs
+    let binaryBufferData;
+    const resourceResolver = this._resourceResolver;
+    const binaryBufferStructure: BinaryBufferStructure = {
+      buffers: subtree.buffers,
+      bufferViews: subtree.bufferViews,
+    };
+    try {
+      binaryBufferData = await BinaryBufferDataResolver.resolve(
+        binaryBufferStructure,
+        binaryBuffer,
+        resourceResolver
+      );
+    } catch (error) {
+      const message = `Could not read subtree data: ${error}`;
+      const issue = IoValidationIssues.IO_ERROR(path, message);
+      context.addIssue(issue);
+      return false;
+    }
+
+    let result = true;
+
+    // Obtain the structural information about the schema
+    // that is required for validating each property table
+    const schema = this._validationState.validatedSchema!;
+    const classes = defaultValue(schema.classes, {});
+    const enumValueTypes = MetadataUtilities.computeEnumValueTypes(schema!);
+    const propertyTables = defaultValue(subtree.propertyTables, []);
+    for (const propertyTable of propertyTables) {
+      const classId = propertyTable.class;
+      const metadataClass = classes[classId];
+
+      // Create the `BinaryPropertyTable` for each property table,
+      // which contains everything that is required for the
+      // validation of the binary representation of the
+      // property table
+      const binaryPropertyTable: BinaryPropertyTable = {
+        propertyTable: propertyTable,
+        metadataClass: metadataClass,
+        enumValueTypes: enumValueTypes,
+        binaryBufferStructure: binaryBufferStructure,
+        binaryBufferData: binaryBufferData,
+      };
+
+      if (
+        !BinaryPropertyTableValidator.validateBinaryPropertyTable(
+          path,
+          binaryPropertyTable,
+          context
+        )
+      ) {
+        result = false;
       }
     }
     return result;

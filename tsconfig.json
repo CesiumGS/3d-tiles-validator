@@ -6,6 +6,9 @@
     "resolveJsonModule": true,
     "strictNullChecks": true,
     "noImplicitOverride": true,
+    "lib": [
+      "dom"
+    ]
   },
   "include": ["src"],
   "exclude": ["node_modules"]

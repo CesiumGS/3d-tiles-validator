@@ -30,13 +30,11 @@ export class HilbertOrder {
     let rx,
       ry,
       s,
-      // eslint-disable-next-line no-undef
       index = BigInt(0);
 
     for (s = n / 2; s > 0; s /= 2) {
       rx = (p.x & s) > 0 ? 1 : 0;
       ry = (p.y & s) > 0 ? 1 : 0;
-      // eslint-disable-next-line no-undef
       index += BigInt(((3 * rx) ^ ry) * s * s);
       HilbertOrder.rotate(n, p, rx, ry);
     }
@@ -70,14 +68,11 @@ export class HilbertOrder {
     let rx, ry, s, t;
 
     for (s = 1, t = index; s < n; s *= 2) {
-      // eslint-disable-next-line no-undef
       rx = 1 & Number(t / BigInt(2));
-      // eslint-disable-next-line no-undef
       ry = 1 & Number(t ^ BigInt(rx));
       HilbertOrder.rotate(s, p, rx, ry);
       p.x += s * rx;
       p.y += s * ry;
-      // eslint-disable-next-line no-undef
       t /= BigInt(4);
     }
 

@@ -31,8 +31,8 @@ export class TileFormatValidator {
    *
    * This validates that the given input has at least the
    * given header byte length, and whether the 'magic',
-   * 'version' and 'byteLength' fields of the header
-   * have the expected values.
+   * and 'byteLength' fields of the header have the expected
+   * values. (The 'version' is validated to always be '1')
    *
    * @param path The path for `ValidationIssue` instances
    * @param input The input buffer
@@ -111,7 +111,7 @@ export class TileFormatValidator {
    * parses the JSON data, and returns the result.
    *
    * If any offset does not meet the alignment- or length
-   * requirements from the specification, then the approprivate
+   * requirements from the specification, then the appropriate
    * validation issue will be added to the given context, and
    * `undefined` will be returned.
    *

@@ -6,9 +6,10 @@ import { ResourceResolvers } from "../io/ResourceResolvers";
 import { TilesetValidator } from "./TilesetValidator";
 import { ValidationContext } from "./ValidationContext";
 import { ValidationResult } from "./ValidationResult";
-import { SchemaValidator } from "./SchemaValidator";
 import { SubtreeValidator } from "./SubtreeValidator";
 import { ValidationState } from "./ValidationState";
+
+import { SchemaValidator } from "./metadata/SchemaValidator";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 

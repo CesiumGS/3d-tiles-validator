@@ -509,6 +509,32 @@ describe("Tileset validation", function () {
     expect(result.get(0).type).toEqual("PROPERTY_MISSING");
   });
 
+  it("detects issues in tileMetadataScalarValueNotInRange", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tileMetadataScalarValueNotInRange.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
+  });
+
+  it("detects issues in tileMetadataVec3ElementValueNotInRange", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tileMetadataVec3ElementValueNotInRange.json"
+    );
+    expect(result.length).toEqual(2);
+    expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
+    expect(result.get(1).type).toEqual("VALUE_NOT_IN_RANGE");
+  });
+
+  it("detects issues in tileMetadataVec3ArrayElementValueNotInRange", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tileMetadataVec3ArrayElementValueNotInRange.json"
+    );
+    expect(result.length).toEqual(2);
+    expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
+    expect(result.get(1).type).toEqual("VALUE_NOT_IN_RANGE");
+  });
+
   it("detects issues in tileMetadataRequiredPropertyMissing", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/tileMetadataRequiredPropertyMissing.json"
@@ -737,12 +763,29 @@ describe("Tileset validation", function () {
     expect(result.get(1).type).toEqual("EXTENSION_FOUND_BUT_NOT_USED");
   });
 
+  it("detects issues in extensionNotDeclared_1_0_glTF", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionNotDeclared_1_0_glTF.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("EXTENSION_FOUND_BUT_NOT_USED");
+  });
+
+  it("detects issues in extensionNotNecessary_1_1_glTF", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionNotNecessary_1_1_glTF.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
   it("detects issues in extensionRequiredButNotUsed", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/extensionRequiredButNotUsed.json"
     );
-    expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("EXTENSION_REQUIRED_BUT_NOT_USED");
+    expect(result.length).toEqual(3);
+    expect(result.get(0).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(1).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(2).type).toEqual("EXTENSION_REQUIRED_BUT_NOT_USED");
   });
 
   it("detects issues in extensionsInvalidType", async function () {
@@ -757,8 +800,10 @@ describe("Tileset validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/extensionsRequiredDuplicateElement.json"
     );
-    expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("ARRAY_ELEMENT_NOT_UNIQUE");
+    expect(result.length).toEqual(3);
+    expect(result.get(0).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(1).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(2).type).toEqual("ARRAY_ELEMENT_NOT_UNIQUE");
   });
 
   it("detects issues in extensionsRequiredInvalidArrayLength", async function () {
@@ -781,8 +826,10 @@ describe("Tileset validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/extensionsUsedDuplicateElement.json"
     );
-    expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("ARRAY_ELEMENT_NOT_UNIQUE");
+    expect(result.length).toEqual(3);
+    expect(result.get(0).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(1).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(2).type).toEqual("ARRAY_ELEMENT_NOT_UNIQUE");
   });
 
   it("detects issues in extensionsUsedInvalidArrayLength", async function () {
@@ -805,9 +852,10 @@ describe("Tileset validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/extensionsValueInvalidType.json"
     );
-    expect(result.length).toEqual(2);
+    expect(result.length).toEqual(3);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
-    expect(result.get(1).type).toEqual("EXTENSION_USED_BUT_NOT_FOUND");
+    expect(result.get(1).type).toEqual("EXTENSION_NOT_SUPPORTED");
+    expect(result.get(2).type).toEqual("EXTENSION_USED_BUT_NOT_FOUND");
   });
 
   it("detects issues in extensionUsedButNotFound", async function () {

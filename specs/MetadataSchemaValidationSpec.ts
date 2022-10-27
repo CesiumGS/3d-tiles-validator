@@ -1,73 +1,73 @@
 import { Validators } from "../src/validation/Validators";
 
 describe("Metadata schema validation", function () {
-  it("detects issues in schemaClassDescriptionInvalidType", async function () {
+  it("detects issues in metadataClassDescriptionInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassDescriptionInvalidType.json"
+      "specs/data/schemas/metadataClassDescriptionInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassesInvalidType", async function () {
+  it("detects issues in metadataClassesInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassesInvalidType.json"
+      "specs/data/schemas/metadataClassesInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassesNameInvalid", async function () {
+  it("detects issues in metadataClassesNameInvalid", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassesNameInvalid.json"
+      "specs/data/schemas/metadataClassesNameInvalid.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("STRING_PATTERN_MISMATCH");
   });
 
-  it("detects issues in schemaClassNameInvalidType", async function () {
+  it("detects issues in metadataClassNameInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassNameInvalidType.json"
+      "specs/data/schemas/metadataClassNameInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertiesDuplicateSemantics", async function () {
+  it("detects issues in metadataClassPropertiesDuplicateSemantics", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertiesDuplicateSemantics.json"
+      "specs/data/schemas/metadataClassPropertiesDuplicateSemantics.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CLASS_PROPERTIES_DUPLICATE_SEMANTIC");
   });
 
-  it("detects issues in schemaClassPropertiesEmpty", async function () {
+  it("detects issues in metadataClassPropertiesEmpty", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertiesEmpty.json"
+      "specs/data/schemas/metadataClassPropertiesEmpty.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("NUMBER_OF_PROPERTIES_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertiesNameInvalid", async function () {
+  it("detects issues in metadataClassPropertiesNameInvalid", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertiesNameInvalid.json"
+      "specs/data/schemas/metadataClassPropertiesNameInvalid.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("STRING_PATTERN_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyArrayInvalidType", async function () {
+  it("detects issues in metadataClassPropertyArrayInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyArrayInvalidType.json"
+      "specs/data/schemas/metadataClassPropertyArrayInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyComponentTypeForTypeWithoutComponents", async function () {
+  it("detects issues in metadataClassPropertyComponentTypeForTypeWithoutComponents", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyComponentTypeForTypeWithoutComponents.json"
+      "specs/data/schemas/metadataClassPropertyComponentTypeForTypeWithoutComponents.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
@@ -75,65 +75,73 @@ describe("Metadata schema validation", function () {
     );
   });
 
-  it("detects issues in schemaClassPropertyComponentTypeInvalidType", async function () {
+  it("detects issues in metadataClassPropertyComponentTypeMissing", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyComponentTypeInvalidType.json"
+      "specs/data/schemas/metadataClassPropertyComponentTypeMissing.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CLASS_PROPERTY_COMPONENT_TYPE_MISSING");
+  });
+
+  it("detects issues in metadataClassPropertyComponentTypeInvalidType", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/metadataClassPropertyComponentTypeInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyComponentTypeInvalidValue", async function () {
+  it("detects issues in metadataClassPropertyComponentTypeInvalidValue", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyComponentTypeInvalidValue.json"
+      "specs/data/schemas/metadataClassPropertyComponentTypeInvalidValue.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("VALUE_NOT_IN_LIST");
   });
 
-  it("detects issues in schemaClassPropertyCountInvalidType", async function () {
+  it("detects issues in metadataClassPropertyCountInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyCountInvalidType.json"
+      "specs/data/schemas/metadataClassPropertyCountInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyCountInvalidValue", async function () {
+  it("detects issues in metadataClassPropertyCountInvalidValue", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyCountInvalidValue.json"
+      "specs/data/schemas/metadataClassPropertyCountInvalidValue.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
   });
 
-  it("detects issues in schemaClassPropertyCountWithoutArray", async function () {
+  it("detects issues in metadataClassPropertyCountWithoutArray", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyCountWithoutArray.json"
+      "specs/data/schemas/metadataClassPropertyCountWithoutArray.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CLASS_PROPERTY_COUNT_FOR_NON_ARRAY");
   });
 
-  it("detects issues in schemaClassPropertyDefaultWithRequired", async function () {
+  it("detects issues in metadataClassPropertyDefaultWithRequired", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyDefaultWithRequired.json"
+      "specs/data/schemas/metadataClassPropertyDefaultWithRequired.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
   });
 
-  it("detects issues in schemaClassPropertyDescriptionInvalidType", async function () {
+  it("detects issues in metadataClassPropertyDescriptionInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyDescriptionInvalidType.json"
+      "specs/data/schemas/metadataClassPropertyDescriptionInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyEnumTypeForNonEnumType", async function () {
+  it("detects issues in metadataClassPropertyEnumTypeForNonEnumType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyEnumTypeForNonEnumType.json"
+      "specs/data/schemas/metadataClassPropertyEnumTypeForNonEnumType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
@@ -141,17 +149,17 @@ describe("Metadata schema validation", function () {
     );
   });
 
-  it("detects issues in schemaClassPropertyEnumTypeInvalidType", async function () {
+  it("detects issues in metadataClassPropertyEnumTypeInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyEnumTypeInvalidType.json"
+      "specs/data/schemas/metadataClassPropertyEnumTypeInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyEnumTypeMissingForEnumType", async function () {
+  it("detects issues in metadataClassPropertyEnumTypeMissingForEnumType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyEnumTypeMissingForEnumType.json"
+      "specs/data/schemas/metadataClassPropertyEnumTypeMissingForEnumType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
@@ -159,25 +167,25 @@ describe("Metadata schema validation", function () {
     );
   });
 
-  it("detects issues in schemaClassPropertyEnumTypeNotFound", async function () {
+  it("detects issues in metadataClassPropertyEnumTypeNotFound", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyEnumTypeNotFound.json"
+      "specs/data/schemas/metadataClassPropertyEnumTypeNotFound.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CLASS_PROPERTY_ENUMTYPE_NOT_FOUND");
   });
 
-  it("detects issues in schemaClassPropertyEnumTypeWithoutEnums", async function () {
+  it("detects issues in metadataClassPropertyEnumTypeWithoutEnums", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyEnumTypeWithoutEnums.json"
+      "specs/data/schemas/metadataClassPropertyEnumTypeWithoutEnums.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CLASS_PROPERTY_ENUMTYPE_NOT_FOUND");
   });
 
-  it("detects issues in schemaClassPropertyMaxForNonNumericType", async function () {
+  it("detects issues in metadataClassPropertyMaxForNonNumericType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyMaxForNonNumericType.json"
+      "specs/data/schemas/metadataClassPropertyMaxForNonNumericType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
@@ -185,9 +193,9 @@ describe("Metadata schema validation", function () {
     );
   });
 
-  it("detects issues in schemaClassPropertyMinForNonNumericType", async function () {
+  it("detects issues in metadataClassPropertyMinForNonNumericType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyMinForNonNumericType.json"
+      "specs/data/schemas/metadataClassPropertyMinForNonNumericType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
@@ -195,73 +203,73 @@ describe("Metadata schema validation", function () {
     );
   });
 
-  it("detects issues in schemaClassPropertyNameInvalidType", async function () {
+  it("detects issues in metadataClassPropertyNameInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyNameInvalidType.json"
+      "specs/data/schemas/metadataClassPropertyNameInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyNoDataForBoolean", async function () {
+  it("detects issues in metadataClassPropertyNoDataForBoolean", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyNoDataForBoolean.json"
+      "specs/data/schemas/metadataClassPropertyNoDataForBoolean.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
   });
 
-  it("detects issues in schemaClassPropertyNoDataInvalidEnumValueName", async function () {
+  it("detects issues in metadataClassPropertyNoDataInvalidEnumValueName", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyNoDataInvalidEnumValueName.json"
+      "specs/data/schemas/metadataClassPropertyNoDataInvalidEnumValueName.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CLASS_PROPERTY_ENUM_VALUE_NOT_FOUND");
   });
 
-  it("detects issues in schemaClassPropertyNoDataInvalidEnumValueNames", async function () {
+  it("detects issues in metadataClassPropertyNoDataInvalidEnumValueNames", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyNoDataInvalidEnumValueNames.json"
+      "specs/data/schemas/metadataClassPropertyNoDataInvalidEnumValueNames.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CLASS_PROPERTY_ENUM_VALUE_NOT_FOUND");
   });
 
-  it("detects issues in schemaClassPropertyNoDataTypeMismatchA", async function () {
+  it("detects issues in metadataClassPropertyNoDataTypeMismatchA", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyNoDataTypeMismatchA.json"
+      "specs/data/schemas/metadataClassPropertyNoDataTypeMismatchA.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyNoDataTypeMismatchB", async function () {
+  it("detects issues in metadataClassPropertyNoDataTypeMismatchB", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyNoDataTypeMismatchB.json"
+      "specs/data/schemas/metadataClassPropertyNoDataTypeMismatchB.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyNoDataTypeMismatchC", async function () {
+  it("detects issues in metadataClassPropertyNoDataTypeMismatchC", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyNoDataTypeMismatchC.json"
+      "specs/data/schemas/metadataClassPropertyNoDataTypeMismatchC.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ARRAY_ELEMENT_TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyNoDataWithRequired", async function () {
+  it("detects issues in metadataClassPropertyNoDataWithRequired", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyNoDataWithRequired.json"
+      "specs/data/schemas/metadataClassPropertyNoDataWithRequired.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
   });
 
-  it("detects issues in schemaClassPropertyNormalizedForNonIntegerComponentType", async function () {
+  it("detects issues in metadataClassPropertyNormalizedForNonIntegerComponentType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyNormalizedForNonIntegerComponentType.json"
+      "specs/data/schemas/metadataClassPropertyNormalizedForNonIntegerComponentType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
@@ -269,9 +277,9 @@ describe("Metadata schema validation", function () {
     );
   });
 
-  it("detects issues in schemaClassPropertyNormalizedForUnnormalizableType", async function () {
+  it("detects issues in metadataClassPropertyNormalizedForUnnormalizableType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyNormalizedForUnnormalizableType.json"
+      "specs/data/schemas/metadataClassPropertyNormalizedForUnnormalizableType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
@@ -279,17 +287,17 @@ describe("Metadata schema validation", function () {
     );
   });
 
-  it("detects issues in schemaClassPropertyNormalizedInvalidType", async function () {
+  it("detects issues in metadataClassPropertyNormalizedInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyNormalizedInvalidType.json"
+      "specs/data/schemas/metadataClassPropertyNormalizedInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyOffsetForNonFloatingPointTypeA", async function () {
+  it("detects issues in metadataClassPropertyOffsetForNonFloatingPointTypeA", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyOffsetForNonFloatingPointTypeA.json"
+      "specs/data/schemas/metadataClassPropertyOffsetForNonFloatingPointTypeA.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
@@ -297,9 +305,9 @@ describe("Metadata schema validation", function () {
     );
   });
 
-  it("detects issues in schemaClassPropertyOffsetForNonFloatingPointTypeB", async function () {
+  it("detects issues in metadataClassPropertyOffsetForNonFloatingPointTypeB", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyOffsetForNonFloatingPointTypeB.json"
+      "specs/data/schemas/metadataClassPropertyOffsetForNonFloatingPointTypeB.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
@@ -307,73 +315,73 @@ describe("Metadata schema validation", function () {
     );
   });
 
-  it("detects issues in schemaClassPropertyOffsetTypeMismatchA", async function () {
+  it("detects issues in metadataClassPropertyOffsetTypeMismatchA", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyOffsetTypeMismatchA.json"
+      "specs/data/schemas/metadataClassPropertyOffsetTypeMismatchA.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyOffsetTypeMismatchB", async function () {
+  it("detects issues in metadataClassPropertyOffsetTypeMismatchB", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyOffsetTypeMismatchB.json"
+      "specs/data/schemas/metadataClassPropertyOffsetTypeMismatchB.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyOffsetTypeMismatchC", async function () {
+  it("detects issues in metadataClassPropertyOffsetTypeMismatchC", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyOffsetTypeMismatchC.json"
+      "specs/data/schemas/metadataClassPropertyOffsetTypeMismatchC.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyOffsetTypeMismatchD", async function () {
+  it("detects issues in metadataClassPropertyOffsetTypeMismatchD", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyOffsetTypeMismatchD.json"
+      "specs/data/schemas/metadataClassPropertyOffsetTypeMismatchD.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ARRAY_ELEMENT_TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyOffsetTypeMismatchE", async function () {
+  it("detects issues in metadataClassPropertyOffsetTypeMismatchE", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyOffsetTypeMismatchE.json"
+      "specs/data/schemas/metadataClassPropertyOffsetTypeMismatchE.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyOffsetTypeMismatchF", async function () {
+  it("detects issues in metadataClassPropertyOffsetTypeMismatchF", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyOffsetTypeMismatchF.json"
+      "specs/data/schemas/metadataClassPropertyOffsetTypeMismatchF.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyOffsetTypeMismatchG", async function () {
+  it("detects issues in metadataClassPropertyOffsetTypeMismatchG", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyOffsetTypeMismatchG.json"
+      "specs/data/schemas/metadataClassPropertyOffsetTypeMismatchG.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyRequiredInvalidType", async function () {
+  it("detects issues in metadataClassPropertyRequiredInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyRequiredInvalidType.json"
+      "specs/data/schemas/metadataClassPropertyRequiredInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyScaleForNonFloatingPointType", async function () {
+  it("detects issues in metadataClassPropertyScaleForNonFloatingPointType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyScaleForNonFloatingPointType.json"
+      "specs/data/schemas/metadataClassPropertyScaleForNonFloatingPointType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
@@ -381,9 +389,9 @@ describe("Metadata schema validation", function () {
     );
   });
 
-  it("detects issues in schemaClassPropertyScaleForNonFloatingPointTypeB", async function () {
+  it("detects issues in metadataClassPropertyScaleForNonFloatingPointTypeB", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyScaleForNonFloatingPointTypeB.json"
+      "specs/data/schemas/metadataClassPropertyScaleForNonFloatingPointTypeB.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
@@ -391,137 +399,137 @@ describe("Metadata schema validation", function () {
     );
   });
 
-  it("detects issues in schemaClassPropertyTypeInvalidType", async function () {
+  it("detects issues in metadataClassPropertyTypeInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyTypeInvalidType.json"
+      "specs/data/schemas/metadataClassPropertyTypeInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertyTypeInvalidValue", async function () {
+  it("detects issues in metadataClassPropertyTypeInvalidValue", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyTypeInvalidValue.json"
+      "specs/data/schemas/metadataClassPropertyTypeInvalidValue.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("VALUE_NOT_IN_LIST");
   });
 
-  it("detects issues in schemaClassPropertyTypeMissing", async function () {
+  it("detects issues in metadataClassPropertyTypeMissing", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertyTypeMissing.json"
+      "specs/data/schemas/metadataClassPropertyTypeMissing.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("PROPERTY_MISSING");
   });
 
-  it("detects issues in schemaEnumDescriptionInvalidType", async function () {
+  it("detects issues in metadataEnumDescriptionInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumDescriptionInvalidType.json"
+      "specs/data/schemas/metadataEnumDescriptionInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaEnumNameInvalidType", async function () {
+  it("detects issues in metadataEnumNameInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumNameInvalidType.json"
+      "specs/data/schemas/metadataEnumNameInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaEnumsInvalidName", async function () {
+  it("detects issues in metadataEnumsInvalidName", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumsInvalidName.json"
+      "specs/data/schemas/metadataEnumsInvalidName.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("STRING_PATTERN_MISMATCH");
   });
 
-  it("detects issues in schemaEnumsInvalidType", async function () {
+  it("detects issues in metadataEnumsInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumsInvalidType.json"
+      "specs/data/schemas/metadataEnumsInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaEnumValueDescriptionInvalidType", async function () {
+  it("detects issues in metadataEnumValueDescriptionInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValueDescriptionInvalidType.json"
+      "specs/data/schemas/metadataEnumValueDescriptionInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaEnumValueNameInvalidType", async function () {
+  it("detects issues in metadataEnumValueNameInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValueNameInvalidType.json"
+      "specs/data/schemas/metadataEnumValueNameInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaEnumValuesDuplicateName", async function () {
+  it("detects issues in metadataEnumValuesDuplicateName", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValuesDuplicateName.json"
+      "specs/data/schemas/metadataEnumValuesDuplicateName.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ENUM_VALUE_DUPLICATE_NAME");
   });
 
-  it("detects issues in schemaEnumValuesDuplicateValue", async function () {
+  it("detects issues in metadataEnumValuesDuplicateValue", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValuesDuplicateValue.json"
+      "specs/data/schemas/metadataEnumValuesDuplicateValue.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ENUM_VALUE_DUPLICATE_VALUE");
   });
 
-  it("detects issues in schemaEnumValuesEmpty", async function () {
+  it("detects issues in metadataEnumValuesEmpty", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValuesEmpty.json"
+      "specs/data/schemas/metadataEnumValuesEmpty.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
   });
 
-  it("detects issues in schemaEnumValuesMissing", async function () {
+  it("detects issues in metadataEnumValuesMissing", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValuesMissing.json"
+      "specs/data/schemas/metadataEnumValuesMissing.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("PROPERTY_MISSING");
   });
 
-  it("detects issues in schemaEnumValueTypeInvalid", async function () {
+  it("detects issues in metadataEnumValueTypeInvalid", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValueTypeInvalid.json"
+      "specs/data/schemas/metadataEnumValueTypeInvalid.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ARRAY_ELEMENT_TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaEnumValueTypeInvalidType", async function () {
+  it("detects issues in metadataEnumValueTypeInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValueTypeInvalidType.json"
+      "specs/data/schemas/metadataEnumValueTypeInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaEnumValueTypeInvalidValue", async function () {
+  it("detects issues in metadataEnumValueTypeInvalidValue", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValueTypeInvalidValue.json"
+      "specs/data/schemas/metadataEnumValueTypeInvalidValue.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("VALUE_NOT_IN_LIST");
   });
 
-  it("detects issues in schemaEnumValueValueInvalidType", async function () {
+  it("detects issues in metadataEnumValueValueInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValueValueInvalidType.json"
+      "specs/data/schemas/metadataEnumValueValueInvalidType.json"
     );
     expect(result.length).toEqual(2);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
@@ -559,81 +567,81 @@ describe("Metadata schema validation", function () {
     expect(result.length).toEqual(0);
   });
 
-  it("detects issues in schemaClassPropertySemanticArrayMismatchA", async function () {
+  it("detects issues in metadataClassPropertySemanticArrayMismatchA", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertySemanticArrayMismatchA.json"
+      "specs/data/schemas/metadataClassPropertySemanticArrayMismatchA.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
-  it("detects issues in schemaClassPropertySemanticArrayMismatchB", async function () {
+  it("detects issues in metadataClassPropertySemanticArrayMismatchB", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertySemanticArrayMismatchB.json"
+      "specs/data/schemas/metadataClassPropertySemanticArrayMismatchB.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
-  it("detects issues in schemaClassPropertySemanticComponentTypeMismatch", async function () {
+  it("detects issues in metadataClassPropertySemanticComponentTypeMismatch", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertySemanticComponentTypeMismatch.json"
+      "specs/data/schemas/metadataClassPropertySemanticComponentTypeMismatch.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
-  it("detects issues in schemaClassPropertySemanticCountMismatch", async function () {
+  it("detects issues in metadataClassPropertySemanticCountMismatch", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertySemanticCountMismatch.json"
+      "specs/data/schemas/metadataClassPropertySemanticCountMismatch.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
-  it("detects issues in schemaClassPropertySemanticInvalidType", async function () {
+  it("detects issues in metadataClassPropertySemanticInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertySemanticInvalidType.json"
+      "specs/data/schemas/metadataClassPropertySemanticInvalidType.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in schemaClassPropertySemanticNormalizedMismatch", async function () {
+  it("detects issues in metadataClassPropertySemanticNormalizedMismatch", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertySemanticNormalizedMismatch.json"
+      "specs/data/schemas/metadataClassPropertySemanticNormalizedMismatch.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
-  it("detects issues in schemaClassPropertySemanticTypeMismatch", async function () {
+  it("detects issues in metadataClassPropertySemanticTypeMismatch", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertySemanticTypeMismatch.json"
+      "specs/data/schemas/metadataClassPropertySemanticTypeMismatch.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_INVALID");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
-  it("detects issues in schemaClassPropertySemanticUnknown", async function () {
+  it("detects issues in metadataClassPropertySemanticUnknown", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaClassPropertySemanticUnknown.json"
+      "specs/data/schemas/metadataClassPropertySemanticUnknown.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("SEMANTIC_UNKNOWN");
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_UNKNOWN");
   });
 
-  it("detects issues in schemaEnumValueNotInValueTypeRange", async function () {
+  it("detects issues in metadataEnumValueNotInValueTypeRange", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValueNotInValueTypeRange.json"
+      "specs/data/schemas/metadataEnumValueNotInValueTypeRange.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
   });
 
-  it("detects issues in schemaEnumValueNotInDefaultValueTypeRange", async function () {
+  it("detects issues in metadataEnumValueNotInDefaultValueTypeRange", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/schemaEnumValueNotInDefaultValueTypeRange.json"
+      "specs/data/schemas/metadataEnumValueNotInDefaultValueTypeRange.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");

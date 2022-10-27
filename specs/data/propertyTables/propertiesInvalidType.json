@@ -1,0 +1,14 @@
+{
+  "buffers": [{ "uri": "validBuffer.bin", "byteLength": 16 }],
+  "bufferViews": [
+    { "buffer": 0, "byteOffset": 0, "byteLength": 3 },
+    { "buffer": 0, "byteOffset": 8, "byteLength": 8 }
+  ],
+  "propertyTables": [
+    {
+      "class": "fullMetadataClass",
+      "count": 1,
+      "properties": "NOT_AN_OBJECT"
+    }
+  ]
+}

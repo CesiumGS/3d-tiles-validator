@@ -1,3 +1,5 @@
+import { DeveloperError } from "../base/DeveloperError";
+
 /**
  * Internal utilities related to the `type` of the
  * `ClassProperty` instances of `MetadataClass` objects
@@ -49,12 +51,18 @@ export class MetadataTypes {
 
   /**
    * Returns the number of components for the given type
+   *
    * @param type The type
    * @returns The number of components
+   * @throws DeveloperError If the given string is not one
+   * of the types contained in `allTypes`
    */
   static componentCountForType(type: string): number {
     switch (type) {
       case "SCALAR":
+      case "STRING":
+      case "ENUM":
+      case "BOOLEAN":
         return 1;
       case "VEC2":
         return 2;
@@ -69,6 +77,6 @@ export class MetadataTypes {
       case "MAT4":
         return 16;
     }
-    return 0;
+    throw new DeveloperError(`Invalid type: ${type}`);
   }
 }

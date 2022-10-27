@@ -82,9 +82,9 @@ export class StatisticsClassValidator {
 
     // Each class that appears in the statistics MUST be
     // one of the classes defined in the schema
-    const schemaClasses: any = defined(schema.classes) ? schema.classes : {};
-    const schemaClass = schemaClasses[className];
-    if (!defined(schemaClass)) {
+    const metadataClasses: any = defined(schema.classes) ? schema.classes : {};
+    const metadataClass = metadataClasses[className];
+    if (!defined(metadataClass)) {
       const message =
         `Statistics contain a class name ${className}, ` +
         `but the schema does not define this class`;
@@ -97,9 +97,9 @@ export class StatisticsClassValidator {
     } else {
       // Each property name of the statistics class MUST be a
       // property name of the schema class
-      const schemaClassPropertyNames = Object.keys(schemaClass.properties);
+      const metadataClassPropertyNames = Object.keys(metadataClass.properties);
       for (const statisticsClassPropetyName of Object.keys(statisticsClass)) {
-        if (!schemaClassPropertyNames.includes(statisticsClassPropetyName)) {
+        if (!metadataClassPropertyNames.includes(statisticsClassPropetyName)) {
           const message =
             `Statistics class '${className}' contains a property name ` +
             `'${statisticsClassPropetyName}', but the schema class does ` +

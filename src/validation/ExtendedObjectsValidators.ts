@@ -109,6 +109,12 @@ export class ExtendedObjectsValidators {
     if (!defined(extensions)) {
       return true;
     }
+    // The extensions MUST be an object. This is checked and reported
+    // by the RootPropertyValidator, and therefore, will not reported
+    // again here
+    if (typeof extensions !== "object") {
+      return true;
+    }
 
     let allValid = true;
 

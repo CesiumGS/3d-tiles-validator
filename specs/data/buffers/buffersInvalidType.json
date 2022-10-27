@@ -1,0 +1,7 @@
+{
+  "buffers": "NOT_AN_OBJECT",
+  "bufferViews": [
+    { "buffer": 0, "byteOffset": 0, "byteLength": 3 },
+    { "buffer": 0, "byteOffset": 8, "byteLength": 8 }
+  ]
+}

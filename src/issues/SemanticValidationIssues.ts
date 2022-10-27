@@ -2,6 +2,8 @@ import { ValidationIssue } from "../validation/ValidationIssue";
 import { ValidationIssueSeverity } from "../validation/ValidationIssueSeverity";
 import { ValidationIssueUtils } from "./ValidationIssueUtils";
 
+// TODO Each of these issues should be documented,
+// even more extensively than the basic ones!
 export class SemanticValidationIssues {
   static ASSET_VERSION_UNKNOWN(path: string, message: string) {
     const type = "ASSET_VERSION_UNKNOWN";
@@ -55,6 +57,16 @@ export class SemanticValidationIssues {
     const message =
       `The 'componentType' was defined to be '${componentType}', but ` +
       `must be undefined for a property with type '${theType}'`;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  static CLASS_PROPERTY_COMPONENT_TYPE_MISSING(path: string, theType: string) {
+    const type = "CLASS_PROPERTY_COMPONENT_TYPE_MISSING";
+    const severity = ValidationIssueSeverity.ERROR;
+    const message =
+      `The 'componentType' must be defined for a ` +
+      `property with type '${theType}'`;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
@@ -289,8 +301,8 @@ export class SemanticValidationIssues {
     return issue;
   }
 
-  static SUBTREE_BUFFERS_INCONSISTENT(path: string, message: string) {
-    const type = "SUBTREE_BUFFERS_INCONSISTENT";
+  static BUFFERS_INCONSISTENT(path: string, message: string) {
+    const type = "BUFFERS_INCONSISTENT";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
@@ -340,25 +352,23 @@ export class SemanticValidationIssues {
   static EXTENSION_NOT_SUPPORTED(path: string, extensionName: string) {
     const type = "EXTENSION_NOT_SUPPORTED";
     const severity = ValidationIssueSeverity.WARNING;
-    const message =
-      `The extension '${extensionName}' was used, but ` + `is not supported`;
+    const message = `The extension '${extensionName}' was used, but is not supported`;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-  static SEMANTIC_UNKNOWN(
+  static METADATA_SEMANTIC_UNKNOWN(
     path: string,
     propertyName: string,
     semantic: string
   ) {
-    const type = "SEMANTIC_UNKNOWN";
+    const type = "METADATA_SEMANTIC_UNKNOWN";
     const severity = ValidationIssueSeverity.WARNING;
-    const message =
-      `The property '${propertyName}' has ` + `unknown semantic '${semantic}'`;
+    const message = `The property '${propertyName}' has unknown semantic '${semantic}'`;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-  static SEMANTIC_INVALID(path: string, message: string) {
-    const type = "SEMANTIC_INVALID";
+  static METADATA_SEMANTIC_INVALID(path: string, message: string) {
+    const type = "METADATA_SEMANTIC_INVALID";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;

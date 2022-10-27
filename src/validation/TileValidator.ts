@@ -4,13 +4,14 @@ import { ValidationContext } from "./ValidationContext";
 import { ContentValidator } from "./ContentValidator";
 import { BoundingVolumeValidator } from "./BoundingVolumeValidator";
 import { BasicValidator } from "./BasicValidator";
-import { MetadataEntityValidator } from "./MetadataEntityValidator";
 import { ImplicitTilingValidator } from "./ImplicitTilingValidator";
 import { TransformValidator } from "./TransformValidator";
 import { ValidationState } from "./ValidationState";
 import { TemplateUriValidator } from "./TemplateUriValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
+
+import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 
 import { Tile } from "../structure/Tile";
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
