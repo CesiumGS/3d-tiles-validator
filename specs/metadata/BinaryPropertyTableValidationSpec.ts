@@ -137,6 +137,10 @@ function createDefaultBinaryPropertyTable_example_STRING(): BinaryPropertyTable 
 // redundancy could be reduced here...)
 describe("metadata/BinaryPropertyTableValidationSpec", function () {
   //==========================================================================
+  //=== example_INT16_SCALAR test cases:
+  // - no issues for valid input
+  // - `values` not properly aligned due to wrong `byteOffset`
+  // - `values` length invalid due to wrong `byteLength`
 
   describe("issues for example_INT16_SCALAR", function () {
     let context: ValidationContext;
@@ -181,9 +185,37 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
     });
+
+    it("detects invalid values byteLength for example_INT16_SCALAR", async function () {
+      const binaryPropertyTable =
+        createDefaultBinaryPropertyTable_example_INT16_SCALAR();
+
+      // For the test: Assign a value to values
+      // byteLength to cause an invalid size
+      const valuesBufferViewIndex =
+        binaryPropertyTable.propertyTable.properties!["testProperty"].values;
+      binaryPropertyTable.binaryBufferStructure!.bufferViews![
+        valuesBufferViewIndex
+      ].byteLength = 12345;
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+    });
   });
 
   //==========================================================================
+  //=== example_variable_length_INT16_SCALAR_array test cases:
+  // - no issues for valid input
+  // - `arrayOffsets` not properly aligned due to wrong `byteOffset`
+  // - `arrayOffsets` length invalid due to wrong `byteLength`
+  // - `arrayOffsets` contains descending values
+  // - `arrayOffsets` contains values that are out of range for the `values`
 
   describe("issues for example_variable_length_INT16_SCALAR_array", function () {
     let context: ValidationContext;
@@ -193,6 +225,18 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
+    });
+
+    it("should not report issues for a valid example_variable_length_INT16_SCALAR_array", async function () {
+      const binaryPropertyTable =
+        createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      expect(result.length).toEqual(0);
     });
 
     it("detects unaligned arrayOffsets byteOffset for example_variable_length_INT16_SCALAR_array", async function () {
@@ -229,7 +273,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
           .arrayOffsets!;
       binaryPropertyTable.binaryBufferStructure!.bufferViews![
         arrayOffsetsBufferViewIndex
-      ].byteLength = 1234;
+      ].byteLength = 12345;
 
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
         "test",
@@ -265,9 +309,43 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_OFFSETS");
     });
+
+    it("detects arrayOffsets that are out of range for example_variable_length_INT16_SCALAR_array", async function () {
+      const binaryPropertyTable =
+        createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
+
+      // For the test: Write values into the arrayOffsets
+      // buffer so that the 'values' buffer is not long
+      // enough to match the last array offsets entry
+      const arrayOffsetsBufferViewIndex =
+        binaryPropertyTable.propertyTable.properties!["testProperty"]
+          .arrayOffsets!;
+      const arrayOffsetsBufferViewData =
+        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+          arrayOffsetsBufferViewIndex
+        ];
+      arrayOffsetsBufferViewData.writeInt32LE(0, 0);
+      arrayOffsetsBufferViewData.writeInt32LE(123, 4);
+      arrayOffsetsBufferViewData.writeInt32LE(12345, 8);
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+    });
   });
 
   //==========================================================================
+  //=== example_STRING test cases
+  // - no issues for valid input
+  // - `stringOffsets` not properly aligned due to wrong `byteOffset`
+  // - `stringOffsets` length invalid due to wrong `byteLength`
+  // - `stringOffsets` contains descending values
+  // - `stringOffsets` contains values that are out of range for the `values`
 
   describe("issues for example_STRING", function () {
     let context: ValidationContext;
@@ -279,11 +357,23 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       context = new ValidationContext(resourceResolver);
     });
 
+    it("should not report issues for a valid example_STRING", async function () {
+      const binaryPropertyTable =
+        createDefaultBinaryPropertyTable_example_STRING();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      expect(result.length).toEqual(0);
+    });
+
     it("detects unaligned stringOffsets byteOffset for example_STRING", async function () {
       const binaryPropertyTable =
         createDefaultBinaryPropertyTable_example_STRING();
 
-      // For the test: Assign a value to arrayOffsets
+      // For the test: Assign a value to stringOffsets
       // byteOffset to cause an invalid alignment
       const stringOffsetsBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"]
@@ -300,6 +390,82 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const result = context.getResult();
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
+    });
+
+    it("detects wrong stringOffsets byteLength for example_STRING", async function () {
+      const binaryPropertyTable =
+        createDefaultBinaryPropertyTable_example_STRING();
+
+      // For the test: Assign a value to stringOffsets
+      // byteLength to cause an invalid length
+      const stringOffsetsBufferViewIndex =
+        binaryPropertyTable.propertyTable.properties!["testProperty"]
+          .stringOffsets!;
+      binaryPropertyTable.binaryBufferStructure!.bufferViews![
+        stringOffsetsBufferViewIndex
+      ].byteLength = 12345;
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+    });
+
+    it("detects descending stringOffsets for example_STRING", async function () {
+      const binaryPropertyTable =
+        createDefaultBinaryPropertyTable_example_STRING();
+
+      // For the test: Write a value into the stringOffsets
+      // buffer, to make it descending
+      const stringOffsetsBufferViewIndex =
+        binaryPropertyTable.propertyTable.properties!["testProperty"]
+          .stringOffsets!;
+      const stringOffsetsBufferViewData =
+        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+          stringOffsetsBufferViewIndex
+        ];
+      stringOffsetsBufferViewData.writeInt32LE(12345, 4);
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_OFFSETS");
+    });
+
+    it("detects stringOffsets that are out of range for example_STRING", async function () {
+      const binaryPropertyTable =
+        createDefaultBinaryPropertyTable_example_STRING();
+
+      // For the test: Write values into the stringOffsets
+      // buffer so that the 'values' buffer is not long
+      // enough to match the last string offsets entry
+      const stringOffsetsBufferViewIndex =
+        binaryPropertyTable.propertyTable.properties!["testProperty"]
+          .stringOffsets!;
+      const stringOffsetsBufferViewData =
+        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+          stringOffsetsBufferViewIndex
+        ];
+      stringOffsetsBufferViewData.writeInt32LE(0, 0);
+      stringOffsetsBufferViewData.writeInt32LE(123, 4);
+      stringOffsetsBufferViewData.writeInt32LE(12345, 8);
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
     });
   });
 });

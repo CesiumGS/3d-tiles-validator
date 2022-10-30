@@ -217,20 +217,62 @@ export class BinaryPropertyTableValidator {
 
     // Validate that the length of the 'values' buffer
     // view is sufficient for storing the effective
-    // number of values
-    if (
-      !BinaryPropertyTableValidator.validateBufferViewByteLength(
-        path,
-        propertyId,
-        "values",
-        valuesBufferViewIndex,
-        componentType!,
-        binaryPropertyTable,
-        effectiveNumValues,
-        context
-      )
-    ) {
-      result = false;
+    // number of values.
+    //
+    // NOTE: The difference between
+    // - validateStringValuesBufferViewByteLength
+    // - validateVariableLengthArrayValuesBufferViewByteLength
+    // - validatePlainBufferViewByteLength
+    // is ONLY the error message: It should explain WHY a certain
+    // number of elements was expected.
+    const isString = type === "STRING";
+    const isVariableLengthArray =
+      classProperty.array === true && !defined(classProperty.count);
+    if (isString) {
+      if (
+        !BinaryPropertyTableValidator.validateStringValuesBufferViewByteLength(
+          path,
+          propertyId,
+          "values",
+          valuesBufferViewIndex,
+          componentType!,
+          binaryPropertyTable,
+          effectiveNumValues,
+          context
+        )
+      ) {
+        result = false;
+      }
+    } else if (isVariableLengthArray) {
+      if (
+        !BinaryPropertyTableValidator.validateVariableLengthArrayValuesBufferViewByteLength(
+          path,
+          propertyId,
+          "values",
+          valuesBufferViewIndex,
+          componentType!,
+          binaryPropertyTable,
+          effectiveNumValues,
+          context
+        )
+      ) {
+        result = false;
+      }
+    } else {
+      if (
+        !BinaryPropertyTableValidator.validatePlainBufferViewByteLength(
+          path,
+          propertyId,
+          "values",
+          valuesBufferViewIndex,
+          componentType!,
+          binaryPropertyTable,
+          effectiveNumValues,
+          context
+        )
+      ) {
+        result = false;
+      }
     }
 
     return result;
@@ -290,7 +332,7 @@ export class BinaryPropertyTableValidator {
     const propertyTableCount = propertyTable.count;
     const numArrayOffsetValues = propertyTableCount + 1;
     if (
-      !BinaryPropertyTableValidator.validateBufferViewByteLength(
+      !BinaryPropertyTableValidator.validatePlainBufferViewByteLength(
         path,
         propertyId,
         "arrayOffsets",
@@ -378,7 +420,7 @@ export class BinaryPropertyTableValidator {
     const propertyTableCount = propertyTable.count;
     const numStringOffsetValues = propertyTableCount + 1;
     if (
-      !BinaryPropertyTableValidator.validateBufferViewByteLength(
+      !BinaryPropertyTableValidator.validatePlainBufferViewByteLength(
         path,
         propertyId,
         "stringOffsets",
@@ -536,6 +578,12 @@ export class BinaryPropertyTableValidator {
    *
    * The byte length must be `numValues*sizeof(componentType)`.
    *
+   * This is intended for "plain" buffer views, i.e. for buffer
+   * views that are
+   * - `arrayOffsets`
+   * - `stringOffsets`
+   * - `values` that are NOT variable-length arrays or STRING-typed
+   *
    * @param propertyPath The path for `ValidationIssue` instances
    * @param propertyId The property ID
    * @param bufferViewName The name of the buffer view ('values',
@@ -550,7 +598,7 @@ export class BinaryPropertyTableValidator {
    * @param context The `ValidationContext`
    * @returns Whether the byte length was valid
    */
-  private static validateBufferViewByteLength(
+  private static validatePlainBufferViewByteLength(
     propertyPath: string,
     propertyId: string,
     bufferViewName: string,
@@ -583,6 +631,131 @@ export class BinaryPropertyTableValidator {
         `have a byteLength of ${numValues}*${componentTypeByteSize} = ` +
         `${expectedByteLength}. But the buffer view with index ` +
         `${bufferViewIndex} has a byteLength of ${actualByteLength}`;
+      const issue = MetadataValidationIssues.METADATA_INVALID_SIZE(
+        path,
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+    return result;
+  }
+
+  /**
+   * Validate the byte length of the specified buffer view.
+   *
+   * The byte length must be `numValues*sizeof(componentType)`.
+   *
+   * This is intended for buffer views that contain the values
+   * of STRING typed properties.
+   *
+   * @param propertyPath The path for `ValidationIssue` instances
+   * @param propertyId The property ID
+   * @param bufferViewName The name of the buffer view ('values',
+   * 'arrayOffsets', or 'stringOffsets')
+   * @param bufferViewIndex The index of the buffer view (i.e. the
+   * actual value of 'values', 'arrayOffsets', or 'stringOffsets')
+   * @param componentType The component type. This is either the
+   * component type of the property, or the `arrayOffsetsType`
+   * or `stringOffsetsType`
+   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @param numValues The number of values in the buffer view.
+   * @param context The `ValidationContext`
+   * @returns Whether the byte length was valid
+   */
+  private static validateStringValuesBufferViewByteLength(
+    propertyPath: string,
+    propertyId: string,
+    bufferViewName: string,
+    bufferViewIndex: number,
+    componentType: string,
+    binaryPropertyTable: BinaryPropertyTable,
+    numValues: number,
+    context: ValidationContext
+  ): boolean {
+    const path = propertyPath + "/" + bufferViewName;
+    let result = true;
+
+    const binaryBufferStructure = binaryPropertyTable.binaryBufferStructure;
+    const bufferViews = defaultValue(binaryBufferStructure.bufferViews, []);
+
+    const bufferView = bufferViews[bufferViewIndex!];
+
+    const componentTypeByteSize =
+      MetadataComponentTypes.byteSizeForComponentType(componentType);
+    const expectedByteLength = numValues * componentTypeByteSize;
+    const actualByteLength = bufferView.byteLength;
+    if (actualByteLength !== expectedByteLength) {
+      const message =
+        `The '${bufferViewName}' buffer view of property '${propertyId}' ` +
+        `stores the bytes of strings, with the last value of the ` +
+        `'stringOffsets' buffer view indicating that there should be ` +
+        `${numValues} bytes. But the buffer view with index ` +
+        `${bufferViewIndex} has a byteLength of ${actualByteLength}`;
+      const issue = MetadataValidationIssues.METADATA_INVALID_SIZE(
+        path,
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+    return result;
+  }
+
+  /**
+   * Validate the byte length of the specified buffer view.
+   *
+   * The byte length must be `numValues*sizeof(componentType)`.
+   *
+   * This is intended for buffer views that contain the values
+   * of variable-length array properties.
+   *
+   * @param propertyPath The path for `ValidationIssue` instances
+   * @param propertyId The property ID
+   * @param bufferViewName The name of the buffer view ('values',
+   * 'arrayOffsets', or 'stringOffsets')
+   * @param bufferViewIndex The index of the buffer view (i.e. the
+   * actual value of 'values', 'arrayOffsets', or 'stringOffsets')
+   * @param componentType The component type. This is either the
+   * component type of the property, or the `arrayOffsetsType`
+   * or `stringOffsetsType`
+   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @param numValues The number of values in the buffer view.
+   * @param context The `ValidationContext`
+   * @returns Whether the byte length was valid
+   */
+  private static validateVariableLengthArrayValuesBufferViewByteLength(
+    propertyPath: string,
+    propertyId: string,
+    bufferViewName: string,
+    bufferViewIndex: number,
+    componentType: string,
+    binaryPropertyTable: BinaryPropertyTable,
+    numValues: number,
+    context: ValidationContext
+  ): boolean {
+    const path = propertyPath + "/" + bufferViewName;
+    let result = true;
+
+    const binaryBufferStructure = binaryPropertyTable.binaryBufferStructure;
+    const bufferViews = defaultValue(binaryBufferStructure.bufferViews, []);
+
+    const bufferView = bufferViews[bufferViewIndex!];
+
+    const componentTypeByteSize =
+      MetadataComponentTypes.byteSizeForComponentType(componentType);
+    const expectedByteLength = numValues * componentTypeByteSize;
+    const actualByteLength = bufferView.byteLength;
+    if (actualByteLength !== expectedByteLength) {
+      const message =
+        `The '${bufferViewName}' buffer view of property '${propertyId}' ` +
+        `has component type '${componentType}', and stores the values ` +
+        `of variable-length arrays. The last 'arrayOffsets' value ` +
+        `indicates that there should be ${numValues} values, so the ` +
+        `buffer view should have a byteLength of ` +
+        `${numValues}*${componentTypeByteSize} = ${expectedByteLength}. ` +
+        `But the buffer view with index ${bufferViewIndex} has a ` +
+        `byteLength of ${actualByteLength}.`;
       const issue = MetadataValidationIssues.METADATA_INVALID_SIZE(
         path,
         message
@@ -700,11 +873,7 @@ export class BinaryPropertyTableValidator {
   // Note: The getValidatedArrayOffset and getValidatedStringOffset methods
   // are not very elegant (or efficient). They are only used to dive into
   // the part of the binary data that contains the desired value, without
-  // introducing additional validation- or abstraction layers. These
-  // abstraction layers will be required at some point, for example,
-  // when the "min" and "max" of properties should be computed to validate
-  // them against the "min" and "max" that have been given in the
-  // property table definition.
+  // introducing additional validation- or abstraction layers.
 
   /**
    * Returns the array offset of the given property at the specified
