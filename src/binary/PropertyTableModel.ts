@@ -1,15 +1,9 @@
-import { defined } from "../base/defined";
 import { defaultValue } from "../base/defaultValue";
 
 import { BinaryMetadataEntityModel } from "./BinaryMetadataEntityModel";
 import { BinaryPropertyTable } from "./BinaryPropertyTable";
 import { PropertyModel } from "./PropertyModel";
-import { NumericPropertyModel } from "./NumericPropertyModel";
-import { NumericArrayPropertyModel } from "./NumericArrayPropertyModel";
-import { BooleanPropertyModel } from "./BooleanPropertyModel";
-import { BooleanArrayPropertyModel } from "./BooleanArrayPropertyModel";
-import { StringPropertyModel } from "./StringPropertyModel";
-import { StringArrayPropertyModel } from "./StringArrayPropertyModel";
+import { PropertyModels } from "./PropertyModels";
 
 import { MetadataEntityModels } from "../metadata/MetadataEntityModels";
 import { MetadataError } from "../metadata/MetadataError";
@@ -52,7 +46,10 @@ export class PropertyTableModel {
     const propertyTable = this._binaryPropertyTable.propertyTable;
     const propertyTableProperties = defaultValue(propertyTable.properties, {});
     for (const propertyId of Object.keys(propertyTableProperties)) {
-      const propertyModel = this.createModel(propertyId);
+      const propertyModel = PropertyModels.createPropertyModel(
+        this._binaryPropertyTable,
+        propertyId
+      );
       this._propertyIdToModel[propertyId] = propertyModel;
     }
 
@@ -111,155 +108,5 @@ export class PropertyTableModel {
    */
   getPropertyModel(propertyId: string): PropertyModel | undefined {
     return this._propertyIdToModel[propertyId];
-  }
-
-  private createModel(propertyId: string): PropertyModel {
-    // Check that the `MetadataClass` defines the
-    // matching `ClassProperty`
-    const metadataClass = this._binaryPropertyTable.metadataClass;
-    const classProperties = metadataClass.properties;
-    if (!defined(classProperties)) {
-      const message = `Metadata class does not have any properties`;
-      throw new MetadataError(message);
-    }
-    const classProperty = classProperties![propertyId];
-    if (!defined(classProperty)) {
-      const message = `Metadata class does not have property ${propertyId}`;
-      throw new MetadataError(message);
-    }
-
-    // Check that the `PropertyTable` defines the
-    // matching `PropertyTableProperty`
-    const propertyTable = this._binaryPropertyTable.propertyTable;
-    const propertyTableProperties = propertyTable.properties;
-    if (!defined(propertyTableProperties)) {
-      const message = `Property table does not have any properties`;
-      throw new MetadataError(message);
-    }
-    const propertyTableProperty = propertyTableProperties![propertyId];
-    if (!defined(propertyTableProperty)) {
-      const message = `Property table does not have property ${propertyId}`;
-      throw new MetadataError(message);
-    }
-
-    // Obtain the required buffers from the binary data:
-    const binaryBufferData = this._binaryPropertyTable.binaryBufferData;
-    const bufferViewsData = binaryBufferData.bufferViewsData;
-
-    // Obtain the `values` buffer view data
-    const valuesBufferViewIndex = propertyTableProperty.values;
-    const valuesBufferViewData = bufferViewsData[valuesBufferViewIndex];
-
-    // Obtain the `arrayOffsets` buffer view data
-    const arrayOffsetsBufferViewIndex = propertyTableProperty.arrayOffsets;
-    let arrayOffsetsBufferViewData = undefined;
-    if (defined(arrayOffsetsBufferViewIndex)) {
-      arrayOffsetsBufferViewData =
-        bufferViewsData[arrayOffsetsBufferViewIndex!];
-    }
-    const arrayOffsetType = defaultValue(
-      propertyTableProperty.arrayOffsetType,
-      "UINT32"
-    );
-
-    // Obtain the `stringOffsets` buffer view data
-    const stringOffsetsBufferViewIndex = propertyTableProperty.stringOffsets;
-    let stringOffsetsBufferViewData = undefined;
-    if (defined(stringOffsetsBufferViewIndex)) {
-      stringOffsetsBufferViewData =
-        bufferViewsData[stringOffsetsBufferViewIndex!];
-    }
-    const stringOffsetType = defaultValue(
-      propertyTableProperty.stringOffsetType,
-      "UINT32"
-    );
-
-    // Determine the `enumValueType` of the property
-    const enumType = classProperty.enumType;
-    let enumValueType = undefined;
-    if (defined(enumType)) {
-      const enumValueTypes = this._binaryPropertyTable.enumValueTypes;
-      enumValueType = defaultValue(enumValueTypes[enumType!], "UINT16");
-    }
-
-    // Create the `PropertyModel` implementation that matches
-    // the type of the property
-    const type = classProperty.type;
-    const componentType = classProperty.componentType;
-    const count = classProperty.count;
-    const isArray = classProperty.array === true;
-    if (isArray) {
-      if (type === "STRING") {
-        const propertyModel = new StringArrayPropertyModel(
-          valuesBufferViewData,
-          arrayOffsetsBufferViewData,
-          arrayOffsetType,
-          stringOffsetsBufferViewData!,
-          stringOffsetType,
-          count
-        );
-        return propertyModel;
-      }
-      if (type === "BOOLEAN") {
-        const propertyModel = new BooleanArrayPropertyModel(
-          valuesBufferViewData,
-          arrayOffsetsBufferViewData,
-          arrayOffsetType,
-          count
-        );
-        return propertyModel;
-      }
-      if (type === "ENUM") {
-        const propertyModel = new NumericArrayPropertyModel(
-          type,
-          valuesBufferViewData,
-          enumValueType!,
-          arrayOffsetsBufferViewData,
-          arrayOffsetType,
-          count
-        );
-        return propertyModel;
-      }
-      // The 'type' must be a numeric (array) type here
-      const propertyModel = new NumericArrayPropertyModel(
-        type,
-        valuesBufferViewData,
-        componentType!,
-        arrayOffsetsBufferViewData,
-        arrayOffsetType,
-        count
-      );
-      return propertyModel;
-    }
-
-    // The property must be a non-array property here:
-    if (type === "STRING") {
-      const propertyModel = new StringPropertyModel(
-        valuesBufferViewData,
-        stringOffsetsBufferViewData!,
-        stringOffsetType
-      );
-      return propertyModel;
-    }
-    if (type === "BOOLEAN") {
-      const propertyModel = new BooleanPropertyModel(valuesBufferViewData);
-      return propertyModel;
-    }
-    if (type === "ENUM") {
-      const propertyModel = new NumericPropertyModel(
-        type,
-        valuesBufferViewData,
-        enumValueType!
-      );
-      return propertyModel;
-    }
-
-    // The property must be a (non-array) numeric property here
-    const propertyModel = new NumericPropertyModel(
-      type,
-      valuesBufferViewData,
-      componentType!
-    );
-    return propertyModel;
   }
 }
