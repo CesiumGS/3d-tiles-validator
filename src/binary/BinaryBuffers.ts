@@ -52,7 +52,8 @@ export class BinaryBuffers {
     let currentByteOffset = 0;
     for (let i = 0; i < newBufferViewsData.length; i++) {
       const newBufferViewData = newBufferViewsData[i];
-      const requiredPadding = currentByteOffset % alignment;
+      const requiredPadding =
+        (alignment - (currentByteOffset % alignment)) % alignment;
       if (requiredPadding != 0) {
         const paddingBuffer = Buffer.alloc(requiredPadding);
         currentBufferData = Buffer.concat([currentBufferData, paddingBuffer]);
