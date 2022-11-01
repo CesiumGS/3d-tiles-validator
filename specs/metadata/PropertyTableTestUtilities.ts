@@ -1,25 +1,27 @@
+import { BinaryPropertyTable } from "../../src/binary/BinaryPropertyTable";
 import { BinaryPropertyTables } from "../../src/binary/BinaryPropertyTables";
-import { PropertyTableModel } from "../../src/binary/PropertyTableModel";
 
 import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
 
-import { genericEquals } from "./genericEquals";
-
 /**
- * Test for the `PropertyTableModels` class.
+ * Methods to create `BinaryPropertyTable` instances that are valid,
+ * and contain the data for a single property.
  *
- * These tests just verify the "roundtrip":
- * - They create a `PropertyTableModel` from a single property
- *   and its associated data
- * - They obtain the `MetadataEntityModel` instances from the
- *   property table model
- * - They check whether the elements of the input data and the
- *   values from the entity model are generically equal.
+ * These methods are used in the `BinaryPropertyTableValidationSpec.ts`
+ * to create valid `BinaryPropertyTable` instances, that are then made
+ * invalid in various ways in order to check whether these errors are
+ * detected asvalidation issues.
+ *
+ * @private
  */
-describe("metadata/PropertyTableModelSpec", function () {
-  const epsilon = 0.000001;
-
-  it("correctly represents example_INT16_SCALAR", function () {
+export class PropertyTableTestUtilities {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_INT16_SCALAR(): BinaryPropertyTable {
     const example_INT16_SCALAR: ClassProperty = {
       type: "SCALAR",
       componentType: "INT16",
@@ -40,17 +42,16 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
+    return binaryPropertyTable;
+  }
 
-  it("correctly represents example_variable_length_INT16_SCALAR_array", function () {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array(): BinaryPropertyTable {
     const example_variable_length_INT16_SCALAR_array: ClassProperty = {
       type: "SCALAR",
       componentType: "INT16",
@@ -75,17 +76,16 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
+    return binaryPropertyTable;
+  }
 
-  it("correctly represents example_fixed_length_INT16_SCALAR_array", function () {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_fixed_length_INT16_SCALAR_array(): BinaryPropertyTable {
     const example_fixed_length_INT16_SCALAR_array: ClassProperty = {
       type: "SCALAR",
       componentType: "INT16",
@@ -111,17 +111,16 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
+    return binaryPropertyTable;
+  }
 
-  it("correctly represents example_BOOLEAN", function () {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_BOOLEAN(): BinaryPropertyTable {
     const example_BOOLEAN: ClassProperty = {
       type: "BOOLEAN",
     };
@@ -141,17 +140,16 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
+    return binaryPropertyTable;
+  }
 
-  it("correctly represents example_variable_length_BOOLEAN_array", function () {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_variable_length_BOOLEAN_array(): BinaryPropertyTable {
     const example_variable_length_BOOLEAN_array: ClassProperty = {
       type: "BOOLEAN",
       array: true,
@@ -175,17 +173,16 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
+    return binaryPropertyTable;
+  }
 
-  it("correctly represents example_fixed_length_BOOLEAN_array", function () {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_fixed_length_BOOLEAN_array(): BinaryPropertyTable {
     const example_fixed_length_BOOLEAN_array: ClassProperty = {
       type: "BOOLEAN",
       array: true,
@@ -209,17 +206,16 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
+    return binaryPropertyTable;
+  }
 
-  it("correctly represents example_STRING", function () {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_STRING(): BinaryPropertyTable {
     const example_STRING: ClassProperty = {
       type: "STRING",
     };
@@ -239,17 +235,16 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
+    return binaryPropertyTable;
+  }
 
-  it("correctly represents example_variable_length_STRING_array", function () {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_variable_length_STRING_array(): BinaryPropertyTable {
     const example_variable_length_STRING_array: ClassProperty = {
       type: "STRING",
       array: true,
@@ -273,17 +268,16 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
+    return binaryPropertyTable;
+  }
 
-  it("correctly represents example_fixed_length_STRING_array", function () {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_fixed_length_STRING_array(): BinaryPropertyTable {
     const example_fixed_length_STRING_array: ClassProperty = {
       type: "STRING",
       array: true,
@@ -308,17 +302,16 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
+    return binaryPropertyTable;
+  }
 
-  it("correctly represents example_FLOAT32_VEC2", function () {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_FLOAT32_VEC2(): BinaryPropertyTable {
     const example_FLOAT32_VEC2: ClassProperty = {
       type: "VEC2",
       componentType: "FLOAT32",
@@ -342,17 +335,16 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
+    return binaryPropertyTable;
+  }
 
-  it("correctly represents example_variable_length_UINT32_VEC2_array", function () {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_variable_length_UINT32_VEC2_array(): BinaryPropertyTable {
     const example_variable_length_UINT32_VEC2_array: ClassProperty = {
       type: "VEC2",
       componentType: "FLOAT32",
@@ -384,17 +376,16 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
+    return binaryPropertyTable;
+  }
 
-  it("correctly represents example_fixed_length_UINT32_VEC2_array", function () {
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_fixed_length_UINT32_VEC2_array(): BinaryPropertyTable {
     const example_fixed_length_UINT32_VEC2_array: ClassProperty = {
       type: "VEC2",
       componentType: "FLOAT32",
@@ -426,13 +417,6 @@ describe("metadata/PropertyTableModelSpec", function () {
         stringOffsetType,
         undefined
       );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    const count = values.length;
-    for (let i = 0; i < count; i++) {
-      const entity = propertyTableModel.getMetadataEntityModel(i);
-      const expected = values[i];
-      const actual = entity.getPropertyValue("testProperty");
-      expect(genericEquals(actual, expected, epsilon)).toBeTrue();
-    }
-  });
-});
+    return binaryPropertyTable;
+  }
+}

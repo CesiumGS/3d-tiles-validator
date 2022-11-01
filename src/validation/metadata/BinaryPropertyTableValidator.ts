@@ -76,6 +76,9 @@ export class BinaryPropertyTableValidator {
   ): boolean {
     let result = true;
 
+    const propertyTable = binaryPropertyTable.propertyTable;
+    const propertyTableCount = propertyTable.count;
+
     const type = classProperty.type;
     const count = classProperty.count;
     const isArray = classProperty.array === true;
@@ -101,11 +104,23 @@ export class BinaryPropertyTableValidator {
     // If the property is a STRING property, validate
     // the 'stringOffsets' buffer view
     if (type === "STRING") {
+      let numStrings = propertyTableCount;
+      if (isVariableLengthArray) {
+        numStrings = BinaryPropertyTableValidator.getValidatedArrayOffset(
+          propertyId,
+          propertyTableCount,
+          binaryPropertyTable
+        );
+      } else if (isArray) {
+        numStrings = propertyTableCount * count!;
+      }
+
       if (
         !BinaryPropertyTableValidator.validateStringOffsetsBufferView(
           path,
           propertyId,
           binaryPropertyTable,
+          numStrings,
           context
         )
       ) {
@@ -205,74 +220,30 @@ export class BinaryPropertyTableValidator {
     // of the property and the property table count
     const numValues = BinaryPropertyTableValidator.computeNumberOfValues(
       propertyId,
-      classProperty,
       binaryPropertyTable
     );
-
-    // For BOOLEAN, 8 values are stored in 1 byte
-    let effectiveNumValues = numValues;
+    const componentTypeByteSize =
+      MetadataComponentTypes.byteSizeForComponentType(componentType!);
+    let expectedByteLength = numValues * componentTypeByteSize;
     if (type === "BOOLEAN") {
-      effectiveNumValues = Math.ceil(numValues / 8);
+      expectedByteLength = Math.ceil(numValues / 8) * componentTypeByteSize;
     }
 
     // Validate that the length of the 'values' buffer
-    // view is sufficient for storing the effective
-    // number of values.
-    //
-    // NOTE: The difference between
-    // - validateStringValuesBufferViewByteLength
-    // - validateVariableLengthArrayValuesBufferViewByteLength
-    // - validatePlainBufferViewByteLength
-    // is ONLY the error message: It should explain WHY a certain
-    // number of elements was expected.
-    const isString = type === "STRING";
-    const isVariableLengthArray =
-      classProperty.array === true && !defined(classProperty.count);
-    if (isString) {
-      if (
-        !BinaryPropertyTableValidator.validateStringValuesBufferViewByteLength(
-          path,
-          propertyId,
-          "values",
-          valuesBufferViewIndex,
-          componentType!,
-          binaryPropertyTable,
-          effectiveNumValues,
-          context
-        )
-      ) {
-        result = false;
-      }
-    } else if (isVariableLengthArray) {
-      if (
-        !BinaryPropertyTableValidator.validateVariableLengthArrayValuesBufferViewByteLength(
-          path,
-          propertyId,
-          "values",
-          valuesBufferViewIndex,
-          componentType!,
-          binaryPropertyTable,
-          effectiveNumValues,
-          context
-        )
-      ) {
-        result = false;
-      }
-    } else {
-      if (
-        !BinaryPropertyTableValidator.validatePlainBufferViewByteLength(
-          path,
-          propertyId,
-          "values",
-          valuesBufferViewIndex,
-          componentType!,
-          binaryPropertyTable,
-          effectiveNumValues,
-          context
-        )
-      ) {
-        result = false;
-      }
+    // view is sufficient for storing the values.
+    if (
+      !BinaryPropertyTableValidator.validateValuesBufferViewByteLength(
+        path,
+        propertyId,
+        valuesBufferViewIndex,
+        componentType!,
+        binaryPropertyTable,
+        numValues,
+        expectedByteLength,
+        context
+      )
+    ) {
+      result = false;
     }
 
     return result;
@@ -332,7 +303,7 @@ export class BinaryPropertyTableValidator {
     const propertyTableCount = propertyTable.count;
     const numArrayOffsetValues = propertyTableCount + 1;
     if (
-      !BinaryPropertyTableValidator.validatePlainBufferViewByteLength(
+      !BinaryPropertyTableValidator.validateOffsetBufferViewByteLength(
         path,
         propertyId,
         "arrayOffsets",
@@ -378,6 +349,11 @@ export class BinaryPropertyTableValidator {
    * `ValidationIssue` instances
    * @param propertyId The property ID
    * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @param numStrings The number of strings. For non-array properties,
+   * this is just the `propertyTable.count`. For fixed-length array
+   * properties, this is `propertyTable.count * classProperty.count`.
+   * For variable-length array properties, this is the last value
+   * in the `arrayOffsets`.
    * @param context The `ValidationContext`
    * @returns Whether the property was valid
    */
@@ -385,6 +361,7 @@ export class BinaryPropertyTableValidator {
     path: string,
     propertyId: string,
     binaryPropertyTable: BinaryPropertyTable,
+    numStrings: number,
     context: ValidationContext
   ): boolean {
     let result = true;
@@ -417,10 +394,9 @@ export class BinaryPropertyTableValidator {
     }
 
     // Validate the `stringOffsets` `byteLength`
-    const propertyTableCount = propertyTable.count;
-    const numStringOffsetValues = propertyTableCount + 1;
+    const numStringOffsetValues = numStrings + 1;
     if (
-      !BinaryPropertyTableValidator.validatePlainBufferViewByteLength(
+      !BinaryPropertyTableValidator.validateOffsetBufferViewByteLength(
         path,
         propertyId,
         "stringOffsets",
@@ -578,27 +554,23 @@ export class BinaryPropertyTableValidator {
    *
    * The byte length must be `numValues*sizeof(componentType)`.
    *
-   * This is intended for "plain" buffer views, i.e. for buffer
-   * views that are
-   * - `arrayOffsets`
-   * - `stringOffsets`
-   * - `values` that are NOT variable-length arrays or STRING-typed
+   * This is intended for buffer views that are `arrayOffsets`
+   * or `stringOffsets`.
    *
    * @param propertyPath The path for `ValidationIssue` instances
    * @param propertyId The property ID
-   * @param bufferViewName The name of the buffer view ('values',
-   * 'arrayOffsets', or 'stringOffsets')
+   * @param bufferViewName The name of the buffer view
+   * ('arrayOffsets', or 'stringOffsets')
    * @param bufferViewIndex The index of the buffer view (i.e. the
    * actual value of 'values', 'arrayOffsets', or 'stringOffsets')
    * @param componentType The component type. This is either the
-   * component type of the property, or the `arrayOffsetsType`
-   * or `stringOffsetsType`
+   * `arrayOffsetsType` or `stringOffsetsType`
    * @param binaryPropertyTable The `BinaryPropertyTable`
    * @param numValues The number of values in the buffer view.
    * @param context The `ValidationContext`
    * @returns Whether the byte length was valid
    */
-  private static validatePlainBufferViewByteLength(
+  private static validateOffsetBufferViewByteLength(
     propertyPath: string,
     propertyId: string,
     bufferViewName: string,
@@ -619,6 +591,7 @@ export class BinaryPropertyTableValidator {
 
     const bufferView = bufferViews[bufferViewIndex!];
 
+    // Compute the expected number of bytes.
     const componentTypeByteSize =
       MetadataComponentTypes.byteSizeForComponentType(componentType);
     const expectedByteLength = numValues * componentTypeByteSize;
@@ -651,47 +624,42 @@ export class BinaryPropertyTableValidator {
    *
    * @param propertyPath The path for `ValidationIssue` instances
    * @param propertyId The property ID
-   * @param bufferViewName The name of the buffer view ('values',
-   * 'arrayOffsets', or 'stringOffsets')
    * @param bufferViewIndex The index of the buffer view (i.e. the
-   * actual value of 'values', 'arrayOffsets', or 'stringOffsets')
-   * @param componentType The component type. This is either the
-   * component type of the property, or the `arrayOffsetsType`
-   * or `stringOffsetsType`
+   * actual value of the 'values')
+   * @param componentType The resolved component type (this is
+   * assumed to already have possible default values, like
+   * UINT8 for BOOLEAN and STRING types)
    * @param binaryPropertyTable The `BinaryPropertyTable`
    * @param numValues The number of values in the buffer view.
    * @param context The `ValidationContext`
    * @returns Whether the byte length was valid
    */
-  private static validateStringValuesBufferViewByteLength(
+  private static validateValuesBufferViewByteLength(
     propertyPath: string,
     propertyId: string,
-    bufferViewName: string,
     bufferViewIndex: number,
     componentType: string,
     binaryPropertyTable: BinaryPropertyTable,
     numValues: number,
+    expectedByteLength: number,
     context: ValidationContext
   ): boolean {
-    const path = propertyPath + "/" + bufferViewName;
+    const path = propertyPath + "/values";
     let result = true;
 
     const binaryBufferStructure = binaryPropertyTable.binaryBufferStructure;
     const bufferViews = defaultValue(binaryBufferStructure.bufferViews, []);
 
     const bufferView = bufferViews[bufferViewIndex!];
-
-    const componentTypeByteSize =
-      MetadataComponentTypes.byteSizeForComponentType(componentType);
-    const expectedByteLength = numValues * componentTypeByteSize;
     const actualByteLength = bufferView.byteLength;
     if (actualByteLength !== expectedByteLength) {
-      const message =
-        `The '${bufferViewName}' buffer view of property '${propertyId}' ` +
-        `stores the bytes of strings, with the last value of the ` +
-        `'stringOffsets' buffer view indicating that there should be ` +
-        `${numValues} bytes. But the buffer view with index ` +
-        `${bufferViewIndex} has a byteLength of ${actualByteLength}`;
+      const message = BinaryPropertyTableValidator.createByteLengthMessage(
+        propertyId,
+        binaryPropertyTable,
+        componentType,
+        numValues,
+        expectedByteLength
+      );
       const issue = MetadataValidationIssues.METADATA_INVALID_SIZE(
         path,
         message
@@ -703,67 +671,199 @@ export class BinaryPropertyTableValidator {
   }
 
   /**
-   * Validate the byte length of the specified buffer view.
+   * Creates an elaborate error message explaining why a certain
+   * buffer view byte length was expected, when the actual byte
+   * length did not match the expected one.
    *
-   * The byte length must be `numValues*sizeof(componentType)`.
-   *
-   * This is intended for buffer views that contain the values
-   * of variable-length array properties.
-   *
-   * @param propertyPath The path for `ValidationIssue` instances
    * @param propertyId The property ID
-   * @param bufferViewName The name of the buffer view ('values',
-   * 'arrayOffsets', or 'stringOffsets')
-   * @param bufferViewIndex The index of the buffer view (i.e. the
-   * actual value of 'values', 'arrayOffsets', or 'stringOffsets')
-   * @param componentType The component type. This is either the
-   * component type of the property, or the `arrayOffsetsType`
-   * or `stringOffsetsType`
    * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param numValues The number of values in the buffer view.
-   * @param context The `ValidationContext`
-   * @returns Whether the byte length was valid
+   * @param componentType The component type. This is assumed
+   * to already have default values (e.g. UINT8 for BOOLEAN)
+   * @param numValues The number of values, as computed with
+   * `computeNumberOfValues`
+   * @param expectedByteLength The expected byte length
+   * @returns The error message
    */
-  private static validateVariableLengthArrayValuesBufferViewByteLength(
-    propertyPath: string,
+  private static createByteLengthMessage(
     propertyId: string,
-    bufferViewName: string,
-    bufferViewIndex: number,
-    componentType: string,
     binaryPropertyTable: BinaryPropertyTable,
+    componentType: string,
     numValues: number,
-    context: ValidationContext
-  ): boolean {
-    const path = propertyPath + "/" + bufferViewName;
-    let result = true;
+    expectedByteLength: number
+  ): string {
+    const propertyTable = binaryPropertyTable.propertyTable;
+    const propertyTableCount = propertyTable.count;
+
+    const metadataClass = binaryPropertyTable.metadataClass;
+    const classProperties = defaultValue(metadataClass.properties, {});
+    const classProperty = classProperties[propertyId];
+
+    const propertyTableProperties = defaultValue(propertyTable.properties, {});
+    const propertyTableProperty = propertyTableProperties[propertyId];
+    const valuesBufferViewIndex = propertyTableProperty.values!;
 
     const binaryBufferStructure = binaryPropertyTable.binaryBufferStructure;
     const bufferViews = defaultValue(binaryBufferStructure.bufferViews, []);
+    const valuesBufferView = bufferViews[valuesBufferViewIndex];
 
-    const bufferView = bufferViews[bufferViewIndex!];
+    const type = classProperty.type;
+    const count = classProperty.count;
+    const isArray = classProperty.array === true;
+    const isVariableLengthArray = isArray && !defined(count);
+    const componentCount = MetadataTypes.componentCountForType(type);
 
     const componentTypeByteSize =
-      MetadataComponentTypes.byteSizeForComponentType(componentType);
-    const expectedByteLength = numValues * componentTypeByteSize;
-    const actualByteLength = bufferView.byteLength;
-    if (actualByteLength !== expectedByteLength) {
+      MetadataComponentTypes.byteSizeForComponentType(componentType!);
+
+    const actualByteLength = valuesBufferView.byteLength;
+    if (isVariableLengthArray) {
+      // For variable-length string arrays, the number of bytes
+      // is just the number of values (as obtained from the
+      // last string offset)
+      if (type === "STRING") {
+        const message =
+          `The 'values' buffer view of property '${propertyId}' ` +
+          `stores the values of variable-length string arrays. ` +
+          `The last 'stringOffsets' value indicates that there ` +
+          `should be ${numValues} bytes in these strings. ` +
+          `But the buffer view with index ${valuesBufferViewIndex} ` +
+          `has a byteLength of ${actualByteLength}.`;
+        return message;
+      }
+
+      // For variable-length boolean arrays, the number of values
+      // is given by the last array offset, and the number of
+      // bytes is ceil(numValues/8).
+      if (type === "BOOLEAN") {
+        const message =
+          `The 'values' buffer view of property '${propertyId}' ` +
+          `stores the values of variable-length boolean arrays. ` +
+          `The last 'arrayOffsets' value indicates that there ` +
+          `should be ${numValues} values. ` +
+          `The buffer view should have a byteLength of ` +
+          `ceil(${numValues}/8) = ${expectedByteLength}. ` +
+          `But the buffer view with index ${valuesBufferViewIndex} ` +
+          `has a byteLength of ${actualByteLength}.`;
+        return message;
+      }
+
+      // For non-STRING, non-BOOLEAN variable length arrays, the
+      // number of values is given by the last array offset.
+      // The number of bytes is the number of values, multiplied
+      // the the component size.
       const message =
-        `The '${bufferViewName}' buffer view of property '${propertyId}' ` +
-        `has component type '${componentType}', and stores the values ` +
-        `of variable-length arrays. The last 'arrayOffsets' value ` +
-        `indicates that there should be ${numValues} values, so the ` +
-        `buffer view should have a byteLength of ` +
-        `${numValues}*${componentTypeByteSize} = ${expectedByteLength}. ` +
-        `But the buffer view with index ${bufferViewIndex} has a ` +
-        `byteLength of ${actualByteLength}.`;
-      const issue = MetadataValidationIssues.METADATA_INVALID_SIZE(
-        path,
-        message
-      );
-      context.addIssue(issue);
-      result = false;
+        `The 'values' buffer view of property '${propertyId}' ` +
+        `stores the values of variable-length arrays with ` +
+        `type ${type} and component type ${componentType}. ` +
+        `The last 'arrayOffsets' value indicates that there ` +
+        `should be ${numValues} values, so the buffer view should have ` +
+        `a byteLength of ${numValues}*${componentTypeByteSize} = ` +
+        `${expectedByteLength}. ` +
+        `But the buffer view with index ${valuesBufferViewIndex} ` +
+        `has a byteLength of ${actualByteLength}.`;
+      return message;
     }
-    return result;
+
+    // Handling fixed-length arrays
+    if (isArray) {
+      // For fixed-length STRING arrays, the number of
+      // bytes is just the number of values, as obtained
+      // from the last string offset
+      if (type === "STRING") {
+        const message =
+          `The 'values' buffer view of property '${propertyId}' ` +
+          `stores the values of fixed-length string arrays ` +
+          `with length ${count}. ` +
+          `The last 'stringOffsets' value indicates that there ` +
+          `should be ${numValues} bytes in these strings. ` +
+          `But the buffer view with index ${valuesBufferViewIndex} ` +
+          `has a byteLength of ${actualByteLength}.`;
+        return message;
+      }
+
+      // For fixed-length boolean arrays, the number of bytes
+      // is given by ceil(numValues/8).
+      if (type === "BOOLEAN") {
+        const message =
+          `The 'values' buffer view of property '${propertyId}' ` +
+          `stores the values of fixed-length boolean arrays ` +
+          `with length ${count}. ` +
+          `It is part of a property table with a 'count' of ` +
+          `${propertyTableCount}. ` +
+          `So there are ${count}*${propertyTableCount} = ${numValues} ` +
+          `values, and the buffer view should have a byteLength ` +
+          `of ceil(${numValues}/8) = ${expectedByteLength}. ` +
+          `But the buffer view with index ${valuesBufferViewIndex} ` +
+          `has a byteLength of ${actualByteLength}.`;
+        return message;
+      }
+
+      // For non-STRING, non-BOOLEAN fixed length arrays, the
+      // number of bytes is given by the number of values,
+      // multiplied by the component size.
+      const message =
+        `The 'values' buffer view of property '${propertyId}' ` +
+        `stores the values of fixed-length arrays with ` +
+        `type ${type}, component type ${componentType}, and  ` +
+        `array length ${count}. ` +
+        `It is part of a property table with a 'count' of ` +
+        `${propertyTableCount}. ` +
+        `So there are ${count}*${propertyTableCount} = ${numValues} ` +
+        `values, and the buffer view should have a byteLength ` +
+        `of ${numValues}*${componentTypeByteSize} = ` +
+        `${expectedByteLength}. ` +
+        `But the buffer view with index ${valuesBufferViewIndex} ` +
+        `has a byteLength of ${actualByteLength}.`;
+      return message;
+    }
+
+    // Handling non-arrays
+
+    // For STRING properties, the number of bytes is the
+    // same as the number of values (given by the last
+    // string offset)
+    if (type === "STRING") {
+      const message =
+        `The 'values' buffer view of property '${propertyId}' ` +
+        `stores the values of strings. ` +
+        `The last 'stringOffsets' value indicates that there ` +
+        `should be ${numValues} bytes in these strings. ` +
+        `But the buffer view with index ${valuesBufferViewIndex} ` +
+        `has a byteLength of ${actualByteLength}.`;
+      return message;
+    }
+
+    // For BOOLEAN properties, the number of bytes is given
+    // by the number
+    if (type === "BOOLEAN") {
+      const message =
+        `The 'values' buffer view of property '${propertyId}' ` +
+        `stores boolean values. ` +
+        `It is part of a property table with a 'count' of ` +
+        `${propertyTableCount}. ` +
+        `So the buffer view should have a byteLength ` +
+        `of ceil(${numValues}/8) = ${expectedByteLength}. ` +
+        `But the buffer view with index ${valuesBufferViewIndex} ` +
+        `has a byteLength of ${actualByteLength}.`;
+      return message;
+    }
+
+    // For non-STRING, non-BOOLEAN properties, the number of bytes
+    // is given by the nunber of values, multiplied with the
+    // component size
+    const message =
+      `The 'values' buffer view of property '${propertyId}' ` +
+      `stores values with type ${type} and component type ` +
+      `${componentType}.` +
+      `It is part of a property table with a 'count' of ` +
+      `${propertyTableCount}. ` +
+      `So there are ${propertyTableCount}*${componentCount} ` +
+      `= ${numValues} values, and the buffer view should ` +
+      `have a byteLength of ${numValues}*${componentTypeByteSize} = ` +
+      `${expectedByteLength}. ` +
+      `But the buffer view with index ${valuesBufferViewIndex} ` +
+      `has a byteLength of ${actualByteLength}.`;
+    return message;
   }
 
   /**
@@ -779,15 +879,17 @@ export class BinaryPropertyTableValidator {
    * - it will be the number of bits for a BOOLEAN property
    *
    * @param propertyId The property ID
-   * @param classProperty The `ClassProperty`
    * @param binaryPropertyTable The `BinaryPropertyTable`
    * @returns The number of values
    */
   private static computeNumberOfValues(
     propertyId: string,
-    classProperty: ClassProperty,
     binaryPropertyTable: BinaryPropertyTable
   ): number {
+    const metadataClass = binaryPropertyTable.metadataClass;
+    const classProperties = defaultValue(metadataClass.properties, {});
+    const classProperty = classProperties[propertyId];
+
     const propertyTable = binaryPropertyTable.propertyTable;
     const propertyTableCount = propertyTable.count;
 
@@ -837,7 +939,7 @@ export class BinaryPropertyTableValidator {
         const lastStringOffset =
           BinaryPropertyTableValidator.getValidatedStringOffset(
             propertyId,
-            propertyTableCount,
+            propertyTableCount * count!,
             binaryPropertyTable
           );
         return lastStringOffset;
