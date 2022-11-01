@@ -34,13 +34,28 @@ export class BinaryMetadataEntityModel implements MetadataEntityModel {
       const message = `The class does not define a property ${propertyId}`;
       throw new MetadataError(message);
     }
-    const propertyModel = propertyTableModel.getPropertyModel(propertyId);
-    if (!defined(propertyModel)) {
+    const propertyTableProperty =
+      propertyTableModel.getPropertyTableProperty(propertyId);
+    if (!defined(propertyTableProperty)) {
       const message = `The property table does not define a property ${propertyId}`;
       throw new MetadataError(message);
     }
+    const propertyModel = propertyTableModel.getPropertyModel(propertyId);
+    if (!defined(propertyModel)) {
+      const message =
+        `The property table does not ` +
+        `define a property model for ${propertyId}`;
+      throw new MetadataError(message);
+    }
     const value = propertyModel!.getPropertyValue(this._entityIndex);
-    const processedValue = MetadataValues.processValue(classProperty!, value);
+    const offsetOverride = propertyTableProperty!.offset;
+    const scaleOverride = propertyTableProperty!.scale;
+    const processedValue = MetadataValues.processValue(
+      classProperty!,
+      offsetOverride,
+      scaleOverride,
+      value
+    );
     return processedValue;
   }
 

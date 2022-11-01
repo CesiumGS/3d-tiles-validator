@@ -1,6 +1,7 @@
 import { ClassProperty } from "./structure/Metadata/ClassProperty";
 
-import { PropertyTableModels } from "./binary/PropertyTableModels";
+import { BinaryPropertyTables } from "./binary/BinaryPropertyTables";
+import { PropertyTableModel } from "./binary/PropertyTableModel";
 
 function runPropertyTableModelTest(
   name: string,
@@ -8,14 +9,18 @@ function runPropertyTableModelTest(
   propertyValues: any
 ) {
   const count = propertyValues.length;
-  const propertyTableModel =
-    PropertyTableModels.createPropertyTableModelFromProperty(
+  const arrayOffsetType = "UINT32";
+  const stringOffsetType = "UINT32";
+  const binaryPropertyTable =
+    BinaryPropertyTables.createBinaryPropertyTableFromProperty(
       "testProperty",
       classProperty,
       propertyValues,
+      arrayOffsetType,
+      stringOffsetType,
       count
     );
-
+  const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
   console.log("For " + name);
   console.log("  Original values: " + JSON.stringify(propertyValues));
   for (let i = 0; i < count; i++) {

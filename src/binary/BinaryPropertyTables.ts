@@ -2,7 +2,6 @@ import { defined } from "../base/defined";
 import { defaultValue } from "../base/defaultValue";
 import { DeveloperError } from "../base/DeveloperError";
 
-import { PropertyTableModel } from "./PropertyTableModel";
 import { BinaryPropertyTable } from "./BinaryPropertyTable";
 import { BinaryBufferData } from "./BinaryBufferData";
 import { BinaryBuffers } from "./BinaryBuffers";
@@ -18,7 +17,7 @@ import { PropertyTableProperty } from "../structure/PropertyTableProperty";
 import { MetadataEnum } from "../structure/Metadata/MetadataEnum";
 
 /**
- * Methods to create `PropertyTableModel` instances from individual
+ * Methods to create `BinaryPropertyTable` instances from individual
  * properties and their associated data.
  *
  * Right now, the methods in this class are mainly intended for
@@ -54,37 +53,7 @@ import { MetadataEnum } from "../structure/Metadata/MetadataEnum";
  *
  * @private
  */
-export class PropertyTableModels {
-  /**
-   * Creates a new `PropertyTableModel` from a single `ClassProperty`
-   * and its associated values.
-   *
-   * @param propertyName The name of the property
-   * @param classProperty The actual `ClassProperty`
-   * @param values The values for the property
-   * @returns The `PropertyTableModel`
-   */
-  static createPropertyTableModelFromProperty(
-    propertyName: string,
-    classProperty: ClassProperty,
-    values: any,
-    metadataEnum: MetadataEnum | undefined
-  ): PropertyTableModel {
-    const arrayOffsetType = "UINT32";
-    const stringOffsetType = "UINT32";
-    const binaryPropertyTable =
-      PropertyTableModels.createBinaryPropertyTableFromProperty(
-        propertyName,
-        classProperty,
-        values,
-        arrayOffsetType,
-        stringOffsetType,
-        metadataEnum
-      );
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-    return propertyTableModel;
-  }
-
+export class BinaryPropertyTables {
   /**
    * Creates a (dummy) `MetadataClass` that only contains the given property
    *
@@ -191,7 +160,7 @@ export class PropertyTableModels {
     stringOffsetType: string | undefined,
     bufferViewsData: Buffer[]
   ): PropertyTableProperty {
-    const valuesBuffer = PropertyTableModels.createValuesBuffer(
+    const valuesBuffer = BinaryPropertyTables.createValuesBuffer(
       classProperty,
       schema,
       values
@@ -210,7 +179,7 @@ export class PropertyTableModels {
     const isVariableLengthArray =
       classProperty.array && !defined(classProperty.count);
     if (isVariableLengthArray) {
-      const arrayOffsetBuffer = PropertyTableModels.createArrayOffsetBuffer(
+      const arrayOffsetBuffer = BinaryPropertyTables.createArrayOffsetBuffer(
         values,
         arrayOffsetType
       );
@@ -220,7 +189,7 @@ export class PropertyTableModels {
     }
 
     if (classProperty.type === "STRING") {
-      const stringOffsetBuffer = PropertyTableModels.createStringOffsetBuffer(
+      const stringOffsetBuffer = BinaryPropertyTables.createStringOffsetBuffer(
         values,
         stringOffsetType
       );
@@ -252,11 +221,11 @@ export class PropertyTableModels {
   ): Schema {
     const className = "generatedClass";
     const metadataClass =
-      PropertyTableModels.createMetadataClassFromClassProperty(
+      BinaryPropertyTables.createMetadataClassFromClassProperty(
         propertyName,
         classProperty
       );
-    const schema = PropertyTableModels.createSchemaFromMetadataClass(
+    const schema = BinaryPropertyTables.createSchemaFromMetadataClass(
       className,
       metadataClass
     );
@@ -297,13 +266,13 @@ export class PropertyTableModels {
     stringOffsetType: string | undefined,
     metadataEnum: MetadataEnum | undefined
   ): BinaryPropertyTable {
-    const schema = PropertyTableModels.createSchemaFromClassProperty(
+    const schema = BinaryPropertyTables.createSchemaFromClassProperty(
       propertyName,
       classProperty,
       metadataEnum
     );
     const className = "generatedClass";
-    const binaryPropertyTable = PropertyTableModels.createBinaryPropertyTable(
+    const binaryPropertyTable = BinaryPropertyTables.createBinaryPropertyTable(
       schema,
       className,
       propertyName,
@@ -349,7 +318,7 @@ export class PropertyTableModels {
 
     const createdBufferViewsData: Buffer[] = [];
     const propertyTableProperty =
-      PropertyTableModels.createPropertyTableProperty(
+      BinaryPropertyTables.createPropertyTableProperty(
         classProperty,
         schema,
         values,
@@ -358,7 +327,7 @@ export class PropertyTableModels {
         createdBufferViewsData
       );
     const count = values.length;
-    const propertyTable = PropertyTableModels.createPropertyTableFromProperty(
+    const propertyTable = BinaryPropertyTables.createPropertyTableFromProperty(
       className,
       propertyName,
       count,
@@ -401,8 +370,8 @@ export class PropertyTableModels {
     values: any,
     componentType: string | undefined
   ): Buffer {
-    const buffer = PropertyTableModels.toBuffer(
-      PropertyTableModels.createBufferInternal(values, componentType)
+    const buffer = BinaryPropertyTables.toBuffer(
+      BinaryPropertyTables.createBufferInternal(values, componentType)
     );
     return buffer;
   }
@@ -411,7 +380,7 @@ export class PropertyTableModels {
     values: any,
     componentType: string | undefined
   ): ArrayBuffer {
-    const flatValues = PropertyTableModels.flattenFully(values);
+    const flatValues = BinaryPropertyTables.flattenFully(values);
     switch (componentType) {
       case "INT8":
         return new Int8Array(flatValues).buffer;
@@ -438,25 +407,25 @@ export class PropertyTableModels {
   }
 
   private static createStringBuffer(values: any): Buffer {
-    return PropertyTableModels.toBuffer(
-      PropertyTableModels.createStringBufferInternal(values)
+    return BinaryPropertyTables.toBuffer(
+      BinaryPropertyTables.createStringBufferInternal(values)
     );
   }
 
   private static createStringBufferInternal(inputValues: any): Uint8Array {
-    const values = PropertyTableModels.flattenFully(inputValues);
+    const values = BinaryPropertyTables.flattenFully(inputValues);
     const encoder = new TextEncoder();
     return encoder.encode(values.join(""));
   }
 
   private static createBooleanBuffer(values: any): Buffer {
-    return PropertyTableModels.toBuffer(
-      PropertyTableModels.createBooleanBufferInternal(values)
+    return BinaryPropertyTables.toBuffer(
+      BinaryPropertyTables.createBooleanBufferInternal(values)
     );
   }
 
   private static createBooleanBufferInternal(inputValues: any): Uint8Array {
-    const values = PropertyTableModels.flattenFully(inputValues);
+    const values = BinaryPropertyTables.flattenFully(inputValues);
     const length = Math.ceil(values.length / 8);
     const typedArray = new Uint8Array(length); // Initialized as 0's
     for (let i = 0; i < values.length; ++i) {
@@ -478,7 +447,7 @@ export class PropertyTableModels {
     if (Array.isArray(result)) {
       result = [];
       for (let i = 0; i < values.length; i++) {
-        result = result.concat(PropertyTableModels.flattenFully(values[i]));
+        result = result.concat(BinaryPropertyTables.flattenFully(values[i]));
       }
     }
     return result;
@@ -492,14 +461,14 @@ export class PropertyTableModels {
     const type = classProperty.type;
     const componentType = classProperty.componentType;
     const enumType = classProperty.enumType;
-    const flattenedValues = PropertyTableModels.flatten(values);
+    const flattenedValues = BinaryPropertyTables.flatten(values);
 
     if (type === "STRING") {
-      return PropertyTableModels.createStringBuffer(flattenedValues);
+      return BinaryPropertyTables.createStringBuffer(flattenedValues);
     }
 
     if (type === "BOOLEAN") {
-      return PropertyTableModels.createBooleanBuffer(flattenedValues);
+      return BinaryPropertyTables.createBooleanBuffer(flattenedValues);
     }
 
     if (defined(enumType)) {
@@ -514,7 +483,7 @@ export class PropertyTableModels {
       }
     }
 
-    return PropertyTableModels.createBuffer(flattenedValues, componentType);
+    return BinaryPropertyTables.createBuffer(flattenedValues, componentType);
   }
 
   private static createStringOffsetBuffer(
@@ -522,7 +491,7 @@ export class PropertyTableModels {
     offsetType: string | undefined
   ) {
     const encoder = new TextEncoder();
-    const strings = PropertyTableModels.flattenFully(values);
+    const strings = BinaryPropertyTables.flattenFully(values);
     const length = strings.length;
     const offsets = new Array(length + 1);
     let offset = 0;
@@ -532,7 +501,7 @@ export class PropertyTableModels {
     }
     offsets[length] = offset;
     offsetType = defaultValue(offsetType, "UINT32");
-    return PropertyTableModels.createBuffer(offsets, offsetType);
+    return BinaryPropertyTables.createBuffer(offsets, offsetType);
   }
 
   private static createArrayOffsetBuffer(
@@ -548,6 +517,6 @@ export class PropertyTableModels {
     }
     offsets[length] = offset;
     offsetType = defaultValue(offsetType, "UINT32");
-    return PropertyTableModels.createBuffer(offsets, offsetType);
+    return BinaryPropertyTables.createBuffer(offsets, offsetType);
   }
 }

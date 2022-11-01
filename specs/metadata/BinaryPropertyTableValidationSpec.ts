@@ -3,166 +3,47 @@ import { ResourceResolvers } from "../../src/io/ResourceResolvers";
 import { ValidationContext } from "../../src/validation/ValidationContext";
 import { BinaryPropertyTableValidator } from "../../src/validation/metadata/BinaryPropertyTableValidator";
 
-import { BinaryPropertyTable } from "../../src/binary/BinaryPropertyTable";
-import { PropertyTableModels } from "../../src/binary/PropertyTableModels";
+import { PropertyTableTestUtilities } from "./PropertyTableTestUtilities";
 
-import { Schema } from "../../src/structure/Metadata/Schema";
-import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
+// A flag to enable printing all `ValidationResult`
+// instances to the console during the tests.
+const debugLogResults = false;
 
-/**
- * Creates an unspecified valid default `BinaryPropertyTable`, containing
- * a single example_INT16_SCALAR property
- *
- * @returns The `BinaryPropertyTable`
- */
-function createDefaultBinaryPropertyTable_example_INT16_SCALAR(): BinaryPropertyTable {
-  const example_INT16_SCALAR: ClassProperty = {
-    type: "SCALAR",
-    componentType: "INT16",
-  };
-  const example_INT16_SCALAR_values = [-32768, 32767];
-
-  const classProperty = example_INT16_SCALAR;
-  const values = example_INT16_SCALAR_values;
-
-  const testSchema: Schema = {
-    id: "testSchemaId",
-    classes: {
-      testClass: {
-        properties: {
-          testProperty: classProperty,
-        },
-      },
-    },
-  };
-
-  const arrayOffsetType = "UINT32";
-  const stringOffsetType = "UINT32";
-  const binaryPropertyTable = PropertyTableModels.createBinaryPropertyTable(
-    testSchema,
-    "testClass",
-    "testProperty",
-    values,
-    arrayOffsetType,
-    stringOffsetType
-  );
-  return binaryPropertyTable;
-}
-
-/**
- * Creates an unspecified valid default `BinaryPropertyTable`, containing
- * a single example_variable_length_INT16_SCALAR_array property
- *
- * @returns The `BinaryPropertyTable`
- */
-function createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array(): BinaryPropertyTable {
-  const example_variable_length_INT16_SCALAR_array: ClassProperty = {
-    type: "SCALAR",
-    componentType: "INT16",
-    array: true,
-  };
-  const example_variable_length_INT16_SCALAR_array_values = [
-    [-32768, 32767],
-    [-1, 0, 1],
-  ];
-
-  const classProperty = example_variable_length_INT16_SCALAR_array;
-  const values = example_variable_length_INT16_SCALAR_array_values;
-
-  const testSchema: Schema = {
-    id: "testSchemaId",
-    classes: {
-      testClass: {
-        properties: {
-          testProperty: classProperty,
-        },
-      },
-    },
-  };
-
-  const arrayOffsetType = "UINT32";
-  const stringOffsetType = "UINT32";
-  const binaryPropertyTable = PropertyTableModels.createBinaryPropertyTable(
-    testSchema,
-    "testClass",
-    "testProperty",
-    values,
-    arrayOffsetType,
-    stringOffsetType
-  );
-  return binaryPropertyTable;
-}
-
-/**
- * Creates an unspecified valid default `BinaryPropertyTable`, containing
- * a single example_STRING property
- *
- * @returns The `BinaryPropertyTable`
- */
-function createDefaultBinaryPropertyTable_example_STRING(): BinaryPropertyTable {
-  const example_STRING: ClassProperty = {
-    type: "STRING",
-  };
-  const example_STRING_values = ["FirstString", "SecondString"];
-
-  const classProperty = example_STRING;
-  const values = example_STRING_values;
-
-  const testSchema: Schema = {
-    id: "testSchemaId",
-    classes: {
-      testClass: {
-        properties: {
-          testProperty: classProperty,
-        },
-      },
-    },
-  };
-
-  const arrayOffsetType = "UINT32";
-  const stringOffsetType = "UINT32";
-  const binaryPropertyTable = PropertyTableModels.createBinaryPropertyTable(
-    testSchema,
-    "testClass",
-    "testProperty",
-    values,
-    arrayOffsetType,
-    stringOffsetType
-  );
-  return binaryPropertyTable;
-}
-
-// TODO Add the cases that should NOT report issues from the
-// PropertyTableModelsSpec file (and think about how the
-// redundancy could be reduced here...)
 describe("metadata/BinaryPropertyTableValidationSpec", function () {
   //==========================================================================
+  //=== example_INT16_SCALAR test cases:
+  // - no issues for valid input
+  // - `values` not properly aligned due to wrong `byteOffset`
+  // - `values` length invalid due to wrong `byteLength`
 
   describe("issues for example_INT16_SCALAR", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_INT16_SCALAR", async function () {
+    it("should not report issues for a valid example_INT16_SCALAR", function () {
       const binaryPropertyTable =
-        createDefaultBinaryPropertyTable_example_INT16_SCALAR();
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_INT16_SCALAR();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
         "test",
         binaryPropertyTable,
         context
       );
       const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
       expect(result.length).toEqual(0);
     });
 
-    it("detects unaligned values byteOffset for example_INT16_SCALAR", async function () {
+    it("detects unaligned values byteOffset for example_INT16_SCALAR", function () {
       const binaryPropertyTable =
-        createDefaultBinaryPropertyTable_example_INT16_SCALAR();
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_INT16_SCALAR();
 
       // For the test: Assign a value to values
       // byteOffset to cause an invalid alignment
@@ -178,26 +59,75 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         context
       );
       const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
+    });
+
+    it("detects invalid values byteLength for example_INT16_SCALAR", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_INT16_SCALAR();
+
+      // For the test: Assign a value to values
+      // byteLength to cause an invalid size
+      const valuesBufferViewIndex =
+        binaryPropertyTable.propertyTable.properties!["testProperty"].values;
+      binaryPropertyTable.binaryBufferStructure!.bufferViews![
+        valuesBufferViewIndex
+      ].byteLength = 12345;
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
     });
   });
 
   //==========================================================================
+  //=== example_variable_length_INT16_SCALAR_array test cases:
+  // - no issues for valid input
+  // - `arrayOffsets` not properly aligned due to wrong `byteOffset`
+  // - `arrayOffsets` length invalid due to wrong `byteLength`
+  // - `arrayOffsets` contains descending values
+  // - `arrayOffsets` contains values that are out of range for the `values`
 
   describe("issues for example_variable_length_INT16_SCALAR_array", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("detects unaligned arrayOffsets byteOffset for example_variable_length_INT16_SCALAR_array", async function () {
+    it("should not report issues for a valid example_variable_length_INT16_SCALAR_array", function () {
       const binaryPropertyTable =
-        createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
+
+    it("detects unaligned arrayOffsets byteOffset for example_variable_length_INT16_SCALAR_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
 
       // For the test: Assign a value to arrayOffsets
       // byteOffset to cause an invalid alignment
@@ -214,13 +144,16 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         context
       );
       const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
     });
 
-    it("detects wrong arrayOffsets byteLength for example_variable_length_INT16_SCALAR_array", async function () {
+    it("detects wrong arrayOffsets byteLength for example_variable_length_INT16_SCALAR_array", function () {
       const binaryPropertyTable =
-        createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
 
       // For the test: Assign a value to arrayOffsets
       // byteLength to cause an invalid length
@@ -229,7 +162,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
           .arrayOffsets!;
       binaryPropertyTable.binaryBufferStructure!.bufferViews![
         arrayOffsetsBufferViewIndex
-      ].byteLength = 1234;
+      ].byteLength = 12345;
 
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
         "test",
@@ -237,13 +170,16 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         context
       );
       const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
     });
 
-    it("detects descending arrayOffsets for example_variable_length_INT16_SCALAR_array", async function () {
+    it("detects descending arrayOffsets for example_variable_length_INT16_SCALAR_array", function () {
       const binaryPropertyTable =
-        createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
 
       // For the test: Write a value into the arrayOffsets
       // buffer, to make it descending
@@ -262,28 +198,329 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         context
       );
       const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_OFFSETS");
+    });
+
+    it("detects arrayOffsets that are out of range for example_variable_length_INT16_SCALAR_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
+
+      // For the test: Write values into the arrayOffsets
+      // buffer so that the 'values' buffer is not long
+      // enough to match the last array offsets entry
+      const arrayOffsetsBufferViewIndex =
+        binaryPropertyTable.propertyTable.properties!["testProperty"]
+          .arrayOffsets!;
+      const arrayOffsetsBufferViewData =
+        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+          arrayOffsetsBufferViewIndex
+        ];
+      arrayOffsetsBufferViewData.writeInt32LE(0, 0);
+      arrayOffsetsBufferViewData.writeInt32LE(123, 4);
+      arrayOffsetsBufferViewData.writeInt32LE(12345, 8);
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
     });
   });
 
   //==========================================================================
+  //=== example_fixed_length_INT16_SCALAR_array test cases:
+  // - no issues for valid input
+  // - `values` length does not match in view of the `classProperty.count`
 
-  describe("issues for example_STRING", function () {
+  describe("issues for example_fixed_length_INT16_SCALAR_array", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("detects unaligned stringOffsets byteOffset for example_STRING", async function () {
+    it("should not report issues for a valid example_fixed_length_INT16_SCALAR_array", function () {
       const binaryPropertyTable =
-        createDefaultBinaryPropertyTable_example_STRING();
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_INT16_SCALAR_array();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
 
-      // For the test: Assign a value to arrayOffsets
+    it("detects invalid values byteLength for example_fixed_length_INT16_SCALAR_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_INT16_SCALAR_array();
+
+      // For the test: Assign a value to the 'count' of
+      // the property, so that the length of the 'values'
+      // buffer view does no longer match
+      binaryPropertyTable.metadataClass.properties![
+        "testProperty"
+      ].count = 12345;
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+    });
+  });
+
+  //==========================================================================
+  //=== example_BOOLEAN test cases:
+  // - no issues for valid input
+  // - `values` length does not match for `propertyTable.count`
+
+  describe("issues for example_BOOLEAN", function () {
+    let context: ValidationContext;
+
+    beforeEach(function () {
+      const directory = "specs/data/propertyTables/";
+      const resourceResolver =
+        ResourceResolvers.createFileResourceResolver(directory);
+      context = new ValidationContext(resourceResolver);
+    });
+
+    it("should not report issues for a valid example_BOOLEAN", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_BOOLEAN();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
+
+    it("should not report issues for valid values byteLength for example_BOOLEAN", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_BOOLEAN();
+
+      // For the test: Assign a value to the 'count' of
+      // the property table that JUST SO fits into one
+      // byte (this should NOT cause an issue!)
+      binaryPropertyTable.propertyTable.count = 8;
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
+
+    it("detects invalid values byteLength for example_BOOLEAN", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_BOOLEAN();
+
+      // For the test: Assign a value to the 'count' of
+      // the property table, so that the length of the 'values'
+      // buffer view does no longer match
+      binaryPropertyTable.propertyTable.count = 9;
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+    });
+  });
+
+  //==========================================================================
+  //=== example_variable_length_BOOLEAN_array test cases:
+  // - no issues for valid input
+  // - `values` length does not match for given `arrayOffsets`
+
+  describe("issues for example_variable_length_BOOLEAN_array", function () {
+    let context: ValidationContext;
+
+    beforeEach(function () {
+      const directory = "specs/data/propertyTables/";
+      const resourceResolver =
+        ResourceResolvers.createFileResourceResolver(directory);
+      context = new ValidationContext(resourceResolver);
+    });
+
+    it("should not report issues for a valid example_variable_length_BOOLEAN_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_BOOLEAN_array();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
+
+    it("detects invalid values byteLength for example_variable_length_BOOLEAN_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_BOOLEAN_array();
+
+      // For the test: Write values into the arrayOffsets
+      // buffer so that the 'values' buffer is not long
+      // enough to match the last array offsets entry
+      const arrayOffsetsBufferViewIndex =
+        binaryPropertyTable.propertyTable.properties!["testProperty"]
+          .arrayOffsets!;
+      const arrayOffsetsBufferViewData =
+        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+          arrayOffsetsBufferViewIndex
+        ];
+      arrayOffsetsBufferViewData.writeInt32LE(0, 0);
+      arrayOffsetsBufferViewData.writeInt32LE(123, 4);
+      arrayOffsetsBufferViewData.writeInt32LE(12345, 8);
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+    });
+  });
+
+  //==========================================================================
+  //=== example_fixed_length_BOOLEAN_array test cases:
+  // - no issues for valid input
+  // - `values` length does not match for given `arrayOffsets`
+
+  describe("issues for example_fixed_length_BOOLEAN_array", function () {
+    let context: ValidationContext;
+
+    beforeEach(function () {
+      const directory = "specs/data/propertyTables/";
+      const resourceResolver =
+        ResourceResolvers.createFileResourceResolver(directory);
+      context = new ValidationContext(resourceResolver);
+    });
+
+    it("should not report issues for a valid example_fixed_length_BOOLEAN_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_BOOLEAN_array();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
+
+    it("detects invalid values byteLength for example_fixed_length_BOOLEAN_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_BOOLEAN_array();
+
+      // For the test: Assign a value to the 'count' of
+      // the property, so that the length of the 'values'
+      // buffer view does no longer match
+      binaryPropertyTable.metadataClass.properties![
+        "testProperty"
+      ].count = 12345;
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+    });
+  });
+
+  //==========================================================================
+  //=== example_STRING test cases
+  // - no issues for valid input
+  // - `stringOffsets` not properly aligned due to wrong `byteOffset`
+  // - `stringOffsets` length invalid due to wrong `byteLength`
+  // - `stringOffsets` contains descending values
+  // - `stringOffsets` contains values that are out of range for the `values`
+
+  describe("issues for example_STRING", function () {
+    let context: ValidationContext;
+
+    beforeEach(function () {
+      const directory = "specs/data/propertyTables/";
+      const resourceResolver =
+        ResourceResolvers.createFileResourceResolver(directory);
+      context = new ValidationContext(resourceResolver);
+    });
+
+    it("should not report issues for a valid example_STRING", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_STRING();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
+
+    it("detects unaligned stringOffsets byteOffset for example_STRING", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_STRING();
+
+      // For the test: Assign a value to stringOffsets
       // byteOffset to cause an invalid alignment
       const stringOffsetsBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"]
@@ -298,8 +535,251 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         context
       );
       const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
       expect(result.length).toEqual(1);
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
+    });
+
+    it("detects wrong stringOffsets byteLength for example_STRING", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_STRING();
+
+      // For the test: Assign a value to stringOffsets
+      // byteLength to cause an invalid length
+      const stringOffsetsBufferViewIndex =
+        binaryPropertyTable.propertyTable.properties!["testProperty"]
+          .stringOffsets!;
+      binaryPropertyTable.binaryBufferStructure!.bufferViews![
+        stringOffsetsBufferViewIndex
+      ].byteLength = 12345;
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+    });
+
+    it("detects descending stringOffsets for example_STRING", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_STRING();
+
+      // For the test: Write a value into the stringOffsets
+      // buffer, to make it descending
+      const stringOffsetsBufferViewIndex =
+        binaryPropertyTable.propertyTable.properties!["testProperty"]
+          .stringOffsets!;
+      const stringOffsetsBufferViewData =
+        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+          stringOffsetsBufferViewIndex
+        ];
+      stringOffsetsBufferViewData.writeInt32LE(12345, 4);
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_OFFSETS");
+    });
+
+    it("detects stringOffsets that are out of range for example_STRING", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_STRING();
+
+      // For the test: Write values into the stringOffsets
+      // buffer so that the 'values' buffer is not long
+      // enough to match the last string offsets entry
+      const stringOffsetsBufferViewIndex =
+        binaryPropertyTable.propertyTable.properties!["testProperty"]
+          .stringOffsets!;
+      const stringOffsetsBufferViewData =
+        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+          stringOffsetsBufferViewIndex
+        ];
+      stringOffsetsBufferViewData.writeInt32LE(0, 0);
+      stringOffsetsBufferViewData.writeInt32LE(123, 4);
+      stringOffsetsBufferViewData.writeInt32LE(12345, 8);
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+    });
+  });
+
+  //==========================================================================
+  //=== example_variable_length_STRING_array test cases
+  // - no issues for valid input
+  // (arrayOffsets issues are already covered with example_variable_length_INT16_SCALAR_array)
+  // (stringOffsets issues are already covered with example_STRING)
+
+  describe("issues for example_variable_length_STRING_array", function () {
+    let context: ValidationContext;
+
+    beforeEach(function () {
+      const directory = "specs/data/propertyTables/";
+      const resourceResolver =
+        ResourceResolvers.createFileResourceResolver(directory);
+      context = new ValidationContext(resourceResolver);
+    });
+
+    it("should not report issues for a valid example_variable_length_STRING_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_STRING_array();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
+  });
+
+  //==========================================================================
+  //=== example_fixed_length_STRING_array test cases
+  // - no issues for valid input
+  // (stringOffsets issues are already covered with example_STRING)
+
+  describe("issues for example_fixed_length_STRING_array", function () {
+    let context: ValidationContext;
+
+    beforeEach(function () {
+      const directory = "specs/data/propertyTables/";
+      const resourceResolver =
+        ResourceResolvers.createFileResourceResolver(directory);
+      context = new ValidationContext(resourceResolver);
+    });
+
+    it("should not report issues for a valid example_fixed_length_STRING_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_STRING_array();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
+  });
+
+  //==========================================================================
+  //=== example_FLOAT32_VEC2 test cases
+  // - no issues for valid input
+
+  describe("issues for example_FLOAT32_VEC2", function () {
+    let context: ValidationContext;
+
+    beforeEach(function () {
+      const directory = "specs/data/propertyTables/";
+      const resourceResolver =
+        ResourceResolvers.createFileResourceResolver(directory);
+      context = new ValidationContext(resourceResolver);
+    });
+
+    it("should not report issues for a valid example_FLOAT32_VEC2", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_FLOAT32_VEC2();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
+  });
+
+  //==========================================================================
+  //=== example_variable_length_UINT32_VEC2_array test cases
+  // - no issues for valid input
+  // (arrayOffsets issues are already covered with example_variable_length_INT16_SCALAR_array)
+
+  describe("issues for example_variable_length_UINT32_VEC2_array", function () {
+    let context: ValidationContext;
+
+    beforeEach(function () {
+      const directory = "specs/data/propertyTables/";
+      const resourceResolver =
+        ResourceResolvers.createFileResourceResolver(directory);
+      context = new ValidationContext(resourceResolver);
+    });
+
+    it("should not report issues for a valid example_variable_length_UINT32_VEC2_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_UINT32_VEC2_array();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
+  });
+
+  //==========================================================================
+  //=== example_fixed_length_UINT32_VEC2_array test cases
+  // - no issues for valid input
+  // (arrayOffsets issues are already covered with example_fixed_length_INT16_SCALAR_array)
+
+  describe("issues for example_fixed_length_UINT32_VEC2_array", function () {
+    let context: ValidationContext;
+
+    beforeEach(function () {
+      const directory = "specs/data/propertyTables/";
+      const resourceResolver =
+        ResourceResolvers.createFileResourceResolver(directory);
+      context = new ValidationContext(resourceResolver);
+    });
+
+    it("should not report issues for a valid example_fixed_length_UINT32_VEC2_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_UINT32_VEC2_array();
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
     });
   });
 });
