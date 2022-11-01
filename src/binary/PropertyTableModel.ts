@@ -10,6 +10,7 @@ import { MetadataError } from "../metadata/MetadataError";
 
 import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
 import { MetadataEntityModel } from "../metadata/MetadataEntityModel";
+import { PropertyTableProperty } from "../structure/PropertyTableProperty";
 
 /**
  * Implementation of a model for a property table that is backed
@@ -95,6 +96,23 @@ export class PropertyTableModel {
     const metadataClass = binaryPropertyTable.metadataClass;
     const classProperties = defaultValue(metadataClass.properties, {});
     return classProperties[propertyId];
+  }
+
+  /**
+   * Returns the `PropertyTableProperty` that defines the structure of the
+   * property with the given ID, or `undefined` if this table was
+   * created for a `PropertyTable` that does not define this property.
+   *
+   * @param propertyId The property ID
+   * @returns The `PropertyTableProperty`
+   */
+  getPropertyTableProperty(
+    propertyId: string
+  ): PropertyTableProperty | undefined {
+    const binaryPropertyTable = this._binaryPropertyTable;
+    const propertyTable = binaryPropertyTable.propertyTable;
+    const propertyTableProperties = defaultValue(propertyTable.properties, {});
+    return propertyTableProperties[propertyId];
   }
 
   /**

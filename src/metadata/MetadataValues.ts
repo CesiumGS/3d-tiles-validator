@@ -28,10 +28,21 @@ export class MetadataValues {
    * with the value.
    *
    * @param classProperty The `ClassProperty`
+   * @param offsetOverride: An optional override for the
+   * `offset` of the `ClassProperty`. If this is defined, then
+   * it will be used instead of the one from the class property.
+   * @param scaleOverride: An optional override for the
+   * `scale` of the `ClassProperty`. If this is defined, then
+   * it will be used instead of the one from the class property.
    * @param value The value
    * @returns The processed value
    */
-  static processValue(classProperty: ClassProperty, value: any): any {
+  static processValue(
+    classProperty: ClassProperty,
+    offsetOverride: any,
+    scaleOverride: any,
+    value: any
+  ): any {
     const noData = classProperty.noData;
     const defaultValue = classProperty.default;
     if (defined(noData)) {
@@ -48,8 +59,10 @@ export class MetadataValues {
       const componentType = classProperty.componentType;
       value = MetadataValues.normalize(value, componentType);
     }
-    const offset = classProperty.offset;
-    const scale = classProperty.scale;
+    const offset = defined(offsetOverride)
+      ? offsetOverride
+      : classProperty.offset;
+    const scale = defined(scaleOverride) ? scaleOverride : classProperty.scale;
     value = MetadataValues.transform(value, offset, scale);
     return value;
   }

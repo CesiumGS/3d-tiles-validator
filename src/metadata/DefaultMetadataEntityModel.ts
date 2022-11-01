@@ -42,7 +42,7 @@ export class DefaultMetadataEntityModel implements MetadataEntityModel {
       );
     }
     const value = this._json[propertyId];
-    return MetadataValues.processValue(property, value);
+    return MetadataValues.processValue(property, undefined, undefined, value);
   }
 
   getPropertyValueBySemantic(semantic: string): any {

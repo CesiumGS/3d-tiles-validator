@@ -12,6 +12,7 @@ import { MetadataTypes } from "../../metadata/MetadataTypes";
 import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
+import { BinaryPropertyTableValuesValidator } from "./BinaryPropertyTableValuesValidator";
 
 /**
  * A class for validations related to BinaryPropertyTable objects.
@@ -53,6 +54,21 @@ export class BinaryPropertyTableValidator {
         result = false;
       }
     }
+
+    // Only if the basic validity checks passed, perform
+    // the validation of the metadata VALUES
+    if (result) {
+      if (
+        !BinaryPropertyTableValuesValidator.validateBinaryPropertyTableValues(
+          path,
+          binaryPropertyTable,
+          context
+        )
+      ) {
+        result = true;
+      }
+    }
+
     return result;
   }
 

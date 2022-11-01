@@ -7,7 +7,7 @@ import { BasicValidator } from "./../BasicValidator";
 import { Schema } from "../../structure/Metadata/Schema";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
-import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
+import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
 /**
  * A class for validations related to instance definitions of
@@ -133,7 +133,7 @@ export class MetadataStructureValidator {
         if (!defined(propertyValue)) {
           if (classProperty.required) {
             const issue =
-              SemanticValidationIssues.METADATA_VALUE_REQUIRED_BUT_MISSING(
+              MetadataValidationIssues.METADATA_VALUE_REQUIRED_BUT_MISSING(
                 path,
                 classPropertyName
               );
