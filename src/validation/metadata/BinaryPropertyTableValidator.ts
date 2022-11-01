@@ -850,7 +850,7 @@ export class BinaryPropertyTableValidator {
     }
 
     // For BOOLEAN properties, the number of bytes is given
-    // by the number
+    // by ceil(numValues/8).
     if (type === "BOOLEAN") {
       const message =
         `The 'values' buffer view of property '${propertyId}' ` +
