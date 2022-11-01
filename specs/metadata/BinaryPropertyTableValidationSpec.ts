@@ -19,14 +19,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_INT16_SCALAR", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_INT16_SCALAR", async function () {
+    it("should not report issues for a valid example_INT16_SCALAR", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_INT16_SCALAR();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
@@ -41,7 +41,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.length).toEqual(0);
     });
 
-    it("detects unaligned values byteOffset for example_INT16_SCALAR", async function () {
+    it("detects unaligned values byteOffset for example_INT16_SCALAR", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_INT16_SCALAR();
 
@@ -66,7 +66,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
     });
 
-    it("detects invalid values byteLength for example_INT16_SCALAR", async function () {
+    it("detects invalid values byteLength for example_INT16_SCALAR", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_INT16_SCALAR();
 
@@ -103,14 +103,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_variable_length_INT16_SCALAR_array", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_variable_length_INT16_SCALAR_array", async function () {
+    it("should not report issues for a valid example_variable_length_INT16_SCALAR_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
@@ -125,7 +125,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.length).toEqual(0);
     });
 
-    it("detects unaligned arrayOffsets byteOffset for example_variable_length_INT16_SCALAR_array", async function () {
+    it("detects unaligned arrayOffsets byteOffset for example_variable_length_INT16_SCALAR_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
 
@@ -151,7 +151,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
     });
 
-    it("detects wrong arrayOffsets byteLength for example_variable_length_INT16_SCALAR_array", async function () {
+    it("detects wrong arrayOffsets byteLength for example_variable_length_INT16_SCALAR_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
 
@@ -177,7 +177,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
     });
 
-    it("detects descending arrayOffsets for example_variable_length_INT16_SCALAR_array", async function () {
+    it("detects descending arrayOffsets for example_variable_length_INT16_SCALAR_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
 
@@ -205,7 +205,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.get(0).type).toEqual("METADATA_INVALID_OFFSETS");
     });
 
-    it("detects arrayOffsets that are out of range for example_variable_length_INT16_SCALAR_array", async function () {
+    it("detects arrayOffsets that are out of range for example_variable_length_INT16_SCALAR_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_INT16_SCALAR_array();
 
@@ -245,14 +245,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_fixed_length_INT16_SCALAR_array", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_fixed_length_INT16_SCALAR_array", async function () {
+    it("should not report issues for a valid example_fixed_length_INT16_SCALAR_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_INT16_SCALAR_array();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
@@ -267,7 +267,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.length).toEqual(0);
     });
 
-    it("detects invalid values byteLength for example_fixed_length_INT16_SCALAR_array", async function () {
+    it("detects invalid values byteLength for example_fixed_length_INT16_SCALAR_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_INT16_SCALAR_array();
 
@@ -300,14 +300,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_BOOLEAN", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_BOOLEAN", async function () {
+    it("should not report issues for a valid example_BOOLEAN", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_BOOLEAN();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
@@ -322,7 +322,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.length).toEqual(0);
     });
 
-    it("should not report issues for valid values byteLength for example_BOOLEAN", async function () {
+    it("should not report issues for valid values byteLength for example_BOOLEAN", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_BOOLEAN();
 
@@ -343,7 +343,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.length).toEqual(0);
     });
 
-    it("detects invalid values byteLength for example_BOOLEAN", async function () {
+    it("detects invalid values byteLength for example_BOOLEAN", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_BOOLEAN();
 
@@ -374,14 +374,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_variable_length_BOOLEAN_array", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_variable_length_BOOLEAN_array", async function () {
+    it("should not report issues for a valid example_variable_length_BOOLEAN_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_BOOLEAN_array();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
@@ -396,7 +396,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.length).toEqual(0);
     });
 
-    it("detects invalid values byteLength for example_variable_length_BOOLEAN_array", async function () {
+    it("detects invalid values byteLength for example_variable_length_BOOLEAN_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_BOOLEAN_array();
 
@@ -436,14 +436,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_fixed_length_BOOLEAN_array", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_fixed_length_BOOLEAN_array", async function () {
+    it("should not report issues for a valid example_fixed_length_BOOLEAN_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_BOOLEAN_array();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
@@ -458,7 +458,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.length).toEqual(0);
     });
 
-    it("detects invalid values byteLength for example_fixed_length_BOOLEAN_array", async function () {
+    it("detects invalid values byteLength for example_fixed_length_BOOLEAN_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_BOOLEAN_array();
 
@@ -494,14 +494,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_STRING", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_STRING", async function () {
+    it("should not report issues for a valid example_STRING", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_STRING();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
@@ -516,7 +516,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.length).toEqual(0);
     });
 
-    it("detects unaligned stringOffsets byteOffset for example_STRING", async function () {
+    it("detects unaligned stringOffsets byteOffset for example_STRING", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_STRING();
 
@@ -542,7 +542,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.get(0).type).toEqual("METADATA_INVALID_ALIGNMENT");
     });
 
-    it("detects wrong stringOffsets byteLength for example_STRING", async function () {
+    it("detects wrong stringOffsets byteLength for example_STRING", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_STRING();
 
@@ -568,7 +568,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
     });
 
-    it("detects descending stringOffsets for example_STRING", async function () {
+    it("detects descending stringOffsets for example_STRING", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_STRING();
 
@@ -596,7 +596,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       expect(result.get(0).type).toEqual("METADATA_INVALID_OFFSETS");
     });
 
-    it("detects stringOffsets that are out of range for example_STRING", async function () {
+    it("detects stringOffsets that are out of range for example_STRING", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_STRING();
 
@@ -637,14 +637,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_variable_length_STRING_array", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_variable_length_STRING_array", async function () {
+    it("should not report issues for a valid example_variable_length_STRING_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_STRING_array();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
@@ -668,14 +668,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_fixed_length_STRING_array", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_fixed_length_STRING_array", async function () {
+    it("should not report issues for a valid example_fixed_length_STRING_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_STRING_array();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
@@ -698,14 +698,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_FLOAT32_VEC2", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_FLOAT32_VEC2", async function () {
+    it("should not report issues for a valid example_FLOAT32_VEC2", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_FLOAT32_VEC2();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
@@ -729,14 +729,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_variable_length_UINT32_VEC2_array", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_variable_length_UINT32_VEC2_array", async function () {
+    it("should not report issues for a valid example_variable_length_UINT32_VEC2_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_variable_length_UINT32_VEC2_array();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
@@ -760,14 +760,14 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
   describe("issues for example_fixed_length_UINT32_VEC2_array", function () {
     let context: ValidationContext;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
       context = new ValidationContext(resourceResolver);
     });
 
-    it("should not report issues for a valid example_fixed_length_UINT32_VEC2_array", async function () {
+    it("should not report issues for a valid example_fixed_length_UINT32_VEC2_array", function () {
       const binaryPropertyTable =
         PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_UINT32_VEC2_array();
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
