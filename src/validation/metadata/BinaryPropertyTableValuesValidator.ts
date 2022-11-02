@@ -1,5 +1,6 @@
 import { defined } from "../../base/defined";
 import { defaultValue } from "../../base/defaultValue";
+import { ArrayValues } from "../../base/ArrayValues";
 
 import { ValidationContext } from "./../ValidationContext";
 
@@ -9,6 +10,8 @@ import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 import { PropertyTableModel } from "../../binary/PropertyTableModel";
+import { ClassProperties } from "./ClassProperties";
+import { BasicValidator } from "../BasicValidator";
 
 /**
  * A class for the validation of values that are stored
@@ -22,6 +25,11 @@ import { PropertyTableModel } from "../../binary/PropertyTableModel";
  * @private
  */
 export class BinaryPropertyTableValuesValidator {
+  /**
+   * The epsilon that is used for metadata value comparisons
+   */
+  private static readonly epsilon = 0.000001;
+
   /**
    * Performs the validation to ensure that the given
    * `BinaryPropertyTable` contains valid values.
@@ -80,12 +88,170 @@ export class BinaryPropertyTableValuesValidator {
     let result = true;
 
     const propertyTable = binaryPropertyTable.propertyTable;
-    const propertyTableCount = propertyTable.count;
-
     const propertyTableProperties = defaultValue(propertyTable.properties, {});
     const propertyTablePropertry = propertyTableProperties[propertyId];
 
+    if (classProperty.type === "ENUM") {
+      if (
+        !BinaryPropertyTableValuesValidator.validateEnumValues(
+          path,
+          propertyId,
+          binaryPropertyTable,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+
+    // Perform the checks that only apply to numeric types
+    if (ClassProperties.hasNumericType(classProperty)) {
+      // When the ClassProperty defines a minimum, then the metadata
+      // values MUST not be smaller than this minimum
+      if (defined(classProperty.min)) {
+        if (
+          !BinaryPropertyTableValuesValidator.validateMin(
+            path,
+            propertyId,
+            classProperty.min,
+            "class property",
+            binaryPropertyTable,
+            context
+          )
+        ) {
+          result = false;
+        }
+      }
+
+      // When the PropertyTableProperty defines a minimum, then the metadata
+      // values MUST not be smaller than this minimum
+      if (defined(propertyTablePropertry.min)) {
+        const definedMin = propertyTablePropertry.min;
+        if (
+          !BinaryPropertyTableValuesValidator.validateMin(
+            path,
+            propertyId,
+            definedMin,
+            "property table property",
+            binaryPropertyTable,
+            context
+          )
+        ) {
+          result = false;
+        } else {
+          // When none of the values is smaller than the minimum from
+          // the PropertyTableProperty, make sure that this minimum
+          // matches the computed minimum of all metadata values
+          const computedMin = BinaryPropertyTableValuesValidator.computeMin(
+            propertyId,
+            binaryPropertyTable
+          );
+          if (
+            !ArrayValues.deepEqualsEpsilon(
+              computedMin,
+              definedMin,
+              BinaryPropertyTableValuesValidator.epsilon
+            )
+          ) {
+            const message =
+              `For property ${propertyId}, the property table property ` +
+              `defines a minimum of ${definedMin}, but the computed ` +
+              `minimum value is ${computedMin}`;
+            const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
+              path,
+              message
+            );
+            context.addIssue(issue);
+            result = false;
+          }
+        }
+      }
+
+      // When the ClassProperty defines a maximum, then the metadata
+      // values MUST not be smaller than this maximum
+      if (defined(classProperty.max)) {
+        if (
+          !BinaryPropertyTableValuesValidator.validateMax(
+            path,
+            propertyId,
+            classProperty.max,
+            "class property",
+            binaryPropertyTable,
+            context
+          )
+        ) {
+          result = false;
+        }
+      }
+
+      // When the PropertyTableProperty defines a maximum, then the metadata
+      // values MUST not be smaller than this maximum
+      if (defined(propertyTablePropertry.max)) {
+        const definedMax = propertyTablePropertry.max;
+        if (
+          !BinaryPropertyTableValuesValidator.validateMax(
+            path,
+            propertyId,
+            definedMax,
+            "property table property",
+            binaryPropertyTable,
+            context
+          )
+        ) {
+          result = false;
+        } else {
+          // When none of the values is greater than the maximum from
+          // the PropertyTableProperty, make sure that this maximum
+          // matches the computed maximum of all metadata values
+          const computedMax = BinaryPropertyTableValuesValidator.computeMax(
+            propertyId,
+            binaryPropertyTable
+          );
+          if (
+            !ArrayValues.deepEqualsEpsilon(
+              computedMax,
+              definedMax,
+              BinaryPropertyTableValuesValidator.epsilon
+            )
+          ) {
+            const message =
+              `For property ${propertyId}, the property table property ` +
+              `defines a maximum of ${definedMax}, but the computed ` +
+              `maximum value is ${computedMax}`;
+            const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
+              path,
+              message
+            );
+            context.addIssue(issue);
+            result = false;
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private static validateEnumValues(
+    path: string,
+    propertyId: string,
+    binaryPropertyTable: BinaryPropertyTable,
+    context: ValidationContext
+  ): boolean {
+    let result = true;
+
+    const propertyTable = binaryPropertyTable.propertyTable;
+    const propertyTableCount = propertyTable.count;
     const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
+
+    const metadataClass = binaryPropertyTable.metadataClass;
+    const classProperties = defaultValue(metadataClass.properties, {});
+    const classProperty = classProperties[propertyId];
+
+    const binaryEnumInfo = binaryPropertyTable.binaryEnumInfo;
+    const enumValueNameValues = binaryEnumInfo.enumValueNameValues;
+    const nameValues = enumValueNameValues[classProperty.enumType!];
+    const validEnumValues = Object.values(nameValues);
 
     // Validate each property value
     for (let index = 0; index < propertyTableCount; index++) {
@@ -93,88 +259,32 @@ export class BinaryPropertyTableValuesValidator {
         propertyTableModel.getMetadataEntityModel(index);
       const propertyValue = metadataEntityModel.getPropertyValue(propertyId);
 
-      if (defined(propertyTablePropertry.min)) {
-        // If the property itself defines a minimum (overriding
-        // the minimum from the classProperty), then validate
-        // that the value is greater than or equal to that
-        if (
-          BinaryPropertyTableValuesValidator.genericLessThan(
-            propertyValue,
-            propertyTablePropertry.min!
-          )
-        ) {
-          const message =
-            `Property table property ${propertyId} defines ` +
-            `a minimum of ${propertyTablePropertry.min}, but the ` +
-            `value at index ${index} is ${propertyValue}`;
-          const issue = MetadataValidationIssues.METADATA_VALUE_NOT_IN_RANGE(
-            path,
-            message
-          );
-          context.addIssue(issue);
-          result = false;
+      if (Array.isArray(propertyValue)) {
+        for (let i = 0; i < propertyValue.length; i++) {
+          const propertyValueElement = propertyValue[i];
+          const propertyValueElementPath = `${path}/${i}`;
+          if (
+            !BasicValidator.validateEnum(
+              propertyValueElementPath,
+              propertyId,
+              propertyValueElement,
+              validEnumValues,
+              context
+            )
+          ) {
+            result = false;
+          }
         }
-      } else if (defined(classProperty.min)) {
-        // If the classProperty defines a minimum, then validate
-        // that the value is greater than or equal to that
+      } else {
         if (
-          BinaryPropertyTableValuesValidator.genericLessThan(
+          !BasicValidator.validateEnum(
+            path,
+            propertyId,
             propertyValue,
-            classProperty.min!
+            validEnumValues,
+            context
           )
         ) {
-          const message =
-            `For property ${propertyId}, the schema defines ` +
-            `a minimum of ${classProperty.min}, but the value in the property ` +
-            `table at index ${index} is ${propertyValue}`;
-          const issue = MetadataValidationIssues.METADATA_VALUE_NOT_IN_RANGE(
-            path,
-            message
-          );
-          context.addIssue(issue);
-          result = false;
-        }
-      }
-
-      if (defined(propertyTablePropertry.max)) {
-        // If the property itself defines a maximum (overriding
-        // the maximum from the classProperty), then validate
-        // that the value is less than or equal to that
-        if (
-          BinaryPropertyTableValuesValidator.genericGreaterThan(
-            propertyValue,
-            propertyTablePropertry.max!
-          )
-        ) {
-          const message =
-            `Property table property ${propertyId} defines ` +
-            `a maximum of ${propertyTablePropertry.max}, but the ` +
-            `value at index ${index} is ${propertyValue}`;
-          const issue = MetadataValidationIssues.METADATA_VALUE_NOT_IN_RANGE(
-            path,
-            message
-          );
-          context.addIssue(issue);
-          result = false;
-        }
-      } else if (defined(classProperty.max)) {
-        // If the classProperty defines a maximum, then validate
-        // that the value is less than or equal to that
-        if (
-          BinaryPropertyTableValuesValidator.genericGreaterThan(
-            propertyValue,
-            classProperty.max!
-          )
-        ) {
-          const message =
-            `For property ${propertyId}, the schema defines ` +
-            `a maximum of ${classProperty.max}, but the value in the property ` +
-            `table at index ${index} is ${propertyValue}`;
-          const issue = MetadataValidationIssues.METADATA_VALUE_NOT_IN_RANGE(
-            path,
-            message
-          );
-          context.addIssue(issue);
           result = false;
         }
       }
@@ -182,32 +292,273 @@ export class BinaryPropertyTableValuesValidator {
     return result;
   }
 
-  private static genericLessThan(a: any, b: any): boolean {
-    if (Array.isArray(a) && Array.isArray(b)) {
-      for (let i = 0; i < a.length; ++i) {
-        if (a[i] >= b[i]) {
-          return false;
-        }
+  /**
+   * Validate the that none of the values of the specified
+   * property in the given property table is smaller than
+   * the given defined minimum.
+   *
+   * @param path The path of the `PropertyTablePropery`, for
+   * `ValidationIssue` instances
+   * @param propertyId The property ID
+   * @param definedMin The defined minimum
+   * @param definedMinInfo A string indicating the source of the minimum
+   * definition: 'class property' or 'property table property'.
+   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @param context The `ValidationContext`
+   * @returns Whether the values obeyed the limit
+   */
+  private static validateMin(
+    path: string,
+    propertyId: string,
+    definedMin: any,
+    definedMinInfo: string,
+    binaryPropertyTable: BinaryPropertyTable,
+    context: ValidationContext
+  ): boolean {
+    let result = true;
+
+    const propertyTable = binaryPropertyTable.propertyTable;
+    const propertyTableCount = propertyTable.count;
+    const propertyTableProperties = defaultValue(propertyTable.properties, {});
+    const propertyTablePropertry = propertyTableProperties[propertyId];
+
+    const metadataClass = binaryPropertyTable.metadataClass;
+    const classProperties = defaultValue(metadataClass.properties, {});
+    const classProperty = classProperties[propertyId];
+
+    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
+    const propertyModel = propertyTableModel.getPropertyModel(propertyId);
+
+    // Validate each property value
+    for (let index = 0; index < propertyTableCount; index++) {
+      const metadataEntityModel =
+        propertyTableModel.getMetadataEntityModel(index);
+      const propertyValue = metadataEntityModel.getPropertyValue(propertyId);
+      const rawPropertyValue = propertyModel!.getPropertyValue(index);
+
+      if (ArrayValues.deepLessThan(propertyValue, definedMin)) {
+        const valueMessagePart =
+          BinaryPropertyTableValuesValidator.createValueMessagePart(
+            rawPropertyValue,
+            classProperty.normalized,
+            propertyTablePropertry.scale,
+            propertyTablePropertry.offset,
+            propertyValue
+          );
+
+        const message =
+          `For property '${propertyId}', the ${definedMinInfo} ` +
+          `defines a minimum of ${definedMin}, but the value in the property ` +
+          `table at index ${index} is ${valueMessagePart}`;
+        const issue = MetadataValidationIssues.METADATA_VALUE_NOT_IN_RANGE(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
       }
-      return true;
     }
-    if (typeof a === "number" && typeof b == "number") {
-      return Number(a) < Number(b);
-    }
-    return false;
+    return result;
   }
-  private static genericGreaterThan(a: any, b: any): boolean {
-    if (Array.isArray(a) && Array.isArray(b)) {
-      for (let i = 0; i < a.length; ++i) {
-        if (a[i] <= b[i]) {
-          return false;
-        }
+
+  /**
+   * Compute the mimimum value for the specified property in
+   * the given property table.
+   *
+   * This assumes that the property has a numeric type,
+   * as indicated by `ClassProperties.hasNumericType`.
+   *
+   * @param propertyId The property ID
+   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @returns The minimum
+   */
+  private static computeMin(
+    propertyId: string,
+    binaryPropertyTable: BinaryPropertyTable
+  ): any {
+    const propertyTable = binaryPropertyTable.propertyTable;
+    const propertyTableCount = propertyTable.count;
+    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
+
+    let computedMin = undefined;
+    for (let index = 0; index < propertyTableCount; index++) {
+      const metadataEntityModel =
+        propertyTableModel.getMetadataEntityModel(index);
+      const propertyValue = metadataEntityModel.getPropertyValue(propertyId);
+      if (index === 0) {
+        computedMin = ArrayValues.deepClone(propertyValue);
+      } else {
+        computedMin = ArrayValues.deepMin(computedMin, propertyValue);
       }
-      return true;
     }
-    if (typeof a === "number" && typeof b == "number") {
-      return Number(a) > Number(b);
+    return computedMin;
+  }
+
+  /**
+   * Validate the that none of the values of the specified
+   * property in the given property table is smaller than
+   * the given defined maximum.
+   *
+   * @param path The path of the `PropertyTablePropery`, for
+   * `ValidationIssue` instances
+   * @param propertyId The property ID
+   * @param definedMax The defined maximum
+   * @param definedMaxInfo A string indicating the source of the maximum
+   * definition: 'class property' or 'property table property'.
+   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @param context The `ValidationContext`
+   * @returns Whether the values obeyed the limit
+   */
+  private static validateMax(
+    path: string,
+    propertyId: string,
+    definedMax: any,
+    definedMaxInfo: string,
+    binaryPropertyTable: BinaryPropertyTable,
+    context: ValidationContext
+  ): boolean {
+    let result = true;
+
+    const propertyTable = binaryPropertyTable.propertyTable;
+    const propertyTableCount = propertyTable.count;
+    const propertyTableProperties = defaultValue(propertyTable.properties, {});
+    const propertyTablePropertry = propertyTableProperties[propertyId];
+
+    const metadataClass = binaryPropertyTable.metadataClass;
+    const classProperties = defaultValue(metadataClass.properties, {});
+    const classProperty = classProperties[propertyId];
+
+    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
+    const propertyModel = propertyTableModel.getPropertyModel(propertyId);
+
+    // Validate each property value
+    for (let index = 0; index < propertyTableCount; index++) {
+      const metadataEntityModel =
+        propertyTableModel.getMetadataEntityModel(index);
+      const propertyValue = metadataEntityModel.getPropertyValue(propertyId);
+      const rawPropertyValue = propertyModel!.getPropertyValue(index);
+
+      if (ArrayValues.deepGreaterThan(propertyValue, definedMax)) {
+        const valueMessagePart =
+          BinaryPropertyTableValuesValidator.createValueMessagePart(
+            rawPropertyValue,
+            classProperty.normalized,
+            propertyTablePropertry.scale,
+            propertyTablePropertry.offset,
+            propertyValue
+          );
+
+        const message =
+          `For property '${propertyId}', the ${definedMaxInfo} ` +
+          `defines a maximum of ${definedMax}, but the value in the property ` +
+          `table at index ${index} is ${valueMessagePart}`;
+        const issue = MetadataValidationIssues.METADATA_VALUE_NOT_IN_RANGE(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      }
     }
-    return false;
+    return result;
+  }
+
+  /**
+   * Creates a message that describes how a metadata value as computed.
+   *
+   * The intention is to insert this as `The value is ${valueMessagePart}`
+   * in a message that explains how the `value` was computed from the
+   * raw value, normalization, offset and scale.
+   *
+   * @param rawValue The raw value, as obtained from the `PropertyModel`,
+   * without normalization, offset, or scale
+   * @param normalized Whether the value is normalized
+   * @param scale The optional scale
+   * @param offset The optional offset
+   * @param value The final value
+   * @returns The message part
+   */
+  private static createValueMessagePart(
+    rawValue: any,
+    normalized: boolean | undefined,
+    scale: any,
+    offset: any,
+    value: any
+  ) {
+    if (defined(offset) && defined(scale)) {
+      if (normalized === true) {
+        const messagePart =
+          `computed as normalize(rawValue)*scale+offset ` +
+          `= normalize(${rawValue})*${scale}+${offset} = ${value}`;
+        return messagePart;
+      }
+      const messagePart =
+        `computed as rawValue*scale+offset ` +
+        `= ${rawValue}*${scale}+${offset} = ${value}`;
+      return messagePart;
+    }
+    if (defined(offset)) {
+      if (normalized === true) {
+        const messagePart =
+          `computed as normalize(rawValue)+offset ` +
+          `= normalize(${rawValue})+${offset} = ${value}`;
+        return messagePart;
+      }
+      const messagePart =
+        `computed as rawValue+offset ` + `= ${rawValue}+${offset} = ${value}`;
+      return messagePart;
+    }
+    if (defined(scale)) {
+      if (normalized === true) {
+        const messagePart =
+          `computed as normalize(rawValue)*scale ` +
+          `= normalize(${rawValue})*${scale} = ${value}`;
+        return messagePart;
+      }
+      const messagePart =
+        `computed as rawValue*scale ` + `= ${rawValue}*${scale} = ${value}`;
+      return messagePart;
+    }
+    if (normalized === true) {
+      const messagePart =
+        `computed as normalize(rawValue) ` +
+        `= normalize(${rawValue}) = ${value}`;
+      return messagePart;
+    }
+    const messagePart = `${value}`;
+    return messagePart;
+  }
+
+  /**
+   * Compute the maximum value for the specified property in
+   * the given property table.
+   *
+   * This assumes that the property has a numeric type,
+   * as indicated by `ClassProperties.hasNumericType`.
+   *
+   * @param propertyId The property ID
+   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @returns The maximum
+   */
+  private static computeMax(
+    propertyId: string,
+    binaryPropertyTable: BinaryPropertyTable
+  ): any {
+    const propertyTable = binaryPropertyTable.propertyTable;
+    const propertyTableCount = propertyTable.count;
+    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
+
+    let computedMax = undefined;
+    for (let index = 0; index < propertyTableCount; index++) {
+      const metadataEntityModel =
+        propertyTableModel.getMetadataEntityModel(index);
+      const propertyValue = metadataEntityModel.getPropertyValue(propertyId);
+      if (index === 0) {
+        computedMax = ArrayValues.deepClone(propertyValue);
+      } else {
+        computedMax = ArrayValues.deepMax(computedMax, propertyValue);
+      }
+    }
+    return computedMax;
   }
 }

@@ -1,4 +1,5 @@
 import { BinaryBufferData } from "./BinaryBufferData";
+import { BinaryEnumInfo } from "./BinaryEnumInfo";
 
 import { BinaryBufferStructure } from "../validation/metadata/BinaryBufferStructure";
 
@@ -30,10 +31,10 @@ export interface BinaryPropertyTable {
   metadataClass: MetadataClass;
 
   /**
-   * A mapping from enum names to the `valueType` of the respective
-   * enum
+   * Information about the binary representation of `MetadataEnum`
+   * values
    */
-  enumValueTypes: { [key: string]: string };
+  binaryEnumInfo: BinaryEnumInfo;
 
   /**
    * The binary buffer structure, containing the `BufferObject` and

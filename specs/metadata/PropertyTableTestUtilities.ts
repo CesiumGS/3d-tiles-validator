@@ -2,6 +2,7 @@ import { BinaryPropertyTable } from "../../src/binary/BinaryPropertyTable";
 import { BinaryPropertyTables } from "../../src/binary/BinaryPropertyTables";
 
 import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
+import { MetadataEnum } from "../../src/structure/Metadata/MetadataEnum";
 
 /**
  * Methods to create `BinaryPropertyTable` instances that are valid,
@@ -416,6 +417,108 @@ export class PropertyTableTestUtilities {
         arrayOffsetType,
         stringOffsetType,
         undefined
+      );
+    return binaryPropertyTable;
+  }
+
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_variable_length_ENUM_array(): BinaryPropertyTable {
+    const example_variable_length_ENUM_array: ClassProperty = {
+      type: "ENUM",
+      enumType: "testMetadataEnum",
+      array: true,
+    };
+    const example_example_variable_length_ENUM_array_values = [
+      ["ExampleEnumValueA", "ExampleEnumValueB", "ExampleEnumValueC"],
+      ["ExampleEnumValueB", "ExampleEnumValueA"],
+    ];
+    const testMetadataEnum: MetadataEnum = {
+      values: [
+        {
+          name: "ExampleEnumValueA",
+          value: 0,
+        },
+        {
+          name: "ExampleEnumValueB",
+          value: 1,
+        },
+        {
+          name: "ExampleEnumValueC",
+          value: 2,
+        },
+      ],
+    };
+
+    const classProperty = example_variable_length_ENUM_array;
+    const values = example_example_variable_length_ENUM_array_values;
+
+    const arrayOffsetType = "UINT32";
+    const stringOffsetType = "UINT32";
+    const binaryPropertyTable =
+      BinaryPropertyTables.createBinaryPropertyTableFromProperty(
+        "testProperty",
+        classProperty,
+        values,
+        arrayOffsetType,
+        stringOffsetType,
+        testMetadataEnum
+      );
+    return binaryPropertyTable;
+  }
+
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_ENUM_with_noData(): BinaryPropertyTable {
+    const example_ENUM: ClassProperty = {
+      type: "ENUM",
+      enumType: "testMetadataEnum",
+      noData: 9999,
+      default: 1,
+    };
+    const example_ENUM_values = [
+      "ExampleEnumValueA",
+      "ExampleEnumValueB",
+      "ExampleEnumValueC",
+    ];
+    const testMetadataEnum: MetadataEnum = {
+      values: [
+        {
+          name: "ExampleEnumValueA",
+          value: 0,
+        },
+        {
+          name: "ExampleEnumValueB",
+          value: 1,
+        },
+        {
+          name: "ExampleEnumValueC",
+          value: 2,
+        },
+      ],
+    };
+
+    const classProperty = example_ENUM;
+    const values = example_ENUM_values;
+
+    const arrayOffsetType = "UINT32";
+    const stringOffsetType = "UINT32";
+    const binaryPropertyTable =
+      BinaryPropertyTables.createBinaryPropertyTableFromProperty(
+        "testProperty",
+        classProperty,
+        values,
+        arrayOffsetType,
+        stringOffsetType,
+        testMetadataEnum
       );
     return binaryPropertyTable;
   }

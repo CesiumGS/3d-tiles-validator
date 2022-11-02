@@ -1,6 +1,8 @@
 import { defined } from "../base/defined";
 import { defaultValue } from "../base/defaultValue";
 
+import { BinaryEnumInfo } from "../binary/BinaryEnumInfo";
+
 import { Schema } from "../structure/Metadata/Schema";
 import { ClassProperty } from "../structure/Metadata/ClassProperty";
 
@@ -11,6 +13,22 @@ import { ClassProperty } from "../structure/Metadata/ClassProperty";
  */
 export class MetadataUtilities {
   /**
+   * Computes the `BianaryEnumInfo` that summarizes information
+   * about the binary representation of `MetadataEnum` values
+   * from the given schema.
+   *
+   * @param schema The metadata `Schema`
+   * @returns The `BinaryEnumInfo`
+   */
+  static computeBinaryEnumInfo(schema: Schema): BinaryEnumInfo {
+    const binaryEnumInfo: BinaryEnumInfo = {
+      enumValueTypes: MetadataUtilities.computeEnumValueTypes(schema),
+      enumValueNameValues: MetadataUtilities.computeEnumValueNameValues(schema),
+    };
+    return binaryEnumInfo;
+  }
+
+  /**
    * Computes a mapping from enum type names to the `valueType` that
    * the respective `MetdataEnum` has (defaulting to `UINT16` if it
    * did not define one)
@@ -18,7 +36,7 @@ export class MetadataUtilities {
    * @param schema The metadata `Schema`
    * @returns The mapping from enum type names to enum value types
    */
-  static computeEnumValueTypes(schema: Schema): {
+  private static computeEnumValueTypes(schema: Schema): {
     [key: string]: string;
   } {
     const enumValueTypes: { [key: string]: string } = {};
@@ -29,6 +47,40 @@ export class MetadataUtilities {
       enumValueTypes[enumName] = valueType;
     }
     return enumValueTypes;
+  }
+
+  /**
+   * Computes a mapping from enum type names to the dictionaries
+   * that map the enum values names to the enum value values.
+   *
+   * @param schema The metadata `Schema`
+   * @returns The mapping from enum type names to dictionaries
+   */
+  private static computeEnumValueNameValues(schema: Schema): {
+    [key: string]: {
+      [key: string]: number;
+    };
+  } {
+    const enumValueNameValues: {
+      [key: string]: {
+        [key: string]: number;
+      };
+    } = {};
+    const enums = defaultValue(schema.enums, {});
+    for (const enumName of Object.keys(enums)) {
+      const metadataEnum = enums[enumName];
+      const nameValues: {
+        [key: string]: number;
+      } = {};
+      for (let i = 0; i < metadataEnum.values.length; i++) {
+        const enumValue = metadataEnum.values[i];
+        const value = enumValue.value;
+        const name = enumValue.name;
+        nameValues[name] = value;
+      }
+      enumValueNameValues[enumName] = nameValues;
+    }
+    return enumValueNameValues;
   }
 
   /**

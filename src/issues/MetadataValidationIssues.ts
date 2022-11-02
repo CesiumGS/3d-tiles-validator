@@ -30,6 +30,12 @@ export class MetadataValidationIssues {
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
+  static METADATA_VALUE_MISMATCH(path: string, message: string) {
+    const type = "METADATA_VALUE_MISMATCH";
+    const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
 
   static METADATA_VALUE_REQUIRED_BUT_MISSING(
     path: string,

@@ -196,7 +196,8 @@ export class BinaryPropertyTableValidator {
     let componentType = classProperty.componentType;
     if (type === "ENUM") {
       const enumType = classProperty.enumType!;
-      const enumValueTypes = binaryPropertyTable.enumValueTypes;
+      const binaryEnumInfo = binaryPropertyTable.binaryEnumInfo;
+      const enumValueTypes = binaryEnumInfo.enumValueTypes;
       componentType = enumValueTypes[enumType];
     } else if (!defined(componentType)) {
       componentType = "UINT8";

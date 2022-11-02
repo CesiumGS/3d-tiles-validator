@@ -1,6 +1,6 @@
+import { ArrayValues } from "../../src/base/ArrayValues";
 import { MetadataEntityModels } from "../../src/metadata/MetadataEntityModels";
 import { MetadataClass } from "../../src/structure/Metadata/MetadataClass";
-import { genericEquals } from "./genericEquals";
 
 describe("metadata/MetadataEntityModel", function () {
   const epsilon = 0.000001;
@@ -83,7 +83,7 @@ describe("metadata/MetadataEntityModel", function () {
     );
     const value = entity.getPropertyValue("testProperty");
     const expected = [5.7, 7.9, 10.1];
-    expect(genericEquals(value, expected, epsilon)).toBeTrue();
+    expect(ArrayValues.deepEqualsEpsilon(value, expected, epsilon)).toBeTrue();
   });
 
   it("obtains a value for a vec3 float32 value with scale", function () {
@@ -105,6 +105,6 @@ describe("metadata/MetadataEntityModel", function () {
     );
     const value = entity.getPropertyValue("testProperty");
     const expected = [6.0, 12.0, 20.0];
-    expect(genericEquals(value, expected, epsilon)).toBeTrue();
+    expect(ArrayValues.deepEqualsEpsilon(value, expected, epsilon)).toBeTrue();
   });
 });

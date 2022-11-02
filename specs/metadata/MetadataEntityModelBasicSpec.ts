@@ -1,5 +1,5 @@
-import { readJsonUnchecked } from "../../src/base/readJsonUnchecked";
 import { genericEquals } from "./genericEquals";
+import { readJsonUnchecked } from "../../src/base/readJsonUnchecked";
 
 import { MetadataEntityModel } from "../../src/metadata/MetadataEntityModel";
 import { MetadataEntityModels } from "../../src/metadata/MetadataEntityModels";
