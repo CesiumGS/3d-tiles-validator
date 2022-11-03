@@ -10,8 +10,10 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
+    "better-sqlite3": "^7.5.3",
     "cesium": "^1.97.0",
     "gltf-validator": "^2.0.0-dev.3.9",
+    "jszip": "^3.10.0",
     "minimatch": "^5.1.0",
     "yargs": "^17.5.1",
     "zlib": "^1.0.5"

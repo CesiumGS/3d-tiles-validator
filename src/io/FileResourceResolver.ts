@@ -16,6 +16,12 @@ export class FileResourceResolver implements ResourceResolver {
     this._basePath = basePath;
   }
 
+  // TODO_ARCHIVE_EXPERIMENTS
+  resolveUri(uri: string): string {
+    const resolved = path.resolve(this._basePath, decodeURIComponent(uri));
+    return resolved;
+  }
+
   async resolve(uri: string): Promise<Buffer | null> {
     if (Uris.isDataUri(uri)) {
       const data = Buffer.from(uri.split(",")[1], "base64");

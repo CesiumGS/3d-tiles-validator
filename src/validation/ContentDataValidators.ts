@@ -12,6 +12,7 @@ import { CmptValidator } from "../tileFormats/CmptValidator";
 import { GltfValidator } from "../tileFormats/GltfValidator";
 
 import { Tileset } from "../structure/Tileset";
+import { TilesetArchiveValidator } from "./TilesetArchiveValidator";
 
 /**
  * A class for managing `Validator` instances that are used for
@@ -67,6 +68,12 @@ export class ContentDataValidators {
     ContentDataValidators.registerByMagic("geom", geomValidator);
     ContentDataValidators.registerByMagic("vctr", vctrValidator);
     ContentDataValidators.registerByExtension(".geojson", geojsonValidator);
+
+    ContentDataValidators.registerByExtension(
+      ".3tz",
+      new TilesetArchiveValidator()
+    );
+
     ContentDataValidators.registerTileset();
     ContentDataValidators.registerGltf();
   }

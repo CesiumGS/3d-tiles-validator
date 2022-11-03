@@ -15,6 +15,9 @@ export interface ResourceResolver {
    */
   resolve(uri: string): Promise<Buffer | null>;
 
+  // TODO_ARCHIVE_EXPERIMENTS
+  resolveUri(uri: string): string;
+
   /**
    * Derive an instance from this one, with a different base
    * directory.

@@ -15,6 +15,11 @@ export class UnzippingResourceResolver implements ResourceResolver {
     this._delegate = delegate;
   }
 
+  // TODO_ARCHIVE_EXPERIMENTS
+  resolveUri(uri: string): string {
+    return this._delegate.resolveUri(uri);
+  }
+
   async resolve(uri: string): Promise<Buffer | null> {
     const delegateData = await this._delegate.resolve(uri);
     if (delegateData === null) {
