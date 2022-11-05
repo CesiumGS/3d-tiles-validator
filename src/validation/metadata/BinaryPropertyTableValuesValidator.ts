@@ -91,6 +91,7 @@ export class BinaryPropertyTableValuesValidator {
     const propertyTableProperties = defaultValue(propertyTable.properties, {});
     const propertyTablePropertry = propertyTableProperties[propertyId];
 
+    // Perform the checks that only apply to ENUM types,
     if (classProperty.type === "ENUM") {
       if (
         !BinaryPropertyTableValuesValidator.validateEnumValues(
@@ -168,7 +169,7 @@ export class BinaryPropertyTableValuesValidator {
       }
 
       // When the ClassProperty defines a maximum, then the metadata
-      // values MUST not be smaller than this maximum
+      // values MUST not be greater than this maximum
       if (defined(classProperty.max)) {
         if (
           !BinaryPropertyTableValuesValidator.validateMax(
@@ -185,7 +186,7 @@ export class BinaryPropertyTableValuesValidator {
       }
 
       // When the PropertyTableProperty defines a maximum, then the metadata
-      // values MUST not be smaller than this maximum
+      // values MUST not be greater than this maximum
       if (defined(propertyTablePropertry.max)) {
         const definedMax = propertyTablePropertry.max;
         if (
@@ -232,6 +233,21 @@ export class BinaryPropertyTableValuesValidator {
     return result;
   }
 
+  /**
+   * Validate that the values of the specified ENUM property are valid.
+   *
+   * This applies to properties in the given binary property table
+   * that have the ENUM type, both for arrays and non-arrays. It
+   * will ensure that each value that appears as in the binary data
+   * is a value that was actually defined as one of the
+   * `enum.values[i].value` values in the schema definition.
+   *
+   * @param path The path for `ValidationIssue` instances
+   * @param propertyId The property ID
+   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @param context The `ValidationContext`
+   * @returns Whether the enum values have been valid
+   */
   private static validateEnumValues(
     path: string,
     propertyId: string,
@@ -248,6 +264,8 @@ export class BinaryPropertyTableValuesValidator {
     const classProperties = defaultValue(metadataClass.properties, {});
     const classProperty = classProperties[propertyId];
 
+    // Obtain the validEnumValues, which are all values that
+    // appear as `enum.values[i].value` in the schema.
     const binaryEnumInfo = binaryPropertyTable.binaryEnumInfo;
     const enumValueNameValues = binaryEnumInfo.enumValueNameValues;
     const nameValues = enumValueNameValues[classProperty.enumType!];
@@ -259,6 +277,7 @@ export class BinaryPropertyTableValuesValidator {
         propertyTableModel.getMetadataEntityModel(index);
       const propertyValue = metadataEntityModel.getPropertyValue(propertyId);
 
+      // For arrays, simply validate each element individually
       if (Array.isArray(propertyValue)) {
         for (let i = 0; i < propertyValue.length; i++) {
           const propertyValueElement = propertyValue[i];
@@ -336,7 +355,7 @@ export class BinaryPropertyTableValuesValidator {
       const propertyValue = metadataEntityModel.getPropertyValue(propertyId);
       const rawPropertyValue = propertyModel!.getPropertyValue(index);
 
-      if (ArrayValues.deepLessThan(propertyValue, definedMin)) {
+      if (ArrayValues.anyDeepLessThan(propertyValue, definedMin)) {
         const valueMessagePart =
           BinaryPropertyTableValuesValidator.createValueMessagePart(
             rawPropertyValue,
@@ -438,7 +457,7 @@ export class BinaryPropertyTableValuesValidator {
       const propertyValue = metadataEntityModel.getPropertyValue(propertyId);
       const rawPropertyValue = propertyModel!.getPropertyValue(index);
 
-      if (ArrayValues.deepGreaterThan(propertyValue, definedMax)) {
+      if (ArrayValues.anyDeepGreaterThan(propertyValue, definedMax)) {
         const valueMessagePart =
           BinaryPropertyTableValuesValidator.createValueMessagePart(
             rawPropertyValue,
@@ -464,7 +483,40 @@ export class BinaryPropertyTableValuesValidator {
   }
 
   /**
-   * Creates a message that describes how a metadata value as computed.
+   * Compute the maximum value for the specified property in
+   * the given property table.
+   *
+   * This assumes that the property has a numeric type,
+   * as indicated by `ClassProperties.hasNumericType`.
+   *
+   * @param propertyId The property ID
+   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @returns The maximum
+   */
+  private static computeMax(
+    propertyId: string,
+    binaryPropertyTable: BinaryPropertyTable
+  ): any {
+    const propertyTable = binaryPropertyTable.propertyTable;
+    const propertyTableCount = propertyTable.count;
+    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
+
+    let computedMax = undefined;
+    for (let index = 0; index < propertyTableCount; index++) {
+      const metadataEntityModel =
+        propertyTableModel.getMetadataEntityModel(index);
+      const propertyValue = metadataEntityModel.getPropertyValue(propertyId);
+      if (index === 0) {
+        computedMax = ArrayValues.deepClone(propertyValue);
+      } else {
+        computedMax = ArrayValues.deepMax(computedMax, propertyValue);
+      }
+    }
+    return computedMax;
+  }
+
+  /**
+   * Creates a message that describes how a metadata value was computed.
    *
    * The intention is to insert this as `The value is ${valueMessagePart}`
    * in a message that explains how the `value` was computed from the
@@ -504,8 +556,7 @@ export class BinaryPropertyTableValuesValidator {
           `= normalize(${rawValue})+${offset} = ${value}`;
         return messagePart;
       }
-      const messagePart =
-        `computed as rawValue+offset ` + `= ${rawValue}+${offset} = ${value}`;
+      const messagePart = `computed as rawValue+offset = ${rawValue}+${offset} = ${value}`;
       return messagePart;
     }
     if (defined(scale)) {
@@ -515,8 +566,7 @@ export class BinaryPropertyTableValuesValidator {
           `= normalize(${rawValue})*${scale} = ${value}`;
         return messagePart;
       }
-      const messagePart =
-        `computed as rawValue*scale ` + `= ${rawValue}*${scale} = ${value}`;
+      const messagePart = `computed as rawValue*scale = ${rawValue}*${scale} = ${value}`;
       return messagePart;
     }
     if (normalized === true) {
@@ -527,38 +577,5 @@ export class BinaryPropertyTableValuesValidator {
     }
     const messagePart = `${value}`;
     return messagePart;
-  }
-
-  /**
-   * Compute the maximum value for the specified property in
-   * the given property table.
-   *
-   * This assumes that the property has a numeric type,
-   * as indicated by `ClassProperties.hasNumericType`.
-   *
-   * @param propertyId The property ID
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @returns The maximum
-   */
-  private static computeMax(
-    propertyId: string,
-    binaryPropertyTable: BinaryPropertyTable
-  ): any {
-    const propertyTable = binaryPropertyTable.propertyTable;
-    const propertyTableCount = propertyTable.count;
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
-
-    let computedMax = undefined;
-    for (let index = 0; index < propertyTableCount; index++) {
-      const metadataEntityModel =
-        propertyTableModel.getMetadataEntityModel(index);
-      const propertyValue = metadataEntityModel.getPropertyValue(propertyId);
-      if (index === 0) {
-        computedMax = ArrayValues.deepClone(propertyValue);
-      } else {
-        computedMax = ArrayValues.deepMax(computedMax, propertyValue);
-      }
-    }
-    return computedMax;
   }
 }

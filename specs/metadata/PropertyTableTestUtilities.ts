@@ -522,4 +522,58 @@ export class PropertyTableTestUtilities {
       );
     return binaryPropertyTable;
   }
+
+  /**
+   * Creates an unspecified valid default `BinaryPropertyTable`, containing
+   * a single property with the type indicated in the method name.
+   *
+   * @returns The `BinaryPropertyTable`
+   */
+  static createDefaultBinaryPropertyTable_example_fixed_length_normalized_INT64_VEC2_array(): BinaryPropertyTable {
+    const example_fixed_length_normalized_INT64_VEC2_array: ClassProperty = {
+      type: "VEC2",
+      componentType: "INT64",
+      array: true,
+      normalized: true,
+    };
+    // The normalized values here are
+    // [
+    //  [ 0,  0]
+    //  [-1,  0]
+    //  [ 0, -1]
+    // ],
+    // [
+    //  [ 0,  0]
+    //  [ 1,  0]
+    //  [ 0,  1]
+    // ]
+    const example_fixed_length_normalized_INT64_VEC2_array_values = [
+      [
+        [0, 0],
+        [-9223372036854775808n, 0],
+        [0, -9223372036854775808n],
+      ],
+      [
+        [0, 0],
+        [9223372036854775807n, 0],
+        [0, 9223372036854775807n],
+      ],
+    ];
+
+    const classProperty = example_fixed_length_normalized_INT64_VEC2_array;
+    const values = example_fixed_length_normalized_INT64_VEC2_array_values;
+
+    const arrayOffsetType = "UINT32";
+    const stringOffsetType = "UINT32";
+    const binaryPropertyTable =
+      BinaryPropertyTables.createBinaryPropertyTableFromProperty(
+        "testProperty",
+        classProperty,
+        values,
+        arrayOffsetType,
+        stringOffsetType,
+        undefined
+      );
+    return binaryPropertyTable;
+  }
 }

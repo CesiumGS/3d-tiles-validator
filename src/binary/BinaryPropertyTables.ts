@@ -395,9 +395,9 @@ export class BinaryPropertyTables {
       case "UINT32":
         return new Uint32Array(flatValues).buffer;
       case "INT64":
-        return new BigInt64Array(flatValues).buffer;
+        return new BigInt64Array(flatValues.map((v: any) => BigInt(v))).buffer;
       case "UINT64":
-        return new BigUint64Array(flatValues).buffer;
+        return new BigUint64Array(flatValues.map((v: any) => BigInt(v))).buffer;
       case "FLOAT32":
         return new Float32Array(flatValues).buffer;
       case "FLOAT64":

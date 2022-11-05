@@ -27,22 +27,6 @@ function prepareTest_example_INT16_SCALAR(
   valuesBufferViewData.writeInt16LE(12, 2);
 }
 
-function prepareTest_example_normalized_INT16_SCALAR(
-  binaryPropertyTable: BinaryPropertyTable
-) {
-  const propertyTableProperty =
-    binaryPropertyTable.propertyTable.properties!["testProperty"];
-  const valuesBufferViewIndex = propertyTableProperty.values;
-  const valuesBufferViewData =
-    binaryPropertyTable.binaryBufferData!.bufferViewsData![
-      valuesBufferViewIndex
-    ];
-  // 8192 becomes 0.250007629627369
-  // 16384 becomes 0.500015259254738
-  valuesBufferViewData.writeInt16LE(8192, 0);
-  valuesBufferViewData.writeInt16LE(16384, 2);
-}
-
 // A function to set the offset/scale of the class property for the tests
 function setClassPropertyOffsetScale(
   binaryPropertyTable: BinaryPropertyTable,
@@ -95,6 +79,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
   //==========================================================================
   //=== example_ENUM_with_noData test cases:
   // - no issues for valid input
+  // - no issues for values that are the 'noData' value
   describe("issues for example_ENUM_with_noData", function () {
     let context: ValidationContext;
 
@@ -127,8 +112,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
         context
       );
       const result = context.getResult();
-      //if (debugLogResults)
-      {
+      if (debugLogResults) {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(0);
@@ -158,8 +142,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
         context
       );
       const result = context.getResult();
-      //if (debugLogResults)
-      {
+      if (debugLogResults) {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(0);
@@ -187,8 +170,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
         context
       );
       const result = context.getResult();
-      //if (debugLogResults)
-      {
+      if (debugLogResults) {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(1);
@@ -1214,6 +1196,291 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
       prepareTest_example_INT16_SCALAR(binaryPropertyTable);
       setPropertyTablePropertyOffsetScale(binaryPropertyTable, undefined, 10);
       setPropertyTablePropertyMinMax(binaryPropertyTable, undefined, 121);
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_VALUE_MISMATCH");
+    });
+  });
+  //==========================================================================
+  //=== example_fixed_length_normalized_INT64_VEC2_array test cases:
+  // - no issues for valid input
+  // - values out of range for 'min' and 'max' in classProperty
+  //   and in propertyTableProperty
+  // - computed values do not match the 'min' or 'max'
+  //   of the propertyTableProperty
+
+  //
+  //
+  //
+  //
+  //
+  //=== example_fixed_length_normalized_INT64_VEC2_array test cases without offset or scale:
+  //
+  //
+  //
+  //
+  //
+  describe("issues for example_fixed_length_normalized_INT64_VEC2_array (without offset or scale)", function () {
+    let context: ValidationContext;
+
+    beforeEach(function () {
+      const directory = "specs/data/propertyTables/";
+      const resourceResolver =
+        ResourceResolvers.createFileResourceResolver(directory);
+      context = new ValidationContext(resourceResolver);
+    });
+
+    it("should not report issues for values that are valid for example_fixed_length_normalized_INT64_VEC2_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_normalized_INT64_VEC2_array();
+
+      // For the test:
+      // - Set the class property min/max to the actual min/max
+      // - Set the property table property min/max to the actual min/max
+      // This should NOT cause any issues!
+      setClassPropertyMinMax(
+        binaryPropertyTable,
+        [
+          [0, 0],
+          [-1, 0],
+          [0, -1],
+        ],
+        [
+          [0, 0],
+          [1, 0],
+          [0, 1],
+        ]
+      );
+      setPropertyTablePropertyMinMax(
+        binaryPropertyTable,
+        [
+          [0, 0],
+          [-1, 0],
+          [0, -1],
+        ],
+        [
+          [0, 0],
+          [1, 0],
+          [0, 1],
+        ]
+      );
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(0);
+    });
+    it("detects values smaller than the class property minimum for example_fixed_length_normalized_INT64_VEC2_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_normalized_INT64_VEC2_array();
+
+      // For the test:
+      // - Set the class property minimum to a value where one component
+      //   is 0.5, even though the actual minimum component is -1
+      // This should cause an issue
+      setClassPropertyMinMax(
+        binaryPropertyTable,
+        [
+          [0, 0],
+          [-0.5, 0],
+          [0, -1],
+        ],
+        [
+          [0, 0],
+          [1, 0],
+          [0, 1],
+        ]
+      );
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+    });
+
+    it("detects values greater than the class property maximum for example_fixed_length_normalized_INT64_VEC2_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_normalized_INT64_VEC2_array();
+
+      // For the test:
+      // - Set the class property maximum to a value where one component
+      //   is 0.5, even though the actual maximum component is 1
+      // This should cause an issue
+      setClassPropertyMinMax(
+        binaryPropertyTable,
+        [
+          [0, 0],
+          [-1, 0],
+          [0, -1],
+        ],
+        [
+          [0, 0],
+          [0.5, 0],
+          [0, 1],
+        ]
+      );
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+    });
+
+    it("detects values smaller than the property table property minimum for example_fixed_length_normalized_INT64_VEC2_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_normalized_INT64_VEC2_array();
+
+      // For the test:
+      // - Set the property table property minimum to a value where one component
+      //   is 0.5, even though the actual minimum component is -1
+      // This should cause an issue
+      setPropertyTablePropertyMinMax(
+        binaryPropertyTable,
+        [
+          [0, 0],
+          [-0.5, 0],
+          [0, -1],
+        ],
+        [
+          [0, 0],
+          [1, 0],
+          [0, 1],
+        ]
+      );
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+    });
+
+    it("detects values greater than the property table property maximum for example_fixed_length_normalized_INT64_VEC2_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_normalized_INT64_VEC2_array();
+
+      // For the test:
+      // - Set the property table property maximum to a value where one component
+      //   is 0.5, even though the actual maximum component is 1
+      // This should cause an issue
+      setPropertyTablePropertyMinMax(
+        binaryPropertyTable,
+        [
+          [0, 0],
+          [-1, 0],
+          [0, -1],
+        ],
+        [
+          [0, 0],
+          [0.5, 0],
+          [0, 1],
+        ]
+      );
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+    });
+
+    it("detects when the property table property minimum does not match the computed minimum for example_fixed_length_normalized_INT64_VEC2_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_normalized_INT64_VEC2_array();
+
+      // For the test:
+      // - Set the property table property minimum to a value where one component
+      //   is -1.5, even though the actual maximum component is 1
+      // This should cause an issue
+      setPropertyTablePropertyMinMax(
+        binaryPropertyTable,
+        [
+          [0, 0],
+          [-1.5, 0],
+          [0, -1],
+        ],
+        [
+          [0, 0],
+          [1, 0],
+          [0, 1],
+        ]
+      );
+
+      BinaryPropertyTableValidator.validateBinaryPropertyTable(
+        "test",
+        binaryPropertyTable,
+        context
+      );
+      const result = context.getResult();
+      if (debugLogResults) {
+        console.log(result.toJson());
+      }
+      expect(result.length).toEqual(1);
+      expect(result.get(0).type).toEqual("METADATA_VALUE_MISMATCH");
+    });
+
+    it("detects when the property table property maximum does not match the computed maximum for example_fixed_length_normalized_INT64_VEC2_array", function () {
+      const binaryPropertyTable =
+        PropertyTableTestUtilities.createDefaultBinaryPropertyTable_example_fixed_length_normalized_INT64_VEC2_array();
+
+      // For the test:
+      // - Set the property table property maximum to a value where one component
+      //   is 1.5, even though the actual maximum component is 1
+      // This should cause an issue
+      setPropertyTablePropertyMinMax(
+        binaryPropertyTable,
+        [
+          [0, 0],
+          [-1, 0],
+          [0, -1],
+        ],
+        [
+          [0, 0],
+          [1.5, 0],
+          [0, 1],
+        ]
+      );
 
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
         "test",

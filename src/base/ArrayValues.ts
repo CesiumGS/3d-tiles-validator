@@ -85,6 +85,7 @@ export class ArrayValues {
       for (let i = 0; i < a.length; ++i) {
         result[i] = ArrayValues.deepMin(a[i], b[i]);
       }
+      return result;
     }
     return Math.min(a, b);
   }
@@ -106,6 +107,7 @@ export class ArrayValues {
       for (let i = 0; i < a.length; ++i) {
         result[i] = ArrayValues.deepMax(a[i], b[i]);
       }
+      return result;
     }
     return Math.max(a, b);
   }
@@ -215,18 +217,23 @@ export class ArrayValues {
    * This considers the case that the values are numbers or
    * (potentially multi-dimensional) arrays of numbers.
    *
+   * It returns whether the first number is smaller than
+   * the second number. For arrays, it recursively checks
+   * whether ANY element of the first array is smaller
+   * than the corresponding element of the secon array.
+   *
    * @param a The first value
    * @param b The second value
    * @returns Whether the first value is less than the second
    */
-  static deepLessThan(a: any, b: any): boolean {
+  static anyDeepLessThan(a: any, b: any): boolean {
     if (Array.isArray(a) && Array.isArray(b)) {
       for (let i = 0; i < a.length; ++i) {
-        if (!ArrayValues.deepLessThan(a, b)) {
-          return false;
+        if (ArrayValues.anyDeepLessThan(a[i], b[i])) {
+          return true;
         }
       }
-      return true;
+      return false;
     }
     return a < b;
   }
@@ -236,18 +243,23 @@ export class ArrayValues {
    * This considers the case that the values are numbers or
    * (potentially multi-dimensional) arrays of numbers.
    *
+   * It returns whether the first number is greater than
+   * the second number. For arrays, it recursively checks
+   * whether ANY element of the first array is greater
+   * than the corresponding element of the secon array.
+   *
    * @param a The first value
    * @param b The second value
    * @returns Whether the first value is greater than the second
    */
-  static deepGreaterThan(a: any, b: any): boolean {
+  static anyDeepGreaterThan(a: any, b: any): boolean {
     if (Array.isArray(a) && Array.isArray(b)) {
       for (let i = 0; i < a.length; ++i) {
-        if (!ArrayValues.deepGreaterThan(a, b)) {
-          return false;
+        if (ArrayValues.anyDeepGreaterThan(a[i], b[i])) {
+          return true;
         }
       }
-      return true;
+      return false;
     }
     return a > b;
   }
