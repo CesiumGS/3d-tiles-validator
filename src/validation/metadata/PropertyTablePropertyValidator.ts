@@ -11,6 +11,7 @@ import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
+import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
 
 /**
  * A class for validations related to `propertyTable.property` objects.
@@ -191,68 +192,120 @@ export class PropertyTablePropertyValidator {
     // Validate the offset
     const offset = propertyTableProperty.offset;
     if (defined(offset)) {
-      if (
-        !ClassPropertyValueValidator.validateOffsetScale(
+      // The 'offset' MUST not be given for variable-length arrays
+      if (isVariableLengthArray) {
+        const message =
+          `The property '${propertyName}' defines 'offset', ` +
+          `which is not applicable to variable-length arrays`;
+        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
           path,
-          propertyName,
-          classProperty,
-          "offset",
-          offset,
-          context
-        )
-      ) {
+          message
+        );
+        context.addIssue(issue);
         result = false;
+      } else {
+        if (
+          !ClassPropertyValueValidator.validateOffsetScale(
+            path,
+            propertyName,
+            classProperty,
+            "offset",
+            offset,
+            context
+          )
+        ) {
+          result = false;
+        }
       }
     }
 
     // Validate the scale
     const scale = propertyTableProperty.scale;
     if (defined(scale)) {
-      if (
-        !ClassPropertyValueValidator.validateOffsetScale(
+      // The 'scale' MUST not be given for variable-length arrays
+      if (isVariableLengthArray) {
+        const message =
+          `The property '${propertyName}' defines 'scale', ` +
+          `which is not applicable to variable-length arrays`;
+        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
           path,
-          propertyName,
-          classProperty,
-          "scale",
-          scale,
-          context
-        )
-      ) {
+          message
+        );
+        context.addIssue(issue);
         result = false;
+      } else {
+        if (
+          !ClassPropertyValueValidator.validateOffsetScale(
+            path,
+            propertyName,
+            classProperty,
+            "scale",
+            scale,
+            context
+          )
+        ) {
+          result = false;
+        }
       }
     }
 
     // Validate the max
     const max = propertyTableProperty.max;
     if (defined(max)) {
-      if (
-        !ClassPropertyValueValidator.validateMaxMin(
+      // The 'max' MUST not be given for variable-length arrays
+      if (isVariableLengthArray) {
+        const message =
+          `The property '${propertyName}' defines 'max', ` +
+          `which is not applicable to variable-length arrays`;
+        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
           path,
-          propertyName,
-          classProperty,
-          "max",
-          max,
-          context
-        )
-      ) {
+          message
+        );
+        context.addIssue(issue);
         result = false;
+      } else {
+        if (
+          !ClassPropertyValueValidator.validateMaxMin(
+            path,
+            propertyName,
+            classProperty,
+            "max",
+            max,
+            context
+          )
+        ) {
+          result = false;
+        }
       }
     }
 
     // Validate the min
     const min = propertyTableProperty.min;
     if (defined(min)) {
-      if (
-        !ClassPropertyValueValidator.validateMaxMin(
+      // The 'min' MUST not be given for variable-length arrays
+      if (isVariableLengthArray) {
+        const message =
+          `The property '${propertyName}' defines 'min', ` +
+          `which is not applicable to variable-length arrays`;
+        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
           path,
-          propertyName,
-          classProperty,
-          "min",
-          min,
-          context
-        )
-      ) {
+          message
+        );
+        context.addIssue(issue);
         result = false;
+      } else {
+        if (
+          !ClassPropertyValueValidator.validateMaxMin(
+            path,
+            propertyName,
+            classProperty,
+            "min",
+            min,
+            context
+          )
+        ) {
+          result = false;
+        }
       }
     }
 

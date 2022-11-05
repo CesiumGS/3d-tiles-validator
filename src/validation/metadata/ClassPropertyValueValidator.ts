@@ -5,6 +5,7 @@ import { MetadataValueValidator } from "./MetadataValueValidator";
 import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 
 import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
+import { defined } from "../../base/defined";
 
 /**
  * A class for validations of metadata values against the definitions
@@ -61,17 +62,31 @@ export class ClassPropertyValueValidator {
       context.addIssue(issue);
       result = false;
     } else {
-      // The max/min MUST match the structure of the defined type
-      if (
-        !MetadataValueValidator.validateNumericValueStructure(
-          property,
+      // The offset/scale property MUST NOT be given
+      // for variable-length arrays
+      if (property.array === true && !defined(property.count)) {
+        const message =
+          `The property '${propertyName}' defines '${maxOrMin}', ` +
+          `which is not applicable to variable-length arrays`;
+        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
           path,
-          maxOrMin,
-          value,
-          context
-        )
-      ) {
+          message
+        );
+        context.addIssue(issue);
         result = false;
+      } else {
+        // The max/min MUST match the structure of the defined type
+        if (
+          !MetadataValueValidator.validateNumericValueStructure(
+            property,
+            path,
+            maxOrMin,
+            value,
+            context
+          )
+        ) {
+          result = false;
+        }
       }
     }
     return result;
@@ -126,17 +141,31 @@ export class ClassPropertyValueValidator {
       context.addIssue(issue);
       result = false;
     } else {
-      // The offset/scale MUST match the structure of the defined type
-      if (
-        !MetadataValueValidator.validateNumericValueStructure(
-          property,
+      // The offset/scale property MUST NOT be given
+      // for variable-length arrays
+      if (property.array === true && !defined(property.count)) {
+        const message =
+          `The property '${propertyName}' defines '${offsetOrScale}', ` +
+          `which is not applicable to variable-length arrays`;
+        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
           path,
-          offsetOrScale,
-          value,
-          context
-        )
-      ) {
+          message
+        );
+        context.addIssue(issue);
         result = false;
+      } else {
+        // The offset/scale MUST match the structure of the defined type
+        if (
+          !MetadataValueValidator.validateNumericValueStructure(
+            property,
+            path,
+            offsetOrScale,
+            value,
+            context
+          )
+        ) {
+          result = false;
+        }
       }
     }
     return result;
