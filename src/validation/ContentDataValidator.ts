@@ -3,7 +3,6 @@ import paths from "path";
 import { defined } from "../base/defined";
 
 import { Uris } from "../io/Uris";
-import { ResourceTypes } from "../io/ResourceTypes";
 
 import { ValidationContext } from "./ValidationContext";
 import { ContentData } from "./ContentData";
