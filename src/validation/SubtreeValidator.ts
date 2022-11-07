@@ -926,7 +926,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     // that is required for validating each property table
     const schema = this._validationState.validatedSchema!;
     const classes = defaultValue(schema.classes, {});
-    const enumValueTypes = MetadataUtilities.computeEnumValueTypes(schema!);
+    const binaryEnumInfo = MetadataUtilities.computeBinaryEnumInfo(schema!);
     const propertyTables = defaultValue(subtree.propertyTables, []);
     for (const propertyTable of propertyTables) {
       const classId = propertyTable.class;
@@ -939,7 +939,7 @@ export class SubtreeValidator implements Validator<Buffer> {
       const binaryPropertyTable: BinaryPropertyTable = {
         propertyTable: propertyTable,
         metadataClass: metadataClass,
-        enumValueTypes: enumValueTypes,
+        binaryEnumInfo: binaryEnumInfo,
         binaryBufferStructure: binaryBufferStructure,
         binaryBufferData: binaryBufferData,
       };

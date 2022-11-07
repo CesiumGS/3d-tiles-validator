@@ -84,7 +84,8 @@ export class PropertyModels {
     const enumType = classProperty.enumType;
     let enumValueType = undefined;
     if (defined(enumType)) {
-      const enumValueTypes = binaryPropertyTable.enumValueTypes;
+      const binaryEnumInfo = binaryPropertyTable.binaryEnumInfo;
+      const enumValueTypes = binaryEnumInfo.enumValueTypes;
       enumValueType = defaultValue(enumValueTypes[enumType!], "UINT16");
     }
 

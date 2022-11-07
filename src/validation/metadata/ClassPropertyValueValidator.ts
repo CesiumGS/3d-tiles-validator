@@ -1,15 +1,11 @@
-import { defined } from "../../base/defined";
-
 import { ValidationContext } from "../ValidationContext";
-
+import { ClassProperties } from "./ClassProperties";
 import { MetadataValueValidator } from "./MetadataValueValidator";
-
-import { MetadataTypes } from "../../metadata/MetadataTypes";
 
 import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 
 import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
-import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
+import { defined } from "../../base/defined";
 
 /**
  * A class for validations of metadata values against the definitions
@@ -55,7 +51,7 @@ export class ClassPropertyValueValidator {
     const type = property.type;
 
     // When the max/min is given, the property MUST have a numeric type
-    if (!ClassPropertyValueValidator.hasNumericType(property)) {
+    if (!ClassProperties.hasNumericType(property)) {
       const issue =
         SemanticValidationIssues.CLASS_PROPERTY_MIN_MAX_FOR_NON_NUMERIC_TYPE(
           path,
@@ -66,17 +62,31 @@ export class ClassPropertyValueValidator {
       context.addIssue(issue);
       result = false;
     } else {
-      // The max/min MUST match the structure of the defined type
-      if (
-        !MetadataValueValidator.validateNumericValueStructure(
-          property,
+      // The offset/scale property MUST NOT be given
+      // for variable-length arrays
+      if (property.array === true && !defined(property.count)) {
+        const message =
+          `The property '${propertyName}' defines '${maxOrMin}', ` +
+          `which is not applicable to variable-length arrays`;
+        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
           path,
-          maxOrMin,
-          value,
-          context
-        )
-      ) {
+          message
+        );
+        context.addIssue(issue);
         result = false;
+      } else {
+        // The max/min MUST match the structure of the defined type
+        if (
+          !MetadataValueValidator.validateNumericValueStructure(
+            property,
+            path,
+            maxOrMin,
+            value,
+            context
+          )
+        ) {
+          result = false;
+        }
       }
     }
     return result;
@@ -118,9 +128,7 @@ export class ClassPropertyValueValidator {
     const normalized = property.normalized;
 
     // When the offset/scale is given, the property MUST have a 'floating point type'
-    if (
-      !ClassPropertyValueValidator.hasEffectivelyFloatingPointType(property)
-    ) {
+    if (!ClassProperties.hasEffectivelyFloatingPointType(property)) {
       const issue =
         SemanticValidationIssues.CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE(
           path,
@@ -133,82 +141,33 @@ export class ClassPropertyValueValidator {
       context.addIssue(issue);
       result = false;
     } else {
-      // The offset/scale MUST match the structure of the defined type
-      if (
-        !MetadataValueValidator.validateNumericValueStructure(
-          property,
+      // The offset/scale property MUST NOT be given
+      // for variable-length arrays
+      if (property.array === true && !defined(property.count)) {
+        const message =
+          `The property '${propertyName}' defines '${offsetOrScale}', ` +
+          `which is not applicable to variable-length arrays`;
+        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
           path,
-          offsetOrScale,
-          value,
-          context
-        )
-      ) {
+          message
+        );
+        context.addIssue(issue);
         result = false;
+      } else {
+        // The offset/scale MUST match the structure of the defined type
+        if (
+          !MetadataValueValidator.validateNumericValueStructure(
+            property,
+            path,
+            offsetOrScale,
+            value,
+            context
+          )
+        ) {
+          result = false;
+        }
       }
     }
     return result;
-  }
-
-  /**
-   * Returns whether the given property effectively describes a floating
-   * point type.
-   *
-   * These are the properties for which 'offset' and 'scale' may be defined.
-   *
-   * This means that the value has the type SCALAR, VECn, or MATn, and
-   * - either has the componentType FLOAT32 or FLOAT46
-   * - or has an integer component type AND is 'normalized'
-   *
-   * @param property The property
-   * @returns Whether the property is a floating point property
-   */
-  private static hasEffectivelyFloatingPointType(
-    property: ClassProperty
-  ): boolean {
-    const type = property.type;
-    if (!MetadataTypes.numericTypes.includes(type)) {
-      return false;
-    }
-    const componentType = property.componentType;
-    if (!defined(componentType)) {
-      return false;
-    }
-    if (componentType === "FLOAT32" || componentType === "FLOAT64") {
-      return true;
-    }
-    if (MetadataComponentTypes.isIntegerComponentType(componentType!)) {
-      const normalized = property.normalized;
-      if (!defined(normalized)) {
-        return false;
-      }
-      return normalized!;
-    }
-    return false;
-  }
-
-  /**
-   * Returns whether the given property describes a numeric type.
-   *
-   * These are the properties for which 'max' and 'min' may be defined.
-   *
-   * This means tha the value has the type SCALAR, VECn, or MATn, and
-   * one of the allowed component types.
-   *
-   * @param property The property
-   * @returns Whether the property is a numeric property
-   */
-  private static hasNumericType(property: ClassProperty): boolean {
-    const type = property.type;
-    if (!MetadataTypes.numericTypes.includes(type)) {
-      return false;
-    }
-    const componentType = property.componentType;
-    if (!defined(componentType)) {
-      return false;
-    }
-    if (!MetadataComponentTypes.allComponentTypes.includes(componentType!)) {
-      return false;
-    }
-    return true;
   }
 }

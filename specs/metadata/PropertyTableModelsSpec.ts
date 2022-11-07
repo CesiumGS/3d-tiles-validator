@@ -1,9 +1,9 @@
+import { genericEquals } from "./genericEquals";
+
 import { BinaryPropertyTables } from "../../src/binary/BinaryPropertyTables";
 import { PropertyTableModel } from "../../src/binary/PropertyTableModel";
 
 import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
-
-import { genericEquals } from "./genericEquals";
 
 /**
  * Test for the `PropertyTableModels` class.

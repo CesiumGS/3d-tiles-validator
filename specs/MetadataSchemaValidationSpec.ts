@@ -203,6 +203,14 @@ describe("Metadata schema validation", function () {
     );
   });
 
+  it("detects issues in metadataClassPropertyMinForVariableLengthArray", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/metadataClassPropertyMinForVariableLengthArray.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
+  });
+
   it("detects issues in metadataClassPropertyNameInvalidType", async function () {
     const result = await Validators.validateSchemaFile(
       "specs/data/schemas/metadataClassPropertyNameInvalidType.json"
@@ -313,6 +321,14 @@ describe("Metadata schema validation", function () {
     expect(result.get(0).type).toEqual(
       "CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE"
     );
+  });
+
+  it("detects issues in metadataClassPropertyOffsetForVariableLengthArray", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/metadataClassPropertyOffsetForVariableLengthArray.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
   });
 
   it("detects issues in metadataClassPropertyOffsetTypeMismatchA", async function () {
