@@ -16,13 +16,16 @@ export class FileResourceResolver implements ResourceResolver {
     this._basePath = basePath;
   }
 
-  // TODO_ARCHIVE_EXPERIMENTS
   resolveUri(uri: string): string {
-    const resolved = path.resolve(this._basePath, decodeURIComponent(uri));
+    let resolved = path.resolve(this._basePath, decodeURIComponent(uri));
+    resolved = resolved.replace(/\\/g, "/");
     return resolved;
   }
 
-  async resolve(uri: string): Promise<Buffer | null> {
+  async resolveDataPartial(
+    uri: string,
+    maxBytes: number
+  ): Promise<Buffer | null> {
     if (Uris.isDataUri(uri)) {
       const data = Buffer.from(uri.split(",")[1], "base64");
       return data;
@@ -30,7 +33,27 @@ export class FileResourceResolver implements ResourceResolver {
     if (Uris.isAbsoluteUri(uri)) {
       return null;
     }
-    const resolved = path.resolve(this._basePath, decodeURIComponent(uri));
+    const resolved = this.resolveUri(uri);
+    try {
+      const buffer = Buffer.alloc(maxBytes);
+      const fd = fs.openSync(resolved, "r");
+      fs.readSync(fd, buffer, 0, maxBytes, 0);
+      fs.closeSync(fd);
+      return buffer;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async resolveData(uri: string): Promise<Buffer | null> {
+    if (Uris.isDataUri(uri)) {
+      const data = Buffer.from(uri.split(",")[1], "base64");
+      return data;
+    }
+    if (Uris.isAbsoluteUri(uri)) {
+      return null;
+    }
+    const resolved = this.resolveUri(uri);
     // Using `readFileSync` directly causes a buffer to be returned
     // that will appear to contain garbage data when it is used by
     // the glTF-Validator. If anybody could explain to me why this

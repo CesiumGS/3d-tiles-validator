@@ -15,13 +15,12 @@ export class UnzippingResourceResolver implements ResourceResolver {
     this._delegate = delegate;
   }
 
-  // TODO_ARCHIVE_EXPERIMENTS
   resolveUri(uri: string): string {
     return this._delegate.resolveUri(uri);
   }
 
-  async resolve(uri: string): Promise<Buffer | null> {
-    const delegateData = await this._delegate.resolve(uri);
+  async resolveData(uri: string): Promise<Buffer | null> {
+    const delegateData = await this._delegate.resolveData(uri);
     if (delegateData === null) {
       return null;
     }
@@ -30,6 +29,29 @@ export class UnzippingResourceResolver implements ResourceResolver {
       return delegateData;
     }
     const data = zlib.gunzipSync(delegateData);
+    return data;
+  }
+
+  async resolveDataPartial(
+    uri: string,
+    maxBytes: number
+  ): Promise<Buffer | null> {
+    const partialDelegateData = await this._delegate.resolveDataPartial(
+      uri,
+      maxBytes
+    );
+    if (partialDelegateData === null) {
+      return null;
+    }
+    const isGzipped = ResourceTypes.isGzipped(partialDelegateData);
+    if (!isGzipped) {
+      return partialDelegateData;
+    }
+    const fullDelegateData = await this._delegate.resolveData(uri);
+    if (fullDelegateData === null) {
+      return null;
+    }
+    const data = zlib.gunzipSync(fullDelegateData);
     return data;
   }
   derive(uri: string): ResourceResolver {

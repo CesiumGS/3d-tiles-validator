@@ -267,7 +267,7 @@ export class I3dmValidator implements Validator<Buffer> {
       // any zero-bytes from the string that may be introduced by padding
       const glbUri = glbData.toString().replace(/\0/g, "");
       const resourceResolver = context.getResourceResolver();
-      const resolvedGlbData = await resourceResolver.resolve(glbUri);
+      const resolvedGlbData = await resourceResolver.resolveData(glbUri);
       if (!defined(resolvedGlbData)) {
         const message = `Could not resolve GLB URI ${glbUri} from I3DM`;
         const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
@@ -282,7 +282,7 @@ export class I3dmValidator implements Validator<Buffer> {
         // will be stored as the 'internal issues' of a
         // single content validation issue.
         const glbDirectory = path.dirname(glbUri);
-        const derivedContext = context.derive(glbDirectory);
+        const derivedContext = context.deriveFromUri(glbDirectory);
         const gltfValidator = new GltfValidator();
         const gltfResult = await gltfValidator.validateObject(
           uri,

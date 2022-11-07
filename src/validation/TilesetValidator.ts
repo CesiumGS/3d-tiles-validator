@@ -475,7 +475,7 @@ export class TilesetValidator implements Validator<Tileset> {
     }
     if (defined(schemaUri) && typeof schemaUri === "string") {
       const resourceResolver = context.getResourceResolver();
-      const schemaBuffer = await resourceResolver.resolve(schemaUri);
+      const schemaBuffer = await resourceResolver.resolveData(schemaUri);
       if (!defined(schemaBuffer)) {
         const path = "/schemaUri";
         const message = `The 'schemaUri' is '${schemaUri}' and could not be resolved`;

@@ -13,6 +13,9 @@ import { GltfValidator } from "../tileFormats/GltfValidator";
 
 import { Tileset } from "../structure/Tileset";
 import { TilesetArchiveValidator } from "./TilesetArchiveValidator";
+import { IoValidationIssues } from "../issues/IoValidationIssue";
+import { ValidationContext } from "./ValidationContext";
+import { ResourceTypes } from "../io/ResourceTypes";
 
 /**
  * A class for managing `Validator` instances that are used for
@@ -69,13 +72,34 @@ export class ContentDataValidators {
     ContentDataValidators.registerByMagic("vctr", vctrValidator);
     ContentDataValidators.registerByExtension(".geojson", geojsonValidator);
 
-    ContentDataValidators.registerByExtension(
-      ".3tz",
-      new TilesetArchiveValidator()
-    );
-
+    ContentDataValidators.registerArchive();
     ContentDataValidators.registerTileset();
     ContentDataValidators.registerGltf();
+  }
+
+  private static registerArchive() {
+    const predicate = async (contentData: ContentData) =>
+      contentData.extension === ".3tz";
+
+    const archiveValidator = new TilesetArchiveValidator();
+    const validator = {
+      async validateObject(
+        inputPath: string,
+        input: ContentData,
+        context: ValidationContext
+      ): Promise<boolean> {
+        const resourceResolver = context.getResourceResolver();
+        const resolvedUri = resourceResolver.resolveUri(input.uri);
+        const result = await archiveValidator.validateObject(
+          inputPath,
+          resolvedUri,
+          context
+        );
+        return result;
+      },
+    };
+
+    ContentDataValidators.registerByPredicate(predicate, validator);
   }
 
   /**
@@ -86,11 +110,11 @@ export class ContentDataValidators {
    * @param contentData The `ContentData`
    * @returns The validator, or `undefined`
    */
-  static findContentDataValidator(
+  static async findContentDataValidator(
     contentData: ContentData
-  ): Validator<Buffer> | undefined {
+  ): Promise<Validator<ContentData> | undefined> {
     for (const entry of ContentDataValidators.dataValidators) {
-      if (entry.predicate(contentData)) {
+      if (await entry.predicate(contentData)) {
         return entry.dataValidator;
       }
     }
@@ -105,15 +129,16 @@ export class ContentDataValidators {
    * this may have to be generalized in the future)
    *
    * @param magic The magic string
-   * @param dataValidator The data validator
+   * @param bufferValidator The validator for the buffer data
    */
   private static registerByMagic(
     magic: string,
-    dataValidator: Validator<Buffer>
+    bufferValidator: Validator<Buffer>
   ) {
     ContentDataValidators.registerByPredicate(
-      (contentData: ContentData) => contentData.magic === magic,
-      dataValidator
+      async (contentData: ContentData) =>
+        (await contentData.getMagic()) === magic,
+      ContentDataValidators.wrapBufferValidator(bufferValidator)
     );
   }
 
@@ -125,16 +150,16 @@ export class ContentDataValidators {
    * check for the file extension will be case INsensitive.
    *
    * @param extension The extension
-   * @param dataValidator The data validator
+   * @param bufferValidator The validator for the buffer data
    */
   private static registerByExtension(
     extension: string,
-    dataValidator: Validator<Buffer>
+    bufferValidator: Validator<Buffer>
   ) {
     ContentDataValidators.registerByPredicate(
-      (contentData: ContentData) =>
+      async (contentData: ContentData) =>
         contentData.extension === extension.toLowerCase(),
-      dataValidator
+      ContentDataValidators.wrapBufferValidator(bufferValidator)
     );
   }
 
@@ -145,12 +170,14 @@ export class ContentDataValidators {
    * given content data is that it `isProbablyTileset`.
    */
   private static registerTileset() {
-    const predicate = (contentData: ContentData) =>
-      ContentDataValidators.isProbablyTileset(contentData);
+    const predicate = async (contentData: ContentData) =>
+      await ContentDataValidators.isProbablyTileset(contentData);
     const externalValidator = Validators.createDefaultTilesetValidator();
-    const dataValidator =
+    const bufferValidator =
       Validators.parseFromBuffer<Tileset>(externalValidator);
-    ContentDataValidators.registerByPredicate(predicate, dataValidator);
+    const contentDataValidator =
+      ContentDataValidators.wrapBufferValidator(bufferValidator);
+    ContentDataValidators.registerByPredicate(predicate, contentDataValidator);
   }
 
   /**
@@ -161,10 +188,12 @@ export class ContentDataValidators {
    * is probably a glTF asset, as of `isProbablyGltf`.
    */
   private static registerGltf() {
-    const predicate = (contentData: ContentData) =>
-      ContentDataValidators.isProbablyGltf(contentData);
-    const dataValidator = new GltfValidator();
-    ContentDataValidators.registerByPredicate(predicate, dataValidator);
+    const predicate = async (contentData: ContentData) =>
+      await ContentDataValidators.isProbablyGltf(contentData);
+    const bufferValidator = new GltfValidator();
+    const contentDataValidator =
+      ContentDataValidators.wrapBufferValidator(bufferValidator);
+    ContentDataValidators.registerByPredicate(predicate, contentDataValidator);
   }
 
   /**
@@ -176,9 +205,20 @@ export class ContentDataValidators {
    * @param contentData The content data
    * @returns Whether the content data is probably a tileset
    */
-  private static isProbablyTileset(contentData: ContentData) {
-    const parsedObject = contentData.parsedObject;
-    if (!defined(parsedObject)) {
+  private static async isProbablyTileset(
+    contentData: ContentData
+  ): Promise<boolean> {
+    const data = await contentData.getData();
+    if (!defined(data)) {
+      return false;
+    }
+    if (!ResourceTypes.isProbablyJson(data!)) {
+      return false;
+    }
+    let parsedObject = undefined;
+    try {
+      parsedObject = JSON.parse(data!.toString());
+    } catch (error) {
       return false;
     }
     if (!defined(parsedObject.asset)) {
@@ -197,18 +237,62 @@ export class ContentDataValidators {
    * @param contentData The content data
    * @returns Whether the content data is probably glTF
    */
-  static isProbablyGltf(contentData: ContentData) {
-    if (ContentDataValidators.isProbablyTileset(contentData)) {
+  static async isProbablyGltf(contentData: ContentData): Promise<boolean> {
+    if (await ContentDataValidators.isProbablyTileset(contentData)) {
       return false;
     }
-    const parsedObject = contentData.parsedObject;
-    if (!defined(parsedObject)) {
+    const data = await contentData.getData();
+    if (!defined(data)) {
+      return false;
+    }
+    if (!ResourceTypes.isProbablyJson(data!)) {
+      return false;
+    }
+    let parsedObject = undefined;
+    try {
+      parsedObject = JSON.parse(data!.toString());
+    } catch (error) {
       return false;
     }
     if (!defined(parsedObject.asset)) {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Wraps the given validator for `Buffer` objects into one that
+   * can be applied to `ContentData` objects, and just applies
+   * the given validator to the buffer that is returned by
+   * `ContentData#getData`.
+   *
+   * @param bufferValidator The validator for `Buffer` objects
+   * @returns The validator for `ContentData` objects
+   */
+  static wrapBufferValidator(
+    bufferValidator: Validator<Buffer>
+  ): Validator<ContentData> {
+    return {
+      async validateObject(
+        inputPath: string,
+        input: ContentData,
+        context: ValidationContext
+      ): Promise<boolean> {
+        const data = await input.getData();
+        if (!defined(data)) {
+          const message = `Could not resolve ${input.uri}`;
+          const issue = IoValidationIssues.IO_WARNING(inputPath, message);
+          context.addIssue(issue);
+          return true;
+        }
+        const result = await bufferValidator.validateObject(
+          inputPath,
+          data!,
+          context
+        );
+        return result;
+      },
+    };
   }
 
   /**
@@ -219,8 +303,8 @@ export class ContentDataValidators {
    * @param dataValidator The data validator
    */
   private static registerByPredicate(
-    predicate: (contentData: ContentData) => boolean,
-    dataValidator: Validator<Buffer>
+    predicate: (contentData: ContentData) => Promise<boolean>,
+    dataValidator: Validator<ContentData>
   ) {
     const entry = {
       predicate: predicate,

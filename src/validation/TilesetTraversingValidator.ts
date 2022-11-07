@@ -320,7 +320,7 @@ export class TilesetTraversingValidator {
     const subtreeResourceResolver = resourceResolver.derive(subtreeDirectory);
 
     // Obtain the raw subtree data (binary subtree file or JSON)
-    const subtreeData = await resourceResolver.resolve(subtreeUri);
+    const subtreeData = await resourceResolver.resolveData(subtreeUri);
     if (subtreeData == null) {
       const message =
         `Could not resolve subtree URI ${subtreeUri} that was ` +

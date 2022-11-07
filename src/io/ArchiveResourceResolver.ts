@@ -6,7 +6,7 @@ import { ResourceResolver } from "./ResourceResolver";
 import { Uris } from "./Uris";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const TilesetArchive3tz = require("../archives/TilesetArchive3tz");
+const TilesetArchive = require("../archives/TilesetArchive");
 
 /**
  * Implementation of a `ResourceResolver` based on a `TilesetArchive`
@@ -16,26 +16,20 @@ const TilesetArchive3tz = require("../archives/TilesetArchive3tz");
 export class ArchiveResourceResolver implements ResourceResolver {
   private readonly _basePath: string;
   private readonly _archiveFileName: string;
-  private readonly _archive: typeof TilesetArchive3tz;
+  private readonly _archive: typeof TilesetArchive;
 
-  // TODO_ARCHIVE_EXPERIMENTS
+  constructor(basePath: string, archiveFileName: string, archive: any) {
+    this._basePath = basePath;
+    this._archiveFileName = archiveFileName;
+    this._archive = archive;
+  }
+
   resolveUri(uri: string): string {
     const resolved = path.resolve(this._basePath, decodeURIComponent(uri));
     return resolved;
   }
 
-  constructor(basePath: string, archiveFileName: string, archive: any) {
-    this._basePath = basePath;
-    this._archiveFileName = archiveFileName;
-    if (defined(archive)) {
-      this._archive = archive;
-    } else {
-      this._archive = new TilesetArchive3tz();
-      this._archive.open(archiveFileName);
-    }
-  }
-
-  async resolve(uri: string): Promise<Buffer | null> {
+  async resolveData(uri: string): Promise<Buffer | null> {
     if (Uris.isDataUri(uri)) {
       const data = Buffer.from(uri.split(",")[1], "base64");
       return data;
@@ -59,6 +53,15 @@ export class ArchiveResourceResolver implements ResourceResolver {
     );
     return entry;
   }
+
+  async resolveDataPartial(
+    uri: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    maxBytes: number
+  ): Promise<Buffer | null> {
+    return await this.resolveData(uri);
+  }
+
   derive(uri: string): ResourceResolver {
     let resolved = path.join(this._basePath, decodeURIComponent(uri));
     resolved = resolved.replace(/\\/g, "/");
