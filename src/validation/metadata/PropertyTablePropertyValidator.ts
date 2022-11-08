@@ -11,7 +11,7 @@ import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
-import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
+import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
 /**
  * A class for validations related to `propertyTable.property` objects.
@@ -194,13 +194,12 @@ export class PropertyTablePropertyValidator {
     if (defined(offset)) {
       // The 'offset' MUST not be given for variable-length arrays
       if (isVariableLengthArray) {
-        const message =
-          `The property '${propertyName}' defines 'offset', ` +
-          `which is not applicable to variable-length arrays`;
-        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
-          path,
-          message
-        );
+        const issue =
+          MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
+            path,
+            propertyName,
+            "offset"
+          );
         context.addIssue(issue);
         result = false;
       } else {
@@ -224,13 +223,12 @@ export class PropertyTablePropertyValidator {
     if (defined(scale)) {
       // The 'scale' MUST not be given for variable-length arrays
       if (isVariableLengthArray) {
-        const message =
-          `The property '${propertyName}' defines 'scale', ` +
-          `which is not applicable to variable-length arrays`;
-        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
-          path,
-          message
-        );
+        const issue =
+          MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
+            path,
+            propertyName,
+            "scale"
+          );
         context.addIssue(issue);
         result = false;
       } else {
@@ -254,13 +252,12 @@ export class PropertyTablePropertyValidator {
     if (defined(max)) {
       // The 'max' MUST not be given for variable-length arrays
       if (isVariableLengthArray) {
-        const message =
-          `The property '${propertyName}' defines 'max', ` +
-          `which is not applicable to variable-length arrays`;
-        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
-          path,
-          message
-        );
+        const issue =
+          MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
+            path,
+            propertyName,
+            "max"
+          );
         context.addIssue(issue);
         result = false;
       } else {
@@ -284,13 +281,12 @@ export class PropertyTablePropertyValidator {
     if (defined(min)) {
       // The 'min' MUST not be given for variable-length arrays
       if (isVariableLengthArray) {
-        const message =
-          `The property '${propertyName}' defines 'min', ` +
-          `which is not applicable to variable-length arrays`;
-        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
-          path,
-          message
-        );
+        const issue =
+          MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
+            path,
+            propertyName,
+            "min"
+          );
         context.addIssue(issue);
         result = false;
       } else {

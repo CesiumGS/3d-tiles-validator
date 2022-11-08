@@ -71,7 +71,7 @@ describe("Metadata schema validation", function () {
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
-      "CLASS_PROPERTY_COMPONENT_TYPE_WITH_INVALID_TYPE"
+      "CLASS_PROPERTY_COMPONENT_TYPE_FOR_NON_NUMERIC_TYPE"
     );
   });
 
@@ -128,7 +128,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertyDefaultWithRequired.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
+    expect(result.get(0).type).toEqual("CLASS_PROPERTY_INCONSISTENT");
   });
 
   it("detects issues in metadataClassPropertyDescriptionInvalidType", async function () {
@@ -188,9 +188,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertyMaxForNonNumericType.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual(
-      "CLASS_PROPERTY_MIN_MAX_FOR_NON_NUMERIC_TYPE"
-    );
+    expect(result.get(0).type).toEqual("METADATA_MIN_MAX_FOR_NON_NUMERIC_TYPE");
   });
 
   it("detects issues in metadataClassPropertyMinForNonNumericType", async function () {
@@ -198,9 +196,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertyMinForNonNumericType.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual(
-      "CLASS_PROPERTY_MIN_MAX_FOR_NON_NUMERIC_TYPE"
-    );
+    expect(result.get(0).type).toEqual("METADATA_MIN_MAX_FOR_NON_NUMERIC_TYPE");
   });
 
   it("detects issues in metadataClassPropertyMinForVariableLengthArray", async function () {
@@ -208,7 +204,9 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertyMinForVariableLengthArray.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
+    expect(result.get(0).type).toEqual(
+      "METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY"
+    );
   });
 
   it("detects issues in metadataClassPropertyNameInvalidType", async function () {
@@ -224,7 +222,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertyNoDataForBoolean.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
+    expect(result.get(0).type).toEqual("CLASS_PROPERTY_INCONSISTENT");
   });
 
   it("detects issues in metadataClassPropertyNoDataInvalidEnumValueName", async function () {
@@ -232,7 +230,9 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertyNoDataInvalidEnumValueName.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("CLASS_PROPERTY_ENUM_VALUE_NOT_FOUND");
+    expect(result.get(0).type).toEqual(
+      "CLASS_PROPERTY_ENUM_VALUE_NAME_NOT_FOUND"
+    );
   });
 
   it("detects issues in metadataClassPropertyNoDataInvalidEnumValueNames", async function () {
@@ -240,7 +240,9 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertyNoDataInvalidEnumValueNames.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("CLASS_PROPERTY_ENUM_VALUE_NOT_FOUND");
+    expect(result.get(0).type).toEqual(
+      "CLASS_PROPERTY_ENUM_VALUE_NAME_NOT_FOUND"
+    );
   });
 
   it("detects issues in metadataClassPropertyNoDataTypeMismatchA", async function () {
@@ -272,7 +274,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertyNoDataWithRequired.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
+    expect(result.get(0).type).toEqual("CLASS_PROPERTY_INCONSISTENT");
   });
 
   it("detects issues in metadataClassPropertyNormalizedForNonIntegerComponentType", async function () {
@@ -309,7 +311,7 @@ describe("Metadata schema validation", function () {
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
-      "CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE"
+      "METADATA_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE"
     );
   });
 
@@ -319,7 +321,7 @@ describe("Metadata schema validation", function () {
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
-      "CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE"
+      "METADATA_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE"
     );
   });
 
@@ -328,7 +330,9 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/metadataClassPropertyOffsetForVariableLengthArray.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
+    expect(result.get(0).type).toEqual(
+      "METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY"
+    );
   });
 
   it("detects issues in metadataClassPropertyOffsetTypeMismatchA", async function () {
@@ -401,7 +405,7 @@ describe("Metadata schema validation", function () {
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
-      "CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE"
+      "METADATA_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE"
     );
   });
 
@@ -411,7 +415,7 @@ describe("Metadata schema validation", function () {
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual(
-      "CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE"
+      "METADATA_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE"
     );
   });
 

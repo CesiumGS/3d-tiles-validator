@@ -207,7 +207,7 @@ export class BoundingVolumeS2Validator implements Validator<any> {
           `The minimumHeight may not be larger than the ` +
           `maximumHeight, but the minimumHeight is ${minimumHeight} ` +
           `and the maximum height is ${maximumHeight}`;
-        const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
+        const issue = SemanticValidationIssues.BOUNDING_VOLUME_INVALID(
           path,
           message
         );

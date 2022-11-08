@@ -5,7 +5,6 @@ import { ValidationContext } from "./../ValidationContext";
 
 import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 
-import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
 /**
@@ -45,7 +44,7 @@ export class ClassPropertySemanticsValidator {
           const otherPropertyName = semanticsToPropertyNames[semantic!];
           if (defined(otherPropertyName)) {
             const issue =
-              SemanticValidationIssues.CLASS_PROPERTIES_DUPLICATE_SEMANTIC(
+              MetadataValidationIssues.CLASS_PROPERTIES_DUPLICATE_SEMANTIC(
                 metadataClassPath,
                 propertyName,
                 otherPropertyName,

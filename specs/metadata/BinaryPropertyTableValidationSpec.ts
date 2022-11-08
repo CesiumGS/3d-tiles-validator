@@ -88,7 +88,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(1);
-      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+      expect(result.get(0).type).toEqual("METADATA_INVALID_LENGTH");
     });
   });
 
@@ -174,7 +174,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(1);
-      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+      expect(result.get(0).type).toEqual("METADATA_INVALID_LENGTH");
     });
 
     it("detects descending arrayOffsets for example_variable_length_INT16_SCALAR_array", function () {
@@ -233,7 +233,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(1);
-      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+      expect(result.get(0).type).toEqual("METADATA_INVALID_LENGTH");
     });
   });
 
@@ -288,7 +288,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(1);
-      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+      expect(result.get(0).type).toEqual("METADATA_INVALID_LENGTH");
     });
   });
 
@@ -362,7 +362,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(1);
-      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+      expect(result.get(0).type).toEqual("METADATA_INVALID_LENGTH");
     });
   });
 
@@ -424,7 +424,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(1);
-      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+      expect(result.get(0).type).toEqual("METADATA_INVALID_LENGTH");
     });
   });
 
@@ -479,7 +479,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(1);
-      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+      expect(result.get(0).type).toEqual("METADATA_INVALID_LENGTH");
     });
   });
 
@@ -565,7 +565,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(1);
-      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+      expect(result.get(0).type).toEqual("METADATA_INVALID_LENGTH");
     });
 
     it("detects descending stringOffsets for example_STRING", function () {
@@ -624,7 +624,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
         console.log(result.toJson());
       }
       expect(result.length).toEqual(1);
-      expect(result.get(0).type).toEqual("METADATA_INVALID_SIZE");
+      expect(result.get(0).type).toEqual("METADATA_INVALID_LENGTH");
     });
   });
 

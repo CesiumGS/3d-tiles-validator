@@ -345,7 +345,9 @@ describe("metadata/PropertyTableValidationSpec", function () {
     );
     const result = context.getResult();
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
+    expect(result.get(0).type).toEqual(
+      "METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY"
+    );
   });
   it("detects issues in propertyVariableLengthArrayWithOffset", async function () {
     const inputData = await readJsonUnchecked(
@@ -362,7 +364,9 @@ describe("metadata/PropertyTableValidationSpec", function () {
     );
     const result = context.getResult();
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("CLASS_PROPERTY_TYPE_ERROR");
+    expect(result.get(0).type).toEqual(
+      "METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY"
+    );
   });
 
   it("detects issues in propertyVariableLengthArrayWithoutArrayOffsets", async function () {

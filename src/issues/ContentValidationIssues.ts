@@ -11,7 +11,7 @@ export class ContentValidationIssues {
   /**
    * Creates a new content `ValidationIssue` that summarizes the
    * given `ValidationResult`, or `undefined` if the given result
-   * does not contain errors or warnings.
+   * is empty.
    *
    * If the given result contains errors, then a
    * `CONTENT_VALIDATION_ERROR` will be created, with the
