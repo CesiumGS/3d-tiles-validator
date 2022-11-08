@@ -107,7 +107,7 @@ export class TileContentValidator {
       const message =
         `The content bounding volume is not contained ` +
         `in the tile bounding volume: ${errorMessage}`;
-      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
+      const issue = SemanticValidationIssues.BOUNDING_VOLUMES_INCONSISTENT(
         contentBoundingVolumePath,
         message
       );

@@ -11,7 +11,7 @@ import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
 import { MetadataEnum } from "../../structure/Metadata/MetadataEnum";
 import { EnumValue } from "../../structure/Metadata/EnumValue";
 
-import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
+import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
 /**
  * A class for validations related to `MetadataEnum` objects.
@@ -252,7 +252,7 @@ export class MetadataEnumValidator {
       const value = array[i];
       const index = array.indexOf(value);
       if (index != i) {
-        const issue = SemanticValidationIssues.ENUM_VALUE_DUPLICATE_NAME(
+        const issue = MetadataValidationIssues.ENUM_VALUE_DUPLICATE_NAME(
           path,
           value
         );
@@ -283,7 +283,7 @@ export class MetadataEnumValidator {
       const value = array[i];
       const index = array.indexOf(value);
       if (index != i) {
-        const issue = SemanticValidationIssues.ENUM_VALUE_DUPLICATE_VALUE(
+        const issue = MetadataValidationIssues.ENUM_VALUE_DUPLICATE_VALUE(
           path,
           value
         );

@@ -13,8 +13,8 @@ import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 import { MetadataTypes } from "../../metadata/MetadataTypes";
 import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
 
-import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
 import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
+import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
 /**
  * A class for validations related to `class.property` objects.
@@ -136,7 +136,7 @@ export class ClassPropertyValidator {
       // componentType MUST be defined
       if (isNumericType) {
         const issue =
-          SemanticValidationIssues.CLASS_PROPERTY_COMPONENT_TYPE_MISSING(
+          MetadataValidationIssues.CLASS_PROPERTY_COMPONENT_TYPE_MISSING(
             componentTypePath,
             type
           );
@@ -147,7 +147,7 @@ export class ClassPropertyValidator {
     if (!isNumericType && defined(componentType)) {
       // For non-numeric types the componentType MUST NOT be defined
       const issue =
-        SemanticValidationIssues.CLASS_PROPERTY_COMPONENT_TYPE_WITH_INVALID_TYPE(
+        MetadataValidationIssues.CLASS_PROPERTY_COMPONENT_TYPE_FOR_NON_NUMERIC_TYPE(
           componentTypePath,
           componentType!,
           type
@@ -188,7 +188,7 @@ export class ClassPropertyValidator {
     // When the type is "ENUM", then the enumType MUST be defined
     if (type === "ENUM" && !defined(enumType)) {
       const issue =
-        SemanticValidationIssues.CLASS_PROPERTY_ENUM_TYPE_WITHOUT_ENUMTYPE(
+        MetadataValidationIssues.CLASS_PROPERTY_ENUM_TYPE_WITHOUT_ENUMTYPE(
           propertyPath
         );
       context.addIssue(issue);
@@ -196,7 +196,7 @@ export class ClassPropertyValidator {
     } else if (type !== "ENUM" && defined(enumType)) {
       // When the type is not "ENUM", then the enumType MUST NOT be defined
       const issue =
-        SemanticValidationIssues.CLASS_PROPERTY_ENUMTYPE_WITH_NON_ENUM_TYPE(
+        MetadataValidationIssues.CLASS_PROPERTY_ENUMTYPE_WITH_NON_ENUM_TYPE(
           enumTypePath,
           enumType!,
           type
@@ -220,9 +220,8 @@ export class ClassPropertyValidator {
         const enums = defaultValue(schema.enums, {});
         if (!Object.keys(enums).includes(enumType!)) {
           const issue =
-            SemanticValidationIssues.CLASS_PROPERTY_ENUMTYPE_NOT_FOUND(
+            MetadataValidationIssues.CLASS_PROPERTY_ENUMTYPE_NOT_FOUND(
               propertyPath,
-              propertyName,
               enumType!
             );
           context.addIssue(issue);
@@ -265,7 +264,7 @@ export class ClassPropertyValidator {
       // When the count is defined, then the property MUST be an array
       if (!array) {
         const issue =
-          SemanticValidationIssues.CLASS_PROPERTY_COUNT_FOR_NON_ARRAY(
+          MetadataValidationIssues.CLASS_PROPERTY_COUNT_FOR_NON_ARRAY(
             propertyPath,
             propertyName
           );
@@ -295,7 +294,7 @@ export class ClassPropertyValidator {
         // of the numeric types (SCALAR, VECn, MATn)
         if (!MetadataTypes.isNumericType(type)) {
           const issue =
-            SemanticValidationIssues.CLASS_PROPERTY_NORMALIZED_FOR_NON_NORMALIZABLE_TYPE(
+            MetadataValidationIssues.CLASS_PROPERTY_NORMALIZED_FOR_NON_NORMALIZABLE_TYPE(
               propertyPath,
               propertyName,
               type
@@ -308,7 +307,7 @@ export class ClassPropertyValidator {
           // MUST be an integer type
           if (!MetadataComponentTypes.isIntegerComponentType(componentType!)) {
             const issue =
-              SemanticValidationIssues.CLASS_PROPERTY_NORMALIZED_FOR_NON_INTEGER_COMPONENT_TYPE(
+              MetadataValidationIssues.CLASS_PROPERTY_NORMALIZED_FOR_NON_INTEGER_COMPONENT_TYPE(
                 propertyPath,
                 propertyName,
                 componentType!
@@ -346,7 +345,7 @@ export class ClassPropertyValidator {
         const message =
           `The property '${propertyName}' defines a 'noData' ` +
           `value, but is 'required'`;
-        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
+        const issue = MetadataValidationIssues.CLASS_PROPERTY_INCONSISTENT(
           noDataPath,
           message
         );
@@ -357,7 +356,7 @@ export class ClassPropertyValidator {
         const message =
           `The property '${propertyName}' defines a 'noData' ` +
           `value, but has the type 'BOOLEAN'`;
-        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
+        const issue = MetadataValidationIssues.CLASS_PROPERTY_INCONSISTENT(
           noDataPath,
           message
         );
@@ -375,7 +374,7 @@ export class ClassPropertyValidator {
         const message =
           `The property '${propertyName}' defines a 'default' ` +
           `value, but is 'required'`;
-        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
+        const issue = MetadataValidationIssues.CLASS_PROPERTY_INCONSISTENT(
           defaultPath,
           message
         );

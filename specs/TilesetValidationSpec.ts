@@ -60,12 +60,12 @@ describe("Tileset validation", function () {
       "specs/data/tilesets/boundingVolumeRegionArrayElementsOutOfRange.json"
     );
     expect(result.length).toEqual(6);
-    expect(result.get(0).type).toEqual("BOUNDING_VOLUME_INCONSISTENT");
-    expect(result.get(1).type).toEqual("BOUNDING_VOLUME_INCONSISTENT");
-    expect(result.get(2).type).toEqual("BOUNDING_VOLUME_INCONSISTENT");
-    expect(result.get(3).type).toEqual("BOUNDING_VOLUME_INCONSISTENT");
-    expect(result.get(4).type).toEqual("BOUNDING_VOLUME_INCONSISTENT");
-    expect(result.get(5).type).toEqual("BOUNDING_VOLUME_INCONSISTENT");
+    expect(result.get(0).type).toEqual("BOUNDING_VOLUME_INVALID");
+    expect(result.get(1).type).toEqual("BOUNDING_VOLUME_INVALID");
+    expect(result.get(2).type).toEqual("BOUNDING_VOLUME_INVALID");
+    expect(result.get(3).type).toEqual("BOUNDING_VOLUME_INVALID");
+    expect(result.get(4).type).toEqual("BOUNDING_VOLUME_INVALID");
+    expect(result.get(5).type).toEqual("BOUNDING_VOLUME_INVALID");
   });
 
   it("detects issues in boundingVolumeRegionArrayInvalidElementType", async function () {
@@ -87,7 +87,7 @@ describe("Tileset validation", function () {
       "specs/data/tilesets/boundingVolumeSphereArrayElementOutOfRange.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("BOUNDING_VOLUME_INCONSISTENT");
+    expect(result.get(0).type).toEqual("BOUNDING_VOLUME_INVALID");
   });
 
   it("detects issues in boundingVolumeSphereArrayInvalidElementType", async function () {
@@ -401,7 +401,7 @@ describe("Tileset validation", function () {
       "specs/data/tilesets/tileContentBoundingVolumeNotInTileBoundingVolume.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("BOUNDING_VOLUME_INCONSISTENT");
+    expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
   });
 
   it("detects issues in tileContentGroupInvalidIndex", async function () {
@@ -473,8 +473,8 @@ describe("Tileset validation", function () {
       "specs/data/tilesets/tileGeometricErrorNotSmallerThanParentGeometricError.json"
     );
     expect(result.length).toEqual(2);
-    expect(result.get(0).type).toEqual("TILE_GEOMETRIC_ERROR_INCONSISTENT");
-    expect(result.get(1).type).toEqual("TILE_GEOMETRIC_ERROR_INCONSISTENT");
+    expect(result.get(0).type).toEqual("TILE_GEOMETRIC_ERRORS_INCONSISTENT");
+    expect(result.get(1).type).toEqual("TILE_GEOMETRIC_ERRORS_INCONSISTENT");
   });
 
   it("detects issues in tileInvalidType", async function () {

@@ -1,11 +1,13 @@
+import { defined } from "../../base/defined";
+
 import { ValidationContext } from "../ValidationContext";
+
 import { ClassProperties } from "./ClassProperties";
 import { MetadataValueValidator } from "./MetadataValueValidator";
 
 import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 
-import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
-import { defined } from "../../base/defined";
+import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
 /**
  * A class for validations of metadata values against the definitions
@@ -22,7 +24,7 @@ export class ClassPropertyValueValidator {
    * for the given property.
    *
    * If the property does not have a numeric type, then a
-   * `CLASS_PROPERTY_MIN_MAX_FOR_NON_NUMERIC_TYPE` validation
+   * `METADATA_MIN_MAX_FOR_NON_NUMERIC_TYPE` validation
    * issue will be added to the given context.
    *
    * If the structure of the given value does not match the
@@ -53,7 +55,7 @@ export class ClassPropertyValueValidator {
     // When the max/min is given, the property MUST have a numeric type
     if (!ClassProperties.hasNumericType(property)) {
       const issue =
-        SemanticValidationIssues.CLASS_PROPERTY_MIN_MAX_FOR_NON_NUMERIC_TYPE(
+        MetadataValidationIssues.METADATA_MIN_MAX_FOR_NON_NUMERIC_TYPE(
           path,
           propertyName,
           maxOrMin,
@@ -65,13 +67,12 @@ export class ClassPropertyValueValidator {
       // The offset/scale property MUST NOT be given
       // for variable-length arrays
       if (property.array === true && !defined(property.count)) {
-        const message =
-          `The property '${propertyName}' defines '${maxOrMin}', ` +
-          `which is not applicable to variable-length arrays`;
-        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
-          path,
-          message
-        );
+        const issue =
+          MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
+            path,
+            propertyName,
+            maxOrMin
+          );
         context.addIssue(issue);
         result = false;
       } else {
@@ -97,7 +98,7 @@ export class ClassPropertyValueValidator {
    * for the given property.
    *
    * If the property does not have a numeric type, then a
-   * `CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE` validation
+   * `METADATA_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE` validation
    * issue will be added to the given context.
    *
    * If the structure of the given value does not match the
@@ -130,7 +131,7 @@ export class ClassPropertyValueValidator {
     // When the offset/scale is given, the property MUST have a 'floating point type'
     if (!ClassProperties.hasEffectivelyFloatingPointType(property)) {
       const issue =
-        SemanticValidationIssues.CLASS_PROPERTY_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE(
+        MetadataValidationIssues.METADATA_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE(
           path,
           propertyName,
           offsetOrScale,
@@ -144,13 +145,12 @@ export class ClassPropertyValueValidator {
       // The offset/scale property MUST NOT be given
       // for variable-length arrays
       if (property.array === true && !defined(property.count)) {
-        const message =
-          `The property '${propertyName}' defines '${offsetOrScale}', ` +
-          `which is not applicable to variable-length arrays`;
-        const issue = SemanticValidationIssues.CLASS_PROPERTY_TYPE_ERROR(
-          path,
-          message
-        );
+        const issue =
+          MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
+            path,
+            propertyName,
+            offsetOrScale
+          );
         context.addIssue(issue);
         result = false;
       } else {
