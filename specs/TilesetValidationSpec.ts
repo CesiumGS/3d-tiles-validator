@@ -670,6 +670,14 @@ describe("Tileset validation", function () {
     expect(result.length).toEqual(0);
   });
 
+  it("detects issues in validTilesetWithExternalValidTilesetWithValidB3dmWithInvalidGlb", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithExternalValidTilesetWithValidB3dmWithInvalidGlb.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
+  });
+
   it("detects issues in validTilesetWithGlbWithErrors", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/validTilesetWithGlbWithErrors.json"
