@@ -13,7 +13,7 @@ export class SemanticValidationIssues {
    *
    * (The known values are defined by the 'AssetValidator' class)
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -32,7 +32,7 @@ export class SemanticValidationIssues {
    * value like 'Replace' was still valid. Current tilesets should
    * always use uppercase values like 'REPLACE'.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -56,7 +56,7 @@ export class SemanticValidationIssues {
    * could not be created (for example, when the subtree data
    * could not be read)
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -76,7 +76,7 @@ export class SemanticValidationIssues {
    * that the borders of a bounding regions are within
    * valid ranges.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -93,7 +93,7 @@ export class SemanticValidationIssues {
    * For now, this only means that a content bounding volume was
    * not fully contained in the tile bounding volume.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -108,7 +108,7 @@ export class SemanticValidationIssues {
    * Indicates that the minimum value of a 'tileset.properties'
    * element was larger than the maximum.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -123,7 +123,7 @@ export class SemanticValidationIssues {
    * Indicates that the geometric error of a tile was larger than
    * the geometric error of its parent.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -141,7 +141,7 @@ export class SemanticValidationIssues {
    * in implicit tiling may contain variables like '{level}', and
    * this issue indicates that there was an invalid variable name.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param variableName The variable name
    * @param validVariableNames The valid variable names
    * @returns The `ValidationIssue`
@@ -169,7 +169,7 @@ export class SemanticValidationIssues {
    * names. This issue is only a 'WARNING' for the case that an
    * expected name was not used.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param missingVVariableNames The missing variable names
    * @returns The `ValidationIssue`
    */
@@ -199,7 +199,7 @@ export class SemanticValidationIssues {
    * should contain further information about the reason for
    * the error.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -217,7 +217,7 @@ export class SemanticValidationIssues {
    * an implicit subtree. It may, for example, inciate that a
    * buffer view does not fit into the buffer that it refers to.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -240,7 +240,7 @@ export class SemanticValidationIssues {
    * More specific information about the inconsistency is given
    * in the error message.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -258,7 +258,7 @@ export class SemanticValidationIssues {
    * For now, this indicates that the transform matrix was
    * the zero-matrix.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -274,7 +274,7 @@ export class SemanticValidationIssues {
    * 'extensionsRequired', but not in the 'extensionsUsed'
    * of a tileset.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param extensionName The extension name
    * @returns The `ValidationIssue`
    */
@@ -296,7 +296,7 @@ export class SemanticValidationIssues {
    * 'someRootProperty.extensons' dictionary during the
    * traversal,
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param extensionName The extension name
    * @returns The `ValidationIssue`
    */
@@ -322,7 +322,7 @@ export class SemanticValidationIssues {
    * NOTE: The exact mechanism for an extension being "used" may have to be
    * reviewed. See https://github.com/CesiumGS/3d-tiles-validator/issues/231
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param extensionName The extension name
    * @returns The `ValidationIssue`
    */
@@ -341,7 +341,7 @@ export class SemanticValidationIssues {
    * the traversal, but is not known or handled by the
    * validator in any way.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param extensionName The extension name
    * @returns The `ValidationIssue`
    */
