@@ -4,29 +4,36 @@ import { ValidationIssueSeverity } from "./ValidationIssueSeverity";
 /**
  * A class summarizing the result of a validation pass.
  *
- * It mayinly summarizes a set of `ValicationIssue` instances.
- *
- * TODO: Further functionalities will likely be added here,
- * including JSON serialization, functions to obtain all
- * errors or all warnings, functions that provide
- * summary information, or details like a timestamp for
- * the time of the validation.
+ * It mainly summarizes a set of `ValidationIssue` instances.
  */
 export class ValidationResult {
+  /**
+   * The date when this instance was created (this
+   * indicates the start of the validation process)
+   */
   private readonly _date: Date;
+
   /**
    * The list of `ValidationIssue` instances
    */
   private readonly _issues: ValidationIssue[];
 
-  constructor() {
-    this._date = new Date(Date.now());
+  static create(): ValidationResult {
+    return new ValidationResult(new Date(Date.now()));
+  }
+
+  private constructor(date: Date) {
+    this._date = date;
     this._issues = [];
+  }
+
+  shallowCopy(): ValidationResult {
+    return new ValidationResult(this._date);
   }
 
   /**
    * Adds a new `ValidationIssue` to this result. This method
-   * should usually not be called by clients. It is only
+   * should usually not be called by clients. It is mainly
    * intended for the `ValidationContext#addIssue` method,
    * to collect the issues during validation.
    *
@@ -48,6 +55,10 @@ export class ValidationResult {
     return this.count(ValidationIssueSeverity.WARNING);
   }
 
+  get numInfos(): number {
+    return this.count(ValidationIssueSeverity.INFO);
+  }
+
   get(index: number): ValidationIssue {
     return this._issues[index];
   }
@@ -66,10 +77,12 @@ export class ValidationResult {
       this._issues.length > 0 ? this._issues.map((i) => i.toJson()) : undefined;
     const numErrors = this.numErrors;
     const numWarnings = this.numWarnings;
+    const numInfos = this.numInfos;
     return {
       date: this._date,
       numErrors: numErrors,
       numWarnings: numWarnings,
+      numInfos: numInfos,
       issues: issuesJson,
     };
   }

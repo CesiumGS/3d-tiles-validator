@@ -47,7 +47,7 @@ export class ValidationContext {
 
   constructor(resourceResolver: ResourceResolver) {
     this._options = new ValidationOptions();
-    this._result = new ValidationResult();
+    this._result = ValidationResult.create();
     this._resourceResolver = resourceResolver;
     this._extensionsFound = new Set<string>();
   }

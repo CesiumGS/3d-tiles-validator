@@ -31,6 +31,7 @@ export class ContentValidationIssues {
   ): ValidationIssue | undefined {
     let hasErrors = false;
     let hasWarnings = false;
+    let hasInfos = false;
     for (let i = 0; i < result.length; i++) {
       const issue = result.get(i);
       if (issue.severity == ValidationIssueSeverity.ERROR) {
@@ -39,8 +40,11 @@ export class ContentValidationIssues {
       if (issue.severity == ValidationIssueSeverity.WARNING) {
         hasWarnings = true;
       }
+      if (issue.severity == ValidationIssueSeverity.INFO) {
+        hasInfos = true;
+      }
     }
-    if (!hasErrors && !hasWarnings) {
+    if (!hasErrors && !hasWarnings && !hasInfos) {
       return undefined;
     }
     let resultIssue;
@@ -50,9 +54,15 @@ export class ContentValidationIssues {
         path,
         message
       );
-    } else {
+    } else if (hasWarnings) {
       const message = `Content ${path} caused validation warnings`;
       resultIssue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
+        path,
+        message
+      );
+    } else {
+      const message = `Content ${path} caused validation infos`;
+      resultIssue = ContentValidationIssues.CONTENT_VALIDATION_INFO(
         path,
         message
       );
@@ -68,9 +78,9 @@ export class ContentValidationIssues {
    * Indicates that the validation of content caused an error.
    *
    * The returned issue may have `causes` that summarize
-   * the warnings and errors that eventually caused this issue.
+   * the issues that eventually caused this issue.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -85,9 +95,9 @@ export class ContentValidationIssues {
    * Indicates that the validation of content caused a warning.
    *
    * The returned issue may have `causes` that summarize
-   * the warnings that eventually caused this issue.
+   * the issues that eventually caused this issue.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -99,13 +109,31 @@ export class ContentValidationIssues {
   }
 
   /**
+   * Indicates that the validation of content caused an issue
+   * with severity level 'INFO'.
+   *
+   * The returned issue may have `causes` that summarize
+   * the issues that eventually caused this issue.
+   *
+   * @param path The path for the `ValidationIssue`
+   * @param message The message for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static CONTENT_VALIDATION_INFO(path: string, message: string) {
+    const type = "CONTENT_VALIDATION_INFO";
+    const severity = ValidationIssueSeverity.INFO;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  /**
    * Indicates that the JSON part of a tile content was invalid.
    * This may refer to not being able to parse the JSON data
    * from a binary blob, or that the validation of the JSON
    * structure itself (using the legacy validation) caused an
    * error.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */

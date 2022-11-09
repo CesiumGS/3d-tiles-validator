@@ -13,7 +13,11 @@ export class ValidationIssue {
   private readonly _type: string;
 
   /**
-   * The JSON path leading to the element that caused the issue.
+   * The path leading to the element that caused the issue.
+   *
+   * This resembles a "JSON path", but may contain elements
+   * that go outside of the actual containing JSON (for example,
+   * it may contain the name of a tile content file)
    */
   private readonly _path: string;
 
