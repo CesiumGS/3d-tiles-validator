@@ -150,9 +150,24 @@ export class ContentDataValidator {
       derivedContext
     );
     const derivedResult = derivedContext.getResult();
-    const issue = ContentValidationIssues.createFrom(contentUri, derivedResult);
-    if (issue) {
-      context.addIssue(issue);
+
+    const isTileset = ContentDataValidators.isProbablyTileset(contentData);
+    if (isTileset) {
+      const issue = ContentValidationIssues.createForExternalTileset(
+        contentUri,
+        derivedResult
+      );
+      if (issue) {
+        context.addIssue(issue);
+      }
+    } else {
+      const issue = ContentValidationIssues.createForContent(
+        contentUri,
+        derivedResult
+      );
+      if (issue) {
+        context.addIssue(issue);
+      }
     }
     return result;
   }

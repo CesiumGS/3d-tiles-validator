@@ -675,7 +675,7 @@ describe("Tileset validation", function () {
       "specs/data/tilesets/validTilesetWithExternalValidTilesetWithValidB3dmWithInvalidGlb.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
+    expect(result.get(0).type).toEqual("EXTERNAL_TILESET_VALIDATION_ERROR");
   });
 
   it("detects issues in validTilesetWithGlbWithErrors", async function () {

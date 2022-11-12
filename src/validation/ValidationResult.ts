@@ -1,5 +1,7 @@
 import { ValidationIssue } from "./ValidationIssue";
+import { ValidationIssueFilter } from "./ValidationIssueFilter";
 import { ValidationIssueSeverity } from "./ValidationIssueSeverity";
+import { ValidationResults } from "./ValidationResults";
 
 /**
  * A class summarizing the result of a validation pass.
@@ -18,17 +20,45 @@ export class ValidationResult {
    */
   private readonly _issues: ValidationIssue[];
 
+  /**
+   * Creates a new, empty validation result
+   *
+   * @returns The new `ValidationResult`
+   */
   static create(): ValidationResult {
     return new ValidationResult(new Date(Date.now()));
   }
 
+  /**
+   * Private constructor for `shallowCopy`
+   *
+   * @param date The date that is stored in the result
+   */
   private constructor(date: Date) {
     this._date = date;
     this._issues = [];
   }
 
-  shallowCopy(): ValidationResult {
-    return new ValidationResult(this._date);
+  /**
+   * Creates a new `ValidationResult` by filtering this one,
+   * using the given `ValidationIssueFilter` as the inclusion
+   * predicate.
+   *
+   * @param includePredicate The predicate that determines whether
+   * a certain issue should be included in the result
+   * @returns The filtered result
+   */
+  filter(includePredicate: ValidationIssueFilter): ValidationResult {
+    const result = new ValidationResult(this._date);
+    ValidationResults.filter(this, includePredicate, result);
+    return result;
+  }
+
+  /**
+   * Returns a read-only view on the issues of this result
+   */
+  get issues(): readonly ValidationIssue[] {
+    return this._issues;
   }
 
   /**
@@ -63,7 +93,7 @@ export class ValidationResult {
     return this._issues[index];
   }
 
-  private count(severity: string): number {
+  private count(severity: ValidationIssueSeverity): number {
     return this._issues.reduce((accumulator, element) => {
       if (element.severity === severity) {
         return accumulator + 1;
