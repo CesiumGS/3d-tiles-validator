@@ -293,7 +293,7 @@ export class I3dmValidator implements Validator<Buffer> {
           result = false;
         }
         const derivedResult = derivedContext.getResult();
-        const issue = ContentValidationIssues.createFrom(uri, derivedResult);
+        const issue = ContentValidationIssues.createForContent(uri, derivedResult);
         if (issue) {
           context.addIssue(issue);
         }

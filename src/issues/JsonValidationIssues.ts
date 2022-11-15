@@ -14,7 +14,7 @@ export class JsonValidationIssues {
    * Indicates that a property that is marked as 'required' in the
    * schema was missing.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name The name of the missing property
    * @returns The `ValidationIssue`
    */
@@ -35,7 +35,7 @@ export class JsonValidationIssues {
    * Indicates that a property had a type that was different
    * than the one in the JSON schema.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name The name of the property
    * @param expectedType The expected type
    * @param actualType The actual type
@@ -65,7 +65,7 @@ export class JsonValidationIssues {
    * Indicates that an array element had a type that was different
    * than the one in the JSON schema.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name The name of the array property
    * @param index The index of the element
    * @param expectedType The expected type
@@ -98,7 +98,7 @@ export class JsonValidationIssues {
    * the items are required to be unique due to `uniqueItems:true`
    * in the JSON schema.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name The name of the array property
    * @param item The duplicate item
    * @returns The `ValidationIssue`
@@ -116,7 +116,7 @@ export class JsonValidationIssues {
    * is specified by the JSON schema via the `minimum` and
    * `maximum` constraints.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -131,7 +131,7 @@ export class JsonValidationIssues {
    * Indicates that a value was not in the set of allowed
    * values. This usually refers to enum values.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -147,7 +147,7 @@ export class JsonValidationIssues {
    * that is specified via the JSON schema, using the `minItems`
    * and `maxItems` constraints.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -163,7 +163,7 @@ export class JsonValidationIssues {
    * that is specified via the JSON schema, using the `minLength`
    * and `maxLength` constraints.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -179,7 +179,7 @@ export class JsonValidationIssues {
    * meet the constraints that are specified via the JSON schema, using
    * the `minProperties` and `maxProperties` properties.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -194,7 +194,7 @@ export class JsonValidationIssues {
    * Indicates that the pattern of a string property does not match the
    * required regular expression.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name The name of the property
    * @param value The value of the property
    * @param pattern A string representation of the expected pattern
@@ -224,7 +224,7 @@ export class JsonValidationIssues {
    * Indicates that multiple properties have been defined, when
    * only one of them should have been defined.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name The name of the containing object
    * @param properties The names of the properties
    * @returns The `ValidationIssue`
@@ -247,7 +247,7 @@ export class JsonValidationIssues {
    * Indicates that one of several properties must be defined,
    * but none of them was defined.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name The name of the containing object
    * @param properties The names of the properties
    * @returns The `ValidationIssue`
@@ -275,7 +275,7 @@ export class JsonValidationIssues {
    * While the `extras` may have any type, a general best practice
    * is to let it be a dictionary (and not, for example, a string)
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name The name of the property
    * @param expectedType The expected type
    * @param actualType The actual type

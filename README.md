@@ -10,7 +10,7 @@ A validator for 3D Tiles 1.1.
 > - The `3d-tiles-samples-generator` can be found in [the `3d-tiles-samples-generator` repository](https://github.com/CesiumGS/3d-tiles-samples-generator)
 > 
 
-## Usage
+## Command Line Usage
 
 **Note**: Some of the implementation and interfaces may still change. This refers to the source code as well as details of the command line interface and report format.
 
@@ -62,6 +62,23 @@ Alternatively, or when validating multiple files, the `writeReports` argument ca
 ```
 npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/ --writeReports
 ```
+
+## Validation Results 
+
+When using the validator as a library, then the output of the validator is provided as a [`ValidationResult`](https://github.com/CesiumGS/3d-tiles-validator/blob/main/src/validation/ValidationResult.ts). Clients can perform basic filtering operations on this validation result, in order to remove validation issues that are below a certain severity level, or warnings that are anticipated in a certain application context.
+
+For example, a given validation result can be filtered to 
+- include validation issues that have the severity `ERROR`
+- exclude validation issues that have the type `EXTENSION_NOT_SUPPORTED`
+
+by applying validation issue filters like this:
+```JavaScript
+  const filtered = result
+    .filter(ValidationIssueFilters.byIncludedSeverities(ValidationIssueSeverity.ERROR))
+    .filter(ValidationIssueFilters.byExcludedTypes("EXTENSION_NOT_SUPPORTED"));
+```
+
+**Note**: The `type` strings that are used for describing and categorizing the validation issues are not part of the core API. These strings might change between minor- or patch releases. But changes will be pointed out in the change log.
 
 ## Implementation notes
 

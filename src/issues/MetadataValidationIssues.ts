@@ -125,8 +125,6 @@ export class MetadataValidationIssues {
    * Indicates that a class property in the metadata schema had
    * a 'semantic' that was not known.
    *
-   * TODO This is currently a WARNING, but will become an INFO soon!
-   *
    * @param path The path for the `ValidationIssue`
    * @param propertyName The name of the property
    * @param semantic The semantic that was assigned to the property
@@ -138,7 +136,7 @@ export class MetadataValidationIssues {
     semantic: string
   ) {
     const type = "METADATA_SEMANTIC_UNKNOWN";
-    const severity = ValidationIssueSeverity.WARNING;
+    const severity = ValidationIssueSeverity.INFO;
     const message = `The property '${propertyName}' has unknown semantic '${semantic}'`;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;

@@ -14,4 +14,11 @@ export enum ValidationIssueSeverity {
    * behavior in clients.
    */
   WARNING = "WARNING",
+
+  /**
+   * An information that does not affect the validity.
+   * This may affect the runtime behavior of specific
+   * client applications.
+   */
+  INFO = "INFO",
 }

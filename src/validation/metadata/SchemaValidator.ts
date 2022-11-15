@@ -68,7 +68,7 @@ export class SchemaValidator implements Validator<Schema> {
    * Issues that are encountered during the validation will be added
    * as `ValidationIssue` instances to the given `ValidationContext`.
    *
-   * @param path The JSON path for the given object. This may either
+   * @param path The path for the given object. This may either
    * be `"/schema"` (for a `tileset.schema`), or the empty string
    * (for a schema that was read from a standalone schema file).
    * @param schema The `Schema` object

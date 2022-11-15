@@ -169,7 +169,7 @@ export class ContentDataValidators {
    * @param contentData The content data
    * @returns Whether the content data is probably a tileset
    */
-  private static isProbablyTileset(contentData: ContentData) {
+  static isProbablyTileset(contentData: ContentData) {
     const parsedObject = contentData.parsedObject;
     if (!defined(parsedObject)) {
       return false;

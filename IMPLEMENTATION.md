@@ -14,6 +14,7 @@ Parts of the current implementation may still change. This page is only a short 
 - `./src/implicitTiling`: Classes that support accessing implicit tiling information
 - `./src/traversal`: Classes for traversing tilesets
 - `./src/metadata`: Classes that support accessing 3D Metadata
+- `./src/binary`: Classes to handle binary metadata from property tables
 - `./specs`: Jasmine specs
 - `./specs/data`: Test data
 
@@ -40,16 +41,12 @@ The `ValidationIssue` class and its types:
 
 - The `ValidationIssue` itself is a plain data structure with basic info about the issue (message, path, severity...)
 - Instances of this class are created with methods in the `issues*` classes, roughly categorized here:
-  - `issues/IoValidationIssues.ts`: Fundamental IO errors, like `JSON_PARSE_ERROR`
-  - `issues/JsonValidationIssues.ts`: Violations of the JSON schema, like `PROPERTY_MISSING` or `ARRAY_LENGTH_MISMATCH`
-  - `issues/StructureValidationIssues.ts`: General issues related to an inconsistent structure, like `IDENTIFIER_NOT_FOUND` 
-  - `issues/SemanticValidationIssues.ts`: Issues related to inconsistent property values, like `TILE_GEOMETRIC_ERROR_INCONSISTENT` 
-  - `ContentValidationIssues.ts`: An error or warning in a tile content
+  - `IoValidationIssues.ts`: Fundamental IO errors, like `JSON_PARSE_ERROR`
+  - `JsonValidationIssues.ts`: Violations of the JSON schema, like `PROPERTY_MISSING` or `ARRAY_LENGTH_MISMATCH`
+  - `StructureValidationIssues.ts`: General, inconsistent structures, like `IDENTIFIER_NOT_FOUND` 
+  - `SemanticValidationIssues.ts`: Inconsistent property values, like `TILE_GEOMETRIC_ERRORS_INCONSISTENT` 
+  - `MetadataValidationIssues.ts`: Invalid metadata schema and values
+  - `BinaryValidationIssues.ts`: Invalid data layouts of binary tile content data
+  - `ContentValidationIssues.ts`: Issues that are found in tile content or external tilesets
 - For validation issues that refer to the tile content, each `ValidationIssue` can have an array of `causes`. This can be filled, for example, with the information from the glTF validator that caused the validation to fail
 
-## Discussion points
-
-### General functionality
-
-- Check that metadata statistics are correct. Or at the very least, check that metadata values fall within min/max
-- Check that metadata values fall within the class's min/max
