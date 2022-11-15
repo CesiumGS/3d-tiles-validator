@@ -1,5 +1,8 @@
 import { defined } from "../base/defined";
+import { ArrayValues } from "../base/ArrayValues";
+
 import { ClassProperty } from "../structure/Metadata/ClassProperty";
+
 import { MetadataComponentTypes } from "./MetadataComponentTypes";
 
 /**
@@ -46,14 +49,14 @@ export class MetadataValues {
     const noData = classProperty.noData;
     const defaultValue = classProperty.default;
     if (defined(noData)) {
-      if (MetadataValues.arrayDeepEquals(value, noData)) {
-        return MetadataValues.arrayDeepClone(defaultValue);
+      if (ArrayValues.deepEquals(value, noData)) {
+        return ArrayValues.deepClone(defaultValue);
       }
     }
     if (!defined(value)) {
-      return MetadataValues.arrayDeepClone(defaultValue);
+      return ArrayValues.deepClone(defaultValue);
     }
-    value = MetadataValues.arrayDeepClone(value);
+    value = ArrayValues.deepClone(value);
 
     if (classProperty.normalized === true) {
       const componentType = classProperty.componentType;
@@ -96,97 +99,8 @@ export class MetadataValues {
    * @returns The transformed value
    */
   private static transform(value: any, offset: any, scale: any): any {
-    value = MetadataValues.applyScale(value, scale);
-    value = MetadataValues.applyOffset(value, offset);
+    value = ArrayValues.deepMultiply(value, scale);
+    value = ArrayValues.deepAdd(value, offset);
     return value;
-  }
-
-  /**
-   * Applies the given scale factor to the given input value, if the
-   * scale factor is defined.
-   *
-   * @param value The input value
-   * @param scale The optional scale factor
-   * @returns The resulting value
-   */
-  private static applyScale(value: any, scale: any): any {
-    if (!defined(scale)) {
-      return value;
-    }
-    if (!Array.isArray(value)) {
-      return value * scale;
-    }
-    for (let i = 0; i < value.length; i++) {
-      value[i] = MetadataValues.applyScale(value[i], scale[i]);
-    }
-    return value;
-  }
-
-  /**
-   * Applies the given offset value to the given input value, if the
-   * offset value is defined.
-   *
-   * @param value The input value
-   * @param offset The optional offset value
-   * @returns The resulting value
-   */
-  private static applyOffset(value: any, offset: any): any {
-    if (!defined(offset)) {
-      return value;
-    }
-    if (!Array.isArray(value)) {
-      return value + offset;
-    }
-    for (let i = 0; i < value.length; i++) {
-      value[i] = MetadataValues.applyOffset(value[i], offset[i]);
-    }
-    return value;
-  }
-
-  /**
-   * Checks whether two values are equal, taking into account the
-   * possibility that these values may be arrays.
-   *
-   * @param left The left value
-   * @param right The right value
-   * @returns Whether the objects are equal
-   */
-  private static arrayDeepEquals(left: any, right: any) {
-    if (!Array.isArray(left)) {
-      return left === right;
-    }
-    if (!Array.isArray(right)) {
-      return false;
-    }
-    if (left.length !== right.length) {
-      return false;
-    }
-    for (let i = 0; i < left.length; i++) {
-      if (!MetadataValues.arrayDeepEquals(left[i], right[i])) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * Returns a deep clone of the given value, taking into account
-   * the possibility that the value may be an array.
-   *
-   * Non-array values (inclding objects!) will be returned
-   * directly.
-   *
-   * @param value The input value
-   * @returns The result value
-   */
-  private static arrayDeepClone(value: any) {
-    if (!Array.isArray(value)) {
-      return value;
-    }
-    const result = value.slice();
-    for (let i = 0; i < value.length; i++) {
-      result[i] = MetadataValues.arrayDeepClone(value[i]);
-    }
-    return result;
   }
 }

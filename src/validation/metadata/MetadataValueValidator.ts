@@ -8,7 +8,7 @@ import { MetadataTypes } from "../../metadata/MetadataTypes";
 import { Schema } from "../../structure/Metadata/Schema";
 import { ClassProperty } from "../../structure/Metadata/ClassProperty";
 
-import { SemanticValidationIssues } from "../../issues/SemanticValidationIssues";
+import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
 /**
  * A class for validations of metadata values against the definitions
@@ -276,7 +276,7 @@ export class MetadataValueValidator {
     // values from the enum definition
     if (!enumValueNames.includes(enumValueName)) {
       const issue =
-        SemanticValidationIssues.CLASS_PROPERTY_VALUE_ENUM_VALUE_NOT_FOUND(
+        MetadataValidationIssues.CLASS_PROPERTY_ENUM_VALUE_NAME_NOT_FOUND(
           path,
           name,
           propertyName,

@@ -43,7 +43,7 @@ export class TilesetArchiveValidator implements Validator<string> {
       return true;
     }
 
-    // Create the `ArchiveResourceResolver` from the archive, 
+    // Create the `ArchiveResourceResolver` from the archive,
     // and obtain the data for the `tileset.json` file.
     // This has to be present according to the 3TZ specification.
     const archiveResourceResolver = new ArchiveResourceResolver(
@@ -89,11 +89,10 @@ export class TilesetArchiveValidator implements Validator<string> {
       derivedContext
     );
     const derivedResult = derivedContext.getResult();
-    const issue = ContentValidationIssues.createFrom(uri, derivedResult);
+    const issue = ContentValidationIssues.createForContent(uri, derivedResult);
     if (issue) {
       context.addIssue(issue);
     }
     return result;
-
   }
 }

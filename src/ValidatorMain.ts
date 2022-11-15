@@ -1,11 +1,10 @@
 import path from "path";
 
 import { defined } from "./base/defined";
-import { createFilesIterable } from "./base/createFilesIterable";
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
-import { filterIterable } from "./base/filterIterable";
 import { globMatcher } from "./base/globMatcher";
 import { writeUnchecked } from "./base/writeUnchecked";
+import { Iterables } from "./base/Iterables";
 
 import { ValidationState } from "./validation/ValidationState";
 import { Validators } from "./validation/Validators";
@@ -51,13 +50,14 @@ export class ValidatorMain {
     console.log(
       "Validating tilesets from " + directoryName + " matching " + globPattern
     );
-    const allFiles = createFilesIterable(directoryName);
+    const allFiles = Iterables.overFiles(directoryName);
     const ignoreCase = true;
     const matcher = globMatcher(globPattern, ignoreCase);
-    const tilesetFiles = filterIterable(allFiles, matcher);
+    const tilesetFiles = Iterables.filter(allFiles, matcher);
     let numFiles = 0;
     let numFilesWithErrors = 0;
     let numFilesWithWarnings = 0;
+    let numFilesWithInfos = 0;
     for (const tilesetFile of tilesetFiles) {
       let reportFileName = undefined;
       if (writeReports) {
@@ -74,10 +74,14 @@ export class ValidatorMain {
       if (validationResult.numWarnings > 0) {
         numFilesWithWarnings++;
       }
+      if (validationResult.numInfos > 0) {
+        numFilesWithInfos++;
+      }
     }
     console.log("Validated " + numFiles + " files");
     console.log("    " + numFilesWithErrors + " files with errors");
     console.log("    " + numFilesWithWarnings + " files with warnings");
+    console.log("    " + numFilesWithInfos + " files with infos");
   }
 
   static async validateSchemaFile(
@@ -120,13 +124,13 @@ export class ValidatorMain {
     writeReports: boolean
   ): Promise<void> {
     const recurse = true;
-    const allSpecFiles = createFilesIterable(
+    const allSpecFiles = Iterables.overFiles(
       ValidatorMain.specsDataRootDir + "/tilesets",
       recurse
     );
     const ignoreCase = true;
     const matcher = globMatcher("**/*.json", ignoreCase);
-    const specFiles = filterIterable(allSpecFiles, matcher);
+    const specFiles = Iterables.filter(allSpecFiles, matcher);
     for (const specFile of specFiles) {
       let reportFileName = undefined;
       if (writeReports) {
@@ -140,13 +144,13 @@ export class ValidatorMain {
     writeReports: boolean
   ): Promise<void> {
     const recurse = false;
-    const allSpecFiles = createFilesIterable(
+    const allSpecFiles = Iterables.overFiles(
       ValidatorMain.specsDataRootDir + "schemas",
       recurse
     );
     const ignoreCase = true;
     const matcher = globMatcher("**/*.json", ignoreCase);
-    const specFiles = filterIterable(allSpecFiles, matcher);
+    const specFiles = Iterables.filter(allSpecFiles, matcher);
     for (const specFile of specFiles) {
       let reportFileName = undefined;
       if (writeReports) {
@@ -160,13 +164,13 @@ export class ValidatorMain {
     writeReports: boolean
   ): Promise<void> {
     const recurse = false;
-    const allSpecFiles = createFilesIterable(
+    const allSpecFiles = Iterables.overFiles(
       ValidatorMain.specsDataRootDir + "subtrees",
       recurse
     );
     const ignoreCase = true;
     const matcher = globMatcher("**/{*.json,*.subtree}", ignoreCase);
-    const specFiles = filterIterable(allSpecFiles, matcher);
+    const specFiles = Iterables.filter(allSpecFiles, matcher);
     for (const specFile of specFiles) {
       let reportFileName = undefined;
       if (writeReports) {

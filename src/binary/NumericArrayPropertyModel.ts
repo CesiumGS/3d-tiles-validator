@@ -60,7 +60,7 @@ export class NumericArrayPropertyModel implements PropertyModel {
       const n = arrayOffset + i;
 
       let element = undefined;
-      if (type === "SCALAR") {
+      if (type === "SCALAR" || type === "ENUM") {
         element = NumericBuffers.getNumericFromBuffer(
           valuesBuffer,
           n,

@@ -69,7 +69,7 @@ export class BinaryPropertyTables {
     classProperties[propertyName] = classProperty;
 
     const metadataClass: MetadataClass = {
-      name: "generatedClass",
+      name: "testMetadataClass",
       properties: classProperties,
     };
     return metadataClass;
@@ -89,8 +89,8 @@ export class BinaryPropertyTables {
     const classes: { [key: string]: MetadataClass } = {};
     classes[className] = metadataClass;
     const metadataSchema: Schema = {
-      id: "generatedMetadataSchemaId",
-      name: "generatedSchema",
+      id: "testMetadataMetadataSchemaId",
+      name: "testMetadataSchema",
       classes: classes,
     };
     return metadataSchema;
@@ -120,7 +120,7 @@ export class BinaryPropertyTables {
       {};
     propertyTableProperties[propertyName] = propertyTableProperty;
     const propertyTable: PropertyTable = {
-      name: "generatedPropertyTable",
+      name: "testPropertyTable",
       class: className,
       count: count,
       properties: propertyTableProperties,
@@ -219,7 +219,7 @@ export class BinaryPropertyTables {
     classProperty: ClassProperty,
     metadataEnum: MetadataEnum | undefined
   ): Schema {
-    const className = "generatedClass";
+    const className = "testMetadataClass";
     const metadataClass =
       BinaryPropertyTables.createMetadataClassFromClassProperty(
         propertyName,
@@ -231,7 +231,7 @@ export class BinaryPropertyTables {
     );
     if (defined(metadataEnum)) {
       const enums: { [key: string]: MetadataEnum } = {};
-      enums["generatedEnum"] = metadataEnum!;
+      enums["testMetadataEnum"] = metadataEnum!;
       schema.enums = enums;
     }
     return schema;
@@ -271,7 +271,7 @@ export class BinaryPropertyTables {
       classProperty,
       metadataEnum
     );
-    const className = "generatedClass";
+    const className = "testMetadataClass";
     const binaryPropertyTable = BinaryPropertyTables.createBinaryPropertyTable(
       schema,
       className,
@@ -344,12 +344,12 @@ export class BinaryPropertyTables {
       createdBufferViewsData
     );
 
-    const enumValueTypes = MetadataUtilities.computeEnumValueTypes(schema);
+    const binaryEnumInfo = MetadataUtilities.computeBinaryEnumInfo(schema);
 
     const binaryPropertyTable: BinaryPropertyTable = {
       metadataClass: metadataClass,
       propertyTable: propertyTable,
-      enumValueTypes: enumValueTypes,
+      binaryEnumInfo: binaryEnumInfo,
       binaryBufferStructure: binaryBufferStructure,
       binaryBufferData: binaryBufferData,
     };
@@ -395,9 +395,9 @@ export class BinaryPropertyTables {
       case "UINT32":
         return new Uint32Array(flatValues).buffer;
       case "INT64":
-        return new BigInt64Array(flatValues).buffer;
+        return new BigInt64Array(flatValues.map((v: any) => BigInt(v))).buffer;
       case "UINT64":
-        return new BigUint64Array(flatValues).buffer;
+        return new BigUint64Array(flatValues.map((v: any) => BigInt(v))).buffer;
       case "FLOAT32":
         return new Float32Array(flatValues).buffer;
       case "FLOAT64":
@@ -459,9 +459,9 @@ export class BinaryPropertyTables {
     values: any
   ): Buffer {
     const type = classProperty.type;
-    const componentType = classProperty.componentType;
+    let componentType = classProperty.componentType;
     const enumType = classProperty.enumType;
-    const flattenedValues = BinaryPropertyTables.flatten(values);
+    let flattenedValues = BinaryPropertyTables.flatten(values);
 
     if (type === "STRING") {
       return BinaryPropertyTables.createStringBuffer(flattenedValues);
@@ -472,10 +472,12 @@ export class BinaryPropertyTables {
     }
 
     if (defined(enumType)) {
+      flattenedValues = BinaryPropertyTables.flattenFully(flattenedValues);
       const length = flattenedValues.length;
       const metadataEnums = defaultValue(schema.enums, {});
       const metadataEnum = metadataEnums[enumType!];
       const valueNames = metadataEnum.values.map((v: EnumValue) => v.name);
+      componentType = defaultValue(metadataEnum.valueType, "UINT16");
       for (let i = 0; i < length; ++i) {
         const valueName = flattenedValues[i];
         const index = valueNames.indexOf(valueName);

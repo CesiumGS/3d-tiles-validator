@@ -47,7 +47,7 @@ export class ValidationContext {
 
   constructor(resourceResolver: ResourceResolver) {
     this._options = new ValidationOptions();
-    this._result = new ValidationResult();
+    this._result = ValidationResult.create();
     this._resourceResolver = resourceResolver;
     this._extensionsFound = new Set<string>();
   }
@@ -77,13 +77,14 @@ export class ValidationContext {
    * @param resourceResolver The `ResourceResolver`
    * @returns The new instance
    */
-   deriveFromResourceResolver(resourceResolver: ResourceResolver): ValidationContext {
+  deriveFromResourceResolver(
+    resourceResolver: ResourceResolver
+  ): ValidationContext {
     const derived = new ValidationContext(resourceResolver);
     derived._options = this._options;
     derived._extensionsFound = this._extensionsFound;
     return derived;
   }
-
 
   addIssue(issue: ValidationIssue): void {
     this._result.add(issue);

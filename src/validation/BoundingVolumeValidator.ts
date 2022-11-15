@@ -241,7 +241,7 @@ export class BoundingVolumeValidator {
       const message =
         `The 'radius' entry of the bounding sphere ` +
         `may not be negative, but is ${radius}`;
-      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
+      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INVALID(
         path + "/3",
         message
       );
@@ -295,7 +295,7 @@ export class BoundingVolumeValidator {
       const message =
         `The 'west' entry of the bounding region ` +
         `must be in [-PI,PI], but is ${westRad}`;
-      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
+      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INVALID(
         path + "/0",
         message
       );
@@ -306,7 +306,7 @@ export class BoundingVolumeValidator {
       const message =
         `The 'south' entry of the bounding region ` +
         `must be in [-PI/2,PI/2], but is ${southRad}`;
-      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
+      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INVALID(
         path + "/1",
         message
       );
@@ -317,7 +317,7 @@ export class BoundingVolumeValidator {
       const message =
         `The 'east' entry of the bounding region ` +
         `must be in [-PI,PI], but is ${eastRad}`;
-      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
+      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INVALID(
         path + "/2",
         message
       );
@@ -328,7 +328,7 @@ export class BoundingVolumeValidator {
       const message =
         `The 'north' entry of the bounding region ` +
         `must be in [-PI/2,PI/2], but is ${northRad}`;
-      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
+      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INVALID(
         path + "/3",
         message
       );
@@ -340,7 +340,7 @@ export class BoundingVolumeValidator {
         `The 'south' entry of the bounding region ` +
         `may not be larger than the 'north' entry, but the south ` +
         `is ${southRad} and the north is ${northRad}`;
-      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
+      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INVALID(
         path,
         message
       );
@@ -352,7 +352,7 @@ export class BoundingVolumeValidator {
         `The minimum height of the bounding region ` +
         `may not be larger than the maximum height, but the minimum height ` +
         `is ${minimumHeight} and the maximum height is ${maximumHeight}`;
-      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INCONSISTENT(
+      const issue = SemanticValidationIssues.BOUNDING_VOLUME_INVALID(
         path,
         message
       );

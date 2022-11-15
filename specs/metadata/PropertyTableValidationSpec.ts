@@ -330,6 +330,45 @@ describe("metadata/PropertyTableValidationSpec", function () {
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
+  it("detects issues in propertyVariableLengthArrayWithMin", async function () {
+    const inputData = await readJsonUnchecked(
+      "specs/data/propertyTables/propertyVariableLengthArrayWithMin.json"
+    );
+    const propertyTable = inputData.propertyTables[0];
+    const numBufferViews = 2;
+    PropertyTableValidator.validatePropertyTable(
+      "test",
+      propertyTable,
+      numBufferViews,
+      fullMetadataSchema,
+      context
+    );
+    const result = context.getResult();
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual(
+      "METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY"
+    );
+  });
+  it("detects issues in propertyVariableLengthArrayWithOffset", async function () {
+    const inputData = await readJsonUnchecked(
+      "specs/data/propertyTables/propertyVariableLengthArrayWithOffset.json"
+    );
+    const propertyTable = inputData.propertyTables[0];
+    const numBufferViews = 2;
+    PropertyTableValidator.validatePropertyTable(
+      "test",
+      propertyTable,
+      numBufferViews,
+      fullMetadataSchema,
+      context
+    );
+    const result = context.getResult();
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual(
+      "METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY"
+    );
+  });
+
   it("detects issues in propertyVariableLengthArrayWithoutArrayOffsets", async function () {
     const inputData = await readJsonUnchecked(
       "specs/data/propertyTables/propertyVariableLengthArrayWithoutArrayOffsets.json"

@@ -28,7 +28,7 @@ export class NumericPropertyModel implements PropertyModel {
     const componentType = this._componentType;
     const type = this._type;
 
-    if (type === "SCALAR") {
+    if (type === "SCALAR" || type === "ENUM") {
       return NumericBuffers.getNumericFromBuffer(
         valuesBuffer,
         index,

@@ -10,7 +10,7 @@ export class BinaryValidationIssues {
    * Indicates that the binary data was fundamentally invalid (usually
    * caused by not even being able to read a header)
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param message The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
@@ -25,7 +25,7 @@ export class BinaryValidationIssues {
    * Indicates that an unexpected value was found in the binary -
    * for example, an unexpected magic value or version.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name The name of the value
    * @param expected The expected value
    * @param actual The actual value
@@ -54,7 +54,7 @@ export class BinaryValidationIssues {
    * binary was inconsistent. For example, when the total byte length
    * from the header does not match the length of the binary blob.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name A short name for the length
    * @param expectedLength The expected length
    * @param actualLength The actual length
@@ -84,7 +84,7 @@ export class BinaryValidationIssues {
    * Indicates that an alignment requirement for a part of the
    * binary data was not met.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name A short name for the part of the binary data
    * @param expectedAlignment The expected alignment
    * @returns The `ValidationIssue`
@@ -119,7 +119,7 @@ export class BinaryValidationIssues {
    * `BinaryValidator#validateAlignment`, which creates more
    * elaborate messages.
    *
-   * @param path The JSON path for the `ValidationIssue`
+   * @param path The path for the `ValidationIssue`
    * @param name A short name for the part of the binary data
    * @param expectedAlignment The expected alignment
    * @returns The `ValidationIssue`

@@ -379,7 +379,7 @@ export class TilesetTraversingValidator {
         `Tile ${path} has a geometricError of ${tileGeometricError}, ` +
         `which is larger than the parent geometricError ` +
         `of ${parentGeometricError}`;
-      const issue = SemanticValidationIssues.TILE_GEOMETRIC_ERROR_INCONSISTENT(
+      const issue = SemanticValidationIssues.TILE_GEOMETRIC_ERRORS_INCONSISTENT(
         path,
         message
       );

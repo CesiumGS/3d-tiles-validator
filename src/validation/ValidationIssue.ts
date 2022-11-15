@@ -13,7 +13,11 @@ export class ValidationIssue {
   private readonly _type: string;
 
   /**
-   * The JSON path leading to the element that caused the issue.
+   * The path leading to the element that caused the issue.
+   *
+   * This resembles a "JSON path", but may contain elements
+   * that go outside of the actual containing JSON (for example,
+   * it may contain the name of a tile content file)
    */
   private readonly _path: string;
 
@@ -33,8 +37,8 @@ export class ValidationIssue {
    * caused this validation issue.
    *
    * This is used to summarize issues that may occur during the
-   * validation of tile content, and which are combined into a
-   * general `CONTENT_VALIDATION_ERROR`.
+   * validation of tile content or external tilesets, and which
+   * are combined into a single validation issue.
    */
   private readonly _causes: ValidationIssue[];
 
@@ -67,11 +71,20 @@ export class ValidationIssue {
     return this._severity;
   }
 
-  addCause(issue: ValidationIssue) {
-    this._causes.push(issue);
+  /**
+   * Adds the given validation issue as one of the 'causes' of
+   * this issue.
+   *
+   * Clients should not call this function. It is only used
+   * to construct validation issues internally.
+   *
+   * @param cause The issue to add as a cause
+   */
+  addCause(cause: ValidationIssue) {
+    this._causes.push(cause);
   }
 
-  get causes(): ValidationIssue[] {
+  get causes(): readonly ValidationIssue[] {
     return this._causes;
   }
 

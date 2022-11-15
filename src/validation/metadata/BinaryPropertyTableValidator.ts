@@ -196,7 +196,8 @@ export class BinaryPropertyTableValidator {
     let componentType = classProperty.componentType;
     if (type === "ENUM") {
       const enumType = classProperty.enumType!;
-      const enumValueTypes = binaryPropertyTable.enumValueTypes;
+      const binaryEnumInfo = binaryPropertyTable.binaryEnumInfo;
+      const enumValueTypes = binaryEnumInfo.enumValueTypes;
       componentType = enumValueTypes[enumType];
     } else if (!defined(componentType)) {
       componentType = "UINT8";
@@ -620,7 +621,7 @@ export class BinaryPropertyTableValidator {
         `have a byteLength of ${numValues}*${componentTypeByteSize} = ` +
         `${expectedByteLength}. But the buffer view with index ` +
         `${bufferViewIndex} has a byteLength of ${actualByteLength}`;
-      const issue = MetadataValidationIssues.METADATA_INVALID_SIZE(
+      const issue = MetadataValidationIssues.METADATA_INVALID_LENGTH(
         path,
         message
       );
@@ -676,7 +677,7 @@ export class BinaryPropertyTableValidator {
         numValues,
         expectedByteLength
       );
-      const issue = MetadataValidationIssues.METADATA_INVALID_SIZE(
+      const issue = MetadataValidationIssues.METADATA_INVALID_LENGTH(
         path,
         message
       );

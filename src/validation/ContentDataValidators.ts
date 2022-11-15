@@ -205,9 +205,7 @@ export class ContentDataValidators {
    * @param contentData The content data
    * @returns Whether the content data is probably a tileset
    */
-  private static async isProbablyTileset(
-    contentData: ContentData
-  ): Promise<boolean> {
+  static async isProbablyTileset(contentData: ContentData): Promise<boolean> {
     const data = await contentData.getData();
     if (!defined(data)) {
       return false;
