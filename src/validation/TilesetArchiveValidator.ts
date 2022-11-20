@@ -9,8 +9,8 @@ import { ArchiveResourceResolver } from "../io/ArchiveResourceResolver";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const TilesetArchive3tz = require("../archives/TilesetArchive3tz");
+import { TilesetArchive3tz } from "../archives/TilesetArchive3tz";
+import { ArchiveValidation3tz } from "../archives/ArchiveValidation3tz";
 
 /**
  * An implementation of a validator that validates a tileset
@@ -25,7 +25,7 @@ export class TilesetArchiveValidator implements Validator<string> {
     resolvedUri: string,
     context: ValidationContext
   ): Promise<boolean> {
-    console.log("TilesetArchiveValidator resolvedUri is " + resolvedUri);
+    //console.log("TilesetArchiveValidator resolvedUri is " + resolvedUri);
 
     // Create the archive from the given resolved URI (i.e.
     // the full archive file name). If the archive cannot
@@ -41,6 +41,36 @@ export class TilesetArchiveValidator implements Validator<string> {
       const issue = IoValidationIssues.IO_WARNING(uri, message);
       context.addIssue(issue);
       return true;
+    }
+
+    // Obtain the ZIP index from the archive, to be able to apply
+    // the ("legacy") 3TZ archive validation to the ZIP index
+    const zipIndex = archive.getZipIndex();
+    if (defined(zipIndex)) {
+      try {
+        const indexValid = await ArchiveValidation3tz.validateIndex(
+          zipIndex!,
+          resolvedUri,
+          false
+        );
+        if (!indexValid) {
+          const message = `The 3TZ index is not valid`;
+          const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
+            resolvedUri,
+            message
+          );
+          context.addIssue(issue);
+          return false;
+        }
+      } catch (error) {
+        const message = `Error while validating 3TZ index: ${error}.`;
+        const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
+          resolvedUri,
+          message
+        );
+        context.addIssue(issue);
+        return false;
+      }
     }
 
     // Create the `ArchiveResourceResolver` from the archive,

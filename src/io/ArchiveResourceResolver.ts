@@ -1,12 +1,10 @@
 import path from "path";
 
-import { defined } from "../base/defined";
-
 import { ResourceResolver } from "./ResourceResolver";
 import { Uris } from "./Uris";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const TilesetArchive = require("../archives/TilesetArchive");
+import { TilesetArchive } from "../archives/TilesetArchive";
+import { defined } from "../base/defined";
 
 /**
  * Implementation of a `ResourceResolver` based on a `TilesetArchive`
@@ -16,7 +14,7 @@ const TilesetArchive = require("../archives/TilesetArchive");
 export class ArchiveResourceResolver implements ResourceResolver {
   private readonly _basePath: string;
   private readonly _archiveFileName: string;
-  private readonly _archive: typeof TilesetArchive;
+  private readonly _archive: TilesetArchive;
 
   constructor(basePath: string, archiveFileName: string, archive: any) {
     this._basePath = basePath;
@@ -41,6 +39,7 @@ export class ArchiveResourceResolver implements ResourceResolver {
     archiveUri = archiveUri.replace(/\\/g, "/");
     const entry = this._archive.getEntry(archiveUri);
     // TODO Log message for experiment:
+    /*/
     console.log(
       "Resolving " +
         uri +
@@ -51,7 +50,11 @@ export class ArchiveResourceResolver implements ResourceResolver {
         " returns " +
         (defined(entry) ? entry.length + " bytes" : "undefined")
     );
-    return entry;
+    //*/
+    if (!defined(entry)) {
+      return null;
+    }
+    return entry!;
   }
 
   async resolveDataPartial(

@@ -1,9 +1,7 @@
-/* eslint-disable */
-"use strict";
+import { defined } from "./base/defined";
+import { isGzipped } from "./base/isGzipped";
 
-const path = require("path");
-const defined = require("./defined");
-const isGzipped = require("./isGzipped");
+import path from "path";
 
 /**
  * Returns whether the given file should be zipped when it is
@@ -21,13 +19,13 @@ const isGzipped = require("./isGzipped");
  * fact, in resembles both of the `isTile` functions.
  * I don't know what's the 'right' thing to do here either...
  *
- * @param {PathLike} file The file
- * @param {Buffer} data The optional file data
+ * @param file The file
+ * @param data The optional file data
  * @returns Whether the file should be zipped
  */
-function shouldGzip(file, data) {
+export function shouldGzip(file: string, data: Buffer | undefined): boolean {
   if (defined(data)) {
-    if (isGzipped(data)) {
+    if (isGzipped(data!)) {
       return false;
     }
   }
@@ -44,5 +42,3 @@ function shouldGzip(file, data) {
   ];
   return extensions.includes(extension);
 }
-
-module.exports = shouldGzip;

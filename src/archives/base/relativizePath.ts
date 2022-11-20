@@ -1,7 +1,4 @@
-/* eslint-disable */
-"use strict";
-
-const path = require("path");
+import path from "path";
 
 /**
  * Relativize the given path against the given directory.
@@ -10,15 +7,13 @@ const path = require("path");
  * referring to the directory. The result will be normalized and
  * backslashes (from Windows) will be replaced with slashes.
  *
- * @param {String} directory
- * @param {String} fullPath
+ * @param directory The directory
+ * @param fullPath The full path
  * @returns The relativized path as a string
  */
-function relativizePath(directory, fullPath) {
+export function relativizePath(directory: string, fullPath: string): string {
   const relativePath = path
     .normalize(path.relative(directory, fullPath))
     .replace(/\\/g, "/");
   return relativePath;
 }
-
-module.exports = relativizePath;
