@@ -4,7 +4,7 @@ A validator for 3D Tiles 1.1.
 
 > **A note about the repository structure**
 > 
-> This repository originally contained multiple projects. Now, these project are maintained in separate repositories:
+> This repository originally contained multiple projects. Now, these projects are maintained in separate repositories:
 > 
 > - The `3d-tiles-tools` can be found in [the `3d-tiles-tools` repository](https://github.com/CesiumGS/3d-tiles-tools)
 > - The `3d-tiles-samples-generator` can be found in [the `3d-tiles-samples-generator` repository](https://github.com/CesiumGS/3d-tiles-samples-generator)
