@@ -49,7 +49,7 @@ export class BinaryBufferDataResolver {
         buffersData.push(binaryBuffer!);
       } else {
         //console.log("Obtaining buffer data from " + buffer.uri);
-        const bufferData = await resourceResolver.resolve(buffer.uri!);
+        const bufferData = await resourceResolver.resolveData(buffer.uri!);
         if (!defined(bufferData)) {
           const message = `Could not resolve buffer ${buffer.uri}`;
           throw new ResourceError(message);

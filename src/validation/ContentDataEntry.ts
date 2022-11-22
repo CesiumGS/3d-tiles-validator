@@ -13,12 +13,12 @@ export type ContentDataEntry = {
    * whether the `dataValidator` should be used to validate
    * the content data.
    */
-  predicate: (contentData: ContentData) => boolean;
+  predicate: (contentData: ContentData) => Promise<boolean>;
 
   /**
    * The `Validator` that will be applied to the content
    * data when the predicate matches a given `ContentData`
    * object.
    */
-  dataValidator: Validator<Buffer>;
+  dataValidator: Validator<ContentData>;
 };

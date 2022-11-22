@@ -181,7 +181,7 @@ export class ImplicitTileTraversal {
         `template URI ${implicitTiling.subtrees.uri}`;
       throw new ImplicitTilingError(message);
     }
-    const subtreeData = await resourceResolver.resolve(subtreeUri!);
+    const subtreeData = await resourceResolver.resolveData(subtreeUri!);
     if (subtreeData == null) {
       const message =
         `Could not resolve subtree URI ${subtreeUri} that was ` +

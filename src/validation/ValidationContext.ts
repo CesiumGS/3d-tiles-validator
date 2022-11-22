@@ -63,8 +63,24 @@ export class ValidationContext {
    * @param uri The (usually relative) URI
    * @returns The new instance
    */
-  derive(uri: string): ValidationContext {
-    const derived = new ValidationContext(this._resourceResolver.derive(uri));
+  deriveFromUri(uri: string): ValidationContext {
+    const derivedResourceResolver = this._resourceResolver.derive(uri);
+    return this.deriveFromResourceResolver(derivedResourceResolver);
+  }
+
+  /**
+   * Derives a new context from this one.
+   *
+   * It uses the same `ValidationOptions` as this one, but the
+   * given resource resolver.
+   *
+   * @param resourceResolver The `ResourceResolver`
+   * @returns The new instance
+   */
+  deriveFromResourceResolver(
+    resourceResolver: ResourceResolver
+  ): ValidationContext {
+    const derived = new ValidationContext(resourceResolver);
     derived._options = this._options;
     derived._extensionsFound = this._extensionsFound;
     return derived;
