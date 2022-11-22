@@ -6,9 +6,8 @@ import StreamZip = require("node-stream-zip");
 import { ArchiveFunctions3tz } from "./ArchiveFunctions3tz";
 
 // NOTE: These functions are carved out and ported to TypeScript from
-// https://github.com/erikdahlstrom/3d-tiles-tools/blob/0b48a4287df0c0361961c7072f8eec49527df1ac/validator/lib/archive.js
-// SEE THE LICENSING INFORMATION IN THIS FILE!
-// TODO XXX: The given implementation does not handle hash collisions!
+// https://github.com/bjornblissing/3d-tiles-tools/blob/2f4844d5bdd704509bff65199898981228594aaa/validator/lib/archive.js
+// TODO: The given implementation does not handle hash collisions!
 
 export class ArchiveValidation3tz {
   private static slowValidateIndex(
