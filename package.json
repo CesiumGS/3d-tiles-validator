@@ -6,6 +6,14 @@
   "keywords": [
     "3D Tiles"
   ],
+  "homepage": "https://github.com/CesiumGS/3d-tiles-validator/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CesiumGS/3d-tiles-validator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CesiumGS/3d-tiles-validator/issues"
+  },
   "engines": {
     "node": ">=16.0.0"
   },

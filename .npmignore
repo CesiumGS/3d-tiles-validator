@@ -1,0 +1,16 @@
+/specs
+/demos
+/tools
+/node_modules
+.eslintcache
+.eslintignore
+.eslintrc.json
+.gitattributes
+.gitignore
+.npmignore
+.prettierrc.json
+.prettierignore
+tsconfig.json
+generateThirdParty.js
+ThirdParty.json
+*.tgz
