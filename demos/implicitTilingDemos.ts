@@ -1,17 +1,17 @@
 import path from "path";
-import { defined } from "./base/defined";
+import { defined } from "../src/base/defined";
 
-import { readJsonUnchecked } from "./base/readJsonUnchecked";
+import { readJsonUnchecked } from "../src/base/readJsonUnchecked";
 
-import { ResourceResolvers } from "./io/ResourceResolvers";
+import { ResourceResolvers } from "../src/io/ResourceResolvers";
 
-import { Quadtrees } from "./implicitTiling/Quadtrees";
-import { TemplateUris } from "./implicitTiling/TemplateUris";
-import { QuadtreeCoordinates } from "./implicitTiling/QuadtreeCoordinates";
-import { OctreeCoordinates } from "./implicitTiling/OctreeCoordinates";
+import { Quadtrees } from "../src/implicitTiling/Quadtrees";
+import { TemplateUris } from "../src/implicitTiling/TemplateUris";
+import { QuadtreeCoordinates } from "../src/implicitTiling/QuadtreeCoordinates";
+import { OctreeCoordinates } from "../src/implicitTiling/OctreeCoordinates";
 
-import { TilesetTraverser } from "./traversal/TilesetTraverser";
-import { SubtreeInfos } from "./implicitTiling/SubtreeInfos";
+import { TilesetTraverser } from "../src/traversal/TilesetTraverser";
+import { SubtreeInfos } from "../src/implicitTiling/SubtreeInfos";
 
 function testQuadtreeChildren() {
   const r = new QuadtreeCoordinates(0, 0, 0);
