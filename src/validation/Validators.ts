@@ -46,7 +46,7 @@ export class Validators {
     const fileName = path.basename(filePath);
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
-    const resourceData = await resourceResolver.resolve(fileName);
+    const resourceData = await resourceResolver.resolveData(fileName);
     const validator = Validators.createDefaultTilesetValidator();
     const context = new ValidationContext(resourceResolver);
     const jsonString = resourceData ? resourceData.toString() : "";
@@ -77,7 +77,7 @@ export class Validators {
     const fileName = path.basename(filePath);
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
-    const resourceData = await resourceResolver.resolve(fileName);
+    const resourceData = await resourceResolver.resolveData(fileName);
     const validator = Validators.createDefaultSchemaValidator();
     const context = new ValidationContext(resourceResolver);
     const jsonString = resourceData ? resourceData.toString() : "";
@@ -123,7 +123,7 @@ export class Validators {
     const fileName = path.basename(filePath);
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
-    const resourceData = await resourceResolver.resolve(fileName);
+    const resourceData = await resourceResolver.resolveData(fileName);
     const validator = Validators.createDefaultSubtreeValidator(
       filePath,
       validationState,

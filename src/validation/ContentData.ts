@@ -1,5 +1,8 @@
 import path from "path";
 
+import { defined } from "../base/defined";
+
+import { ResourceResolver } from "../io/ResourceResolver";
 import { ResourceTypes } from "../io/ResourceTypes";
 
 /**
@@ -15,29 +18,24 @@ import { ResourceTypes } from "../io/ResourceTypes";
 export class ContentData {
   private readonly _uri: string;
   private readonly _extension: string;
-  private readonly _magic: string;
-  private readonly _data: Buffer;
-  private readonly _parsedObject: any;
+  private readonly _resourceResolver: ResourceResolver;
 
-  constructor(uri: string, data: Buffer, parsedObject: any) {
+  private _magic: string | undefined;
+
+  private _data: Buffer | null;
+  private _dataWasRequested: boolean;
+
+  constructor(uri: string, resourceResolver: ResourceResolver) {
     this._uri = uri;
+    this._resourceResolver = resourceResolver;
     this._extension = path.extname(uri).toLowerCase();
-    this._magic = ResourceTypes.getMagic(data);
-    this._data = data;
-    this._parsedObject = parsedObject;
+    this._magic = undefined;
+    this._data = null;
+    this._dataWasRequested = false;
   }
 
   get uri(): string {
     return this._uri;
-  }
-
-  /**
-   * Returns a string that consists of the first 4 bytes
-   * of the buffer data (or fewer, if the buffer contains
-   * less than 4 bytes)
-   */
-  get magic(): string {
-    return this._magic;
   }
 
   /**
@@ -49,11 +47,33 @@ export class ContentData {
     return this._extension;
   }
 
-  get data(): Buffer {
-    return this._data;
+  /**
+   * Returns a string that consists of the first 4 bytes
+   * of the buffer data (or fewer, if the buffer contains
+   * less than 4 bytes)
+   */
+  async getMagic(): Promise<string> {
+    if (defined(this._magic)) {
+      return this._magic!;
+    }
+    const partialData = await this._resourceResolver.resolveDataPartial(
+      this._uri,
+      4
+    );
+    if (defined(partialData)) {
+      this._magic = ResourceTypes.getMagic(partialData!);
+    } else {
+      this._magic = "";
+    }
+    return this._magic;
   }
 
-  get parsedObject(): any {
-    return this._parsedObject;
+  async getData(): Promise<Buffer | null> {
+    if (this._dataWasRequested) {
+      return this._data;
+    }
+    this._data = await this._resourceResolver.resolveData(this._uri);
+    this._dataWasRequested = true;
+    return this._data;
   }
 }

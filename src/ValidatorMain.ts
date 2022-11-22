@@ -232,6 +232,18 @@ export class ValidatorMain {
         override
       );
     }
+    // Register an empty validator for 3DTILES_content_gltf
+    // (The extension does not have any properties to be
+    // validated)
+    {
+      const emptyValidator = Validators.createEmptyValidator();
+      const override = false;
+      ExtendedObjectsValidators.register(
+        "3DTILES_content_gltf",
+        emptyValidator,
+        override
+      );
+    }
   }
 
   /**

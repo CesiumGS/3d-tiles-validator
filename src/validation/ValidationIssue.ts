@@ -37,7 +37,7 @@ export class ValidationIssue {
    * caused this validation issue.
    *
    * This is used to summarize issues that may occur during the
-   * validation of tile content or external tilesets, and which 
+   * validation of tile content or external tilesets, and which
    * are combined into a single validation issue.
    */
   private readonly _causes: ValidationIssue[];
