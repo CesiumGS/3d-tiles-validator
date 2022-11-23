@@ -1,7 +1,7 @@
-import { BufferObject } from "../../src/structure/BufferObject";
-import { BufferView } from "../../src/structure/BufferView";
+import { BufferObject } from "../structure/BufferObject";
+import { BufferView } from "../structure/BufferView";
 
-import { BinaryBufferStructure } from "../../src/validation/metadata/BinaryBufferStructure";
+import { BinaryBufferStructure } from "../validation/metadata/BinaryBufferStructure";
 
 import { BinaryBufferData } from "./BinaryBufferData";
 

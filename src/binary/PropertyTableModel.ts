@@ -8,7 +8,7 @@ import { PropertyModels } from "./PropertyModels";
 import { MetadataEntityModels } from "../metadata/MetadataEntityModels";
 import { MetadataError } from "../metadata/MetadataError";
 
-import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
+import { ClassProperty } from "../structure/Metadata/ClassProperty";
 import { MetadataEntityModel } from "../metadata/MetadataEntityModel";
 import { PropertyTableProperty } from "../structure/PropertyTableProperty";
 

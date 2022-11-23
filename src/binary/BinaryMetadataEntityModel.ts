@@ -1,7 +1,7 @@
-import { defined } from "../../src/base/defined";
+import { defined } from "../base/defined";
 
-import { MetadataEntityModel } from "../../src/metadata/MetadataEntityModel";
-import { MetadataValues } from "../../src/metadata/MetadataValues";
+import { MetadataEntityModel } from "../metadata/MetadataEntityModel";
+import { MetadataValues } from "../metadata/MetadataValues";
 import { MetadataError } from "../metadata/MetadataError";
 
 import { PropertyTableModel } from "./PropertyTableModel";
