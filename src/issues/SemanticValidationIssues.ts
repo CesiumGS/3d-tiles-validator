@@ -138,7 +138,7 @@ export class SemanticValidationIssues {
    * Indicates that a template URI contained an invalid variable name.
    *
    * The template URIs that are used for contents or subtree files
-   * in implicit tiling may contain variables like '{level}', and
+   * in implicit tiling may contain variables like \{level\}, and
    * this issue indicates that there was an invalid variable name.
    *
    * @param path - The path for the `ValidationIssue`

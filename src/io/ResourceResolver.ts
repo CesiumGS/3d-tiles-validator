@@ -52,7 +52,7 @@ export interface ResourceResolver {
    * resulting URI as its base URI.
    *
    * @param uri - The relative path
-   * @return A new instance with a different base URI
+   * @returns A new instance with a different base URI
    */
   derive(uri: string): ResourceResolver;
 }

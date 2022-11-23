@@ -15,7 +15,7 @@ export class Iterables {
    * @param directory - The directory
    * @param recurse - [true] Whether the files should
    * be listed recursively
-   * @return The generator for path strings
+   * @returns The generator for path strings
    */
   static *overFiles(
     directory: string | PathLike,

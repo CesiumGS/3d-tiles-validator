@@ -7,15 +7,15 @@ export interface TilesetArchive {
    *
    * @param fullInputName - The full input file- or directory name
    *
-   * @throws {TilesetArchiveError} If the archive cannot be opened
+   * @throws {@link TilesetArchiveError} If the archive cannot be opened
    */
   open(fullInputName: string): void;
 
   /**
    * Returns an iterable over all keys of this archive
    *
-   * @return The iterable
-   * @throws {TilesetArchiveError} If `open` was not called yet
+   * @returns The iterable
+   * @throws {@link TilesetArchiveError} If `open` was not called yet
    */
   getKeys(): IterableIterator<string>;
 
@@ -25,14 +25,14 @@ export interface TilesetArchive {
    * @param key - The key for the entry
    * @returns A buffer containing the data for the specified entry, or
    * `undefined` if there is no entry for the given key
-   * @throws {TilesetArchiveError} If `open` was not called yet
+   * @throws {@link TilesetArchiveError} If `open` was not called yet
    */
   getEntry(key: string): Buffer | undefined;
 
   /**
    * Close this archive
    *
-   * @throws {TilesetArchiveError} If `open` was not called yet
+   * @throws {@link TilesetArchiveError} If `open` was not called yet
    */
   close(): void;
 }

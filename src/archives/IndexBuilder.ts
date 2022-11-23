@@ -14,10 +14,6 @@ export class IndexBuilder {
 
   /**
    * The entries that have been added.
-   *
-   * Each of them has a
-   * offset : Number
-   * , and the offset is the
    */
   private readonly entries: IndexBuilderEntry[];
 
@@ -65,11 +61,11 @@ export class IndexBuilder {
    *
    * Returns a number that is
    * - 0 when b0==b1
-   * - negative when b0<b1
-   * - positive when b0>b1
+   * - negative when b0 is less than b1
+   * - positive when b0 greater than b1
    *
-   * @param b -0 The first buffer
-   * @param b -1 The second buffer
+   * @param b0 - The first buffer
+   * @param b1 - The second buffer
    * @returns The comparison result
    */
   private static compareMd5HashBuffers(b0: Buffer, b1: Buffer): number {

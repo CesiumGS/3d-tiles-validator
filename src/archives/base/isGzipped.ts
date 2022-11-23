@@ -3,7 +3,7 @@
  * that indicate that it contains GZIPped data.
  *
  * @param buffer - The buffer
- * @return Whether the buffer is GZIPped data
+ * @returns Whether the buffer is GZIPped data
  */
 export function isGzipped(buffer: Buffer): boolean {
   if (buffer.length < 2) {

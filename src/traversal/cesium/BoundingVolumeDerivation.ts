@@ -19,7 +19,7 @@ export class BoundingVolumeDerivation {
    * @param rootBoundingVolume - The root bounding volume
    * @param implicitCoordinates - The coordinates of the child tile, as an
    * array [level,x,y] for quadtrees or [level,x,y,z] for octrees.
-   * @returns {Object} An object containing the JSON for a bounding volume
+   * @returns An object containing the JSON for a bounding volume
    */
   static deriveBoundingVolume(
     rootBoundingVolume: BoundingVolume,
@@ -86,9 +86,9 @@ export class BoundingVolumeDerivation {
   /**
    * Check if a specific extension is present on a JSON object. This can be used
    * for either 3D Tiles extensions or glTF extensions
-   * @param {Object} json The JSON object
-   * @param {String} extensionName The name of the extension, e.g. '3DTILES_implicit_tiling'
-   * @returns {Boolean} True if the extension is present
+   * @param json - The JSON object
+   * @param extensionName - The name of the extension, e.g. '3DTILES_implicit_tiling'
+   * @returns True if the extension is present
    * @internal
    */
   private static hasExtension(json: any, extensionName: string): boolean {
@@ -143,7 +143,7 @@ export class BoundingVolumeDerivation {
    * @param level - The level of the descendant tile relative to the root implicit tile
    * @param x - The x coordinate of the descendant tile
    * @param y - The y coordinate of the descendant tile
-   * @param [z] The z coordinate of the descendant tile (octree only)
+   * @param z - The z coordinate of the descendant tile (octree only)
    * @returns An array of 12 numbers representing the bounding box of the descendant tile.
    */
   private static deriveBoundingBox(

@@ -15,7 +15,7 @@ export class BinaryBufferDataResolver {
    * Resolves the buffer data that is defined in the given structure.
    *
    * It receives a `BinaryBufferStructure` that contains the
-   * `BufferObject´ and `BufferView` definitions, resolves the
+   * `BufferObject` and `BufferView` definitions, resolves the
    * data from the buffer URIs using the given resource resolver,
    * and returns a `BinaryBufferData` that contains the actual
    * binary buffer data.

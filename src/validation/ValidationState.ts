@@ -41,7 +41,7 @@ export type ValidationState = {
    * But in either of these cases, subsequent validation steps
    * should not attempt to perform validations that require
    * a valid schema. Therefore, the `validatedSchema` may be
-   * `undefined´ even when `hasSchemaDefinition` is `true`.
+   * `undefined` even when `hasSchemaDefinition` is `true`.
    */
   validatedSchema?: Schema;
 
@@ -57,7 +57,7 @@ export type ValidationState = {
   /**
    * The `Groups[]` from the `tileset.groups` definition.
    *
-   * The `validatedGroups` may be `undefined´ even when
+   * The `validatedGroups` may be `undefined` even when
    * `hasGroupsDefinition` is `true`, namely when the
    * groups definition could not be validated.
    */
