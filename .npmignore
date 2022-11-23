@@ -2,10 +2,12 @@
 /demos
 /tools
 /node_modules
+/dist
+/etc
+/temp
 .eslintcache
 .eslintignore
 .eslintrc.json
-.gitattributes
 .gitignore
 .npmignore
 .prettierrc.json
@@ -13,4 +15,5 @@
 tsconfig.json
 generateThirdParty.js
 ThirdParty.json
+api-extractor.jsonc
 *.tgz

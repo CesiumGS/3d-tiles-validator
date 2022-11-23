@@ -19,12 +19,15 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 /**
  * Utility methods related to `Validator` instances.
+ * 
+ * @beta
  */
 export class Validators {
   /**
    * Creates a `TilesetValidator` with an unspecified default configuration.
    *
    * @returns The `TilesetValidator`
+   * @internal
    */
   static createDefaultTilesetValidator(): TilesetValidator {
     const validator = new TilesetValidator();
@@ -38,6 +41,7 @@ export class Validators {
    * @param filePath - The file path
    * @returns A promise to a `ValidationResult` that is fulfilled when
    * the validation finished.
+   * @beta
    */
   static async validateTilesetFile(
     filePath: string
@@ -58,6 +62,7 @@ export class Validators {
    * Creates a `SchemaValidator` with an unspecified default configuration.
    *
    * @returns The `SchemaValidator`
+   * @internal
    */
   static createDefaultSchemaValidator(): SchemaValidator {
     const validator = new SchemaValidator();
@@ -71,6 +76,7 @@ export class Validators {
    * @param filePath - The file path
    * @returns A promise to a `ValidationResult` that is fulfilled when
    * the validation finished.
+   * @internal
    */
   static async validateSchemaFile(filePath: string): Promise<ValidationResult> {
     const directory = path.dirname(filePath);
@@ -89,6 +95,7 @@ export class Validators {
    * Creates a `SubtreeValidator` with an unspecified default configuration.
    *
    * @returns The `SubtreeValidator`
+   * @internal
    */
   static createDefaultSubtreeValidator(
     uri: string,
@@ -113,6 +120,7 @@ export class Validators {
    * @param filePath - The file path
    * @returns A promise to a `ValidationResult` that is fulfilled when
    * the validation finished.
+   * @internal
    */
   static async validateSubtreeFile(
     filePath: string,
@@ -151,6 +159,7 @@ export class Validators {
    *
    * @param delegate - The delegate
    * @returns The new validator
+   * @internal
    */
   static parseFromBuffer<T>(delegate: Validator<T>): Validator<Buffer> {
     return {
@@ -187,6 +196,7 @@ export class Validators {
    *
    * @param message - The message for the warning
    * @returns The new validator
+   * @internal
    */
   static createContentValidationWarning(message: string): Validator<Buffer> {
     return {
@@ -213,6 +223,7 @@ export class Validators {
    * are ignored.
    *
    * @returns The new validator
+   * @internal
    */
   static createEmptyValidator<T>(): Validator<T> {
     return {

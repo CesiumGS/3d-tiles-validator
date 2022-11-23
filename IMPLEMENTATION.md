@@ -50,3 +50,47 @@ The `ValidationIssue` class and its types:
   - `ContentValidationIssues.ts`: Issues that are found in tile content or external tilesets
 - For validation issues that refer to the tile content, each `ValidationIssue` can have an array of `causes`. This can be filled, for example, with the information from the glTF validator that caused the validation to fail
 
+## API Definition
+
+The API definition is tracked with https://api-extractor.com
+
+- Install api-extractor:
+ 
+  `npm install -g @microsoft/api-extractor`
+
+- Run the TypeScript compiler to generate the build output:
+
+  `npm run build`
+
+- Invoke api-extractor:  
+
+  `api-extractor run --config api-extractor.jsonc --local --verbose`
+
+The surface API information will be written into `etc/3d-tiles-validator.api.md`. 
+
+
+## Release Process
+
+- Prepare the actual release:
+  - Update `CHANGES.md`
+  - Update the version number in `package.json`
+  - Make sure all unit tests pass 
+
+- Run the TypeScript compiler to generate the build output:
+
+  `npm run build`
+
+- Generate the tarball of the project:
+  
+  `npm pack` 
+
+- Verify the contents of the resulting TAR file. If there are unwanted files, add these files to `.npmignore` and re-generate the tarball
+
+- Create a git tag for the version and push it:
+ 
+  `git tag -a 1.2.3 -m 'Release of version 1.2.3'`
+  `git push origin 1.2.3`
+
+- Publish the package:
+  
+  `npm publish`

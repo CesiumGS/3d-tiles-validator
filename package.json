@@ -17,6 +17,8 @@
   "engines": {
     "node": ">=16.0.0"
   },
+  "main": "./build/index.js",
+  "types": "./src/index.ts",  
   "dependencies": {
     "archiver": "^5.3.1",
     "better-sqlite3": "^7.5.3",

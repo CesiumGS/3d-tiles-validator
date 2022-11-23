@@ -7,6 +7,8 @@ import { ValidationResults } from "./ValidationResults";
  * A class summarizing the result of a validation pass.
  *
  * It mainly summarizes a set of `ValidationIssue` instances.
+ * 
+ * @beta
  */
 export class ValidationResult {
   /**

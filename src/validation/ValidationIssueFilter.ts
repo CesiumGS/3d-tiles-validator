@@ -9,5 +9,7 @@ import { ValidationIssue } from "./ValidationIssue";
  * 'causes', and returns whether the leaf issue
  * (i.e. the last element of the issues stack)
  * should be included in the filtered result.
+ * 
+ * @beta
  */
 export type ValidationIssueFilter = (issuesStack: ValidationIssue[]) => boolean;

@@ -3,6 +3,8 @@ import { ValidationIssueSeverity } from "./ValidationIssueSeverity";
 /**
  * A class summarizing the information about an issue that was
  * encountered during the validation process.
+ * 
+ * @beta
  */
 export class ValidationIssue {
   /**

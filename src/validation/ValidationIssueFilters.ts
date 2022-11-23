@@ -4,6 +4,8 @@ import { ValidationIssueFilter } from "./ValidationIssueFilter";
 
 /**
  * Methods related to `ValidationIssueFilter` instances.
+ * 
+ * @beta
  */
 export class ValidationIssueFilters {
   /**
