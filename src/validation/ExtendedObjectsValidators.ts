@@ -32,9 +32,9 @@ export class ExtendedObjectsValidators {
    * When an object has the specified extension, then the given
    * validator will be applied to this object.
    *
-   * @param extensionName The name of the extension
-   * @param extendedObjectValidator The `Validator` for the extended objects
-   * @param override Whether the given validator should replace the
+   * @param extensionName - The name of the extension
+   * @param extendedObjectValidator - The `Validator` for the extended objects
+   * @param override - Whether the given validator should replace the
    * default validation. This can be queried with the `hasOverride` method.
    */
   static register(
@@ -55,7 +55,7 @@ export class ExtendedObjectsValidators {
    * an extension which has been registered by calling the
    * `register` method, with the `override` flag being `true`.
    *
-   * @param rootProperty The `RootProperty`
+   * @param rootProperty - The `RootProperty`
    * @returns Whether the default validation is overridden
    * by one of the registered validators.
    */
@@ -94,9 +94,9 @@ export class ExtendedObjectsValidators {
    * `false` will be returned. If all of them consider the object
    * to be valid, then `true` will be returned.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param rootProperty The `RootProperty` that may contain extensions
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param rootProperty - The `RootProperty` that may contain extensions
+   * @param context - The `ValidationContext`
    * @returns Whether the object is valid
    */
   static async validateExtendedObject(

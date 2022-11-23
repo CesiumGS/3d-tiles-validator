@@ -5,7 +5,7 @@ export class Octrees {
    * Computes the number of nodes of an octree with the given number of
    * levels.
    *
-   * @param levels The number of levels
+   * @param levels - The number of levels
    * @returns The number of nodes
    */
   static computeNumberOfNodesForLevels(levels: number) {
@@ -15,7 +15,7 @@ export class Octrees {
   /**
    * Returns a generator over all coordinates in the given level.
    *
-   * @param level The level
+   * @param level - The level
    * @returns The coordinates
    */
   static *coordinatesForLevel(level: number) {
@@ -34,7 +34,7 @@ export class Octrees {
    * that the x, y, and z components are in the range that is
    * determined by the level of the coordinates.
    *
-   * @param c The coordinates
+   * @param c - The coordinates
    * @returns Whether the coordinates are valid
    */
   static isValid(c: OctreeCoordinates) {

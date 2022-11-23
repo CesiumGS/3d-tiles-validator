@@ -3,7 +3,7 @@
  *
  * This can be imagined as one "column" in the table.
  *
- * @private
+ * @internal
  */
 export interface PropertyModel {
   /**
@@ -23,7 +23,7 @@ export interface PropertyModel {
    * - For array properties, it will be an array of the
    *   respective elements
    *
-   * @param index The index
+   * @param index - The index
    * @returns The property value
    */
   getPropertyValue(index: number): any;

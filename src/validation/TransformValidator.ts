@@ -8,7 +8,7 @@ import { Matrix4 } from "cesium";
 /**
  * A class for validations related to `tile.transform` objects.
  *
- * @private
+ * @internal
  */
 export class TransformValidator {
   private static readonly scratchMatrix4 = new Matrix4();
@@ -17,9 +17,9 @@ export class TransformValidator {
    * Performs the validation to ensure that the given object is a
    * valid `transform` object.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param transform The object to validate
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for `ValidationIssue` instances
+   * @param transform - The object to validate
+   * @param context - The `ValidationContext` that any issues will be added to
    */
   static validateTransform(
     path: string,

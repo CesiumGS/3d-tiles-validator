@@ -13,20 +13,20 @@ import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 /**
  * A class for validations related to `StatisticsClass` objects.
  *
- * @private
+ * @internal
  */
 export class StatisticsClassValidator {
   /**
    * Performs the validation to ensure that the given object is a
    * valid `statisticsClass` object.
    *
-   * @param statisticsClass The object to validate
-   * @param className The name of the class, used as the
+   * @param statisticsClass - The object to validate
+   * @param className - The name of the class, used as the
    * key in the `statistics.classes` dictionary, as well as the
    * key in the `schema.classes` dictionary.
-   * @param schema The `Schema` object. This is either the `tileset.schema`,
+   * @param schema - The `Schema` object. This is either the `tileset.schema`,
    * or the `Schema` object that was read from the `schemaUri`.
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validateStatisticsClass(

@@ -4,10 +4,11 @@
   "parserOptions": {
     "ecmaVersion": 2020
   },
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "eslint-plugin-tsdoc"],
   "root": true,
   "rules": {
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/no-explicit-any": "off"
+    "@typescript-eslint/no-explicit-any": "off",
+    "tsdoc/syntax": "warn"
   }
 }

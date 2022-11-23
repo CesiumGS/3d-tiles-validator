@@ -27,7 +27,7 @@ import { ValidationIssues } from "../issues/ValidationIssues";
  * convenience classes from the `implicitTiling` package,
  * and perform consistency checks with these instances.
  *
- * @private
+ * @internal
  */
 export class SubtreeInfoValidator {
   static async validateSubtreeInfo(
@@ -168,11 +168,11 @@ export class SubtreeInfoValidator {
    * If this is not the case, a `SUBTREE_AVAILABILITY_INCONSISTENT`
    * issue will be added to the given context, and `false` is returned.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param name The name of the availability object
-   * @param availableCount
-   * @param availabilityInfo The `AvailabilityInfo`
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param name - The name of the availability object
+   * @param availableCount -
+   * @param availabilityInfo - The `AvailabilityInfo`
+   * @param context - The `ValidationContext`
    * @returns Whether the availability was consistent
    */
   private static validateAvailableCount(
@@ -219,10 +219,10 @@ export class SubtreeInfoValidator {
    * If this is not the case, a `SUBTREE_AVAILABILITY_INCONSISTENT`
    * issue will be added to the given context, and `false` is returned.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param tileAvailabilityInfo The `AvailabilityInfo`
-   * @param implicitTiling The `TileImplicitTiling` object
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param tileAvailabilityInfo - The `AvailabilityInfo`
+   * @param implicitTiling - The `TileImplicitTiling` object
+   * @param context - The `ValidationContext`
    * @returns Whether the availability was consistent
    */
   static validateTileAvailabilityConsistency(
@@ -270,12 +270,12 @@ export class SubtreeInfoValidator {
    * If this is not the case, a `SUBTREE_AVAILABILITY_INCONSISTENT`
    * issue will be added to the given context, and `false` is returned.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param tileAvailabilityInfo The `AvailabilityInfo` for tiles
-   * @param contentAvailabilityInfo The `AvailabilityInfo` for content
-   * @param contentAvailabilityIndex The index of the content
-   * @param implicitTiling The `TileImplicitTiling` object
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param tileAvailabilityInfo - The `AvailabilityInfo` for tiles
+   * @param contentAvailabilityInfo - The `AvailabilityInfo` for content
+   * @param contentAvailabilityIndex - The index of the content
+   * @param implicitTiling - The `TileImplicitTiling` object
+   * @param context - The `ValidationContext`
    * @returns Whether the availability was consistent
    */
   static validateTileAvailabilityPresence(

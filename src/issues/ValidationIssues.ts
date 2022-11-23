@@ -11,8 +11,8 @@ export class ValidationIssues {
    * as a last resort to gracefully handle internal issues
    * without breaking the validation process.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param message The message for the `ValidationIssue`
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
   static INTERNAL_ERROR(path: string, message: string) {

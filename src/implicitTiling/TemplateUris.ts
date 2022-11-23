@@ -10,8 +10,8 @@ export class TemplateUris {
    * the given string with the respective value from the given
    * coordinates.
    *
-   * @param templateUri The template URI string
-   * @param coordinates The coordinates
+   * @param templateUri - The template URI string
+   * @param coordinates - The coordinates
    * @returns The string with the substitutions applied
    */
   static substituteQuadtree(
@@ -31,10 +31,10 @@ export class TemplateUris {
    * and <code>{y}</code> in the given template string with the
    * respective parameters.
    *
-   * @param templateUri The template URI
-   * @param level The level
-   * @param x The x-coordinate
-   * @param y The y-coordinate
+   * @param templateUri - The template URI
+   * @param level - The level
+   * @param x - The x-coordinate
+   * @param y - The y-coordinate
    * @return The result
    */
   static substituteQuadtreeInternal(
@@ -55,8 +55,8 @@ export class TemplateUris {
    * the given string with the respective value from the given
    * coordinates.
    *
-   * @param templateUri The template URI string
-   * @param coordinates The coordinates
+   * @param templateUri - The template URI string
+   * @param coordinates - The coordinates
    * @returns The string with the substitutions applied
    */
   static substituteOctree(templateUri: string, coordinates: OctreeCoordinates) {
@@ -74,11 +74,11 @@ export class TemplateUris {
    * <code>{y}</code>, and <code>{z}</code> in the given template string
    * with the respective parameters.
    *
-   * @param templateUri The template URI
-   * @param level The level
-   * @param x The x-coordinate
-   * @param y The y-coordinate
-   * @param z The z-coordinate
+   * @param templateUri - The template URI
+   * @param level - The level
+   * @param x - The x-coordinate
+   * @param y - The y-coordinate
+   * @param z - The z-coordinate
    * @return The result
    */
   static substituteOctreeInternal(

@@ -13,7 +13,7 @@ import { ResourceTypes } from "../io/ResourceTypes";
  * lookup up validators for given content data, based
  * on criteria like the file extension or magic header.
  *
- * @private
+ * @internal
  */
 export class ContentData {
   private readonly _uri: string;

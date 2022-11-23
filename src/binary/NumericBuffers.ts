@@ -8,16 +8,16 @@ import { MetadataComponentTypes } from "../metadata/MetadataComponentTypes";
  * Methods for extracting `number`- or `bigint` values or arrays thereof
  * from `Buffer` objects
  *
- * @private
+ * @internal
  */
 export class NumericBuffers {
   /**
    * Obtains a single number or bigint from the given buffer,
    * at the given index, based on the given component type.
    *
-   * @param buffer The buffer
-   * @param index The index
-   * @param componentType The component type
+   * @param buffer - The buffer
+   * @param index - The index
+   * @param componentType - The component type
    * @returns The number or bigint
    * @throws DeveloperError If the given `componentType` is not valid
    */
@@ -58,10 +58,10 @@ export class NumericBuffers {
    * Obtains an array of number or bigint values from the given buffer,
    * starting at the given index, based on the given component type.
    *
-   * @param buffer The buffer
-   * @param index The index
-   * @param arrayLength The length of the array, in number of elements
-   * @param componentType The component type
+   * @param buffer - The buffer
+   * @param index - The index
+   * @param arrayLength - The length of the array, in number of elements
+   * @param componentType - The component type
    * @returns The number or bigint array
    * @throws DeveloperError If the given `componentType` is not valid
    */
@@ -85,10 +85,10 @@ export class NumericBuffers {
    * Obtains a typed array of number or bigint values from the given buffer,
    * starting at the given index, based on the given component type.
    *
-   * @param buffer The buffer
-   * @param index The index
-   * @param arrayLength The length of the array, in number of elements
-   * @param componentType The component type
+   * @param buffer - The buffer
+   * @param index - The index
+   * @param arrayLength - The length of the array, in number of elements
+   * @param componentType - The component type
    * @returns The number or bigint typed array
    * @throws DeveloperError If the given `componentType` is not valid
    */
@@ -132,8 +132,8 @@ export class NumericBuffers {
    * Returns an array that contains the `number`- or `bigint` values
    * that are stored in the given buffer
    *
-   * @param buffer The buffer
-   * @param componentType The component type
+   * @param buffer - The buffer
+   * @param componentType - The component type
    * @returns The number or bigint array
    * @throws DeveloperError If the given `componentType` is not valid
    */

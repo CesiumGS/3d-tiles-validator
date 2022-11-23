@@ -15,19 +15,19 @@ import { MetadataEntity } from "../../structure/MetadataEntity";
 /**
  * A class for validations related to `metadataEntity` objects.
  *
- * @private
+ * @internal
  */
 export class MetadataEntityValidator {
   /**
    * Performs the validation to ensure that the given object is a
    * valid `metadataEntity` object.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param name A name for the object
-   * @param metadataEntity The object to validate
-   * @param schema The `Schema` object. This is either the `tileset.schema`,
+   * @param path - The path for the `ValidationIssue` instances
+   * @param name - A name for the object
+   * @param metadataEntity - The object to validate
+   * @param schema - The `Schema` object. This is either the `tileset.schema`,
    * or the `Schema` object that was read from the `schemaUri`.
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the given object is a valid metadataEntity object
    */
   static validateMetadataEntity(

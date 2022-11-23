@@ -32,7 +32,7 @@ export class ValidationResult {
   /**
    * Private constructor for `shallowCopy`
    *
-   * @param date The date that is stored in the result
+   * @param date - The date that is stored in the result
    */
   private constructor(date: Date) {
     this._date = date;
@@ -44,7 +44,7 @@ export class ValidationResult {
    * using the given `ValidationIssueFilter` as the inclusion
    * predicate.
    *
-   * @param includePredicate The predicate that determines whether
+   * @param includePredicate - The predicate that determines whether
    * a certain issue should be included in the result
    * @returns The filtered result
    */
@@ -67,7 +67,7 @@ export class ValidationResult {
    * intended for the `ValidationContext#addIssue` method,
    * to collect the issues during validation.
    *
-   * @param issue The `ValidationIssue` to add.
+   * @param issue - The `ValidationIssue` to add.
    */
   add(issue: ValidationIssue): void {
     this._issues.push(issue);

@@ -10,7 +10,7 @@ import { JsonValidationIssues } from "../issues/JsonValidationIssues";
  * for checks whether numbers are in the range that is
  * determined by a (metadata) component type.
  *
- * @private
+ * @internal
  */
 export class NumberValidator {
   /**
@@ -21,10 +21,10 @@ export class NumberValidator {
    * determined to be a valid one, i.e. is contained in the set of
    * `MetadataComponentTypes#allComponentTypes`.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param values The values
-   * @param componentType The component type
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param values - The values
+   * @param componentType - The component type
+   * @param context - The `ValidationContext`
    * @returns Whether the value was in the required range
    */
   static validateRanges(
@@ -60,11 +60,11 @@ export class NumberValidator {
    * determined to be a valid one, i.e. is contained in the set of
    * `MetadataComponentTypes#allComponentTypes`.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param name The name of the value
-   * @param value The value
-   * @param componentType The component type
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param name - The name of the value
+   * @param value - The value
+   * @param componentType - The component type
+   * @param context - The `ValidationContext`
    * @returns Whether the value was in the required range
    */
   static validateRange(

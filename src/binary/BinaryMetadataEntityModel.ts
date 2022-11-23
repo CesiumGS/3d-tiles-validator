@@ -10,7 +10,7 @@ import { PropertyTableModel } from "./PropertyTableModel";
  * Implementation of a `MetadataEntityModel` that is backed by binary
  * data (specifically, by a `PropertyTableModel`)
  *
- * @private
+ * @internal
  */
 export class BinaryMetadataEntityModel implements MetadataEntityModel {
   private readonly _propertyTableModel: PropertyTableModel;

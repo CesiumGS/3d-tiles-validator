@@ -6,7 +6,7 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 /**
  * A class for validations related to tempalte URIs for implicit tiling
  *
- * @private
+ * @internal
  */
 export class TemplateUriValidator {
   /**
@@ -23,11 +23,11 @@ export class TemplateUriValidator {
    * then a `TEMPLATE_URI_MISSING_VARIABLE_NAME` (warning) issue will
    * be added to the given context, but `true` will still be returned.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param name A name for the uri
-   * @param uri The uri
-   * @param subdivisionScheme The subdivisionScheme, "QUADTREE" or "OCTREE"
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param name - A name for the uri
+   * @param uri - The uri
+   * @param subdivisionScheme - The subdivisionScheme, "QUADTREE" or "OCTREE"
+   * @param context - The `ValidationContext`
    * @returns Whether the given URI is a valid template URI
    */
   static validateTemplateUri(

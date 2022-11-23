@@ -17,16 +17,16 @@ import { BinaryPropertyTableValuesValidator } from "./BinaryPropertyTableValuesV
 /**
  * A class for validations related to BinaryPropertyTable objects.
  *
- * @private
+ * @internal
  */
 export class BinaryPropertyTableValidator {
   /**
    * Performs the validation to ensure that the given object is a
    * valid `BinaryPropertyTable`.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param binaryPropertyTable The object to validate
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for the `ValidationIssue` instances
+   * @param binaryPropertyTable - The object to validate
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validateBinaryPropertyTable(
@@ -75,12 +75,12 @@ export class BinaryPropertyTableValidator {
   /**
    * Validate a single property of a `BinaryPropertyTable`
    *
-   * @param path The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTablePropery`, for
    * `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param classProperty The `ClassProperty`
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param context The `ValidationContext`
+   * @param propertyId - The property ID
+   * @param classProperty - The `ClassProperty`
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param context - The `ValidationContext`
    * @returns Whether the property is valid
    */
   private static validateBinaryPropertyTableProperty(
@@ -170,12 +170,12 @@ export class BinaryPropertyTableValidator {
    * 'stringOffsets' have been validated for types that require
    * them.
    *
-   * @param path The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTablePropery`, for
    * `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param classProperty The `ClassProperty`
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param context The `ValidationContext`
+   * @param propertyId - The property ID
+   * @param classProperty - The `ClassProperty`
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param context - The `ValidationContext`
    * @returns Whether the values are valid
    */
   private static validateValuesBufferView(
@@ -274,11 +274,11 @@ export class BinaryPropertyTableValidator {
    * This assumes that the specified property is a variable-length
    * property.
    *
-   * @param path The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTablePropery`, for
    * `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param context The `ValidationContext`
+   * @param propertyId - The property ID
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param context - The `ValidationContext`
    * @returns Whether the property was valid
    */
   private static validateArrayOffsetsBufferView(
@@ -362,16 +362,16 @@ export class BinaryPropertyTableValidator {
    *
    * This assumes that the specified property is a STRING property
    *
-   * @param path The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTablePropery`, for
    * `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param numStrings The number of strings. For non-array properties,
+   * @param propertyId - The property ID
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param numStrings - The number of strings. For non-array properties,
    * this is just the `propertyTable.count`. For fixed-length array
    * properties, this is `propertyTable.count * classProperty.count`.
    * For variable-length array properties, this is the last value
    * in the `arrayOffsets`.
-   * @param context The `ValidationContext`
+   * @param context - The `ValidationContext`
    * @returns Whether the property was valid
    */
   private static validateStringOffsetsBufferView(
@@ -454,16 +454,16 @@ export class BinaryPropertyTableValidator {
    * This is used for `arrayOffsets` or `stringOffsets`, which are supposed
    * to contain ascending numbers (not necessarily strictly ascending).
    *
-   * @param propertyPath The base path for `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param bufferViewName The name of the buffer view ('arrayOffsets',
+   * @param propertyPath - The base path for `ValidationIssue` instances
+   * @param propertyId - The property ID
+   * @param bufferViewName - The name of the buffer view ('arrayOffsets',
    * or 'stringOffsets')
-   * @param bufferViewIndex The index of the buffer view (i.e. the
+   * @param bufferViewIndex - The index of the buffer view (i.e. the
    * actual value of 'arrayOffsets', or 'stringOffsets')
-   * @param componentType The component type. This is either the
+   * @param componentType - The component type. This is either the
    * `arrayOffsetsType` or `stringOffsetsType`
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param context The `ValidationContext`
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param context - The `ValidationContext`
    * @returns Whether the offsets are valid
    */
   private static validateOffsets(
@@ -513,17 +513,17 @@ export class BinaryPropertyTableValidator {
    * The byte offset must be aligned to a multiple of the
    * size of the component type.
    *
-   * @param propertyPath The base path for `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param bufferViewName The name of the buffer view ('values',
+   * @param propertyPath - The base path for `ValidationIssue` instances
+   * @param propertyId - The property ID
+   * @param bufferViewName - The name of the buffer view ('values',
    * 'arrayOffsets', or 'stringOffsets')
-   * @param bufferViewIndex The index of the buffer view (i.e. the
+   * @param bufferViewIndex - The index of the buffer view (i.e. the
    * actual value of 'values', 'arrayOffsets', or 'stringOffsets')
-   * @param componentType The component type. This is either the
+   * @param componentType - The component type. This is either the
    * component type of the property, or the `arrayOffsetsType`
    * or `stringOffsetsType`
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param context The `ValidationContext`
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param context - The `ValidationContext`
    * @returns Whether the byte offset was valid
    */
   private static validateBufferViewByteOffset(
@@ -574,17 +574,17 @@ export class BinaryPropertyTableValidator {
    * This is intended for buffer views that are `arrayOffsets`
    * or `stringOffsets`.
    *
-   * @param propertyPath The path for `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param bufferViewName The name of the buffer view
+   * @param propertyPath - The path for `ValidationIssue` instances
+   * @param propertyId - The property ID
+   * @param bufferViewName - The name of the buffer view
    * ('arrayOffsets', or 'stringOffsets')
-   * @param bufferViewIndex The index of the buffer view (i.e. the
+   * @param bufferViewIndex - The index of the buffer view (i.e. the
    * actual value of 'values', 'arrayOffsets', or 'stringOffsets')
-   * @param componentType The component type. This is either the
+   * @param componentType - The component type. This is either the
    * `arrayOffsetsType` or `stringOffsetsType`
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param numValues The number of values in the buffer view.
-   * @param context The `ValidationContext`
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param numValues - The number of values in the buffer view.
+   * @param context - The `ValidationContext`
    * @returns Whether the byte length was valid
    */
   private static validateOffsetBufferViewByteLength(
@@ -639,16 +639,16 @@ export class BinaryPropertyTableValidator {
    * This is intended for buffer views that contain the values
    * of STRING typed properties.
    *
-   * @param propertyPath The path for `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param bufferViewIndex The index of the buffer view (i.e. the
+   * @param propertyPath - The path for `ValidationIssue` instances
+   * @param propertyId - The property ID
+   * @param bufferViewIndex - The index of the buffer view (i.e. the
    * actual value of the 'values')
-   * @param componentType The resolved component type (this is
+   * @param componentType - The resolved component type (this is
    * assumed to already have possible default values, like
    * UINT8 for BOOLEAN and STRING types)
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param numValues The number of values in the buffer view.
-   * @param context The `ValidationContext`
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param numValues - The number of values in the buffer view.
+   * @param context - The `ValidationContext`
    * @returns Whether the byte length was valid
    */
   private static validateValuesBufferViewByteLength(
@@ -692,13 +692,13 @@ export class BinaryPropertyTableValidator {
    * buffer view byte length was expected, when the actual byte
    * length did not match the expected one.
    *
-   * @param propertyId The property ID
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param componentType The component type. This is assumed
+   * @param propertyId - The property ID
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param componentType - The component type. This is assumed
    * to already have default values (e.g. UINT8 for BOOLEAN)
-   * @param numValues The number of values, as computed with
+   * @param numValues - The number of values, as computed with
    * `computeNumberOfValues`
-   * @param expectedByteLength The expected byte length
+   * @param expectedByteLength - The expected byte length
    * @returns The error message
    */
   private static createByteLengthMessage(
@@ -895,8 +895,8 @@ export class BinaryPropertyTableValidator {
    * - it will be the string length (in bytes) for a single STRING
    * - it will be the number of bits for a BOOLEAN property
    *
-   * @param propertyId The property ID
-   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @param propertyId - The property ID
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
    * @returns The number of values
    */
   private static computeNumberOfValues(
@@ -1002,9 +1002,9 @@ export class BinaryPropertyTableValidator {
    * and the requried structures for accessing that data have already
    * been validated.
    *
-   * @param propertyId The property ID
-   * @param index The index
-   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @param propertyId - The property ID
+   * @param index - The index
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
    * @returns The array offset
    */
   private static getValidatedArrayOffset(
@@ -1038,9 +1038,9 @@ export class BinaryPropertyTableValidator {
    * requried structures for accessing that data have already
    * been validated.
    *
-   * @param propertyId The property ID
-   * @param index The index
-   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @param propertyId - The property ID
+   * @param index - The index
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
    * @returns The string offset
    */
   private static getValidatedStringOffset(

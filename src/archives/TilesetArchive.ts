@@ -5,7 +5,7 @@ export interface TilesetArchive {
   /**
    * Open an an archive from the given file or directory
    *
-   * @param fullInputName The full input file- or directory name
+   * @param fullInputName - The full input file- or directory name
    *
    * @throws {TilesetArchiveError} If the archive cannot be opened
    */
@@ -22,7 +22,7 @@ export interface TilesetArchive {
   /**
    * Returns the entry that is identified by the given key.
    *
-   * @param key The key for the entry
+   * @param key - The key for the entry
    * @returns A buffer containing the data for the specified entry, or
    * `undefined` if there is no entry for the given key
    * @throws {TilesetArchiveError} If `open` was not called yet

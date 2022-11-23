@@ -22,7 +22,7 @@ import { BasicValidator } from "../BasicValidator";
  * by a `PropertyTableValidator` and a
  * `BinaryPropertyTableValidator`.
  *
- * @private
+ * @internal
  */
 export class BinaryPropertyTableValuesValidator {
   /**
@@ -34,9 +34,9 @@ export class BinaryPropertyTableValuesValidator {
    * Performs the validation to ensure that the given
    * `BinaryPropertyTable` contains valid values.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param binaryPropertyTable The object to validate
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for the `ValidationIssue` instances
+   * @param binaryPropertyTable - The object to validate
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the values in the object have been valid
    */
   static validateBinaryPropertyTableValues(
@@ -70,12 +70,12 @@ export class BinaryPropertyTableValuesValidator {
   /**
    * Validate the values of a single property of a `BinaryPropertyTable`
    *
-   * @param path The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTablePropery`, for
    * `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param classProperty The `ClassProperty`
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param context The `ValidationContext`
+   * @param propertyId - The property ID
+   * @param classProperty - The `ClassProperty`
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param context - The `ValidationContext`
    * @returns Whether the property is valid
    */
   private static validateBinaryPropertyTablePropertyValues(
@@ -242,10 +242,10 @@ export class BinaryPropertyTableValuesValidator {
    * is a value that was actually defined as one of the
    * `enum.values[i].value` values in the schema definition.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param propertyId - The property ID
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param context - The `ValidationContext`
    * @returns Whether the enum values have been valid
    */
   private static validateEnumValues(
@@ -316,14 +316,14 @@ export class BinaryPropertyTableValuesValidator {
    * property in the given property table is smaller than
    * the given defined minimum.
    *
-   * @param path The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTablePropery`, for
    * `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param definedMin The defined minimum
-   * @param definedMinInfo A string indicating the source of the minimum
+   * @param propertyId - The property ID
+   * @param definedMin - The defined minimum
+   * @param definedMinInfo - A string indicating the source of the minimum
    * definition: 'class property' or 'property table property'.
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param context The `ValidationContext`
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param context - The `ValidationContext`
    * @returns Whether the values obeyed the limit
    */
   private static validateMin(
@@ -387,8 +387,8 @@ export class BinaryPropertyTableValuesValidator {
    * This assumes that the property has a numeric type,
    * as indicated by `ClassProperties.hasNumericType`.
    *
-   * @param propertyId The property ID
-   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @param propertyId - The property ID
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
    * @returns The minimum
    */
   private static computeMin(
@@ -418,14 +418,14 @@ export class BinaryPropertyTableValuesValidator {
    * property in the given property table is smaller than
    * the given defined maximum.
    *
-   * @param path The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTablePropery`, for
    * `ValidationIssue` instances
-   * @param propertyId The property ID
-   * @param definedMax The defined maximum
-   * @param definedMaxInfo A string indicating the source of the maximum
+   * @param propertyId - The property ID
+   * @param definedMax - The defined maximum
+   * @param definedMaxInfo - A string indicating the source of the maximum
    * definition: 'class property' or 'property table property'.
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param context The `ValidationContext`
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param context - The `ValidationContext`
    * @returns Whether the values obeyed the limit
    */
   private static validateMax(
@@ -489,8 +489,8 @@ export class BinaryPropertyTableValuesValidator {
    * This assumes that the property has a numeric type,
    * as indicated by `ClassProperties.hasNumericType`.
    *
-   * @param propertyId The property ID
-   * @param binaryPropertyTable The `BinaryPropertyTable`
+   * @param propertyId - The property ID
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
    * @returns The maximum
    */
   private static computeMax(
@@ -522,12 +522,12 @@ export class BinaryPropertyTableValuesValidator {
    * in a message that explains how the `value` was computed from the
    * raw value, normalization, offset and scale.
    *
-   * @param rawValue The raw value, as obtained from the `PropertyModel`,
+   * @param rawValue - The raw value, as obtained from the `PropertyModel`,
    * without normalization, offset, or scale
-   * @param normalized Whether the value is normalized
-   * @param scale The optional scale
-   * @param offset The optional offset
-   * @param value The final value
+   * @param normalized - Whether the value is normalized
+   * @param scale - The optional scale
+   * @param offset - The optional offset
+   * @param value - The final value
    * @returns The message part
    */
   private static createValueMessagePart(

@@ -17,17 +17,17 @@ import { ValidationIssueUtils } from "../issues/ValidationIssueUtils";
  * definedness of values, their types, and their ranges, that may lead
  * to different `JsonValidationIssues`.
  *
- * @private
+ * @internal
  */
 export class BasicValidator {
   /**
    * Validate that the given string is a valid identifier string,
    * as defined in the 3D Metadata Specification.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value is an identifier string
    */
   static validateIdentifierString(
@@ -63,12 +63,12 @@ export class BasicValidator {
    * validation issue is added to the given context, and `false`
    * is returned.
    *
-   * @param containingPath The path of the object containing
+   * @param containingPath - The path of the object containing
    * the property, for the `ValidationIssue` message
-   * @param containingObject The object that may contain the
+   * @param containingObject - The object that may contain the
    * property
-   * @param name The name of the property
-   * @param context The `ValidationContext` to add the issue to
+   * @param name - The name of the property
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the specified value has the expected type
    */
   static validateOptionalString(
@@ -93,10 +93,10 @@ export class BasicValidator {
    * If the given value is not defined, a `PROPERTY_MISSING` validation
    * issue is added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value is defined
    */
   static validateDefined(
@@ -133,13 +133,13 @@ export class BasicValidator {
    * not have the expcected type, then a `TYPE_MISMATCH` validation
    * issue is added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param minLength The optional minimum length
-   * @param maxLength The optional maximum length
-   * @param expectedElementType The optional expected element type
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param minLength - The optional minimum length
+   * @param maxLength - The optional maximum length
+   * @param expectedElementType - The optional expected element type
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value is an array with the expected
    * length
    */
@@ -210,10 +210,10 @@ export class BasicValidator {
    * Otherwise, one `ARRAY_ELEMENT_NOT_UNIQUE` issue will be added
    * for each non-unique element, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param array The array
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param array - The array
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the elements have been unique
    */
   static validateArrayElementsUnique(
@@ -250,10 +250,10 @@ export class BasicValidator {
    * If the given object does not have the expeced type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value has the expected type
    */
   static validateObject(
@@ -279,10 +279,10 @@ export class BasicValidator {
    * If the given object does not have the expeced type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value has the expected type
    */
   static validateString(
@@ -308,10 +308,10 @@ export class BasicValidator {
    * If the given object does not have the expeced type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value has the expected type
    */
   static validateNumber(
@@ -337,10 +337,10 @@ export class BasicValidator {
    * If the given object does not have the expeced type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value has the expected type
    */
   static validateBoolean(
@@ -366,11 +366,11 @@ export class BasicValidator {
    * If the given object does not have the expeced type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param expectedType The expected type
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param expectedType - The expected type
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value has the expected type
    */
   static validateType(
@@ -407,10 +407,10 @@ export class BasicValidator {
    * If the given object does not have the expeced type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value has the expected type
    */
   static validateInteger(
@@ -449,14 +449,14 @@ export class BasicValidator {
    * If the value is not in the required range, `VALUE_NOT_IN_RANGE`
    * validation issue is added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param min The minimum value (optional)
-   * @param minInclusive Whether the minimum value is inclusive
-   * @param max The maximum value (optional)
-   * @param maxInclusive Whether the maximum value is inclusive
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param min - The minimum value (optional)
+   * @param minInclusive - Whether the minimum value is inclusive
+   * @param max - The maximum value (optional)
+   * @param maxInclusive - Whether the maximum value is inclusive
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value is in the expected range
    */
   static validateNumberRange(
@@ -498,14 +498,14 @@ export class BasicValidator {
    * If the value is not in the required range, `VALUE_NOT_IN_RANGE`
    * validation issue is added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param min The minimum value (optional)
-   * @param minInclusive Whether the minimum value is inclusive
-   * @param max The maximum value (optional)
-   * @param maxInclusive Whether the maximum value is inclusive
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param min - The minimum value (optional)
+   * @param minInclusive - Whether the minimum value is inclusive
+   * @param max - The maximum value (optional)
+   * @param maxInclusive - Whether the maximum value is inclusive
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value is in the expected range
    */
   static validateIntegerRange(
@@ -542,14 +542,14 @@ export class BasicValidator {
    * If the value is not in the required range, `VALUE_NOT_IN_RANGE`
    * validation issue is added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param min The minimum value (optional)
-   * @param minInclusive Whether the minimum value is inclusive
-   * @param max The maximum value (optional)
-   * @param maxInclusive Whether the maximum value is inclusive
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param min - The minimum value (optional)
+   * @param minInclusive - Whether the minimum value is inclusive
+   * @param max - The maximum value (optional)
+   * @param maxInclusive - Whether the maximum value is inclusive
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value is in the expected range
    */
   static _validateNumberRangeInternal(
@@ -616,11 +616,11 @@ export class BasicValidator {
    * allowed values, then a `VALUE_NOT_IN_LIST` validation issue is
    * added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param allowedValues The array of allowed values
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param allowedValues - The array of allowed values
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value has the expected type
    */
   static validateEnum(
@@ -659,12 +659,12 @@ export class BasicValidator {
    * then a `NUMBER_OF_PROPERTIES_MISMATCH` issue is added to the given
    * context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param minProperties The minimum number of properties
-   * @param maxProperties The maximum number of properties
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param minProperties - The minimum number of properties
+   * @param maxProperties - The maximum number of properties
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value has the expected type
    */
   static validateNumberOfProperties(
@@ -715,12 +715,12 @@ export class BasicValidator {
    * `STRING_LENGTH_MISMATCH` issue will be added to the given context,
    * and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue` message
-   * @param name The name for the `ValidationIssue` message
-   * @param value The value
-   * @param minLength The optional minimum length
-   * @param maxLength The optional maximum length
-   * @param context The `ValidationContext` to add the issue to
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param minLength - The optional minimum length
+   * @param maxLength - The optional maximum length
+   * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value has the expected type
    */
   static validateStringLength(

@@ -43,8 +43,8 @@ export class IndexBuilder {
    * in the 3TZ specification: It is the relative path of the file, with
    * slashes `/`, and no leading slash.
    *
-   * @param key The key (path) for the entry
-   * @param size The size of the content for this entry
+   * @param key - The key (path) for the entry
+   * @param size - The size of the content for this entry
    */
   addEntry(key: string, size: number) {
     const offset = this.currentEntryOffset;
@@ -68,8 +68,8 @@ export class IndexBuilder {
    * - negative when b0<b1
    * - positive when b0>b1
    *
-   * @param b0 The first buffer
-   * @param b1 The second buffer
+   * @param b -0 The first buffer
+   * @param b -1 The second buffer
    * @returns The comparison result
    */
   private static compareMd5HashBuffers(b0: Buffer, b1: Buffer): number {

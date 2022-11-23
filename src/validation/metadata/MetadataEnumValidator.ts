@@ -16,16 +16,16 @@ import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues"
 /**
  * A class for validations related to `MetadataEnum` objects.
  *
- * @private
+ * @internal
  */
 export class MetadataEnumValidator {
   /**
    * Validate the given `MetadataEnum` object
    *
-   * @param metadataEnumPath The path for `ValidationIssue` instances
-   * @param enumName The name of the enum
-   * @param metadataEnum The actual `MetadataEnum`
-   * @param context The `ValidatonContext`
+   * @param metadataEnumPath - The path for `ValidationIssue` instances
+   * @param enumName - The name of the enum
+   * @param metadataEnum - The actual `MetadataEnum`
+   * @param context - The `ValidatonContext`
    * @returns Whether the object was valid
    */
   static validateMetadataEnum(
@@ -157,12 +157,12 @@ export class MetadataEnumValidator {
   /**
    * Validates the given `enum.values` array
    *
-   * @param metadataEnumPath The path of the enum for `ValidationIssue` instances
-   * @param values The actual values array
-   * @param validatedValueType The valueType from the enum definition.
+   * @param metadataEnumPath - The path of the enum for `ValidationIssue` instances
+   * @param values - The actual values array
+   * @param validatedValueType - The valueType from the enum definition.
    * If there was no valueType definition, then this is the default
    * ("UINT16"). If the valueType was not valid, this is `undefined`.
-   * @param context The `ValidationContext`
+   * @param context - The `ValidationContext`
    * @returns Whether the enum values are valid
    */
   private static validateMetadataEnumValues(
@@ -236,9 +236,9 @@ export class MetadataEnumValidator {
    * Validate that the names of the given enum values, as referred to
    * by `enum.values[i].name`, are unique.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param enumValues The actual `enum.values` array
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param enumValues - The actual `enum.values` array
+   * @param context - The `ValidationContext`
    * @returns Whether the names are unique
    */
   private static validateUniqueNames(
@@ -267,9 +267,9 @@ export class MetadataEnumValidator {
    * Validate that the values of the given enum values, as referred to
    * by `enum.values[i].value`, are unique.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param enumValues The actual `enum.values` array
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param enumValues - The actual `enum.values` array
+   * @param context - The `ValidationContext`
    * @returns Whether the values are unique
    */
   private static validateUniqueValues(
@@ -297,12 +297,12 @@ export class MetadataEnumValidator {
   /**
    * Validates a single `enum.values[i]` value
    *
-   * @param enumValuePath The path for the `ValidationIssue` instances
-   * @param enumValue The actual `EnumValue`
-   * @param validatedValueType The valueType from the enum definition.
+   * @param enumValuePath - The path for the `ValidationIssue` instances
+   * @param enumValue - The actual `EnumValue`
+   * @param validatedValueType - The valueType from the enum definition.
    * If there was no valueType definition, then this is the default
    * ("UINT16"). If the valueType was not valid, this is `undefined`.
-   * @param context The `ValidationContext`
+   * @param context - The `ValidationContext`
    * @returns Whether the `EnumValue` is valid
    */
   private static validateMetadataEnumValue(

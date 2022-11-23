@@ -5,7 +5,7 @@ import { PropertyModels } from "./PropertyModels";
 /**
  * Implementation of a `PropertyModel` for strings
  *
- * @private
+ * @internal
  */
 export class StringPropertyModel implements PropertyModel {
   private static readonly decoder = new TextDecoder();

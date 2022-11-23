@@ -9,10 +9,10 @@ import { componentTypeToByteLength } from "./utility";
 /**
  * Checks if the feature table JSON and feature table binary are valid
  *
- * @param featureTableJson Feature table JSON.
- * @param featureTableBinary Feature table binary.
- * @param featuresLength The number of features.
- * @param featureTableSemantics An object containing semantic information for each feature table property, specific to the tile format.
+ * @param featureTableJson - Feature table JSON.
+ * @param featureTableBinary - Feature table binary.
+ * @param featuresLength - The number of features.
+ * @param featureTableSemantics - An object containing semantic information for each feature table property, specific to the tile format.
  * @returns An error message if validation fails, otherwise undefined.
  */
 function validateFeatureTable(

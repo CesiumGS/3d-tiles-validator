@@ -19,7 +19,7 @@ export class ClassProperties {
    * - either has the componentType FLOAT32 or FLOAT46
    * - or has an integer component type AND is 'normalized'
    *
-   * @param property The property
+   * @param property - The property
    * @returns Whether the property is a floating point property
    */
   static hasEffectivelyFloatingPointType(property: ClassProperty): boolean {
@@ -52,7 +52,7 @@ export class ClassProperties {
    * This means tha the value has the type SCALAR, VECn, or MATn, and
    * one of the allowed component types.
    *
-   * @param property The property
+   * @param property - The property
    * @returns Whether the property is a numeric property
    */
   static hasNumericType(property: ClassProperty): boolean {

@@ -19,17 +19,17 @@ import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues"
 /**
  * A class for validations related to `class.property` objects.
  *
- * @private
+ * @internal
  */
 export class ClassPropertyValidator {
   /**
    * Validates that the given object is a valid `class.property` object.
    *
-   * @param schema The `Schema`
-   * @param propertyPath The path for the `ValidationIssue` instances
-   * @param propertyName The name of the property
-   * @param property The property
-   * @param context The `ValidationContext`
+   * @param schema - The `Schema`
+   * @param propertyPath - The path for the `ValidationIssue` instances
+   * @param propertyName - The name of the property
+   * @param property - The property
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateClassProperty(
@@ -63,11 +63,11 @@ export class ClassPropertyValidator {
    * Internal method for `validateClassProperty` that just
    * assumes that the property is defined and an `"object"`.
    *
-   * @param schema The `Schema`
-   * @param propertyPath The path for the `ValidationIssue` instances
-   * @param propertyName The name of the property
-   * @param property The property
-   * @param context The `ValidationContext`
+   * @param schema - The `Schema`
+   * @param propertyPath - The path for the `ValidationIssue` instances
+   * @param propertyName - The name of the property
+   * @param property - The property
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   private static validateClassPropertyInternal(
@@ -440,11 +440,11 @@ export class ClassPropertyValidator {
    * basic structure of the class property has already been
    * determined to be valid.
    *
-   * @param schema The `Schema`
-   * @param propertyPath The path for the `ValidationIssue` instances
-   * @param propertyName The name of the property
-   * @param property The property
-   * @param context The `ValidationContext`
+   * @param schema - The `Schema`
+   * @param propertyPath - The path for the `ValidationIssue` instances
+   * @param propertyName - The name of the property
+   * @param property - The property
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   private static validateClassPropertyValues(

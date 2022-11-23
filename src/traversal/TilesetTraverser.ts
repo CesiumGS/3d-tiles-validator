@@ -20,14 +20,14 @@ export class TilesetTraverser {
    * at the root. It will pass all tiles to the given callback,
    * as `TraversedTile` instances.
    *
-   * @param tileset The `Tileset`
-   * @param schema The schema from the `tileset.schema` or the
+   * @param tileset - The `Tileset`
+   * @param schema - The schema from the `tileset.schema` or the
    * `tileset.schemaUri`. If this is defined, then it is assumed
    * to be a valid schema definition.
-   * @param resourceResolver The `ResourceResolver` that is used to
+   * @param resourceResolver - The `ResourceResolver` that is used to
    * resolve resources for implicit tilesets (subtree files)
-   * @param traversalCallback The `TraversalCallback`
-   * @param depthFirst Whether the traversal should be depth-first
+   * @param traversalCallback - The `TraversalCallback`
+   * @param depthFirst - Whether the traversal should be depth-first
    * @returns A Promise that resolves when the traversal finished
    */
   static async traverse(

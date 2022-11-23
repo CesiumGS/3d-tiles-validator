@@ -16,7 +16,7 @@ import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues"
  * The methods in this class assume that the property definitions
  * have already been validated with the `ClassPropertyValidator`.
  *
- * @private
+ * @internal
  */
 export class ClassPropertyValueValidator {
   /**
@@ -31,12 +31,12 @@ export class ClassPropertyValueValidator {
    * structure that is defined by the property type, then an
    * appropriate issue will be added to the given context.
    *
-   * @param propertyPath The path for the `ValidationIssue` instances
-   * @param propertyName The name for the `ValidationIssue` instances
-   * @param property The `ClassProperty`
-   * @param maxOrMin The name, "max" or "min"
-   * @param value The actual value
-   * @param context The `ValidationContext`
+   * @param propertyPath - The path for the `ValidationIssue` instances
+   * @param propertyName - The name for the `ValidationIssue` instances
+   * @param property - The `ClassProperty`
+   * @param maxOrMin - The name, "max" or "min"
+   * @param value - The actual value
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateMaxMin(
@@ -105,12 +105,12 @@ export class ClassPropertyValueValidator {
    * structure that is defined by the property type, then an
    * appropriate issue will be added to the given context.
    *
-   * @param propertyPath The path for the `ValidationIssue` instances
-   * @param propertyName The name for the `ValidationIssue` instances
-   * @param property The `ClassProperty`
-   * @param offsetOrScale The name, "offset" or "scale"
-   * @param value The actual value
-   * @param context The `ValidationContext`
+   * @param propertyPath - The path for the `ValidationIssue` instances
+   * @param propertyName - The name for the `ValidationIssue` instances
+   * @param property - The `ClassProperty`
+   * @param offsetOrScale - The name, "offset" or "scale"
+   * @param value - The actual value
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateOffsetScale(

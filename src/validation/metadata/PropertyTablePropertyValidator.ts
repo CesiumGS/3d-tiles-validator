@@ -16,19 +16,19 @@ import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues"
 /**
  * A class for validations related to `propertyTable.property` objects.
  *
- * @private
+ * @internal
  */
 export class PropertyTablePropertyValidator {
   /**
    * Performs the validation to ensure that the given object is a
    * valid `propertyTable.property` object.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param propertyName The name of the property
-   * @param propertyTableProperty The object to validate
-   * @param numBufferViews The number of buffer views that are available
-   * @param classProperty The `ClassProperty` definition from the schema
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for the `ValidationIssue` instances
+   * @param propertyName - The name of the property
+   * @param propertyTableProperty - The object to validate
+   * @param numBufferViews - The number of buffer views that are available
+   * @param classProperty - The `ClassProperty` definition from the schema
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validatePropertyTableProperty(

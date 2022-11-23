@@ -13,7 +13,7 @@ import { MetadataClass } from "../structure/Metadata/MetadataClass";
  * (The JSON representation are just the `metadataEntity.properties`
  * from the input JSON)
  *
- * @private
+ * @internal
  */
 export class DefaultMetadataEntityModel implements MetadataEntityModel {
   private readonly _metadataClass: MetadataClass;

@@ -9,9 +9,9 @@ export class HilbertOrder {
   /**
    * Computes the Hilbert index at the given level from 2D coordinates.
    *
-   * @param level The level of the curve
-   * @param x The X coordinate
-   * @param y The Y coordinate
+   * @param level - The level of the curve
+   * @param x - The X coordinate
+   * @param y - The Y coordinate
    * @returns  The Hilbert index.
    */
   static encode2D(level: number, x: number, y: number): bigint {
@@ -48,7 +48,7 @@ export class HilbertOrder {
    * @param {Number} level The level of the curve
    * @param {BigInt} index The Hilbert index
    * @returns {Number[]} An array containing the 2D coordinates ([x, y]) corresponding to the Morton index.
-   * @private
+   * @internal
    */
   static decode2D(level: number, index: bigint): number[] {
     if (level < 1) {
@@ -80,7 +80,7 @@ export class HilbertOrder {
   }
 
   /**
-   * @private
+   * @internal
    */
   private static rotate(
     n: number,

@@ -2,7 +2,7 @@
  * Converts a buffer containing a utf-8 encoded JSON string to a JSON object.
  * If the buffer is undefined or empty, then an empty object will be returned.
  *
- * @param buffer The buffer.
+ * @param buffer - The buffer.
  * @returns A JSON object.
  */
 export function bufferToJson(buffer?: Buffer): object {

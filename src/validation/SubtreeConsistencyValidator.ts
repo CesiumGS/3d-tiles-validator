@@ -26,7 +26,7 @@ import { BinaryBufferStructure } from "./metadata/BinaryBufferStructure";
  *
  * They will **NOT** analyze the actual buffer data.
  *
- * @private
+ * @internal
  */
 export class SubtreeConsistencyValidator {
   /**
@@ -37,13 +37,13 @@ export class SubtreeConsistencyValidator {
    * of the memory layout of buffer views, buffers, and the availability
    * information.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param subtree The `Subtree` object
-   * @param implicitTiling The `TileImplicitTiling` object. If this
+   * @param path - The path for `ValidationIssue` instances
+   * @param subtree - The `Subtree` object
+   * @param implicitTiling - The `TileImplicitTiling` object. If this
    * is not given, then the validation of the availability information
    * (that requires information about the subtree structure) will be
    * skipped
-   * @param context The `ValidationCondext`
+   * @param context - The `ValidationCondext`
    * @returns Whether the data was consistent
    */
   static validateSubtreeConsistency(
@@ -89,11 +89,11 @@ export class SubtreeConsistencyValidator {
    * `contentAvailability` and `childSubtreeAvailability` objects
    * in the given subtree.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param subtree The `Subtree` object
-   * @param implicitTiling The `TileImplicitTiling` that defines the
+   * @param path - The path for the `ValidationIssue` instances
+   * @param subtree - The `Subtree` object
+   * @param implicitTiling - The `TileImplicitTiling` that defines the
    * subtree structure
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   private static validateSubtreeAvailabilityConsistency(
@@ -182,14 +182,14 @@ export class SubtreeConsistencyValidator {
    * and the buffer view has a length that is sufficient for the
    * respective availability information.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param availability The `Availability` object
-   * @param requiredLengthInBits The length, in bits, that is required
+   * @param path - The path for the `ValidationIssue` instances
+   * @param availability - The `Availability` object
+   * @param requiredLengthInBits - The length, in bits, that is required
    * for storing the given availability information
-   * @param subtree The `Subtree` object
-   * @param implicitTiling The `TileImplicitTiling` that defines the
+   * @param subtree - The `Subtree` object
+   * @param implicitTiling - The `TileImplicitTiling` that defines the
    * subtree structure
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   private static validateAvailabilityConsistency(

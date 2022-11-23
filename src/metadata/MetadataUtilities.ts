@@ -9,7 +9,7 @@ import { ClassProperty } from "../structure/Metadata/ClassProperty";
 /**
  * Internal utilities related to metadata
  *
- * @private
+ * @internal
  */
 export class MetadataUtilities {
   /**
@@ -17,7 +17,7 @@ export class MetadataUtilities {
    * about the binary representation of `MetadataEnum` values
    * from the given schema.
    *
-   * @param schema The metadata `Schema`
+   * @param schema - The metadata `Schema`
    * @returns The `BinaryEnumInfo`
    */
   static computeBinaryEnumInfo(schema: Schema): BinaryEnumInfo {
@@ -33,7 +33,7 @@ export class MetadataUtilities {
    * the respective `MetdataEnum` has (defaulting to `UINT16` if it
    * did not define one)
    *
-   * @param schema The metadata `Schema`
+   * @param schema - The metadata `Schema`
    * @returns The mapping from enum type names to enum value types
    */
   private static computeEnumValueTypes(schema: Schema): {
@@ -53,7 +53,7 @@ export class MetadataUtilities {
    * Computes a mapping from enum type names to the dictionaries
    * that map the enum values names to the enum value values.
    *
-   * @param schema The metadata `Schema`
+   * @param schema - The metadata `Schema`
    * @returns The mapping from enum type names to dictionaries
    */
   private static computeEnumValueNameValues(schema: Schema): {
@@ -92,8 +92,8 @@ export class MetadataUtilities {
    * values, returning the empty list the property does not have an
    * enum type or any element is not defined.
    *
-   * @param classProperty The `ClassProperty`
-   * @param schema The `Schema`
+   * @param classProperty - The `ClassProperty`
+   * @param schema - The `Schema`
    * @returns The enum value names
    */
   static obtainEnumValueNames(

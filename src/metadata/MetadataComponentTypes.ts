@@ -5,7 +5,7 @@ import { DeveloperError } from "../base/DeveloperError";
  * Internal utilities related to the `componentType` of the
  * `ClassProperty` instances of `MetadataClass` objects
  *
- * @private
+ * @internal
  */
 export class MetadataComponentTypes {
   /**
@@ -54,7 +54,7 @@ export class MetadataComponentTypes {
    * Returns whether the given component type is an integer component
    * type.
    *
-   * @param componentType The component type
+   * @param componentType - The component type
    * @returns Whether the component type is an integer component type
    */
   static isIntegerComponentType(componentType: string | undefined) {
@@ -70,7 +70,7 @@ export class MetadataComponentTypes {
    * Returns whether the given component type is an unsigned component
    * type.
    *
-   * @param componentType The component type
+   * @param componentType - The component type
    * @returns Whether the component type is an unsigned component type
    */
   static isUnsignedComponentType(componentType: string | undefined) {
@@ -85,7 +85,7 @@ export class MetadataComponentTypes {
   /**
    * Returns the size of the given component type in bytes
    *
-   * @param componentType The type
+   * @param componentType - The type
    * @returns The size in bytes
    * @throws DeveloperError If the given component type is not
    * one of the `allComponentTypes`

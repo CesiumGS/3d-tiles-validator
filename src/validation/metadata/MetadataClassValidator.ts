@@ -14,17 +14,17 @@ import { MetadataClass } from "../../structure/Metadata/MetadataClass";
 /**
  * A class for validations related to `MetadataClass` objects.
  *
- * @private
+ * @internal
  */
 export class MetadataClassValidator {
   /**
    * Validate the given `MetadataClass` object
    *
-   * @param metadataClassPath The path for `ValidationIssue` instances
-   * @param name The name of the class
-   * @param metadataClass The actual `MetadataClass`
-   * @param schema The `Schema`
-   * @param context The `ValidatonContext`
+   * @param metadataClassPath - The path for `ValidationIssue` instances
+   * @param name - The name of the class
+   * @param metadataClass - The actual `MetadataClass`
+   * @param schema - The `Schema`
+   * @param context - The `ValidatonContext`
    * @returns Whether the object was valid
    */
   static validateMetadataClass(

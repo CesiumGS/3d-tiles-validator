@@ -10,14 +10,14 @@ import { S2Cell } from "./S2Cell";
  *
  * Largely ported from CesiumJS Implicit3DTileContent.js
  *
- * @private
+ * @internal
  */
 export class BoundingVolumeDerivation {
   /**
    * Given the coordinates of a tile, derive its bounding volume from the root.
    *
-   * @param rootBoundingVolume The root bounding volume
-   * @param implicitCoordinates The coordinates of the child tile, as an
+   * @param rootBoundingVolume - The root bounding volume
+   * @param implicitCoordinates - The coordinates of the child tile, as an
    * array [level,x,y] for quadtrees or [level,x,y,z] for octrees.
    * @returns {Object} An object containing the JSON for a bounding volume
    */
@@ -89,7 +89,7 @@ export class BoundingVolumeDerivation {
    * @param {Object} json The JSON object
    * @param {String} extensionName The name of the extension, e.g. '3DTILES_implicit_tiling'
    * @returns {Boolean} True if the extension is present
-   * @private
+   * @internal
    */
   private static hasExtension(json: any, extensionName: string): boolean {
     return (
@@ -139,10 +139,10 @@ export class BoundingVolumeDerivation {
    * than recursively subdividing to minimize floating point error.
    * </p>
    *
-   * @param rootBox An array of 12 numbers representing the bounding box of the root tile
-   * @param level The level of the descendant tile relative to the root implicit tile
-   * @param x The x coordinate of the descendant tile
-   * @param y The y coordinate of the descendant tile
+   * @param rootBox - An array of 12 numbers representing the bounding box of the root tile
+   * @param level - The level of the descendant tile relative to the root implicit tile
+   * @param x - The x coordinate of the descendant tile
+   * @param y - The y coordinate of the descendant tile
    * @param [z] The z coordinate of the descendant tile (octree only)
    * @returns An array of 12 numbers representing the bounding box of the descendant tile.
    */
@@ -231,13 +231,13 @@ export class BoundingVolumeDerivation {
    * This computes the child volume directly from the root bounding volume rather
    * than recursively subdividing to minimize floating point error.
    * </p>
-   * @param rootRegion An array of 6 numbers representing the root implicit tile
-   * @param level The level of the descendant tile relative to the root implicit tile
-   * @param x The x coordinate of the descendant tile
-   * @param y The x coordinate of the descendant tile
-   * @param z The z coordinate of the descendant tile (octree only)
+   * @param rootRegion - An array of 6 numbers representing the root implicit tile
+   * @param level - The level of the descendant tile relative to the root implicit tile
+   * @param x - The x coordinate of the descendant tile
+   * @param y - The x coordinate of the descendant tile
+   * @param z - The z coordinate of the descendant tile (octree only)
    * @returns An array of 6 numbers representing the bounding region of the descendant tile
-   * @private
+   * @internal
    */
   private static deriveBoundingRegion(
     rootRegion: number[],
@@ -291,12 +291,12 @@ export class BoundingVolumeDerivation {
    * dimensions, i.e. (x, y), leaving the z axis unchanged.
    * </p>
    *
-   * @param level The level of the descendant tile relative to the root implicit tile
-   * @param x The x coordinate of the descendant tile
-   * @param y The y coordinate of the descendant tile
-   * @param z The z coordinate of the descendant tile (octree only)
+   * @param level - The level of the descendant tile relative to the root implicit tile
+   * @param x - The x coordinate of the descendant tile
+   * @param y - The y coordinate of the descendant tile
+   * @param z - The z coordinate of the descendant tile (octree only)
    * @returns The new bounding volume
-   * @private
+   * @internal
    */
   private static deriveBoundingVolumeS2(
     boundingVolumeS2: BoundingVolumeS2,

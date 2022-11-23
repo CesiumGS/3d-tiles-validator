@@ -7,9 +7,9 @@ import { componentTypeToByteLength } from "./utility";
 /**
  * Checks if the batch table JSON and batch table binary are valid
  *
- * @param batchTableJson Batch table JSON.
- * @param batchTableBinary Batch table binary.
- * @param featuresLength The number of features.
+ * @param batchTableJson - Batch table JSON.
+ * @param batchTableBinary - Batch table binary.
+ * @param featuresLength - The number of features.
  * @returns An error message if validation fails, otherwise undefined.
  */
 function validateBatchTable(

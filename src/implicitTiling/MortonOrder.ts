@@ -6,7 +6,7 @@ import { defined } from "../base/defined";
  * Morton Order (aka Z-Order Curve) helper functions.
  * @see {@link https://en.wikipedia.org/wiki/Z-order_curve}
  *
- * @private
+ * @internal
  */
 export class MortonOrder {
   /**
@@ -41,7 +41,7 @@ export class MortonOrder {
    *                    ^^ ^^ (added)
    *  output: 72
    *
-   * @private
+   * @internal
    * @param {Number} v A 10-bit unsigned integer.
    * @returns {Number} A 30-bit unsigned integer.
    * @see {@link https://fgiesen.wordpress.com/2009/12/13/decoding-morton-codes/}
@@ -107,7 +107,7 @@ export class MortonOrder {
    * @param {Number} x The X coordinate in the range [0, (2^16)-1].
    * @param {Number} y The Y coordinate in the range [0, (2^16)-1].
    * @returns {Number} The Morton index.
-   * @private
+   * @internal
    */
   static encode2D(x: number, y: number): number {
     //>>includeStart('debug', pragmas.debug);
@@ -134,7 +134,7 @@ export class MortonOrder {
    * @param {Number} mortonIndex The Morton index in the range [0, (2^32)-1].
    * @param {Number[]} [result] The array onto which to store the result.
    * @returns {Number[]} An array containing the 2D coordinates correspoding to the Morton index.
-   * @private
+   * @internal
    */
   static decode2D(mortonIndex: number, result: number[]): number[] {
     //>>includeStart('debug', pragmas.debug);
@@ -160,7 +160,7 @@ export class MortonOrder {
    * @param {Number} y The Y coordinate in the range [0, (2^10)-1].
    * @param {Number} z The Z coordinate in the range [0, (2^10)-1].
    * @returns {Number} The Morton index.
-   * @private
+   * @internal
    */
   static encode3D(x: number, y: number, z: number): number {
     //>>includeStart('debug', pragmas.debug);
@@ -183,7 +183,7 @@ export class MortonOrder {
    * @param {Number} mortonIndex The Morton index in the range [0, (2^30)-1].
    * @param {Number[]} [result] The array onto which to store the result.
    * @returns {Number[]} An array containing the 3D coordinates corresponding to the Morton index.
-   * @private
+   * @internal
    */
   static decode3D(mortonIndex: number, result: number[]): number[] {
     //>>includeStart('debug', pragmas.debug);

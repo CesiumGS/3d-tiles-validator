@@ -14,16 +14,16 @@ import { BoundingVolumeS2ValidationIssues } from "./BoundingVolumeS2ValidationIs
  * A class for the validation of bounding volumes that contain
  * `3DTILES_bounding_volume_S2` extension objects
  *
- * @private
+ * @internal
  */
 export class BoundingVolumeS2Validator implements Validator<any> {
   /**
    * Performs the validation of a `BoundungVolume` object that
    * contains a `3DTILES_bounding_volume_S2` extension object.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param boundingVolume The object to validate
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for `ValidationIssue` instances
+   * @param boundingVolume - The object to validate
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   async validateObject(
@@ -107,9 +107,9 @@ export class BoundingVolumeS2Validator implements Validator<any> {
    * Performs the validation to ensure that the given object is a
    * valid `3DTILES_bounding_volume_S2` object.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param object The object to validate
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for `ValidationIssue` instances
+   * @param object - The object to validate
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validateBoundingVolumeS2(
@@ -222,7 +222,7 @@ export class BoundingVolumeS2Validator implements Validator<any> {
   /**
    * Peforms a basic validation that the given string is a valid S2 cell token
    *
-   * @param token The token
+   * @param token - The token
    * @returns Whether the token is valid
    */
   private static isValidToken(token: string): boolean {

@@ -14,8 +14,8 @@ export class JsonValidationIssues {
    * Indicates that a property that is marked as 'required' in the
    * schema was missing.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the missing property
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the missing property
    * @returns The `ValidationIssue`
    */
   static PROPERTY_MISSING(path: string, name: string) {
@@ -35,10 +35,10 @@ export class JsonValidationIssues {
    * Indicates that a property had a type that was different
    * than the one in the JSON schema.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the property
-   * @param expectedType The expected type
-   * @param actualType The actual type
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the property
+   * @param expectedType - The expected type
+   * @param actualType - The actual type
    * @returns The `ValidationIssue`
    */
   static TYPE_MISMATCH(
@@ -65,11 +65,11 @@ export class JsonValidationIssues {
    * Indicates that an array element had a type that was different
    * than the one in the JSON schema.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the array property
-   * @param index The index of the element
-   * @param expectedType The expected type
-   * @param actualType The actual type
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the array property
+   * @param index - The index of the element
+   * @param expectedType - The expected type
+   * @param actualType - The actual type
    * @returns The `ValidationIssue`
    */
   static ARRAY_ELEMENT_TYPE_MISMATCH(
@@ -98,9 +98,9 @@ export class JsonValidationIssues {
    * the items are required to be unique due to `uniqueItems:true`
    * in the JSON schema.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the array property
-   * @param item The duplicate item
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the array property
+   * @param item - The duplicate item
    * @returns The `ValidationIssue`
    */
   static ARRAY_ELEMENT_NOT_UNIQUE(path: string, name: string, item: any) {
@@ -116,8 +116,8 @@ export class JsonValidationIssues {
    * is specified by the JSON schema via the `minimum` and
    * `maximum` constraints.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param message The message for the `ValidationIssue`
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
   static VALUE_NOT_IN_RANGE(path: string, message: string) {
@@ -131,8 +131,8 @@ export class JsonValidationIssues {
    * Indicates that a value was not in the set of allowed
    * values. This usually refers to enum values.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param message The message for the `ValidationIssue`
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
   static VALUE_NOT_IN_LIST(path: string, message: string) {
@@ -147,8 +147,8 @@ export class JsonValidationIssues {
    * that is specified via the JSON schema, using the `minItems`
    * and `maxItems` constraints.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param message The message for the `ValidationIssue`
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
   static ARRAY_LENGTH_MISMATCH(path: string, message: string) {
@@ -163,8 +163,8 @@ export class JsonValidationIssues {
    * that is specified via the JSON schema, using the `minLength`
    * and `maxLength` constraints.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param message The message for the `ValidationIssue`
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
   static STRING_LENGTH_MISMATCH(path: string, message: string) {
@@ -179,8 +179,8 @@ export class JsonValidationIssues {
    * meet the constraints that are specified via the JSON schema, using
    * the `minProperties` and `maxProperties` properties.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param message The message for the `ValidationIssue`
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
   static NUMBER_OF_PROPERTIES_MISMATCH(path: string, message: string) {
@@ -194,10 +194,10 @@ export class JsonValidationIssues {
    * Indicates that the pattern of a string property does not match the
    * required regular expression.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the property
-   * @param value The value of the property
-   * @param pattern A string representation of the expected pattern
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the property
+   * @param value - The value of the property
+   * @param pattern - A string representation of the expected pattern
    * @returns The `ValidationIssue`
    */
   static STRING_PATTERN_MISMATCH(
@@ -224,9 +224,9 @@ export class JsonValidationIssues {
    * Indicates that multiple properties have been defined, when
    * only one of them should have been defined.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the containing object
-   * @param properties The names of the properties
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the containing object
+   * @param properties - The names of the properties
    * @returns The `ValidationIssue`
    */
   static ONE_OF_ERROR(path: string, name: string, ...properties: string[]) {
@@ -247,9 +247,9 @@ export class JsonValidationIssues {
    * Indicates that one of several properties must be defined,
    * but none of them was defined.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the containing object
-   * @param properties The names of the properties
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the containing object
+   * @param properties - The names of the properties
    * @returns The `ValidationIssue`
    */
   static ANY_OF_ERROR(path: string, name: string, ...properties: string[]) {
@@ -275,10 +275,10 @@ export class JsonValidationIssues {
    * While the `extras` may have any type, a general best practice
    * is to let it be a dictionary (and not, for example, a string)
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the property
-   * @param expectedType The expected type
-   * @param actualType The actual type
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the property
+   * @param expectedType - The expected type
+   * @param actualType - The actual type
    * @returns The `ValidationIssue`
    */
   static TYPE_UNEXPECTED(

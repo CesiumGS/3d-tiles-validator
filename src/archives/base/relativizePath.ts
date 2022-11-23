@@ -7,8 +7,8 @@ import path from "path";
  * referring to the directory. The result will be normalized and
  * backslashes (from Windows) will be replaced with slashes.
  *
- * @param directory The directory
- * @param fullPath The full path
+ * @param directory - The directory
+ * @param fullPath - The full path
  * @returns The relativized path as a string
  */
 export function relativizePath(directory: string, fullPath: string): string {

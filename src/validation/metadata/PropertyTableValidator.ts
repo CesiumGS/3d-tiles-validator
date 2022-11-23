@@ -19,18 +19,18 @@ import { PropertyTable } from "../../structure/PropertyTable";
  * property table. The validation of binary data is done with
  * the BinaryPropertyTableValidator.
  *
- * @private
+ * @internal
  */
 export class PropertyTableValidator {
   /**
    * Performs the validation to ensure that the given object is a
    * valid `propertyTable` object.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param propertyTable The object to validate
-   * @param numBufferViews The number of buffer views that are available
-   * @param schema The `Schema` object
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for the `ValidationIssue` instances
+   * @param propertyTable - The object to validate
+   * @param numBufferViews - The number of buffer views that are available
+   * @param schema - The `Schema` object
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validatePropertyTable(

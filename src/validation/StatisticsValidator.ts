@@ -14,17 +14,17 @@ import { StatisticsClassValidator } from "./StatisticsClassValidator";
 /**
  * A class for validations related to `statistics` objects.
  *
- * @private
+ * @internal
  */
 export class StatisticsValidator {
   /**
    * Performs the validation to ensure that the given object is a
    * valid `statistics` object.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param statistics The object to validate
-   * @param validationState The `ValidationState`.
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for `ValidationIssue` instances
+   * @param statistics - The object to validate
+   * @param validationState - The `ValidationState`.
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validateStatistics(

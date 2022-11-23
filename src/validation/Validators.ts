@@ -35,7 +35,7 @@ export class Validators {
    * Performs a default validation of the given `tileset.json` file, and
    * returns a promise to the `ValidationResult`.
    *
-   * @param filePath The file path
+   * @param filePath - The file path
    * @returns A promise to a `ValidationResult` that is fulfilled when
    * the validation finished.
    */
@@ -68,7 +68,7 @@ export class Validators {
    * Performs a default validation of the given schema JSON file, and
    * returns a promise to the `ValidationResult`.
    *
-   * @param filePath The file path
+   * @param filePath - The file path
    * @returns A promise to a `ValidationResult` that is fulfilled when
    * the validation finished.
    */
@@ -110,7 +110,7 @@ export class Validators {
    * Performs a default validation of the given subtree JSON file, and
    * returns a promise to the `ValidationResult`.
    *
-   * @param filePath The file path
+   * @param filePath - The file path
    * @returns A promise to a `ValidationResult` that is fulfilled when
    * the validation finished.
    */
@@ -149,7 +149,7 @@ export class Validators {
    * If the object cannot be parsed, a `JSON_PARSE_ERROR`
    * will be added to the given context.
    *
-   * @param delegate The delegate
+   * @param delegate - The delegate
    * @returns The new validator
    */
   static parseFromBuffer<T>(delegate: Validator<T>): Validator<Buffer> {
@@ -185,7 +185,7 @@ export class Validators {
    * that are already anticipated (like VCTR or GEOM), but not validated
    * explicitly.
    *
-   * @param message The message for the warning
+   * @param message - The message for the warning
    * @returns The new validator
    */
   static createContentValidationWarning(message: string): Validator<Buffer> {

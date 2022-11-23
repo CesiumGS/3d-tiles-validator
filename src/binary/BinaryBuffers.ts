@@ -11,7 +11,7 @@ import { BinaryBufferData } from "./BinaryBufferData";
  * This class can be used for building a basic `BinaryBufferData` structure
  * from a sequence of buffers that represent buffer views.
  *
- * @private
+ * @internal
  */
 export class BinaryBuffers {
   /**
@@ -28,8 +28,8 @@ export class BinaryBuffers {
    * creates a single `BufferObject` for the given data, without a `uri`.
    * Further configuration options might be added in the future.
    *
-   * @param binaryBufferData The `BinaryBufferData`
-   * @param newBufferViewsData The buffer views that should be added
+   * @param binaryBufferData - The `BinaryBufferData`
+   * @param newBufferViewsData - The buffer views that should be added
    * @returns A `BinaryBufferStructure` that describes the structure
    * of the buffer views, after they have been assembled into a buffer.
    */

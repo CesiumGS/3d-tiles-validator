@@ -24,9 +24,9 @@ export class BinaryBufferDataResolver {
    * for any buffer that does not have a URI (intended for
    * binary subtree files))
    *
-   * @param binaryBufferStructure The `BinaryBufferStructure`
-   * @param binaryBuffer The optional binary buffer
-   * @param resourceResolver The `ResourceResolver`
+   * @param binaryBufferStructure - The `BinaryBufferStructure`
+   * @param binaryBuffer - The optional binary buffer
+   * @param resourceResolver - The `ResourceResolver`
    * @returns The `BinaryBufferData`
    * @throws ResourceError If the data could not be resolved
    */

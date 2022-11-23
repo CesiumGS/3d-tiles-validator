@@ -1,13 +1,13 @@
 /**
  * Utility methods for buffer handling
  *
- * @private
+ * @internal
  */
 export class ArrayBuffers {
   /**
    * Returns an `ArrayBuffer` that corresponds to the given buffer.
    *
-   * @param buffer The `Buffer`
+   * @param buffer - The `Buffer`
    * @returns The `ArrayBuffer`
    */
   static fromBuffer(buffer: Buffer): ArrayBuffer {

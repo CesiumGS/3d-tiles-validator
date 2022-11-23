@@ -26,7 +26,7 @@ import { ResourceTypes } from "../io/ResourceTypes";
  * `findContentDataValidator`, which returns the validator
  * that should be used for a given `ContentData` object.
  *
- * @private
+ * @internal
  */
 export class ContentDataValidators {
   /**
@@ -107,7 +107,7 @@ export class ContentDataValidators {
    * the given content data. If no matching validator can be found,
    * then `undefined` is returned.
    *
-   * @param contentData The `ContentData`
+   * @param contentData - The `ContentData`
    * @returns The validator, or `undefined`
    */
   static async findContentDataValidator(
@@ -128,8 +128,8 @@ export class ContentDataValidators {
    * (This string is currently assumed to have length 4, but
    * this may have to be generalized in the future)
    *
-   * @param magic The magic string
-   * @param bufferValidator The validator for the buffer data
+   * @param magic - The magic string
+   * @param bufferValidator - The validator for the buffer data
    */
   private static registerByMagic(
     magic: string,
@@ -149,8 +149,8 @@ export class ContentDataValidators {
    * The file extension should include the `"."` dot, and the
    * check for the file extension will be case INsensitive.
    *
-   * @param extension The extension
-   * @param bufferValidator The validator for the buffer data
+   * @param extension - The extension
+   * @param bufferValidator - The validator for the buffer data
    */
   private static registerByExtension(
     extension: string,
@@ -202,7 +202,7 @@ export class ContentDataValidators {
    * The exact conditions for this method returning `true` are
    * intentionally not specified.
    *
-   * @param contentData The content data
+   * @param contentData - The content data
    * @returns Whether the content data is probably a tileset
    */
   static async isProbablyTileset(contentData: ContentData): Promise<boolean> {
@@ -232,7 +232,7 @@ export class ContentDataValidators {
    * The exact conditions for this method returning `true` are
    * intentionally not specified.
    *
-   * @param contentData The content data
+   * @param contentData - The content data
    * @returns Whether the content data is probably glTF
    */
   static async isProbablyGltf(contentData: ContentData): Promise<boolean> {
@@ -264,7 +264,7 @@ export class ContentDataValidators {
    * the given validator to the buffer that is returned by
    * `ContentData#getData`.
    *
-   * @param bufferValidator The validator for `Buffer` objects
+   * @param bufferValidator - The validator for `Buffer` objects
    * @returns The validator for `ContentData` objects
    */
   static wrapBufferValidator(
@@ -297,8 +297,8 @@ export class ContentDataValidators {
    * Registers a data validator that will be used when a
    * `ContentData` matches the given predicate.
    *
-   * @param predicate The predicate
-   * @param dataValidator The data validator
+   * @param predicate - The predicate
+   * @param dataValidator - The data validator
    */
   private static registerByPredicate(
     predicate: (contentData: ContentData) => Promise<boolean>,

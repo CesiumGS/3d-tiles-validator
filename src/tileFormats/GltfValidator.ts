@@ -19,7 +19,7 @@ export class GltfValidator implements Validator<Buffer> {
    * Creates a `ValidationIssue` object for the given 'message' object
    * that appears in the output of the glTF validator.
    *
-   * @param gltfMessage The glTF validator message
+   * @param gltfMessage - The glTF validator message
    * @returns The `ValidationIssue`
    */
   private static createValidationIssueFromGltfMessage(

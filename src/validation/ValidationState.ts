@@ -9,7 +9,7 @@ import { Group } from "../structure/Group";
  * validation of various components that is required to selectively
  * perform or skip other validation steps.
  *
- * @private
+ * @internal
  */
 export type ValidationState = {
   /**

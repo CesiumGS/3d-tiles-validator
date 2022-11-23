@@ -78,7 +78,7 @@ export class ValidationIssue {
    * Clients should not call this function. It is only used
    * to construct validation issues internally.
    *
-   * @param cause The issue to add as a cause
+   * @param cause - The issue to add as a cause
    */
   addCause(cause: ValidationIssue) {
     this._causes.push(cause);

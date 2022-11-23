@@ -8,7 +8,7 @@ import { MetadataComponentTypes } from "./MetadataComponentTypes";
 /**
  * Internal methods related to metadata values.
  *
- * @private
+ * @internal
  */
 export class MetadataValues {
   /**
@@ -30,14 +30,14 @@ export class MetadataValues {
    * If the type defines a `scale`, then this is multiplied
    * with the value.
    *
-   * @param classProperty The `ClassProperty`
-   * @param offsetOverride: An optional override for the
+   * @param classProperty - The `ClassProperty`
+   * @param offsetOverride -: An optional override for the
    * `offset` of the `ClassProperty`. If this is defined, then
    * it will be used instead of the one from the class property.
-   * @param scaleOverride: An optional override for the
+   * @param scaleOverride -: An optional override for the
    * `scale` of the `ClassProperty`. If this is defined, then
    * it will be used instead of the one from the class property.
-   * @param value The value
+   * @param value - The value
    * @returns The processed value
    */
   static processValue(
@@ -75,8 +75,8 @@ export class MetadataValues {
    *
    * If example, the value of `255` for `UINT8` will be normalized to `1.0`.
    *
-   * @param value The input value
-   * @param componentType The component type
+   * @param value - The input value
+   * @param componentType - The component type
    * @returns The normalized value
    */
   private static normalize(value: any, componentType: string | undefined): any {
@@ -93,9 +93,9 @@ export class MetadataValues {
    * Applies the given offset and scale to the given input value, if they
    * are defined.
    *
-   * @param value The input value
-   * @param offset The optional offset
-   * @param scale The optional scale
+   * @param value - The input value
+   * @param offset - The optional offset
+   * @param scale - The optional scale
    * @returns The transformed value
    */
   private static transform(value: any, offset: any, scale: any): any {

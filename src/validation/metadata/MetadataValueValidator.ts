@@ -17,7 +17,7 @@ import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues"
  * The methods in this class assume that the property definitions
  * have already been validated with the `ClassPropertyValidator`.
  *
- * @private
+ * @internal
  */
 export class MetadataValueValidator {
   /**
@@ -34,14 +34,14 @@ export class MetadataValueValidator {
    * - For numeric types, they must be numbers or numeric arrays,
    *   as checked with `validateNumericValueStructure`
    *
-   * @param propertyPath The path for the property
-   * @param propertyName The name of the property
-   * @param property The actual property
-   * @param valueName The name of the value, to be used for the
+   * @param propertyPath - The path for the property
+   * @param propertyName - The name of the property
+   * @param property - The actual property
+   * @param valueName - The name of the value, to be used for the
    * validation issue message. For example, this may be "noData"
    * or "default".
-   * @param value The value
-   * @param context The `ValidationContext`
+   * @param value - The value
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateValueStructure(
@@ -104,11 +104,11 @@ export class MetadataValueValidator {
    * The general validity of the class property has already
    * been validated with the `ClassPropertyValidator`.
    *
-   * @param propertyPath The path for `ValidationIssue` instances
-   * @param property The `ClassProperty`
-   * @param valueName The name of the value
-   * @param value The value
-   * @param context The `ValidationContext`
+   * @param propertyPath - The path for `ValidationIssue` instances
+   * @param property - The `ClassProperty`
+   * @param valueName - The name of the value
+   * @param value - The value
+   * @param context - The `ValidationContext`
    * @returns Whether the value was valid
    */
   private static validateStringValueStructure(
@@ -153,11 +153,11 @@ export class MetadataValueValidator {
    * The general validity of the class property has already
    * been validated with the `ClassPropertyValidator`.
    *
-   * @param propertyPath The path for `ValidationIssue` instances
-   * @param property The `ClassProperty`
-   * @param valueName The name of the value
-   * @param value The value
-   * @param context The `ValidationContext`
+   * @param propertyPath - The path for `ValidationIssue` instances
+   * @param property - The `ClassProperty`
+   * @param valueName - The name of the value
+   * @param value - The value
+   * @param context - The `ValidationContext`
    * @returns Whether the value was valid
    */
   private static validateEnumValueStructure(
@@ -248,14 +248,14 @@ export class MetadataValueValidator {
    * appears as the `enums[enumType].values[i].name` of the
    * corresponding enum type in the schema.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param name The name of the enum value to be used in the
+   * @param path - The path for `ValidationIssue` instances
+   * @param name - The name of the enum value to be used in the
    * `ValidationIssue` message.
-   * @param propertyName The name of the property
-   * @param enumType The `enumType` of the property
-   * @param enumValueName The name of the enum value
-   * @param enumValueNames The valid enum value names
-   * @param context The `ValidationContext`
+   * @param propertyName - The name of the property
+   * @param enumType - The `enumType` of the property
+   * @param enumValueName - The name of the enum value
+   * @param enumValueNames - The valid enum value names
+   * @param context - The `ValidationContext`
    * @returns Whether the name is valid
    */
   private static validateEnumValueName(
@@ -296,11 +296,11 @@ export class MetadataValueValidator {
    * The general validity of the class property has already
    * been validated with the `ClassPropertyValidator`.
    *
-   * @param propertyPath The path for `ValidationIssue` instances
-   * @param property The `ClassProperty`
-   * @param valueName The name of the value
-   * @param value The value
-   * @param context The `ValidationContext`
+   * @param propertyPath - The path for `ValidationIssue` instances
+   * @param property - The `ClassProperty`
+   * @param valueName - The name of the value
+   * @param value - The value
+   * @param context - The `ValidationContext`
    * @returns Whether the value was valid
    */
   private static validateBooleanValueStructure(
@@ -346,10 +346,10 @@ export class MetadataValueValidator {
    * `scale`, `max`, and `min`, and performs the checks as defined in
    * `definitions.schema.json#/definitions/numericValue`.
    *
-   * @param property The ClassProperty
-   * @param valueName The name of the value (e.g. 'min' or 'offset')
-   * @param value The actual value
-   * @param context The `ValidationContext`
+   * @param property - The ClassProperty
+   * @param valueName - The name of the value (e.g. 'min' or 'offset')
+   * @param value - The actual value
+   * @param context - The `ValidationContext`
    * @returns Whether the value was valid
    */
   static validateNumericValueStructure(

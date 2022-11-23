@@ -11,7 +11,7 @@ import { MetadataTypes } from "../metadata/MetadataTypes";
  * i.e. the `SCALAR`, `VECn` and `MATn` types, and the
  * (binary, and therefore numeric) representation of `ENUM`.
  *
- * @private
+ * @internal
  */
 export class NumericArrayPropertyModel implements PropertyModel {
   private readonly _type: string;

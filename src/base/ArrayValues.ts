@@ -25,8 +25,8 @@ export class ArrayValues {
    * This considers the case that the values are numbers or
    * (potentially multi-dimensional) arrays of numbers.
    *
-   * @param value The input value
-   * @param factor The optional factor
+   * @param value - The input value
+   * @param factor - The optional factor
    * @returns The resulting value
    */
   static deepMultiply(value: any, factor: any): any {
@@ -51,8 +51,8 @@ export class ArrayValues {
    * This considers the case that the values are numbers or
    * (potentially multi-dimensional) arrays of numbers.
    *
-   * @param value The input value
-   * @param addend The optional addend
+   * @param value - The input value
+   * @param addend - The optional addend
    * @returns The resulting value
    */
   static deepAdd(value: any, addend: any): any {
@@ -75,8 +75,8 @@ export class ArrayValues {
    * (potentially multi-dimensional) arrays of numbers,
    * and computes the component-wise minimum.
    *
-   * @param a The first value
-   * @param b THe second value
+   * @param a - The first value
+   * @param b - THe second value
    * @returns The mimimum value
    */
   static deepMin(a: any, b: any): any {
@@ -97,8 +97,8 @@ export class ArrayValues {
    * (potentially multi-dimensional) arrays of numbers,
    * and computes the component-wise maximum.
    *
-   * @param a The first value
-   * @param b THe second value
+   * @param a - The first value
+   * @param b - THe second value
    * @returns The maximum value
    */
   static deepMax(a: any, b: any): any {
@@ -119,9 +119,9 @@ export class ArrayValues {
    * This considers the case that the values are numbers or
    * (potentially multi-dimensional) arrays of numbers.
    *
-   * @param a The first element
-   * @param b The second element
-   * @param epsilon A relative epsilon
+   * @param a - The first element
+   * @param b - The second element
+   * @param epsilon - A relative epsilon
    * @returns Whether the objects are equal
    */
   static deepEqualsEpsilon(a: any, b: any, epsilon: number): boolean {
@@ -144,10 +144,10 @@ export class ArrayValues {
    *
    * Returns whether two numbers are equal, up to a certain epsilon
    *
-   * @param left The first value
-   * @param right The second value
-   * @param relativeEpsilon The maximum inclusive delta for the relative tolerance test.
-   * @param absoluteEpsilon The maximum inclusive delta for the absolute tolerance test.
+   * @param left - The first value
+   * @param right - The second value
+   * @param relativeEpsilon - The maximum inclusive delta for the relative tolerance test.
+   * @param absoluteEpsilon - The maximum inclusive delta for the absolute tolerance test.
    * @returns Whether the values are equal within the epsilon
    */
   private static equalsEpsilon(
@@ -171,8 +171,8 @@ export class ArrayValues {
    * This considers the case that the values are numbers or
    * (potentially multi-dimensional) arrays of numbers.
    *
-   * @param a The first value
-   * @param b The second value
+   * @param a - The first value
+   * @param b - The second value
    * @returns Whether the values are equal
    */
   static deepEquals(a: any, b: any) {
@@ -197,7 +197,7 @@ export class ArrayValues {
    * multi-dimensional) arrays. Non-array values (including
    * objects!) will be returned directly.
    *
-   * @param value The input value
+   * @param value - The input value
    * @returns The result value
    */
   static deepClone(value: any) {
@@ -222,8 +222,8 @@ export class ArrayValues {
    * whether ANY element of the first array is smaller
    * than the corresponding element of the secon array.
    *
-   * @param a The first value
-   * @param b The second value
+   * @param a - The first value
+   * @param b - The second value
    * @returns Whether the first value is less than the second
    */
   static anyDeepLessThan(a: any, b: any): boolean {
@@ -248,8 +248,8 @@ export class ArrayValues {
    * whether ANY element of the first array is greater
    * than the corresponding element of the secon array.
    *
-   * @param a The first value
-   * @param b The second value
+   * @param a - The first value
+   * @param b - The second value
    * @returns Whether the first value is greater than the second
    */
   static anyDeepGreaterThan(a: any, b: any): boolean {

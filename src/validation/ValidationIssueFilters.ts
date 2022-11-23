@@ -11,7 +11,7 @@ export class ValidationIssueFilters {
    * `ValidationIssue` instances where the `ValidationIssue#type`
    * is one of the given strings.
    *
-   * @param excludedTypes The excluded type strings
+   * @param excludedTypes - The excluded type strings
    * @returns The `ValidationIssueFilter`
    */
   static byExcludedTypes(...excludedTypes: string[]): ValidationIssueFilter {
@@ -25,7 +25,7 @@ export class ValidationIssueFilters {
    * `ValidationIssue` instances where the `ValidationIssue#severity`
    * is one of the given severities.
    *
-   * @param includedServerities The included severities
+   * @param includedServerities - The included severities
    * @returns The `ValidationIssueFilter`
    */
   static byIncludedSeverities(

@@ -12,8 +12,8 @@ export class Iterables {
    * in the given directory, and its subdirectories if
    * `recurse` is `true`.
    *
-   * @param directory The directory
-   * @param recurse [true] Whether the files should
+   * @param directory - The directory
+   * @param recurse - [true] Whether the files should
    * be listed recursively
    * @return The generator for path strings
    */
@@ -38,8 +38,8 @@ export class Iterables {
   /**
    * Returns filtered view on the given iterable
    *
-   * @param iterable The iterable
-   * @param include The include predicate
+   * @param iterable - The iterable
+   * @param include - The include predicate
    * @returns The filtered iterable
    */
   static filter<T>(
@@ -70,8 +70,8 @@ export class Iterables {
    * Creates an iterable from the given one, applying the
    * given function to each element.
    *
-   * @param iterable The iterable object
-   * @param mapper The mapper function
+   * @param iterable - The iterable object
+   * @param mapper - The mapper function
    * @returns The mapped iterable
    */
   static map<S, T>(

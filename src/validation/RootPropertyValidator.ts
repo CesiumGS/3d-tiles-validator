@@ -13,7 +13,7 @@ import { JsonValidationIssues } from "../issues/JsonValidationIssues";
  * nearly all schemas of the 3D Tiles specification refer to,
  * and which defines the `extensions` and `extras` properties.
  *
- * @private
+ * @internal
  */
 export class RootPropertyValidator {
   /**
@@ -23,10 +23,10 @@ export class RootPropertyValidator {
    * This will add all extension names that are found to the
    * given validation context.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param name The name of the object
-   * @param rootProperty The object to validate
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for `ValidationIssue` instances
+   * @param name - The name of the object
+   * @param rootProperty - The object to validate
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validateRootProperty(

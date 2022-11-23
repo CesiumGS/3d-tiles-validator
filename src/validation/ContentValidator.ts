@@ -16,7 +16,7 @@ import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 /**
  * A class for validations related to `content` objects.
  *
- * @private
+ * @internal
  */
 export class ContentValidator {
   /**
@@ -28,10 +28,10 @@ export class ContentValidator {
    * `content.uri`. The validation of the content data is done with
    * `validateContentData`, if and only if this method returned `true`.
    *
-   * @param contentPath The path for the `ValidationIssue` instances
-   * @param content The object to validate
-   * @param validationState The `ValidationState`
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param contentPath - The path for the `ValidationIssue` instances
+   * @param content - The object to validate
+   * @param validationState - The `ValidationState`
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the given object was valid
    */
   static async validateContent(

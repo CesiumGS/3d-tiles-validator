@@ -5,7 +5,7 @@ import { BooleanPropertyModel } from "./BooleanPropertyModel";
 /**
  * Implementation of a `PropertyModel` for boolean arrays
  *
- * @private
+ * @internal
  */
 export class BooleanArrayPropertyModel implements PropertyModel {
   private readonly _valuesBuffer: Buffer;
