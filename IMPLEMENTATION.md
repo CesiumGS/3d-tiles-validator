@@ -75,6 +75,9 @@ The surface API information will be written into `etc/3d-tiles-validator.api.md`
   - Update `CHANGES.md`
   - Update the version number in `package.json`
   - Make sure all unit tests pass 
+  - Update the `ThirdParty.json` with license information about third-party projects:
+  
+    `node generateThirdParty.js`
 
 - Run the TypeScript compiler to generate the build output:
 
@@ -89,6 +92,7 @@ The surface API information will be written into `etc/3d-tiles-validator.api.md`
 - Create a git tag for the version and push it:
  
   `git tag -a 1.2.3 -m 'Release of version 1.2.3'`
+  
   `git push origin 1.2.3`
 
 - Publish the package:
