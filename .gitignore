@@ -2,7 +2,6 @@
 /build
 /dist
 /etc
-/temp
 tsdoc-metadata.json
 package-lock.json
 .eslintcache

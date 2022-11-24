@@ -58,6 +58,10 @@ The API definition is tracked with https://api-extractor.com
  
   `npm install -g @microsoft/api-extractor`
 
+- Install api-documenter:
+    
+  `npm install -g @microsoft/api-documenter`
+
 - Run the TypeScript compiler to generate the build output:
 
   `npm run build`

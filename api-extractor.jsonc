@@ -24,7 +24,22 @@
     /**
      * (REQUIRED) Whether to generate an API report.
      */
-    "enabled": true
+    "enabled": true,
+
+    /**
+     * Specifies the folder where the temporary report file is written.  The file name portion is determined by
+     * the "reportFileName" setting.
+     *
+     * After the temporary file is written to disk, it is compared with the file in the "reportFolder".
+     * If they are different, a production build will fail.
+     *
+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,
+     * prepend a folder token such as "<projectFolder>".
+     *
+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
+     * DEFAULT VALUE: "<projectFolder>/temp/"
+     */
+    "reportTempFolder": "<projectFolder>/build/api-extractor"
   },
 
   /**
@@ -34,7 +49,18 @@
     /**
      * (REQUIRED) Whether to generate a doc model file.
      */
-    "enabled": true
+    "enabled": true,
+
+    /**
+     * The output path for the doc model file.  The file extension should be ".api.json".
+     *
+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,
+     * prepend a folder token such as "<projectFolder>".
+     *
+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
+     * DEFAULT VALUE: "<projectFolder>/temp/<unscopedPackageName>.api.json"
+     */
+     "apiJsonFilePath": "<projectFolder>/build/api-extractor/<unscopedPackageName>.api.json"
   },
 
   /**

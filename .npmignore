@@ -4,7 +4,6 @@
 /node_modules
 /dist
 /etc
-/temp
 .eslintcache
 .eslintignore
 .eslintrc.json
