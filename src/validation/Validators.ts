@@ -19,7 +19,7 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 /**
  * Utility methods related to `Validator` instances.
- * 
+ *
  * @beta
  */
 export class Validators {
