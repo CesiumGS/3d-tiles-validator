@@ -1,4 +1,4 @@
-## Archvie access functionality
+## Archive access functionality
 
 Note: The files in this directory are an experimental implementation of support for different archive files that can contain 3D Tiles data. This is not part of a public API, and may be modified or removed in the future. 
 
