@@ -30,6 +30,8 @@
     "zlib": "^1.0.5"
   },
   "devDependencies": {
+    "@microsoft/api-documenter": "^7.19.24",
+    "@microsoft/api-extractor": "^7.33.6",
     "@tsconfig/node16": "^1.0.3",
     "@types/archiver": "^5.3.1",
     "@types/better-sqlite3": "^7.6.2",
@@ -43,6 +45,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-tsdoc": "^0.2.17",
     "jasmine": "^4.3.0",
+    "mkdirp": "^1.0.4",
     "prettier": "2.7.1",
     "ts-node": "^10.9.1",
     "typescript": "^4.8.3"
@@ -55,6 +58,6 @@
     "prettier-check": "prettier --check \"**/*\"",
     "prettier": "prettier --write \"**/*\"",
     "generate-third-party": "node generateThirdParty.js",
-    "docs": "npx tsc && api-extractor run --config api-extractor.jsonc --local --verbose && api-documenter markdown -i build/api-extractor -o build/docs"
+    "docs": "mkdirp etc && npx tsc && api-extractor run --config api-extractor.jsonc --local --verbose && api-documenter markdown -i build/api-extractor -o build/docs"
   }
 }

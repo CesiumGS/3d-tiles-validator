@@ -54,23 +54,7 @@ The `ValidationIssue` class and its types:
 
 The API definition is tracked with https://api-extractor.com
 
-- Install api-extractor:
- 
-  `npm install -g @microsoft/api-extractor`
-
-- Install api-documenter:
-    
-  `npm install -g @microsoft/api-documenter`
-
-- Run the TypeScript compiler to generate the build output:
-
-  `npm run build`
-
-- Invoke api-extractor:  
-
-  `api-extractor run --config api-extractor.jsonc --local --verbose`
-
-The surface API information will be written into `etc/3d-tiles-validator.api.md`. 
+After running `npm install`, the API documentation can be created with `npm run docs`. The surface API information will be written into `etc/3d-tiles-validator.api.md`. The API documentation will be written into the `build/docs` directory.
 
 
 ## Release Process
