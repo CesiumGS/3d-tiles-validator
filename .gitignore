@@ -1,7 +1,6 @@
 /node_modules
 /build
 /dist
-/etc
 tsdoc-metadata.json
 package-lock.json
 .eslintcache
