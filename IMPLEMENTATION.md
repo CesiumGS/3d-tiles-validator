@@ -71,6 +71,12 @@ After running `npm install`, the API documentation can be created with `npm run 
 
   `npm run build`
 
+- Generate the documentation:
+  
+  `npm run docs` 
+
+  The documentation will be written as markdown files into `build/docs`.
+
 - Generate the tarball of the project:
   
   `npm pack` 
