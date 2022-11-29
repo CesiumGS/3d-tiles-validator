@@ -1,4 +1,3 @@
-<!-- omit in toc -->
 # 3D Tiles Validator
 
 A validator for [3D Tiles](https://github.com/CesiumGS/3d-tiles).
@@ -10,15 +9,6 @@ A validator for [3D Tiles](https://github.com/CesiumGS/3d-tiles).
 > - The `3d-tiles-tools` can be found in [the `3d-tiles-tools` repository](https://github.com/CesiumGS/3d-tiles-tools)
 > - The `3d-tiles-samples-generator` can be found in [the `3d-tiles-samples-generator` repository](https://github.com/CesiumGS/3d-tiles-samples-generator)
 > 
-
-- [Overview](#overview)
-  - [Implemented Features](#implemented-features)
-- [Command Line Usage](#command-line-usage)
-  - [Report Files](#report-files)
-- [Library Usage](#library-usage)
-  - [Validaton Result Filtering](#validaton-result-filtering)
-- [Implementation Notes](#implementation-notes)
-
 
 ## Overview
 
@@ -39,13 +29,11 @@ The 3D Tiles validator can be used to validate 3D Tiles tilesets and their assoc
 
 ## Command Line Usage
 
-<!-- omit in toc -->
 #### Validate a single tileset file
 ```
 npx ts-node src/main.ts --tilesetFile specs/data/Samples/TilesetWithFullMetadata/tileset.json
 ```
 
-<!-- omit in toc -->
 #### Validate a set of tileset files
 ```
 npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/
