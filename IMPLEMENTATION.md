@@ -117,9 +117,9 @@ This API definition file is tracked with Git, so changes in this file should be 
 
 - Create a git tag for the version and push it:
  
-  `git tag -a 1.2.3 -m 'Release of version 1.2.3'`
+  `git tag -a v1.2.3 -m "Release of version 1.2.3"`
   
-  `git push origin 1.2.3`
+  `git push origin v1.2.3`
 
 - Publish the package:
   
