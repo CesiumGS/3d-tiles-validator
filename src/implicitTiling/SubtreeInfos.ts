@@ -27,10 +27,10 @@ export class SubtreeInfos {
    * and valid. This can be checked with the `SubtreeValidator`
    * class.
    *
-   * @param input The whole buffer of a binary subtree file
-   * @param implicitTiling The `TileImplicitTiling` that
+   * @param input - The whole buffer of a binary subtree file
+   * @param implicitTiling - The `TileImplicitTiling` that
    * defines the expected structure of the subtree data
-   * @param resourceResolver The `ResourceResolver` that
+   * @param resourceResolver - The `ResourceResolver` that
    * will be used to resolve buffer URIs
    * @returns A promise with the `SubtreeInfo`
    * @throws An ImplicitTilingError when the subtree JSON could
@@ -87,11 +87,11 @@ export class SubtreeInfos {
    * and valid. This can be checked with the `SubtreeValidator`
    * class.
    *
-   * @param subtree The `Subtree` object
-   * @param binaryBuffer The optional binary buffer
-   * @param implicitTiling The `TileImplicitTiling` that
+   * @param subtree - The `Subtree` object
+   * @param binaryBuffer - The optional binary buffer
+   * @param implicitTiling - The `TileImplicitTiling` that
    * defines the expected structure of the subtree data
-   * @param resourceResolver The `ResourceResolver` that
+   * @param resourceResolver - The `ResourceResolver` that
    * will be used to resolve buffer URIs
    * @returns A promise with the `SubtreeInfo`
    * @throws A ImplicitTilingError when there was a buffer without

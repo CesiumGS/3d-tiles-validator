@@ -1,10 +1,10 @@
-import { defaultValue } from "./base/defaultValue";
-import { readJsonUnchecked } from "./base/readJsonUnchecked";
+import { defaultValue } from "../src/base/defaultValue";
+import { readJsonUnchecked } from "../src/base/readJsonUnchecked";
 
-import { MetadataClass } from "./structure/Metadata/MetadataClass";
-import { Tileset } from "./structure/Tileset";
+import { MetadataClass } from "../src/structure/Metadata/MetadataClass";
+import { Tileset } from "../src/structure/Tileset";
 
-import { MetadataEntityModels } from "./metadata/MetadataEntityModels";
+import { MetadataEntityModels } from "../src/metadata/MetadataEntityModels";
 
 function test_exampleScalarInt32() {
   console.log("exampleScalarInt32:");

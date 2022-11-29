@@ -2,8 +2,8 @@
  * Returns whether the given buffer starts with the two magic bytes
  * that indicate that it contains GZIPped data.
  *
- * @param buffer The buffer
- * @return Whether the buffer is GZIPped data
+ * @param buffer - The buffer
+ * @returns Whether the buffer is GZIPped data
  */
 export function isGzipped(buffer: Buffer): boolean {
   if (buffer.length < 2) {

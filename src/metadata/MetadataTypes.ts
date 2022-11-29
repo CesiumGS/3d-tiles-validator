@@ -4,7 +4,7 @@ import { DeveloperError } from "../base/DeveloperError";
  * Internal utilities related to the `type` of the
  * `ClassProperty` instances of `MetadataClass` objects
  *
- * @private
+ * @internal
  */
 export class MetadataTypes {
   /**
@@ -26,7 +26,7 @@ export class MetadataTypes {
   /**
    * The valid values for the `class.property.type` property
    * that count as "numeric" types. These are the ones where
-   * a `class.property.componentType' is given
+   * a `class.property.componentType` is given
    */
   static numericTypes: string[] = [
     "SCALAR",
@@ -42,7 +42,7 @@ export class MetadataTypes {
    * Returns whether the given type is numeric, i.e. whether
    * it is SCALAR, VECn, or MATn.
    *
-   * @param type The type
+   * @param type - The type
    * @returns Whether the type is numeric
    */
   static isNumericType(type: string) {
@@ -52,7 +52,7 @@ export class MetadataTypes {
   /**
    * Returns the number of components for the given type
    *
-   * @param type The type
+   * @param type - The type
    * @returns The number of components
    * @throws DeveloperError If the given string is not one
    * of the types contained in `allTypes`

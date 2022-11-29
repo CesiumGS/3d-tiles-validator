@@ -8,17 +8,17 @@ import { ValidationIssueFilter } from "./ValidationIssueFilter";
  * These are used internally, for the implementation of the
  * `ValidationResult#filter` operation.
  *
- * @private
+ * @internal
  */
 export class ValidationResults {
   /**
    * Filters the issues of the given input `ValidationResults`,
    * and passes the includes ones to the given output.
    *
-   * @param input The input `ValidationResult`
-   * @param inclusionPredicate The predicate that says whether
+   * @param input - The input `ValidationResult`
+   * @param inclusionPredicate - The predicate that says whether
    * a certain issue should be included in the result.
-   * @param output The `ValidationResult` to which
+   * @param output - The `ValidationResult` to which
    * the included issues will be added.
    */
   static filter(
@@ -48,9 +48,9 @@ export class ValidationResults {
    * The 'issuesStack' keeps track of the path from the
    * root issue to the current issue during that recursion.
    *
-   * @param inputIssues The input issues
-   * @param issuesStack The stack of issues
-   * @param inclusionPredicate The inclusion predicate
+   * @param inputIssues - The input issues
+   * @param issuesStack - The stack of issues
+   * @param inclusionPredicate - The inclusion predicate
    * @returns The filtered issues
    */
   private static filterIssues(
@@ -81,9 +81,9 @@ export class ValidationResults {
    * issue, and returns a new issue that is equal to the
    * given input, but with the 'causes' filtered accordingly.
    *
-   * @param inputIssue The input issue
-   * @param issuesStack The issues stack
-   * @param inclusionPredicate The inclusion predicate
+   * @param inputIssue - The input issue
+   * @param issuesStack - The issues stack
+   * @param inclusionPredicate - The inclusion predicate
    * @returns The filtered issue
    */
   private static filterCauses(
@@ -116,7 +116,7 @@ export class ValidationResults {
    * that only consists of the 'type' of each validation issue,
    * indented to reflect the structure of the issues and their causes.
    *
-   * @param inputResult The validation result
+   * @param inputResult - The validation result
    * @returns The string representation
    */
   static createSimpleResultString(inputResult: ValidationResult): string {
@@ -138,8 +138,8 @@ export class ValidationResults {
    * Creates a string representation of the given validation issue that
    * only consists of the 'type' of this issue and all its causes.
    *
-   * @param inputIssue The issue
-   * @param indentation The indentation to use
+   * @param inputIssue - The issue
+   * @param indentation - The indentation to use
    * @returns The string representation
    */
   private static createSimpleIssueString(

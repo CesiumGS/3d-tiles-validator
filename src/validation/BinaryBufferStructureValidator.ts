@@ -28,18 +28,18 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
  *   memory layout, and is supposed to be called only after the
  *   JSON-level validation has been performed
  *
- * @private
+ * @internal
  */
 export class BinaryBufferStructureValidator {
   /**
    * Performs the validation of the given `BinaryBufferStructure`
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param binaryBufferStructure The `BinaryBufferStructure` object
-   * @param firstBufferUriIsRequired If this is `false`, then the
+   * @param path - The path for `ValidationIssue` instances
+   * @param binaryBufferStructure - The `BinaryBufferStructure` object
+   * @param firstBufferUriIsRequired - If this is `false`, then the
    * first buffer may omit the `uri` property, namely when it refers
    * to a  binary chunk, for example, of a binary `.subtree` file.
-   * @param context The `ValidationContext`
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateBinaryBufferStructure(
@@ -129,11 +129,11 @@ export class BinaryBufferStructureValidator {
    * Performs the validation to ensure that the given object is a
    * valid `BufferObject` object.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param name The name of the object
-   * @param buffer The `BufferObject` object
-   * @param bufferUriIsRequired Whether the buffer must have a `uri`
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for the `ValidationIssue` instances
+   * @param name - The name of the object
+   * @param buffer - The `BufferObject` object
+   * @param bufferUriIsRequired - Whether the buffer must have a `uri`
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   private static validateBuffer(
@@ -217,10 +217,10 @@ export class BinaryBufferStructureValidator {
    * Performs the validation to ensure that the given object is a
    * valid `BufferView` object.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param name The name of the object
-   * @param bufferView The `BufferView` object
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for the `ValidationIssue` instances
+   * @param name - The name of the object
+   * @param bufferView - The `BufferView` object
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   private static validateBufferView(
@@ -327,9 +327,9 @@ export class BinaryBufferStructureValidator {
    * have already been performed. It will only validate the consistency
    * of the memory layout of buffer views and buffers.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param binaryBufferStructure The `BinaryBufferStructure` object
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for the `ValidationIssue` instances
+   * @param binaryBufferStructure - The `BinaryBufferStructure` object
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validateBinaryBufferStructureConsistency(

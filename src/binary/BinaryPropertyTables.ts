@@ -51,14 +51,14 @@ import { MetadataEnum } from "../structure/Metadata/MetadataEnum";
  * methods may be omitted in the future, if these structures
  * have to be created manually for unit tests anyhow.
  *
- * @private
+ * @internal
  */
 export class BinaryPropertyTables {
   /**
    * Creates a (dummy) `MetadataClass` that only contains the given property
    *
-   * @param propertyName The property name
-   * @param classProperty The `ClassProperty`
+   * @param propertyName - The property name
+   * @param classProperty - The `ClassProperty`
    * @returns The `MetadataClass`
    */
   private static createMetadataClassFromClassProperty(
@@ -78,8 +78,8 @@ export class BinaryPropertyTables {
   /**
    * Creates a (dummy) `Schema` that only contains the given class
    *
-   * @param className The class name
-   * @param metadataClass The `MetadataClass`
+   * @param className - The class name
+   * @param metadataClass - The `MetadataClass`
    * @returns The metadata `Schema`
    */
   private static createSchemaFromMetadataClass(
@@ -104,10 +104,10 @@ export class BinaryPropertyTables {
    * create `BinaryPropertyTable` or `PropertyTableModel` objects
    * from single properties.
    *
-   * @param className The class name
-   * @param propertyName The property name
-   * @param count The count (number of rows) of the table
-   * @param propertyTableProperty The `PropertyTableProperty`
+   * @param className - The class name
+   * @param propertyName - The property name
+   * @param count - The count (number of rows) of the table
+   * @param propertyTableProperty - The `PropertyTableProperty`
    * @returns The `PropertyTable`
    */
   private static createPropertyTableFromProperty(
@@ -137,18 +137,18 @@ export class BinaryPropertyTables {
    * `values`, `arrayOffsets`, and `stringOffsets`, which will be
    * added to the given `bufferViewsData` array.
    *
-   * @param classProperty The `ClassProperty`
-   * @param schema The metadata `Schema`. This is only used internally
+   * @param classProperty - The `ClassProperty`
+   * @param schema - The metadata `Schema`. This is only used internally
    * for looking up information about (binary) enum values, if the
    * given property is an ENUM property.
-   * @param values The values for the property
-   * @param arrayOffsetType The `arrayOffsetType` for the property
+   * @param values - The values for the property
+   * @param arrayOffsetType - The `arrayOffsetType` for the property
    * (only used when the property is a variable-length array,
    * defaulting to `UINT32`)
-   * @param stringOffsetType The `stringOffsetType` for the property
+   * @param stringOffsetType - The `stringOffsetType` for the property
    * (only used when the property is a STRING property,
    * defaulting to `UINT32`))
-   * @param bufferViewsData The array that will receive the buffer
+   * @param bufferViewsData - The array that will receive the buffer
    * view buffers
    * @returns The `PropertyTableProperty`
    */
@@ -208,9 +208,9 @@ export class BinaryPropertyTables {
    * It generates a "dummy" schema that only contains a class
    * with the given property, and the given enum.
    *
-   * @param propertyName The property name
-   * @param classProperty The `ClassProperty`
-   * @param metadataEnum The optional `MetadataEnum` when the
+   * @param propertyName - The property name
+   * @param classProperty - The `ClassProperty`
+   * @param metadataEnum - The optional `MetadataEnum` when the
    * property is an enum property
    * @returns The schema
    */
@@ -246,14 +246,14 @@ export class BinaryPropertyTables {
    * property table for exactly this single property, together
    * with the associated binary data.
    *
-   * @param propertyName The property name
-   * @param classProperty The `ClassProperty`
-   * @param values The property values
-   * @param arrayOffsetType The `arrayOffsetType`, only used
+   * @param propertyName - The property name
+   * @param classProperty - The `ClassProperty`
+   * @param values - The property values
+   * @param arrayOffsetType - The `arrayOffsetType`, only used
    * for variable-length array properties, defaulting to `UINT32`
-   * @param stringOffsetType The `stringOffsetType`, only used
+   * @param stringOffsetType - The `stringOffsetType`, only used
    * for STRING properties, defaulting to `UINT32`
-   * @param metadataEnum The optional `MetadataEnum` that defines
+   * @param metadataEnum - The optional `MetadataEnum` that defines
    * the (numeric) values that are written into the binary data,
    * based on the (string) values from the `values` parameter
    * @returns The `BinaryPropertyTable`
@@ -293,13 +293,13 @@ export class BinaryPropertyTables {
    * exactly this single property, together with the associated
    * binary data.
    *
-   * @param schema The `Schema`
-   * @param className The class name
-   * @param propertyName The property name
-   * @param values The property values
-   * @param arrayOffsetType The `arrayOffsetType`, only used
+   * @param schema - The `Schema`
+   * @param className - The class name
+   * @param propertyName - The property name
+   * @param values - The property values
+   * @param arrayOffsetType - The `arrayOffsetType`, only used
    * for variable-length array properties, defaulting to `UINT32`
-   * @param stringOffsetType The `stringOffsetType`, only used
+   * @param stringOffsetType - The `stringOffsetType`, only used
    * for STRING properties, defaulting to `UINT32`
    * @returns The `BinaryPropertyTable`
    */

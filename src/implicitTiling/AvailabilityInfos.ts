@@ -11,16 +11,16 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 /**
  * Methods for creating `AvailabilityInfo` instances
  *
- * @private
+ * @internal
  */
 export class AvailabilityInfos {
   /**
    * Creates a new `AvailabilityInfo` for the given availability
    * information, for tile- or content availability.
    *
-   * @param availability The `Availability` object
-   * @param bufferViewDatas The `BufferView` data chunks
-   * @param implicitTiling The `TileImplicitTiling` object
+   * @param availability - The `Availability` object
+   * @param bufferViewDatas - The `BufferView` data chunks
+   * @param implicitTiling - The `TileImplicitTiling` object
    * @returns The `AvailabilityInfo` object
    * @throws ImplicitTilingError If the given data is structurally
    * invalid.
@@ -39,9 +39,9 @@ export class AvailabilityInfos {
    * Creates a new `AvailabilityInfo` for the given availability
    * information, for child subtree availability
    *
-   * @param availability The `Availability` object
-   * @param bufferViewDatas The `BufferView` data chunks
-   * @param implicitTiling The `TileImplicitTiling` object
+   * @param availability - The `Availability` object
+   * @param bufferViewDatas - The `BufferView` data chunks
+   * @param implicitTiling - The `TileImplicitTiling` object
    * @returns The `AvailabilityInfo` object
    * @throws ImplicitTilingError If the given data is structurally
    * invalid.
@@ -62,9 +62,9 @@ export class AvailabilityInfos {
    * Creates a new `AvailabilityInfo` for the given availability
    * information, for child subtree availability
    *
-   * @param availability The `Availability` object
-   * @param bufferViewDatas The `BufferView` data chunks
-   * @param length The length of the availability info
+   * @param availability - The `Availability` object
+   * @param bufferViewDatas - The `BufferView` data chunks
+   * @param length - The length of the availability info
    * @returns The `AvailabilityInfo` object
    */
   private static create(

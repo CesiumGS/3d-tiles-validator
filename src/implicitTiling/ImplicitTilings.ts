@@ -28,14 +28,14 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
  * either `QUADTREE` and `OCTREE`, and will throw an
  * `ImplicitTilingError` if this is not the case.
  *
- * @private
+ * @internal
  */
 export class ImplicitTilings {
   /**
    * Returns a generator for the tile coordinates of a single subtree
    * for the given implicit tiling object.
    *
-   * @param implicitTiling The `TileImplicitTiling` object
+   * @param implicitTiling - The `TileImplicitTiling` object
    * @returns The generator
    * @throws ImplicitTilingError if the given object does not
    * have a valid `subdivisionScheme`.
@@ -52,7 +52,7 @@ export class ImplicitTilings {
    * Returns the total number of nodes in one subtree for the given
    * implicit tiling object.
    *
-   * @param implicitTiling The `TileImplicitTiling` object
+   * @param implicitTiling - The `TileImplicitTiling` object
    * @returns The number of nodes
    * @throws ImplicitTilingError if the given object does not
    * have a valid `subdivisionScheme`.
@@ -76,8 +76,8 @@ export class ImplicitTilings {
    * Returns the number of nodes in the specified level of a
    * tree with the given implicit tiling
    *
-   * @param implicitTiling The `TileImplicitTiling` object
-   * @param level The level
+   * @param implicitTiling - The `TileImplicitTiling` object
+   * @param level - The level
    * @returns The number of nodes
    * @throws ImplicitTilingError if the given object does not
    * have a valid `subdivisionScheme`, or the level is negative.
@@ -104,9 +104,9 @@ export class ImplicitTilings {
   /**
    * Substitutes the given coordinates into the given template URI.
    *
-   * @param subdivisionScheme The subdivision scheme
-   * @param templateUri The template URI
-   * @param coordinates The tree coordinates
+   * @param subdivisionScheme - The subdivision scheme
+   * @param templateUri - The template URI
+   * @param coordinates - The tree coordinates
    * @returns The resulting URI
    * @throws ImplicitTilingError if the `subdivisionScheme` is not valid.
    */
@@ -137,7 +137,7 @@ export class ImplicitTilings {
    * of the given coordinates for `QuadtreeCoordinates` and
    * `OctreeCoordinates`.
    *
-   * @param coordinates The tree coordinates
+   * @param coordinates - The tree coordinates
    * @returns The result
    * @throws ImplicitTilingError if the coordinates are neither
    * `QuadtreeCoordinates` nor `OctreeCoordinates`.
@@ -166,7 +166,7 @@ export class ImplicitTilings {
   /**
    * Returns the root coordinates for the specified implicit tileset.
    *
-   * @param implicitTiling The `TileImplicitTiling` object
+   * @param implicitTiling - The `TileImplicitTiling` object
    * @returns The root coordinates
    * @throws ImplicitTilingError if the given object does not
    * have a valid `subdivisionScheme`.
@@ -195,9 +195,9 @@ export class ImplicitTilings {
    * The result will be the global coordinates for the node within
    * the given implicit tiling.
    *
-   * @param implicitTiling The `TileImplicitTiling` object
-   * @param rootCoordinates The root coordinates
-   * @param coordinates The coordinates
+   * @param implicitTiling - The `TileImplicitTiling` object
+   * @param rootCoordinates - The root coordinates
+   * @param coordinates - The coordinates
    * @returns The global coordinates
    * @throws ImplicitTilingError if the given object does not
    * have a valid `subdivisionScheme`.
@@ -232,8 +232,8 @@ export class ImplicitTilings {
   /**
    * Compute the global quadtree coordinates for the given coordinates.
    *
-   * @param rootCoords The (global) root coordinates of the subtree
-   * @param localCoords The local coordinates inside the subtree
+   * @param rootCoords - The (global) root coordinates of the subtree
+   * @param localCoords - The local coordinates inside the subtree
    * @returns The global coordinates
    */
   private static globalizeQuadtreeCoords(
@@ -259,8 +259,8 @@ export class ImplicitTilings {
   /**
    * Compute the global octree coordinates for the given coordinates.
    *
-   * @param rootCoords The (global) root coordinates of the subtree
-   * @param localCoords The local coordinates inside the subtree
+   * @param rootCoords - The (global) root coordinates of the subtree
+   * @param localCoords - The local coordinates inside the subtree
    * @returns The global coordinates
    */
   private static globalizeOctreeCoords(

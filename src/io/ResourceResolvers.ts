@@ -12,7 +12,7 @@ export class ResourceResolvers {
    *
    * The returned instance will transparently unpack ZIPped data.
    *
-   * @param directory The base directory
+   * @param directory - The base directory
    * @returns The `ResourceResolver`
    */
   static createFileResourceResolver(directory: string) {
@@ -24,7 +24,7 @@ export class ResourceResolvers {
    * Wraps the given `ResourceResolver` into one that unzips the data
    * from the given delegate, if that that is ZIPped.
    *
-   * @param resourceResolver The delegate
+   * @param resourceResolver - The delegate
    * @returns The unzipping `ResourceResolver`
    */
   private static wrapUnzipping(resourceResolver: ResourceResolver) {

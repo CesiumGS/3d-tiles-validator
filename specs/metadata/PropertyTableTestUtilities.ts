@@ -13,7 +13,7 @@ import { MetadataEnum } from "../../src/structure/Metadata/MetadataEnum";
  * invalid in various ways in order to check whether these errors are
  * detected asvalidation issues.
  *
- * @private
+ * @internal
  */
 export class PropertyTableTestUtilities {
   /**

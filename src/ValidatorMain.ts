@@ -22,7 +22,7 @@ import { ValidationResult } from "./validation/ValidationResult";
  * The functions in this class are supposed to be called from `main.ts`,
  * based on the parsed command line arguments.
  *
- * @private
+ * @internal
  */
 export class ValidatorMain {
   static readonly specsDataRootDir = "specs/data/";
@@ -251,7 +251,7 @@ export class ValidatorMain {
    * The resulting file name will be a file in the same directory as
    * the given one. Further details are intentionally not specified here.
    *
-   * @param inputFileName The input file name
+   * @param inputFileName - The input file name
    * @returns The report file name
    */
   static deriveReportFileName(inputFileName: string): string | undefined {

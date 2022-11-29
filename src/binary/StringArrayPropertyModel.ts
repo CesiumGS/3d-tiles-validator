@@ -6,7 +6,7 @@ import { PropertyModels } from "./PropertyModels";
 /**
  * Implementation of a `PropertyModel` for string arrays
  *
- * @private
+ * @internal
  */
 export class StringArrayPropertyModel implements PropertyModel {
   // Implementation note:

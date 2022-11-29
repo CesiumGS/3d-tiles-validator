@@ -16,7 +16,7 @@ export class ResourceTypes {
    * the buffer data, or fewer bytes if the buffer has less
    * than 4 bytes.
    *
-   * @param buffer The buffer
+   * @param buffer - The buffer
    * @returns The magic header
    */
   static getMagic(buffer: Buffer): string {

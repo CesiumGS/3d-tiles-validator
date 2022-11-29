@@ -6,6 +6,8 @@
     "resolveJsonModule": true,
     "strictNullChecks": true,
     "noImplicitOverride": true,
+    "declaration": true,
+    "declarationMap": true,
     "lib": [
       "dom"
     ]

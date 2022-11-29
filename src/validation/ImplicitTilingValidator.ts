@@ -9,7 +9,7 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 /**
  * A class for validations related to `implicitTiling` objects.
  *
- * @private
+ * @internal
  */
 export class ImplicitTilingValidator {
   /**
@@ -21,9 +21,9 @@ export class ImplicitTilingValidator {
    * Performs the validation to ensure that the given object is a
    * valid `implicitTiling` object.
    *
-   * @parap path The path for `ValidationIssue` objects
-   * @param implicitTiling The object to validate
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for `ValidationIssue` objects
+   * @param implicitTiling - The object to validate
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validateImplicitTiling(

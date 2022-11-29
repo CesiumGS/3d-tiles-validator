@@ -6,12 +6,12 @@ import { QuadtreeCoordinates } from "./QuadtreeCoordinates";
  */
 export class TemplateUris {
   /**
-   * Substitute all appearances of `{level}`, `{x}`, and `{y}` in
+   * Substitute all appearances of \{level\}, \{x\}, and \{y\} in
    * the given string with the respective value from the given
    * coordinates.
    *
-   * @param templateUri The template URI string
-   * @param coordinates The coordinates
+   * @param templateUri - The template URI string
+   * @param coordinates - The coordinates
    * @returns The string with the substitutions applied
    */
   static substituteQuadtree(
@@ -27,15 +27,15 @@ export class TemplateUris {
   }
 
   /**
-   * Resolves each appearance of <code>{level}</code>, <code>{x}</code>,
-   * and <code>{y}</code> in the given template string with the
+   * Resolves each appearance of \{level\}, \{x\},
+   * and \{y\} in the given template string with the
    * respective parameters.
    *
-   * @param templateUri The template URI
-   * @param level The level
-   * @param x The x-coordinate
-   * @param y The y-coordinate
-   * @return The result
+   * @param templateUri - The template URI
+   * @param level - The level
+   * @param x - The x-coordinate
+   * @param y - The y-coordinate
+   * @returns The result
    */
   static substituteQuadtreeInternal(
     templateUri: string,
@@ -51,12 +51,12 @@ export class TemplateUris {
   }
 
   /**
-   * Substitute all appearances of `{level}`, `{x}`, `{y}`, and `{z}` in
+   * Substitute all appearances of \{level\}, \{x\}, \{y\}, and \{z\} in
    * the given string with the respective value from the given
    * coordinates.
    *
-   * @param templateUri The template URI string
-   * @param coordinates The coordinates
+   * @param templateUri - The template URI string
+   * @param coordinates - The coordinates
    * @returns The string with the substitutions applied
    */
   static substituteOctree(templateUri: string, coordinates: OctreeCoordinates) {
@@ -70,16 +70,16 @@ export class TemplateUris {
   }
 
   /**
-   * Resolves each appearance of <code>{level}</code>, <code>{x}</code>,
-   * <code>{y}</code>, and <code>{z}</code> in the given template string
+   * Resolves each appearance of \{level\}, \{x\},
+   * \{y\}, and \{z\} in the given template string
    * with the respective parameters.
    *
-   * @param templateUri The template URI
-   * @param level The level
-   * @param x The x-coordinate
-   * @param y The y-coordinate
-   * @param z The z-coordinate
-   * @return The result
+   * @param templateUri - The template URI
+   * @param level - The level
+   * @param x - The x-coordinate
+   * @param y - The y-coordinate
+   * @param z - The z-coordinate
+   * @returns The result
    */
   static substituteOctreeInternal(
     templateUri: string,

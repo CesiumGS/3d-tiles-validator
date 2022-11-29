@@ -1,6 +1,8 @@
 /**
  * An enumeration of different severity levels for a
  * `ValidationIssue`
+ *
+ * @beta
  */
 export enum ValidationIssueSeverity {
   /**

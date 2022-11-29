@@ -3,7 +3,7 @@ import { defined } from "../base/defined";
 /**
  * Internal utility methods for validation issues
  *
- * @private
+ * @internal
  */
 export class ValidationIssueUtils {
   /**
@@ -11,8 +11,8 @@ export class ValidationIssueUtils {
    * given range. This requires at least one of the given
    * arguments to be defined.
    *
-   * @param min The minimum
-   * @param max The maximum
+   * @param min - The minimum
+   * @param max - The maximum
    * @returns The description
    */
   static describeSimpleRange(
@@ -46,8 +46,8 @@ export class ValidationIssueUtils {
    * ["a", "b"] : "'a' and 'b'"
    * ["a", "b", "c"] : "'a', 'b', and 'c'"
    *
-   * @param conjunction The conjunction to use
-   * @param s The strings
+   * @param conjunction - The conjunction to use
+   * @param s - The strings
    * @returns The joined names
    */
   static joinNames(conjunction: string, ...s: string[]) {

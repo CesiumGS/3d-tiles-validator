@@ -5,7 +5,7 @@
  * It summarizes the information that is required for reading
  * and writing the metadata values in binary form.
  *
- * @private
+ * @internal
  */
 export interface BinaryEnumInfo {
   /**

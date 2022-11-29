@@ -11,7 +11,7 @@ import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues"
  * A class for validations of the `semantic` values of
  * `ClassProperty` objects.
  *
- * @private
+ * @internal
  */
 export class ClassPropertySemanticsValidator {
   /**
@@ -21,9 +21,9 @@ export class ClassPropertySemanticsValidator {
    * with the `ClassPropertyValidator`, ensuring that the `semantic`
    * values are valid strings.
    *
-   * @param metadataClassPath The path for `ValidationIssue` instances
-   * @param properties The properties of the schema class
-   * @param context The `ValidatonContext`
+   * @param metadataClassPath - The path for `ValidationIssue` instances
+   * @param properties - The properties of the schema class
+   * @param context - The `ValidatonContext`
    * @returns Whether the object was valid
    */
   static validateSemantics(
@@ -122,12 +122,12 @@ export class ClassPropertySemanticsValidator {
    *
    * For information about the 'semanticMatcher', see createMatchingSchema.
    *
-   * @param propertyPath The path for `ValidationIssue` instances
-   * @param propertyName The name of the property
-   * @param property The `ClassProperty`
-   * @param semantic The `semantic`
-   * @param semanticMatcher The semantic matcher
-   * @param context The `ValidationContext`
+   * @param propertyPath - The path for `ValidationIssue` instances
+   * @param propertyName - The name of the property
+   * @param property - The `ClassProperty`
+   * @param semantic - The `semantic`
+   * @param semanticMatcher - The semantic matcher
+   * @param context - The `ValidationContext`
    * @returns Whether the property type matched the structure
    * that is defined by the given matcher
    */

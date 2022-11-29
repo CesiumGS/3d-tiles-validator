@@ -9,7 +9,7 @@ import { defined } from "../base/defined";
 /**
  * Implementation of a `ResourceResolver` based on a `TilesetArchive`
  *
- * @private (Instantiated by the `ResourceResolvers` class)
+ * @internal (Instantiated by the `ResourceResolvers` class)
  */
 export class ArchiveResourceResolver implements ResourceResolver {
   private readonly _basePath: string;

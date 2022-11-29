@@ -1,4 +1,4 @@
-# 3D Tiles Validator 1.1 Implementation Notes
+# 3D Tiles Validator Implementation Notes
 
 Parts of the current implementation may still change. This page is only a short description of the overall structure.
 
@@ -50,3 +50,77 @@ The `ValidationIssue` class and its types:
   - `ContentValidationIssues.ts`: Issues that are found in tile content or external tilesets
 - For validation issues that refer to the tile content, each `ValidationIssue` can have an array of `causes`. This can be filled, for example, with the information from the glTF validator that caused the validation to fail
 
+
+## Future Work
+
+Certain functionalities are currently offered via the command line, but only intended for internal use:
+
+#### Validate a single metadata schema file:
+```
+npx ts-node src/main.ts --metadataSchemaFile specs/data/schemas/validSchema.json
+```
+
+#### Validate a single subtree file:
+
+**Note:** For the actual validation of standalone subtree files, there has to be a mechanism for passing in the information about the expected _structure_ of the subtree (namely, the information from the `implicitTiling` object). This example only refers to the files in the `specs` directory, which all assume the same subtree structure for now.
+```
+npx ts-node src/main.ts --subtreeFile specs/data/subtrees/binarySubtreeValid.subtree
+```
+
+#### Batch runs for the spec files
+
+The `specs/data` directory contains sample files that cause different validation issues. These files can be processed with
+```
+npx ts-node src/main.ts --tilesetSpecs
+npx ts-node src/main.ts --metadataSchemaSpecs
+npx ts-node src/main.ts --subtreeSpecs
+```
+
+
+
+## API Definition
+
+The API definition is tracked with https://api-extractor.com
+
+After running `npm install`, the API documentation can be created with `npm run docs`. The API documentation will be written into the `build/docs` directory. The surface API information will be written into `etc/3d-tiles-validator.api.md`. This file captures the public API, and changes in the public API will cause a warning to be printed
+
+> Warning: You have changed the public API signature for this project. Updating etc/3d-tiles-validator.api.md
+
+This API definition file is tracked with Git, so changes in this file should be reviewed carefully.
+
+
+## Release Process
+
+- Prepare the actual release:
+  - Update `CHANGES.md`
+  - Update the version number in `package.json`
+  - Make sure all unit tests pass 
+  - Update the `ThirdParty.json` with license information about third-party projects:
+  
+    `node generateThirdParty.js`
+
+- Run the TypeScript compiler to generate the build output:
+
+  `npm run build`
+
+- Generate the documentation:
+  
+  `npm run docs` 
+
+  The documentation will be written as markdown files into `build/docs`.
+
+- Generate the tarball of the project:
+  
+  `npm pack` 
+
+- Verify the contents of the resulting TAR file. If there are unwanted files, add these files to `.npmignore` and re-generate the tarball
+
+- Create a git tag for the version and push it:
+ 
+  `git tag -a 1.2.3 -m 'Release of version 1.2.3'`
+  
+  `git push origin 1.2.3`
+
+- Publish the package:
+  
+  `npm publish`

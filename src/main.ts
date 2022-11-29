@@ -36,11 +36,6 @@ const args = yargs(process.argv.slice(1))
       alias: "m",
       describe: "The metadata schema input file path",
     },
-    subtreeFile: {
-      type: "string",
-      alias: "s",
-      describe: "The subtree input file path",
-    },
     tilesetSpecs: {
       type: "boolean",
       describe: "Validate all tileset spec files",
@@ -80,7 +75,7 @@ const argv = args.argv;
  *
  * Otherwise, `undefined` is returned.
  *
- * @param inputFileName The input file name
+ * @param inputFileName - The input file name
  * @returns The report file name, or `undefined`
  */
 function obtainReportFileName(inputFileName: string): string | undefined {
@@ -105,9 +100,6 @@ if (argv.tilesetFile) {
 } else if (argv.metadataSchemaFile) {
   const reportFileName = obtainReportFileName(argv.metadataSchemaFile);
   ValidatorMain.validateSchemaFile(argv.metadataSchemaFile, reportFileName);
-} else if (argv.subtreeFile) {
-  const reportFileName = obtainReportFileName(argv.subtreeFile);
-  ValidatorMain.validateSubtreeSpecFile(argv.subtreeFile, reportFileName);
 } else if (argv.tilesetSpecs) {
   ValidatorMain.validateAllTilesetSpecFiles(argv.writeReports);
 } else if (argv.metadataSchemaSpecs) {

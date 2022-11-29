@@ -1,7 +1,7 @@
-import { defined } from "../../src/base/defined";
+import { defined } from "../base/defined";
 
-import { MetadataEntityModel } from "../../src/metadata/MetadataEntityModel";
-import { MetadataValues } from "../../src/metadata/MetadataValues";
+import { MetadataEntityModel } from "../metadata/MetadataEntityModel";
+import { MetadataValues } from "../metadata/MetadataValues";
 import { MetadataError } from "../metadata/MetadataError";
 
 import { PropertyTableModel } from "./PropertyTableModel";
@@ -10,7 +10,7 @@ import { PropertyTableModel } from "./PropertyTableModel";
  * Implementation of a `MetadataEntityModel` that is backed by binary
  * data (specifically, by a `PropertyTableModel`)
  *
- * @private
+ * @internal
  */
 export class BinaryMetadataEntityModel implements MetadataEntityModel {
   private readonly _propertyTableModel: PropertyTableModel;

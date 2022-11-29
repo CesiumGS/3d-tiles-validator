@@ -17,7 +17,7 @@ import { PropertyTable } from "../structure/PropertyTable";
  * Instances of this interface serve as the input for the
  * construction of a `PropertyTableModel`.
  *
- * @private
+ * @internal
  */
 export interface BinaryPropertyTable {
   /**

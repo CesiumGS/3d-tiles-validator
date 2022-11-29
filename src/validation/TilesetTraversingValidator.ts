@@ -32,9 +32,9 @@ export class TilesetTraversingValidator {
    * Validates the given tileset, by traversing the tile hierarchy
    * and validating each traversed tile.
    *
-   * @param tileset The `Tileset`
-   * @param validationState The `ValidationState`
-   * @param context The `TraversalContext`
+   * @param tileset - The `Tileset`
+   * @param validationState - The `ValidationState`
+   * @param context - The `TraversalContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether every traversed tile was valid.
    */
@@ -134,9 +134,9 @@ export class TilesetTraversingValidator {
    * It will not validate the tile content. This is done with
    * `validateTraversedTileContent`
    *
-   * @param traversedTile The `TraversedTile`
-   * @param validationState The `ValidationState`
-   * @param context The `ValidationContext`
+   * @param traversedTile - The `TraversedTile`
+   * @param validationState - The `ValidationState`
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
   private static async validateTraversedTile(
@@ -242,8 +242,8 @@ export class TilesetTraversingValidator {
    * This assumes that the given tile already has been determined to
    * be basically valid, as of `validateTraversedTile`.
    *
-   * @param traversedTile The `TraversedTile`
-   * @param context The `ValidationContext`
+   * @param traversedTile - The `TraversedTile`
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
   private static async validateTraversedTileContent(
@@ -299,11 +299,11 @@ export class TilesetTraversingValidator {
    * coordinates into the subtree template URI of the implicit tiling,
    * resolve the resulting data, and pass it to a `SubtreeValidator`.
    *
-   * @param tilePath The path for `ValidationIssue` instances
-   * @param implicitTiling The `TileImpllicitTiling`
-   * @param subtreeUri The subtree URI
-   * @param validationState The `ValidationState`
-   * @param context The `ValidationContext`
+   * @param tilePath - The path for `ValidationIssue` instances
+   * @param implicitTiling - The `TileImpllicitTiling`
+   * @param subtreeUri - The subtree URI
+   * @param validationState - The `ValidationState`
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
   private static async validateSubtreeRoot(
@@ -353,9 +353,9 @@ export class TilesetTraversingValidator {
    * This will check the conditions that must hold for parent/child
    * tiles, for example, the consistency of the geometric error
    *
-   * @param traversedParent The parent `TraversedTile`
-   * @param traversedTile The current `TraversedTile`
-   * @param context The `ValidationContext`
+   * @param traversedParent - The parent `TraversedTile`
+   * @param traversedTile - The current `TraversedTile`
+   * @param context - The `ValidationContext`
    */
   private static validateTraversedTiles(
     traversedParent: TraversedTile,

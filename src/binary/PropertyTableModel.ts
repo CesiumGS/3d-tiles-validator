@@ -8,7 +8,7 @@ import { PropertyModels } from "./PropertyModels";
 import { MetadataEntityModels } from "../metadata/MetadataEntityModels";
 import { MetadataError } from "../metadata/MetadataError";
 
-import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
+import { ClassProperty } from "../structure/Metadata/ClassProperty";
 import { MetadataEntityModel } from "../metadata/MetadataEntityModel";
 import { PropertyTableProperty } from "../structure/PropertyTableProperty";
 
@@ -16,7 +16,7 @@ import { PropertyTableProperty } from "../structure/PropertyTableProperty";
  * Implementation of a model for a property table that is backed
  * by binary data.
  *
- * @private
+ * @internal
  */
 export class PropertyTableModel {
   /**
@@ -63,7 +63,7 @@ export class PropertyTableModel {
    * Returns the `MetadataEntityModel` that corresponds to the
    * row of the table with the given index.
    *
-   * @param index The index (i.e. the table row)
+   * @param index - The index (i.e. the table row)
    * @returns The `MetdataEntityModel`
    * @throws MetadataError If the index is out of range
    */
@@ -88,7 +88,7 @@ export class PropertyTableModel {
    * property with the given ID, or `undefined` if this table was
    * created for a `MetadataClass` that does not define this property.
    *
-   * @param propertyId The property ID
+   * @param propertyId - The property ID
    * @returns The `ClassProperty`
    */
   getClassProperty(propertyId: string): ClassProperty | undefined {
@@ -103,7 +103,7 @@ export class PropertyTableModel {
    * property with the given ID, or `undefined` if this table was
    * created for a `PropertyTable` that does not define this property.
    *
-   * @param propertyId The property ID
+   * @param propertyId - The property ID
    * @returns The `PropertyTableProperty`
    */
   getPropertyTableProperty(
@@ -121,7 +121,7 @@ export class PropertyTableModel {
    * data. Returns `undefined` if this table was created for
    * a `MetadataClass` that does not define this property.
    *
-   * @param propertyId The property ID
+   * @param propertyId - The property ID
    * @returns The `PropertyModel`
    */
   getPropertyModel(propertyId: string): PropertyModel | undefined {

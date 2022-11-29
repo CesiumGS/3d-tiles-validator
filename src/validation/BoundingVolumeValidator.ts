@@ -13,17 +13,17 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 /**
  * A class for validations related to `boundingVolume` objects.
  *
- * @private
+ * @internal
  */
 export class BoundingVolumeValidator {
   /**
    * Performs the validation to ensure that the given object is a
    * valid `boundingVolume` object.
    *
-   * @param boundingVolumePath The path that indicates the location of
+   * @param boundingVolumePath - The path that indicates the location of
    * the given object, to be used in the validation issue message.
-   * @param boundingVolume The object to validate
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param boundingVolume - The object to validate
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the given object is valid
    */
   static async validateBoundingVolume(
@@ -88,10 +88,10 @@ export class BoundingVolumeValidator {
   /**
    * Implementation for validateBoundingVolume
    *
-   * @param boundingVolumePath The path that indicates the location of
+   * @param boundingVolumePath - The path that indicates the location of
    * the given object, to be used in the validation issue message.
-   * @param boundingVolume The object to validate
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param boundingVolume - The object to validate
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the given object is valid
    */
   private static validateBoundingVolumeInternal(
@@ -174,9 +174,9 @@ export class BoundingVolumeValidator {
   /**
    * Perform a validation of the given `boundingVolume.box` array.
    *
-   * @param path The path for the validation issues
-   * @param box The box array
-   * @param context The `ValidationContext`
+   * @param path - The path for the validation issues
+   * @param box - The box array
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateBoundingBox(
@@ -207,9 +207,9 @@ export class BoundingVolumeValidator {
   /**
    * Perform a validation of the given `boundingVolume.sphere` array.
    *
-   * @param path The path for the validation issues
-   * @param sphere The sphere array
-   * @param context The `ValidationContext`
+   * @param path - The path for the validation issues
+   * @param sphere - The sphere array
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateBoundingSphere(
@@ -254,9 +254,9 @@ export class BoundingVolumeValidator {
   /**
    * Perform a validation of the given `boundingVolume.region` array.
    *
-   * @param path The path for the validation issues
-   * @param region The region array
-   * @param context The `ValidationContext`
+   * @param path - The path for the validation issues
+   * @param region - The region array
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateBoundingRegion(

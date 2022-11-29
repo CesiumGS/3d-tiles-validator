@@ -4,7 +4,7 @@ import { BinaryValidationIssues } from "../issues/BinaryValidationIssues";
 /**
  * A class for validations of binary data.
  *
- * @private
+ * @internal
  */
 export class BinaryValidator {
   /**
@@ -19,11 +19,11 @@ export class BinaryValidator {
    * If the length is too small, then a `BINARY_INVALID` issue
    * will be added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the length to be shown in the message
-   * @param minLength The minimum length, inclusive
-   * @param actualLength The actual length
-   * @param context The `ValidationContext`
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the length to be shown in the message
+   * @param minLength - The minimum length, inclusive
+   * @param actualLength - The actual length
+   * @param context - The `ValidationContext`
    * @returns Whether the length is valid
    */
   static validateMinLength(
@@ -52,11 +52,11 @@ export class BinaryValidator {
    * If the length does not match, then a `BINARY_INVALID_LENGTH` issue
    * will be added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the length to be shown in the message
-   * @param expectedLength The expected length
-   * @param actualLength The actual length
-   * @param context The `ValidationContext`
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the length to be shown in the message
+   * @param expectedLength - The expected length
+   * @param actualLength - The actual length
+   * @param context - The `ValidationContext`
    * @returns Whether the length is valid
    */
   static validateLength(
@@ -87,11 +87,11 @@ export class BinaryValidator {
    * If the values do not match, then a `BINARY_INVALID_VALUE` issue
    * will be added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the value to be shown in the message
-   * @param expectedValue The expected value
-   * @param actualValue The actual value
-   * @param context The `ValidationContext`
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the value to be shown in the message
+   * @param expectedValue - The expected value
+   * @param actualValue - The actual value
+   * @param context - The `ValidationContext`
    * @returns Whether the value is valid
    */
   static validateValue(
@@ -122,11 +122,11 @@ export class BinaryValidator {
    * If the value is not aligned, then a `BINARY_INVALID_ALIGNMENT` issue
    * will be added to the given context, and `false` is returned.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param name The name of the value to be shown in the message
-   * @param value The actual value
-   * @param expectedAlignment The expected alignment
-   * @param context The `ValidationContext`
+   * @param path - The path for the `ValidationIssue`
+   * @param name - The name of the value to be shown in the message
+   * @param value - The actual value
+   * @param expectedAlignment - The expected alignment
+   * @param context - The `ValidationContext`
    * @returns Whether the value is valid
    */
   static validateAlignment(

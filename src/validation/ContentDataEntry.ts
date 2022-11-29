@@ -5,7 +5,7 @@ import { ContentData } from "./ContentData";
  * An entry of the registered content data validators,
  * used in the `ContentDataValidators`.
  *
- * @private
+ * @internal
  */
 export type ContentDataEntry = {
   /**

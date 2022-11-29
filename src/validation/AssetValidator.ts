@@ -12,7 +12,7 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 /**
  * A class for validations related to `asset` objects.
  *
- * @private
+ * @internal
  */
 export class AssetValidator {
   /**
@@ -25,8 +25,8 @@ export class AssetValidator {
    * Performs the validation to ensure that the given object is a
    * valid `asset` object.
    *
-   * @param asset The object to validate
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param asset - The object to validate
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validateAsset(asset: Asset, context: ValidationContext): boolean {

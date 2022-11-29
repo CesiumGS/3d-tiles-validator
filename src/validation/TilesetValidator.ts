@@ -31,8 +31,8 @@ export class TilesetValidator implements Validator<Tileset> {
    * Performs the validation of the tileset that is parsed from the
    * given input string.
    *
-   * @param input The string that was read from a `tileset.json` file
-   * @param context The `ValidationContext`
+   * @param input - The string that was read from a `tileset.json` file
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
   async validateJsonString(
@@ -53,9 +53,9 @@ export class TilesetValidator implements Validator<Tileset> {
    * Implementation of the `Validator` interface that just passes the
    * input to `validateTileset`.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param input The `Tileset` object
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The `Tileset` object
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
@@ -75,9 +75,9 @@ export class TilesetValidator implements Validator<Tileset> {
    * Issues that are encountered during the validation will be added
    * as `ValidationIssue` instances to the given `ValidationContext`.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param tileset The `Tileset` object
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param tileset - The `Tileset` object
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
@@ -315,9 +315,9 @@ export class TilesetValidator implements Validator<Tileset> {
    * structure and consistency of the 'extensionsUsed' and
    * 'extensionsRequired' arrays of the given tileset.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param tileset The `Tileset`
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param tileset - The `Tileset`
+   * @param context - The `ValidationContext`
    * @returns Whether the declarations have been valid
    */
   private static validateExtensionDeclarations(
@@ -457,8 +457,8 @@ export class TilesetValidator implements Validator<Tileset> {
    * the latter could not be resolved, `schema` will be
    * `undefined`.
    *
-   * @param tileset The `Tileset` object
-   * @param context The `ValidationContext`
+   * @param tileset - The `Tileset` object
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves with the result object
    */
   static async resolveTilesetSchema(
@@ -513,10 +513,10 @@ export class TilesetValidator implements Validator<Tileset> {
   /**
    * Validates the given `tileset.groups`
    *
-   * @param groups The groups
-   * @param schema The schema that was either contained in the
+   * @param groups - The groups
+   * @param schema - The schema that was either contained in the
    * `tileset.schema`, or resolved from the `tileset.schemaUri`
-   * @param context The `ValidationContext`
+   * @param context - The `ValidationContext`
    * @returns Whether the groups are valid
    */
   private static validateTilesetGroups(

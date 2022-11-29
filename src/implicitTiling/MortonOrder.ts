@@ -6,7 +6,7 @@ import { defined } from "../base/defined";
  * Morton Order (aka Z-Order Curve) helper functions.
  * @see {@link https://en.wikipedia.org/wiki/Z-order_curve}
  *
- * @private
+ * @internal
  */
 export class MortonOrder {
   /**
@@ -19,8 +19,8 @@ export class MortonOrder {
    *                    ^ ^ (added)
    *  output: 20
    *
-   * @param {Number} v A 16-bit unsigned integer.
-   * @returns {Number} A 32-bit unsigned integer.
+   * @param v - A 16-bit unsigned integer.
+   * @returns A 32-bit unsigned integer.
    * @see {@link https://fgiesen.wordpress.com/2009/12/13/decoding-morton-codes/}
    */
   private static insertOneSpacing(v: number): number {
@@ -41,9 +41,9 @@ export class MortonOrder {
    *                    ^^ ^^ (added)
    *  output: 72
    *
-   * @private
-   * @param {Number} v A 10-bit unsigned integer.
-   * @returns {Number} A 30-bit unsigned integer.
+   * @internal
+   * @param v - A 10-bit unsigned integer.
+   * @returns A 30-bit unsigned integer.
    * @see {@link https://fgiesen.wordpress.com/2009/12/13/decoding-morton-codes/}
    */
   private static insertTwoSpacing(v: number): number {
@@ -64,8 +64,8 @@ export class MortonOrder {
    *  output (binary): 110
    *  output: 6
    *
-   * @param {Number} v A 32-bit unsigned integer.
-   * @returns {Number} A 16-bit unsigned integer.
+   * @param v - A 32-bit unsigned integer.
+   * @returns A 16-bit unsigned integer.
    * @see {@link https://fgiesen.wordpress.com/2009/12/13/decoding-morton-codes/}
    */
   private static removeOneSpacing(v: number): number {
@@ -87,8 +87,8 @@ export class MortonOrder {
    *  output (binary): 110
    *  output: 6
    *
-   * @param {Number} v A 30-bit unsigned integer.
-   * @returns {Number} A 10-bit unsigned integer.
+   * @param v - A 30-bit unsigned integer.
+   * @returns A 10-bit unsigned integer.
    * @see {@link https://fgiesen.wordpress.com/2009/12/13/decoding-morton-codes/}
    */
   private static removeTwoSpacing(v: number): number {
@@ -104,10 +104,10 @@ export class MortonOrder {
    * Computes the Morton index from 2D coordinates. This is equivalent to interleaving their bits.
    * The inputs must be 16-bit unsigned integers (resulting in 32-bit Morton index) due to 32-bit bitwise operator limitation in JavaScript.
    *
-   * @param {Number} x The X coordinate in the range [0, (2^16)-1].
-   * @param {Number} y The Y coordinate in the range [0, (2^16)-1].
-   * @returns {Number} The Morton index.
-   * @private
+   * @param x - The X coordinate in the range [0, (2^16)-1].
+   * @param y - The Y coordinate in the range [0, (2^16)-1].
+   * @returns The Morton index.
+   * @internal
    */
   static encode2D(x: number, y: number): number {
     //>>includeStart('debug', pragmas.debug);
@@ -131,10 +131,10 @@ export class MortonOrder {
    * Computes the 2D coordinates from a Morton index. This is equivalent to deinterleaving their bits.
    * The input must be a 32-bit unsigned integer (resulting in 16 bits per coordinate) due to 32-bit bitwise operator limitation in JavaScript.
    *
-   * @param {Number} mortonIndex The Morton index in the range [0, (2^32)-1].
-   * @param {Number[]} [result] The array onto which to store the result.
-   * @returns {Number[]} An array containing the 2D coordinates correspoding to the Morton index.
-   * @private
+   * @param mortonIndex - The Morton index in the range [0, (2^32)-1].
+   * @param result - The array onto which to store the result.
+   * @returns An array containing the 2D coordinates correspoding to the Morton index.
+   * @internal
    */
   static decode2D(mortonIndex: number, result: number[]): number[] {
     //>>includeStart('debug', pragmas.debug);
@@ -156,11 +156,11 @@ export class MortonOrder {
    * Computes the Morton index from 3D coordinates. This is equivalent to interleaving their bits.
    * The inputs must be 10-bit unsigned integers (resulting in 30-bit Morton index) due to 32-bit bitwise operator limitation in JavaScript.
    *
-   * @param {Number} x The X coordinate in the range [0, (2^10)-1].
-   * @param {Number} y The Y coordinate in the range [0, (2^10)-1].
-   * @param {Number} z The Z coordinate in the range [0, (2^10)-1].
-   * @returns {Number} The Morton index.
-   * @private
+   * @param x - The X coordinate in the range [0, (2^10)-1].
+   * @param y - The Y coordinate in the range [0, (2^10)-1].
+   * @param z - The Z coordinate in the range [0, (2^10)-1].
+   * @returns The Morton index.
+   * @internal
    */
   static encode3D(x: number, y: number, z: number): number {
     //>>includeStart('debug', pragmas.debug);
@@ -180,10 +180,10 @@ export class MortonOrder {
    * Computes the 3D coordinates from a Morton index. This is equivalent to deinterleaving their bits.
    * The input must be a 30-bit unsigned integer (resulting in 10 bits per coordinate) due to 32-bit bitwise operator limitation in JavaScript.
    *
-   * @param {Number} mortonIndex The Morton index in the range [0, (2^30)-1].
-   * @param {Number[]} [result] The array onto which to store the result.
-   * @returns {Number[]} An array containing the 3D coordinates corresponding to the Morton index.
-   * @private
+   * @param mortonIndex - The Morton index in the range [0, (2^30)-1].
+   * @param result - The array onto which to store the result.
+   * @returns An array containing the 3D coordinates corresponding to the Morton index.
+   * @internal
    */
   static decode3D(mortonIndex: number, result: number[]): number[] {
     //>>includeStart('debug', pragmas.debug);

@@ -1,5 +1,7 @@
-node_modules
+/node_modules
+/build
+/dist
+tsdoc-metadata.json
 package-lock.json
-build
 .eslintcache
-
+*.tgz

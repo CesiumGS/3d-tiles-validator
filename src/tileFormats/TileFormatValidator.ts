@@ -9,7 +9,7 @@ import { IoValidationIssues } from "../issues/IoValidationIssue";
  * An interface describing the table data that was read from
  * a tile content.
  *
- * @private
+ * @internal
  */
 export interface BinaryTableData {
   featureTableJson: any;
@@ -23,7 +23,7 @@ export interface BinaryTableData {
  * Methods to validate and extract the binary table data from
  * tile content.
  *
- * @private
+ * @internal
  */
 export class TileFormatValidator {
   /**
@@ -34,11 +34,11 @@ export class TileFormatValidator {
    * and 'byteLength' fields of the header have the expected
    * values. (The 'version' is validated to always be '1')
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param input The input buffer
-   * @param headerByteLength The header byte length
-   * @param expectedMagic The expected magic value
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The input buffer
+   * @param headerByteLength - The header byte length
+   * @param expectedMagic - The expected magic value
+   * @param context - The `ValidationContext`
    * @returns Whether the header was valid
    */
   static validateHeader(
@@ -118,13 +118,13 @@ export class TileFormatValidator {
    * Otherwise, a `BinaryTableData` object with the valid
    * JSON- and binary data will be returned.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param input The input buffer
-   * @param headerByteLength The length of the tile format header
-   * @param hasEmbeddedGlb Whether the input is expected to have
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The input buffer
+   * @param headerByteLength - The length of the tile format header
+   * @param hasEmbeddedGlb - Whether the input is expected to have
    * embedded GLB data. This is `true` for B3DM, `false` for PNTS,
    * and `gltfFormat===1` for I3DM.
-   * @param context The `ValidationContext`
+   * @param context - The `ValidationContext`
    * @returns The `BinaryTableData`
    */
   static extractBinaryTableData(

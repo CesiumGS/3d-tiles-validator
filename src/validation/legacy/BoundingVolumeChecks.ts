@@ -26,10 +26,10 @@ export class BoundingVolumeChecks {
    * then `undefined` is returned.
    * Otherwise, an error message is returned.
    *
-   * @param innerBoundingVolume The inner `BoundingVolume`
-   * @param outerBoundingVolume The outer `BoundingVolume`
-   * @param innerTransformArray The inner transform as an array of 16 elements
-   * @param outerTransformArray The outer transform as an array of 16 elements
+   * @param innerBoundingVolume - The inner `BoundingVolume`
+   * @param outerBoundingVolume - The outer `BoundingVolume`
+   * @param innerTransformArray - The inner transform as an array of 16 elements
+   * @param outerTransformArray - The outer transform as an array of 16 elements
    * @returns An error message, or `undefined`
    */
   static checkBoundingVolume(

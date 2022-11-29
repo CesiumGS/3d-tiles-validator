@@ -3,10 +3,10 @@ import { defaultValue } from "../../src/base/defaultValue";
 /**
  * Returns whether two numbers are equal, up to a certain epsilon
  *
- * @param left The first value
- * @param right The second value
- * @param relativeEpsilon The maximum inclusive delta for the relative tolerance test.
- * @param absoluteEpsilon The maximum inclusive delta for the absolute tolerance test.
+ * @param left - The first value
+ * @param right - The second value
+ * @param relativeEpsilon - The maximum inclusive delta for the relative tolerance test.
+ * @param absoluteEpsilon - The maximum inclusive delta for the absolute tolerance test.
  * @returns Whether the values are equal within the epsilon
  */
 function equalsEpsilon(
@@ -33,9 +33,9 @@ function equalsEpsilon(
  *
  * This is ONLY used in the specs, to compare metadata values.
  *
- * @param a The first element
- * @param b The second element
- * @param epsilon A relative epsilon
+ * @param a - The first element
+ * @param b - The second element
+ * @param epsilon - A relative epsilon
  * @returns Whether the objects are equal
  */
 export function genericEquals(a: any, b: any, epsilon: number): boolean {

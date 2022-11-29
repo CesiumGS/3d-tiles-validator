@@ -14,7 +14,7 @@ import { NumericBuffers } from "./NumericBuffers";
 /**
  * Methods related to `PropertyModel` instances
  *
- * @private
+ * @internal
  */
 export class PropertyModels {
   /**
@@ -30,8 +30,8 @@ export class PropertyModels {
    * this will return a matching implementation of the
    * `PropertyModel` interface.
    *
-   * @param binaryPropertyTable The `BinaryPropertyTable`
-   * @param propertyId The property ID
+   * @param binaryPropertyTable - The `BinaryPropertyTable`
+   * @param propertyId - The property ID
    * @returns The `PropertyModel`
    */
   static createPropertyModel(
@@ -184,10 +184,10 @@ export class PropertyModels {
    * is the offset that is read from the given buffer at index `index`,
    * and `length` is `offset[index+1] - offset[index]`.
    *
-   * @param index The index
-   * @param offsetsBuffer The offsets
-   * @param offsetType The `componentType` for the offsets
-   * @param count The count
+   * @param index - The index
+   * @param offsetsBuffer - The offsets
+   * @param offsetType - The `componentType` for the offsets
+   * @param count - The count
    * @returns The slice information
    */
   static computeSlice(

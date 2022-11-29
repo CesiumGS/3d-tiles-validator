@@ -29,8 +29,8 @@ export interface TreeCoordinates {
    * Returns a generator for all coordinates that are descendants
    * of these coordinates, up to the given level, **inclusive!**.
    *
-   * @param maxLevelInclusive The maximum level, **inclusive**
-   * @param depthFirst Whether the traversal should be depth first
+   * @param maxLevelInclusive - The maximum level, **inclusive**
+   * @param depthFirst - Whether the traversal should be depth first
    * @returns The child coordinates
    */
   descendants(

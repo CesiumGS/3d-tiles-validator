@@ -9,8 +9,8 @@ export interface Validator<T> {
    * Performs the validation of the given object, and adds all issues
    * that are detected to the given `ValidationContext`.
    *
-   * @param input The input object
-   * @param context The `ValidationContext`
+   * @param input - The input object
+   * @param context - The `ValidationContext`
    * @returns A promise that is fulfilled when the validation is finished
    * and indicates whether the object was valid or not.
    */

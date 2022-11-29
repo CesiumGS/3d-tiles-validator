@@ -21,7 +21,7 @@ import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
 /**
  * Methods related to the traversal of implicit tilesets.
  *
- * @private
+ * @internal
  */
 export class ImplicitTileTraversal {
   /**
@@ -34,9 +34,9 @@ export class ImplicitTileTraversal {
    * The children will then be a single-element array that contains the
    * root node of the implicit tileset, as an `ImplicitTraversedTile`.
    *
-   * @param implicitTiling The `TileImplicitTiling`
-   * @param parent The `ExplicitTraversedTile`
-   * @param resourceResolver The `ResourceResolver` that
+   * @param implicitTiling - The `TileImplicitTiling`
+   * @param parent - The `ExplicitTraversedTile`
+   * @param resourceResolver - The `ResourceResolver` that
    * will be used e.g. for subtree files
    * @returns The traversed children
    * @throws ImplicitTilingError If the input was structurally invalid
@@ -71,9 +71,9 @@ export class ImplicitTileTraversal {
   /**
    * Creates the root node for the traversal of an implicit quadtree.
    *
-   * @param implicitTiling The `TileImplicitTiling`
-   * @param parent The `ExplicitTraversedTile`
-   * @param resourceResolver The `ResourceResolver` that
+   * @param implicitTiling - The `TileImplicitTiling`
+   * @param parent - The `ExplicitTraversedTile`
+   * @param resourceResolver - The `ResourceResolver` that
    * will be used e.g. for subtree files
    * @returns The root of an implicit quadtree
    * @throws ImplicitTilingError If the input was structurally invalid
@@ -112,9 +112,9 @@ export class ImplicitTileTraversal {
   /**
    * Creates the root node for the traversal of an implicit octree.
    *
-   * @param implicitTiling The `TileImplicitTiling`
-   * @param parent The `ExplicitTraversedTile`
-   * @param resourceResolver The `ResourceResolver` that
+   * @param implicitTiling - The `TileImplicitTiling`
+   * @param parent - The `ExplicitTraversedTile`
+   * @param resourceResolver - The `ResourceResolver` that
    * will be used e.g. for subtree files
    * @returns The root of an implicit octree
    * @throws ImplicitTilingError If the input was structurally invalid
@@ -158,10 +158,10 @@ export class ImplicitTileTraversal {
    * the subtree data from this URI. The resulting data will be used to
    * construct the `SubtreeInfo` object.
    *
-   * @param implicitTiling The `TileImplicitTiling`
-   * @param resourceResolver The `ResourceResolver` for the subtree
+   * @param implicitTiling - The `TileImplicitTiling`
+   * @param resourceResolver - The `ResourceResolver` for the subtree
    * files and buffers
-   * @param coordinates The root coordinates of the subtree
+   * @param coordinates - The root coordinates of the subtree
    * @returns The `SubtreeInfo`
    * @throws ImplicitTilingError If the input was structurally invalid
    */

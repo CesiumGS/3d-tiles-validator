@@ -1,8 +1,8 @@
-import { ValidationIssue } from "./validation/ValidationIssue";
-import { ValidationIssueSeverity } from "./validation/ValidationIssueSeverity";
-import { ValidationResult } from "./validation/ValidationResult";
-import { ValidationIssueFilters } from "./validation/ValidationIssueFilters";
-import { ValidationResults } from "./validation/ValidationResults";
+import { ValidationIssue } from "../src/validation/ValidationIssue";
+import { ValidationIssueSeverity } from "../src/validation/ValidationIssueSeverity";
+import { ValidationResult } from "../src/validation/ValidationResult";
+import { ValidationIssueFilters } from "../src/validation/ValidationIssueFilters";
+import { ValidationResults } from "../src/validation/ValidationResults";
 
 // A function to create an unspecified `ValidationResult`
 // that contains dummy issues for demonstrating the

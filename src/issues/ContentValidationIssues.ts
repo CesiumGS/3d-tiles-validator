@@ -20,8 +20,8 @@ export class ContentValidationIssues {
    * being the highest severity of any issue in the given
    * result (ERROR, WARNING, or INFO).
    *
-   * @param path The path
-   * @param result The `ValidationResult`
+   * @param path - The path
+   * @param result - The `ValidationResult`
    * @returns The `ValidationIssue`, or `undefined`
    */
   static createForContent(
@@ -48,8 +48,8 @@ export class ContentValidationIssues {
    * being the highest severity of any issue in the given
    * result (ERROR, WARNING, or INFO).
    *
-   * @param path The path
-   * @param result The `ValidationResult`
+   * @param path - The path
+   * @param result - The `ValidationResult`
    * @returns The `ValidationIssue`, or `undefined`
    */
   static createForExternalTileset(
@@ -78,8 +78,8 @@ export class ContentValidationIssues {
    * The type of the resulting issue will be of the form
    * "<prefix>_<severity>".
    *
-   * @param path The path
-   * @param result The `ValidationResult`
+   * @param path - The path
+   * @param result - The `ValidationResult`
    * @returns The `ValidationIssue`, or `undefined`
    */
   private static createFrom(
@@ -143,10 +143,10 @@ export class ContentValidationIssues {
    * the type of the resulting issue being of the 
    * form "<prefix>_<severity>".
 
-   * @param prefix The prefix for the 'type'
-   * @param severity The severity
-   * @param path The path
-   * @param message The message
+   * @param prefix - The prefix for the 'type'
+   * @param severity - The severity
+   * @param path - The path
+   * @param message - The message
    * @returns The new validation issue
    */
   private static createIssue(
@@ -166,8 +166,8 @@ export class ContentValidationIssues {
    * The returned issue may receive `causes` that summarize
    * the issues that eventually caused this issue.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param message The message for the `ValidationIssue`
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
   static CONTENT_VALIDATION_ERROR(path: string, message: string) {
@@ -183,8 +183,8 @@ export class ContentValidationIssues {
    * The returned issue may receive `causes` that summarize
    * the issues that eventually caused this issue.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param message The message for the `ValidationIssue`
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
   static CONTENT_VALIDATION_WARNING(path: string, message: string) {
@@ -201,8 +201,8 @@ export class ContentValidationIssues {
    * The returned issue may receive `causes` that summarize
    * the issues that eventually caused this issue.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param message The message for the `ValidationIssue`
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
   static CONTENT_VALIDATION_INFO(path: string, message: string) {
@@ -220,8 +220,8 @@ export class ContentValidationIssues {
    * structure itself (using the legacy validation) caused an
    * error.
    *
-   * @param path The path for the `ValidationIssue`
-   * @param message The message for the `ValidationIssue`
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
   static CONTENT_JSON_INVALID(path: string, message: string) {

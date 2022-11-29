@@ -1,7 +1,7 @@
-import { ClassProperty } from "./structure/Metadata/ClassProperty";
+import { ClassProperty } from "../src/structure/Metadata/ClassProperty";
 
-import { BinaryPropertyTables } from "./binary/BinaryPropertyTables";
-import { PropertyTableModel } from "./binary/PropertyTableModel";
+import { BinaryPropertyTables } from "../src/binary/BinaryPropertyTables";
+import { PropertyTableModel } from "../src/binary/PropertyTableModel";
 
 function runPropertyTableModelTest(
   name: string,

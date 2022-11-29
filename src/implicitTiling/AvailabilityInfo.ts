@@ -15,7 +15,7 @@ export interface AvailabilityInfo {
    * Returns whether the element at the specified index is
    * available.
    *
-   * @param index The index
+   * @param index - The index
    * @throws RangeError If the index is negative or not smaller
    * than the length.
    */

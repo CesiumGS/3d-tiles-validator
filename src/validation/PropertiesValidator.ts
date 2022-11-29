@@ -11,15 +11,15 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
  * A class for validations related to `tileset.properties` objects. Aplogies
  * for the confusing name...
  *
- * @private
+ * @internal
  */
 export class PropertiesValidator {
   /**
    * Performs the validation to ensure that the given object is a
    * valid `tileset.properties` object.
    *
-   * @param properties The object to validate
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param properties - The object to validate
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validateProperties(

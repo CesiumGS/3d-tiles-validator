@@ -60,7 +60,7 @@ export class ValidationContext {
    * against the original `ResourceResolver`, yielding one that
    * resolves resources against the resulting path.
    *
-   * @param uri The (usually relative) URI
+   * @param uri - The (usually relative) URI
    * @returns The new instance
    */
   deriveFromUri(uri: string): ValidationContext {
@@ -74,7 +74,7 @@ export class ValidationContext {
    * It uses the same `ValidationOptions` as this one, but the
    * given resource resolver.
    *
-   * @param resourceResolver The `ResourceResolver`
+   * @param resourceResolver - The `ResourceResolver`
    * @returns The new instance
    */
   deriveFromResourceResolver(

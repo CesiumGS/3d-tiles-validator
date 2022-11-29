@@ -16,7 +16,7 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 /**
  * A class for validation of the data that is pointed to by a `content.uri`.
  *
- * @private
+ * @internal
  */
 export class ContentDataValidator {
   /**
@@ -26,9 +26,9 @@ export class ContentDataValidator {
    * This assumes that the given content has already been validated
    * to be structurally valid, using the `ContentValidator`.
    *
-   * @param contentPath The path for the `ValidationIssue` instances
-   * @param content The `Content` object
-   * @param context The `ValidationContext`
+   * @param contentPath - The path for the `ValidationIssue` instances
+   * @param content - The `Content` object
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
   static async validateContentData(
@@ -71,9 +71,9 @@ export class ContentDataValidator {
    * If the data type cannot be determined, an `CONTENT_VALIDATION_WARNING`
    * will be added to the given context.
    *
-   * @param contentPath The path for the `ValidationIssue` instances.
-   * @param contentUri The URI of the content
-   * @param context The `ValidationContext`
+   * @param contentPath - The path for the `ValidationIssue` instances.
+   * @param contentUri - The URI of the content
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
   private static async validateContentDataInternal(
@@ -147,8 +147,8 @@ export class ContentDataValidator {
    * is encountered, then the respective extension will be added
    * as a "used" extension to the given context.
    *
-   * @param contentData The `ContentData`
-   * @param context The `ValidationContext`
+   * @param contentData - The `ContentData`
+   * @param context - The `ValidationContext`
    */
   private static async trackExtensionsFound(
     contentData: ContentData,

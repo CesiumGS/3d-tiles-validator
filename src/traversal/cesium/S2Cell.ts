@@ -24,9 +24,9 @@ export class S2Cell {
   /**
    * Converts a 64-bit S2 cell ID to an S2 cell token.
    *
-   * @param cellId The S2 cell ID.
+   * @param cellId - The S2 cell ID.
    * @returns Returns hexadecimal representation of an S2CellId.
-   * @private
+   * @internal
    */
   static getTokenFromId = function (cellId: bigint): string {
     const trailingZeroHexChars = Math.floor(
@@ -42,7 +42,7 @@ export class S2Cell {
 
   /**
    * Return the number of trailing zeros in number.
-   * @private
+   * @internal
    */
   private static countTrailingZeroBits(x: bigint) {
     const index = (-x & x) % BigInt(67);
@@ -52,9 +52,9 @@ export class S2Cell {
   /**
    * Converts an S2 cell token to a 64-bit S2 cell ID.
    *
-   * @param token The hexadecimal representation of an S2CellId. Expected to be a valid S2 token.
+   * @param token - The hexadecimal representation of an S2CellId. Expected to be a valid S2 token.
    * @returns Returns the S2 cell ID.
-   * @private
+   * @internal
    */
   static getIdFromToken = function (token: string): bigint {
     return BigInt("0x" + token + "0".repeat(16 - token.length));
@@ -63,11 +63,11 @@ export class S2Cell {
   /**
    * Creates an S2Cell from its face, position along the Hilbert curve for a given level.
    *
-   * @param face The root face of S2 this cell is on. Must be in the range [0-5].
-   * @param position The position along the Hilbert curve. Must be in the range [0-4**level).
-   * @param level The level of the S2 curve. Must be in the range [0-30].
+   * @param face - The root face of S2 this cell is on. Must be in the range [0-5].
+   * @param position - The position along the Hilbert curve. Must be in the range [0-4**level).
+   * @param level - The level of the S2 curve. Must be in the range [0-30].
    * @returns A new S2Cell ID from the given parameters.
-   * @private
+   * @internal
    */
   static fromFacePositionLevel(
     face: number,

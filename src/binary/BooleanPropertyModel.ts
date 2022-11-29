@@ -4,7 +4,7 @@ import { NumericBuffers } from "./NumericBuffers";
 /**
  * Implementation of a `PropertyModel` for booleans
  *
- * @private
+ * @internal
  */
 export class BooleanPropertyModel implements PropertyModel {
   private readonly _valuesBuffer: Buffer;

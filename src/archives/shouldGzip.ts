@@ -19,8 +19,8 @@ import path from "path";
  * fact, in resembles both of the `isTile` functions.
  * I don't know what's the 'right' thing to do here either...
  *
- * @param file The file
- * @param data The optional file data
+ * @param file - The file
+ * @param data - The optional file data
  * @returns Whether the file should be zipped
  */
 export function shouldGzip(file: string, data: Buffer | undefined): boolean {

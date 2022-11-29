@@ -14,7 +14,7 @@ import { MetadataClass } from "../structure/Metadata/MetadataClass";
  * metadata entity, in the context of the 3D Metadata
  * specification.
  *
- * @private
+ * @internal
  */
 export class MetadataEntityModels {
   /**
@@ -36,8 +36,8 @@ export class MetadataEntityModels {
    * (Note: This is ensured by the `MetadataEntityValidator` and
    * `MetadataValueValidator`)
    *
-   * @param schema The `Schema`
-   * @param entity The `MetadataEntity`
+   * @param schema - The `Schema`
+   * @param entity - The `MetadataEntity`
    * @returns The `MetadataEntityModel`
    * @throws MetadataError If the metadata entity refers to a class
    * that is not found in the given schema.
@@ -58,8 +58,8 @@ export class MetadataEntityModels {
    *
    * See the `create` method for details.
    *
-   * @param metadataClass The `MetadataClass`
-   * @param entityProperties The properties of the `MetadataEntity`
+   * @param metadataClass - The `MetadataClass`
+   * @param entityProperties - The properties of the `MetadataEntity`
    * @returns The `MetadataEntityModel`
    */
   static createFromClass(
@@ -82,7 +82,7 @@ export class MetadataEntityModels {
    * Compute the mapping from 'semantic' strings to property IDs
    * that have the respective semantic in the given metadata class.
    *
-   * @param metadataClass The `MetadataClass`
+   * @param metadataClass - The `MetadataClass`
    * @returns The mapping
    */
   static computeSemanticToPropertyIdMapping(metadataClass: MetadataClass): {

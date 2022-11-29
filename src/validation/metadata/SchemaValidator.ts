@@ -16,15 +16,15 @@ import { IoValidationIssues } from "../../issues/IoValidationIssue";
 /**
  * A class for validations related to `schema` objects.
  *
- * @private
+ * @internal
  */
 export class SchemaValidator implements Validator<Schema> {
   /**
    * Performs the validation of the schema that is parsed from the
    * given input string.
    *
-   * @param input The string that was read from a schema JSON file
-   * @param context The `ValidationContext`
+   * @param input - The string that was read from a schema JSON file
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
@@ -48,8 +48,8 @@ export class SchemaValidator implements Validator<Schema> {
    * Implementation of the `Validator` interface that just passes the
    * input to `validateSchema`.
    *
-   * @param input The `Schema` object
-   * @param context The `ValidationContext`
+   * @param input - The `Schema` object
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
@@ -68,11 +68,11 @@ export class SchemaValidator implements Validator<Schema> {
    * Issues that are encountered during the validation will be added
    * as `ValidationIssue` instances to the given `ValidationContext`.
    *
-   * @param path The path for the given object. This may either
+   * @param path - The path for the given object. This may either
    * be `"/schema"` (for a `tileset.schema`), or the empty string
    * (for a schema that was read from a standalone schema file).
-   * @param schema The `Schema` object
-   * @param context The `ValidationContext`
+   * @param schema - The `Schema` object
+   * @param context - The `ValidationContext`
    */
   static validateSchema(
     path: string,

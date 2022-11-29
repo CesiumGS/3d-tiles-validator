@@ -3,7 +3,7 @@
  * buffers that are split into buffer views. This is the
  * actual data that corresponds to a `BinaryBufferStructure`
  *
- * @private
+ * @internal
  */
 export interface BinaryBufferData {
   /**

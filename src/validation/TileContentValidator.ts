@@ -13,7 +13,7 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 /**
  * A class for validating a `Tile` and its associated `Content`.
  *
- * @private
+ * @internal
  */
 export class TileContentValidator {
   /**
@@ -23,10 +23,10 @@ export class TileContentValidator {
    * be _structurally_ valid on the JSON level, using the
    * `ContentValidator`.
    *
-   * @param contentPath The path for `ValidationIssue` instances
-   * @param content The `Content`
-   * @param tile The tile that the content belongs to
-   * @param context The `ValidationContext`
+   * @param contentPath - The path for `ValidationIssue` instances
+   * @param content - The `Content`
+   * @param tile - The tile that the content belongs to
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
   static async validateTileContent(
@@ -77,10 +77,10 @@ export class TileContentValidator {
    * Validate that the content bounding volume (if present) is completely
    * contained in the tile bounding volume.
    *
-   * @param tile The containing tile
-   * @param contentPath The path for the `ValidationIssue` instances
-   * @param content The content
-   * @param context The `ValidationContext`
+   * @param tile - The containing tile
+   * @param contentPath - The path for the `ValidationIssue` instances
+   * @param content - The content
+   * @param context - The `ValidationContext`
    * @returns Whether the bounding volumes are consistent
    */
   private static validateContentBoundingVolumeConsistency(

@@ -8,7 +8,7 @@ export class TilesetArchiveBuilders {
    * Creates a TilesetArchiveBuilder, based on the given
    * file extension
    *
-   * @param {String} extension The extension: '.3tz' or '.3dtiles'
+   * @param extension - The extension: '.3tz' or '.3dtiles'
    * or the empty string (for a directory)
    * @returns The TilesetArchiveBuilder, or `undefined` if the
    * extension is invalid

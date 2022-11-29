@@ -44,7 +44,7 @@ import { BinaryPropertyTableValidator } from "./metadata/BinaryPropertyTableVali
  * detailed consistency validations are done by a
  * `SubtreeConsistencyValidator`.
  *
- * @private
+ * @internal
  */
 export class SubtreeValidator implements Validator<Buffer> {
   // TODO Currently, the binary data is resolved twice,
@@ -74,10 +74,10 @@ export class SubtreeValidator implements Validator<Buffer> {
   /**
    * Creates a new instance.
    *
-   * @param validationState The `ValidationState`
-   * @param implicitTiling The `TileImplicitTiling` that
+   * @param validationState - The `ValidationState`
+   * @param implicitTiling - The `TileImplicitTiling` that
    * defines the expected structure of the subtree
-   * @param resourceResolver The `ResourceResolver` that
+   * @param resourceResolver - The `ResourceResolver` that
    * will be used to resolve buffer URIs.
    */
   constructor(
@@ -95,9 +95,9 @@ export class SubtreeValidator implements Validator<Buffer> {
    * validation of the given buffer, which is supposed to
    * contain subtree data, either in binary form or as JSON.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param input The subtree data
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The subtree data
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
@@ -126,9 +126,9 @@ export class SubtreeValidator implements Validator<Buffer> {
    * Performs the validation of the given buffer, which contains the
    * data from a binary subtree file
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param input The contents of a binary subtree file
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The contents of a binary subtree file
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
@@ -249,9 +249,9 @@ export class SubtreeValidator implements Validator<Buffer> {
   /**
    * Performs the validation of the subtree JSON data in the given buffer
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param input The buffer that contains the subtree JSON data
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The buffer that contains the subtree JSON data
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
@@ -282,10 +282,10 @@ export class SubtreeValidator implements Validator<Buffer> {
    * Performs the validation of the given `Subtree` object and the
    * (optional) binary buffer that is associated with it
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param subtree The `Subtree` object
-   * @param binaryBuffer The optional binary buffer
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param subtree - The `Subtree` object
+   * @param binaryBuffer - The optional binary buffer
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
    */
@@ -388,11 +388,11 @@ export class SubtreeValidator implements Validator<Buffer> {
    * Performs the validation of the given `Subtree` object, on
    * the level of JSON validity.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param subtree The `Subtree` object
-   * @param hasBinaryBuffer Whether the subtree has an associated
+   * @param path - The path for `ValidationIssue` instances
+   * @param subtree - The `Subtree` object
+   * @param hasBinaryBuffer - Whether the subtree has an associated
    * binary buffer
-   * @param context The `ValidationContext`
+   * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
   private validateSubtreeObject(
@@ -418,9 +418,9 @@ export class SubtreeValidator implements Validator<Buffer> {
    * excluding the metadata.
    * The consistency and binary data will be validated separately.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param subtree The `Subtree` object
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for the `ValidationIssue` instances
+   * @param subtree - The `Subtree` object
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   private validateSubtreeBasic(
@@ -529,10 +529,10 @@ export class SubtreeValidator implements Validator<Buffer> {
    * Performs the validation to ensure that the given object is a
    * valid `availability` object.
    *
-   * @param path The path for the `ValidationIssue` instances
-   * @param name The name of the object
-   * @param availability The `Availability` object
-   * @param context The `ValidationContext` that any issues will be added to
+   * @param path - The path for the `ValidationIssue` instances
+   * @param name - The name of the object
+   * @param availability - The `Availability` object
+   * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   private static validateAvailability(
@@ -645,9 +645,9 @@ export class SubtreeValidator implements Validator<Buffer> {
    * `subtreeMetadata`, to see whether it complies to the schema
    * definition and the property tables.
    *
-   * @param path The path for `ValidationIssue` instances
-   * @param subtree The `Subtree` object
-   * @param context The `ValidationContext`
+   * @param path - The path for `ValidationIssue` instances
+   * @param subtree - The `Subtree` object
+   * @param context - The `ValidationContext`
    * @returns Whether the metadata was valid
    */
   private validateMetadata(

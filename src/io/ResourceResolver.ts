@@ -7,7 +7,7 @@ export interface ResourceResolver {
    * Returns the URI that results from resolving the given
    * URI against the base URI of this resource resolver.
    *
-   * @param uri The URI
+   * @param uri - The URI
    * @returns The resolved URI
    */
   resolveUri(uri: string): string;
@@ -18,7 +18,7 @@ export interface ResourceResolver {
    * The given URI may be relative to the base URI for
    * which this instance has been created.
    *
-   * @param uri The URI
+   * @param uri - The URI
    * @returns A promise that resolves with the buffer data,
    * or with `null` if the resource could not be resolved.
    */
@@ -37,7 +37,7 @@ export interface ResourceResolver {
    * specified number of bytes. (It may be the full buffer,
    * if partial data requests are not supported).
    *
-   * @param uri The URI
+   * @param uri - The URI
    * @returns A promise that resolves with the buffer data,
    * or with `null` if the resource could not be resolved.
    */
@@ -51,8 +51,8 @@ export interface ResourceResolver {
    * of this instance. The returned instance will use the
    * resulting URI as its base URI.
    *
-   * @param uri The relative path
-   * @return A new instance with a different base URI
+   * @param uri - The relative path
+   * @returns A new instance with a different base URI
    */
   derive(uri: string): ResourceResolver;
 }

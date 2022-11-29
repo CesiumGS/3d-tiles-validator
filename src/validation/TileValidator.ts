@@ -39,16 +39,16 @@ const refineValues: string[] = ["ADD", "REPLACE"];
  * This is done with the `TileContentValidator`, after it
  * has been determined that the tile is structurally valid.
  *
- * @private
+ * @internal
  */
 export class TileValidator {
   /**
    * Validates the given tile.
    *
-   * @param tilePath The path for the `ValidationIssue`
-   * @param tile The tile
-   * @param validationState The `ValidationState`
-   * @param context The `ValidationContext`
+   * @param tilePath - The path for the `ValidationIssue`
+   * @param tile - The tile
+   * @param validationState - The `ValidationState`
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static async validateTile(
@@ -277,10 +277,10 @@ export class TileValidator {
    * a tile that is **NOT** the root of an implicit tileset
    * (i.e. it does **NOT** define `implicitTiling`).
    *
-   * @param tilePath The path for the `ValidationIssue`
-   * @param tile The tile
-   * @param validationState The `ValidationState` object
-   * @param context The `ValidationContext`
+   * @param tilePath - The path for the `ValidationIssue`
+   * @param tile - The tile
+   * @param validationState - The `ValidationState` object
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   private static async validateSimpleTile(
@@ -379,10 +379,10 @@ export class TileValidator {
    * and adds a `TILE_IMPLICIT_ROOT_INVALID` issue to the given
    * context if it was defined.
    *
-   * @param tilePath The path for the `ValidationIssue`
-   * @param name The name of the property
-   * @param value The value of the property
-   * @param context The `ValidationContext`
+   * @param tilePath - The path for the `ValidationIssue`
+   * @param name - The name of the property
+   * @param value - The value of the property
+   * @param context - The `ValidationContext`
    * @returns Whether the values was not defined
    */
   private static validateDisallowedInImplicitTilesetRoot(
@@ -410,10 +410,10 @@ export class TileValidator {
    * an implicit tileset, as indicated by the presence of
    * the `implicitTiling` property.
    *
-   * @param tilePath The path for the `ValidationIssue`
-   * @param tile The tile
-   * @param implicitTiling The `TileImplicitTiling` object
-   * @param context The `ValidationContext`
+   * @param tilePath - The path for the `ValidationIssue`
+   * @param tile - The tile
+   * @param implicitTiling - The `TileImplicitTiling` object
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   private static validateImplicitTilesetRoot(
