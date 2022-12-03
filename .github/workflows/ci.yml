@@ -22,7 +22,7 @@ jobs:
 
     - name: Run formatting checks
       run: |
-        npm run pretter-check
+        npm run prettier-check
 
     - name: Run tests
       run: |
