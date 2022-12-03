@@ -4,6 +4,9 @@
 /node_modules
 /dist
 /etc
+/coverage
+/.nyc_output
+/.github
 .eslintcache
 .eslintignore
 .eslintrc.json
