@@ -6,7 +6,7 @@ node_js:
 script:
   - npm run eslint
   - npm run prettier-check
-  - npm run test -- --failTaskOnError --suppressPassed
+  - npm run test
 
 after_success:
   - npm run coverage
