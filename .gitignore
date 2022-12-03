@@ -1,6 +1,8 @@
 /node_modules
 /build
 /dist
+/coverage
+/.nyc_output
 tsdoc-metadata.json
 package-lock.json
 .eslintcache
