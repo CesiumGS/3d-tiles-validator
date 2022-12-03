@@ -12,6 +12,10 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v2
 
+    - name: Run npm install
+      run: |
+        npm install
+
     - name: Run linting
       run: |
         npm run eslint
