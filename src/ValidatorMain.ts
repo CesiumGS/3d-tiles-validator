@@ -15,6 +15,7 @@ import { BoundingVolumeS2Validator } from "./validation/extensions/BoundingVolum
 import { TileImplicitTiling } from "./structure/TileImplicitTiling";
 import { Schema } from "./structure/Metadata/Schema";
 import { ValidationResult } from "./validation/ValidationResult";
+import { ValidationOptions } from "./validation/ValidationOptions";
 
 /**
  * A class summarizing the command-line functions of the validator.
@@ -29,10 +30,14 @@ export class ValidatorMain {
 
   static async validateTilesetFile(
     fileName: string,
-    reportFileName: string | undefined
+    reportFileName: string | undefined,
+    options: ValidationOptions | undefined
   ): Promise<ValidationResult> {
     console.log("Validating tileset " + fileName);
-    const validationResult = await Validators.validateTilesetFile(fileName);
+    const validationResult = await Validators.validateTilesetFile(
+      fileName,
+      options
+    );
     if (defined(reportFileName)) {
       await writeUnchecked(reportFileName!, validationResult.serialize());
     } else {
@@ -45,7 +50,8 @@ export class ValidatorMain {
   static async validateTilesetsDirectory(
     directoryName: string,
     globPattern: string,
-    writeReports: boolean
+    writeReports: boolean,
+    options: ValidationOptions | undefined
   ): Promise<void> {
     console.log(
       "Validating tilesets from " + directoryName + " matching " + globPattern
@@ -65,7 +71,8 @@ export class ValidatorMain {
       }
       const validationResult = await ValidatorMain.validateTilesetFile(
         tilesetFile,
-        reportFileName
+        reportFileName,
+        options
       );
       numFiles++;
       if (validationResult.numErrors > 0) {
@@ -136,7 +143,11 @@ export class ValidatorMain {
       if (writeReports) {
         reportFileName = ValidatorMain.deriveReportFileName(specFile);
       }
-      await ValidatorMain.validateTilesetFile(specFile, reportFileName);
+      await ValidatorMain.validateTilesetFile(
+        specFile,
+        reportFileName,
+        undefined
+      );
     }
   }
 

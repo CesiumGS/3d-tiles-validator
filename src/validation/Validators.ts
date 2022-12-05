@@ -1,20 +1,22 @@
 import path from "path";
 import { defined } from "../base/defined";
+import { defaultValue } from "../base/defaultValue";
 
 import { ResourceResolvers } from "../io/ResourceResolvers";
 
+import { Validator } from "./Validator";
 import { TilesetValidator } from "./TilesetValidator";
 import { ValidationContext } from "./ValidationContext";
 import { ValidationResult } from "./ValidationResult";
 import { SubtreeValidator } from "./SubtreeValidator";
 import { ValidationState } from "./ValidationState";
+import { ValidationOptions } from "./ValidationOptions";
 
 import { SchemaValidator } from "./metadata/SchemaValidator";
 
-import { IoValidationIssues } from "../issues/IoValidationIssue";
-
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
-import { Validator } from "./Validator";
+
+import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 /**
@@ -44,7 +46,8 @@ export class Validators {
    * @beta
    */
   static async validateTilesetFile(
-    filePath: string
+    filePath: string,
+    validationOptions?: ValidationOptions
   ): Promise<ValidationResult> {
     const directory = path.dirname(filePath);
     const fileName = path.basename(filePath);
@@ -52,7 +55,7 @@ export class Validators {
       ResourceResolvers.createFileResourceResolver(directory);
     const resourceData = await resourceResolver.resolveData(fileName);
     const validator = Validators.createDefaultTilesetValidator();
-    const context = new ValidationContext(resourceResolver);
+    const context = new ValidationContext(resourceResolver, validationOptions);
     const jsonString = resourceData ? resourceData.toString() : "";
     await validator.validateJsonString(jsonString, context);
     return context.getResult();

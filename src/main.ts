@@ -1,7 +1,12 @@
 //eslint-disable-next-line
 const yargs = require("yargs/yargs");
 
+import { defaultValue } from "./base/defaultValue";
+import { readJsonUnchecked } from "./base/readJsonUnchecked";
+
 import { ContentDataValidators } from "./validation/ContentDataValidators";
+import { ValidationOptions } from "./validation/ValidationOptions";
+
 import { ValidatorMain } from "./ValidatorMain";
 
 ValidatorMain.registerExtensionValidators();
@@ -34,19 +39,24 @@ const args = yargs(process.argv.slice(1))
     metadataSchemaFile: {
       type: "string",
       alias: "m",
-      describe: "The metadata schema input file path",
+      describe: "(Internal) The metadata schema input file path",
     },
     tilesetSpecs: {
       type: "boolean",
-      describe: "Validate all tileset spec files",
+      describe: "(Internal) Validate all tileset spec files",
     },
     metadataSchemaSpecs: {
       type: "boolean",
-      describe: "Validate all metadata schema spec files",
+      describe: "(Internal) Validate all metadata schema spec files",
     },
     subtreeSpecs: {
       type: "boolean",
-      describe: "Validate all subtree spec files",
+      describe: "(Internal) Validate all subtree spec files",
+    },
+    configFile: {
+      type: "string",
+      alias: "c",
+      describe: "(Internal) The configuration file for the validator run",
     },
     reportFile: {
       type: "string",
@@ -88,14 +98,42 @@ function obtainReportFileName(inputFileName: string): string | undefined {
   return undefined;
 }
 
-if (argv.tilesetFile) {
+async function processConfigFile(configFile: string) {
+  const validationConfig = await readJsonUnchecked(configFile);
+  const validationOptions: ValidationOptions = validationConfig.options;
+
+  const tilesetsDirectory = validationConfig.tilesetsDirectory;
+  const tilesetGlobPattern = defaultValue(
+    validationConfig.tilesetGlobPattern,
+    "**/*tileset*.json"
+  );
+  const writeReports = validationConfig.writeReports;
+
+  if (tilesetsDirectory) {
+    ValidatorMain.validateTilesetsDirectory(
+      tilesetsDirectory,
+      tilesetGlobPattern,
+      writeReports,
+      validationOptions
+    );
+  }
+}
+
+if (argv.configFile) {
+  processConfigFile(argv.configFile);
+} else if (argv.tilesetFile) {
   const reportFileName = obtainReportFileName(argv.tilesetFile);
-  ValidatorMain.validateTilesetFile(argv.tilesetFile, reportFileName);
+  ValidatorMain.validateTilesetFile(
+    argv.tilesetFile,
+    reportFileName,
+    undefined
+  );
 } else if (argv.tilesetsDirectory) {
   ValidatorMain.validateTilesetsDirectory(
     argv.tilesetsDirectory,
     argv.tilesetGlobPattern,
-    argv.writeReports
+    argv.writeReports,
+    undefined
   );
 } else if (argv.metadataSchemaFile) {
   const reportFileName = obtainReportFileName(argv.metadataSchemaFile);

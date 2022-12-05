@@ -6,8 +6,8 @@
  * be sorted out as we go. For example, there could be flags
  * - validateExternalResources
  * - validateAbsoluteUris...?
- * - validateContent
- * - validateContenTypes = [GLB, B3DM]
+ * - validateContentData
+ * - validateContentTypes = [GLB, B3DM]
  * - validateExternalTilesets
  * - validateExternalSchema
  * - ...

@@ -1,3 +1,5 @@
+import { defaultValue } from "../base/defaultValue";
+
 import { ResourceResolver } from "../io/ResourceResolver";
 
 import { ValidationIssue } from "./ValidationIssue";
@@ -45,8 +47,11 @@ export class ValidationContext {
    */
   private readonly _resourceResolver: ResourceResolver;
 
-  constructor(resourceResolver: ResourceResolver) {
-    this._options = new ValidationOptions();
+  constructor(
+    resourceResolver: ResourceResolver,
+    options?: ValidationOptions
+  ) {
+    this._options = defaultValue(options, new ValidationOptions());
     this._result = ValidationResult.create();
     this._resourceResolver = resourceResolver;
     this._extensionsFound = new Set<string>();
@@ -80,8 +85,7 @@ export class ValidationContext {
   deriveFromResourceResolver(
     resourceResolver: ResourceResolver
   ): ValidationContext {
-    const derived = new ValidationContext(resourceResolver);
-    derived._options = this._options;
+    const derived = new ValidationContext(resourceResolver, this._options);
     derived._extensionsFound = this._extensionsFound;
     return derived;
   }
