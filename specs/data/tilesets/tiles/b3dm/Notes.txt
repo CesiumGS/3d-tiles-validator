@@ -1,7 +1,0 @@
-The `valid.b3dm` is the `parent.b3dm` from the original validator.
-
-The `invalid.b3dm` is the same, but with an invalid `version` in the header.
-
-The `invalidWithInvalidGlb.b3dm` is the same as the `valid.b3dm`, but with an invalid length in the GLB header.
-
-The `invalidAlignment.b3dm` is the B3DM from https://github.com/CesiumGS/cesium/blob/87d639542f5858dc42a090b8034819e33bf4afa6/Apps/SampleData/Cesium3DTiles/Batched/BatchedColors/batchedColors.b3dm to check whether the validator detects https://github.com/CesiumGS/3d-tiles-samples-generator/issues/1 

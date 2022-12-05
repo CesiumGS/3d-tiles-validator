@@ -1,0 +1,22 @@
+Tile content files used in the spec tilesets, for basic content data validation tests.
+
+For b3dm: 
+- The `valid.b3dm` is the `parent.b3dm` from the original validator (https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3/validator/specs/data/Tileset)
+- The `invalid.b3dm` is the same, but with an invalid `version` in the header.
+- The `invalidWithInvalidGlb.b3dm` is the same as the `valid.b3dm`, but with an invalid length in the GLB header.
+- The `invalidAlignment.b3dm` is the B3DM from https://github.com/CesiumGS/cesium/blob/87d639542f5858dc42a090b8034819e33bf4afa6/Apps/SampleData/Cesium3DTiles/Batched/BatchedColors/batchedColors.b3dm to check whether the validator detects https://github.com/CesiumGS/3d-tiles-samples-generator/issues/1 
+
+For glTF: 
+- The models are based on the `Triangle` sample model from https://github.com/KhronosGroup/glTF-Sample-Models/blob/8e9a5a6ad1a2790e2333e3eb48a1ee39f9e0e31b/2.0/Triangle/, where various types of warnings or errors have been introduced manually
+
+The remaining tile contents are taken from the CesiumJS sample data (at https://github.com/CesiumGS/cesium/tree/c0ec95713b6cde5a91eea320795c84408159dcad/Apps/SampleData/Cesium3DTiles), which, at the given commit, have been invalid or caused warnings:
+
+For pnts:
+- The `invalid.pnts` is the `PointCloud\PointCloudWithPerPointProperties\pointCloudWithPerPointProperties.pnts`
+
+For i3dm: 
+- The `invalid.i3dm` is the `Instanced\InstancedWithBatchTable\instancedWithBatchTable.i3dm`
+
+For cmpt:
+- The `validWithGlbWarning.cmpt` is the `Composite\Composite\composite.cmpt`
+

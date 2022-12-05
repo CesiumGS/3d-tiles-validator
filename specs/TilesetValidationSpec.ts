@@ -740,6 +740,30 @@ describe("Tileset validation", function () {
     expect(result.length).toEqual(0);
   });
 
+  it("detects issues in validTilesetWithValidCmptWithGlbWarning", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithValidCmptWithGlbWarning.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_WARNING");
+  });
+
+  it("detects no issues in validTilesetWithInvalidI3dm", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithInvalidI3dm.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
+  });
+
+  it("detects no issues in validTilesetWithInvalidPnts", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithInvalidPnts.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
+  });
+
   it("detects issues in validTilesetWithValidB3dmWithInvalidGlb", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/validTilesetWithValidB3dmWithInvalidGlb.json"
