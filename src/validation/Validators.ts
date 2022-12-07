@@ -1,6 +1,5 @@
 import path from "path";
 import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
 
 import { ResourceResolvers } from "../io/ResourceResolvers";
 
