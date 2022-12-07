@@ -40,6 +40,15 @@ export enum ValidationIssueSeverity {
 }
 
 // @beta
+export class ValidationOptions {
+    constructor();
+    get validateContentData(): boolean;
+    set validateContentData(value: boolean);
+    get validatedContentTypes(): string[] | undefined;
+    set validatedContentTypes(value: string[] | undefined);
+}
+
+// @beta
 export class ValidationResult {
     // @internal
     add(issue: ValidationIssue): void;
@@ -88,7 +97,7 @@ export class Validators {
     static validateSchemaFile(filePath: string): Promise<ValidationResult>;
     // @internal
     static validateSubtreeFile(filePath: string, validationState: ValidationState, implicitTiling: TileImplicitTiling | undefined): Promise<ValidationResult>;
-    static validateTilesetFile(filePath: string): Promise<ValidationResult>;
+    static validateTilesetFile(filePath: string, validationOptions?: ValidationOptions): Promise<ValidationResult>;
 }
 
 // (No @packageDocumentation comment for this package)
