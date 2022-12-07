@@ -2,8 +2,11 @@ import { defined } from "../base/defined";
 
 import { Validators } from "./Validators";
 import { Validator } from "./Validator";
+import { ValidationContext } from "./ValidationContext";
 import { ContentData } from "./ContentData";
 import { ContentDataEntry } from "./ContentDataEntry";
+import { ContentDataTypes } from "./ContentDataTypes";
+import { TilesetArchiveValidator } from "./TilesetArchiveValidator";
 
 import { B3dmValidator } from "../tileFormats/B3dmValidator";
 import { I3dmValidator } from "../tileFormats/I3dmValidator";
@@ -12,10 +15,8 @@ import { CmptValidator } from "../tileFormats/CmptValidator";
 import { GltfValidator } from "../tileFormats/GltfValidator";
 
 import { Tileset } from "../structure/Tileset";
-import { TilesetArchiveValidator } from "./TilesetArchiveValidator";
+
 import { IoValidationIssues } from "../issues/IoValidationIssue";
-import { ValidationContext } from "./ValidationContext";
-import { ResourceTypes } from "../io/ResourceTypes";
 
 /**
  * A class for managing `Validator` instances that are used for
@@ -41,11 +42,30 @@ export class ContentDataValidators {
     // The validators will be checked in the order in which they are
     // registered. In the future, there might be a mechanism for
     // 'overriding' a previously registered validator.
-    ContentDataValidators.registerByMagic("glTF", new GltfValidator());
-    ContentDataValidators.registerByMagic("b3dm", new B3dmValidator());
-    ContentDataValidators.registerByMagic("i3dm", new I3dmValidator());
-    ContentDataValidators.registerByMagic("cmpt", new CmptValidator());
-    ContentDataValidators.registerByMagic("pnts", new PntsValidator());
+    ContentDataValidators.registerForBuffer(
+      ContentDataTypes.CONTENT_TYPE_GLB,
+      new GltfValidator()
+    );
+
+    ContentDataValidators.registerForBuffer(
+      ContentDataTypes.CONTENT_TYPE_B3DM,
+      new B3dmValidator()
+    );
+
+    ContentDataValidators.registerForBuffer(
+      ContentDataTypes.CONTENT_TYPE_I3DM,
+      new I3dmValidator()
+    );
+
+    ContentDataValidators.registerForBuffer(
+      ContentDataTypes.CONTENT_TYPE_CMPT,
+      new CmptValidator()
+    );
+
+    ContentDataValidators.registerForBuffer(
+      ContentDataTypes.CONTENT_TYPE_PNTS,
+      new PntsValidator()
+    );
 
     // Certain content types are known to be encountered,
     // but are not (yet) validated. These can either be
@@ -68,19 +88,44 @@ export class ContentDataValidators {
       );
     }
 
-    ContentDataValidators.registerByMagic("geom", geomValidator);
-    ContentDataValidators.registerByMagic("vctr", vctrValidator);
-    ContentDataValidators.registerByExtension(".geojson", geojsonValidator);
+    ContentDataValidators.register(
+      ContentDataTypes.CONTENT_TYPE_GEOM,
+      geomValidator
+    );
+    ContentDataValidators.register(
+      ContentDataTypes.CONTENT_TYPE_VCTR,
+      vctrValidator
+    );
+    ContentDataValidators.register(
+      ContentDataTypes.CONTENT_TYPE_GEOJSON,
+      geojsonValidator
+    );
 
-    ContentDataValidators.registerArchive();
-    ContentDataValidators.registerTileset();
-    ContentDataValidators.registerGltf();
+    ContentDataValidators.register(
+      ContentDataTypes.CONTENT_TYPE_3TZ,
+      ContentDataValidators.createArchiveValidator()
+    );
+
+    ContentDataValidators.register(
+      ContentDataTypes.CONTENT_TYPE_TILESET,
+      ContentDataValidators.createTilesetValidator()
+    );
+    ContentDataValidators.register(
+      ContentDataTypes.CONTENT_TYPE_GLTF,
+      ContentDataValidators.createGltfJsonValidator()
+    );
   }
 
-  private static registerArchive() {
-    const predicate = async (contentData: ContentData) =>
-      contentData.extension === ".3tz";
-
+  /**
+   * Creates a validator for content data that refers to a 3TZ archive.
+   *
+   * This takes the contentData.uri, resolves it (to obtain an absolute URI),
+   * and assumes that this URI is a path in the local file system, which
+   * is then passed to the `TilesetArchiveValidator`
+   *
+   * @returns The validator
+   */
+  private static createArchiveValidator(): Validator<ContentData> {
     const archiveValidator = new TilesetArchiveValidator();
     const validator = {
       async validateObject(
@@ -98,8 +143,39 @@ export class ContentDataValidators {
         return result;
       },
     };
+    return validator;
+  }
 
-    ContentDataValidators.registerByPredicate(predicate, validator);
+  /**
+   * Creates a validator for content data that represents an external tileset.
+   *
+   * This validator will parse the JSON from the content data buffer, and
+   * pass it to a default tileset validator.
+   *
+   * @returns The validator
+   */
+  private static createTilesetValidator(): Validator<ContentData> {
+    const externalValidator = Validators.createDefaultTilesetValidator();
+    const bufferValidator =
+      Validators.parseFromBuffer<Tileset>(externalValidator);
+    const contentDataValidator =
+      ContentDataValidators.wrapBufferValidator(bufferValidator);
+    return contentDataValidator;
+  }
+
+  /**
+   * Creates a validator for content data that represents glTF JSON data.
+   *
+   * This validator will pass the buffer with the JSON data to the
+   * standard glTF validator.
+   *
+   * @returns The validator
+   */
+  private static createGltfJsonValidator(): Validator<ContentData> {
+    const bufferValidator = new GltfValidator();
+    const contentDataValidator =
+      ContentDataValidators.wrapBufferValidator(bufferValidator);
+    return contentDataValidator;
   }
 
   /**
@@ -119,143 +195,6 @@ export class ContentDataValidators {
       }
     }
     return undefined;
-  }
-
-  /**
-   * Register a validator that should be used when the content
-   * data starts with the given magic string.
-   *
-   * (This string is currently assumed to have length 4, but
-   * this may have to be generalized in the future)
-   *
-   * @param magic - The magic string
-   * @param bufferValidator - The validator for the buffer data
-   */
-  private static registerByMagic(
-    magic: string,
-    bufferValidator: Validator<Buffer>
-  ) {
-    ContentDataValidators.registerByPredicate(
-      async (contentData: ContentData) =>
-        (await contentData.getMagic()) === magic,
-      ContentDataValidators.wrapBufferValidator(bufferValidator)
-    );
-  }
-
-  /**
-   * Register a validator that should be used when the content URI
-   * has the given file extension
-   *
-   * The file extension should include the `"."` dot, and the
-   * check for the file extension will be case INsensitive.
-   *
-   * @param extension - The extension
-   * @param bufferValidator - The validator for the buffer data
-   */
-  private static registerByExtension(
-    extension: string,
-    bufferValidator: Validator<Buffer>
-  ) {
-    ContentDataValidators.registerByPredicate(
-      async (contentData: ContentData) =>
-        contentData.extension === extension.toLowerCase(),
-      ContentDataValidators.wrapBufferValidator(bufferValidator)
-    );
-  }
-
-  /**
-   * Register the data validator for (external) tileset files.
-   *
-   * The condition of whether this validator is used for
-   * given content data is that it `isProbablyTileset`.
-   */
-  private static registerTileset() {
-    const predicate = async (contentData: ContentData) =>
-      await ContentDataValidators.isProbablyTileset(contentData);
-    const externalValidator = Validators.createDefaultTilesetValidator();
-    const bufferValidator =
-      Validators.parseFromBuffer<Tileset>(externalValidator);
-    const contentDataValidator =
-      ContentDataValidators.wrapBufferValidator(bufferValidator);
-    ContentDataValidators.registerByPredicate(predicate, contentDataValidator);
-  }
-
-  /**
-   * Register the data validator for glTF files.
-   *
-   * This refers to JSON files (not GLB files), and checks
-   * whether the object that is parsed from the JSON data
-   * is probably a glTF asset, as of `isProbablyGltf`.
-   */
-  private static registerGltf() {
-    const predicate = async (contentData: ContentData) =>
-      await ContentDataValidators.isProbablyGltf(contentData);
-    const bufferValidator = new GltfValidator();
-    const contentDataValidator =
-      ContentDataValidators.wrapBufferValidator(bufferValidator);
-    ContentDataValidators.registerByPredicate(predicate, contentDataValidator);
-  }
-
-  /**
-   * Returns whether the given content data is probably a tileset.
-   *
-   * The exact conditions for this method returning `true` are
-   * intentionally not specified.
-   *
-   * @param contentData - The content data
-   * @returns Whether the content data is probably a tileset
-   */
-  static async isProbablyTileset(contentData: ContentData): Promise<boolean> {
-    const data = await contentData.getData();
-    if (!defined(data)) {
-      return false;
-    }
-    if (!ResourceTypes.isProbablyJson(data!)) {
-      return false;
-    }
-    let parsedObject = undefined;
-    try {
-      parsedObject = JSON.parse(data!.toString());
-    } catch (error) {
-      return false;
-    }
-    if (!defined(parsedObject.asset)) {
-      return false;
-    }
-    return defined(parsedObject.geometricError) || defined(parsedObject.root);
-  }
-
-  /**
-   * Returns whether the given content data is probably a glTF
-   * (not a GLB, but a glTF JSON).
-   *
-   * The exact conditions for this method returning `true` are
-   * intentionally not specified.
-   *
-   * @param contentData - The content data
-   * @returns Whether the content data is probably glTF
-   */
-  static async isProbablyGltf(contentData: ContentData): Promise<boolean> {
-    if (await ContentDataValidators.isProbablyTileset(contentData)) {
-      return false;
-    }
-    const data = await contentData.getData();
-    if (!defined(data)) {
-      return false;
-    }
-    if (!ResourceTypes.isProbablyJson(data!)) {
-      return false;
-    }
-    let parsedObject = undefined;
-    try {
-      parsedObject = JSON.parse(data!.toString());
-    } catch (error) {
-      return false;
-    }
-    if (!defined(parsedObject.asset)) {
-      return false;
-    }
-    return true;
   }
 
   /**
@@ -294,13 +233,31 @@ export class ContentDataValidators {
   }
 
   /**
+   * Register a validator that should be used for the content
+   * data buffer, when the content data matches the given
+   * predicate.
+   *
+   * @param predicate - The predicate
+   * @param bufferValidator - The validator for the buffer data
+   */
+  private static registerForBuffer(
+    predicate: (contentData: ContentData) => Promise<boolean>,
+    bufferValidator: Validator<Buffer>
+  ) {
+    ContentDataValidators.register(
+      predicate,
+      ContentDataValidators.wrapBufferValidator(bufferValidator)
+    );
+  }
+
+  /**
    * Registers a data validator that will be used when a
    * `ContentData` matches the given predicate.
    *
    * @param predicate - The predicate
    * @param dataValidator - The data validator
    */
-  private static registerByPredicate(
+  private static register(
     predicate: (contentData: ContentData) => Promise<boolean>,
     dataValidator: Validator<ContentData>
   ) {

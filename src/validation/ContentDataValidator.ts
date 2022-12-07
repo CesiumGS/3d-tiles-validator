@@ -6,12 +6,14 @@ import { Uris } from "../io/Uris";
 
 import { ValidationContext } from "./ValidationContext";
 import { ContentData } from "./ContentData";
+import { ContentDataTypes } from "./ContentDataTypes";
 import { ContentDataValidators } from "./ContentDataValidators";
 
 import { Content } from "../structure/Content";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
+import { ValidationOptionChecks } from "./ValidationOptionChecks";
 
 /**
  * A class for validation of the data that is pointed to by a `content.uri`.
@@ -60,10 +62,6 @@ export class ContentDataValidator {
    * Perform the validation of the content data that is pointed to
    * by the given content URI.
    *
-   * The method will try to figure out the actual data type using
-   * a lot of guesses and magic (i.e. magic headers), and try to
-   * validate the data.
-   *
    * If the data causes validation issues, they will be summarized
    * into a `CONTENT_VALIDATION_ERROR` or `CONTENT_VALIDATION_WARNING`
    * that is added to the given context.
@@ -83,9 +81,21 @@ export class ContentDataValidator {
   ): Promise<boolean> {
     const resourceResolver = context.getResourceResolver();
 
-    // Create the `ContentData`, and look up a
-    // matching content data validator
+    // Create the `ContentData` that summarizes all information
+    // that is requiring for determining the content type
     const contentData = new ContentData(contentUri, resourceResolver);
+
+    // Check if the content data should be validated
+    const options = context.getOptions();
+    const shouldValidate = await ValidationOptionChecks.shouldValidate(
+      options,
+      contentData
+    );
+    if (!shouldValidate) {
+      return true;
+    }
+
+    // Find the validator for the content data
     const dataValidator = await ContentDataValidators.findContentDataValidator(
       contentData
     );
@@ -116,9 +126,7 @@ export class ContentDataValidator {
     );
     const derivedResult = derivedContext.getResult();
 
-    const isTileset = await ContentDataValidators.isProbablyTileset(
-      contentData
-    );
+    const isTileset = await ContentDataTypes.isProbablyTileset(contentData);
     if (isTileset) {
       const issue = ContentValidationIssues.createForExternalTileset(
         contentUri,
@@ -159,7 +167,7 @@ export class ContentDataValidator {
     if (isGlb) {
       context.addExtensionFound("3DTILES_content_gltf");
     }
-    const isGltf = await ContentDataValidators.isProbablyGltf(contentData);
+    const isGltf = await ContentDataTypes.isProbablyGltf(contentData);
     if (isGltf) {
       context.addExtensionFound("3DTILES_content_gltf");
     }
