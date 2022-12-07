@@ -16,8 +16,9 @@ import { ArchiveValidation3tz } from "../archives/ArchiveValidation3tz";
  * An implementation of a validator that validates a tileset
  * archive.
  *
- * The 'archive' here is represented as a `string`, assuming that
- * this string is a file in the local file system.
+ * The validated type here is `string`, assuming that this 
+ * string is the 'resolvedUri' that points to a file in the 
+ * local file system.
  */
 export class TilesetArchiveValidator implements Validator<string> {
   async validateObject(

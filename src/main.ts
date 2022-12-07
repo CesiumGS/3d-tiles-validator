@@ -98,6 +98,12 @@ function obtainReportFileName(inputFileName: string): string | undefined {
   return undefined;
 }
 
+/**
+ * When a `configFile` argument was given, then this will read the config
+ * file and perform the validation run according to this file.
+ * 
+ * @param configFile - The name of the config file
+ */
 async function processConfigFile(configFile: string) {
   const validationConfig = await readJsonUnchecked(configFile);
   const validationOptions: ValidationOptions = validationConfig.options;
