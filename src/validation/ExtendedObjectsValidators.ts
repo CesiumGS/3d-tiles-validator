@@ -22,9 +22,17 @@ export class ExtendedObjectsValidators {
    * The mapping from extension names to the validators that
    * are used for objects that contain the respective extension.
    */
-  static readonly extendedObjectValidators = new Map<string, Validator<any>>();
+  private static readonly extendedObjectValidators = new Map<
+    string,
+    Validator<any>
+  >();
 
-  static readonly overrides = new Map<string, boolean>();
+  /**
+   * The mapping from extension names to the flag that indicates
+   * whether the corresponding validator should override the
+   * default validation process.
+   */
+  private static readonly overrides = new Map<string, boolean>();
 
   /**
    * Registers a validator for an object with the specified extension.
