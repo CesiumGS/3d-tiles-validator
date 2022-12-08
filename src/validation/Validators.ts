@@ -10,6 +10,7 @@ import { ValidationResult } from "./ValidationResult";
 import { SubtreeValidator } from "./SubtreeValidator";
 import { ValidationState } from "./ValidationState";
 import { ValidationOptions } from "./ValidationOptions";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { SchemaValidator } from "./metadata/SchemaValidator";
 
@@ -18,12 +19,20 @@ import { TileImplicitTiling } from "../structure/TileImplicitTiling";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
+import { BoundingVolumeS2Validator } from "./extensions/BoundingVolumeS2Validator";
+
 /**
  * Utility methods related to `Validator` instances.
  *
  * @beta
  */
 export class Validators {
+  /**
+   * Whether the know extension validators have already been registered
+   * by calling `registerExtensionValidators`.
+   */
+  private static _registeredExtensionValidators = false;
+
   /**
    * Creates a `TilesetValidator` with an unspecified default configuration.
    *
@@ -48,6 +57,8 @@ export class Validators {
     filePath: string,
     validationOptions?: ValidationOptions
   ): Promise<ValidationResult> {
+    Validators.registerExtensionValidators();
+
     const directory = path.dirname(filePath);
     const fileName = path.basename(filePath);
     const resourceResolver =
@@ -240,5 +251,39 @@ export class Validators {
         return true;
       },
     };
+  }
+
+  /**
+   * Register the validators for known extensions
+   */
+  private static registerExtensionValidators() {
+    if (Validators._registeredExtensionValidators) {
+      return;
+    }
+
+    // Register the validator for 3DTILES_bounding_volume_S2
+    {
+      const s2Validator = new BoundingVolumeS2Validator();
+      const override = true;
+      ExtendedObjectsValidators.register(
+        "3DTILES_bounding_volume_S2",
+        s2Validator,
+        override
+      );
+    }
+    // Register an empty validator for 3DTILES_content_gltf
+    // (The extension does not have any properties to be
+    // validated)
+    {
+      const emptyValidator = Validators.createEmptyValidator();
+      const override = false;
+      ExtendedObjectsValidators.register(
+        "3DTILES_content_gltf",
+        emptyValidator,
+        override
+      );
+    }
+
+    Validators._registeredExtensionValidators = true;
   }
 }

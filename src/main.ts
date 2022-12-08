@@ -4,13 +4,9 @@ const yargs = require("yargs/yargs");
 import { defaultValue } from "./base/defaultValue";
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
 
-import { ContentDataValidators } from "./validation/ContentDataValidators";
 import { ValidationOptions } from "./validation/ValidationOptions";
 
 import { ValidatorMain } from "./ValidatorMain";
-
-ValidatorMain.registerExtensionValidators();
-ContentDataValidators.registerDefaults();
 
 const args = yargs(process.argv.slice(1))
   .help("help")
@@ -101,7 +97,7 @@ function obtainReportFileName(inputFileName: string): string | undefined {
 /**
  * When a `configFile` argument was given, then this will read the config
  * file and perform the validation run according to this file.
- * 
+ *
  * @param configFile - The name of the config file
  */
 async function processConfigFile(configFile: string) {

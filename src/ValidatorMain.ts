@@ -8,14 +8,11 @@ import { Iterables } from "./base/Iterables";
 
 import { ValidationState } from "./validation/ValidationState";
 import { Validators } from "./validation/Validators";
-import { ExtendedObjectsValidators } from "./validation/ExtendedObjectsValidators";
-
-import { BoundingVolumeS2Validator } from "./validation/extensions/BoundingVolumeS2Validator";
+import { ValidationResult } from "./validation/ValidationResult";
+import { ValidationOptions } from "./validation/ValidationOptions";
 
 import { TileImplicitTiling } from "./structure/TileImplicitTiling";
 import { Schema } from "./structure/Metadata/Schema";
-import { ValidationResult } from "./validation/ValidationResult";
-import { ValidationOptions } from "./validation/ValidationOptions";
 
 /**
  * A class summarizing the command-line functions of the validator.
@@ -227,34 +224,6 @@ export class ValidatorMain {
       implicitTiling,
       reportFileName
     );
-  }
-
-  /**
-   * Register the validators for known extensions
-   */
-  static registerExtensionValidators() {
-    // Register the validator for 3DTILES_bounding_volume_S2
-    {
-      const s2Validator = new BoundingVolumeS2Validator();
-      const override = true;
-      ExtendedObjectsValidators.register(
-        "3DTILES_bounding_volume_S2",
-        s2Validator,
-        override
-      );
-    }
-    // Register an empty validator for 3DTILES_content_gltf
-    // (The extension does not have any properties to be
-    // validated)
-    {
-      const emptyValidator = Validators.createEmptyValidator();
-      const override = false;
-      ExtendedObjectsValidators.register(
-        "3DTILES_content_gltf",
-        emptyValidator,
-        override
-      );
-    }
   }
 
   /**

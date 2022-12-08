@@ -36,9 +36,19 @@ export class ContentDataValidators {
   private static readonly dataValidators: ContentDataEntry[] = [];
 
   /**
+   * Whether the default content data validators have already
+   * been registered by calling 'registerDefaults'
+   */
+  private static _registeredDefaults = false;
+
+  /**
    * Registers all default content data validators
    */
-  static registerDefaults() {
+  private static registerDefaults() {
+    if (ContentDataValidators._registeredDefaults) {
+      return;
+    }
+
     // The validators will be checked in the order in which they are
     // registered. In the future, there might be a mechanism for
     // 'overriding' a previously registered validator.
@@ -114,6 +124,8 @@ export class ContentDataValidators {
       ContentDataTypes.CONTENT_TYPE_GLTF,
       ContentDataValidators.createGltfJsonValidator()
     );
+
+    ContentDataValidators._registeredDefaults = true;
   }
 
   /**
@@ -189,6 +201,7 @@ export class ContentDataValidators {
   static async findContentDataValidator(
     contentData: ContentData
   ): Promise<Validator<ContentData> | undefined> {
+    ContentDataValidators.registerDefaults();
     for (const entry of ContentDataValidators.dataValidators) {
       if (await entry.predicate(contentData)) {
         return entry.dataValidator;

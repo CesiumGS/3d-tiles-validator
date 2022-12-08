@@ -1,7 +1,4 @@
 import { Validators } from "../src/validation/Validators";
-import { ContentDataValidators } from "../src/validation/ContentDataValidators";
-
-ContentDataValidators.registerDefaults();
 
 describe("Tileset validation", function () {
   it("detects issues in assetTilesetVersionInvalidType", async function () {

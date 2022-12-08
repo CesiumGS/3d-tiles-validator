@@ -47,10 +47,7 @@ export class ValidationContext {
    */
   private readonly _resourceResolver: ResourceResolver;
 
-  constructor(
-    resourceResolver: ResourceResolver,
-    options?: ValidationOptions
-  ) {
+  constructor(resourceResolver: ResourceResolver, options?: ValidationOptions) {
     this._options = defaultValue(options, new ValidationOptions());
     this._result = ValidationResult.create();
     this._resourceResolver = resourceResolver;

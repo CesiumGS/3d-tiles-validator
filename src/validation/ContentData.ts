@@ -75,10 +75,10 @@ export class ContentData {
 
   /**
    * Returns the actual content data that was read from the URI.
-   * 
+   *
    * The data is fetched lazily when it is first requested, and
    * then cached for later calls.
-   * 
+   *
    * @returns The promise to the data, or to `null` when the
    * data could not be obtained.
    */
@@ -94,15 +94,15 @@ export class ContentData {
   /**
    * Returns the object that was parsed from the content data,
    * or `undefined` if no object could be parsed.
-   * 
+   *
    * The data is fetched lazily and the result is constructed
    * when it is first requested, and then cached for later calls.
-   * 
-   * @returns The promise to the parsed object, or to `undefined` 
+   *
+   * @returns The promise to the parsed object, or to `undefined`
    * when the data could not be obtained or not be parsed into
    * an object.
    */
-   async getParsedObject() : Promise<any> {
+  async getParsedObject(): Promise<any> {
     if (this._parsedObjectWasRequested) {
       return this._parsedObject;
     }
@@ -126,5 +126,4 @@ export class ContentData {
       return this._parsedObject;
     }
   }
-  
 }
