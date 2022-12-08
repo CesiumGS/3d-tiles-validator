@@ -1,5 +1,4 @@
 import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
 
 import { ValidationOptions } from "./ValidationOptions";
 import { ContentData } from "./ContentData";
