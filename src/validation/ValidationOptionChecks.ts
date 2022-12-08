@@ -27,7 +27,7 @@ export class ValidationOptionChecks {
     if (!options.validateContentData) {
       return false;
     }
-    const types = defaultValue(options.validatedContentTypes, []);
+    const types = options.validatedContentTypes;
     if (!defined(types)) {
       return true;
     }
@@ -35,6 +35,6 @@ export class ValidationOptionChecks {
     if (!defined(name)) {
       return false;
     }
-    return types.includes(name!);
+    return types!.includes(name!);
   }
 }
