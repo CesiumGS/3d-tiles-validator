@@ -20,3 +20,14 @@ For i3dm:
 For cmpt:
 - The `validWithGlbWarning.cmpt` is the `Composite\Composite\composite.cmpt`
 
+For geom (only for content type detection):
+- The `content.geom` is the `Classification\PointCloud\content.geom`
+
+For vctr (only for content type detection):
+- The `parent.vctr` is the `Specs\Data\Cesium3DTiles\Vector\VectorTilePoints\parent.vctr`
+
+For geojson (only for content type detection):
+- The `lineString.geojson` is the `Specs\Data\Cesium3DTiles\GeoJson\LineString\lineString.geojson`
+
+For 3tz (only for content type detection):
+- The `simple.3tz` is just a 3TZ file with a minimal, valid `tileset.json`
