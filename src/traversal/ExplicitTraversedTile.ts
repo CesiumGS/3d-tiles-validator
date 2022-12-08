@@ -14,7 +14,7 @@ import { MetadataEntity } from "../structure/MetadataEntity";
 /**
  * An implementation of a `TraversedTile` that reflects a tile
  * that actually appears as a JSON representation in the tileset.
- * 
+ *
  * @internal
  */
 export class ExplicitTraversedTile implements TraversedTile {

@@ -19,7 +19,7 @@ import { MetadataEntity } from "../structure/MetadataEntity";
 /**
  * An implementation of a `TraversedTile` that represents a tile
  * within an implicit tileset during its traversal.
- * 
+ *
  * @internal
  */
 export class ImplicitTraversedTile implements TraversedTile {

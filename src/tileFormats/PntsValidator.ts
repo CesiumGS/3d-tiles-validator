@@ -92,7 +92,7 @@ const featureTableSemantics = {
 /**
  * A class that can perform validation of PNTS data that is
  * given as a Buffer.
- * 
+ *
  * @internal
  */
 export class PntsValidator implements Validator<Buffer> {

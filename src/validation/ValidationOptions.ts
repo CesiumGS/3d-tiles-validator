@@ -21,11 +21,11 @@ export class ValidationOptions {
 
   /**
    * Default constructor.
-   * 
+   *
    * The default options will be:
-   * 
+   *
    * - `validateContentData = true`, causing content data to be validated
-   * - `validatedContentTypes = undefined`, causing ALL known content 
+   * - `validatedContentTypes = undefined`, causing ALL known content
    *    types to be considered in the validation.
    */
   constructor() {

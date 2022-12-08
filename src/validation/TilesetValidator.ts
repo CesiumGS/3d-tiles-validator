@@ -25,7 +25,7 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
 /**
  * A class that can validate a 3D Tiles tileset.
- * 
+ *
  * @internal
  */
 export class TilesetValidator implements Validator<Tileset> {

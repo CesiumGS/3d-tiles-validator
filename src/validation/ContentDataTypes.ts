@@ -11,7 +11,7 @@ import { ContentData } from "./ContentData";
  * These are used for registering the corresponding validators
  * in the `ContentDataValidators` class, and for determining
  * a name (string) that describes the content type.
- * 
+ *
  * @internal
  */
 export class ContentDataTypes {

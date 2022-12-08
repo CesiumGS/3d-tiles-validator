@@ -11,7 +11,7 @@ import { Schema } from "../structure/Metadata/Schema";
 
 /**
  * A class that can traverse the tiles of a tileset.
- * 
+ *
  * @internal
  */
 export class TilesetTraverser {

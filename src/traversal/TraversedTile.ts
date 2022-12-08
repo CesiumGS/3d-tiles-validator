@@ -6,7 +6,7 @@ import { MetadataEntity } from "../structure/MetadataEntity";
 /**
  * An interface that summarizes context information for
  * a tile during traversal.
- * 
+ *
  * @internal
  */
 export interface TraversedTile {

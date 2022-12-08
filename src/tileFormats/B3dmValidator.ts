@@ -32,7 +32,7 @@ const featureTableSemantics = {
 /**
  * A class that can perform validation of B3DM data that is
  * given as a Buffer.
- * 
+ *
  * @internal
  */
 export class B3dmValidator implements Validator<Buffer> {

@@ -16,7 +16,7 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
  * extensions). When an object contains an extension with one
  * of the registered names, then the respective validators will
  * be applied to that object.
- * 
+ *
  * @internal
  */
 export class ExtendedObjectsValidators {

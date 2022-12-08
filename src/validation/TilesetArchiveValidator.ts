@@ -19,7 +19,7 @@ import { ArchiveValidation3tz } from "../archives/ArchiveValidation3tz";
  * The validated type here is `string`, assuming that this
  * string is the 'resolvedUri' that points to a file in the
  * local file system.
- * 
+ *
  * @internal
  */
 export class TilesetArchiveValidator implements Validator<string> {
