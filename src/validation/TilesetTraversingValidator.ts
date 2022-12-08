@@ -26,6 +26,8 @@ import { StructureValidationIssues } from "../issues/StructureValidationIssues";
  * A validator for a `Tileset` that traverses the tile hierarchy
  * and performs the validation of the tile instances, their contents,
  * and the consistency of the tile hierarchy.
+ * 
+ * @internal
  */
 export class TilesetTraversingValidator {
   /**

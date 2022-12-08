@@ -3,6 +3,8 @@ import { TraversedTile } from "./TraversedTile";
 /**
  * An interface with a function that will be called by
  * a `TilesetTraverser`
+ * 
+ * @internal
  */
 export interface TraversalCallback {
   /**

@@ -3,6 +3,8 @@ import { ValidationContext } from "./ValidationContext";
 /**
  * Interface for classes that can perform generic validation of an object,
  * detect issues, and add them to a `ValidationContext`
+ * 
+ * @internal
  */
 export interface Validator<T> {
   /**

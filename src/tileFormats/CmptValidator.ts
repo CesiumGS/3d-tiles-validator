@@ -15,6 +15,8 @@ import { BinaryValidationIssues } from "../issues/BinaryValidationIssues";
 /**
  * A class that can perform validation of CMPT data that is
  * given as a Buffer.
+ * 
+ * @internal
  */
 export class CmptValidator implements Validator<Buffer> {
   async validateObject(

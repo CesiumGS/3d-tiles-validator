@@ -13,6 +13,8 @@ const validator = require("gltf-validator");
  * A thin wrapper around the `gltf-validator`, implementing the
  * `Validator` interface for glTF- and GLB data that is given
  * in a Buffer.
+ * 
+ * @internal
  */
 export class GltfValidator implements Validator<Buffer> {
   /**

@@ -9,6 +9,8 @@ import { ContentDataTypes } from "./ContentDataTypes";
  * in a `ValidationOptions` object, and determine
  * whether (and how) certain validation steps should
  * be performed.
+ * 
+ * @internal
  */
 export class ValidationOptionChecks {
   /**

@@ -23,6 +23,7 @@ import { ValidationResult } from "./ValidationResult";
  * of the validator (for example, whether external resources should
  * be validated) are stored in a `ValidationOptions` object.
  *
+ * @internal
  */
 export class ValidationContext {
   /**
