@@ -49,6 +49,9 @@ export class Validators {
    * returns a promise to the `ValidationResult`.
    *
    * @param filePath - The file path
+   * @param validationOptions - The `ValidationOptions`. When this
+   * is not given (or `undefined`), then default validation options
+   * will be used. See {@link ValidationOptions}.
    * @returns A promise to a `ValidationResult` that is fulfilled when
    * the validation finished.
    * @beta

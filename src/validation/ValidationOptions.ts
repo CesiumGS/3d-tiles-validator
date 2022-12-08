@@ -2,8 +2,9 @@
  * A class describing the options for a validator within
  * a `ValidationContext`
  *
- * TODO This is preliminary. The exact options will have to
- * be sorted out as we go.
+ * Note: Some aspects of this class are preliminary. The exact
+ * options and their representation in this class may still
+ * change.
  *
  * @beta
  */
@@ -19,7 +20,13 @@ export class ValidationOptions {
   private _validatedContentTypes: string[] | undefined;
 
   /**
-   * Default constructor
+   * Default constructor.
+   * 
+   * The default options will be:
+   * 
+   * - `validateContentData = true`, causing content data to be validated
+   * - `validatedContentTypes = undefined`, causing ALL known content 
+   *    types to be considered in the validation.
    */
   constructor() {
     this._validateContentData = true;
