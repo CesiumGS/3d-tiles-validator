@@ -38,6 +38,9 @@ export class ContentDataValidators {
   /**
    * Whether the default content data validators have already
    * been registered by calling 'registerDefaults'
+   *
+   * Note: This could be solved with a static initializer block, but the
+   * unclear initialization order of the classes would make this brittle
    */
   private static _registeredDefaults = false;
 

@@ -28,8 +28,11 @@ import { BoundingVolumeS2Validator } from "./extensions/BoundingVolumeS2Validato
  */
 export class Validators {
   /**
-   * Whether the know extension validators have already been registered
+   * Whether the knows extension validators have already been registered
    * by calling `registerExtensionValidators`.
+   *
+   * Note: This could be solved with a static initializer block, but the
+   * unclear initialization order of the classes would make this brittle
    */
   private static _registeredExtensionValidators = false;
 
