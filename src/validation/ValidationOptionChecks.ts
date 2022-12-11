@@ -28,14 +28,20 @@ export class ValidationOptionChecks {
     if (!options.validateContentData) {
       return false;
     }
-    const types = options.validatedContentTypes;
-    if (!defined(types)) {
-      return true;
-    }
     const name = await ContentDataTypes.nameFor(contentData);
     if (!defined(name)) {
       return false;
     }
-    return types!.includes(name!);
+    let isIncluded = true;
+    let isExcluded = false;
+    const included = options.includeContentTypes;
+    if (defined(included)) {
+      isIncluded = included!.includes(name!);
+    }
+    const excluded = options.excludeContentTypes;
+    if (defined(excluded)) {
+      isExcluded = excluded!.includes(name!);
+    }
+    return isIncluded && !isExcluded;
   }
 }

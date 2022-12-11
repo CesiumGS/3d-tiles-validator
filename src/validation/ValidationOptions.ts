@@ -15,9 +15,14 @@ export class ValidationOptions {
   private _validateContentData: boolean;
 
   /**
-   * The validated content types.
+   * The content types that are included in the validation.
    */
-  private _validatedContentTypes: string[] | undefined;
+  private _includeContentTypes: string[] | undefined;
+
+  /**
+   * The content types that are included in the validation.
+   */
+  private _excludeContentTypes: string[] | undefined;
 
   /**
    * Default constructor.
@@ -25,12 +30,14 @@ export class ValidationOptions {
    * The default options will be:
    *
    * - `validateContentData = true`, causing content data to be validated
-   * - `validatedContentTypes = undefined`, causing ALL known content
-   *    types to be considered in the validation.
+   * - `includeContentTypes = undefined`, causing ALL known content
+   *    types to be included in the validation.
+   * - `excludeContentTypes = undefined`, causing NO known content
+   *    types to be excluded the validation.
    */
   constructor() {
     this._validateContentData = true;
-    this._validatedContentTypes = undefined;
+    this._includeContentTypes = undefined;
   }
 
   /**
@@ -47,7 +54,7 @@ export class ValidationOptions {
   }
 
   /**
-   * The content types that should be validated.
+   * The content types that should be included.
    *
    * This is an array containing any of the following content
    * type descriptors:
@@ -75,16 +82,47 @@ export class ValidationOptions {
    * - `CONTENT_TYPE_GEOJSON` (Not validated yet)
    *
    * If this is `undefined`, then ALL known content types
-   * will be considered. Note that this may mean that
+   * will be included. Note that this may mean that
    * encountering certain content types will cause a
    * validation warning when the content type validation
    * is not implemented.
    */
-  get validatedContentTypes(): string[] | undefined {
-    return this._validatedContentTypes;
+  get includeContentTypes(): string[] | undefined {
+    return this._includeContentTypes;
   }
 
-  set validatedContentTypes(value: string[] | undefined) {
-    this._validatedContentTypes = value;
+  set includeContentTypes(value: string[] | undefined) {
+    this._includeContentTypes = value;
+  }
+
+  /**
+   * The content types that should be excluded.
+   *
+   * See `includeContentTypes` for details.
+   *
+   * If this is `undefined`, then NO known content type
+   * will be excluded.
+   */
+  get excludeContentTypes(): string[] | undefined {
+    return this._excludeContentTypes;
+  }
+
+  set excludeContentTypes(value: string[] | undefined) {
+    this._excludeContentTypes = value;
+  }
+
+  /**
+   * Creates a new `ValidationOptions` object where each property is
+   * initialized from the given JSON object.
+   *
+   * @param json - The input JSON object
+   * @returns The validation options
+   */
+  static fromJson(json: any): ValidationOptions {
+    const options: ValidationOptions = Object.assign(
+      new ValidationOptions(),
+      json
+    );
+    return options;
   }
 }
