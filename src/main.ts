@@ -54,6 +54,11 @@ const args = yargs(process.argv.slice(1))
       alias: "c",
       describe: "(Internal) The configuration file for the validator run",
     },
+    optionsFile: {
+      type: "string",
+      alias: "o",
+      describe: "(Internal) The options file for the validation process",
+    },
     reportFile: {
       type: "string",
       describe:
@@ -72,80 +77,41 @@ const args = yargs(process.argv.slice(1))
 const argv = args.argv;
 
 /**
- * If a `reportFile` was specified in the command line arguments,
- * then this is returned.
- *
- * Otherwise, if `writeReports` was specified, a report file
- * name is derived from the given file name and returned
- * (with the details about this name being unspecified for now).
- *
- * Otherwise, `undefined` is returned.
- *
- * @param inputFileName - The input file name
- * @returns The report file name, or `undefined`
- */
-function obtainReportFileName(inputFileName: string): string | undefined {
-  if (argv.reportFile) {
-    return argv.reportFile;
-  }
-  if (argv.writeReports) {
-    return ValidatorMain.deriveReportFileName(inputFileName);
-  }
-  return undefined;
-}
-
-/**
- * When a `configFile` argument was given, then this will read the config
- * file and perform the validation run according to this file.
+ * Read the specified options file and return the `ValidationOptions`.
+ * If the file cannot be read, a warning will be printed and
+ * default validation options will be returned.
  *
  * @param configFile - The name of the config file
+ * @returns The `ValidationOptions`.
  */
-async function processConfigFile(configFile: string) {
-  const validationConfig = await readJsonUnchecked(configFile);
-  const validationOptions: ValidationOptions = validationConfig.options;
-
-  const tilesetsDirectory = validationConfig.tilesetsDirectory;
-  const tilesetGlobPattern = defaultValue(
-    validationConfig.tilesetGlobPattern,
-    "**/*tileset*.json"
+async function readOptionsFile(
+  optionsFile: string
+): Promise<ValidationOptions> {
+  const validationOptions: ValidationOptions = await readJsonUnchecked(
+    optionsFile
   );
-  const writeReports = validationConfig.writeReports;
-
-  if (tilesetsDirectory) {
-    ValidatorMain.validateTilesetsDirectory(
-      tilesetsDirectory,
-      tilesetGlobPattern,
-      writeReports,
-      validationOptions
-    );
+  if (!validationOptions) {
+    return new ValidationOptions();
   }
+  return validationOptions;
 }
 
-if (argv.configFile) {
-  processConfigFile(argv.configFile);
-} else if (argv.tilesetFile) {
-  const reportFileName = obtainReportFileName(argv.tilesetFile);
-  ValidatorMain.validateTilesetFile(
-    argv.tilesetFile,
-    reportFileName,
-    undefined
-  );
-} else if (argv.tilesetsDirectory) {
-  ValidatorMain.validateTilesetsDirectory(
-    argv.tilesetsDirectory,
-    argv.tilesetGlobPattern,
-    argv.writeReports,
-    undefined
-  );
-} else if (argv.metadataSchemaFile) {
-  const reportFileName = obtainReportFileName(argv.metadataSchemaFile);
-  ValidatorMain.validateSchemaFile(argv.metadataSchemaFile, reportFileName);
-} else if (argv.tilesetSpecs) {
-  ValidatorMain.validateAllTilesetSpecFiles(argv.writeReports);
-} else if (argv.metadataSchemaSpecs) {
-  ValidatorMain.validateAllMetadataSchemaSpecFiles(argv.writeReports);
-} else if (argv.subtreeSpecs) {
-  ValidatorMain.validateAllSubtreeSpecFiles(argv.writeReports);
-} else {
-  args.showHelp();
+async function main() {
+  const config = {
+    options: new ValidationOptions(),
+  };
+  if (argv.configFile) {
+    const config = await readJsonUnchecked(argv.configFile);
+    if (!config) {
+      return;
+    }
+  } else {
+    Object.assign(config, argv);
+  }
+  if (argv.optionsFile) {
+    config.options = await readOptionsFile(argv.optionsFile);
+  }
+  ValidatorMain.performValidation(config);
 }
+
+main();

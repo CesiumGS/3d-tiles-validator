@@ -13,6 +13,7 @@ import { ValidationOptions } from "./validation/ValidationOptions";
 
 import { TileImplicitTiling } from "./structure/TileImplicitTiling";
 import { Schema } from "./structure/Metadata/Schema";
+import { defaultValue } from "./base/defaultValue";
 
 /**
  * A class summarizing the command-line functions of the validator.
@@ -24,6 +25,81 @@ import { Schema } from "./structure/Metadata/Schema";
  */
 export class ValidatorMain {
   static readonly specsDataRootDir = "specs/data/";
+
+  /**
+   * Performs a run of the validator, using the given configuration settings.
+   *
+   * The configuration may contain properties that match the (long form
+   * of the) command line arguments, as well as an `options: ValidationOptions`
+   * object (using default options if none are given).
+   *
+   * @param config - The configuration for the validator run
+   */
+  static async performValidation(config: any) {
+    const validationOptions = defaultValue(config, new ValidationOptions());
+    if (config.tilesetFile) {
+      const reportFileName = ValidatorMain.obtainReportFileName(
+        config,
+        config.tilesetFile
+      );
+      await ValidatorMain.validateTilesetFile(
+        config.tilesetFile,
+        reportFileName,
+        validationOptions
+      );
+    } else if (config.tilesetsDirectory) {
+      await ValidatorMain.validateTilesetsDirectory(
+        config.tilesetsDirectory,
+        config.tilesetGlobPattern,
+        config.writeReports,
+        validationOptions
+      );
+    } else if (config.metadataSchemaFile) {
+      const reportFileName = ValidatorMain.obtainReportFileName(
+        config,
+        config.metadataSchemaFile
+      );
+      await ValidatorMain.validateSchemaFile(
+        config.metadataSchemaFile,
+        reportFileName
+      );
+    } else if (config.tilesetSpecs) {
+      await ValidatorMain.validateAllTilesetSpecFiles(config.writeReports);
+    } else if (config.metadataSchemaSpecs) {
+      await ValidatorMain.validateAllMetadataSchemaSpecFiles(
+        config.writeReports
+      );
+    } else if (config.subtreeSpecs) {
+      await ValidatorMain.validateAllSubtreeSpecFiles(config.writeReports);
+    }
+  }
+
+  /**
+   * If a `reportFile` was specified in the given configuration,
+   * then this is returned.
+   *
+   * Otherwise, if `writeReports` was specified, a report file
+   * name is derived from the given file name and returned
+   * (with the details about this name being unspecified for now).
+   *
+   * Otherwise, `undefined` is returned.
+   *
+   * @param config - The validation configuration
+   * @param inputFileName - The input file name
+   * @returns The report file name, or `undefined`
+   */
+  private static obtainReportFileName(
+    config: any,
+    inputFileName: string
+  ): string | undefined {
+    if (config.reportFile) {
+      return config.reportFile;
+    }
+    if (config.writeReports) {
+      return ValidatorMain.deriveReportFileName(inputFileName);
+    }
+    return undefined;
+  }
 
   static async validateTilesetFile(
     fileName: string,
@@ -82,10 +158,10 @@ export class ValidatorMain {
         numFilesWithInfos++;
       }
     }
-    console.log("Validated " + numFiles + " files");
-    console.log("    " + numFilesWithErrors + " files with errors");
-    console.log("    " + numFilesWithWarnings + " files with warnings");
-    console.log("    " + numFilesWithInfos + " files with infos");
+    console.log(`Validated ${numFiles} files`);
+    console.log(`    ${numFilesWithErrors} files with errors`);
+    console.log(`    ${numFilesWithWarnings} files with warnings`);
+    console.log(`    ${numFilesWithInfos} files with infos`);
   }
 
   static async validateSchemaFile(
