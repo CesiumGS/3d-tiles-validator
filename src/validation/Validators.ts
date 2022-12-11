@@ -69,11 +69,17 @@ export class Validators {
     const fileName = path.basename(filePath);
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
-    const resourceData = await resourceResolver.resolveData(fileName);
     const validator = Validators.createDefaultTilesetValidator();
     const context = new ValidationContext(resourceResolver, validationOptions);
-    const jsonString = resourceData ? resourceData.toString() : "";
-    await validator.validateJsonString(jsonString, context);
+    const resourceData = await resourceResolver.resolveData(fileName);
+    if (!defined(resourceData)) {
+      const message = `Could not read input file: ${filePath}`;
+      const issue = IoValidationIssues.IO_ERROR(filePath, message);
+      context.addIssue(issue);
+    } else {
+      const jsonString = resourceData!.toString();
+      await validator.validateJsonString(jsonString, context);
+    }
     return context.getResult();
   }
 
