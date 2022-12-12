@@ -12,7 +12,7 @@
     "license": [
       "MIT"
     ],
-    "version": "7.6.2",
+    "version": "8.0.1",
     "url": "https://www.npmjs.com/package/better-sqlite3"
   },
   {
@@ -20,7 +20,7 @@
     "license": [
       "Apache-2.0"
     ],
-    "version": "1.97.0",
+    "version": "1.100.0",
     "url": "https://www.npmjs.com/package/cesium"
   },
   {
@@ -36,7 +36,7 @@
     "license": [
       "ISC"
     ],
-    "version": "5.1.0",
+    "version": "5.1.1",
     "url": "https://www.npmjs.com/package/minimatch"
   },
   {
@@ -52,7 +52,7 @@
     "license": [
       "MIT"
     ],
-    "version": "17.5.1",
+    "version": "17.6.2",
     "url": "https://www.npmjs.com/package/yargs"
   },
   {
