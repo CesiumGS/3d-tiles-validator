@@ -100,10 +100,11 @@ async function main() {
     options: new ValidationOptions(),
   };
   if (argv.configFile) {
-    const config = await readJsonUnchecked(argv.configFile);
-    if (!config) {
+    const configFileData = await readJsonUnchecked(argv.configFile);
+    if (!configFileData) {
       return;
     }
+    Object.assign(config, configFileData);
   } else {
     Object.assign(config, argv);
   }
