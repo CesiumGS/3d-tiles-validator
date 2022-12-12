@@ -8,13 +8,12 @@ import { Iterables } from "./base/Iterables";
 
 import { ValidationState } from "./validation/ValidationState";
 import { Validators } from "./validation/Validators";
-import { ExtendedObjectsValidators } from "./validation/ExtendedObjectsValidators";
-
-import { BoundingVolumeS2Validator } from "./validation/extensions/BoundingVolumeS2Validator";
+import { ValidationResult } from "./validation/ValidationResult";
+import { ValidationOptions } from "./validation/ValidationOptions";
 
 import { TileImplicitTiling } from "./structure/TileImplicitTiling";
 import { Schema } from "./structure/Metadata/Schema";
-import { ValidationResult } from "./validation/ValidationResult";
+import { defaultValue } from "./base/defaultValue";
 
 /**
  * A class summarizing the command-line functions of the validator.
@@ -27,12 +26,94 @@ import { ValidationResult } from "./validation/ValidationResult";
 export class ValidatorMain {
   static readonly specsDataRootDir = "specs/data/";
 
+  /**
+   * Performs a run of the validator, using the given configuration settings.
+   *
+   * The configuration may contain properties that match the (long form
+   * of the) command line arguments, as well as an `options: ValidationOptions`
+   * object (using default options if none are given).
+   *
+   * @param config - The configuration for the validator run
+   */
+  static async performValidation(config: any) {
+    const validationOptions = defaultValue(
+      config.options,
+      new ValidationOptions()
+    );
+    if (config.tilesetFile) {
+      const reportFileName = ValidatorMain.obtainReportFileName(
+        config,
+        config.tilesetFile
+      );
+      await ValidatorMain.validateTilesetFile(
+        config.tilesetFile,
+        reportFileName,
+        validationOptions
+      );
+    } else if (config.tilesetsDirectory) {
+      await ValidatorMain.validateTilesetsDirectory(
+        config.tilesetsDirectory,
+        config.tilesetGlobPattern,
+        config.writeReports,
+        validationOptions
+      );
+    } else if (config.metadataSchemaFile) {
+      const reportFileName = ValidatorMain.obtainReportFileName(
+        config,
+        config.metadataSchemaFile
+      );
+      await ValidatorMain.validateSchemaFile(
+        config.metadataSchemaFile,
+        reportFileName
+      );
+    } else if (config.tilesetSpecs) {
+      await ValidatorMain.validateAllTilesetSpecFiles(config.writeReports);
+    } else if (config.metadataSchemaSpecs) {
+      await ValidatorMain.validateAllMetadataSchemaSpecFiles(
+        config.writeReports
+      );
+    } else if (config.subtreeSpecs) {
+      await ValidatorMain.validateAllSubtreeSpecFiles(config.writeReports);
+    }
+  }
+
+  /**
+   * If a `reportFile` was specified in the given configuration,
+   * then this is returned.
+   *
+   * Otherwise, if `writeReports` was specified, a report file
+   * name is derived from the given file name and returned
+   * (with the details about this name being unspecified for now).
+   *
+   * Otherwise, `undefined` is returned.
+   *
+   * @param config - The validation configuration
+   * @param inputFileName - The input file name
+   * @returns The report file name, or `undefined`
+   */
+  private static obtainReportFileName(
+    config: any,
+    inputFileName: string
+  ): string | undefined {
+    if (config.reportFile) {
+      return config.reportFile;
+    }
+    if (config.writeReports) {
+      return ValidatorMain.deriveReportFileName(inputFileName);
+    }
+    return undefined;
+  }
+
   static async validateTilesetFile(
     fileName: string,
-    reportFileName: string | undefined
+    reportFileName: string | undefined,
+    options: ValidationOptions | undefined
   ): Promise<ValidationResult> {
     console.log("Validating tileset " + fileName);
-    const validationResult = await Validators.validateTilesetFile(fileName);
+    const validationResult = await Validators.validateTilesetFile(
+      fileName,
+      options
+    );
     if (defined(reportFileName)) {
       await writeUnchecked(reportFileName!, validationResult.serialize());
     } else {
@@ -45,7 +126,8 @@ export class ValidatorMain {
   static async validateTilesetsDirectory(
     directoryName: string,
     globPattern: string,
-    writeReports: boolean
+    writeReports: boolean,
+    options: ValidationOptions | undefined
   ): Promise<void> {
     console.log(
       "Validating tilesets from " + directoryName + " matching " + globPattern
@@ -65,7 +147,8 @@ export class ValidatorMain {
       }
       const validationResult = await ValidatorMain.validateTilesetFile(
         tilesetFile,
-        reportFileName
+        reportFileName,
+        options
       );
       numFiles++;
       if (validationResult.numErrors > 0) {
@@ -78,10 +161,10 @@ export class ValidatorMain {
         numFilesWithInfos++;
       }
     }
-    console.log("Validated " + numFiles + " files");
-    console.log("    " + numFilesWithErrors + " files with errors");
-    console.log("    " + numFilesWithWarnings + " files with warnings");
-    console.log("    " + numFilesWithInfos + " files with infos");
+    console.log(`Validated ${numFiles} files`);
+    console.log(`    ${numFilesWithErrors} files with errors`);
+    console.log(`    ${numFilesWithWarnings} files with warnings`);
+    console.log(`    ${numFilesWithInfos} files with infos`);
   }
 
   static async validateSchemaFile(
@@ -136,7 +219,11 @@ export class ValidatorMain {
       if (writeReports) {
         reportFileName = ValidatorMain.deriveReportFileName(specFile);
       }
-      await ValidatorMain.validateTilesetFile(specFile, reportFileName);
+      await ValidatorMain.validateTilesetFile(
+        specFile,
+        reportFileName,
+        undefined
+      );
     }
   }
 
@@ -216,34 +303,6 @@ export class ValidatorMain {
       implicitTiling,
       reportFileName
     );
-  }
-
-  /**
-   * Register the validators for known extensions
-   */
-  static registerExtensionValidators() {
-    // Register the validator for 3DTILES_bounding_volume_S2
-    {
-      const s2Validator = new BoundingVolumeS2Validator();
-      const override = true;
-      ExtendedObjectsValidators.register(
-        "3DTILES_bounding_volume_S2",
-        s2Validator,
-        override
-      );
-    }
-    // Register an empty validator for 3DTILES_content_gltf
-    // (The extension does not have any properties to be
-    // validated)
-    {
-      const emptyValidator = Validators.createEmptyValidator();
-      const override = false;
-      ExtendedObjectsValidators.register(
-        "3DTILES_content_gltf",
-        emptyValidator,
-        override
-      );
-    }
   }
 
   /**

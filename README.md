@@ -57,6 +57,65 @@ Alternatively, or when validating multiple files, the `writeReports` argument ca
 npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/ --writeReports
 ```
 
+### Option Files
+
+Options for the validation process can be specified in a file that is given via the `--optionsFile` argument: 
+```
+npx ts-node src/main.ts --optionsFile exampleOptions.json
+```
+The options represent the properties of the `ValidationOptions` class. For example, using the following `exampleOptions.json` file, then the validator will only validate the tileset JSON structure, but _no_ tile content data:
+```JSON
+{
+  "validateContentData": false,
+}
+```
+The following options will cause the validator to _include_ B3DM- and GLB files in the validation process, but ignore all other content types:
+```JSON
+{
+  "includeContentTypes": [ "CONTENT_TYPE_B3DM", "CONTENT_TYPE_GLB" ]
+}
+```
+The following options will cause the validator to _exclude_ tileset files (i.e. external tilesets) during the validation:
+```JSON
+{
+  "excludeContentTypes": [ "CONTENT_TYPE_TILESET" ]
+}
+```
+
+The options can also be part of a configuration file, as described in the next section.
+
+
+### Configuration Files
+
+The command line arguments for a validator run can be summarized in a configuration file that is given with the `--configFile` argument. For example, when running the validator with
+```
+npx ts-node src/main.ts --configFile exampleConfig.json
+```
+using the following `exampleConfig.json` file
+```JSON
+{
+  "tilesetsDirectory": "specs/data/tilesets",
+  "tilesetGlobPattern": "**/*.json"
+}
+```
+then the validator will validate all files in the given directory that match the given glob pattern.
+
+The configuration can also contain an `options` object. This object summarizes the validation options, as described in the [Option Files](#option-files) section. For example: 
+```JSON
+{
+  "tilesetsDirectory": "specs/data/tilesets",
+  "tilesetGlobPattern": "**/*.json",
+  "options": {
+    "includeContentTypes": [ "CONTENT_TYPE_B3DM", "CONTENT_TYPE_GLB" ]
+  }
+}
+```
+This will cause the validator to validate all JSON files in the specified directory, but only consider B3DM- and GLB tile content data during the validation.
+
+
+
+
+
 
 ## Library Usage
 
@@ -69,7 +128,7 @@ resultPromise.then((result) => {
   console.log(result.serialize());
 });
 ```
-The `Validators.validateTilesetFile` receives a file name, and returns a promise to the `ValidationResult`, which can then be printed to the console.
+The `Validators.validateTilesetFile` receives a file name, and returns a promise to the `ValidationResult`, which can then be printed to the console. The second (optional) parameter is a `ValidationOptions` object that summarizes the options for the validation process (also see [Option Files](#option-files)).
 
 ### Validaton Result Filtering
 

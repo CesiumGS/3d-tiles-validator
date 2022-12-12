@@ -3,19 +3,23 @@ import { defined } from "../base/defined";
 
 import { ResourceResolvers } from "../io/ResourceResolvers";
 
+import { Validator } from "./Validator";
 import { TilesetValidator } from "./TilesetValidator";
 import { ValidationContext } from "./ValidationContext";
 import { ValidationResult } from "./ValidationResult";
 import { SubtreeValidator } from "./SubtreeValidator";
 import { ValidationState } from "./ValidationState";
+import { ValidationOptions } from "./ValidationOptions";
+import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { SchemaValidator } from "./metadata/SchemaValidator";
 
-import { IoValidationIssues } from "../issues/IoValidationIssue";
-
 import { TileImplicitTiling } from "../structure/TileImplicitTiling";
-import { Validator } from "./Validator";
+
+import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
+
+import { BoundingVolumeS2Validator } from "./extensions/BoundingVolumeS2Validator";
 
 /**
  * Utility methods related to `Validator` instances.
@@ -23,6 +27,15 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
  * @beta
  */
 export class Validators {
+  /**
+   * Whether the knows extension validators have already been registered
+   * by calling `registerExtensionValidators`.
+   *
+   * Note: This could be solved with a static initializer block, but the
+   * unclear initialization order of the classes would make this brittle
+   */
+  private static _registeredExtensionValidators = false;
+
   /**
    * Creates a `TilesetValidator` with an unspecified default configuration.
    *
@@ -39,22 +52,34 @@ export class Validators {
    * returns a promise to the `ValidationResult`.
    *
    * @param filePath - The file path
+   * @param validationOptions - The `ValidationOptions`. When this
+   * is not given (or `undefined`), then default validation options
+   * will be used. See {@link ValidationOptions}.
    * @returns A promise to a `ValidationResult` that is fulfilled when
    * the validation finished.
    * @beta
    */
   static async validateTilesetFile(
-    filePath: string
+    filePath: string,
+    validationOptions?: ValidationOptions
   ): Promise<ValidationResult> {
+    Validators.registerExtensionValidators();
+
     const directory = path.dirname(filePath);
     const fileName = path.basename(filePath);
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
-    const resourceData = await resourceResolver.resolveData(fileName);
     const validator = Validators.createDefaultTilesetValidator();
-    const context = new ValidationContext(resourceResolver);
-    const jsonString = resourceData ? resourceData.toString() : "";
-    await validator.validateJsonString(jsonString, context);
+    const context = new ValidationContext(resourceResolver, validationOptions);
+    const resourceData = await resourceResolver.resolveData(fileName);
+    if (!defined(resourceData)) {
+      const message = `Could not read input file: ${filePath}`;
+      const issue = IoValidationIssues.IO_ERROR(filePath, message);
+      context.addIssue(issue);
+    } else {
+      const jsonString = resourceData!.toString();
+      await validator.validateJsonString(jsonString, context);
+    }
     return context.getResult();
   }
 
@@ -238,5 +263,39 @@ export class Validators {
         return true;
       },
     };
+  }
+
+  /**
+   * Register the validators for known extensions
+   */
+  private static registerExtensionValidators() {
+    if (Validators._registeredExtensionValidators) {
+      return;
+    }
+
+    // Register the validator for 3DTILES_bounding_volume_S2
+    {
+      const s2Validator = new BoundingVolumeS2Validator();
+      const override = true;
+      ExtendedObjectsValidators.register(
+        "3DTILES_bounding_volume_S2",
+        s2Validator,
+        override
+      );
+    }
+    // Register an empty validator for 3DTILES_content_gltf
+    // (The extension does not have any properties to be
+    // validated)
+    {
+      const emptyValidator = Validators.createEmptyValidator();
+      const override = false;
+      ExtendedObjectsValidators.register(
+        "3DTILES_content_gltf",
+        emptyValidator,
+        override
+      );
+    }
+
+    Validators._registeredExtensionValidators = true;
   }
 }

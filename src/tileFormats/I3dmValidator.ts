@@ -94,6 +94,8 @@ const featureTableSemantics = {
 /**
  * A class that can perform validation of I3DM data that is
  * given as a Buffer.
+ *
+ * @internal
  */
 export class I3dmValidator implements Validator<Buffer> {
   async validateObject(

@@ -1,11 +1,11 @@
 //eslint-disable-next-line
 const yargs = require("yargs/yargs");
 
-import { ContentDataValidators } from "./validation/ContentDataValidators";
-import { ValidatorMain } from "./ValidatorMain";
+import { readJsonUnchecked } from "./base/readJsonUnchecked";
 
-ValidatorMain.registerExtensionValidators();
-ContentDataValidators.registerDefaults();
+import { ValidationOptions } from "./validation/ValidationOptions";
+
+import { ValidatorMain } from "./ValidatorMain";
 
 const args = yargs(process.argv.slice(1))
   .help("help")
@@ -34,19 +34,29 @@ const args = yargs(process.argv.slice(1))
     metadataSchemaFile: {
       type: "string",
       alias: "m",
-      describe: "The metadata schema input file path",
+      describe: "(Internal) The metadata schema input file path",
     },
     tilesetSpecs: {
       type: "boolean",
-      describe: "Validate all tileset spec files",
+      describe: "(Internal) Validate all tileset spec files",
     },
     metadataSchemaSpecs: {
       type: "boolean",
-      describe: "Validate all metadata schema spec files",
+      describe: "(Internal) Validate all metadata schema spec files",
     },
     subtreeSpecs: {
       type: "boolean",
-      describe: "Validate all subtree spec files",
+      describe: "(Internal) Validate all subtree spec files",
+    },
+    configFile: {
+      type: "string",
+      alias: "c",
+      describe: "(Internal) The configuration file for the validator run",
+    },
+    optionsFile: {
+      type: "string",
+      alias: "o",
+      describe: "(Internal) The options file for the validation process",
     },
     reportFile: {
       type: "string",
@@ -66,46 +76,42 @@ const args = yargs(process.argv.slice(1))
 const argv = args.argv;
 
 /**
- * If a `reportFile` was specified in the command line arguments,
- * then this is returned.
+ * Read the specified options file and return the `ValidationOptions`.
+ * If the file cannot be read, a warning will be printed and
+ * default validation options will be returned.
  *
- * Otherwise, if `writeReports` was specified, a report file
- * name is derived from the given file name and returned
- * (with the details about this name being unspecified for now).
- *
- * Otherwise, `undefined` is returned.
- *
- * @param inputFileName - The input file name
- * @returns The report file name, or `undefined`
+ * @param configFile - The name of the config file
+ * @returns The `ValidationOptions`.
  */
-function obtainReportFileName(inputFileName: string): string | undefined {
-  if (argv.reportFile) {
-    return argv.reportFile;
+async function readOptionsFile(
+  optionsFile: string
+): Promise<ValidationOptions> {
+  const validationOptions: ValidationOptions = await readJsonUnchecked(
+    optionsFile
+  );
+  if (!validationOptions) {
+    return new ValidationOptions();
   }
-  if (argv.writeReports) {
-    return ValidatorMain.deriveReportFileName(inputFileName);
-  }
-  return undefined;
+  return validationOptions;
 }
 
-if (argv.tilesetFile) {
-  const reportFileName = obtainReportFileName(argv.tilesetFile);
-  ValidatorMain.validateTilesetFile(argv.tilesetFile, reportFileName);
-} else if (argv.tilesetsDirectory) {
-  ValidatorMain.validateTilesetsDirectory(
-    argv.tilesetsDirectory,
-    argv.tilesetGlobPattern,
-    argv.writeReports
-  );
-} else if (argv.metadataSchemaFile) {
-  const reportFileName = obtainReportFileName(argv.metadataSchemaFile);
-  ValidatorMain.validateSchemaFile(argv.metadataSchemaFile, reportFileName);
-} else if (argv.tilesetSpecs) {
-  ValidatorMain.validateAllTilesetSpecFiles(argv.writeReports);
-} else if (argv.metadataSchemaSpecs) {
-  ValidatorMain.validateAllMetadataSchemaSpecFiles(argv.writeReports);
-} else if (argv.subtreeSpecs) {
-  ValidatorMain.validateAllSubtreeSpecFiles(argv.writeReports);
-} else {
-  args.showHelp();
+async function main() {
+  const config = {
+    options: new ValidationOptions(),
+  };
+  if (argv.configFile) {
+    const configFileData = await readJsonUnchecked(argv.configFile);
+    if (!configFileData) {
+      return;
+    }
+    Object.assign(config, configFileData);
+  } else {
+    Object.assign(config, argv);
+  }
+  if (argv.optionsFile) {
+    config.options = await readOptionsFile(argv.optionsFile);
+  }
+  ValidatorMain.performValidation(config);
 }
+
+main();
