@@ -36,7 +36,10 @@ export class ValidatorMain {
    * @param config - The configuration for the validator run
    */
   static async performValidation(config: any) {
-    const validationOptions = defaultValue(config, new ValidationOptions());
+    const validationOptions = defaultValue(
+      config.options,
+      new ValidationOptions()
+    );
     if (config.tilesetFile) {
       const reportFileName = ValidatorMain.obtainReportFileName(
         config,
