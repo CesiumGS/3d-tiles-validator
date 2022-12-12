@@ -9,6 +9,7 @@ import { StatisticsClass } from "../structure/StatisticsClass";
 import { Schema } from "../structure/Metadata/Schema";
 
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
+import { defaultValue } from "cesium";
 
 /**
  * A class for validations related to `StatisticsClass` objects.
@@ -98,22 +99,45 @@ export class StatisticsClassValidator {
       // Each property name of the statistics class MUST be a
       // property name of the schema class
       const metadataClassPropertyNames = Object.keys(metadataClass.properties);
-      for (const statisticsClassPropetyName of Object.keys(statisticsClass)) {
-        if (!metadataClassPropertyNames.includes(statisticsClassPropetyName)) {
-          const message =
-            `Statistics class '${className}' contains a property name ` +
-            `'${statisticsClassPropetyName}', but the schema class does ` +
-            `not define this property`;
-          const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
-            classPath,
-            message
-          );
-          context.addIssue(issue);
-          result = false;
-        } else {
-          // TODO Validate the constraints for the statistics.class.property.
-          // This COULD include checks for (min>max). But first, it should
-          // check the types (e.g. that 'min' is only used for numeric types)
+
+      // The statistics class MUST have at least 1 property
+      const statisticsClassProperties = defaultValue(
+        statisticsClass.properties,
+        {}
+      );
+      if (
+        !BasicValidator.validateNumberOfProperties(
+          classPath,
+          "properties",
+          statisticsClassProperties,
+          1,
+          undefined,
+          context
+        )
+      ) {
+        result = false;
+      } else {
+        for (const statisticsClassPropetyName of Object.keys(
+          statisticsClassProperties
+        )) {
+          if (
+            !metadataClassPropertyNames.includes(statisticsClassPropetyName)
+          ) {
+            const message =
+              `Statistics class '${className}' contains a property name ` +
+              `'${statisticsClassPropetyName}', but the schema class does ` +
+              `not define this property`;
+            const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
+              classPath,
+              message
+            );
+            context.addIssue(issue);
+            result = false;
+          } else {
+            // TODO Validate the constraints for the statistics.class.property.
+            // This COULD include checks for (min>max). But first, it should
+            // check the types (e.g. that 'min' is only used for numeric types)
+          }
         }
       }
     }
