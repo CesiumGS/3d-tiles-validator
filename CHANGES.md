@@ -6,7 +6,7 @@ Version 0.2.0 - 2022-??-??
 - Fixed a bug where the content data was not validated when the validator was used as a library ([#248](https://github.com/CesiumGS/3d-tiles-validator/issues/248))
 - When a tileset input file did not exist, the validator generated a `JSON_PARSE_ERROR`. Now it generates an `IO_ERROR` (including the file path) instead.
 - Dependency updates:
-  - Updated `better-sqlite3` from `7.5.3` to `8.0.1` (for compatibility with Node 19)
+  - Updated `better-sqlite3` from `7.5.3` to `8.0.1` (for compatibility with Node 19 - see [#245](https://github.com/CesiumGS/3d-tiles-validator/issues/245))
   - Removed `jasmine-node` 
   - Removed `tsconfig/node16`
   - Reduced `engines.node` version from `>=16.0.0` to `>=14.0.0`
