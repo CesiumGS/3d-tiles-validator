@@ -1,6 +1,6 @@
 {
-  "asset": {
-    "version": "1.1"
+  "asset" : {
+    "version" : "1.1"
   },
   "schema": {
     "id": "EXAMPLE_ID",
@@ -15,20 +15,17 @@
       }
     }
   },
-  "geometricError": 2.0,
-  "root": {
-    "boundingVolume": {
-      "box": [0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5]
+  "geometricError" : 2.0,
+  "root" : {
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
     },
-    "geometricError": 1.0
+    "geometricError" : 1.0
   },
   "statistics": {
     "classes": {
       "exampleClass": {
-        "INVALID_PROPERTY_NAME": {
-          "min": 0.0,
-          "max": 10.0
-        }
+        "properties": {}
       }
     }
   }

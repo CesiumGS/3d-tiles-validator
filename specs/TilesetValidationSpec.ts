@@ -361,9 +361,17 @@ describe("Tileset validation", function () {
     expect(result.get(0).type).toEqual("NUMBER_OF_PROPERTIES_MISMATCH");
   });
 
-  it("detects issues in statisticsClassesPropertyNameInvalid", async function () {
+  it("detects issues in statisticsClassesPropertiesMinPropertiesMismatch", async function () {
     const result = await Validators.validateTilesetFile(
-      "specs/data/tilesets/statisticsClassesPropertyNameInvalid.json"
+      "specs/data/tilesets/statisticsClassesPropertiesMinPropertiesMismatch.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("NUMBER_OF_PROPERTIES_MISMATCH");
+  });
+
+  it("detects issues in statisticsClassesPropertiesPropertyNameInvalid", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/statisticsClassesPropertiesPropertyNameInvalid.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("IDENTIFIER_NOT_FOUND");
