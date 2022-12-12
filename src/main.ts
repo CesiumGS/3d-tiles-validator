@@ -1,7 +1,6 @@
 //eslint-disable-next-line
 const yargs = require("yargs/yargs");
 
-import { defaultValue } from "./base/defaultValue";
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
 
 import { ValidationOptions } from "./validation/ValidationOptions";
