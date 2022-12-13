@@ -42,10 +42,13 @@ export enum ValidationIssueSeverity {
 // @beta
 export class ValidationOptions {
     constructor();
+    get excludeContentTypes(): string[] | undefined;
+    set excludeContentTypes(value: string[] | undefined);
+    static fromJson(json: any): ValidationOptions;
+    get includeContentTypes(): string[] | undefined;
+    set includeContentTypes(value: string[] | undefined);
     get validateContentData(): boolean;
     set validateContentData(value: boolean);
-    get validatedContentTypes(): string[] | undefined;
-    set validatedContentTypes(value: string[] | undefined);
 }
 
 // @beta
