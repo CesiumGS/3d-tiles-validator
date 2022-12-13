@@ -1,9 +1,10 @@
 
 
-Version 0.2.0 - 2022-??-??
+Version 0.2.0 - 2022-12-13
 
 - Add support for validation options that allow to include/exclude certain content types for the validation. These options can either be given via the `--optionsFile` command line argument, or passed as an optional parameter to `Validators.validateTilesetFile`.
 - Fixed a bug where the content data was not validated when the validator was used as a library ([#248](https://github.com/CesiumGS/3d-tiles-validator/issues/248))
+- Fixed a bug that caused validation errors for `statistics.class` properties
 - When a tileset input file did not exist, the validator generated a `JSON_PARSE_ERROR`. Now it generates an `IO_ERROR` (including the file path) instead.
 - Dependency updates:
   - Updated `better-sqlite3` from `7.5.3` to `8.0.1` (for compatibility with Node 19 - see [#245](https://github.com/CesiumGS/3d-tiles-validator/issues/245))
