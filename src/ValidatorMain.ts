@@ -33,9 +33,10 @@ export class ValidatorMain {
    * of the) command line arguments, as well as an `options: ValidationOptions`
    * object (using default options if none are given).
    *
+   * @param args - The command line arguments (the `yargs` instance)
    * @param config - The configuration for the validator run
    */
-  static async performValidation(config: any) {
+  static async performValidation(args: any, config: any) {
     const validationOptions = defaultValue(
       config.options,
       new ValidationOptions()
@@ -74,6 +75,8 @@ export class ValidatorMain {
       );
     } else if (config.subtreeSpecs) {
       await ValidatorMain.validateAllSubtreeSpecFiles(config.writeReports);
+    } else {
+      args.showHelp();
     }
   }
 
