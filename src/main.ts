@@ -31,9 +31,33 @@ const args = yargs(process.argv.slice(1))
       describe:
         "The glob pattern for matching tileset input files from directories",
     },
+    reportFile: {
+      type: "string",
+      alias: "r",
+      describe:
+        "The name of the file where the report of a single " +
+        "validated input file should be written",
+    },
+    writeReports: {
+      type: "boolean",
+      alias: "w",
+      describe:
+        "Write one report file for each validated file. The file name " +
+        "of the report will be derived from the input file name, " +
+        "and be written into the same directory as the input file.",
+    },
+    optionsFile: {
+      type: "string",
+      alias: "o",
+      describe: "The options file for the validation process",
+    },
+    configFile: {
+      type: "string",
+      alias: "c",
+      describe: "The configuration file for the validator run",
+    },
     metadataSchemaFile: {
       type: "string",
-      alias: "m",
       describe: "(Internal) The metadata schema input file path",
     },
     tilesetSpecs: {
@@ -47,29 +71,6 @@ const args = yargs(process.argv.slice(1))
     subtreeSpecs: {
       type: "boolean",
       describe: "(Internal) Validate all subtree spec files",
-    },
-    configFile: {
-      type: "string",
-      alias: "c",
-      describe: "(Internal) The configuration file for the validator run",
-    },
-    optionsFile: {
-      type: "string",
-      alias: "o",
-      describe: "(Internal) The options file for the validation process",
-    },
-    reportFile: {
-      type: "string",
-      describe:
-        "The name of the file where the report of a single " +
-        "validated input file should be written",
-    },
-    writeReports: {
-      type: "boolean",
-      describe:
-        "Write one report file for each validated file. The file name " +
-        "of the report will be derived from the input file name, " +
-        "and be written into the same directory as the input file.",
     },
   })
   .demandCommand();
@@ -111,7 +112,7 @@ async function main() {
   if (argv.optionsFile) {
     config.options = await readOptionsFile(argv.optionsFile);
   }
-  ValidatorMain.performValidation(config);
+  ValidatorMain.performValidation(args, config);
 }
 
 main();
