@@ -27,20 +27,28 @@ The 3D Tiles validator can be used to validate 3D Tiles tilesets and their assoc
   - This includes the validation of the JSON structure of the metadata, as well as the structure and ranges of metadata values, both for the JSON based representation and for the binary metadata that is stored in property tables
 - A basic validation of the [`3DTILES_bounding_volume_S2` extension](https://github.com/CesiumGS/3d-tiles/tree/main/extensions/3DTILES_bounding_volume_S2)
 
+## Installation
+
+In order to install the validator locally into a directory, run
+```
+npm install 3d-tiles-validator
+```
+(If you want to work directly with a clone of the Git repository, see [Developer Setup](#developer-setup))
+
 ## Command Line Usage
 
 #### Validate a single tileset file
 ```
-npx ts-node src/main.ts --tilesetFile specs/data/Samples/TilesetWithFullMetadata/tileset.json
+npx 3d-tiles-validator --tilesetFile specs/data/Samples/SparseImplicitQuadtree/tileset.json
 ```
 
 #### Validate a set of tileset files
 ```
-npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/
+npx 3d-tiles-validator --tilesetsDirectory specs/data/Samples/
 ```
 This will validate all tileset files in the given directory and all its subdirectories. The tileset files are identified by matching the file name against the glob pattern `**/*tileset*.json`. The pattern can be configured with the `tilesetGlobPattern` parameter. For example, in order to treat all .json files as tileset files:
 ```
-npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/ --tilesetGlobPattern **/*.json
+npx 3d-tiles-validator --tilesetsDirectory specs/data/Samples/ --tilesetGlobPattern **/*.json
 ```
 
 ### Report Files
@@ -49,19 +57,19 @@ By default, validation reports are printed to the console.
 
 When validating a single file, then the `reportFile` argument can be used to specify the output file for the validation report. For example:
 ```
-npx ts-node src/main.ts --tilesetFile specs/data/Samples/TilesetWithFullMetadata/tileset.json --reportFile MY_REPORT.json
+npx 3d-tiles-validator --tilesetFile specs/data/Samples/TilesetWithFullMetadata/tileset.json --reportFile MY_REPORT.json
 ```
 
 Alternatively, or when validating multiple files, the `writeReports` argument can be used to write report files into the same directory as the input files. The name of the report file will be derived from the input file name. 
 ```
-npx ts-node src/main.ts --tilesetsDirectory specs/data/Samples/ --writeReports
+npx 3d-tiles-validator --tilesetsDirectory specs/data/Samples/ --writeReports
 ```
 
 ### Option Files
 
 Options for the validation process can be specified in a file that is given via the `--optionsFile` argument: 
 ```
-npx ts-node src/main.ts --optionsFile exampleOptions.json
+npx 3d-tiles-validator --optionsFile exampleOptions.json
 ```
 The options represent the properties of the `ValidationOptions` class. For example, using the following `exampleOptions.json` file, then the validator will only validate the tileset JSON structure, but _no_ tile content data:
 ```JSON
@@ -89,7 +97,7 @@ The options can also be part of a configuration file, as described in the next s
 
 The command line arguments for a validator run can be summarized in a configuration file that is given with the `--configFile` argument. For example, when running the validator with
 ```
-npx ts-node src/main.ts --configFile exampleConfig.json
+npx 3d-tiles-validator --configFile exampleConfig.json
 ```
 using the following `exampleConfig.json` file
 ```JSON
@@ -114,7 +122,27 @@ This will cause the validator to validate all JSON files in the specified direct
 
 
 
+## Developer Setup
 
+When the validator is not installed as a package from NPM, but supposed to be used directly in a cloned repository, then the command line usage is as follows:
+
+- Clone the repository into the current directory:
+  ```
+  git clone https://github.com/cesiumgs/3d-tiles-validator
+  ```
+- Change into the directory of the cloned repository:
+  ```
+  cd 3d-tiles-validator
+  ```
+- Install the validator and all its dependencies:
+  ```
+  npm install
+  ```
+
+After this, `ts-node` can be used to directly execute the validator, using the same command line options as described above - for example, to validate a single tileset file:
+```
+npx ts-node src/main.ts --tilesetFile specs/data/Samples/SparseImplicitQuadtree/tileset.json
+```
 
 
 ## Library Usage
@@ -140,7 +168,7 @@ For example, a given validation result can be filtered to
 
 An example of applying such a filter to a given validation result is shown here:
 ```JavaScript
-const { Validators, ValidationIssueFilters } = require("3d-tiles-validator");
+const { Validators, ValidationIssueFilters, ValidationIssueSeverity } = require("3d-tiles-validator");
 
 const resultPromise = Validators.validateTilesetFile("example.json");
 resultPromise.then((result) => {

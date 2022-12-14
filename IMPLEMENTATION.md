@@ -94,24 +94,21 @@ This API definition file is tracked with Git, so changes in this file should be 
 - Prepare the actual release:
   - Update `CHANGES.md`
   - Update the version number in `package.json`
-  - Make sure all unit tests pass 
-  - Update the `ThirdParty.json` with license information about third-party projects:
+
+- Generate the tarball for the release:  
   
-    `node generateThirdParty.js`
+  `npm run package` 
 
-- Run the TypeScript compiler to generate the build output:
-
-  `npm run build`
-
-- Generate the documentation:
-  
-  `npm run docs` 
-
-  The documentation will be written as markdown files into `build/docs`.
-
-- Generate the tarball of the project:
-  
-  `npm pack` 
+  This will run the required scripts from the `package.json`:
+    - Clean the build output folder
+    - Prepare the package: 
+      - Perform linting
+      - Check formatting
+      - Build (compile TypeScript to JavaScript)
+      - Run the unit tests
+      - Generate the documentation
+      - Update the third-party information
+    - Package the build output folder into a TAR file
 
 - Verify the contents of the resulting TAR file. If there are unwanted files, add these files to `.npmignore` and re-generate the tarball
 
