@@ -128,7 +128,7 @@ When the validator is not installed as a package from NPM, but supposed to be us
 
 - Clone the repository into the current directory:
   ```
-  git clone https://github.com/cesiumgs/3d-tiles-validator
+  git clone https://github.com/CesiumGS/3d-tiles-validator
   ```
 - Change into the directory of the cloned repository:
   ```
