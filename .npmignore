@@ -7,11 +7,13 @@
 /coverage
 /.nyc_output
 /.github
+/bin
 .eslintcache
 .eslintignore
 .eslintrc.json
 .gitignore
 .npmignore
+.nycrc
 .prettierrc.json
 .prettierignore
 tsconfig.json
