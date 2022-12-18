@@ -22,7 +22,7 @@ Parts of the current implementation may still change. This page is only a short 
 
 The classes in the `./src/validation` directory are the core classes for the 3D Tiles validation. 
 
-The entry point for the tileset validation is the `TilesetValidator` class:
+The entry point for the tileset validation is the `TilesetValidator` class. This class is not publicly visible, but it is the main class that is used in the public `Validators.validateTilesetFile` method. The validation process, as it is implemented in the `TilesetValidator`, is:
 
 - It receives a tileset JSON string and parses it into a `structure/Tileset.ts` object.
   - Note: These `structure/*` classes are "plain objects". The do not have methods, and no real type checking. They _only_ hold the parsed data.
@@ -121,3 +121,24 @@ This API definition file is tracked with Git, so changes in this file should be 
 - Publish the package:
   
   `npm publish`
+
+
+### Build Scripts
+
+The build scripts that are used for the release process are documented with `about:`_`<step>`_ in the `package.json` file. Each of these comments indicates the goal and preconditions for running the respective step. The structure of these scripts is often organized hierarchically:
+
+- `docs`
+  - `build`
+  - `docs-generate`
+    - `docs-prepare-directory`
+    - `docs-extract-api`,
+    - `docs-generate-markdown`,
+
+ The intention is to make sure that each "top-level" (single-word) script can be executed without any preconditions (athough this pattern may not be applied for all steps). Intermediate steps can be executed manually or as part of other steps when it is ensured that the respective preconditions are met.
+
+The following `devDependencies` are *only* used for the implementation of the build process:
+
+- `mkdirp` - To generate the `etc` output directory for the API definition file (if it does not exist yet)
+- `del-cli` - To delete the contents of the `build` output folder
+- `copyfiles` - To copy the `bin/main` file to the build folder (see `bin/README.md` for details)
+
