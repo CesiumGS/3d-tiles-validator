@@ -18,7 +18,7 @@ function runPropertyTableModelTest(
       propertyValues,
       arrayOffsetType,
       stringOffsetType,
-      count
+      undefined
     );
   const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
   console.log("For " + name);
