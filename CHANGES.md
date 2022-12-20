@@ -1,4 +1,8 @@
 
+Version 0.3.0 - 2022-12-20
+
+- Updated the packaging so that the validator can more easily be executed as a command line tool after installing
+- Updated the scripts in `package.json` to simplify the packaging process
 
 Version 0.2.0 - 2022-12-13
 
