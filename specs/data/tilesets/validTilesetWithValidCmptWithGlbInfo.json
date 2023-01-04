@@ -9,7 +9,7 @@
     },
     "geometricError" : 1.0,
     "content": {
-      "uri": "tiles/cmpt/validWithGlbWarning.cmpt"
+      "uri": "tiles/cmpt/validWithGlbInfo.cmpt"
     }
   }
 }

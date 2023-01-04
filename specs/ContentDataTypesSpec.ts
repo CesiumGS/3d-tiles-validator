@@ -65,7 +65,7 @@ describe("ContentDataTypes", function () {
 
   it("detects CMPT", async function () {
     const contentUri =
-      "specs/data/tilesets/tiles/cmpt/validWithGlbWarning.cmpt";
+      "specs/data/tilesets/tiles/cmpt/validWithGlbInfo.cmpt";
     const resourceResolver = ResourceResolvers.createFileResourceResolver("");
     const c = new ContentData(contentUri, resourceResolver);
 

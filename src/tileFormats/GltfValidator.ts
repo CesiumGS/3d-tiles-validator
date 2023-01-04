@@ -36,7 +36,14 @@ export class GltfValidator implements Validator<Buffer> {
       );
       return issue;
     }
-    const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
+    if (gltfMessage.severity == 1) {
+      const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
+        path,
+        message
+      );
+      return issue;
+    }
+    const issue = ContentValidationIssues.CONTENT_VALIDATION_INFO(
       path,
       message
     );
@@ -113,6 +120,27 @@ export class GltfValidator implements Validator<Buffer> {
       }
       context.addIssue(issue);
     }
+
+    // If there are any infos, then summarize them in a
+    // CONTENT_VALIDATION_INFO, but still consider the
+    // object to be valid.
+    if (gltfResult.issues.numInfos > 0) {
+      const path = uri;
+      const message = `Content ${uri} caused validation infos`;
+      const issue = ContentValidationIssues.CONTENT_VALIDATION_INFO(
+        path,
+        message
+      );
+
+      for (const gltfMessage of gltfResult.issues.messages) {
+        //console.log(gltfMessage);
+        const cause =
+          GltfValidator.createValidationIssueFromGltfMessage(gltfMessage);
+        issue.addCause(cause);
+      }
+      context.addIssue(issue);
+    }
+
     return true;
   }
 }
