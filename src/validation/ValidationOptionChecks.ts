@@ -24,7 +24,7 @@ export class ValidationOptionChecks {
   static async shouldValidate(
     options: ValidationOptions,
     contentData: ContentData
-  ) : Promise<boolean> {
+  ): Promise<boolean> {
     if (!options.validateContentData) {
       return false;
     }
