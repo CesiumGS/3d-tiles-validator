@@ -82,7 +82,7 @@ export class ContentDataValidator {
     const resourceResolver = context.getResourceResolver();
 
     // Create the `ContentData` that summarizes all information
-    // that is requiring for determining the content type
+    // that is required for determining the content type
     const contentData = new ContentData(contentUri, resourceResolver);
 
     // Make sure that the content data can be resolved at all
