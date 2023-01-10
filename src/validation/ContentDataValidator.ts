@@ -82,8 +82,23 @@ export class ContentDataValidator {
     const resourceResolver = context.getResourceResolver();
 
     // Create the `ContentData` that summarizes all information
-    // that is requiring for determining the content type
+    // that is required for determining the content type
     const contentData = new ContentData(contentUri, resourceResolver);
+
+    // Make sure that the content data can be resolved at all
+    const data = await contentData.getData();
+    if (data === null) {
+      const path = contentPath;
+      const message =
+        `Tile content ${contentPath} refers to URI ${contentUri}, ` +
+        `which could not be resolved`;
+      const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
+        path,
+        message
+      );
+      context.addIssue(issue);
+      return false;
+    }
 
     // Check if the content data should be validated
     const options = context.getOptions();

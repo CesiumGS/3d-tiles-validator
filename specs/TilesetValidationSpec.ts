@@ -745,12 +745,12 @@ describe("Tileset validation", function () {
     expect(result.length).toEqual(0);
   });
 
-  it("detects issues in validTilesetWithValidCmptWithGlbWarning", async function () {
+  it("detects issues in validTilesetWithValidCmptWithGlbInfo", async function () {
     const result = await Validators.validateTilesetFile(
-      "specs/data/tilesets/validTilesetWithValidCmptWithGlbWarning.json"
+      "specs/data/tilesets/validTilesetWithValidCmptWithGlbInfo.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_WARNING");
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_INFO");
   });
 
   it("detects no issues in validTilesetWithInvalidI3dm", async function () {
