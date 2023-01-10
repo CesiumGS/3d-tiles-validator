@@ -103,7 +103,7 @@ export class B3dmValidator implements Validator<Buffer> {
     const featureTableBinary = binaryTableData!.featureTableBinary;
     const batchTableJson = binaryTableData!.batchTableJson;
     const batchTableBinary = binaryTableData!.batchTableBinary;
-    let glbData = binaryTableData!.glbData;
+    const glbData = binaryTableData!.glbData;
 
     const featuresLength = featureTableJson.BATCH_LENGTH;
     if (!defined(featuresLength)) {
@@ -147,15 +147,6 @@ export class B3dmValidator implements Validator<Buffer> {
       for (const extensionFound of extensionNames) {
         context.addExtensionFound(extensionFound);
       }
-    }
-
-    // The GLB data may include padding. Examine the integer value
-    // at bytes [8,12) from the GLB header (which contains the
-    // actual length), and restrict the GLB data to exclude
-    // possible padding bytes
-    if (glbData.length >= 12) {
-      const actualGlbLength = glbData.readInt32LE(8);
-      glbData = glbData.subarray(0, actualGlbLength);
     }
 
     const gltfValidator = new GltfValidator();

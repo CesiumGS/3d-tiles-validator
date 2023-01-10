@@ -5,6 +5,7 @@ import { ValidationContext } from "../validation/ValidationContext";
 import { ValidationIssue } from "../validation/ValidationIssue";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
+import { BinaryValidationIssues } from "../issues/BinaryValidationIssues";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const validator = require("gltf-validator");
@@ -50,15 +51,50 @@ export class GltfValidator implements Validator<Buffer> {
     return issue;
   }
 
+  /**
+   * The data that is given as the `input` to `validateObject` might
+   * contain padding bytes (for example, when it was extracted
+   * from a B3DM file).
+   *
+   * If the given input is GLB data, then this method will strip
+   * any padding bytes, by restricting the buffer to the length
+   * that was obtained from the GLB header.
+   *
+   * If the given data is not GLB data (for example, it might be
+   * glTF JSON data!), then the buffer is returned, unmodified.
+   *
+   * @param input - The buffer, including possible padding
+   * @returns The resulting buffer
+   */
+  private static stripPadding(input: Buffer): Buffer {
+    // Handle the cases that indicate that the data is
+    // not GLB data. These cases do actually indicate
+    // errors, but will be handled by the glTF validator.
+    if (input.length < 12) {
+      return input;
+    }
+    const magic = input.readInt32LE(0);
+    if (magic !== 0x46546c67) {
+      return input;
+    }
+    const length = input.readInt32LE(8);
+    if (length >= input.length) {
+      return input;
+    }
+    const inputWithoutPadding = input.subarray(0, length);
+    return inputWithoutPadding;
+  }
+
   async validateObject(
     uri: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
+    const inputWithoutPadding = GltfValidator.stripPadding(input);
     const resourceResolver = context.getResourceResolver();
     let gltfResult = undefined;
     try {
-      gltfResult = await validator.validateBytes(input, {
+      gltfResult = await validator.validateBytes(inputWithoutPadding, {
         uri: uri,
         externalResourceFunction: (gltfUri: string) => {
           const resolvedDataPromise = resourceResolver.resolveData(gltfUri);

@@ -146,7 +146,7 @@ export class I3dmValidator implements Validator<Buffer> {
     const featureTableBinary = binaryTableData!.featureTableBinary;
     const batchTableJson = binaryTableData!.batchTableJson;
     const batchTableBinary = binaryTableData!.batchTableBinary;
-    let glbData = binaryTableData!.glbData;
+    const glbData = binaryTableData!.glbData;
 
     let result = true;
 
@@ -255,15 +255,6 @@ export class I3dmValidator implements Validator<Buffer> {
 
     // If the GLB data was embdedded, validate it directly
     if (hasEmbeddedGlb) {
-      // The GLB data may include padding. Examine the integer value
-      // at bytes [8,12) from the GLB header (which contains the
-      // actual length), and restrict the GLB data to exclude
-      // possible padding bytes
-      if (glbData.length >= 12) {
-        const actualGlbLength = glbData.readInt32LE(8);
-        glbData = glbData.subarray(0, actualGlbLength);
-      }
-
       const gltfValidator = new GltfValidator();
       const gltfResult = await gltfValidator.validateObject(
         uri,
