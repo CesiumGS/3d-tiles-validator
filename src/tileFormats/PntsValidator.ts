@@ -230,10 +230,19 @@ export class PntsValidator implements Validator<Buffer> {
       result = false;
     }
 
+    // If the BATCH_ID semantic is defined, the Batch Table stores metadata
+    // for each batchId, and the length of the Batch Table arrays will
+    // equal BATCH_LENGTH. Otherwise, it will store per-point metadata,
+    // and the length will be POINTS_LENGTH.
+    let batchTableArraysLength = pointsLength;
+    if (defined(featureTableJson.BATCH_ID)) {
+      batchTableArraysLength = batchLength;
+    }
+
     const batchTableMessage = validateBatchTable(
       batchTableJson,
       batchTableBinary,
-      pointsLength
+      batchTableArraysLength
     );
     if (defined(batchTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
