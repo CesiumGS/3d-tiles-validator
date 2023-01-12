@@ -652,9 +652,18 @@ describe("Tileset validation", function () {
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
-  it("detects issues in tileTransformNonInvertible", async function () {
+  it("detects no issues in tileTransformNonInvertible", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/tileTransformNonInvertible.json"
+    );
+    // The matrix is not invertible, but it is affine.
+    // So this should not cause an issue.
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects issues in tileTransformNotAffine", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tileTransformNotAffine.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TRANSFORM_INVALID");
