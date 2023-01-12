@@ -3,6 +3,8 @@ import { BasicValidator } from "./BasicValidator";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
+import { Cartesian4 } from "cesium";
+import { Math } from "cesium";
 import { Matrix4 } from "cesium";
 
 /**
@@ -42,15 +44,18 @@ export class TransformValidator {
     }
     const matrix = Matrix4.fromArray(transform);
 
-    // At least check that the matrix is invertible here:
-    try {
-      Matrix4.inverse(matrix, TransformValidator.scratchMatrix4);
-    } catch (error) {
-      const message = `The transform is non-invertible: [${transform}]`;
+    // Check whether the matrix is affine, which means that the
+    // last row must be epsilon-equal to (0,0,0,1)
+    const row3 = new Cartesian4();
+    Matrix4.getRow(matrix, 3, row3);
+    const isAffine = row3.equalsEpsilon(Cartesian4.UNIT_W, Math.EPSILON8);
+    if (!isAffine) {
+      const message = `The transform is not affine: [${transform}]`;
       const issue = SemanticValidationIssues.TRANSFORM_INVALID(path, message);
       context.addIssue(issue);
       return false;
     }
+
     return true;
   }
 }
