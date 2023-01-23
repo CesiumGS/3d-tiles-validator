@@ -54,6 +54,9 @@ export class FileResourceResolver implements ResourceResolver {
       return null;
     }
     const resolved = this.resolveUri(uri);
+    if (!fs.existsSync(resolved)) {
+      return null;
+    }
     const data = fs.readFileSync(resolved);
     // See https://github.com/nodejs/node/issues/35351
     const actualData = data.buffer.slice(
