@@ -11,7 +11,7 @@ import { SubtreeValidator } from "./SubtreeValidator";
 import { ValidationState } from "./ValidationState";
 import { ValidationOptions } from "./ValidationOptions";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
-import { TilesetArchiveValidator } from "./TilesetArchiveValidator";
+import { TilesetPackageValidator } from "./TilesetPackageValidator";
 
 import { SchemaValidator } from "./metadata/SchemaValidator";
 
@@ -109,7 +109,7 @@ export class Validators {
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
     const context = new ValidationContext(resourceResolver, validationOptions);
-    await TilesetArchiveValidator.validateArchiveFile(filePath, context);
+    await TilesetPackageValidator.validatePackageFile(filePath, context);
     return context.getResult();
   }
 

@@ -6,7 +6,7 @@ import { ValidationContext } from "./ValidationContext";
 import { ContentData } from "./ContentData";
 import { ContentDataEntry } from "./ContentDataEntry";
 import { ContentDataTypes } from "./ContentDataTypes";
-import { TilesetArchiveValidator } from "./TilesetArchiveValidator";
+import { TilesetPackageValidator } from "./TilesetPackageValidator";
 
 import { B3dmValidator } from "../tileFormats/B3dmValidator";
 import { I3dmValidator } from "../tileFormats/I3dmValidator";
@@ -116,7 +116,7 @@ export class ContentDataValidators {
 
     ContentDataValidators.register(
       ContentDataTypes.CONTENT_TYPE_3TZ,
-      ContentDataValidators.createArchiveValidator()
+      ContentDataValidators.createPackageValidator()
     );
 
     ContentDataValidators.register(
@@ -132,16 +132,16 @@ export class ContentDataValidators {
   }
 
   /**
-   * Creates a validator for content data that refers to a 3TZ archive.
+   * Creates a validator for content data that refers to a 3TZ package.
    *
    * This takes the contentData.uri, resolves it (to obtain an absolute URI),
    * and assumes that this URI is a path in the local file system, which
-   * is then passed to the `TilesetArchiveValidator`
+   * is then passed to the `TilesetPackageValidator`
    *
    * @returns The validator
    */
-  private static createArchiveValidator(): Validator<ContentData> {
-    const archiveValidator = new TilesetArchiveValidator();
+  private static createPackageValidator(): Validator<ContentData> {
+    const packageValidator = new TilesetPackageValidator();
     const validator = {
       async validateObject(
         inputPath: string,
@@ -150,7 +150,7 @@ export class ContentDataValidators {
       ): Promise<boolean> {
         const resourceResolver = context.getResourceResolver();
         const resolvedUri = resourceResolver.resolveUri(input.uri);
-        const result = await archiveValidator.validateObject(
+        const result = await packageValidator.validateObject(
           inputPath,
           resolvedUri,
           context

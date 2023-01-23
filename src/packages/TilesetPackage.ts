@@ -1,21 +1,21 @@
 /**
- * An interface for a 3D Tiles tileset archive
+ * An interface for a 3D Tiles tileset package
  */
-export interface TilesetArchive {
+export interface TilesetPackage {
   /**
-   * Open an an archive from the given file or directory
+   * Open an a package from the given file or directory
    *
    * @param fullInputName - The full input file- or directory name
    *
-   * @throws {@link TilesetArchiveError} If the archive cannot be opened
+   * @throws {@link TilesetPackageError} If the package cannot be opened
    */
   open(fullInputName: string): void;
 
   /**
-   * Returns an iterable over all keys of this archive
+   * Returns an iterable over all keys of this package
    *
    * @returns The iterable
-   * @throws {@link TilesetArchiveError} If `open` was not called yet
+   * @throws {@link TilesetPackageError} If `open` was not called yet
    */
   getKeys(): IterableIterator<string>;
 
@@ -25,14 +25,14 @@ export interface TilesetArchive {
    * @param key - The key for the entry
    * @returns A buffer containing the data for the specified entry, or
    * `undefined` if there is no entry for the given key
-   * @throws {@link TilesetArchiveError} If `open` was not called yet
+   * @throws {@link TilesetPackageError} If `open` was not called yet
    */
   getEntry(key: string): Buffer | undefined;
 
   /**
-   * Close this archive
+   * Close this package
    *
-   * @throws {@link TilesetArchiveError} If `open` was not called yet
+   * @throws {@link TilesetPackageError} If `open` was not called yet
    */
   close(): void;
 }

@@ -5,36 +5,39 @@ import { Validators } from "./Validators";
 import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";
 
-import { ArchiveResourceResolver } from "../io/ArchiveResourceResolver";
+import { PackageResourceResolver } from "../io/PackageResourceResolver";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 
-import { TilesetArchive3tz } from "../archives/TilesetArchive3tz";
-import { ArchiveValidation3tz } from "../archives/ArchiveValidation3tz";
-import { TilesetArchive3dtiles } from "../archives/TilesetArchive3dtiles";
-import { TilesetArchiveFs } from "../archives/TilesetArchiveFs";
-import { TilesetArchive } from "../archives/TilesetArchive";
+import { TilesetPackage3tz } from "../packages/TilesetPackage3tz";
+import { TilesetPackage3dtiles } from "../packages/TilesetPackage3dtiles";
+import { TilesetPackageFs } from "../packages/TilesetPackageFs";
+import { TilesetPackage } from "../packages/TilesetPackage";
+import { ArchiveValidation3tz } from "../packages/ArchiveValidation3tz";
 
 /**
- * An implementation of a validator that validates a tileset
- * archive (or "tileset package", using the new naming)
+ * An implementation of a validator that validates a `TilesetPackage`.
  *
- * The validated type here is `string`, assuming that this
- * string is the 'resolvedUri' that points to a file in the
+ * The actual validation function is `validatePackageFile`.
+ *
+ * This class also implements the `Validator` interface, so that
+ * instances of it can be used when the tile content is a
+ * package. In this case, the validated type is `string`, where
+ * this string is the 'resolvedUri' that points to a file in the
  * local file system.
  *
  * @internal
  */
-export class TilesetArchiveValidator implements Validator<string> {
+export class TilesetPackageValidator implements Validator<string> {
   /**
    * Implementation of the `Validator` interface. This validates
    * the given 'resolvedUri' string, assuming that it is a full
-   * path to a tileset archive in the local file system.
+   * path to a tileset package in the local file system.
    *
-   * @param uri - The (usually relative) URI of the archive
+   * @param uri - The (usually relative) URI of the package
    * @param resolvedUri - The resolved URI, which is the full URI
-   * of the archive in the local file system.
+   * of the package in the local file system.
    * @param context - The `ValidationContext`
    * @returns A promise that is fulfilled when the validation is finished
    * and indicates whether the object was valid or not.
@@ -44,9 +47,9 @@ export class TilesetArchiveValidator implements Validator<string> {
     resolvedUri: string,
     context: ValidationContext
   ): Promise<boolean> {
-    //console.log("TilesetArchiveValidator resolvedUri is " + resolvedUri);
+    //console.log("TilesetPackageValidator resolvedUri is " + resolvedUri);
     const isContent = true;
-    const result = TilesetArchiveValidator.validateArchiveFileInternal(
+    const result = TilesetPackageValidator.validatePackageFileInternal(
       resolvedUri,
       isContent,
       context
@@ -59,14 +62,14 @@ export class TilesetArchiveValidator implements Validator<string> {
    * pointed to by the given URI (assuming that it is a file in
    * the local file system).
    *
-   * @param uri - The full URI of the archive file
+   * @param uri - The full URI of the package file
    * @param context - The `ValidationContext`
-   * @returns A promise that indicates whether the archive contained
+   * @returns A promise that indicates whether the package contained
    * a valid tileset.
    */
-  static async validateArchiveFile(uri: string, context: ValidationContext) {
+  static async validatePackageFile(uri: string, context: ValidationContext) {
     const isContent = false;
-    const result = TilesetArchiveValidator.validateArchiveFileInternal(
+    const result = TilesetPackageValidator.validatePackageFileInternal(
       uri,
       isContent,
       context
@@ -79,78 +82,76 @@ export class TilesetArchiveValidator implements Validator<string> {
    * pointed to by the given URI (assuming that it is a file in
    * the local file system).
    *
-   * @param uri - The full URI of the archive file
-   * @param isContent - Whether the given archive was found as a tile
+   * @param uri - The full URI of the package file
+   * @param isContent - Whether the given package was found as a tile
    * content. If this is the case, then the issues that are found
-   * in the archive will be summarized in a `CONTENT_VALIDATION_`
+   * in the package will be summarized in a `CONTENT_VALIDATION_`
    * issue. Otherwise, they will be added directly to the given context.
    * @param context - The `ValidationContext`
-   * @returns A promise that indicates whether the archive contained
+   * @returns A promise that indicates whether the package contained
    * a valid tileset.
    */
-  private static async validateArchiveFileInternal(
+  private static async validatePackageFileInternal(
     uri: string,
     isContent: boolean,
     context: ValidationContext
   ): Promise<boolean> {
-    // Create the archive from the given URI (i.e. the
-    // full archive file name). If the archive cannot
+    // Create the package from the given URI (i.e. the
+    // full package file name). If the package cannot
     // be opened, bail out with an IO_WARNING.
-    let archive = undefined;
-    let archive3tz = undefined;
+    let tilesetPackage = undefined;
     const extension = path.extname(uri).toLowerCase();
     if (extension === ".3tz") {
-      archive3tz = new TilesetArchive3tz();
-      archive = archive3tz;
+      tilesetPackage = new TilesetPackage3tz();
     } else if (extension === ".3dtiles") {
-      archive = new TilesetArchive3dtiles();
+      tilesetPackage = new TilesetPackage3dtiles();
     } else if (extension === "") {
-      archive = new TilesetArchiveFs();
+      tilesetPackage = new TilesetPackageFs();
     } else {
-      const message = `Could not create archive from ${uri}: No known file extension. `;
+      const message = `Could not create package from ${uri}: No known file extension. `;
       const issue = IoValidationIssues.IO_WARNING(uri, message);
       context.addIssue(issue);
       return true;
     }
-    archive.open(uri);
-    const result = await TilesetArchiveValidator.validateArchiveInternal(
+    tilesetPackage.open(uri);
+    const result = await TilesetPackageValidator.validatePackageInternal(
       uri,
-      archive,
+      tilesetPackage,
       isContent,
       context
     );
-    archive.close();
+    tilesetPackage.close();
     return result;
   }
 
   /**
-   * Validates the tileset that is contained in the given `TilesetArchive`.
+   * Validates the tileset that is contained in the given `TilesetPackage`.
    *
-   * The caller is responsible for calling 'open' on the archive before
+   * The caller is responsible for calling 'open' on the package before
    * passing it to this method, and 'close' after this method returns.
    *
-   * @param uri - The full URI of the archive file
-   * @param archive - The `TilesetArchive`
-   * @param isContent - Whether the given archive was found as a tile
+   * @param uri - The full URI of the package file
+   * @param tilesetPackage - The `TilesetPackage`
+   * @param isContent - Whether the given package was found as a tile
    * content. If this is the case, then the issues that are found
-   * in the archive will be summarized in a `CONTENT_VALIDATION_`
+   * in the package will be summarized in a `CONTENT_VALIDATION_`
    * issue. Otherwise, they will be added directly to the given context.
    * @param context - The `ValidationContext`
-   * @returns A promise that indicates whether the archive contained
+   * @returns A promise that indicates whether the package contained
    * a valid tileset.
    */
-  private static async validateArchiveInternal(
+  private static async validatePackageInternal(
     uri: string,
-    archive: TilesetArchive,
+    tilesetPackage: TilesetPackage,
     isContent: boolean,
     context: ValidationContext
   ): Promise<boolean> {
-    // If the archive is a 3TZ archive, then perform the extended
+    // If the package is a 3TZ package, then perform the extended
     // validation of the 3TZ index part, using the ("legacy") 3TZ
-    // archive validation
-    if (archive instanceof TilesetArchive3tz) {
-      const archive3tz = archive as TilesetArchive3tz;
-      const zipIndex = archive3tz.getZipIndex();
+    // package validation
+    if (tilesetPackage instanceof TilesetPackage3tz) {
+      const tilesetPackage3tz = tilesetPackage as TilesetPackage3tz;
+      const zipIndex = tilesetPackage3tz.getZipIndex();
       if (defined(zipIndex)) {
         try {
           const indexValid = await ArchiveValidation3tz.validateIndex(
@@ -165,7 +166,6 @@ export class TilesetArchiveValidator implements Validator<string> {
               message
             );
             context.addIssue(issue);
-            archive.close();
             return false;
           }
         } catch (error) {
@@ -180,19 +180,19 @@ export class TilesetArchiveValidator implements Validator<string> {
       }
     }
 
-    // Create the `ArchiveResourceResolver` from the archive,
+    // Create the `PackageResourceResolver` from the package,
     // and obtain the data for the `tileset.json` file.
     // This has to be present according to the 3TZ specification.
-    const archiveResourceResolver = new ArchiveResourceResolver(
+    const packageResourceResolver = new PackageResourceResolver(
       "./",
       uri,
-      archive
+      tilesetPackage
     );
-    const tilesetJsonBuffer = await archiveResourceResolver.resolveData(
+    const tilesetJsonBuffer = await packageResourceResolver.resolveData(
       "tileset.json"
     );
     if (!defined(tilesetJsonBuffer)) {
-      const message = `Could not read 'tileset.json' from archive ${uri}.`;
+      const message = `Could not read 'tileset.json' from package ${uri}.`;
       const issue = IoValidationIssues.IO_ERROR(uri, message);
       context.addIssue(issue);
       return false;
@@ -205,7 +205,7 @@ export class TilesetArchiveValidator implements Validator<string> {
     } catch (error) {
       const message =
         `Could not parse tileset JSON from 'tileset.json' ` +
-        `data in archive ${uri}.`;
+        `data in package ${uri}.`;
       const issue = IoValidationIssues.IO_ERROR(uri, message);
       context.addIssue(issue);
       return false;
@@ -215,7 +215,7 @@ export class TilesetArchiveValidator implements Validator<string> {
     // are caused by the tileset, and validate the
     // tileset using a default tileset validator.
     const derivedContext = context.deriveFromResourceResolver(
-      archiveResourceResolver
+      packageResourceResolver
     );
     const tilesetValidator = Validators.createDefaultTilesetValidator();
     const result = await tilesetValidator.validateObject(

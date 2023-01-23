@@ -5,14 +5,14 @@ import { relativizePath } from "./base/relativizePath";
 import fs from "fs";
 import path from "path";
 
-import { TilesetArchive } from "./TilesetArchive";
-import { TilesetArchiveError } from "./TilesetArchiveError";
+import { TilesetPackage } from "./TilesetPackage";
+import { TilesetPackageError } from "./TilesetPackageError";
 
 /**
- * Implementation of a TilesetArchive based on a directory
+ * Implementation of a TilesetPackage based on a directory
  * in a file system
  */
-export class TilesetArchiveFs implements TilesetArchive {
+export class TilesetPackageFs implements TilesetPackage {
   /**
    * The full name of the directory that contains the tileset.json file
    */
@@ -27,15 +27,15 @@ export class TilesetArchiveFs implements TilesetArchive {
 
   open(fullInputName: string) {
     if (defined(this.fullInputName)) {
-      throw new TilesetArchiveError("Archive already opened");
+      throw new TilesetPackageError("Package already opened");
     }
     this.fullInputName = fullInputName;
   }
 
   getKeys() {
     if (!defined(this.fullInputName)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'open' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'open' first."
       );
     }
     const files = Iterables.overFiles(this.fullInputName!, true);
@@ -46,8 +46,8 @@ export class TilesetArchiveFs implements TilesetArchive {
 
   getEntry(key: string) {
     if (!defined(this.fullInputName)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'open' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'open' first."
       );
     }
     const fullFileName = path.join(this.fullInputName!, key);
@@ -55,18 +55,13 @@ export class TilesetArchiveFs implements TilesetArchive {
       return undefined;
     }
     const data = fs.readFileSync(fullFileName);
-    // See https://github.com/nodejs/node/issues/35351
-    const actualData = data.buffer.slice(
-      data.byteOffset,
-      data.byteOffset + data.byteLength
-    );
-    return Buffer.from(actualData);
+    return data;
   }
 
   close() {
     if (!defined(this.fullInputName)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'open' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'open' first."
       );
     }
     this.fullInputName = undefined;

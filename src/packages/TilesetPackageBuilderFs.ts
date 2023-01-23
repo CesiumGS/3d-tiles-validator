@@ -3,14 +3,14 @@ import { defined } from "./base/defined";
 import fs from "fs";
 import path from "path";
 
-import { TilesetArchiveBuilder } from "./TilesetArchiveBuilder";
-import { TilesetArchiveError } from "./TilesetArchiveError";
+import { TilesetPackageBuilder } from "./TilesetPackageBuilder";
+import { TilesetPackageError } from "./TilesetPackageError";
 
 /**
- * Implementation of a TilesetArchiveBuilder that writes into
+ * Implementation of a TilesetPackageBuilder that writes into
  * a directory of a file system
  */
-export class TilesetArchiveBuilderFs implements TilesetArchiveBuilder {
+export class TilesetPackageBuilderFs implements TilesetPackageBuilder {
   /**
    * The name of the output directory
    */
@@ -32,7 +32,7 @@ export class TilesetArchiveBuilderFs implements TilesetArchiveBuilder {
 
   begin(fullOutputName: string, overwrite: boolean) {
     if (defined(this.fullOutputName)) {
-      throw new TilesetArchiveError("Archive already opened");
+      throw new TilesetPackageError("Package already opened");
     }
     this.fullOutputName = fullOutputName;
     this.overwrite = overwrite;
@@ -43,28 +43,27 @@ export class TilesetArchiveBuilderFs implements TilesetArchiveBuilder {
 
   addEntry(key: string, content: Buffer) {
     if (!defined(this.fullOutputName)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'begin' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'begin' first."
       );
     }
     const fullOutputFileName = path.join(this.fullOutputName!, key);
     if (fs.existsSync(fullOutputFileName)) {
       if (!this.overwrite) {
-        throw new TilesetArchiveError(
+        throw new TilesetPackageError(
           "File already exists: " + fullOutputFileName
         );
       }
     }
-    // TODO Check call:
-    // TODO Need mkdirSync if sub-path does not exist?
     // TODO Need to unlink if file exists?
+    fs.mkdirSync(path.dirname(fullOutputFileName), { recursive: true });
     fs.writeFileSync(fullOutputFileName, content);
   }
 
   async end() {
     if (!defined(this.fullOutputName)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'begin' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'begin' first."
       );
     }
     this.fullOutputName = undefined;
