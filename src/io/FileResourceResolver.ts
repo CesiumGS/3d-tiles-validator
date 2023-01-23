@@ -54,23 +54,13 @@ export class FileResourceResolver implements ResourceResolver {
       return null;
     }
     const resolved = this.resolveUri(uri);
-    // Using `readFileSync` directly causes a buffer to be returned
-    // that will appear to contain garbage data when it is used by
-    // the glTF-Validator. If anybody could explain to me why this
-    // does not work, that would be great.
-    //return fs.readFileSync(resolved);
-    //*/
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return new Promise((resolve, reject) => {
-      fs.readFile(resolved, (err: any, data: Buffer) => {
-        if (err) {
-          resolve(null);
-        } else {
-          resolve(data);
-        }
-      });
-    });
-    //*/
+    const data = fs.readFileSync(resolved);
+    // See https://github.com/nodejs/node/issues/35351
+    const actualData = data.buffer.slice(
+      data.byteOffset,
+      data.byteOffset + data.byteLength
+    );
+    return Buffer.from(actualData);
   }
   derive(uri: string): ResourceResolver {
     const resolved = path.join(this._basePath, decodeURIComponent(uri));

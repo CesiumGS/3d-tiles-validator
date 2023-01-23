@@ -55,7 +55,12 @@ export class TilesetArchiveFs implements TilesetArchive {
       return undefined;
     }
     const data = fs.readFileSync(fullFileName);
-    return data;
+    // See https://github.com/nodejs/node/issues/35351
+    const actualData = data.buffer.slice(
+      data.byteOffset,
+      data.byteOffset + data.byteLength
+    );
+    return Buffer.from(actualData);
   }
 
   close() {
