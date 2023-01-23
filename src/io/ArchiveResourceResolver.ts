@@ -38,7 +38,8 @@ export class ArchiveResourceResolver implements ResourceResolver {
     let archiveUri = path.join(this._basePath, uri);
     archiveUri = archiveUri.replace(/\\/g, "/");
     const entry = this._archive.getEntry(archiveUri);
-    // TODO Log message for experiment:
+    // TODO Log message for archive/package experiments, to be removed
+    // when the package functionality is finalized
     /*/
     console.log(
       "Resolving " +
@@ -48,7 +49,7 @@ export class ArchiveResourceResolver implements ResourceResolver {
         " from archive " +
         this._archiveFileName +
         " returns " +
-        (defined(entry) ? entry.length + " bytes" : "undefined")
+        (defined(entry) ? entry!.length + " bytes" : "undefined")
     );
     //*/
     if (!defined(entry)) {
