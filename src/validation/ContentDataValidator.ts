@@ -168,7 +168,7 @@ export class ContentDataValidator {
    *
    * When a certain content data type that requires an extension
    * is encountered, then the respective extension will be added
-   * as a "used" extension to the given context.
+   * as a "found" extension to the given context.
    *
    * @param contentData - The `ContentData`
    * @param context - The `ValidationContext`
