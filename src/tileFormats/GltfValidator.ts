@@ -5,7 +5,6 @@ import { ValidationContext } from "../validation/ValidationContext";
 import { ValidationIssue } from "../validation/ValidationIssue";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
-import { BinaryValidationIssues } from "../issues/BinaryValidationIssues";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const validator = require("gltf-validator");
@@ -155,12 +154,11 @@ export class GltfValidator implements Validator<Buffer> {
         issue.addCause(cause);
       }
       context.addIssue(issue);
-    }
+    } else if (gltfResult.issues.numInfos > 0) {
+      // If there are no warnings, but infos, then summarize them in a
+      // CONTENT_VALIDATION_INFO, but still consider the
+      // object to be valid.
 
-    // If there are any infos, then summarize them in a
-    // CONTENT_VALIDATION_INFO, but still consider the
-    // object to be valid.
-    if (gltfResult.issues.numInfos > 0) {
       const path = uri;
       const message = `Content ${uri} caused validation infos`;
       const issue = ContentValidationIssues.CONTENT_VALIDATION_INFO(
