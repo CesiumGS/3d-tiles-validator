@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs";
 import { defined } from "../base/defined";
 
 import { ResourceResolvers } from "../io/ResourceResolvers";
@@ -49,6 +50,44 @@ export class Validators {
   }
 
   /**
+   * Performs a default validation of the given tileset file, and
+   * returns a promise to the `ValidationResult`.
+   *
+   * The given file may be a `tileset.json` file, or a tileset
+   * package file, as incdicated by a `.3tz` or `.3dtiles` file
+   * extensions.
+   *
+   * @param filePath - The file path
+   * @param validationOptions - The `ValidationOptions`. When this
+   * is not given (or `undefined`), then default validation options
+   * will be used. See {@link ValidationOptions}.
+   * @returns A promise to a `ValidationResult` that is fulfilled when
+   * the validation finished.
+   * @beta
+   */
+  static async validateTilesetFile(
+    filePath: string,
+    validationOptions?: ValidationOptions
+  ): Promise<ValidationResult> {
+    const extension = path.extname(filePath).toLowerCase();
+    const isDirectory = fs.statSync(filePath).isDirectory();
+    const packageExtensions = [".3tz", ".3dtiles"];
+    const isPackage = packageExtensions.includes(extension);
+    if (isPackage || isDirectory) {
+      const validationResult = await Validators.validateTilesetPackageInternal(
+        filePath,
+        validationOptions
+      );
+      return validationResult;
+    }
+    const validationResult = await Validators.validateTilesetFileInternal(
+      filePath,
+      validationOptions
+    );
+    return validationResult;
+  }
+
+  /**
    * Performs a default validation of the given `tileset.json` file, and
    * returns a promise to the `ValidationResult`.
    *
@@ -60,7 +99,7 @@ export class Validators {
    * the validation finished.
    * @beta
    */
-  static async validateTilesetFile(
+  private static async validateTilesetFileInternal(
     filePath: string,
     validationOptions?: ValidationOptions
   ): Promise<ValidationResult> {
@@ -99,7 +138,7 @@ export class Validators {
    * the validation finished.
    * @beta
    */
-  static async validateTilesetPackage(
+  private static async validateTilesetPackageInternal(
     filePath: string,
     validationOptions?: ValidationOptions
   ): Promise<ValidationResult> {

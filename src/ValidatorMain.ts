@@ -1,5 +1,4 @@
 import path from "path";
-import fs from "fs";
 
 import { defined } from "./base/defined";
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
@@ -115,22 +114,10 @@ export class ValidatorMain {
   ): Promise<ValidationResult> {
     console.log("Validating tileset " + fileName);
 
-    const extension = path.extname(fileName).toLowerCase();
-    const isDirectory = fs.statSync(fileName).isDirectory();
-    const packageExtensions = [".3tz", ".3dtiles"];
-    const isPackage = packageExtensions.includes(extension);
-    let validationResult;
-    if (isPackage || isDirectory) {
-      validationResult = await Validators.validateTilesetPackage(
-        fileName,
-        options
-      );
-    } else {
-      validationResult = await Validators.validateTilesetFile(
-        fileName,
-        options
-      );
-    }
+    const validationResult = await Validators.validateTilesetFile(
+      fileName,
+      options
+    );
     if (defined(reportFileName)) {
       await writeUnchecked(reportFileName!, validationResult.serialize());
     } else {
