@@ -7,6 +7,7 @@ Version 0.4.0 - 2023-??-??
 - The `tile.transform` matrices had been checked to be invertible. Now they are checked to be affine ([#262](https://github.com/CesiumGS/3d-tiles-validator/issues/262)).
 - Fixed a bug where the validation of PNTS caused wrong validation issues for the batch table length for batched point clouds.
 - Added experimental support for validating tileset package files. The `--tilesetFile` that is given at the command line can now also be a 3TZ or 3DTILES file.
+- When input JSON files contained a Unicode BOM (Byte Order Mark), the validator reported a `JSON_PARSE_ERROR` without information about the reason for the parsing error. Now it reports an `IO_ERROR` with a helpful error message.
 
 Version 0.3.0 - 2022-12-20
 
