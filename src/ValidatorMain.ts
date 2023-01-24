@@ -113,6 +113,7 @@ export class ValidatorMain {
     options: ValidationOptions | undefined
   ): Promise<ValidationResult> {
     console.log("Validating tileset " + fileName);
+
     const validationResult = await Validators.validateTilesetFile(
       fileName,
       options

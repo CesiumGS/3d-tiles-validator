@@ -2,7 +2,7 @@ import { ResourceResolvers } from "../src/io/ResourceResolvers";
 import { ContentData } from "../src/validation/ContentData";
 import { ContentDataTypes } from "../src/validation/ContentDataTypes";
 
-// Note: One coudld consider to simplify these tests to
+// Note: One could consider to simplify these tests to
 // ContentDataTypes.nameFor(c) === expectedName,
 // but they EXPLICITLY check whether the content
 // type matches EXACTLY and ONLY the expected one

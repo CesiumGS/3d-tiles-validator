@@ -3,15 +3,15 @@ import { defined } from "./base/defined";
 import fs from "fs";
 import archiver from "archiver";
 
-import { TilesetArchiveBuilder } from "./TilesetArchiveBuilder";
+import { TilesetPackageBuilder } from "./TilesetPackageBuilder";
 import { IndexBuilder } from "./IndexBuilder";
-import { TilesetArchiveError } from "./TilesetArchiveError";
+import { TilesetPackageError } from "./TilesetPackageError";
 
 /**
- * Implementation of a TilesetArchiveBuilder that creates a
+ * Implementation of a TilesetPackageBuilder that creates a
  * 3TZ file.
  */
-export class TilesetArchiveBuilder3tz implements TilesetArchiveBuilder {
+export class TilesetPackageBuilder3tz implements TilesetPackageBuilder {
   /**
    * The stream that the data is written to
    */
@@ -24,7 +24,7 @@ export class TilesetArchiveBuilder3tz implements TilesetArchiveBuilder {
 
   /**
    * The index builder that will be used to generate
-   * the `"@3dtilesIndex1@"` file for the archive.
+   * the `"@3dtilesIndex1@"` file for the package.
    */
   private readonly indexBuilder;
 
@@ -42,11 +42,11 @@ export class TilesetArchiveBuilder3tz implements TilesetArchiveBuilder {
       if (overwrite) {
         fs.unlinkSync(fullOutputName);
       } else {
-        throw new TilesetArchiveError("File already exists: " + fullOutputName);
+        throw new TilesetPackageError("File already exists: " + fullOutputName);
       }
     }
     if (defined(this.archive)) {
-      throw new TilesetArchiveError("Archive already opened");
+      throw new TilesetPackageError("Package already opened");
     }
     this.outputStream = fs.createWriteStream(fullOutputName);
     this.archive = archiver("zip", {
@@ -56,17 +56,17 @@ export class TilesetArchiveBuilder3tz implements TilesetArchiveBuilder {
 
     // Logging and error handling for archiver:
     this.archive.on("warning", (error) => {
-      throw new TilesetArchiveError(`${error}`);
+      throw new TilesetPackageError(`${error}`);
     });
     this.archive.on("error", (error) => {
-      throw new TilesetArchiveError(`${error}`);
+      throw new TilesetPackageError(`${error}`);
     });
   }
 
   addEntry(key: string, content: Buffer) {
     if (!defined(this.archive)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'begin' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'begin' first."
       );
     }
     this.archive!.append(content, { name: key });
@@ -75,8 +75,8 @@ export class TilesetArchiveBuilder3tz implements TilesetArchiveBuilder {
 
   async end() {
     if (!defined(this.archive)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'begin' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'begin' first."
       );
     }
 

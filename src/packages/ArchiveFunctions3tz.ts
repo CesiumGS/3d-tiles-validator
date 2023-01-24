@@ -4,11 +4,12 @@ import crypto from "crypto";
 import { defined } from "./base/defined";
 
 import { IndexEntry } from "./IndexEntry";
-import { TilesetArchiveError } from "./TilesetArchiveError";
+import { TilesetPackageError } from "./TilesetPackageError";
 
 // NOTE: These functions are carved out and ported to TypeScript from
 // https://github.com/bjornblissing/3d-tiles-tools/blob/2f4844d5bdd704509bff65199898981228594aaa/validator/lib/archive.js
 // TODO: The given implementation does not handle hash collisions!
+// NOTE: Fixed an issue for ZIP64 inputs. See the part marked as "ZIP64_BUGFIX"
 
 interface ZipLocalFileHeader {
   signature: number;
@@ -60,9 +61,31 @@ export class ArchiveFunctions3tz {
     buffer: Buffer,
     expectedFilename: string
   ) {
-    const comp_size = buffer.readUInt32LE(20);
+    let comp_size = buffer.readUInt32LE(20);
     const filename_size = buffer.readUInt16LE(28);
     const extra_size = buffer.readUInt16LE(30);
+    const extrasStartOffset =
+      ArchiveFunctions3tz.ZIP_CENTRAL_DIRECTORY_STATIC_SIZE + filename_size;
+
+    // ZIP64_BUGFIX: If this size is found, then the size is
+    // stored in the extra field
+    if (comp_size === 0xffffffff) {
+      if (extra_size < 28) {
+        throw new TilesetPackageError("No zip64 extras buffer found");
+      }
+      // NOTE: The "ZIP64 header ID" might appear at a different position
+      // in the extras buffer, but I don't see a sensible way to
+      // differentiate between a 0x0001 appearing "randomly" as "some"
+      // value in the extras, and the value actually indicating a ZIP64
+      // header. So we look for it only at the start of the extras buffer:
+      const extra_tag = buffer.readUInt16LE(extrasStartOffset + 0);
+      if (
+        extra_tag !== ArchiveFunctions3tz.ZIP64_EXTENDED_INFORMATION_EXTRA_SIG
+      ) {
+        throw new TilesetPackageError("No zip64 extras signature found");
+      }
+      comp_size = Number(buffer.readBigUInt64LE(extrasStartOffset + 12));
+    }
 
     const filename = buffer.toString(
       "utf8",
@@ -70,12 +93,13 @@ export class ArchiveFunctions3tz {
       ArchiveFunctions3tz.ZIP_CENTRAL_DIRECTORY_STATIC_SIZE + filename_size
     );
     if (filename !== expectedFilename) {
-      throw new TilesetArchiveError(
+      throw new TilesetPackageError(
         `Central Directory File Header filename was ${filename}, expected ${expectedFilename}`
       );
     }
 
     let offset = buffer.readUInt32LE(42);
+    /*
     // if we get this offset, then the offset is stored in the 64 bit extra field
     if (offset === 0xffffffff) {
       let offset64Found = false;
@@ -100,8 +124,15 @@ export class ArchiveFunctions3tz {
         }
       }
       if (!offset64Found) {
-        throw new TilesetArchiveError("No zip64 extended offset found");
+        throw new TilesetPackageError("No zip64 extended offset found");
       }
+    }
+    */
+    // if we get this offset, then the offset is stored in the 64 bit extra field.
+    // The size and signature of the buffer have already been checked when the
+    // actual "comp_size" has been read.
+    if (offset === 0xffffffff) {
+      offset = Number(buffer.readBigUInt64LE(extrasStartOffset + 20));
     }
 
     const localFileDataSize =
@@ -126,7 +157,7 @@ export class ArchiveFunctions3tz {
       dataStartOffset + local_comp_size
     );
     if (fileDataBuffer.length === 0) {
-      throw new TilesetArchiveError(
+      throw new TilesetPackageError(
         `Failed to get file data at offset ${dataStartOffset}`
       );
     }
@@ -135,7 +166,7 @@ export class ArchiveFunctions3tz {
 
   private static parseIndexData(buffer: Buffer): IndexEntry[] {
     if (buffer.length % 24 !== 0) {
-      throw new TilesetArchiveError(
+      throw new TilesetPackageError(
         `Bad index buffer length: ${buffer.length}`
       );
     }
@@ -215,7 +246,7 @@ export class ArchiveFunctions3tz {
   ): ZipLocalFileHeader {
     const signature = buffer.readUInt32LE(0);
     if (signature !== 0x04034b50) {
-      throw new TilesetArchiveError(
+      throw new TilesetPackageError(
         `Bad local file header signature: 0x${signature.toString(16)}`
       );
     }
@@ -229,14 +260,14 @@ export class ArchiveFunctions3tz {
       ArchiveFunctions3tz.ZIP_LOCAL_FILE_HEADER_STATIC_SIZE + filename_size
     );
     if (filename !== expectedFilename) {
-      throw new TilesetArchiveError(
+      throw new TilesetPackageError(
         `Local File Header filename was ${filename}, expected ${expectedFilename}`
       );
     }
 
     const compressedSize = comp_size;
     if (compressedSize === 0) {
-      throw new TilesetArchiveError(
+      throw new TilesetPackageError(
         "Zip Local File Headers must have non-zero file sizes set."
       );
     }
@@ -276,7 +307,7 @@ export class ArchiveFunctions3tz {
     const centralDirectoryEntryData =
       ArchiveFunctions3tz.getLastCentralDirectoryEntry(fd, stat);
     if (!defined(centralDirectoryEntryData)) {
-      throw new TilesetArchiveError(
+      throw new TilesetPackageError(
         "Could not read last central directory entry"
       );
     }

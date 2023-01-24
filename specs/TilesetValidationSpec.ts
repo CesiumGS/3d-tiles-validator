@@ -628,6 +628,14 @@ describe("Tileset validation", function () {
     expect(result.get(0).type).toEqual("ONE_OF_ERROR");
   });
 
+  it("detects issues in tilesetWithUnicodeBOM", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetWithUnicodeBOM.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("IO_ERROR");
+  });
+
   it("detects issues in tileTransformInvalidArrayElementType", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/tileTransformInvalidArrayElementType.json"

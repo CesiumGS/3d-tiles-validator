@@ -3,23 +3,23 @@ import path from "path";
 import { ResourceResolver } from "./ResourceResolver";
 import { Uris } from "./Uris";
 
-import { TilesetArchive } from "../archives/TilesetArchive";
+import { TilesetPackage } from "../packages/TilesetPackage";
 import { defined } from "../base/defined";
 
 /**
- * Implementation of a `ResourceResolver` based on a `TilesetArchive`
+ * Implementation of a `ResourceResolver` based on a `TilesetPackage`
  *
- * @internal (Instantiated by the `ResourceResolvers` class)
+ * @internal
  */
-export class ArchiveResourceResolver implements ResourceResolver {
+export class PackageResourceResolver implements ResourceResolver {
   private readonly _basePath: string;
-  private readonly _archiveFileName: string;
-  private readonly _archive: TilesetArchive;
+  private readonly _packageFileName: string;
+  private readonly _package: TilesetPackage;
 
-  constructor(basePath: string, archiveFileName: string, archive: any) {
+  constructor(basePath: string, packageFileName: string, tilesetPackage: any) {
     this._basePath = basePath;
-    this._archiveFileName = archiveFileName;
-    this._archive = archive;
+    this._packageFileName = packageFileName;
+    this._package = tilesetPackage;
   }
 
   resolveUri(uri: string): string {
@@ -35,22 +35,9 @@ export class ArchiveResourceResolver implements ResourceResolver {
     if (Uris.isAbsoluteUri(uri)) {
       return null;
     }
-    let archiveUri = path.join(this._basePath, uri);
-    archiveUri = archiveUri.replace(/\\/g, "/");
-    const entry = this._archive.getEntry(archiveUri);
-    // TODO Log message for experiment:
-    /*/
-    console.log(
-      "Resolving " +
-        uri +
-        " resolved to  " +
-        archiveUri +
-        " from archive " +
-        this._archiveFileName +
-        " returns " +
-        (defined(entry) ? entry.length + " bytes" : "undefined")
-    );
-    //*/
+    let packageUri = path.join(this._basePath, uri);
+    packageUri = packageUri.replace(/\\/g, "/");
+    const entry = this._package.getEntry(packageUri);
     if (!defined(entry)) {
       return null;
     }
@@ -68,10 +55,10 @@ export class ArchiveResourceResolver implements ResourceResolver {
   derive(uri: string): ResourceResolver {
     let resolved = path.join(this._basePath, decodeURIComponent(uri));
     resolved = resolved.replace(/\\/g, "/");
-    const result = new ArchiveResourceResolver(
+    const result = new PackageResourceResolver(
       resolved,
-      this._archiveFileName,
-      this._archive
+      this._packageFileName,
+      this._package
     );
     return result;
   }

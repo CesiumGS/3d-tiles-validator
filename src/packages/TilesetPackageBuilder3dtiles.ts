@@ -4,14 +4,14 @@ import fs from "fs";
 import { Database } from "better-sqlite3";
 import DatabaseConstructor from "better-sqlite3";
 
-import { TilesetArchiveBuilder } from "./TilesetArchiveBuilder";
-import { TilesetArchiveError } from "./TilesetArchiveError";
+import { TilesetPackageBuilder } from "./TilesetPackageBuilder";
+import { TilesetPackageError } from "./TilesetPackageError";
 
 /**
- * Implementation of a TilesetArchiveBuilder that creates a
+ * Implementation of a TilesetPackageBuilder that creates a
  * 3DTILES (SQLITE3 database) file.
  */
-export class TilesetArchiveBuilder3dtiles implements TilesetArchiveBuilder {
+export class TilesetPackageBuilder3dtiles implements TilesetPackageBuilder {
   /**
    * The database
    */
@@ -29,11 +29,11 @@ export class TilesetArchiveBuilder3dtiles implements TilesetArchiveBuilder {
       if (overwrite) {
         fs.unlinkSync(fullOutputName);
       } else {
-        throw new TilesetArchiveError("File already exists: " + fullOutputName);
+        throw new TilesetPackageError("File already exists: " + fullOutputName);
       }
     }
     if (defined(this.db)) {
-      throw new TilesetArchiveError("Archive already opened");
+      throw new TilesetPackageError("Package already opened");
     }
     this.db = new DatabaseConstructor(fullOutputName);
     this.db.prepare("PRAGMA journal_mode=off;").run();
@@ -45,8 +45,8 @@ export class TilesetArchiveBuilder3dtiles implements TilesetArchiveBuilder {
 
   addEntry(key: string, content: Buffer): void {
     if (!defined(this.db)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'begin' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'begin' first."
       );
     }
     const insertion = this.db!.prepare("INSERT INTO media VALUES (?, ?)");
@@ -55,8 +55,8 @@ export class TilesetArchiveBuilder3dtiles implements TilesetArchiveBuilder {
 
   async end(): Promise<void> {
     if (!defined(this.db)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'begin' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'begin' first."
       );
     }
     this.db!.prepare("COMMIT").run();

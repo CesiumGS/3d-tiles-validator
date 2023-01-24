@@ -3,14 +3,14 @@ import { defined } from "./base/defined";
 import fs from "fs";
 
 import { IndexEntry } from "./IndexEntry";
-import { TilesetArchive } from "./TilesetArchive";
-import { TilesetArchiveError } from "./TilesetArchiveError";
+import { TilesetPackage } from "./TilesetPackage";
+import { TilesetPackageError } from "./TilesetPackageError";
 import { ArchiveFunctions3tz } from "./ArchiveFunctions3tz";
 
 /**
- * Implementation of a TilesetArchive based on a 3TZ file.
+ * Implementation of a TilesetPackage based on a 3TZ file.
  */
-export class TilesetArchive3tz implements TilesetArchive {
+export class TilesetPackage3tz implements TilesetPackage {
   /**
    * The file descriptor that was created from the input file
    */
@@ -19,7 +19,7 @@ export class TilesetArchive3tz implements TilesetArchive {
   /**
    * The ZIP index.
    *
-   * This is created from the `"@3dtilesIndex1@"` file of an archive.
+   * This is created from the `"@3dtilesIndex1@"` file of a package.
    *
    * It is an array if `IndexEntry` objects, sorted by the MD5 hash,
    * in ascending order.
@@ -40,7 +40,7 @@ export class TilesetArchive3tz implements TilesetArchive {
 
   open(fullInputName: string) {
     if (defined(this.fd)) {
-      throw new TilesetArchiveError("Archive already opened");
+      throw new TilesetPackageError("Package already opened");
     }
 
     this.fd = fs.openSync(fullInputName, "r");
@@ -49,8 +49,8 @@ export class TilesetArchive3tz implements TilesetArchive {
 
   getKeys(): IterableIterator<string> {
     if (!defined(this.fd)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'open' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'open' first."
       );
     }
     let index = 0;
@@ -79,8 +79,8 @@ export class TilesetArchive3tz implements TilesetArchive {
 
   getEntry(key: string) {
     if (!defined(this.fd)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'open' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'open' first."
       );
     }
     const entryData = ArchiveFunctions3tz.readEntryData(
@@ -93,8 +93,8 @@ export class TilesetArchive3tz implements TilesetArchive {
 
   close() {
     if (!defined(this.fd)) {
-      throw new TilesetArchiveError(
-        "Archive is not opened. Call 'open' first."
+      throw new TilesetPackageError(
+        "Package is not opened. Call 'open' first."
       );
     }
     fs.closeSync(this.fd!);

@@ -5,7 +5,7 @@ import path from "path";
 
 /**
  * Returns whether the given file should be zipped when it is
- * added to an archive.
+ * added to a package.
  *
  * If the file data is given, and it is already Gzipped, then
  * `false` is returned.

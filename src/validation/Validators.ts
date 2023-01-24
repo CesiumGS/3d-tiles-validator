@@ -1,5 +1,7 @@
 import path from "path";
+import fs from "fs";
 import { defined } from "../base/defined";
+import { Buffers } from "../base/Buffers";
 
 import { ResourceResolvers } from "../io/ResourceResolvers";
 
@@ -11,6 +13,7 @@ import { SubtreeValidator } from "./SubtreeValidator";
 import { ValidationState } from "./ValidationState";
 import { ValidationOptions } from "./ValidationOptions";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
+import { TilesetPackageValidator } from "./TilesetPackageValidator";
 
 import { SchemaValidator } from "./metadata/SchemaValidator";
 
@@ -48,6 +51,44 @@ export class Validators {
   }
 
   /**
+   * Performs a default validation of the given tileset file, and
+   * returns a promise to the `ValidationResult`.
+   *
+   * The given file may be a `tileset.json` file, or a tileset
+   * package file, as incdicated by a `.3tz` or `.3dtiles` file
+   * extensions.
+   *
+   * @param filePath - The file path
+   * @param validationOptions - The `ValidationOptions`. When this
+   * is not given (or `undefined`), then default validation options
+   * will be used. See {@link ValidationOptions}.
+   * @returns A promise to a `ValidationResult` that is fulfilled when
+   * the validation finished.
+   * @beta
+   */
+  static async validateTilesetFile(
+    filePath: string,
+    validationOptions?: ValidationOptions
+  ): Promise<ValidationResult> {
+    const extension = path.extname(filePath).toLowerCase();
+    const isDirectory = fs.statSync(filePath).isDirectory();
+    const packageExtensions = [".3tz", ".3dtiles"];
+    const isPackage = packageExtensions.includes(extension);
+    if (isPackage || isDirectory) {
+      const validationResult = await Validators.validateTilesetPackageInternal(
+        filePath,
+        validationOptions
+      );
+      return validationResult;
+    }
+    const validationResult = await Validators.validateTilesetFileInternal(
+      filePath,
+      validationOptions
+    );
+    return validationResult;
+  }
+
+  /**
    * Performs a default validation of the given `tileset.json` file, and
    * returns a promise to the `ValidationResult`.
    *
@@ -59,7 +100,7 @@ export class Validators {
    * the validation finished.
    * @beta
    */
-  static async validateTilesetFile(
+  private static async validateTilesetFileInternal(
     filePath: string,
     validationOptions?: ValidationOptions
   ): Promise<ValidationResult> {
@@ -77,9 +118,45 @@ export class Validators {
       const issue = IoValidationIssues.IO_ERROR(filePath, message);
       context.addIssue(issue);
     } else {
-      const jsonString = resourceData!.toString();
-      await validator.validateJsonString(jsonString, context);
+      const bom = Buffers.getUnicodeBOMDescription(resourceData!);
+      if (defined(bom)) {
+        const message = `Unexpected BOM in JSON buffer: ${bom}`;
+        const issue = IoValidationIssues.IO_ERROR(filePath, message);
+        context.addIssue(issue);
+      } else {
+        const jsonString = resourceData!.toString();
+        await validator.validateJsonString(jsonString, context);
+      }
     }
+    return context.getResult();
+  }
+
+  /**
+   * Performs a default validation of the given tileset package file, and
+   * returns a promise to the `ValidationResult`.
+   *
+   * The given path may be a path of a `.3tz` or a `.3dtiles` file (or
+   * a directory that contains a 'tileset.json' file)
+   *
+   * @param filePath - The file path
+   * @param validationOptions - The `ValidationOptions`. When this
+   * is not given (or `undefined`), then default validation options
+   * will be used. See {@link ValidationOptions}.
+   * @returns A promise to a `ValidationResult` that is fulfilled when
+   * the validation finished.
+   * @beta
+   */
+  private static async validateTilesetPackageInternal(
+    filePath: string,
+    validationOptions?: ValidationOptions
+  ): Promise<ValidationResult> {
+    Validators.registerExtensionValidators();
+
+    const directory = path.dirname(filePath);
+    const resourceResolver =
+      ResourceResolvers.createFileResourceResolver(directory);
+    const context = new ValidationContext(resourceResolver, validationOptions);
+    await TilesetPackageValidator.validatePackageFile(filePath, context);
     return context.getResult();
   }
 
@@ -194,6 +271,13 @@ export class Validators {
         context: ValidationContext
       ): Promise<boolean> {
         try {
+          const bom = Buffers.getUnicodeBOMDescription(input!);
+          if (defined(bom)) {
+            const message = `Unexpected BOM in JSON buffer: ${bom}`;
+            const issue = IoValidationIssues.IO_ERROR(inputPath, message);
+            context.addIssue(issue);
+            return false;
+          }
           const object: T = JSON.parse(input.toString());
           const delegateResult = await delegate.validateObject(
             inputPath,

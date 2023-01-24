@@ -1,4 +1,5 @@
 import { defined } from "../base/defined";
+import { Buffers } from "../base/Buffers";
 
 import { Validator } from "./Validator";
 import { ValidationState } from "./ValidationState";
@@ -487,23 +488,34 @@ export class TilesetValidator implements Validator<Tileset> {
           hasSchemaDefinition: true,
           schema: undefined,
         };
-      } else {
-        const schemaString = schemaBuffer!.toString();
-        try {
-          const resolvedSchema = JSON.parse(schemaString);
-          return {
-            hasSchemaDefinition: true,
-            schema: resolvedSchema,
-          };
-        } catch (error) {
-          //console.log(error);
-          const issue = IoValidationIssues.JSON_PARSE_ERROR("", "" + error);
-          context.addIssue(issue);
-          return {
-            hasSchemaDefinition: true,
-            schema: undefined,
-          };
-        }
+      }
+
+      const bom = Buffers.getUnicodeBOMDescription(schemaBuffer!);
+      if (defined(bom)) {
+        const message = `Unexpected BOM in schema JSON buffer: ${bom}`;
+        const issue = IoValidationIssues.IO_ERROR(schemaUri, message);
+        context.addIssue(issue);
+        return {
+          hasSchemaDefinition: true,
+          schema: undefined,
+        };
+      }
+
+      const schemaString = schemaBuffer!.toString();
+      try {
+        const resolvedSchema = JSON.parse(schemaString);
+        return {
+          hasSchemaDefinition: true,
+          schema: resolvedSchema,
+        };
+      } catch (error) {
+        //console.log(error);
+        const issue = IoValidationIssues.JSON_PARSE_ERROR("", "" + error);
+        context.addIssue(issue);
+        return {
+          hasSchemaDefinition: true,
+          schema: undefined,
+        };
       }
     }
     return {

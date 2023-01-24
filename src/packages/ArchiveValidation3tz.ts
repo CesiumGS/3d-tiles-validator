@@ -1,8 +1,9 @@
 import fs from "fs";
 import crypto from "crypto";
 
-import { IndexEntry } from "./IndexEntry";
 import StreamZip = require("node-stream-zip");
+
+import { IndexEntry } from "./IndexEntry";
 import { ArchiveFunctions3tz } from "./ArchiveFunctions3tz";
 
 // NOTE: These functions are carved out and ported to TypeScript from
