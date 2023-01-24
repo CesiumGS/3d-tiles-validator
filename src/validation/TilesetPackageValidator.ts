@@ -1,5 +1,6 @@
 import path from "path";
 import { defined } from "../base/defined";
+import { Buffers } from "../base/Buffers";
 
 import { Validators } from "./Validators";
 import { Validator } from "./Validator";
@@ -193,6 +194,14 @@ export class TilesetPackageValidator implements Validator<string> {
     );
     if (!defined(tilesetJsonBuffer)) {
       const message = `Could not read 'tileset.json' from package ${uri}.`;
+      const issue = IoValidationIssues.IO_ERROR(uri, message);
+      context.addIssue(issue);
+      return false;
+    }
+
+    const bom = Buffers.getUnicodeBOMDescription(tilesetJsonBuffer!);
+    if (defined(bom)) {
+      const message = `Unexpected BOM in subtree JSON buffer: ${bom}`;
       const issue = IoValidationIssues.IO_ERROR(uri, message);
       context.addIssue(issue);
       return false;

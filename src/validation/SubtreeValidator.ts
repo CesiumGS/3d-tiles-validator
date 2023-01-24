@@ -1,6 +1,7 @@
 import { defined } from "../base/defined";
 import { defaultValue } from "../base/defaultValue";
 import { bufferToJson } from "../base/bufferToJson";
+import { Buffers } from "../base/Buffers";
 
 import { ResourceTypes } from "../io/ResourceTypes";
 import { ResourceResolver } from "../io/ResourceResolver";
@@ -260,6 +261,14 @@ export class SubtreeValidator implements Validator<Buffer> {
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
+    const bom = Buffers.getUnicodeBOMDescription(input);
+    if (defined(bom)) {
+      const message = `Unexpected BOM in subtree JSON buffer: ${bom}`;
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(path, message);
+      context.addIssue(issue);
+      return false;
+    }
+
     try {
       const inputString = input.toString();
       const subtree: Subtree = JSON.parse(inputString);

@@ -1,6 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { defined } from "../base/defined";
+import { Buffers } from "../base/Buffers";
 
 import { ResourceResolvers } from "../io/ResourceResolvers";
 
@@ -117,8 +118,15 @@ export class Validators {
       const issue = IoValidationIssues.IO_ERROR(filePath, message);
       context.addIssue(issue);
     } else {
-      const jsonString = resourceData!.toString();
-      await validator.validateJsonString(jsonString, context);
+      const bom = Buffers.getUnicodeBOMDescription(resourceData!);
+      if (defined(bom)) {
+        const message = `Unexpected BOM in JSON buffer: ${bom}`;
+        const issue = IoValidationIssues.IO_ERROR(filePath, message);
+        context.addIssue(issue);
+      } else {
+        const jsonString = resourceData!.toString();
+        await validator.validateJsonString(jsonString, context);
+      }
     }
     return context.getResult();
   }
@@ -263,6 +271,13 @@ export class Validators {
         context: ValidationContext
       ): Promise<boolean> {
         try {
+          const bom = Buffers.getUnicodeBOMDescription(input!);
+          if (defined(bom)) {
+            const message = `Unexpected BOM in JSON buffer: ${bom}`;
+            const issue = IoValidationIssues.IO_ERROR(inputPath, message);
+            context.addIssue(issue);
+            return false;
+          }
           const object: T = JSON.parse(input.toString());
           const delegateResult = await delegate.validateObject(
             inputPath,
