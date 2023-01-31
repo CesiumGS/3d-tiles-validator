@@ -26,7 +26,7 @@ The 3D Tiles validator can be used to validate 3D Tiles tilesets and their assoc
 - Validation of 3D Tiles Metadata
   - This includes the validation of the JSON structure of the metadata, as well as the structure and ranges of metadata values, both for the JSON based representation and for the binary metadata that is stored in property tables
 - A basic validation of the [`3DTILES_bounding_volume_S2` extension](https://github.com/CesiumGS/3d-tiles/tree/main/extensions/3DTILES_bounding_volume_S2)
-- Validation of tilesets that are contained in 3D Tiles package files (3ZT and 3DTILES files)
+- Validation of tilesets that are contained in 3D Tiles package files (3TZ and 3DTILES files)
 
 ## Installation
 
