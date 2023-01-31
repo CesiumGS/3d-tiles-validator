@@ -1,5 +1,5 @@
 
-Version 0.4.0 - 2023-??-??
+Version 0.4.0 - 2023-01-31
 
 - Padding bytes in B3DM that had only be inserted to align its length to 8 bytes had not been handled properly, and caused unwanted validation warnings. This case is now handled by restricting the glTF validation to the GLB _without_ padding bytes ([#256](https://github.com/CesiumGS/3d-tiles-validator/issues/256))
 - When a tileset referred to glTF (JSON) data that could not be resolved, then this was ignored. Now, it creates an error saying that the data could not be resolved. The treatment of non-resolvable data might be configured with validation options in the future (see https://github.com/CesiumGS/3d-tiles-validator/issues/224)
