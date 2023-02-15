@@ -1,4 +1,4 @@
-import { defaultValue } from "../src/base/defaultValue";
+import { defaultValue } from "3d-tiles-tools";
 import { readJsonUnchecked } from "../src/base/readJsonUnchecked";
 
 import { MetadataClass } from "3d-tiles-tools";

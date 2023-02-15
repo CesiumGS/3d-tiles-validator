@@ -1,4 +1,4 @@
-import { defaultValue } from "../../src/base/defaultValue";
+import { defaultValue } from "3d-tiles-tools";
 
 /**
  * Returns whether two numbers are equal, up to a certain epsilon
