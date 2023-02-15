@@ -1,9 +1,8 @@
 import path from "path";
 
-import { defined } from "3d-tiles-tools";
+import { Buffers, defined } from "3d-tiles-tools";
 
-import { ResourceResolver } from "../io/ResourceResolver";
-import { ResourceTypes } from "../io/ResourceTypes";
+import { ResourceResolver } from "3d-tiles-tools";
 
 /**
  * A class summarizing information about content data.
@@ -66,7 +65,7 @@ export class ContentData {
       4
     );
     if (defined(partialData)) {
-      this._magic = ResourceTypes.getMagic(partialData!);
+      this._magic = Buffers.getMagic(partialData!);
     } else {
       this._magic = "";
     }
@@ -112,7 +111,7 @@ export class ContentData {
       this._parsedObjectWasRequested = true;
       return this._parsedObject;
     }
-    if (!ResourceTypes.isProbablyJson(data!)) {
+    if (!Buffers.isProbablyJson(data!)) {
       this._parsedObject = undefined;
       this._parsedObjectWasRequested = true;
       return this._parsedObject;

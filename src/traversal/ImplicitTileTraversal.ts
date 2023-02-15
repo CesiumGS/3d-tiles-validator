@@ -2,8 +2,7 @@ import path from "path";
 import { defined } from "3d-tiles-tools";
 import { Buffers } from "3d-tiles-tools";
 
-import { ResourceResolver } from "../io/ResourceResolver";
-import { ResourceTypes } from "../io/ResourceTypes";
+import { ResourceResolver } from "3d-tiles-tools";
 
 import { TraversedTile } from "./TraversedTile";
 import { ExplicitTraversedTile } from "./ExplicitTraversedTile";
@@ -195,7 +194,7 @@ export class ImplicitTileTraversal {
 
     // If the subtree data was JSON, just parse it and
     // create a SubtreeInfo without an internal buffer
-    const isJson = ResourceTypes.isProbablyJson(subtreeData);
+    const isJson = Buffers.isProbablyJson(subtreeData);
     if (isJson) {
       let subtreeJson: any;
       let subtree: Subtree;
@@ -219,7 +218,7 @@ export class ImplicitTileTraversal {
 
     // For SUBT (binary subtree data), create the SubtreeInfo
     // from the whole buffer
-    const isSubt = ResourceTypes.isSubt(subtreeData);
+    const isSubt = Buffers.getMagic(subtreeData) === "subt";
     if (isSubt) {
       const subtreeInfo = await SubtreeInfos.createFromBuffer(
         subtreeData!,

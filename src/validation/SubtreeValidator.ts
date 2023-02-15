@@ -2,8 +2,7 @@ import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 import { Buffers } from "3d-tiles-tools";
 
-import { ResourceTypes } from "../io/ResourceTypes";
-import { ResourceResolver } from "../io/ResourceResolver";
+import { ResourceResolver } from "3d-tiles-tools";
 
 import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";
@@ -106,12 +105,12 @@ export class SubtreeValidator implements Validator<Buffer> {
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
-    const isSubt = ResourceTypes.isSubt(input);
+    const isSubt = Buffers.getMagic(input) === "subt";
     if (isSubt) {
       const result = await this.validateSubtreeBinaryData(path, input, context);
       return result;
     }
-    const isJson = ResourceTypes.isProbablyJson(input);
+    const isJson = Buffers.isProbablyJson(input);
     if (isJson) {
       const result = await this.validateSubtreeJsonData(path, input, context);
       return result;

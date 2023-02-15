@@ -2,7 +2,7 @@ import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 import { ResourceError } from "../base/ResourceError";
 
-import { ResourceResolver } from "../io/ResourceResolver";
+import { ResourceResolver } from "3d-tiles-tools";
 
 import { BinaryBufferData } from "./BinaryBufferData";
 import { BinaryBufferStructure } from "../validation/metadata/BinaryBufferStructure";

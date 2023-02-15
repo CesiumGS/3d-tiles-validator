@@ -6,7 +6,7 @@ import { Validators } from "./Validators";
 import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";
 
-import { PackageResourceResolver } from "../io/PackageResourceResolver";
+import { TilesetSourceResourceResolver } from "3d-tiles-tools";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
@@ -182,10 +182,10 @@ export class TilesetPackageValidator implements Validator<string> {
       }
     }
 
-    // Create the `PackageResourceResolver` from the package,
+    // Create the `TilesetSourceResourceResolver` from the package,
     // and obtain the data for the `tileset.json` file.
     // This has to be present according to the 3TZ specification.
-    const packageResourceResolver = new PackageResourceResolver(
+    const packageResourceResolver = new TilesetSourceResourceResolver(
       "./",
       uri,
       tilesetSource

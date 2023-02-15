@@ -1,4 +1,4 @@
-import { ResourceResolvers } from "../src/io/ResourceResolvers";
+import { ResourceResolvers } from "3d-tiles-tools";
 import { ContentData } from "../src/validation/ContentData";
 import { ContentDataTypes } from "../src/validation/ContentDataTypes";
 

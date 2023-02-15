@@ -3,7 +3,7 @@ import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 
-import { ResourceResolver } from "../io/ResourceResolver";
+import { ResourceResolver } from "3d-tiles-tools";
 
 import { SubtreeInfos } from "../implicitTiling/SubtreeInfos";
 import { AvailabilityInfo } from "../implicitTiling/AvailabilityInfo";

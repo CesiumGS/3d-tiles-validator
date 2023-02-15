@@ -1,9 +1,9 @@
 import path from "path";
-import { defined } from "../src/base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { readJsonUnchecked } from "../src/base/readJsonUnchecked";
 
-import { ResourceResolvers } from "../src/io/ResourceResolvers";
+import { ResourceResolvers } from "3d-tiles-tools";
 
 import { Quadtrees } from "../src/implicitTiling/Quadtrees";
 import { TemplateUris } from "../src/implicitTiling/TemplateUris";

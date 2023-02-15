@@ -3,7 +3,7 @@ import { Tile } from "3d-tiles-tools";
 import { Content } from "3d-tiles-tools";
 import { defined } from "3d-tiles-tools";
 import { ImplicitTileTraversal } from "./ImplicitTileTraversal";
-import { ResourceResolver } from "../io/ResourceResolver";
+import { ResourceResolver } from "3d-tiles-tools";
 import { MetadataEntityModels } from "../metadata/MetadataEntityModels";
 import { Schema } from "3d-tiles-tools";
 import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";

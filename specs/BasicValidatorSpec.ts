@@ -1,7 +1,7 @@
 import { BasicValidator } from "../src/validation/BasicValidator";
 import { ValidationContext } from "../src/validation/ValidationContext";
 
-import { ResourceResolvers } from "../src/io/ResourceResolvers";
+import { ResourceResolvers } from "3d-tiles-tools";
 
 function validateNumberRange(
   value: number,

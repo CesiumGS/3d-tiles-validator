@@ -1,6 +1,6 @@
 import { defined } from "3d-tiles-tools";
 
-import { ResourceResolver } from "../io/ResourceResolver";
+import { ResourceResolver } from "3d-tiles-tools";
 
 import { TraversedTile } from "./TraversedTile";
 import { ImplicitTileTraversal } from "./ImplicitTileTraversal";

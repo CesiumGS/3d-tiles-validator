@@ -4,7 +4,7 @@ import fs from "fs";
 import { defined } from "3d-tiles-tools";
 import { Buffers } from "3d-tiles-tools";
 
-import { ResourceResolvers } from "../io/ResourceResolvers";
+import { ResourceResolvers } from "3d-tiles-tools";
 
 import { Validator } from "./Validator";
 import { TilesetValidator } from "./TilesetValidator";

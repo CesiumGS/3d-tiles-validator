@@ -4,7 +4,7 @@ import { TraversedTile } from "./TraversedTile";
 import { ExplicitTraversedTile } from "./ExplicitTraversedTile";
 import { TraversalCallback } from "./TraversalCallback";
 
-import { ResourceResolver } from "../io/ResourceResolver";
+import { ResourceResolver } from "3d-tiles-tools";
 
 import { Tileset } from "3d-tiles-tools";
 import { Schema } from "3d-tiles-tools";

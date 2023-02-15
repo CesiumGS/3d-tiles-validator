@@ -2,7 +2,7 @@ import paths from "path";
 
 import { defined } from "3d-tiles-tools";
 
-import { Uris } from "../io/Uris";
+import { Uris } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { ContentData } from "./ContentData";

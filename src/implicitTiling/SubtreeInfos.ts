@@ -6,7 +6,7 @@ import { ResourceError } from "../base/ResourceError";
 import { SubtreeInfo } from "./SubtreeInfo";
 import { AvailabilityInfos } from "./AvailabilityInfos";
 
-import { ResourceResolver } from "../io/ResourceResolver";
+import { ResourceResolver } from "3d-tiles-tools";
 
 import { ImplicitTilingError } from "./ImplicitTilingError";
 

@@ -1,6 +1,6 @@
 import { defaultValue } from "3d-tiles-tools";
 
-import { ResourceResolver } from "../io/ResourceResolver";
+import { ResourceResolver } from "3d-tiles-tools";
 
 import { ValidationIssue } from "./ValidationIssue";
 import { ValidationOptions } from "./ValidationOptions";

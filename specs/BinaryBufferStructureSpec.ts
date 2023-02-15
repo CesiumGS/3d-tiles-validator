@@ -1,10 +1,10 @@
 import { readJsonUnchecked } from "../src/base/readJsonUnchecked";
 
-import { ResourceResolvers } from "../src/io/ResourceResolvers";
+import { ResourceResolvers } from "3d-tiles-tools";
 
 import { ValidationContext } from "../src/validation/ValidationContext";
-import { BinaryBufferStructureValidator } from "3d-tiles-tools";
-import { BinaryBufferStructure } from "3d-tiles-tools";
+import { BinaryBufferStructureValidator } from "../src/validation/BinaryBufferStructureValidator";
+import { BinaryBufferStructure } from "../src/validation/metadata/BinaryBufferStructure"
 
 function performTestValidation(
   binaryBufferStructure: BinaryBufferStructure,
