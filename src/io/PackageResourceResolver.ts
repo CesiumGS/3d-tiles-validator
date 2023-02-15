@@ -3,18 +3,18 @@ import path from "path";
 import { ResourceResolver } from "./ResourceResolver";
 import { Uris } from "./Uris";
 
-import { TilesetPackage } from "../packages/TilesetPackage";
+import { TilesetSource } from "3d-tiles-tools";
 import { defined } from "3d-tiles-tools";
 
 /**
- * Implementation of a `ResourceResolver` based on a `TilesetPackage`
+ * Implementation of a `ResourceResolver` based on a `TilesetSource`
  *
  * @internal
  */
 export class PackageResourceResolver implements ResourceResolver {
   private readonly _basePath: string;
   private readonly _packageFileName: string;
-  private readonly _package: TilesetPackage;
+  private readonly _package: TilesetSource;
 
   constructor(basePath: string, packageFileName: string, tilesetPackage: any) {
     this._basePath = basePath;
@@ -37,7 +37,7 @@ export class PackageResourceResolver implements ResourceResolver {
     }
     let packageUri = path.join(this._basePath, uri);
     packageUri = packageUri.replace(/\\/g, "/");
-    const entry = this._package.getEntry(packageUri);
+    const entry = this._package.getValue(packageUri);
     if (!defined(entry)) {
       return null;
     }
