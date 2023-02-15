@@ -97,7 +97,7 @@ export class TilesetPackageValidator implements Validator<string> {
     isContent: boolean,
     context: ValidationContext
   ): Promise<boolean> {
-    // Create the tileset source for the package from the given URI 
+    // Create the tileset source for the package from the given URI
     // (i.e. the full package file name). If the source cannot
     // be opened, bail out with an IO_WARNING.
     let tilesetSource = undefined;

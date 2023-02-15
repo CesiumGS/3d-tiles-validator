@@ -4,7 +4,7 @@ import { ResourceResolvers } from "3d-tiles-tools";
 
 import { ValidationContext } from "../src/validation/ValidationContext";
 import { BinaryBufferStructureValidator } from "../src/validation/BinaryBufferStructureValidator";
-import { BinaryBufferStructure } from "../src/validation/metadata/BinaryBufferStructure"
+import { BinaryBufferStructure } from "../src/validation/metadata/BinaryBufferStructure";
 
 function performTestValidation(
   binaryBufferStructure: BinaryBufferStructure,

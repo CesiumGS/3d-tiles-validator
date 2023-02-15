@@ -1,8 +1,8 @@
 import { defined } from "3d-tiles-tools";
 
 import { ValidationOptions } from "./ValidationOptions";
-import { ContentData } from "./ContentData";
-import { ContentDataTypes } from "./ContentDataTypes";
+import { ContentData } from "3d-tiles-tools";
+import { ContentDataTypeRegistry } from "3d-tiles-tools";
 
 /**
  * A class for checking the settings that are stored
@@ -28,7 +28,7 @@ export class ValidationOptionChecks {
     if (!options.validateContentData) {
       return false;
     }
-    const name = await ContentDataTypes.nameFor(contentData);
+    const name = await ContentDataTypeRegistry.findContentDataType(contentData);
     if (!defined(name)) {
       return false;
     }

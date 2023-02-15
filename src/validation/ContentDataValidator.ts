@@ -5,8 +5,8 @@ import { defined } from "3d-tiles-tools";
 import { Uris } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
-import { ContentData } from "./ContentData";
-import { ContentDataTypes } from "./ContentDataTypes";
+import { ContentDataTypeRegistry } from "3d-tiles-tools";
+import { ContentData } from "3d-tiles-tools";
 import { ContentDataValidators } from "./ContentDataValidators";
 
 import { Content } from "3d-tiles-tools";
@@ -86,8 +86,8 @@ export class ContentDataValidator {
     const contentData = new ContentData(contentUri, resourceResolver);
 
     // Make sure that the content data can be resolved at all
-    const data = await contentData.getData();
-    if (data === null) {
+    const dataExists = await contentData.exists();
+    if (!dataExists) {
       const path = contentPath;
       const message =
         `Tile content ${contentPath} refers to URI ${contentUri}, ` +
@@ -141,7 +141,10 @@ export class ContentDataValidator {
     );
     const derivedResult = derivedContext.getResult();
 
-    const isTileset = await ContentDataTypes.isProbablyTileset(contentData);
+    const contentDataType = await ContentDataTypeRegistry.findContentDataType(
+      contentData
+    );
+    const isTileset = contentDataType === "CONTENT_TYPE_TILESET";
     if (isTileset) {
       const issue = ContentValidationIssues.createForExternalTileset(
         contentUri,
@@ -182,7 +185,10 @@ export class ContentDataValidator {
     if (isGlb) {
       context.addExtensionFound("3DTILES_content_gltf");
     }
-    const isGltf = await ContentDataTypes.isProbablyGltf(contentData);
+    const contentDataType = await ContentDataTypeRegistry.findContentDataType(
+      contentData
+    );
+    const isGltf = contentDataType === "CONTENT_TYPE_GLTF";
     if (isGltf) {
       context.addExtensionFound("3DTILES_content_gltf");
     }
