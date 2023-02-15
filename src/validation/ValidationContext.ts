@@ -1,4 +1,4 @@
-import { defaultValue } from "../base/defaultValue";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ResourceResolver } from "../io/ResourceResolver";
 

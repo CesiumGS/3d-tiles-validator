@@ -1,5 +1,5 @@
-import { defined } from "../base/defined";
-import { DeveloperError } from "../base/DeveloperError";
+import { defined } from "3d-tiles-tools";
+import { DeveloperError } from "3d-tiles-tools";
 
 /**
  * Internal utilities related to the `componentType` of the

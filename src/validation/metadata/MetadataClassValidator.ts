@@ -1,4 +1,4 @@
-import { defined } from "../../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
@@ -8,8 +8,8 @@ import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 import { ClassPropertyValidator } from "./ClassPropertyValidator";
 import { ClassPropertySemanticsValidator } from "./ClassPropertySemanticsValidator";
 
-import { Schema } from "../../structure/Metadata/Schema";
-import { MetadataClass } from "../../structure/Metadata/MetadataClass";
+import { Schema } from "3d-tiles-tools";
+import { MetadataClass } from "3d-tiles-tools";
 
 /**
  * A class for validations related to `MetadataClass` objects.

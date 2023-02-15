@@ -1,5 +1,5 @@
-import { defined } from "../base/defined";
-import { Buffers } from "../base/Buffers";
+import { defined } from "3d-tiles-tools";
+import { Buffers } from "3d-tiles-tools";
 
 import { Validator } from "./Validator";
 import { ValidationState } from "./ValidationState";
@@ -15,9 +15,9 @@ import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 import { SchemaValidator } from "./metadata/SchemaValidator";
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 
-import { Tileset } from "../structure/Tileset";
-import { Schema } from "../structure/Metadata/Schema";
-import { Group } from "../structure/Group";
+import { Tileset } from "3d-tiles-tools";
+import { Schema } from "3d-tiles-tools";
+import { Group } from "3d-tiles-tools";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";

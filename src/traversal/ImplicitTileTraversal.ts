@@ -1,6 +1,6 @@
 import path from "path";
-import { defined } from "../base/defined";
-import { bufferToJson } from "../base/bufferToJson";
+import { defined } from "3d-tiles-tools";
+import { Buffers } from "3d-tiles-tools";
 
 import { ResourceResolver } from "../io/ResourceResolver";
 import { ResourceTypes } from "../io/ResourceTypes";
@@ -9,8 +9,8 @@ import { TraversedTile } from "./TraversedTile";
 import { ExplicitTraversedTile } from "./ExplicitTraversedTile";
 import { ImplicitTraversedTile } from "./ImplicitTraversedTile";
 
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
-import { Subtree } from "../structure/Subtree";
+import { TileImplicitTiling } from "3d-tiles-tools";
+import { Subtree } from "3d-tiles-tools";
 
 import { SubtreeInfos } from "../implicitTiling/SubtreeInfos";
 import { TreeCoordinates } from "../implicitTiling/TreeCoordinates";
@@ -200,7 +200,7 @@ export class ImplicitTileTraversal {
       let subtreeJson: any;
       let subtree: Subtree;
       try {
-        subtreeJson = bufferToJson(subtreeData);
+        subtreeJson = Buffers.getJson(subtreeData);
         subtree = subtreeJson;
       } catch (error) {
         const message =

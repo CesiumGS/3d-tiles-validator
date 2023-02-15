@@ -1,8 +1,8 @@
 import { BinaryPropertyTable } from "../../src/binary/BinaryPropertyTable";
 import { BinaryPropertyTables } from "../../src/binary/BinaryPropertyTables";
 
-import { ClassProperty } from "../../src/structure/Metadata/ClassProperty";
-import { MetadataEnum } from "../../src/structure/Metadata/MetadataEnum";
+import { ClassProperty } from "3d-tiles-tools";
+import { MetadataEnum } from "3d-tiles-tools";
 
 /**
  * Methods to create `BinaryPropertyTable` instances that are valid,

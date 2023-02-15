@@ -1,6 +1,6 @@
 import path from "path";
-import { defined } from "../base/defined";
-import { Buffers } from "../base/Buffers";
+import { defined } from "3d-tiles-tools";
+import { Buffers } from "3d-tiles-tools";
 
 import { Validators } from "./Validators";
 import { Validator } from "./Validator";

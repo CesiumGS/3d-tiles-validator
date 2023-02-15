@@ -1,11 +1,11 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 
-import { BufferObject } from "../structure/BufferObject";
-import { BufferView } from "../structure/BufferView";
+import { BufferObject } from "3d-tiles-tools";
+import { BufferView } from "3d-tiles-tools";
 
 import { BinaryBufferStructure } from "./metadata/BinaryBufferStructure";
 

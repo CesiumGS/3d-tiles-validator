@@ -1,4 +1,4 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { TraversedTile } from "./TraversedTile";
 import { ExplicitTraversedTile } from "./ExplicitTraversedTile";
@@ -6,8 +6,8 @@ import { TraversalCallback } from "./TraversalCallback";
 
 import { ResourceResolver } from "../io/ResourceResolver";
 
-import { Tileset } from "../structure/Tileset";
-import { Schema } from "../structure/Metadata/Schema";
+import { Tileset } from "3d-tiles-tools";
+import { Schema } from "3d-tiles-tools";
 
 /**
  * A class that can traverse the tiles of a tileset.

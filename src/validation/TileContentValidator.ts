@@ -1,12 +1,12 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { ContentDataValidator } from "./ContentDataValidator";
 
 import { BoundingVolumeChecks } from "./legacy/BoundingVolumeChecks";
 
-import { Tile } from "../structure/Tile";
-import { Content } from "../structure/Content";
+import { Tile } from "3d-tiles-tools";
+import { Content } from "3d-tiles-tools";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 

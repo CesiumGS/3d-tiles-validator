@@ -1,12 +1,12 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { AvailabilityInfo } from "./AvailabilityInfo";
 import { BufferAvailabilityInfo } from "./BufferAvailabilityInfo";
 import { ConstantAvailabilityInfo } from "./ConstantAvailabilityInfo";
 import { ImplicitTilings } from "./ImplicitTilings";
 
-import { Availability } from "../structure/Availability";
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { Availability } from "3d-tiles-tools";
+import { TileImplicitTiling } from "3d-tiles-tools";
 
 /**
  * Methods for creating `AvailabilityInfo` instances

@@ -4,7 +4,7 @@
 
 import path from "path";
 
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "../validation/ValidationContext";
 import { Validator } from "../validation/Validator";

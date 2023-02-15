@@ -1,10 +1,10 @@
-import { defined } from "../../base/defined";
-import { defaultValue } from "../../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
 
-import { Schema } from "../../structure/Metadata/Schema";
+import { Schema } from "3d-tiles-tools";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";

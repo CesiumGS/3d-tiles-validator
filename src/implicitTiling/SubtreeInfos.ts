@@ -1,5 +1,6 @@
-import { defined } from "../base/defined";
-import { bufferToJson } from "../base/bufferToJson";
+import { defined } from "3d-tiles-tools";
+import { Buffers } from "3d-tiles-tools";
+
 import { ResourceError } from "../base/ResourceError";
 
 import { SubtreeInfo } from "./SubtreeInfo";
@@ -9,8 +10,8 @@ import { ResourceResolver } from "../io/ResourceResolver";
 
 import { ImplicitTilingError } from "./ImplicitTilingError";
 
-import { Subtree } from "../structure/Subtree";
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { Subtree } from "3d-tiles-tools";
+import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { BinaryBufferDataResolver } from "../binary/BinaryBufferDataResolver";
 
@@ -54,7 +55,7 @@ export class SubtreeInfos {
     let subtreeJson: any;
     let subtree: Subtree;
     try {
-      subtreeJson = bufferToJson(jsonBuffer);
+      subtreeJson = Buffers.getJson(jsonBuffer);
       subtree = subtreeJson;
     } catch (error) {
       throw new ImplicitTilingError("Could not parse subtree JSON data");

@@ -1,13 +1,13 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { DefaultMetadataEntityModel } from "./DefaultMetadataEntityModel";
 import { MetadataEntityModel } from "./MetadataEntityModel";
 import { MetadataError } from "./MetadataError";
 
-import { Schema } from "../structure/Metadata/Schema";
-import { MetadataEntity } from "../structure/MetadataEntity";
-import { MetadataClass } from "../structure/Metadata/MetadataClass";
+import { Schema } from "3d-tiles-tools";
+import { MetadataEntity } from "3d-tiles-tools";
+import { MetadataClass } from "3d-tiles-tools";
 
 /**
  * A minimalistic interface for a model that describes a

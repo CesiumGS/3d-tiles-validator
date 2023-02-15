@@ -1,7 +1,7 @@
-import { Tile } from "../structure/Tile";
-import { Content } from "../structure/Content";
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
-import { MetadataEntity } from "../structure/MetadataEntity";
+import { Tile } from "3d-tiles-tools";
+import { Content } from "3d-tiles-tools";
+import { TileImplicitTiling } from "3d-tiles-tools";
+import { MetadataEntity } from "3d-tiles-tools";
 
 /**
  * An interface that summarizes context information for

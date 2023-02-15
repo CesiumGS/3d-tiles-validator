@@ -5,7 +5,7 @@ import { ValidationContext } from "../../src/validation/ValidationContext";
 
 import { PropertyTableValidator } from "../../src/validation/metadata/PropertyTableValidator";
 
-import { Schema } from "../../src/structure/Metadata/Schema";
+import { Schema } from "3d-tiles-tools";
 
 describe("metadata/PropertyTableValidationSpec", function () {
   let fullMetadataSchema: Schema;

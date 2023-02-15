@@ -4,7 +4,7 @@ import { ResourceResolver } from "./ResourceResolver";
 import { Uris } from "./Uris";
 
 import { TilesetPackage } from "../packages/TilesetPackage";
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 /**
  * Implementation of a `ResourceResolver` based on a `TilesetPackage`

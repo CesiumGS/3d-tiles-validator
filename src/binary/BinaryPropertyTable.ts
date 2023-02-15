@@ -3,8 +3,8 @@ import { BinaryEnumInfo } from "./BinaryEnumInfo";
 
 import { BinaryBufferStructure } from "../validation/metadata/BinaryBufferStructure";
 
-import { MetadataClass } from "../structure/Metadata/MetadataClass";
-import { PropertyTable } from "../structure/PropertyTable";
+import { MetadataClass } from "3d-tiles-tools";
+import { PropertyTable } from "3d-tiles-tools";
 
 /**
  * A basic structure summarizing the (raw) elements of a binary

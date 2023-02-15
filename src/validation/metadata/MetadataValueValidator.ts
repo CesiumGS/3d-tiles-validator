@@ -5,8 +5,8 @@ import { NumberValidator } from "./../NumberValidator";
 import { MetadataUtilities } from "../../metadata/MetadataUtilities";
 import { MetadataTypes } from "../../metadata/MetadataTypes";
 
-import { Schema } from "../../structure/Metadata/Schema";
-import { ClassProperty } from "../../structure/Metadata/ClassProperty";
+import { Schema } from "3d-tiles-tools";
+import { ClassProperty } from "3d-tiles-tools";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 

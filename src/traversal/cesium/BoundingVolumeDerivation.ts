@@ -1,7 +1,7 @@
 import { Cartesian3, Math as CesiumMath, Matrix3, Rectangle } from "cesium";
-import { defined } from "../../base/defined";
+import { defined } from "3d-tiles-tools";
 import { HilbertOrder } from "./HilbertOrder";
-import { BoundingVolume } from "../../structure/BoundingVolume";
+import { BoundingVolume } from "3d-tiles-tools";
 import { BoundingVolumeS2 } from "../../validation/extensions/BoundingVolumeS2";
 import { S2Cell } from "./S2Cell";
 

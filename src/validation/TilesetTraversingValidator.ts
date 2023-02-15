@@ -1,5 +1,5 @@
 import path from "path";
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { ValidationState } from "./ValidationState";
@@ -14,8 +14,8 @@ import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 
 import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
 
-import { Tileset } from "../structure/Tileset";
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { Tileset } from "3d-tiles-tools";
+import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 import { ValidationIssues } from "../issues/ValidationIssues";

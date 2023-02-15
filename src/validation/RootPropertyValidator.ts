@@ -1,9 +1,9 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 
-import { RootProperty } from "../structure/RootProperty";
+import { RootProperty } from "3d-tiles-tools";
 
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 

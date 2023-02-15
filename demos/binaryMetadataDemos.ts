@@ -1,4 +1,4 @@
-import { ClassProperty } from "../src/structure/Metadata/ClassProperty";
+import { ClassProperty } from "3d-tiles-tools";
 
 import { BinaryPropertyTables } from "../src/binary/BinaryPropertyTables";
 import { PropertyTableModel } from "../src/binary/PropertyTableModel";

@@ -1,6 +1,6 @@
 import paths from "path";
 
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { Uris } from "../io/Uris";
 
@@ -9,7 +9,7 @@ import { ContentData } from "./ContentData";
 import { ContentDataTypes } from "./ContentDataTypes";
 import { ContentDataValidators } from "./ContentDataValidators";
 
-import { Content } from "../structure/Content";
+import { Content } from "3d-tiles-tools";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";

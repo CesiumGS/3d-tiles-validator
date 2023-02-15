@@ -1,4 +1,4 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ResourceResolver } from "../io/ResourceResolver";
 
@@ -8,13 +8,13 @@ import { ImplicitTileTraversal } from "./ImplicitTileTraversal";
 import { TreeCoordinates } from "../implicitTiling/TreeCoordinates";
 import { SubtreeInfo } from "../implicitTiling/SubtreeInfo";
 
-import { Tile } from "../structure/Tile";
-import { Content } from "../structure/Content";
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { Tile } from "3d-tiles-tools";
+import { Content } from "3d-tiles-tools";
+import { TileImplicitTiling } from "3d-tiles-tools";
 import { BoundingVolumeDerivation } from "./cesium/BoundingVolumeDerivation";
 import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
 import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
-import { MetadataEntity } from "../structure/MetadataEntity";
+import { MetadataEntity } from "3d-tiles-tools";
 
 /**
  * An implementation of a `TraversedTile` that represents a tile

@@ -1,4 +1,4 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { Validators } from "./Validators";
 import { Validator } from "./Validator";
@@ -14,7 +14,7 @@ import { PntsValidator } from "../tileFormats/PntsValidator";
 import { CmptValidator } from "../tileFormats/CmptValidator";
 import { GltfValidator } from "../tileFormats/GltfValidator";
 
-import { Tileset } from "../structure/Tileset";
+import { Tileset } from "3d-tiles-tools";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 

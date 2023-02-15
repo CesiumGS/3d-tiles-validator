@@ -1,5 +1,5 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 
@@ -9,8 +9,8 @@ import { SubtreeInfos } from "../implicitTiling/SubtreeInfos";
 import { AvailabilityInfo } from "../implicitTiling/AvailabilityInfo";
 import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
 
-import { Subtree } from "../structure/Subtree";
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { Subtree } from "3d-tiles-tools";
+import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";

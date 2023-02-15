@@ -1,4 +1,4 @@
-import { bufferToJson } from "../base/bufferToJson";
+import { Buffers } from "3d-tiles-tools";
 
 import { ValidationContext } from "../validation/ValidationContext";
 
@@ -244,7 +244,7 @@ export class TileFormatValidator {
     let batchTableJson: any;
 
     try {
-      featureTableJson = bufferToJson(featureTableJsonBuffer);
+      featureTableJson = Buffers.getJson(featureTableJsonBuffer);
     } catch (error) {
       const message = `Could not parse feature table JSON: ${error}`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(path, message);
@@ -253,7 +253,7 @@ export class TileFormatValidator {
     }
 
     try {
-      batchTableJson = bufferToJson(batchTableJsonBuffer);
+      batchTableJson = Buffers.getJson(batchTableJsonBuffer);
     } catch (error) {
       const message = `Could not parse batch table JSON: ${error}`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(path, message);

@@ -1,5 +1,5 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 import { ResourceError } from "../base/ResourceError";
 
 import { ResourceResolver } from "../io/ResourceResolver";

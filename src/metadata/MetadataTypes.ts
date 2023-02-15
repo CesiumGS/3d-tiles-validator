@@ -1,4 +1,4 @@
-import { DeveloperError } from "../base/DeveloperError";
+import { DeveloperError } from "3d-tiles-tools";
 
 /**
  * Internal utilities related to the `type` of the

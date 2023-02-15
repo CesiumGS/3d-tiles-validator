@@ -1,5 +1,5 @@
-import { defined } from "./defined";
-import { defaultValue } from "./defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 /**
  * Utility functions for generic operations on values that

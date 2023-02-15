@@ -1,4 +1,4 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { ValidationState } from "./ValidationState";
@@ -9,7 +9,7 @@ import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 
-import { Content } from "../structure/Content";
+import { Content } from "3d-tiles-tools";
 
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 

@@ -1,4 +1,4 @@
-import { defaultValue } from "../base/defaultValue";
+import { defaultValue } from "3d-tiles-tools";
 
 import { BinaryMetadataEntityModel } from "./BinaryMetadataEntityModel";
 import { BinaryPropertyTable } from "./BinaryPropertyTable";
@@ -8,9 +8,9 @@ import { PropertyModels } from "./PropertyModels";
 import { MetadataEntityModels } from "../metadata/MetadataEntityModels";
 import { MetadataError } from "../metadata/MetadataError";
 
-import { ClassProperty } from "../structure/Metadata/ClassProperty";
+import { ClassProperty } from "3d-tiles-tools";
 import { MetadataEntityModel } from "../metadata/MetadataEntityModel";
-import { PropertyTableProperty } from "../structure/PropertyTableProperty";
+import { PropertyTableProperty } from "3d-tiles-tools";
 
 /**
  * Implementation of a model for a property table that is backed

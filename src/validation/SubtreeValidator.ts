@@ -1,7 +1,6 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
-import { bufferToJson } from "../base/bufferToJson";
-import { Buffers } from "../base/Buffers";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
+import { Buffers } from "3d-tiles-tools";
 
 import { ResourceTypes } from "../io/ResourceTypes";
 import { ResourceResolver } from "../io/ResourceResolver";
@@ -26,9 +25,9 @@ import { PropertyTableValidator } from "./metadata/PropertyTableValidator";
 import { MetadataUtilities } from "../metadata/MetadataUtilities";
 import { BinaryBufferStructure } from "./metadata/BinaryBufferStructure";
 
-import { Subtree } from "../structure/Subtree";
-import { Availability } from "../structure/Availability";
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { Subtree } from "3d-tiles-tools";
+import { Availability } from "3d-tiles-tools";
+import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
@@ -223,7 +222,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     let subtreeJson: any;
     let subtree: Subtree;
     try {
-      subtreeJson = bufferToJson(jsonBuffer);
+      subtreeJson = Buffers.getJson(jsonBuffer);
       subtree = subtreeJson;
     } catch (error) {
       const message = `Could not parse subtree JSON: ${error}`;

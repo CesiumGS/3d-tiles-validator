@@ -1,7 +1,8 @@
 import path from "path";
 import fs from "fs";
-import { defined } from "../base/defined";
-import { Buffers } from "../base/Buffers";
+
+import { defined } from "3d-tiles-tools";
+import { Buffers } from "3d-tiles-tools";
 
 import { ResourceResolvers } from "../io/ResourceResolvers";
 
@@ -17,7 +18,7 @@ import { TilesetPackageValidator } from "./TilesetPackageValidator";
 
 import { SchemaValidator } from "./metadata/SchemaValidator";
 
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";

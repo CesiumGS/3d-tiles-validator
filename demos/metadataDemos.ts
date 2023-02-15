@@ -1,8 +1,8 @@
 import { defaultValue } from "../src/base/defaultValue";
 import { readJsonUnchecked } from "../src/base/readJsonUnchecked";
 
-import { MetadataClass } from "../src/structure/Metadata/MetadataClass";
-import { Tileset } from "../src/structure/Tileset";
+import { MetadataClass } from "3d-tiles-tools";
+import { Tileset } from "3d-tiles-tools";
 
 import { MetadataEntityModels } from "../src/metadata/MetadataEntityModels";
 

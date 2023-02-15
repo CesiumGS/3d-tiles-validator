@@ -1,7 +1,7 @@
 // Mostly ported from https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3
 
-import { defaultValue } from "../../base/defaultValue";
-import { defined } from "../../base/defined";
+import { defaultValue } from "3d-tiles-tools";
+import { defined } from "3d-tiles-tools";
 
 import { typeToComponentsLength } from "./utility";
 import { componentTypeToByteLength } from "./utility";

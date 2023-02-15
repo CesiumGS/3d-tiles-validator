@@ -1,5 +1,5 @@
-import { defined } from "../../base/defined";
-import { defaultValue } from "../../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
@@ -7,8 +7,8 @@ import { BasicValidator } from "./../BasicValidator";
 import { MetadataValueValidator } from "./MetadataValueValidator";
 import { ClassPropertyValueValidator } from "./ClassPropertyValueValidator";
 
-import { Schema } from "../../structure/Metadata/Schema";
-import { ClassProperty } from "../../structure/Metadata/ClassProperty";
+import { Schema } from "3d-tiles-tools";
+import { ClassProperty } from "3d-tiles-tools";
 
 import { MetadataTypes } from "../../metadata/MetadataTypes";
 import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";

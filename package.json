@@ -23,6 +23,7 @@
     "3d-tiles-validator": "./build/main"
   },
   "dependencies": {
+    "3d-tiles-tools": "file:../3d-tiles-tools",
     "archiver": "^5.3.1",
     "better-sqlite3": "^8.0.1",
     "cesium": "^1.97.0",

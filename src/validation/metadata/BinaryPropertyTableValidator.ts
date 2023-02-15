@@ -1,5 +1,5 @@
-import { defined } from "../../base/defined";
-import { defaultValue } from "../../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 
@@ -9,7 +9,7 @@ import { NumericBuffers } from "../../binary/NumericBuffers";
 import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
 import { MetadataTypes } from "../../metadata/MetadataTypes";
 
-import { ClassProperty } from "../../structure/Metadata/ClassProperty";
+import { ClassProperty } from "3d-tiles-tools";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 import { BinaryPropertyTableValuesValidator } from "./BinaryPropertyTableValuesValidator";

@@ -1,6 +1,6 @@
 import { ArrayValues } from "../../src/base/ArrayValues";
 import { MetadataEntityModels } from "../../src/metadata/MetadataEntityModels";
-import { MetadataClass } from "../../src/structure/Metadata/MetadataClass";
+import { MetadataClass } from "3d-tiles-tools";
 
 describe("metadata/MetadataEntityModel", function () {
   const epsilon = 0.000001;

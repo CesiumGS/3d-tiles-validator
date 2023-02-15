@@ -1,12 +1,12 @@
-import { defined } from "../../base/defined";
-import { defaultValue } from "../../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 import { ArrayValues } from "../../base/ArrayValues";
 
 import { ValidationContext } from "./../ValidationContext";
 
 import { BinaryPropertyTable } from "../../binary/BinaryPropertyTable";
 
-import { ClassProperty } from "../../structure/Metadata/ClassProperty";
+import { ClassProperty } from "3d-tiles-tools";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 import { PropertyTableModel } from "../../binary/PropertyTableModel";

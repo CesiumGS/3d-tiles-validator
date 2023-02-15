@@ -1,10 +1,10 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { BinaryEnumInfo } from "../binary/BinaryEnumInfo";
 
-import { Schema } from "../structure/Metadata/Schema";
-import { ClassProperty } from "../structure/Metadata/ClassProperty";
+import { Schema } from "3d-tiles-tools";
+import { ClassProperty } from "3d-tiles-tools";
 
 /**
  * Internal utilities related to metadata
