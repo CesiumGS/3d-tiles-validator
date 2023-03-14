@@ -10,8 +10,8 @@ import { ClassPropertyValueValidator } from "./ClassPropertyValueValidator";
 import { Schema } from "3d-tiles-tools";
 import { ClassProperty } from "3d-tiles-tools";
 
-import { MetadataTypes } from "../../metadata/MetadataTypes";
-import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
+import { MetadataTypes } from "3d-tiles-tools";
+import { MetadataComponentTypes } from "3d-tiles-tools";
 
 import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";

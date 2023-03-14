@@ -1,16 +1,16 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
-import { ArrayValues } from "../../base/ArrayValues";
+import { ArrayValues } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 
-import { BinaryPropertyTable } from "../../binary/BinaryPropertyTable";
+import { BinaryPropertyTable } from "3d-tiles-tools";
 
 import { ClassProperty } from "3d-tiles-tools";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
-import { PropertyTableModel } from "../../binary/PropertyTableModel";
-import { ClassProperties } from "./ClassProperties";
+import { BinaryPropertyTableModel } from "3d-tiles-tools";
+import { ClassProperties } from "3d-tiles-tools";
 import { BasicValidator } from "../BasicValidator";
 
 /**
@@ -25,11 +25,6 @@ import { BasicValidator } from "../BasicValidator";
  * @internal
  */
 export class BinaryPropertyTableValuesValidator {
-  /**
-   * The epsilon that is used for metadata value comparisons
-   */
-  private static readonly epsilon = 0.000001;
-
   /**
    * Performs the validation to ensure that the given
    * `BinaryPropertyTable` contains valid values.
@@ -147,13 +142,7 @@ export class BinaryPropertyTableValuesValidator {
             propertyId,
             binaryPropertyTable
           );
-          if (
-            !ArrayValues.deepEqualsEpsilon(
-              computedMin,
-              definedMin,
-              BinaryPropertyTableValuesValidator.epsilon
-            )
-          ) {
+          if (!ArrayValues.deepEquals(computedMin, definedMin)) {
             const message =
               `For property ${propertyId}, the property table property ` +
               `defines a minimum of ${definedMin}, but the computed ` +
@@ -208,13 +197,7 @@ export class BinaryPropertyTableValuesValidator {
             propertyId,
             binaryPropertyTable
           );
-          if (
-            !ArrayValues.deepEqualsEpsilon(
-              computedMax,
-              definedMax,
-              BinaryPropertyTableValuesValidator.epsilon
-            )
-          ) {
+          if (!ArrayValues.deepEquals(computedMax, definedMax)) {
             const message =
               `For property ${propertyId}, the property table property ` +
               `defines a maximum of ${definedMax}, but the computed ` +
@@ -258,7 +241,9 @@ export class BinaryPropertyTableValuesValidator {
 
     const propertyTable = binaryPropertyTable.propertyTable;
     const propertyTableCount = propertyTable.count;
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
+    const propertyTableModel = new BinaryPropertyTableModel(
+      binaryPropertyTable
+    );
 
     const metadataClass = binaryPropertyTable.metadataClass;
     const classProperties = defaultValue(metadataClass.properties, {});
@@ -345,7 +330,9 @@ export class BinaryPropertyTableValuesValidator {
     const classProperties = defaultValue(metadataClass.properties, {});
     const classProperty = classProperties[propertyId];
 
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
+    const propertyTableModel = new BinaryPropertyTableModel(
+      binaryPropertyTable
+    );
     const propertyModel = propertyTableModel.getPropertyModel(propertyId);
 
     // Validate each property value
@@ -397,7 +384,9 @@ export class BinaryPropertyTableValuesValidator {
   ): any {
     const propertyTable = binaryPropertyTable.propertyTable;
     const propertyTableCount = propertyTable.count;
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
+    const propertyTableModel = new BinaryPropertyTableModel(
+      binaryPropertyTable
+    );
 
     let computedMin = undefined;
     for (let index = 0; index < propertyTableCount; index++) {
@@ -447,7 +436,9 @@ export class BinaryPropertyTableValuesValidator {
     const classProperties = defaultValue(metadataClass.properties, {});
     const classProperty = classProperties[propertyId];
 
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
+    const propertyTableModel = new BinaryPropertyTableModel(
+      binaryPropertyTable
+    );
     const propertyModel = propertyTableModel.getPropertyModel(propertyId);
 
     // Validate each property value
@@ -499,7 +490,9 @@ export class BinaryPropertyTableValuesValidator {
   ): any {
     const propertyTable = binaryPropertyTable.propertyTable;
     const propertyTableCount = propertyTable.count;
-    const propertyTableModel = new PropertyTableModel(binaryPropertyTable);
+    const propertyTableModel = new BinaryPropertyTableModel(
+      binaryPropertyTable
+    );
 
     let computedMax = undefined;
     for (let index = 0; index < propertyTableCount; index++) {

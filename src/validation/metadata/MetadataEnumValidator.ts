@@ -6,7 +6,7 @@ import { RootPropertyValidator } from "../RootPropertyValidator";
 import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 import { NumberValidator } from "../NumberValidator";
 
-import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
+import { MetadataComponentTypes } from "3d-tiles-tools";
 
 import { MetadataEnum } from "3d-tiles-tools";
 import { EnumValue } from "3d-tiles-tools";

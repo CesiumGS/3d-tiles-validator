@@ -3,11 +3,11 @@ import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 
-import { BinaryPropertyTable } from "../../binary/BinaryPropertyTable";
-import { NumericBuffers } from "../../binary/NumericBuffers";
+import { BinaryPropertyTable } from "3d-tiles-tools";
+import { NumericBuffers } from "3d-tiles-tools";
 
-import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
-import { MetadataTypes } from "../../metadata/MetadataTypes";
+import { MetadataComponentTypes } from "3d-tiles-tools";
+import { MetadataTypes } from "3d-tiles-tools";
 
 import { ClassProperty } from "3d-tiles-tools";
 

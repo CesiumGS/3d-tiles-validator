@@ -2,7 +2,7 @@ import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "../ValidationContext";
 
-import { ClassProperties } from "./ClassProperties";
+import { ClassProperties } from "3d-tiles-tools";
 import { MetadataValueValidator } from "./MetadataValueValidator";
 
 import { ClassProperty } from "3d-tiles-tools";

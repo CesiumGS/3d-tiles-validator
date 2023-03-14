@@ -122,7 +122,7 @@ export class B3dmValidator implements Validator<Buffer> {
     if (defined(featureTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
         uri,
-        featureTableMessage!
+        featureTableMessage
       );
       context.addIssue(issue);
       return false;

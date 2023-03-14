@@ -4,7 +4,7 @@ import { ValidationContext } from "../../src/validation/ValidationContext";
 import { BinaryPropertyTableValidator } from "../../src/validation/metadata/BinaryPropertyTableValidator";
 
 import { PropertyTableTestUtilities } from "./PropertyTableTestUtilities";
-import { BinaryPropertyTable } from "../../src/binary/BinaryPropertyTable";
+import { BinaryPropertyTable } from "3d-tiles-tools";
 
 // A flag to enable printing all `ValidationResult`
 // instances to the console during the tests.

@@ -1,5 +1,5 @@
-import { BinaryPropertyTable } from "../../src/binary/BinaryPropertyTable";
-import { BinaryPropertyTables } from "../../src/binary/BinaryPropertyTables";
+import { BinaryPropertyTable } from "3d-tiles-tools";
+import { BinaryPropertyTables } from "3d-tiles-tools";
 
 import { ClassProperty } from "3d-tiles-tools";
 import { MetadataEnum } from "3d-tiles-tools";

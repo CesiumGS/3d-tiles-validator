@@ -8,7 +8,7 @@ import { ClassPropertyValueValidator } from "./ClassPropertyValueValidator";
 import { PropertyTableProperty } from "3d-tiles-tools";
 import { ClassProperty } from "3d-tiles-tools";
 
-import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
+import { MetadataComponentTypes } from "3d-tiles-tools";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";

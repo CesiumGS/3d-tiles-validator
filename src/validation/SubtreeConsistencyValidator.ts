@@ -10,9 +10,9 @@ import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
-import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
+import { ImplicitTilings } from "3d-tiles-tools";
 import { BinaryBufferStructureValidator } from "./BinaryBufferStructureValidator";
-import { BinaryBufferStructure } from "./metadata/BinaryBufferStructure";
+import { BinaryBufferStructure } from "3d-tiles-tools";
 
 /**
  * A class for the validation of the consistency of subtrees.
@@ -56,8 +56,8 @@ export class SubtreeConsistencyValidator {
     // on the JSON level, validate their consistency
     // in terms of memory layout
     const binaryBufferStructure: BinaryBufferStructure = {
-      buffers: subtree.buffers,
-      bufferViews: subtree.bufferViews,
+      buffers: subtree.buffers ?? [],
+      bufferViews: subtree.bufferViews ?? [],
     };
     if (
       !BinaryBufferStructureValidator.validateBinaryBufferStructureConsistency(

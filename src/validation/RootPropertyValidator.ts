@@ -45,7 +45,7 @@ export class RootPropertyValidator {
     // Validate the extensions
     const extensions = rootProperty.extensions;
     const extensionsPath = path + "/extensions";
-    if (defined(extensions)) {
+    if (defined<any>(extensions)) {
       // The extensions MUST be an object
       if (
         !BasicValidator.validateObject(

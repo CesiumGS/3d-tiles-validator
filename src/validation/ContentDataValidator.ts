@@ -7,6 +7,7 @@ import { Uris } from "3d-tiles-tools";
 import { ValidationContext } from "./ValidationContext";
 import { ContentDataTypeRegistry } from "3d-tiles-tools";
 import { ContentData } from "3d-tiles-tools";
+import { LazyContentData } from "3d-tiles-tools";
 import { ContentDataValidators } from "./ContentDataValidators";
 
 import { Content } from "3d-tiles-tools";
@@ -83,7 +84,7 @@ export class ContentDataValidator {
 
     // Create the `ContentData` that summarizes all information
     // that is required for determining the content type
-    const contentData = new ContentData(contentUri, resourceResolver);
+    const contentData = new LazyContentData(contentUri, resourceResolver);
 
     // Make sure that the content data can be resolved at all
     const dataExists = await contentData.exists();
