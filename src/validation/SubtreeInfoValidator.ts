@@ -3,8 +3,6 @@ import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 
-import { ResourceResolver } from "3d-tiles-tools";
-
 import { SubtreeInfos } from "3d-tiles-tools";
 import { AvailabilityInfo } from "3d-tiles-tools";
 import { ImplicitTilings } from "3d-tiles-tools";

@@ -9,7 +9,7 @@ import { StatisticsClass } from "3d-tiles-tools";
 import { Schema } from "3d-tiles-tools";
 
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { defaultValue } from "cesium";
+import { defaultValue } from "3d-tiles-tools";
 
 /**
  * A class for validations related to `StatisticsClass` objects.
