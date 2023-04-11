@@ -21,7 +21,7 @@ describe("metadata/PropertyTableValidationSpec", function () {
     const directory = "specs/data/propertyTables/";
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
-    context = new ValidationContext(resourceResolver);
+    context = new ValidationContext(directory, resourceResolver);
   });
 
   it("detects issues in propertiesInvalidType", async function () {

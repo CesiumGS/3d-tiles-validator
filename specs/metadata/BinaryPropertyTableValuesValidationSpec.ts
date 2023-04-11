@@ -87,7 +87,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for values that are valid for example_ENUM with a noData value", function () {
@@ -129,7 +129,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for values that are valid for example_variable_length_ENUM_array", function () {
@@ -204,7 +204,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for values that are valid for example_INT16_SCALAR", function () {
@@ -398,7 +398,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for values with offset in class property that are valid for example_INT16_SCALAR", function () {
@@ -606,7 +606,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for values with offset in property table property that are valid for example_INT16_SCALAR", function () {
@@ -814,7 +814,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for values with offset in class property that are valid for example_INT16_SCALAR", function () {
@@ -1022,7 +1022,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for values with scale in property table property that are valid for example_INT16_SCALAR", function () {
@@ -1236,7 +1236,7 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for values that are valid for example_fixed_length_normalized_INT64_VEC2_array", function () {

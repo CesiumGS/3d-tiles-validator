@@ -62,7 +62,7 @@ describe("3d-tiles-tools", function () {
     const directory = "specs/data/buffers/";
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
-    context = new ValidationContext(resourceResolver);
+    context = new ValidationContext(directory, resourceResolver);
   });
 
   it("detects issues in buffersElementByteLengthInvalidType", async function () {

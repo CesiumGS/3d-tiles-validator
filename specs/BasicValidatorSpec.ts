@@ -11,7 +11,7 @@ function validateNumberRange(
   maxInclusive: boolean
 ): boolean {
   const resourceResolver = ResourceResolvers.createFileResourceResolver("");
-  const context = new ValidationContext(resourceResolver);
+  const context = new ValidationContext(".", resourceResolver);
   const result = BasicValidator.validateNumberRange(
     "path",
     "name",
