@@ -112,7 +112,11 @@ export class Validators {
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
     const validator = Validators.createDefaultTilesetValidator();
-    const context = new ValidationContext(resourceResolver, validationOptions);
+    const context = new ValidationContext(
+      directory,
+      resourceResolver,
+      validationOptions
+    );
     const resourceData = await resourceResolver.resolveData(fileName);
     if (!defined(resourceData)) {
       const message = `Could not read input file: ${filePath}`;
@@ -156,7 +160,11 @@ export class Validators {
     const directory = path.dirname(filePath);
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
-    const context = new ValidationContext(resourceResolver, validationOptions);
+    const context = new ValidationContext(
+      directory,
+      resourceResolver,
+      validationOptions
+    );
     await TilesetPackageValidator.validatePackageFile(filePath, context);
     return context.getResult();
   }
@@ -188,7 +196,7 @@ export class Validators {
       ResourceResolvers.createFileResourceResolver(directory);
     const resourceData = await resourceResolver.resolveData(fileName);
     const validator = Validators.createDefaultSchemaValidator();
-    const context = new ValidationContext(resourceResolver);
+    const context = new ValidationContext(directory, resourceResolver);
     const jsonString = resourceData ? resourceData.toString() : "";
     await validator.validateJsonString(jsonString, context);
     return context.getResult();
@@ -240,7 +248,7 @@ export class Validators {
       validationState,
       implicitTiling
     );
-    const context = new ValidationContext(resourceResolver);
+    const context = new ValidationContext(directory, resourceResolver);
     if (!defined(resourceData)) {
       const message = `Could not read subtree file ${filePath}`;
       const issue = IoValidationIssues.IO_ERROR(filePath, message);

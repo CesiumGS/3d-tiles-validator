@@ -101,7 +101,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
-    const isSubt = Buffers.getMagic(input) === "subt";
+    const isSubt = Buffers.getMagicString(input) === "subt";
     if (isSubt) {
       const result = await this.validateSubtreeBinaryData(path, input, context);
       return result;

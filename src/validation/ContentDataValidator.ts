@@ -82,6 +82,8 @@ export class ContentDataValidator {
   ): Promise<boolean> {
     const resourceResolver = context.getResourceResolver();
 
+    //console.log('Validating ' +contentPath+" with "+contentUri);
+
     // Create the `ContentData` that summarizes all information
     // that is required for determining the content type
     const contentData = new LazyContentData(contentUri, resourceResolver);
@@ -182,7 +184,7 @@ export class ContentDataValidator {
     context: ValidationContext
   ) {
     const magic = await contentData.getMagic();
-    const isGlb = magic === "glTF";
+    const isGlb = magic.toString("ascii") === "glTF";
     if (isGlb) {
       context.addExtensionFound("3DTILES_content_gltf");
     }

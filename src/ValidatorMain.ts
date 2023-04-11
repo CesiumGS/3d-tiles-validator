@@ -136,7 +136,8 @@ export class ValidatorMain {
     console.log(
       "Validating tilesets from " + directoryName + " matching " + globPattern
     );
-    const allFiles = Iterables.overFiles(directoryName);
+    const recurse = true;
+    const allFiles = Iterables.overFiles(directoryName, recurse);
     const ignoreCase = true;
     const matcher = globMatcher(globPattern, ignoreCase);
     const tilesetFiles = Iterables.filter(allFiles, matcher);

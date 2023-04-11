@@ -187,7 +187,6 @@ export class TilesetPackageValidator implements Validator<string> {
     // This has to be present according to the 3TZ specification.
     const packageResourceResolver = new TilesetSourceResourceResolver(
       "./",
-      uri,
       tilesetSource
     );
     const tilesetJsonBuffer = await packageResourceResolver.resolveData(
@@ -225,6 +224,7 @@ export class TilesetPackageValidator implements Validator<string> {
     // are caused by the tileset, and validate the
     // tileset using a default tileset validator.
     const derivedContext = context.deriveFromResourceResolver(
+      uri,
       packageResourceResolver
     );
     const tilesetValidator = Validators.createDefaultTilesetValidator();

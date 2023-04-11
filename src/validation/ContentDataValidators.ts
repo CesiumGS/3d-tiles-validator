@@ -145,8 +145,7 @@ export class ContentDataValidators {
         input: ContentData,
         context: ValidationContext
       ): Promise<boolean> {
-        const resourceResolver = context.getResourceResolver();
-        const resolvedUri = resourceResolver.resolveUri(input.uri);
+        const resolvedUri = context.resolveUri(input.uri);
         const result = await packageValidator.validateObject(
           inputPath,
           resolvedUri,
