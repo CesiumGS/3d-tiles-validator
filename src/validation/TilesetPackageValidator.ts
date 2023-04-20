@@ -1,6 +1,7 @@
 import path from "path";
 import { defined } from "3d-tiles-tools";
 import { Buffers } from "3d-tiles-tools";
+import { UnzippingResourceResolver } from "3d-tiles-tools";
 
 import { Validators } from "./Validators";
 import { Validator } from "./Validator";
@@ -185,9 +186,12 @@ export class TilesetPackageValidator implements Validator<string> {
     // Create the `TilesetSourceResourceResolver` from the package,
     // and obtain the data for the `tileset.json` file.
     // This has to be present according to the 3TZ specification.
-    const packageResourceResolver = new TilesetSourceResourceResolver(
+    const plainPackageResourceResolver = new TilesetSourceResourceResolver(
       "./",
       tilesetSource
+    );
+    const packageResourceResolver = new UnzippingResourceResolver(
+      plainPackageResourceResolver
     );
     const tilesetJsonBuffer = await packageResourceResolver.resolveData(
       "tileset.json"
