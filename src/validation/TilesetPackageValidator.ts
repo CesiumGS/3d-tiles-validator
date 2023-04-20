@@ -7,6 +7,7 @@ import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";
 
 import { PackageResourceResolver } from "../io/PackageResourceResolver";
+import { UnzippingResourceResolver } from "../io/UnzippingResourceResolver";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
@@ -184,10 +185,13 @@ export class TilesetPackageValidator implements Validator<string> {
     // Create the `PackageResourceResolver` from the package,
     // and obtain the data for the `tileset.json` file.
     // This has to be present according to the 3TZ specification.
-    const packageResourceResolver = new PackageResourceResolver(
+    const plainPackageResourceResolver = new PackageResourceResolver(
       "./",
       uri,
       tilesetPackage
+    );
+    const packageResourceResolver = new UnzippingResourceResolver(
+      plainPackageResourceResolver
     );
     const tilesetJsonBuffer = await packageResourceResolver.resolveData(
       "tileset.json"
