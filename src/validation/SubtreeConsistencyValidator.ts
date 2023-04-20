@@ -74,7 +74,7 @@ export class SubtreeConsistencyValidator {
         !SubtreeConsistencyValidator.validateSubtreeAvailabilityConsistency(
           path,
           subtree,
-          implicitTiling!,
+          implicitTiling,
           context
         )
       ) {
@@ -134,9 +134,9 @@ export class SubtreeConsistencyValidator {
       ImplicitTilings.computeNumberOfNodesPerSubtree(implicitTiling);
     if (defined(contentAvailability)) {
       // Validate the consistency of each contentAvailability
-      for (let i = 0; i < contentAvailability!.length; i++) {
+      for (let i = 0; i < contentAvailability.length; i++) {
         const elementPath = contentAvailabilityPath + "/" + i;
-        const element = contentAvailability![i];
+        const element = contentAvailability[i];
         if (
           !SubtreeConsistencyValidator.validateAvailabilityConsistency(
             elementPath,
@@ -213,7 +213,7 @@ export class SubtreeConsistencyValidator {
         !BasicValidator.validateIntegerRange(
           bitstreamPath,
           "bitstream",
-          bitstream!,
+          bitstream,
           0,
           true,
           bufferViews.length,
@@ -224,7 +224,7 @@ export class SubtreeConsistencyValidator {
         result = false;
       } else {
         // The required length in bits MUST fit into the bufferView
-        const bufferView = bufferViews![bitstream!];
+        const bufferView = bufferViews[bitstream];
         const requiredLengthInBytes = Math.ceil(requiredLengthInBits / 8);
         if (requiredLengthInBytes !== bufferView.byteLength) {
           const subtreeLevels = implicitTiling.subtreeLevels;

@@ -100,7 +100,7 @@ export class PropertyTablePropertyValidator {
           !BasicValidator.validateIntegerRange(
             arrayOffsetsPath,
             "arrayOffsets",
-            arrayOffsets!,
+            arrayOffsets,
             0,
             true,
             numBufferViews,
@@ -134,7 +134,7 @@ export class PropertyTablePropertyValidator {
           !BasicValidator.validateIntegerRange(
             stringOffsetsPath,
             "stringOffsets",
-            stringOffsets!,
+            stringOffsets,
             0,
             true,
             numBufferViews,

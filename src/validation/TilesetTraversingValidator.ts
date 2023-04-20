@@ -84,7 +84,7 @@ export class TilesetTraversingValidator {
             if (defined(parent)) {
               const hierarchyValid =
                 TilesetTraversingValidator.validateTraversedTiles(
-                  parent!,
+                  parent,
                   traversedTile,
                   context
                 );
@@ -212,7 +212,7 @@ export class TilesetTraversingValidator {
       if (
         !ImplicitTilingValidator.validateImplicitTiling(
           implicitTilingPath,
-          implicitTiling!,
+          implicitTiling,
           context
         )
       ) {
@@ -226,8 +226,8 @@ export class TilesetTraversingValidator {
         const subtreeRootValid =
           await TilesetTraversingValidator.validateSubtreeRoot(
             path,
-            implicitTiling!,
-            subtreeUri!,
+            implicitTiling,
+            subtreeUri,
             validationState,
             context
           );
@@ -260,8 +260,8 @@ export class TilesetTraversingValidator {
           !MetadataEntityValidator.validateMetadataEntity(
             metadataPath,
             "tile.metadata",
-            metadata!,
-            validationState.validatedSchema!,
+            metadata,
+            validationState.validatedSchema,
             context
           )
         ) {
@@ -293,10 +293,10 @@ export class TilesetTraversingValidator {
     // Validate the content
     const content = tile.content;
     const contentPath = traversedTile.path + "/content";
-    if (defined<any>(content)) {
+    if (defined(content)) {
       const contentResult = await TileContentValidator.validateTileContent(
         contentPath,
-        content!,
+        content,
         tile,
         context
       );
@@ -308,13 +308,13 @@ export class TilesetTraversingValidator {
     // Validate the contents
     const contents = tile.contents;
     const contentsPath = traversedTile.path + "/contents";
-    if (defined<any>(contents)) {
-      for (let i = 0; i < contents!.length; i++) {
-        const contentsElement = contents![i];
+    if (defined(contents)) {
+      for (let i = 0; i < contents.length; i++) {
+        const contentsElement = contents[i];
         const contentsElementPath = contentsPath + "/" + i;
         const contentResult = await TileContentValidator.validateTileContent(
           contentsElementPath,
-          contentsElement!,
+          contentsElement,
           tile,
           context
         );

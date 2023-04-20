@@ -3,6 +3,7 @@ import { BasicValidator } from "./../BasicValidator";
 import { NumberValidator } from "./../NumberValidator";
 
 import { MetadataUtilities } from "3d-tiles-tools";
+import { defined } from "3d-tiles-tools";
 import { MetadataTypes } from "3d-tiles-tools";
 
 import { Schema } from "3d-tiles-tools";
@@ -364,6 +365,9 @@ export class MetadataValueValidator {
     const type = property.type;
     const array = property.array;
     const componentType = property.componentType;
+    if (!defined(componentType)) {
+      return false;
+    }
 
     // Check non-array types
     if (!array) {
@@ -381,7 +385,7 @@ export class MetadataValueValidator {
             valuePath,
             "value",
             value,
-            componentType!,
+            componentType,
             context
           )
         ) {
@@ -412,7 +416,7 @@ export class MetadataValueValidator {
       return NumberValidator.validateRanges(
         valuePath,
         value,
-        componentType!,
+        componentType,
         context
       );
     }
@@ -445,7 +449,7 @@ export class MetadataValueValidator {
       return NumberValidator.validateRanges(
         valuePath,
         value,
-        componentType!,
+        componentType,
         context
       );
     }
@@ -491,7 +495,7 @@ export class MetadataValueValidator {
           !NumberValidator.validateRanges(
             valueElementPath,
             valueElement,
-            componentType!,
+            componentType,
             context
           )
         ) {

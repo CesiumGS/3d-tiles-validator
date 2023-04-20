@@ -157,7 +157,7 @@ export class TilesetPackageValidator implements Validator<string> {
       if (defined(zipIndex)) {
         try {
           const indexValid = await ArchiveValidation3tz.validateIndex(
-            zipIndex!,
+            zipIndex,
             uri,
             false
           );
@@ -199,7 +199,7 @@ export class TilesetPackageValidator implements Validator<string> {
       return false;
     }
 
-    const bom = Buffers.getUnicodeBOMDescription(tilesetJsonBuffer!);
+    const bom = Buffers.getUnicodeBOMDescription(tilesetJsonBuffer);
     if (defined(bom)) {
       const message = `Unexpected BOM in subtree JSON buffer: ${bom}`;
       const issue = IoValidationIssues.IO_ERROR(uri, message);
@@ -210,7 +210,7 @@ export class TilesetPackageValidator implements Validator<string> {
     // Parse the tileset object from the JSON data
     let tileset = undefined;
     try {
-      tileset = JSON.parse(tilesetJsonBuffer!.toString());
+      tileset = JSON.parse(tilesetJsonBuffer.toString());
     } catch (error) {
       const message =
         `Could not parse tileset JSON from 'tileset.json' ` +

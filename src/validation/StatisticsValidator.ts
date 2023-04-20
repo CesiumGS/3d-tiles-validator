@@ -113,7 +113,7 @@ export class StatisticsValidator {
               !StatisticsClassValidator.validateStatisticsClass(
                 statisticsClass,
                 className,
-                validationState.validatedSchema!,
+                validationState.validatedSchema,
                 context
               )
             ) {

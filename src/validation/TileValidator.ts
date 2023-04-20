@@ -110,7 +110,7 @@ export class TileValidator {
       if (
         !BoundingVolumeValidator.validateBoundingVolume(
           viewerRequestVolumePath,
-          viewerRequestVolume!,
+          viewerRequestVolume,
           context
         )
       ) {
@@ -153,9 +153,9 @@ export class TileValidator {
         // Special handling for refine values that are not
         // in uppercase: If it is a valid value, but not
         // in uppercase, then issue a warning
-        const upperCaseRefine = refine!.toUpperCase();
+        const upperCaseRefine = refine.toUpperCase();
         if (
-          !refineValues.includes(refine!) &&
+          !refineValues.includes(refine) &&
           refineValues.includes(upperCaseRefine)
         ) {
           const message =
@@ -188,11 +188,7 @@ export class TileValidator {
     const transformPath = tilePath + "/transform";
     if (defined(transform)) {
       if (
-        !TransformValidator.validateTransform(
-          transformPath,
-          transform!,
-          context
-        )
+        !TransformValidator.validateTransform(transformPath, transform, context)
       ) {
         result = false;
       }
@@ -217,8 +213,8 @@ export class TileValidator {
           !MetadataEntityValidator.validateMetadataEntity(
             metadataPath,
             "tile.metadata",
-            metadata!,
-            validationState.validatedSchema!,
+            metadata,
+            validationState.validatedSchema,
             context
           )
         ) {
@@ -251,7 +247,7 @@ export class TileValidator {
         !TileValidator.validateImplicitTilesetRoot(
           tilePath,
           tile,
-          implicitTiling!,
+          implicitTiling,
           context
         )
       ) {
@@ -300,7 +296,7 @@ export class TileValidator {
     if (defined(content)) {
       const contentValid = await ContentValidator.validateContent(
         contentPath,
-        content!,
+        content,
         validationState,
         context
       );
@@ -329,9 +325,9 @@ export class TileValidator {
         result = false;
       } else {
         // Validate each element of the contents array
-        for (let index = 0; index < contents!.length; index++) {
+        for (let index = 0; index < contents.length; index++) {
           const contentsElementPath = contentsPath + "/" + index;
-          const contentsElement = contents![index];
+          const contentsElement = contents[index];
           const contentValid = await ContentValidator.validateContent(
             contentsElementPath,
             contentsElement,
@@ -510,7 +506,7 @@ export class TileValidator {
         // This is only checked if the implicit tiling was
         // valid (i.e. contained a valid subdivisionScheme)
         if (implicitTilingIsValid) {
-          const contentUri = content!.uri;
+          const contentUri = content.uri;
           const contentUriPath = contentPath + "/uri";
           const subdivisionScheme = implicitTiling.subdivisionScheme;
           if (
@@ -549,14 +545,14 @@ export class TileValidator {
         result = false;
       } else {
         // Validate each element of the contents array
-        for (let index = 0; index < contents!.length; index++) {
+        for (let index = 0; index < contents.length; index++) {
           const contentsElementPath = contentsPath + "/" + index;
-          const contentsElement = contents![index];
+          const contentsElement = contents[index];
           // The content uri MUST be a valid template URI.
           // This is only checked if the implicit tiling was
           // valid (i.e. contained a valid subdivisionScheme)
           if (implicitTilingIsValid) {
-            const contentsElementUri = contentsElement!.uri;
+            const contentsElementUri = contentsElement.uri;
             const contentsElementUriPath = contentsElementPath + "/uri";
             const subdivisionScheme = implicitTiling.subdivisionScheme;
             if (

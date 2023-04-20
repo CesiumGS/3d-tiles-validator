@@ -123,8 +123,8 @@ export class MetadataClassValidator {
 
       // Validate each property
       let allPropertiesValid = true;
-      for (const propertyName of Object.keys(properties!)) {
-        const property = properties![propertyName];
+      for (const propertyName of Object.keys(properties)) {
+        const property = properties[propertyName];
         const propertyPath = propertiesPath + "/" + propertyName;
 
         // Each property name MUST match the ID regex
@@ -161,7 +161,7 @@ export class MetadataClassValidator {
         if (
           !ClassPropertySemanticsValidator.validateSemantics(
             metadataClassPath,
-            properties!,
+            properties,
             context
           )
         ) {

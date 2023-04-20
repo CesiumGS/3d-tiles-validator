@@ -54,7 +54,7 @@ export class SubtreeInfoValidator {
       context.addIssue(issue);
       return false;
     }
-    const subtreeInfo = optionalSubtreeInfo!;
+    const subtreeInfo = optionalSubtreeInfo;
     const subtree = binarySubtreeData.subtree;
 
     let result = true;
@@ -233,7 +233,7 @@ export class SubtreeInfoValidator {
       const p = c.parent();
       if (defined(p)) {
         const cIndex = c.toIndex();
-        const pIndex = p!.toIndex();
+        const pIndex = p.toIndex();
         const cAvailable = tileAvailabilityInfo.isAvailable(cIndex);
         const pAvailable = tileAvailabilityInfo.isAvailable(pIndex);
         if (cAvailable && !pAvailable) {

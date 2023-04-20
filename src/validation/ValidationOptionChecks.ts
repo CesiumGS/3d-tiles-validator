@@ -36,11 +36,11 @@ export class ValidationOptionChecks {
     let isExcluded = false;
     const included = options.includeContentTypes;
     if (defined(included)) {
-      isIncluded = included!.includes(name!);
+      isIncluded = included.includes(name);
     }
     const excluded = options.excludeContentTypes;
     if (defined(excluded)) {
-      isExcluded = excluded!.includes(name!);
+      isExcluded = excluded.includes(name);
     }
     return isIncluded && !isExcluded;
   }

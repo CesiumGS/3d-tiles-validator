@@ -209,7 +209,7 @@ export class BinaryPropertyTableValidator {
     const propertyTableProperty = propertyTableProperties[propertyId];
 
     // Obtain the `values` information
-    const valuesBufferViewIndex = propertyTableProperty.values!;
+    const valuesBufferViewIndex = propertyTableProperty.values;
 
     // Validate the byte offset of the component type requires
     // a specific alignment
@@ -223,7 +223,7 @@ export class BinaryPropertyTableValidator {
           propertyId,
           "values",
           valuesBufferViewIndex,
-          componentType!,
+          componentType,
           binaryPropertyTable,
           context
         )
@@ -240,7 +240,7 @@ export class BinaryPropertyTableValidator {
       binaryPropertyTable
     );
     const componentTypeByteSize =
-      MetadataComponentTypes.byteSizeForComponentType(componentType!);
+      MetadataComponentTypes.byteSizeForComponentType(componentType);
     let expectedByteLength = numValues * componentTypeByteSize;
     if (type === "BOOLEAN") {
       expectedByteLength = Math.ceil(numValues / 8) * componentTypeByteSize;
@@ -253,7 +253,7 @@ export class BinaryPropertyTableValidator {
         path,
         propertyId,
         valuesBufferViewIndex,
-        componentType!,
+        componentType,
         binaryPropertyTable,
         numValues,
         expectedByteLength,
@@ -606,7 +606,7 @@ export class BinaryPropertyTableValidator {
     const binaryBufferStructure = binaryPropertyTable.binaryBufferStructure;
     const bufferViews = defaultValue(binaryBufferStructure.bufferViews, []);
 
-    const bufferView = bufferViews[bufferViewIndex!];
+    const bufferView = bufferViews[bufferViewIndex];
 
     // Compute the expected number of bytes.
     const componentTypeByteSize =
@@ -667,7 +667,7 @@ export class BinaryPropertyTableValidator {
     const binaryBufferStructure = binaryPropertyTable.binaryBufferStructure;
     const bufferViews = defaultValue(binaryBufferStructure.bufferViews, []);
 
-    const bufferView = bufferViews[bufferViewIndex!];
+    const bufferView = bufferViews[bufferViewIndex];
     const actualByteLength = bufferView.byteLength;
     if (actualByteLength !== expectedByteLength) {
       const message = BinaryPropertyTableValidator.createByteLengthMessage(
@@ -717,7 +717,7 @@ export class BinaryPropertyTableValidator {
 
     const propertyTableProperties = defaultValue(propertyTable.properties, {});
     const propertyTableProperty = propertyTableProperties[propertyId];
-    const valuesBufferViewIndex = propertyTableProperty.values!;
+    const valuesBufferViewIndex = propertyTableProperty.values;
 
     const binaryBufferStructure = binaryPropertyTable.binaryBufferStructure;
     const bufferViews = defaultValue(binaryBufferStructure.bufferViews, []);
@@ -730,7 +730,7 @@ export class BinaryPropertyTableValidator {
     const componentCount = MetadataTypes.componentCountForType(type);
 
     const componentTypeByteSize =
-      MetadataComponentTypes.byteSizeForComponentType(componentType!);
+      MetadataComponentTypes.byteSizeForComponentType(componentType);
 
     const actualByteLength = valuesBufferView.byteLength;
     if (isVariableLengthArray) {
@@ -1024,7 +1024,7 @@ export class BinaryPropertyTableValidator {
     const bufferViewsData = defaultValue(binaryBufferData.bufferViewsData, []);
     const arrayOffsetsBufferView = bufferViewsData[arrayOffsetsBufferViewIndex];
     const arrayOffset = NumericBuffers.getNumericFromBuffer(
-      arrayOffsetsBufferView!,
+      arrayOffsetsBufferView,
       index,
       arrayOffsetType
     );
@@ -1061,7 +1061,7 @@ export class BinaryPropertyTableValidator {
     const stringOffsetsBufferView =
       bufferViewsData[stringOffsetsBufferViewIndex];
     const stringOffset = NumericBuffers.getNumericFromBuffer(
-      stringOffsetsBufferView!,
+      stringOffsetsBufferView,
       index,
       stringOffsetType
     );

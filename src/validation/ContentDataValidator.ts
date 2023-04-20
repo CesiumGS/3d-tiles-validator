@@ -137,7 +137,7 @@ export class ContentDataValidator {
     // the 'causes' of a single content validation issue.
     const dirName = paths.dirname(contentData.uri);
     const derivedContext = context.deriveFromUri(dirName);
-    const result = await dataValidator!.validateObject(
+    const result = await dataValidator.validateObject(
       contentUri,
       contentData,
       derivedContext

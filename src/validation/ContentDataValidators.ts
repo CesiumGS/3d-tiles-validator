@@ -239,7 +239,7 @@ export class ContentDataValidators {
         }
         const result = await bufferValidator.validateObject(
           inputPath,
-          data!,
+          data,
           context
         );
         return result;

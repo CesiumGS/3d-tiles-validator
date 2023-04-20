@@ -42,7 +42,7 @@ export class NumberValidator {
           valuePath,
           "array element",
           value,
-          componentType!,
+          componentType,
           context
         )
       ) {
@@ -82,7 +82,7 @@ export class NumberValidator {
       context.addIssue(issue);
       return false;
     }
-    if (value < min! || value > max!) {
+    if (value < min || value > max) {
       const message =
         `The ${name} has type ${componentType} and must be ` +
         `in [${min},${max}], but is ${value}`;

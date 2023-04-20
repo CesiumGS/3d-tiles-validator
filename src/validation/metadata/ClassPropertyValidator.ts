@@ -54,7 +54,7 @@ export class ClassPropertyValidator {
       schema,
       propertyPath,
       propertyName,
-      property!,
+      property,
       context
     );
   }
@@ -149,7 +149,7 @@ export class ClassPropertyValidator {
       const issue =
         MetadataValidationIssues.CLASS_PROPERTY_COMPONENT_TYPE_FOR_NON_NUMERIC_TYPE(
           componentTypePath,
-          componentType!,
+          componentType,
           type
         );
       context.addIssue(issue);
@@ -198,7 +198,7 @@ export class ClassPropertyValidator {
       const issue =
         MetadataValidationIssues.CLASS_PROPERTY_ENUMTYPE_WITH_NON_ENUM_TYPE(
           enumTypePath,
-          enumType!,
+          enumType,
           type
         );
       context.addIssue(issue);
@@ -218,11 +218,11 @@ export class ClassPropertyValidator {
         // When the enumType is defined, then the schema MUST
         // define an enum with this name
         const enums = defaultValue(schema.enums, {});
-        if (!Object.keys(enums).includes(enumType!)) {
+        if (!Object.keys(enums).includes(enumType)) {
           const issue =
             MetadataValidationIssues.CLASS_PROPERTY_ENUMTYPE_NOT_FOUND(
               propertyPath,
-              enumType!
+              enumType
             );
           context.addIssue(issue);
           result = false;
@@ -250,7 +250,7 @@ export class ClassPropertyValidator {
         !BasicValidator.validateIntegerRange(
           countPath,
           "count",
-          count!,
+          count,
           2,
           true,
           undefined,
@@ -305,12 +305,12 @@ export class ClassPropertyValidator {
         if (defined(componentType)) {
           // If normalized is 'true', then the componentType (if present)
           // MUST be an integer type
-          if (!MetadataComponentTypes.isIntegerComponentType(componentType!)) {
+          if (!MetadataComponentTypes.isIntegerComponentType(componentType)) {
             const issue =
               MetadataValidationIssues.CLASS_PROPERTY_NORMALIZED_FOR_NON_INTEGER_COMPONENT_TYPE(
                 propertyPath,
                 propertyName,
-                componentType!
+                componentType
               );
             context.addIssue(issue);
             result = false;
@@ -400,10 +400,10 @@ export class ClassPropertyValidator {
       } else {
         // The semantic string MUST have a length of at least 1
         const minLength = 1;
-        if (semantic!.length < minLength) {
+        if (semantic.length < minLength) {
           const message =
             `The 'semantic' must have a length of least ${minLength}, ` +
-            `but has a length of ${semantic!.length}`;
+            `but has a length of ${semantic.length}`;
           const issue = JsonValidationIssues.STRING_LENGTH_MISMATCH(
             semanticPath,
             message

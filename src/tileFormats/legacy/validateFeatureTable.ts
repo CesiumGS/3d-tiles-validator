@@ -68,11 +68,11 @@ function validateFeatureTable(
         ) {
           return `Feature table binary property "${name}" has invalid componentType "${componentType}".`;
         }
-        if (byteOffset % componentByteLength! > 0) {
+        if (byteOffset % componentByteLength > 0) {
           return `Feature table binary property "${name}" must be aligned to a ${componentByteLength}-byte boundary.`;
         }
         const propertyByteLength =
-          componentsLength! * componentByteLength! * itemsLength;
+          componentsLength * componentByteLength * itemsLength;
         if (byteOffset + propertyByteLength > featureTableBinary.length) {
           return `Feature table binary property "${name}" exceeds feature table binary byte length.`;
         }
@@ -84,7 +84,7 @@ function validateFeatureTable(
         if (!defined(componentsLength)) {
           return `Feature table binary property "${name}" has invalid type "${type}".`;
         }
-        const arrayLength = componentsLength! * itemsLength;
+        const arrayLength = componentsLength * itemsLength;
         if (definition.global && arrayLength === 1) {
           if (typeof property !== "number") {
             return `Feature table property "${name}" must be a number.`;

@@ -74,7 +74,7 @@ export class ExtendedObjectsValidators {
     if (!defined(extensions)) {
       return false;
     }
-    const extensionNames = Object.keys(extensions!);
+    const extensionNames = Object.keys(extensions);
     for (const extensionName of extensionNames) {
       const override = ExtendedObjectsValidators.overrides.get(extensionName);
       if (override === true) {
@@ -128,7 +128,7 @@ export class ExtendedObjectsValidators {
 
     let allValid = true;
 
-    const extensionNames = Object.keys(extensions!);
+    const extensionNames = Object.keys(extensions);
     for (const extensionName of extensionNames) {
       const extendedObjectValidator =
         ExtendedObjectsValidators.extendedObjectValidators.get(extensionName);
@@ -144,7 +144,7 @@ export class ExtendedObjectsValidators {
         context.addIssue(issue);
       } else {
         // Validate the object with the registered Validator
-        const isValid = await extendedObjectValidator!.validateObject(
+        const isValid = await extendedObjectValidator.validateObject(
           path,
           rootProperty,
           context

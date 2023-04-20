@@ -126,10 +126,10 @@ export class PntsValidator implements Validator<Buffer> {
       return false;
     }
 
-    const featureTableJson = binaryTableData!.featureTableJson;
-    const featureTableBinary = binaryTableData!.featureTableBinary;
-    const batchTableJson = binaryTableData!.batchTableJson;
-    const batchTableBinary = binaryTableData!.batchTableBinary;
+    const featureTableJson = binaryTableData.featureTableJson;
+    const featureTableBinary = binaryTableData.featureTableBinary;
+    const batchTableJson = binaryTableData.batchTableJson;
+    const batchTableBinary = binaryTableData.batchTableBinary;
 
     let result = true;
 
@@ -224,7 +224,7 @@ export class PntsValidator implements Validator<Buffer> {
     if (defined(featureTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
         uri,
-        featureTableMessage!
+        featureTableMessage
       );
       context.addIssue(issue);
       result = false;
@@ -247,7 +247,7 @@ export class PntsValidator implements Validator<Buffer> {
     if (defined(batchTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
         uri,
-        batchTableMessage!
+        batchTableMessage
       );
       context.addIssue(issue);
       result = false;

@@ -130,7 +130,7 @@ export class TilesetValidator implements Validator<Tileset> {
     // Validate the properties (I mean, the `properties`...)
     const properties = tileset.properties;
     if (defined(properties)) {
-      if (!PropertiesValidator.validateProperties(properties!, context)) {
+      if (!PropertiesValidator.validateProperties(properties, context)) {
         result = false;
       }
     }
@@ -183,7 +183,7 @@ export class TilesetValidator implements Validator<Tileset> {
     const schema = schemaResult.schema;
     const schemaPath = path + "/schema";
     if (defined(schema)) {
-      if (SchemaValidator.validateSchema(schemaPath, schema!, context)) {
+      if (SchemaValidator.validateSchema(schemaPath, schema, context)) {
         validationState.validatedSchema = schema;
       } else {
         result = false;
@@ -208,8 +208,8 @@ export class TilesetValidator implements Validator<Tileset> {
       } else if (defined(validationState.validatedSchema)) {
         if (
           TilesetValidator.validateTilesetGroups(
-            groups!,
-            validationState.validatedSchema!,
+            groups,
+            validationState.validatedSchema,
             context
           )
         ) {
@@ -227,7 +227,7 @@ export class TilesetValidator implements Validator<Tileset> {
       if (
         !StatisticsValidator.validateStatistics(
           statisticsPath,
-          statistics!,
+          statistics,
           validationState,
           context
         )
@@ -277,8 +277,8 @@ export class TilesetValidator implements Validator<Tileset> {
           !MetadataEntityValidator.validateMetadataEntity(
             metadataPath,
             "metadata",
-            metadata!,
-            validationState.validatedSchema!,
+            metadata,
+            validationState.validatedSchema,
             context
           )
         ) {
@@ -354,7 +354,7 @@ export class TilesetValidator implements Validator<Tileset> {
       ) {
         result = false;
       } else {
-        extensionsUsed!.forEach((e) => actualExtensionsUsed.add(e));
+        extensionsUsed.forEach((e) => actualExtensionsUsed.add(e));
 
         // The elements in extensionsUsed MUST be unique
         BasicValidator.validateArrayElementsUnique(
@@ -384,7 +384,7 @@ export class TilesetValidator implements Validator<Tileset> {
       ) {
         result = false;
       } else {
-        extensionsRequired!.forEach((e) => actualExtensionsRequired.add(e));
+        extensionsRequired.forEach((e) => actualExtensionsRequired.add(e));
 
         // The elements in extensionsRequired MUST be unique
         BasicValidator.validateArrayElementsUnique(
@@ -490,7 +490,7 @@ export class TilesetValidator implements Validator<Tileset> {
         };
       }
 
-      const bom = Buffers.getUnicodeBOMDescription(schemaBuffer!);
+      const bom = Buffers.getUnicodeBOMDescription(schemaBuffer);
       if (defined(bom)) {
         const message = `Unexpected BOM in schema JSON buffer: ${bom}`;
         const issue = IoValidationIssues.IO_ERROR(schemaUri, message);
@@ -501,7 +501,7 @@ export class TilesetValidator implements Validator<Tileset> {
         };
       }
 
-      const schemaString = schemaBuffer!.toString();
+      const schemaString = schemaBuffer.toString();
       try {
         const resolvedSchema = JSON.parse(schemaString);
         return {

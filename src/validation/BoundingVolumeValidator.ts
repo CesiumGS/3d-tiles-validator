@@ -134,9 +134,7 @@ export class BoundingVolumeValidator {
     // Validate the box
     const boxPath = boundingVolumePath + "/box";
     if (defined(box)) {
-      if (
-        !BoundingVolumeValidator.validateBoundingBox(boxPath, box!, context)
-      ) {
+      if (!BoundingVolumeValidator.validateBoundingBox(boxPath, box, context)) {
         result = false;
       }
     }
@@ -147,7 +145,7 @@ export class BoundingVolumeValidator {
       if (
         !BoundingVolumeValidator.validateBoundingRegion(
           regionPath,
-          region!,
+          region,
           context
         )
       ) {
@@ -161,7 +159,7 @@ export class BoundingVolumeValidator {
       if (
         !BoundingVolumeValidator.validateBoundingSphere(
           spherePath,
-          sphere!,
+          sphere,
           context
         )
       ) {
@@ -236,7 +234,7 @@ export class BoundingVolumeValidator {
     }
 
     // The radius MUST NOT be negative
-    const radius = sphere![3];
+    const radius = sphere[3];
     if (radius < 0.0) {
       const message =
         `The 'radius' entry of the bounding sphere ` +

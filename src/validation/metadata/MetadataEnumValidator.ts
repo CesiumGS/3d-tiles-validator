@@ -357,7 +357,7 @@ export class MetadataEnumValidator {
           valuePath,
           "value",
           value,
-          validatedValueType!,
+          validatedValueType,
           context
         )
       ) {

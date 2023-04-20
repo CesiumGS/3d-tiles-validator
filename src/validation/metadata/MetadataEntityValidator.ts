@@ -109,7 +109,7 @@ export class MetadataEntityValidator {
       // Note: The check whether 'required' properties are
       // present and have values was already done by the
       // MetadataStructureValidator
-      const propertyValue = entityProperties![propertyName];
+      const propertyValue = validProperties[propertyName];
       if (defined(propertyValue)) {
         // The property value MUST match the structure
         // of the property definition

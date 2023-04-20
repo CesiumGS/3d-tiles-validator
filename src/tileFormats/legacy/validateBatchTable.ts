@@ -56,11 +56,11 @@ function validateBatchTable(
         if (!defined(componentByteLength)) {
           return `Batch table binary property "${name}" has invalid componentType "${componentType}".`;
         }
-        if (byteOffset % componentByteLength! > 0) {
+        if (byteOffset % componentByteLength > 0) {
           return `Batch table binary property "${name}" must be aligned to a ${componentByteLength}-byte boundary.`;
         }
         const propertyByteLength =
-          componentsLength! * componentByteLength! * featuresLength;
+          componentsLength * componentByteLength * featuresLength;
         if (byteOffset + propertyByteLength > batchTableBinary.length) {
           return `Batch table binary property "${name}" exceeds batch table binary byte length.`;
         }

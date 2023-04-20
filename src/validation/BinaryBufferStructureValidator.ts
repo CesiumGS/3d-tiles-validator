@@ -53,7 +53,7 @@ export class BinaryBufferStructureValidator {
     // Validate the buffers
     const buffers = binaryBufferStructure.buffers;
     const buffersPath = path + "/buffers";
-    if (defined<any>(buffers)) {
+    if (defined(buffers)) {
       // The buffers MUST be an array of at least 1 objects
       if (
         !BasicValidator.validateArray(
@@ -69,8 +69,8 @@ export class BinaryBufferStructureValidator {
         result = false;
       } else {
         // Validate each buffer
-        for (let i = 0; i < buffers!.length; i++) {
-          const buffer = buffers![i];
+        for (let i = 0; i < buffers.length; i++) {
+          const buffer = buffers[i];
           const bufferPath = buffersPath + "/" + i;
           const bufferUriIsRequired = firstBufferUriIsRequired || i > 0;
           if (

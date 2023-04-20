@@ -87,7 +87,7 @@ export class ContentValidator {
         !BasicValidator.validateIntegerRange(
           groupPath,
           "group",
-          group!,
+          group,
           0,
           true,
           undefined,
@@ -109,11 +109,11 @@ export class ContentValidator {
           context.addIssue(issue);
           result = false;
         } else if (defined(validationState.validatedGroups)) {
-          if (group! >= validationState.validatedGroups!.length) {
+          if (group >= validationState.validatedGroups.length) {
             const message =
               `Tile content has a group index ${group}, ` +
               `but the containing tileset only contains ` +
-              `${validationState.validatedGroups!.length} groups`;
+              `${validationState.validatedGroups.length} groups`;
             const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
               groupPath,
               message
@@ -151,7 +151,7 @@ export class ContentValidator {
       const boundingVolumeValid =
         await BoundingVolumeValidator.validateBoundingVolume(
           boundingVolumePath,
-          boundingVolume!,
+          boundingVolume,
           context
         );
       if (!boundingVolumeValid) {
@@ -178,8 +178,8 @@ export class ContentValidator {
           !MetadataEntityValidator.validateMetadataEntity(
             metadataPath,
             "content.metadata",
-            metadata!,
-            validationState.validatedSchema!,
+            metadata,
+            validationState.validatedSchema,
             context
           )
         ) {

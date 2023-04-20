@@ -119,7 +119,7 @@ export class ValidatorMain {
       options
     );
     if (defined(reportFileName)) {
-      await writeUnchecked(reportFileName!, validationResult.serialize());
+      await writeUnchecked(reportFileName, validationResult.serialize());
     } else {
       console.log("Validation result:");
       console.log(validationResult.serialize());
@@ -179,7 +179,7 @@ export class ValidatorMain {
     console.log("Validating schema " + fileName);
     const validationResult = await Validators.validateSchemaFile(fileName);
     if (defined(reportFileName)) {
-      await writeUnchecked(reportFileName!, validationResult.serialize());
+      await writeUnchecked(reportFileName, validationResult.serialize());
     } else {
       console.log("Validation result:");
       console.log(validationResult.serialize());
@@ -200,7 +200,7 @@ export class ValidatorMain {
       implicitTiling
     );
     if (defined(reportFileName)) {
-      await writeUnchecked(reportFileName!, validationResult.serialize());
+      await writeUnchecked(reportFileName, validationResult.serialize());
     } else {
       console.log("Validation result:");
       console.log(validationResult.serialize());

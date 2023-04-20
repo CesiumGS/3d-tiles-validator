@@ -375,7 +375,7 @@ export class SubtreeValidator implements Validator<Buffer> {
       const dataIsConsistent = await SubtreeInfoValidator.validateSubtreeInfo(
         path,
         binarySubtreeData,
-        this._implicitTiling!,
+        this._implicitTiling,
         context
       );
       if (!dataIsConsistent) {
@@ -492,10 +492,10 @@ export class SubtreeValidator implements Validator<Buffer> {
         result = false;
       } else {
         // Validate each contentAvailability
-        for (let i = 0; i < contentAvailability!.length; i++) {
+        for (let i = 0; i < contentAvailability.length; i++) {
           const elementPath = contentAvailabilityPath + "/" + i;
           const elementName = "contentAvailability/" + i;
-          const element = contentAvailability![i];
+          const element = contentAvailability[i];
           if (
             !SubtreeValidator.validateAvailability(
               elementPath,
@@ -551,10 +551,10 @@ export class SubtreeValidator implements Validator<Buffer> {
 
     let result = true;
 
-    const bitstream = availability!.bitstream;
+    const bitstream = availability.bitstream;
     const bitstreamPath = path + "/bitstream";
 
-    const constant = availability!.constant;
+    const constant = availability.constant;
     const constantPath = path + "/constant";
 
     // Any of the bitstream or the constant must be defined
@@ -586,7 +586,7 @@ export class SubtreeValidator implements Validator<Buffer> {
         !BasicValidator.validateIntegerRange(
           bitstreamPath,
           "bitstream",
-          bitstream!,
+          bitstream,
           0,
           true,
           undefined,
@@ -615,7 +615,7 @@ export class SubtreeValidator implements Validator<Buffer> {
     }
 
     // Validate the availableCount
-    const availableCount = availability!.availableCount;
+    const availableCount = availability.availableCount;
     const availableCountPath = path + "/availableCount";
     if (defined(availableCount)) {
       // The availableCount MUST be an integer of at least 0
@@ -623,7 +623,7 @@ export class SubtreeValidator implements Validator<Buffer> {
         !BasicValidator.validateIntegerRange(
           availableCountPath,
           "availableCount",
-          availableCount!,
+          availableCount,
           0,
           true,
           undefined,
@@ -704,15 +704,15 @@ export class SubtreeValidator implements Validator<Buffer> {
         } else {
           // Validate each propertyTable
           let propertyTablesAreValid = true;
-          for (let i = 0; i < propertyTables!.length; i++) {
-            const propertyTable = propertyTables![i];
+          for (let i = 0; i < propertyTables.length; i++) {
+            const propertyTable = propertyTables[i];
             const propertyTablePath = propertyTablesPath + "/" + i;
             if (
               !PropertyTableValidator.validatePropertyTable(
                 propertyTablePath,
                 propertyTable,
                 numBufferViews,
-                this._validationState.validatedSchema!,
+                this._validationState.validatedSchema,
                 context
               )
             ) {
@@ -721,7 +721,7 @@ export class SubtreeValidator implements Validator<Buffer> {
             }
           }
           if (propertyTablesAreValid) {
-            validatedPropertyTables = propertyTables!;
+            validatedPropertyTables = propertyTables;
           }
         }
       }
@@ -736,7 +736,7 @@ export class SubtreeValidator implements Validator<Buffer> {
         !BasicValidator.validateIntegerRange(
           tileMetadataPath,
           "tileMetadata",
-          tileMetadata!,
+          tileMetadata,
           0,
           true,
           undefined,
@@ -777,10 +777,10 @@ export class SubtreeValidator implements Validator<Buffer> {
             !BasicValidator.validateIntegerRange(
               tileMetadataPath,
               "tileMetadata",
-              tileMetadata!,
+              tileMetadata,
               0,
               true,
-              validatedPropertyTables!.length,
+              validatedPropertyTables.length,
               false,
               context
             )
@@ -835,10 +835,10 @@ export class SubtreeValidator implements Validator<Buffer> {
           defined(this._validationState.validatedSchema) &&
           defined(validatedPropertyTables)
         ) {
-          for (let i = 0; i < contentMetadata!.length; i++) {
+          for (let i = 0; i < contentMetadata.length; i++) {
             const elementPath = contentMetadataPath + "/" + i;
             const elementName = "contentMetadata/" + i;
-            const element = contentMetadata![i];
+            const element = contentMetadata[i];
             // Each contentMetadata MUST be an integer of at least 0
             // Each contentMetadata MUST be smaller than the numberOfPropertyTables
             if (
@@ -848,7 +848,7 @@ export class SubtreeValidator implements Validator<Buffer> {
                 element,
                 0,
                 true,
-                validatedPropertyTables!.length,
+                validatedPropertyTables.length,
                 false,
                 context
               )
@@ -880,8 +880,8 @@ export class SubtreeValidator implements Validator<Buffer> {
           !MetadataEntityValidator.validateMetadataEntity(
             subtreeMetadataPath,
             "subtreeMetadata",
-            subtreeMetadata!,
-            this._validationState.validatedSchema!,
+            subtreeMetadata,
+            this._validationState.validatedSchema,
             context
           )
         ) {
@@ -901,6 +901,9 @@ export class SubtreeValidator implements Validator<Buffer> {
     if (!defined(subtree.propertyTables)) {
       return true;
     }
+    if (!defined(this._validationState.validatedSchema)) {
+      return false;
+    }
     const binaryBufferStructure = binarySubtreeData.binaryBufferStructure;
     const binaryBufferData = binarySubtreeData.binaryBufferData;
 
@@ -908,9 +911,9 @@ export class SubtreeValidator implements Validator<Buffer> {
 
     // Obtain the structural information about the schema
     // that is required for validating each property table
-    const schema = this._validationState.validatedSchema!;
+    const schema = this._validationState.validatedSchema;
     const classes = defaultValue(schema.classes, {});
-    const binaryEnumInfo = MetadataUtilities.computeBinaryEnumInfo(schema!);
+    const binaryEnumInfo = MetadataUtilities.computeBinaryEnumInfo(schema);
     const propertyTables = defaultValue(subtree.propertyTables, []);
     for (const propertyTable of propertyTables) {
       const classId = propertyTable.class;

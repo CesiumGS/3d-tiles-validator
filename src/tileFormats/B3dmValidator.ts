@@ -99,11 +99,11 @@ export class B3dmValidator implements Validator<Buffer> {
       return false;
     }
 
-    const featureTableJson = binaryTableData!.featureTableJson;
-    const featureTableBinary = binaryTableData!.featureTableBinary;
-    const batchTableJson = binaryTableData!.batchTableJson;
-    const batchTableBinary = binaryTableData!.batchTableBinary;
-    const glbData = binaryTableData!.glbData;
+    const featureTableJson = binaryTableData.featureTableJson;
+    const featureTableBinary = binaryTableData.featureTableBinary;
+    const batchTableJson = binaryTableData.batchTableJson;
+    const batchTableBinary = binaryTableData.batchTableBinary;
+    const glbData = binaryTableData.glbData;
 
     const featuresLength = featureTableJson.BATCH_LENGTH;
     if (!defined(featuresLength)) {
@@ -136,7 +136,7 @@ export class B3dmValidator implements Validator<Buffer> {
     if (defined(batchTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
         uri,
-        batchTableMessage!
+        batchTableMessage
       );
       context.addIssue(issue);
       return false;

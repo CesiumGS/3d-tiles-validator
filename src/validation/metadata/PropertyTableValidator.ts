@@ -151,7 +151,7 @@ export class PropertyTableValidator {
       // Note: The check whether 'required' properties are
       // present and have values was already done by the
       // MetadataStructureValidator
-      const propertyValue = tableProperties![propertyName];
+      const propertyValue = validProperties[propertyName];
       if (defined(propertyValue)) {
         if (
           !PropertyTablePropertyValidator.validatePropertyTableProperty(

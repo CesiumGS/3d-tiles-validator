@@ -123,13 +123,13 @@ export class Validators {
       const issue = IoValidationIssues.IO_ERROR(filePath, message);
       context.addIssue(issue);
     } else {
-      const bom = Buffers.getUnicodeBOMDescription(resourceData!);
+      const bom = Buffers.getUnicodeBOMDescription(resourceData);
       if (defined(bom)) {
         const message = `Unexpected BOM in JSON buffer: ${bom}`;
         const issue = IoValidationIssues.IO_ERROR(filePath, message);
         context.addIssue(issue);
       } else {
-        const jsonString = resourceData!.toString();
+        const jsonString = resourceData.toString();
         await validator.validateJsonString(jsonString, context);
       }
     }
@@ -254,7 +254,7 @@ export class Validators {
       const issue = IoValidationIssues.IO_ERROR(filePath, message);
       context.addIssue(issue);
     } else {
-      await validator.validateObject(filePath, resourceData!, context);
+      await validator.validateObject(filePath, resourceData, context);
     }
     return context.getResult();
   }
@@ -280,7 +280,7 @@ export class Validators {
         context: ValidationContext
       ): Promise<boolean> {
         try {
-          const bom = Buffers.getUnicodeBOMDescription(input!);
+          const bom = Buffers.getUnicodeBOMDescription(input);
           if (defined(bom)) {
             const message = `Unexpected BOM in JSON buffer: ${bom}`;
             const issue = IoValidationIssues.IO_ERROR(inputPath, message);
