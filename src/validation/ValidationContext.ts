@@ -56,6 +56,13 @@ export class ValidationContext {
    */
   private readonly _baseUri;
 
+  /**
+   * The set of absolute URIs of tilesets that are currently being
+   * validated. When an external tileset is encountered, then its
+   * absolute URI is added to this set.
+   */
+  private _activeTilesetUris: Set<string>;
+
   constructor(
     baseUri: string,
     resourceResolver: ResourceResolver,
@@ -66,6 +73,7 @@ export class ValidationContext {
     this._result = ValidationResult.create();
     this._resourceResolver = resourceResolver;
     this._extensionsFound = new Set<string>();
+    this._activeTilesetUris = new Set<string>();
   }
 
   /**
@@ -88,6 +96,7 @@ export class ValidationContext {
       this._options
     );
     derived._extensionsFound = this._extensionsFound;
+    derived._activeTilesetUris = this._activeTilesetUris;
     return derived;
   }
 
@@ -114,6 +123,7 @@ export class ValidationContext {
       this._options
     );
     derived._extensionsFound = this._extensionsFound;
+    derived._activeTilesetUris = this._activeTilesetUris;
     return derived;
   }
 
@@ -141,6 +151,18 @@ export class ValidationContext {
     let resolved = path.resolve(this._baseUri, decodeURIComponent(uri));
     resolved = resolved.replace(/\\/g, "/");
     return resolved;
+  }
+
+  addActiveTilesetUri(uri: string) {
+    this._activeTilesetUris.add(uri);
+  }
+
+  removeActiveTilesetUri(uri: string) {
+    this._activeTilesetUris.delete(uri);
+  }
+
+  isActiveTilesetUri(uri: string): boolean {
+    return this._activeTilesetUris.has(uri);
   }
 
   getOptions(): ValidationOptions {

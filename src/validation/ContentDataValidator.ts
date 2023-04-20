@@ -132,6 +132,28 @@ export class ContentDataValidator {
 
     ContentDataValidator.trackExtensionsFound(contentData, context);
 
+    const contentDataType = await ContentDataTypeRegistry.findContentDataType(
+      contentData
+    );
+    const isTileset = contentDataType === "CONTENT_TYPE_TILESET";
+
+    // If the content is an external tileset, then add its
+    // resolved URI to the context as an "activeTilesetUri",
+    // to detect cycles
+    const resolvedContentUri = context.resolveUri(contentUri);
+    if (isTileset) {
+      if (context.isActiveTilesetUri(resolvedContentUri)) {
+        const message = `External tileset content ${contentUri} creates a cycle`;
+        const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
+          contentPath,
+          message
+        );
+        context.addIssue(issue);
+        return false;
+      }
+      context.addActiveTilesetUri(resolvedContentUri);
+    }
+
     // Create a new context to collect the issues that are found in
     // the data. If there are issues, then they will be stored as
     // the 'causes' of a single content validation issue.
@@ -144,10 +166,6 @@ export class ContentDataValidator {
     );
     const derivedResult = derivedContext.getResult();
 
-    const contentDataType = await ContentDataTypeRegistry.findContentDataType(
-      contentData
-    );
-    const isTileset = contentDataType === "CONTENT_TYPE_TILESET";
     if (isTileset) {
       const issue = ContentValidationIssues.createForExternalTileset(
         contentUri,
@@ -165,6 +183,11 @@ export class ContentDataValidator {
         context.addIssue(issue);
       }
     }
+
+    if (isTileset) {
+      context.removeActiveTilesetUri(resolvedContentUri);
+    }
+
     return result;
   }
 

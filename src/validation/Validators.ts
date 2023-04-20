@@ -117,6 +117,8 @@ export class Validators {
       resourceResolver,
       validationOptions
     );
+    const tilesetUri = context.resolveUri(fileName);
+    context.addActiveTilesetUri(tilesetUri);
     const resourceData = await resourceResolver.resolveData(fileName);
     if (!defined(resourceData)) {
       const message = `Could not read input file: ${filePath}`;
@@ -133,6 +135,7 @@ export class Validators {
         await validator.validateJsonString(jsonString, context);
       }
     }
+    context.removeActiveTilesetUri(tilesetUri);
     return context.getResult();
   }
 
@@ -165,7 +168,10 @@ export class Validators {
       resourceResolver,
       validationOptions
     );
+    const tilesetUri = context.resolveUri(filePath);
+    context.addActiveTilesetUri(tilesetUri);
     await TilesetPackageValidator.validatePackageFile(filePath, context);
+    context.removeActiveTilesetUri(tilesetUri);
     return context.getResult();
   }
 
