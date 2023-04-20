@@ -1,5 +1,5 @@
 // Mostly ported from https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3
-import { defined } from "../../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { typeToComponentsLength } from "./utility";
 import { componentTypeToByteLength } from "./utility";
@@ -56,11 +56,11 @@ function validateBatchTable(
         if (!defined(componentByteLength)) {
           return `Batch table binary property "${name}" has invalid componentType "${componentType}".`;
         }
-        if (byteOffset % componentByteLength! > 0) {
+        if (byteOffset % componentByteLength > 0) {
           return `Batch table binary property "${name}" must be aligned to a ${componentByteLength}-byte boundary.`;
         }
         const propertyByteLength =
-          componentsLength! * componentByteLength! * featuresLength;
+          componentsLength * componentByteLength * featuresLength;
         if (byteOffset + propertyByteLength > batchTableBinary.length) {
           return `Batch table binary property "${name}" exceeds batch table binary byte length.`;
         }

@@ -1,11 +1,11 @@
-import { defined } from "../../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "../ValidationContext";
 
-import { ClassProperties } from "./ClassProperties";
+import { ClassProperties } from "3d-tiles-tools";
 import { MetadataValueValidator } from "./MetadataValueValidator";
 
-import { ClassProperty } from "../../structure/Metadata/ClassProperty";
+import { ClassProperty } from "3d-tiles-tools";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 

@@ -1,6 +1,6 @@
 import fs from "fs";
 
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 /**
  * Only for internal use and basic tests:

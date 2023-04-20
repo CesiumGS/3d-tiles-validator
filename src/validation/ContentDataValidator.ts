@@ -1,15 +1,16 @@
 import paths from "path";
 
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
-import { Uris } from "../io/Uris";
+import { Uris } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
-import { ContentData } from "./ContentData";
-import { ContentDataTypes } from "./ContentDataTypes";
+import { ContentDataTypeRegistry } from "3d-tiles-tools";
+import { ContentData } from "3d-tiles-tools";
+import { LazyContentData } from "3d-tiles-tools";
 import { ContentDataValidators } from "./ContentDataValidators";
 
-import { Content } from "../structure/Content";
+import { Content } from "3d-tiles-tools";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
@@ -81,13 +82,15 @@ export class ContentDataValidator {
   ): Promise<boolean> {
     const resourceResolver = context.getResourceResolver();
 
+    //console.log('Validating ' +contentPath+" with "+contentUri);
+
     // Create the `ContentData` that summarizes all information
     // that is required for determining the content type
-    const contentData = new ContentData(contentUri, resourceResolver);
+    const contentData = new LazyContentData(contentUri, resourceResolver);
 
     // Make sure that the content data can be resolved at all
-    const data = await contentData.getData();
-    if (data === null) {
+    const dataExists = await contentData.exists();
+    if (!dataExists) {
       const path = contentPath;
       const message =
         `Tile content ${contentPath} refers to URI ${contentUri}, ` +
@@ -129,19 +132,40 @@ export class ContentDataValidator {
 
     ContentDataValidator.trackExtensionsFound(contentData, context);
 
+    const contentDataType = await ContentDataTypeRegistry.findContentDataType(
+      contentData
+    );
+    const isTileset = contentDataType === "CONTENT_TYPE_TILESET";
+
+    // If the content is an external tileset, then add its
+    // resolved URI to the context as an "activeTilesetUri",
+    // to detect cycles
+    const resolvedContentUri = context.resolveUri(contentUri);
+    if (isTileset) {
+      if (context.isActiveTilesetUri(resolvedContentUri)) {
+        const message = `External tileset content ${contentUri} creates a cycle`;
+        const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
+          contentPath,
+          message
+        );
+        context.addIssue(issue);
+        return false;
+      }
+      context.addActiveTilesetUri(resolvedContentUri);
+    }
+
     // Create a new context to collect the issues that are found in
     // the data. If there are issues, then they will be stored as
     // the 'causes' of a single content validation issue.
     const dirName = paths.dirname(contentData.uri);
     const derivedContext = context.deriveFromUri(dirName);
-    const result = await dataValidator!.validateObject(
+    const result = await dataValidator.validateObject(
       contentUri,
       contentData,
       derivedContext
     );
     const derivedResult = derivedContext.getResult();
 
-    const isTileset = await ContentDataTypes.isProbablyTileset(contentData);
     if (isTileset) {
       const issue = ContentValidationIssues.createForExternalTileset(
         contentUri,
@@ -159,6 +183,11 @@ export class ContentDataValidator {
         context.addIssue(issue);
       }
     }
+
+    if (isTileset) {
+      context.removeActiveTilesetUri(resolvedContentUri);
+    }
+
     return result;
   }
 
@@ -178,11 +207,14 @@ export class ContentDataValidator {
     context: ValidationContext
   ) {
     const magic = await contentData.getMagic();
-    const isGlb = magic === "glTF";
+    const isGlb = magic.toString("ascii") === "glTF";
     if (isGlb) {
       context.addExtensionFound("3DTILES_content_gltf");
     }
-    const isGltf = await ContentDataTypes.isProbablyGltf(contentData);
+    const contentDataType = await ContentDataTypeRegistry.findContentDataType(
+      contentData
+    );
+    const isGltf = contentDataType === "CONTENT_TYPE_GLTF";
     if (isGltf) {
       context.addExtensionFound("3DTILES_content_gltf");
     }

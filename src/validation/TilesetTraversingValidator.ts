@@ -1,25 +1,26 @@
 import path from "path";
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
+import { ExplicitTraversedTile } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { ValidationState } from "./ValidationState";
 import { TileValidator } from "./TileValidator";
 import { TileContentValidator } from "./TileContentValidator";
 import { SubtreeValidator } from "./SubtreeValidator";
+import { ImplicitTilingValidator } from "./ImplicitTilingValidator";
 
-import { TilesetTraverser } from "../traversal/TilesetTraverser";
-import { TraversedTile } from "../traversal/TraversedTile";
+import { TilesetTraverser } from "3d-tiles-tools";
+import { TraversedTile } from "3d-tiles-tools";
 
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 
-import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
+import { ImplicitTilingError } from "3d-tiles-tools";
 
-import { Tileset } from "../structure/Tileset";
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { Tileset } from "3d-tiles-tools";
+import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 import { ValidationIssues } from "../issues/ValidationIssues";
-import { ImplicitTilingValidator } from "./ImplicitTilingValidator";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 
 /**
@@ -45,15 +46,16 @@ export class TilesetTraversingValidator {
     validationState: ValidationState,
     context: ValidationContext
   ): Promise<boolean> {
-    const depthFirst = true;
     const resourceResolver = context.getResourceResolver();
     let result = true;
+    const tilesetTraverser = new TilesetTraverser(".", resourceResolver, {
+      depthFirst: true,
+    });
     try {
-      await TilesetTraverser.traverse(
+      await tilesetTraverser.traverseWithSchema(
         tileset,
         validationState.validatedSchema,
-        resourceResolver,
-        async (traversedTile) => {
+        async (traversedTile: TraversedTile) => {
           // Validate the tile, and only continue the traversal
           // if it was found to be valid
           const isValid =
@@ -82,7 +84,7 @@ export class TilesetTraversingValidator {
             if (defined(parent)) {
               const hierarchyValid =
                 TilesetTraversingValidator.validateTraversedTiles(
-                  parent!,
+                  parent,
                   traversedTile,
                   context
                 );
@@ -92,8 +94,7 @@ export class TilesetTraversingValidator {
             }
           }
           return isValid;
-        },
-        depthFirst
+        }
       );
     } catch (error) {
       // There may be different kinds of errors that are thrown
@@ -103,7 +104,7 @@ export class TilesetTraversingValidator {
       // one of its buffers). The `ImplicitTilingError` is
       // supposed to contain more detailed information.
       if (error instanceof ImplicitTilingError) {
-        const message = `Could not traverse tileset: ${error.message}`;
+        const message = `Could not traverse tileset: ${error}`;
         const issue = SemanticValidationIssues.IMPLICIT_TILING_ERROR(
           "",
           message
@@ -156,6 +157,52 @@ export class TilesetTraversingValidator {
     // Maybe some of these validation steps should be pulled
     // out of "validateTile", or enabled/disabled via flags.
 
+    if (traversedTile instanceof ExplicitTraversedTile) {
+      const explicitPartIsValid =
+        await TilesetTraversingValidator.validateExplicitTraversedTile(
+          traversedTile,
+          validationState,
+          context
+        );
+      if (!explicitPartIsValid) {
+        return false;
+      }
+    }
+
+    const tile = traversedTile.asRawTile();
+
+    // Validate the tile itself
+    const tileValid = await TileValidator.validateTile(
+      path,
+      tile,
+      validationState,
+      context
+    );
+    if (!tileValid) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Validates the given explicit traversed tile.
+   *
+   * This will ONLY validate the elements that are specific for
+   * an `ExplicitTraversedTile` (compared to a `TraversedTile`) ,
+   * namely the `implicitTiling` and `metadata` of the tile.
+   *
+   * @param traversedTile - The `ExplicitTraversedTile`
+   * @param validationState - The `ValidationState`
+   * @param context - The `ValidationContext`
+   * @returns A promise that resolves when the validation is finished
+   */
+  private static async validateExplicitTraversedTile(
+    traversedTile: ExplicitTraversedTile,
+    validationState: ValidationState,
+    context: ValidationContext
+  ): Promise<boolean> {
+    const path = traversedTile.path;
+
     // If the tile defines implicit tiling, validate this
     // first. All subsequent checks depend on the validity
     // of the implicit tiling information.
@@ -165,7 +212,7 @@ export class TilesetTraversingValidator {
       if (
         !ImplicitTilingValidator.validateImplicitTiling(
           implicitTilingPath,
-          implicitTiling!,
+          implicitTiling,
           context
         )
       ) {
@@ -179,8 +226,8 @@ export class TilesetTraversingValidator {
         const subtreeRootValid =
           await TilesetTraversingValidator.validateSubtreeRoot(
             path,
-            implicitTiling!,
-            subtreeUri!,
+            implicitTiling,
+            subtreeUri,
             validationState,
             context
           );
@@ -213,27 +260,14 @@ export class TilesetTraversingValidator {
           !MetadataEntityValidator.validateMetadataEntity(
             metadataPath,
             "tile.metadata",
-            metadata!,
-            validationState.validatedSchema!,
+            metadata,
+            validationState.validatedSchema,
             context
           )
         ) {
           return false;
         }
       }
-    }
-
-    const tile = traversedTile.asTile();
-
-    // Validate the tile itself
-    const tileValid = await TileValidator.validateTile(
-      path,
-      tile,
-      validationState,
-      context
-    );
-    if (!tileValid) {
-      return false;
     }
     return true;
   }
@@ -252,7 +286,7 @@ export class TilesetTraversingValidator {
     traversedTile: TraversedTile,
     context: ValidationContext
   ): Promise<boolean> {
-    const tile = traversedTile.asTile();
+    const tile = traversedTile.asRawTile();
 
     let result = true;
 
@@ -262,7 +296,7 @@ export class TilesetTraversingValidator {
     if (defined(content)) {
       const contentResult = await TileContentValidator.validateTileContent(
         contentPath,
-        content!,
+        content,
         tile,
         context
       );
@@ -275,12 +309,12 @@ export class TilesetTraversingValidator {
     const contents = tile.contents;
     const contentsPath = traversedTile.path + "/contents";
     if (defined(contents)) {
-      for (let i = 0; i < contents!.length; i++) {
-        const contentsElement = contents![i];
+      for (let i = 0; i < contents.length; i++) {
+        const contentsElement = contents[i];
         const contentsElementPath = contentsPath + "/" + i;
         const contentResult = await TileContentValidator.validateTileContent(
           contentsElementPath,
-          contentsElement!,
+          contentsElement,
           tile,
           context
         );
@@ -365,8 +399,8 @@ export class TilesetTraversingValidator {
     context: ValidationContext
   ): boolean {
     const path = traversedTile.path;
-    const tile = traversedTile.asTile();
-    const parent = traversedParent.asTile();
+    const tile = traversedTile.asRawTile();
+    const parent = traversedParent.asRawTile();
 
     // Validate that the parent geometricError is not larger
     // than the tile geometricError

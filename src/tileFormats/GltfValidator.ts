@@ -1,4 +1,4 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { Validator } from "../validation/Validator";
 import { ValidationContext } from "../validation/ValidationContext";
@@ -97,7 +97,7 @@ export class GltfValidator implements Validator<Buffer> {
         uri: uri,
         externalResourceFunction: (gltfUri: string) => {
           const resolvedDataPromise = resourceResolver.resolveData(gltfUri);
-          return resolvedDataPromise.then((resolvedData) => {
+          return resolvedDataPromise.then((resolvedData: any) => {
             if (!defined(resolvedData)) {
               throw "Could not resolve data from " + gltfUri;
             }

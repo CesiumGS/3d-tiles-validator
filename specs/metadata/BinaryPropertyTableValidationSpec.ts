@@ -1,4 +1,4 @@
-import { ResourceResolvers } from "../../src/io/ResourceResolvers";
+import { ResourceResolvers } from "3d-tiles-tools";
 
 import { ValidationContext } from "../../src/validation/ValidationContext";
 import { BinaryPropertyTableValidator } from "../../src/validation/metadata/BinaryPropertyTableValidator";
@@ -23,7 +23,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_INT16_SCALAR", function () {
@@ -107,7 +107,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_variable_length_INT16_SCALAR_array", function () {
@@ -249,7 +249,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_fixed_length_INT16_SCALAR_array", function () {
@@ -304,7 +304,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_BOOLEAN", function () {
@@ -378,7 +378,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_variable_length_BOOLEAN_array", function () {
@@ -440,7 +440,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_fixed_length_BOOLEAN_array", function () {
@@ -498,7 +498,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_STRING", function () {
@@ -641,7 +641,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_variable_length_STRING_array", function () {
@@ -672,7 +672,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_fixed_length_STRING_array", function () {
@@ -702,7 +702,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_FLOAT32_VEC2", function () {
@@ -733,7 +733,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_variable_length_UINT32_VEC2_array", function () {
@@ -764,7 +764,7 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const directory = "specs/data/propertyTables/";
       const resourceResolver =
         ResourceResolvers.createFileResourceResolver(directory);
-      context = new ValidationContext(resourceResolver);
+      context = new ValidationContext(directory, resourceResolver);
     });
 
     it("should not report issues for a valid example_fixed_length_UINT32_VEC2_array", function () {

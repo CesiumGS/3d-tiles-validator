@@ -1,4 +1,4 @@
-import { defined } from "../../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { Validator } from "../Validator";
 import { ValidationContext } from "../ValidationContext";
@@ -48,10 +48,8 @@ export class BoundingVolumeS2Validator implements Validator<any> {
     // Validate the box
     const box = boundingVolume.box;
     const boxPath = path + "/box";
-    if (defined(box)) {
-      if (
-        !BoundingVolumeValidator.validateBoundingBox(boxPath, box!, context)
-      ) {
+    if (defined<any>(box)) {
+      if (!BoundingVolumeValidator.validateBoundingBox(boxPath, box, context)) {
         result = false;
       }
     }
@@ -59,11 +57,11 @@ export class BoundingVolumeS2Validator implements Validator<any> {
     // Validate the region
     const region = boundingVolume.region;
     const regionPath = path + "/region";
-    if (defined(region)) {
+    if (defined<any>(region)) {
       if (
         !BoundingVolumeValidator.validateBoundingRegion(
           regionPath,
-          region!,
+          region,
           context
         )
       ) {
@@ -74,11 +72,11 @@ export class BoundingVolumeS2Validator implements Validator<any> {
     // Validate the sphere
     const sphere = boundingVolume.sphere;
     const spherePath = path + "/sphere";
-    if (defined(sphere)) {
+    if (defined<any>(sphere)) {
       if (
         !BoundingVolumeValidator.validateBoundingSphere(
           spherePath,
-          sphere!,
+          sphere,
           context
         )
       ) {
@@ -89,7 +87,7 @@ export class BoundingVolumeS2Validator implements Validator<any> {
     // If there is a 3DTILES_bounding_volume_S2 extension,
     // perform the validation of the corresponding object
     const extensions = boundingVolume.extensions;
-    if (defined(extensions)) {
+    if (defined<any>(extensions)) {
       const key = "3DTILES_bounding_volume_S2";
       const s2 = extensions[key];
       const s2Path = path + "/" + key;

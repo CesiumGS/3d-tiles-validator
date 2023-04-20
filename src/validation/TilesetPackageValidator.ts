@@ -1,30 +1,31 @@
 import path from "path";
-import { defined } from "../base/defined";
-import { Buffers } from "../base/Buffers";
+import { defined } from "3d-tiles-tools";
+import { Buffers } from "3d-tiles-tools";
+import { UnzippingResourceResolver } from "3d-tiles-tools";
 
 import { Validators } from "./Validators";
 import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";
 
-import { PackageResourceResolver } from "../io/PackageResourceResolver";
+import { TilesetSourceResourceResolver } from "3d-tiles-tools";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 
-import { TilesetPackage3tz } from "../packages/TilesetPackage3tz";
-import { TilesetPackage3dtiles } from "../packages/TilesetPackage3dtiles";
-import { TilesetPackageFs } from "../packages/TilesetPackageFs";
-import { TilesetPackage } from "../packages/TilesetPackage";
-import { ArchiveValidation3tz } from "../packages/ArchiveValidation3tz";
+import { TilesetSource3tz } from "3d-tiles-tools";
+import { TilesetSource3dtiles } from "3d-tiles-tools";
+import { TilesetSourceFs } from "3d-tiles-tools";
+import { TilesetSource } from "3d-tiles-tools";
+import { ArchiveValidation3tz } from "../archives/ArchiveValidation3tz";
 
 /**
- * An implementation of a validator that validates a `TilesetPackage`.
+ * An implementation of a validator that validates a `TilesetSource`.
  *
  * The actual validation function is `validatePackageFile`.
  *
  * This class also implements the `Validator` interface, so that
  * instances of it can be used when the tile content is a
- * package. In this case, the validated type is `string`, where
+ * tileset package. In this case, the validated type is `string`, where
  * this string is the 'resolvedUri' that points to a file in the
  * local file system.
  *
@@ -97,42 +98,43 @@ export class TilesetPackageValidator implements Validator<string> {
     isContent: boolean,
     context: ValidationContext
   ): Promise<boolean> {
-    // Create the package from the given URI (i.e. the
-    // full package file name). If the package cannot
+    // Create the tileset source for the package from the given URI
+    // (i.e. the full package file name). If the source cannot
     // be opened, bail out with an IO_WARNING.
-    let tilesetPackage = undefined;
+    let tilesetSource = undefined;
     const extension = path.extname(uri).toLowerCase();
     if (extension === ".3tz") {
-      tilesetPackage = new TilesetPackage3tz();
+      tilesetSource = new TilesetSource3tz();
     } else if (extension === ".3dtiles") {
-      tilesetPackage = new TilesetPackage3dtiles();
+      tilesetSource = new TilesetSource3dtiles();
     } else if (extension === "") {
-      tilesetPackage = new TilesetPackageFs();
+      tilesetSource = new TilesetSourceFs();
     } else {
-      const message = `Could not create package from ${uri}: No known file extension. `;
+      const message = `Could not create tileset source from ${uri}: No known file extension. `;
       const issue = IoValidationIssues.IO_WARNING(uri, message);
       context.addIssue(issue);
       return true;
     }
-    tilesetPackage.open(uri);
+    tilesetSource.open(uri);
     const result = await TilesetPackageValidator.validatePackageInternal(
       uri,
-      tilesetPackage,
+      tilesetSource,
       isContent,
       context
     );
-    tilesetPackage.close();
+    tilesetSource.close();
     return result;
   }
 
   /**
-   * Validates the tileset that is contained in the given `TilesetPackage`.
+   * Validates the tileset that is contained in the given `TilesetSource`.
    *
-   * The caller is responsible for calling 'open' on the package before
+   * The caller is responsible for calling 'open' on the source before
    * passing it to this method, and 'close' after this method returns.
    *
    * @param uri - The full URI of the package file
-   * @param tilesetPackage - The `TilesetPackage`
+   * @param tilesetSource - The `TilesetSource` that was created from
+   * the package file
    * @param isContent - Whether the given package was found as a tile
    * content. If this is the case, then the issues that are found
    * in the package will be summarized in a `CONTENT_VALIDATION_`
@@ -143,20 +145,20 @@ export class TilesetPackageValidator implements Validator<string> {
    */
   private static async validatePackageInternal(
     uri: string,
-    tilesetPackage: TilesetPackage,
+    tilesetSource: TilesetSource,
     isContent: boolean,
     context: ValidationContext
   ): Promise<boolean> {
     // If the package is a 3TZ package, then perform the extended
     // validation of the 3TZ index part, using the ("legacy") 3TZ
     // package validation
-    if (tilesetPackage instanceof TilesetPackage3tz) {
-      const tilesetPackage3tz = tilesetPackage as TilesetPackage3tz;
-      const zipIndex = tilesetPackage3tz.getZipIndex();
+    if (tilesetSource instanceof TilesetSource3tz) {
+      const tilesetSource3tz = tilesetSource as TilesetSource3tz;
+      const zipIndex = tilesetSource3tz.getZipIndex();
       if (defined(zipIndex)) {
         try {
           const indexValid = await ArchiveValidation3tz.validateIndex(
-            zipIndex!,
+            zipIndex,
             uri,
             false
           );
@@ -181,13 +183,15 @@ export class TilesetPackageValidator implements Validator<string> {
       }
     }
 
-    // Create the `PackageResourceResolver` from the package,
+    // Create the `TilesetSourceResourceResolver` from the package,
     // and obtain the data for the `tileset.json` file.
     // This has to be present according to the 3TZ specification.
-    const packageResourceResolver = new PackageResourceResolver(
+    const plainPackageResourceResolver = new TilesetSourceResourceResolver(
       "./",
-      uri,
-      tilesetPackage
+      tilesetSource
+    );
+    const packageResourceResolver = new UnzippingResourceResolver(
+      plainPackageResourceResolver
     );
     const tilesetJsonBuffer = await packageResourceResolver.resolveData(
       "tileset.json"
@@ -199,7 +203,7 @@ export class TilesetPackageValidator implements Validator<string> {
       return false;
     }
 
-    const bom = Buffers.getUnicodeBOMDescription(tilesetJsonBuffer!);
+    const bom = Buffers.getUnicodeBOMDescription(tilesetJsonBuffer);
     if (defined(bom)) {
       const message = `Unexpected BOM in subtree JSON buffer: ${bom}`;
       const issue = IoValidationIssues.IO_ERROR(uri, message);
@@ -210,7 +214,7 @@ export class TilesetPackageValidator implements Validator<string> {
     // Parse the tileset object from the JSON data
     let tileset = undefined;
     try {
-      tileset = JSON.parse(tilesetJsonBuffer!.toString());
+      tileset = JSON.parse(tilesetJsonBuffer.toString());
     } catch (error) {
       const message =
         `Could not parse tileset JSON from 'tileset.json' ` +
@@ -224,6 +228,7 @@ export class TilesetPackageValidator implements Validator<string> {
     // are caused by the tileset, and validate the
     // tileset using a default tileset validator.
     const derivedContext = context.deriveFromResourceResolver(
+      uri,
       packageResourceResolver
     );
     const tilesetValidator = Validators.createDefaultTilesetValidator();

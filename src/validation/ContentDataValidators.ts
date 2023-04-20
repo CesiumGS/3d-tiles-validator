@@ -1,11 +1,9 @@
-import { defined } from "../base/defined";
+import { ContentDataTypeRegistry, defined } from "3d-tiles-tools";
 
 import { Validators } from "./Validators";
 import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";
-import { ContentData } from "./ContentData";
-import { ContentDataEntry } from "./ContentDataEntry";
-import { ContentDataTypes } from "./ContentDataTypes";
+import { ContentData } from "3d-tiles-tools";
 import { TilesetPackageValidator } from "./TilesetPackageValidator";
 
 import { B3dmValidator } from "../tileFormats/B3dmValidator";
@@ -14,7 +12,7 @@ import { PntsValidator } from "../tileFormats/PntsValidator";
 import { CmptValidator } from "../tileFormats/CmptValidator";
 import { GltfValidator } from "../tileFormats/GltfValidator";
 
-import { Tileset } from "../structure/Tileset";
+import { Tileset } from "3d-tiles-tools";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 
@@ -22,18 +20,21 @@ import { IoValidationIssues } from "../issues/IoValidationIssue";
  * A class for managing `Validator` instances that are used for
  * validating the data that is pointed to by a `content.uri`.
  *
- * The only public methods (for now) are `registerDefaults`,
- * which registers all known content data validators, and
- * `findContentDataValidator`, which returns the validator
- * that should be used for a given `ContentData` object.
+ * The only public method (for now) is `findContentDataValidator`,
+ * which returns the validator that should be used for a given
+ * `ContentData` object.
  *
  * @internal
  */
 export class ContentDataValidators {
   /**
-   * The list of validators that have been registered.
+   * The validators that have been registered.
+   *
+   * See `registerDefaults` for details.
    */
-  private static readonly dataValidators: ContentDataEntry[] = [];
+  private static readonly dataValidators: {
+    [key: string]: Validator<ContentData>;
+  } = {};
 
   /**
    * Whether the default content data validators have already
@@ -52,31 +53,36 @@ export class ContentDataValidators {
       return;
     }
 
-    // The validators will be checked in the order in which they are
-    // registered. In the future, there might be a mechanism for
-    // 'overriding' a previously registered validator.
+    // The keys that are used here are the strings that are
+    // returned by the `ContentDataTypeRegistry`, for a
+    // given `ContentData`.
+    // THESE STRINGS ARE NOT SPECIFIED.
+    // Using them here is relying on an implementation
+    // detail. Whether or not these strings should be
+    // public and/or specified has to be decided.
+
     ContentDataValidators.registerForBuffer(
-      ContentDataTypes.CONTENT_TYPE_GLB,
+      "CONTENT_TYPE_GLB",
       new GltfValidator()
     );
 
     ContentDataValidators.registerForBuffer(
-      ContentDataTypes.CONTENT_TYPE_B3DM,
+      "CONTENT_TYPE_B3DM",
       new B3dmValidator()
     );
 
     ContentDataValidators.registerForBuffer(
-      ContentDataTypes.CONTENT_TYPE_I3DM,
+      "CONTENT_TYPE_I3DM",
       new I3dmValidator()
     );
 
     ContentDataValidators.registerForBuffer(
-      ContentDataTypes.CONTENT_TYPE_CMPT,
+      "CONTENT_TYPE_CMPT",
       new CmptValidator()
     );
 
     ContentDataValidators.registerForBuffer(
-      ContentDataTypes.CONTENT_TYPE_PNTS,
+      "CONTENT_TYPE_PNTS",
       new PntsValidator()
     );
 
@@ -101,30 +107,21 @@ export class ContentDataValidators {
       );
     }
 
-    ContentDataValidators.register(
-      ContentDataTypes.CONTENT_TYPE_GEOM,
-      geomValidator
-    );
-    ContentDataValidators.register(
-      ContentDataTypes.CONTENT_TYPE_VCTR,
-      vctrValidator
-    );
-    ContentDataValidators.register(
-      ContentDataTypes.CONTENT_TYPE_GEOJSON,
-      geojsonValidator
-    );
+    ContentDataValidators.register("CONTENT_TYPE_GEOM", geomValidator);
+    ContentDataValidators.register("CONTENT_TYPE_VCTR", vctrValidator);
+    ContentDataValidators.register("CONTENT_TYPE_GEOJSON", geojsonValidator);
 
     ContentDataValidators.register(
-      ContentDataTypes.CONTENT_TYPE_3TZ,
+      "CONTENT_TYPE_3TZ",
       ContentDataValidators.createPackageValidator()
     );
 
     ContentDataValidators.register(
-      ContentDataTypes.CONTENT_TYPE_TILESET,
+      "CONTENT_TYPE_TILESET",
       ContentDataValidators.createTilesetValidator()
     );
     ContentDataValidators.register(
-      ContentDataTypes.CONTENT_TYPE_GLTF,
+      "CONTENT_TYPE_GLTF",
       ContentDataValidators.createGltfJsonValidator()
     );
 
@@ -148,8 +145,7 @@ export class ContentDataValidators {
         input: ContentData,
         context: ValidationContext
       ): Promise<boolean> {
-        const resourceResolver = context.getResourceResolver();
-        const resolvedUri = resourceResolver.resolveUri(input.uri);
+        const resolvedUri = context.resolveUri(input.uri);
         const result = await packageValidator.validateObject(
           inputPath,
           resolvedUri,
@@ -205,12 +201,15 @@ export class ContentDataValidators {
     contentData: ContentData
   ): Promise<Validator<ContentData> | undefined> {
     ContentDataValidators.registerDefaults();
-    for (const entry of ContentDataValidators.dataValidators) {
-      if (await entry.predicate(contentData)) {
-        return entry.dataValidator;
-      }
+
+    const contentDataTypeName =
+      await ContentDataTypeRegistry.findContentDataType(contentData);
+    if (!contentDataTypeName) {
+      return undefined;
     }
-    return undefined;
+    const dataValidator =
+      ContentDataValidators.dataValidators[contentDataTypeName];
+    return dataValidator;
   }
 
   /**
@@ -240,7 +239,7 @@ export class ContentDataValidators {
         }
         const result = await bufferValidator.validateObject(
           inputPath,
-          data!,
+          data,
           context
         );
         return result;
@@ -250,37 +249,34 @@ export class ContentDataValidators {
 
   /**
    * Register a validator that should be used for the content
-   * data buffer, when the content data matches the given
-   * predicate.
+   * data buffer, when the content data has the type that is
+   * indicated by the given name.
    *
-   * @param predicate - The predicate
+   * @param contentDataTypeName - The content data type name
    * @param bufferValidator - The validator for the buffer data
    */
   private static registerForBuffer(
-    predicate: (contentData: ContentData) => Promise<boolean>,
+    contentDataTypeName: string,
     bufferValidator: Validator<Buffer>
   ) {
     ContentDataValidators.register(
-      predicate,
+      contentDataTypeName,
       ContentDataValidators.wrapBufferValidator(bufferValidator)
     );
   }
 
   /**
    * Registers a data validator that will be used when a
-   * `ContentData` matches the given predicate.
+   * `ContentData` has the type that is indicated by the
+   * given name.
    *
-   * @param predicate - The predicate
+   * @param contentDataTypeName - The content data type name
    * @param dataValidator - The data validator
    */
   private static register(
-    predicate: (contentData: ContentData) => Promise<boolean>,
+    contentDataTypeName: string,
     dataValidator: Validator<ContentData>
   ) {
-    const entry = {
-      predicate: predicate,
-      dataValidator: dataValidator,
-    };
-    ContentDataValidators.dataValidators.push(entry);
+    ContentDataValidators.dataValidators[contentDataTypeName] = dataValidator;
   }
 }

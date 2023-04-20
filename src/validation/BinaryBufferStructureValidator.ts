@@ -1,13 +1,13 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 
-import { BufferObject } from "../structure/BufferObject";
-import { BufferView } from "../structure/BufferView";
+import { BufferObject } from "3d-tiles-tools";
+import { BufferView } from "3d-tiles-tools";
 
-import { BinaryBufferStructure } from "./metadata/BinaryBufferStructure";
+import { BinaryBufferStructure } from "3d-tiles-tools";
 
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
@@ -69,8 +69,8 @@ export class BinaryBufferStructureValidator {
         result = false;
       } else {
         // Validate each buffer
-        for (let i = 0; i < buffers!.length; i++) {
-          const buffer = buffers![i];
+        for (let i = 0; i < buffers.length; i++) {
+          const buffer = buffers[i];
           const bufferPath = buffersPath + "/" + i;
           const bufferUriIsRequired = firstBufferUriIsRequired || i > 0;
           if (
@@ -90,7 +90,7 @@ export class BinaryBufferStructureValidator {
     // Validate the bufferViews
     const bufferViews = binaryBufferStructure.bufferViews;
     const bufferViewsPath = path + "/bufferViews";
-    if (defined(bufferViews)) {
+    if (defined<any>(bufferViews)) {
       //The bufferViews MUST be an array of at least 1 objects
       if (
         !BasicValidator.validateArray(
@@ -106,8 +106,8 @@ export class BinaryBufferStructureValidator {
         result = false;
       } else {
         // Validate each bufferView
-        for (let i = 0; i < bufferViews!.length; i++) {
-          const bufferView = bufferViews![i];
+        for (let i = 0; i < bufferViews.length; i++) {
+          const bufferView = bufferViews[i];
           const bufferViewPath = bufferViewsPath + "/" + i;
           if (
             !BinaryBufferStructureValidator.validateBufferView(

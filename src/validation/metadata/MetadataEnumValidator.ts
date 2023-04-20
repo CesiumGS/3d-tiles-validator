@@ -1,4 +1,4 @@
-import { defined } from "../../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
@@ -6,10 +6,10 @@ import { RootPropertyValidator } from "../RootPropertyValidator";
 import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 import { NumberValidator } from "../NumberValidator";
 
-import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
+import { MetadataComponentTypes } from "3d-tiles-tools";
 
-import { MetadataEnum } from "../../structure/Metadata/MetadataEnum";
-import { EnumValue } from "../../structure/Metadata/EnumValue";
+import { MetadataEnum } from "3d-tiles-tools";
+import { EnumValue } from "3d-tiles-tools";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
@@ -357,7 +357,7 @@ export class MetadataEnumValidator {
           valuePath,
           "value",
           value,
-          validatedValueType!,
+          validatedValueType,
           context
         )
       ) {

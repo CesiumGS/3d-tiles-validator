@@ -1,19 +1,16 @@
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { BinarySubtreeData, defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 
-import { ResourceResolver } from "../io/ResourceResolver";
+import { SubtreeInfos } from "3d-tiles-tools";
+import { AvailabilityInfo } from "3d-tiles-tools";
+import { ImplicitTilings } from "3d-tiles-tools";
 
-import { SubtreeInfos } from "../implicitTiling/SubtreeInfos";
-import { AvailabilityInfo } from "../implicitTiling/AvailabilityInfo";
-import { ImplicitTilings } from "../implicitTiling/ImplicitTilings";
-
-import { Subtree } from "../structure/Subtree";
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
-import { ImplicitTilingError } from "../implicitTiling/ImplicitTilingError";
+import { ImplicitTilingError } from "3d-tiles-tools";
 import { ValidationIssues } from "../issues/ValidationIssues";
 
 /**
@@ -32,19 +29,15 @@ import { ValidationIssues } from "../issues/ValidationIssues";
 export class SubtreeInfoValidator {
   static async validateSubtreeInfo(
     path: string,
-    subtree: Subtree,
-    binaryBuffer: Buffer | undefined,
+    binarySubtreeData: BinarySubtreeData,
     implicitTiling: TileImplicitTiling,
-    resourceResolver: ResourceResolver,
     context: ValidationContext
   ): Promise<boolean> {
     let optionalSubtreeInfo = undefined;
     try {
-      optionalSubtreeInfo = await SubtreeInfos.create(
-        subtree,
-        binaryBuffer,
-        implicitTiling,
-        resourceResolver
+      optionalSubtreeInfo = SubtreeInfos.create(
+        binarySubtreeData,
+        implicitTiling
       );
     } catch (error) {
       if (error instanceof ImplicitTilingError) {
@@ -61,12 +54,13 @@ export class SubtreeInfoValidator {
       context.addIssue(issue);
       return false;
     }
-    const subtreeInfo = optionalSubtreeInfo!;
+    const subtreeInfo = optionalSubtreeInfo;
+    const subtree = binarySubtreeData.subtree;
 
     let result = true;
 
     // Validate the tileAvailability
-    const tileAvailabilityInfo = subtreeInfo.getTileAvailabilityInfo();
+    const tileAvailabilityInfo = subtreeInfo.tileAvailabilityInfo;
     const tileAvailabilityInfoPath = path + "/tileAvailability";
 
     // Validate the tileAvailability availableCount
@@ -96,7 +90,7 @@ export class SubtreeInfoValidator {
 
     // Validate the childSubtreeAvailability
     const childSubtreeAvailabilityInfo =
-      subtreeInfo.getChildSubtreeAvailabilityInfo();
+      subtreeInfo.childSubtreeAvailabilityInfo;
     const childSubtreeAvailabilityInfoPath = path + "/childSubtreeAvailability";
 
     // Validate the childSubtreeAvailability availableCount
@@ -117,7 +111,7 @@ export class SubtreeInfoValidator {
     // (Should this really try to resolve the resource?)
 
     // Validate the contentAvailability
-    const contentAvailabilityInfos = subtreeInfo.getContentAvailabilityInfos();
+    const contentAvailabilityInfos = subtreeInfo.contentAvailabilityInfos;
     const contentAvailabilityInfosPath = path + "/contentAvailability";
     const contentAvailability = defaultValue(subtree.contentAvailability, []);
     for (let i = 0; i < contentAvailabilityInfos.length; i++) {
@@ -239,7 +233,7 @@ export class SubtreeInfoValidator {
       const p = c.parent();
       if (defined(p)) {
         const cIndex = c.toIndex();
-        const pIndex = p!.toIndex();
+        const pIndex = p.toIndex();
         const cAvailable = tileAvailabilityInfo.isAvailable(cIndex);
         const pAvailable = tileAvailabilityInfo.isAvailable(pIndex);
         if (cAvailable && !pAvailable) {

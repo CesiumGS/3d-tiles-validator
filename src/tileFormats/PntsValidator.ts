@@ -2,8 +2,8 @@
 // https://github.com/CesiumGS/3d-tiles-validator/blob/e84202480eb6572383008076150c8e52c99af3c3/validator/lib/validatePnts.js
 // It still contains legacy elements that may be cleaned up at some point.
 
-import { defined } from "../base/defined";
-import { defaultValue } from "../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "../validation/ValidationContext";
 import { Validator } from "../validation/Validator";
@@ -126,10 +126,10 @@ export class PntsValidator implements Validator<Buffer> {
       return false;
     }
 
-    const featureTableJson = binaryTableData!.featureTableJson;
-    const featureTableBinary = binaryTableData!.featureTableBinary;
-    const batchTableJson = binaryTableData!.batchTableJson;
-    const batchTableBinary = binaryTableData!.batchTableBinary;
+    const featureTableJson = binaryTableData.featureTableJson;
+    const featureTableBinary = binaryTableData.featureTableBinary;
+    const batchTableJson = binaryTableData.batchTableJson;
+    const batchTableBinary = binaryTableData.batchTableBinary;
 
     let result = true;
 
@@ -224,7 +224,7 @@ export class PntsValidator implements Validator<Buffer> {
     if (defined(featureTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
         uri,
-        featureTableMessage!
+        featureTableMessage
       );
       context.addIssue(issue);
       result = false;
@@ -247,7 +247,7 @@ export class PntsValidator implements Validator<Buffer> {
     if (defined(batchTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
         uri,
-        batchTableMessage!
+        batchTableMessage
       );
       context.addIssue(issue);
       result = false;

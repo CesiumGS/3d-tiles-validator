@@ -1,4 +1,10 @@
 
+Version 0.4.1 - yyyy-mm-dd
+
+- Moved most of the internal implementation into the `3d-tiles-tools`, and replaced it with a dependency to `3d-tiles-tools`
+- Detect cycles in external tilesets ([#269](https://github.com/CesiumGS/3d-tiles-validator/issues/269))
+- Handle 3D Tiles packages that contain entries that are individually compressed with GZIP
+
 Version 0.4.0 - 2023-01-31
 
 - Padding bytes in B3DM that had only be inserted to align its length to 8 bytes had not been handled properly, and caused unwanted validation warnings. This case is now handled by restricting the glTF validation to the GLB _without_ padding bytes ([#256](https://github.com/CesiumGS/3d-tiles-validator/issues/256))

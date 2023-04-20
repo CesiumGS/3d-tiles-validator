@@ -1,19 +1,19 @@
 import path from "path";
 
-import { defined } from "./base/defined";
+import { defined } from "3d-tiles-tools";
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
 import { globMatcher } from "./base/globMatcher";
 import { writeUnchecked } from "./base/writeUnchecked";
-import { Iterables } from "./base/Iterables";
+import { Iterables } from "3d-tiles-tools";
 
 import { ValidationState } from "./validation/ValidationState";
 import { Validators } from "./validation/Validators";
 import { ValidationResult } from "./validation/ValidationResult";
 import { ValidationOptions } from "./validation/ValidationOptions";
 
-import { TileImplicitTiling } from "./structure/TileImplicitTiling";
-import { Schema } from "./structure/Metadata/Schema";
-import { defaultValue } from "./base/defaultValue";
+import { TileImplicitTiling } from "3d-tiles-tools";
+import { Schema } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 /**
  * A class summarizing the command-line functions of the validator.
@@ -119,7 +119,7 @@ export class ValidatorMain {
       options
     );
     if (defined(reportFileName)) {
-      await writeUnchecked(reportFileName!, validationResult.serialize());
+      await writeUnchecked(reportFileName, validationResult.serialize());
     } else {
       console.log("Validation result:");
       console.log(validationResult.serialize());
@@ -136,7 +136,8 @@ export class ValidatorMain {
     console.log(
       "Validating tilesets from " + directoryName + " matching " + globPattern
     );
-    const allFiles = Iterables.overFiles(directoryName);
+    const recurse = true;
+    const allFiles = Iterables.overFiles(directoryName, recurse);
     const ignoreCase = true;
     const matcher = globMatcher(globPattern, ignoreCase);
     const tilesetFiles = Iterables.filter(allFiles, matcher);
@@ -178,7 +179,7 @@ export class ValidatorMain {
     console.log("Validating schema " + fileName);
     const validationResult = await Validators.validateSchemaFile(fileName);
     if (defined(reportFileName)) {
-      await writeUnchecked(reportFileName!, validationResult.serialize());
+      await writeUnchecked(reportFileName, validationResult.serialize());
     } else {
       console.log("Validation result:");
       console.log(validationResult.serialize());
@@ -199,7 +200,7 @@ export class ValidatorMain {
       implicitTiling
     );
     if (defined(reportFileName)) {
-      await writeUnchecked(reportFileName!, validationResult.serialize());
+      await writeUnchecked(reportFileName, validationResult.serialize());
     } else {
       console.log("Validation result:");
       console.log(validationResult.serialize());

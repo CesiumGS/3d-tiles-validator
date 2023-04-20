@@ -1,4 +1,4 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
@@ -6,7 +6,7 @@ import { ValidationState } from "./ValidationState";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
-import { Statistics } from "../structure/Statistics";
+import { Statistics } from "3d-tiles-tools";
 
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { StatisticsClassValidator } from "./StatisticsClassValidator";
@@ -113,7 +113,7 @@ export class StatisticsValidator {
               !StatisticsClassValidator.validateStatisticsClass(
                 statisticsClass,
                 className,
-                validationState.validatedSchema!,
+                validationState.validatedSchema,
                 context
               )
             ) {

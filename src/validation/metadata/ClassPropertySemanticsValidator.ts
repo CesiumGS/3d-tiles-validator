@@ -1,9 +1,9 @@
-import { defined } from "../../base/defined";
-import { defaultValue } from "../../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 
-import { ClassProperty } from "../../structure/Metadata/ClassProperty";
+import { ClassProperty } from "3d-tiles-tools";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
@@ -41,19 +41,19 @@ export class ClassPropertySemanticsValidator {
       if (defined(property)) {
         const semantic = property.semantic;
         if (defined(semantic)) {
-          const otherPropertyName = semanticsToPropertyNames[semantic!];
+          const otherPropertyName = semanticsToPropertyNames[semantic];
           if (defined(otherPropertyName)) {
             const issue =
               MetadataValidationIssues.CLASS_PROPERTIES_DUPLICATE_SEMANTIC(
                 metadataClassPath,
                 propertyName,
                 otherPropertyName,
-                semantic!
+                semantic
               );
             context.addIssue(issue);
             result = false;
           }
-          semanticsToPropertyNames[semantic!] = propertyName;
+          semanticsToPropertyNames[semantic] = propertyName;
         }
       }
     }
@@ -80,13 +80,13 @@ export class ClassPropertySemanticsValidator {
       const semanticMatcher =
         ClassPropertySemanticsValidator.findSemanticMatcher(
           matchingSchema,
-          semantic!
+          semantic
         );
       if (!defined(semanticMatcher)) {
         const issue = MetadataValidationIssues.METADATA_SEMANTIC_UNKNOWN(
           propertyPath,
           propertyName,
-          semantic!
+          semantic
         );
         context.addIssue(issue);
       } else {
@@ -97,7 +97,7 @@ export class ClassPropertySemanticsValidator {
             propertyPath,
             propertyName,
             property,
-            semantic!,
+            semantic,
             semanticMatcher,
             context
           )

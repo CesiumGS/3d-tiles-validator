@@ -1,4 +1,4 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 
@@ -166,8 +166,8 @@ export class BasicValidator {
       return false;
     }
     if (
-      (defined(minLength) && value.length < minLength!) ||
-      (defined(maxLength) && value.length > maxLength!)
+      (defined(minLength) && value.length < minLength) ||
+      (defined(maxLength) && value.length > maxLength)
     ) {
       const rangeDescription = ValidationIssueUtils.describeSimpleRange(
         minLength,
@@ -188,7 +188,7 @@ export class BasicValidator {
             path + "/" + index,
             name,
             index,
-            expectedElementType!,
+            expectedElementType,
             typeof element
           );
           context.addIssue(issue);
@@ -261,7 +261,7 @@ export class BasicValidator {
     name: string,
     value: any,
     context: ValidationContext
-  ): boolean {
+  ): value is { [key: string]: any } {
     if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
@@ -290,7 +290,7 @@ export class BasicValidator {
     name: string,
     value: any,
     context: ValidationContext
-  ): boolean {
+  ): value is string {
     if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
@@ -319,7 +319,7 @@ export class BasicValidator {
     name: string,
     value: any,
     context: ValidationContext
-  ): boolean {
+  ): value is number {
     if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
@@ -348,7 +348,7 @@ export class BasicValidator {
     name: string,
     value: any,
     context: ValidationContext
-  ): boolean {
+  ): value is boolean {
     if (!BasicValidator.validateDefined(path, name, value, context)) {
       return false;
     }
@@ -563,8 +563,8 @@ export class BasicValidator {
     context: ValidationContext
   ): boolean {
     if (defined(min) && defined(max)) {
-      const validMin = minInclusive ? value >= min! : value > min!;
-      const validMax = maxInclusive ? value <= max! : value < max!;
+      const validMin = minInclusive ? value >= min : value > min;
+      const validMax = maxInclusive ? value <= max : value < max;
       if (!validMin || !validMax) {
         const minBracket = minInclusive ? "[" : "(";
         const maxBracket = maxInclusive ? "]" : ")";
@@ -575,7 +575,7 @@ export class BasicValidator {
         return false;
       }
     } else if (defined(min)) {
-      const validMin = minInclusive ? value >= min! : value > min!;
+      const validMin = minInclusive ? value >= min : value > min;
       if (!validMin) {
         const minComparison = minInclusive
           ? "greater than or equal to"
@@ -588,7 +588,7 @@ export class BasicValidator {
         return false;
       }
     } else if (defined(max)) {
-      const validMax = maxInclusive ? value <= max! : value < max!;
+      const validMax = maxInclusive ? value <= max : value < max;
       if (!validMax) {
         const maxComparison = maxInclusive
           ? "less than or equal to"
@@ -680,8 +680,8 @@ export class BasicValidator {
     }
     const numProperties = Object.keys(value).length;
     if (
-      (defined(minProperties) && numProperties < minProperties!) ||
-      (defined(maxProperties) && numProperties > maxProperties!)
+      (defined(minProperties) && numProperties < minProperties) ||
+      (defined(maxProperties) && numProperties > maxProperties)
     ) {
       const rangeDescription = ValidationIssueUtils.describeSimpleRange(
         minProperties,
@@ -735,8 +735,8 @@ export class BasicValidator {
       return false;
     }
     if (
-      (defined(minLength) && value.length < minLength!) ||
-      (defined(maxLength) && value.length > maxLength!)
+      (defined(minLength) && value.length < minLength) ||
+      (defined(maxLength) && value.length > maxLength)
     ) {
       const rangeDescription = ValidationIssueUtils.describeSimpleRange(
         minLength,

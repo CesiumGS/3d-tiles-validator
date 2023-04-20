@@ -1,9 +1,10 @@
 import path from "path";
 import fs from "fs";
-import { defined } from "../base/defined";
-import { Buffers } from "../base/Buffers";
 
-import { ResourceResolvers } from "../io/ResourceResolvers";
+import { defined } from "3d-tiles-tools";
+import { Buffers } from "3d-tiles-tools";
+
+import { ResourceResolvers } from "3d-tiles-tools";
 
 import { Validator } from "./Validator";
 import { TilesetValidator } from "./TilesetValidator";
@@ -17,7 +18,7 @@ import { TilesetPackageValidator } from "./TilesetPackageValidator";
 
 import { SchemaValidator } from "./metadata/SchemaValidator";
 
-import { TileImplicitTiling } from "../structure/TileImplicitTiling";
+import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
@@ -111,23 +112,30 @@ export class Validators {
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
     const validator = Validators.createDefaultTilesetValidator();
-    const context = new ValidationContext(resourceResolver, validationOptions);
+    const context = new ValidationContext(
+      directory,
+      resourceResolver,
+      validationOptions
+    );
+    const tilesetUri = context.resolveUri(fileName);
+    context.addActiveTilesetUri(tilesetUri);
     const resourceData = await resourceResolver.resolveData(fileName);
     if (!defined(resourceData)) {
       const message = `Could not read input file: ${filePath}`;
       const issue = IoValidationIssues.IO_ERROR(filePath, message);
       context.addIssue(issue);
     } else {
-      const bom = Buffers.getUnicodeBOMDescription(resourceData!);
+      const bom = Buffers.getUnicodeBOMDescription(resourceData);
       if (defined(bom)) {
         const message = `Unexpected BOM in JSON buffer: ${bom}`;
         const issue = IoValidationIssues.IO_ERROR(filePath, message);
         context.addIssue(issue);
       } else {
-        const jsonString = resourceData!.toString();
+        const jsonString = resourceData.toString();
         await validator.validateJsonString(jsonString, context);
       }
     }
+    context.removeActiveTilesetUri(tilesetUri);
     return context.getResult();
   }
 
@@ -155,8 +163,15 @@ export class Validators {
     const directory = path.dirname(filePath);
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
-    const context = new ValidationContext(resourceResolver, validationOptions);
+    const context = new ValidationContext(
+      directory,
+      resourceResolver,
+      validationOptions
+    );
+    const tilesetUri = context.resolveUri(filePath);
+    context.addActiveTilesetUri(tilesetUri);
     await TilesetPackageValidator.validatePackageFile(filePath, context);
+    context.removeActiveTilesetUri(tilesetUri);
     return context.getResult();
   }
 
@@ -187,7 +202,7 @@ export class Validators {
       ResourceResolvers.createFileResourceResolver(directory);
     const resourceData = await resourceResolver.resolveData(fileName);
     const validator = Validators.createDefaultSchemaValidator();
-    const context = new ValidationContext(resourceResolver);
+    const context = new ValidationContext(directory, resourceResolver);
     const jsonString = resourceData ? resourceData.toString() : "";
     await validator.validateJsonString(jsonString, context);
     return context.getResult();
@@ -239,13 +254,13 @@ export class Validators {
       validationState,
       implicitTiling
     );
-    const context = new ValidationContext(resourceResolver);
+    const context = new ValidationContext(directory, resourceResolver);
     if (!defined(resourceData)) {
       const message = `Could not read subtree file ${filePath}`;
       const issue = IoValidationIssues.IO_ERROR(filePath, message);
       context.addIssue(issue);
     } else {
-      await validator.validateObject(filePath, resourceData!, context);
+      await validator.validateObject(filePath, resourceData, context);
     }
     return context.getResult();
   }
@@ -271,7 +286,7 @@ export class Validators {
         context: ValidationContext
       ): Promise<boolean> {
         try {
-          const bom = Buffers.getUnicodeBOMDescription(input!);
+          const bom = Buffers.getUnicodeBOMDescription(input);
           if (defined(bom)) {
             const message = `Unexpected BOM in JSON buffer: ${bom}`;
             const issue = IoValidationIssues.IO_ERROR(inputPath, message);

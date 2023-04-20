@@ -1,14 +1,14 @@
-import { defined } from "../../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
 
 import { ClassPropertyValueValidator } from "./ClassPropertyValueValidator";
 
-import { PropertyTableProperty } from "../../structure/PropertyTableProperty";
-import { ClassProperty } from "../../structure/Metadata/ClassProperty";
+import { PropertyTableProperty } from "3d-tiles-tools";
+import { ClassProperty } from "3d-tiles-tools";
 
-import { MetadataComponentTypes } from "../../metadata/MetadataComponentTypes";
+import { MetadataComponentTypes } from "3d-tiles-tools";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
@@ -100,7 +100,7 @@ export class PropertyTablePropertyValidator {
           !BasicValidator.validateIntegerRange(
             arrayOffsetsPath,
             "arrayOffsets",
-            arrayOffsets!,
+            arrayOffsets,
             0,
             true,
             numBufferViews,
@@ -134,7 +134,7 @@ export class PropertyTablePropertyValidator {
           !BasicValidator.validateIntegerRange(
             stringOffsetsPath,
             "stringOffsets",
-            stringOffsets!,
+            stringOffsets,
             0,
             true,
             numBufferViews,

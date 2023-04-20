@@ -8,8 +8,8 @@ import {
   Matrix4,
   Plane,
 } from "cesium";
-import { defined } from "../../base/defined";
-import { BoundingVolume } from "../../structure/BoundingVolume";
+import { defined } from "3d-tiles-tools";
+import { BoundingVolume } from "3d-tiles-tools";
 
 /**
  * The checks for bounding volumes from the the original 3d-tiles-validator.
@@ -40,21 +40,21 @@ export class BoundingVolumeChecks {
   ): string | undefined {
     let innerTransform = Matrix4.IDENTITY;
     if (defined(innerTransformArray)) {
-      innerTransform = Matrix4.fromArray(innerTransformArray!);
+      innerTransform = Matrix4.fromArray(innerTransformArray);
     }
     let outerTransform = Matrix4.IDENTITY;
     if (defined(outerTransformArray)) {
-      outerTransform = Matrix4.fromArray(outerTransformArray!);
+      outerTransform = Matrix4.fromArray(outerTransformArray);
     }
 
     if (defined(innerBoundingVolume.box) && defined(outerBoundingVolume.box)) {
       // Box in Box check
       const transformedInnerTile = BoundingVolumeChecks.getTransformedBox(
-        innerBoundingVolume.box!,
+        innerBoundingVolume.box,
         innerTransform
       );
       const transformedOuterTile = BoundingVolumeChecks.getTransformedBox(
-        outerBoundingVolume.box!,
+        outerBoundingVolume.box,
         outerTransform
       );
       if (
@@ -71,11 +71,11 @@ export class BoundingVolumeChecks {
     ) {
       // Sphere in Sphere
       const transformedInnerTile = BoundingVolumeChecks.getTransformedSphere(
-        innerBoundingVolume.sphere!,
+        innerBoundingVolume.sphere,
         innerTransform
       );
       const transformedOuterTile = BoundingVolumeChecks.getTransformedSphere(
-        outerBoundingVolume.sphere!,
+        outerBoundingVolume.sphere,
         outerTransform
       );
       if (
@@ -96,8 +96,8 @@ export class BoundingVolumeChecks {
       const transformedOuterTile = outerBoundingVolume.region;
       if (
         !BoundingVolumeChecks.regionInsideRegion(
-          transformedInnerTile!,
-          transformedOuterTile!
+          transformedInnerTile,
+          transformedOuterTile
         )
       ) {
         return `region [${innerBoundingVolume.region}] is not within region [${outerBoundingVolume.region}]`;
@@ -108,11 +108,11 @@ export class BoundingVolumeChecks {
     ) {
       // Box in Sphere
       const transformedInnerTile = BoundingVolumeChecks.getTransformedBox(
-        innerBoundingVolume.box!,
+        innerBoundingVolume.box,
         innerTransform
       );
       const transformedOuterTile = BoundingVolumeChecks.getTransformedSphere(
-        outerBoundingVolume.sphere!,
+        outerBoundingVolume.sphere,
         outerTransform
       );
       if (
@@ -129,11 +129,11 @@ export class BoundingVolumeChecks {
     ) {
       // Sphere in Box
       const transformedInnerTile = BoundingVolumeChecks.getTransformedSphere(
-        innerBoundingVolume.sphere!,
+        innerBoundingVolume.sphere,
         innerTransform
       );
       const transformedOuterTile = BoundingVolumeChecks.getTransformedBox(
-        outerBoundingVolume.box!,
+        outerBoundingVolume.box,
         outerTransform
       );
       if (

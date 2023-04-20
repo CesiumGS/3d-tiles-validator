@@ -1,6 +1,8 @@
-import { defaultValue } from "../base/defaultValue";
+import path from "path";
 
-import { ResourceResolver } from "../io/ResourceResolver";
+import { defaultValue } from "3d-tiles-tools";
+
+import { ResourceResolver } from "3d-tiles-tools";
 
 import { ValidationIssue } from "./ValidationIssue";
 import { ValidationOptions } from "./ValidationOptions";
@@ -48,11 +50,30 @@ export class ValidationContext {
    */
   private readonly _resourceResolver: ResourceResolver;
 
-  constructor(resourceResolver: ResourceResolver, options?: ValidationOptions) {
+  /**
+   * The base URI that URIs should be resolved against in
+   * this context
+   */
+  private readonly _baseUri;
+
+  /**
+   * The set of absolute URIs of tilesets that are currently being
+   * validated. When an external tileset is encountered, then its
+   * absolute URI is added to this set.
+   */
+  private _activeTilesetUris: Set<string>;
+
+  constructor(
+    baseUri: string,
+    resourceResolver: ResourceResolver,
+    options?: ValidationOptions
+  ) {
     this._options = defaultValue(options, new ValidationOptions());
+    this._baseUri = baseUri;
     this._result = ValidationResult.create();
     this._resourceResolver = resourceResolver;
     this._extensionsFound = new Set<string>();
+    this._activeTilesetUris = new Set<string>();
   }
 
   /**
@@ -68,23 +89,41 @@ export class ValidationContext {
    */
   deriveFromUri(uri: string): ValidationContext {
     const derivedResourceResolver = this._resourceResolver.derive(uri);
-    return this.deriveFromResourceResolver(derivedResourceResolver);
+    const derivedBaseUri = path.join(this._baseUri, decodeURIComponent(uri));
+    const derived = new ValidationContext(
+      derivedBaseUri,
+      derivedResourceResolver,
+      this._options
+    );
+    derived._extensionsFound = this._extensionsFound;
+    derived._activeTilesetUris = this._activeTilesetUris;
+    return derived;
   }
 
   /**
    * Derives a new context from this one.
    *
-   * It uses the same `ValidationOptions` as this one, but the
-   * given resource resolver.
+   * It uses the same `ValidationOptions` as this one, with
+   * a base URI that is derived by resolving the given URI
+   * against the current base URI, and uses the given
+   * `ResourceResolver`
    *
-   * @param resourceResolver - The `ResourceResolver`
+   * @param uri - The (usually relative) URI
+   * @param resourceResolver - The resource resolver
    * @returns The new instance
    */
   deriveFromResourceResolver(
+    uri: string,
     resourceResolver: ResourceResolver
   ): ValidationContext {
-    const derived = new ValidationContext(resourceResolver, this._options);
+    const derivedBaseUri = path.join(this._baseUri, decodeURIComponent(uri));
+    const derived = new ValidationContext(
+      derivedBaseUri,
+      resourceResolver,
+      this._options
+    );
     derived._extensionsFound = this._extensionsFound;
+    derived._activeTilesetUris = this._activeTilesetUris;
     return derived;
   }
 
@@ -106,6 +145,24 @@ export class ValidationContext {
 
   getResourceResolver(): ResourceResolver {
     return this._resourceResolver;
+  }
+
+  resolveUri(uri: string): string {
+    let resolved = path.resolve(this._baseUri, decodeURIComponent(uri));
+    resolved = resolved.replace(/\\/g, "/");
+    return resolved;
+  }
+
+  addActiveTilesetUri(uri: string) {
+    this._activeTilesetUris.add(uri);
+  }
+
+  removeActiveTilesetUri(uri: string) {
+    this._activeTilesetUris.delete(uri);
+  }
+
+  isActiveTilesetUri(uri: string): boolean {
+    return this._activeTilesetUris.has(uri);
   }
 
   getOptions(): ValidationOptions {

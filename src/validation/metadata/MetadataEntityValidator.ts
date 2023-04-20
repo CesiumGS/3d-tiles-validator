@@ -1,5 +1,5 @@
-import { defined } from "../../base/defined";
-import { defaultValue } from "../../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
@@ -9,8 +9,8 @@ import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
 import { MetadataStructureValidator } from "./MetadataStructureValidator";
 import { MetadataValueValidator } from "./MetadataValueValidator";
 
-import { Schema } from "../../structure/Metadata/Schema";
-import { MetadataEntity } from "../../structure/MetadataEntity";
+import { Schema } from "3d-tiles-tools";
+import { MetadataEntity } from "3d-tiles-tools";
 
 /**
  * A class for validations related to `metadataEntity` objects.
@@ -109,7 +109,7 @@ export class MetadataEntityValidator {
       // Note: The check whether 'required' properties are
       // present and have values was already done by the
       // MetadataStructureValidator
-      const propertyValue = entityProperties![propertyName];
+      const propertyValue = validProperties[propertyName];
       if (defined(propertyValue)) {
         // The property value MUST match the structure
         // of the property definition

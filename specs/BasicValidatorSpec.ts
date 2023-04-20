@@ -1,7 +1,7 @@
 import { BasicValidator } from "../src/validation/BasicValidator";
 import { ValidationContext } from "../src/validation/ValidationContext";
 
-import { ResourceResolvers } from "../src/io/ResourceResolvers";
+import { ResourceResolvers } from "3d-tiles-tools";
 
 function validateNumberRange(
   value: number,
@@ -11,7 +11,7 @@ function validateNumberRange(
   maxInclusive: boolean
 ): boolean {
   const resourceResolver = ResourceResolvers.createFileResourceResolver("");
-  const context = new ValidationContext(resourceResolver);
+  const context = new ValidationContext(".", resourceResolver);
   const result = BasicValidator.validateNumberRange(
     "path",
     "name",

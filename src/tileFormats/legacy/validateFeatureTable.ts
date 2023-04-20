@@ -1,7 +1,7 @@
 // Mostly ported from https://github.com/CesiumGS/3d-tiles-validator/tree/e84202480eb6572383008076150c8e52c99af3c3
 
-import { defaultValue } from "../../base/defaultValue";
-import { defined } from "../../base/defined";
+import { defaultValue } from "3d-tiles-tools";
+import { defined } from "3d-tiles-tools";
 
 import { typeToComponentsLength } from "./utility";
 import { componentTypeToByteLength } from "./utility";
@@ -68,11 +68,11 @@ function validateFeatureTable(
         ) {
           return `Feature table binary property "${name}" has invalid componentType "${componentType}".`;
         }
-        if (byteOffset % componentByteLength! > 0) {
+        if (byteOffset % componentByteLength > 0) {
           return `Feature table binary property "${name}" must be aligned to a ${componentByteLength}-byte boundary.`;
         }
         const propertyByteLength =
-          componentsLength! * componentByteLength! * itemsLength;
+          componentsLength * componentByteLength * itemsLength;
         if (byteOffset + propertyByteLength > featureTableBinary.length) {
           return `Feature table binary property "${name}" exceeds feature table binary byte length.`;
         }
@@ -84,7 +84,7 @@ function validateFeatureTable(
         if (!defined(componentsLength)) {
           return `Feature table binary property "${name}" has invalid type "${type}".`;
         }
-        const arrayLength = componentsLength! * itemsLength;
+        const arrayLength = componentsLength * itemsLength;
         if (definition.global && arrayLength === 1) {
           if (typeof property !== "number") {
             return `Feature table property "${name}" must be a number.`;

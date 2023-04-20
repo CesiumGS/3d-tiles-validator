@@ -936,4 +936,19 @@ describe("Tileset validation", function () {
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
   });
+
+  it("detects issues in tilesetWithCycleA", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetWithCycleA.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("EXTERNAL_TILESET_VALIDATION_ERROR");
+  });
+
+  it("detects no issues in tilesetWithMultipleExternal", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetWithMultipleExternal.json"
+    );
+    expect(result.length).toEqual(0);
+  });
 });

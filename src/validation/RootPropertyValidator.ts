@@ -1,9 +1,9 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 
-import { RootProperty } from "../structure/RootProperty";
+import { RootProperty } from "3d-tiles-tools";
 
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 
@@ -58,9 +58,9 @@ export class RootPropertyValidator {
         result = false;
       } else {
         // Each value of the extensions MUST be an object
-        const extensionNames = Object.keys(extensions!);
+        const extensionNames = Object.keys(extensions);
         for (const extensionName of extensionNames) {
-          const extension = extensions![extensionName];
+          const extension = extensions[extensionName];
           const extensionPath = extensionsPath + "/" + extensionName;
           if (
             !BasicValidator.validateObject(

@@ -4,7 +4,7 @@
 
 import path from "path";
 
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "../validation/ValidationContext";
 import { Validator } from "../validation/Validator";
@@ -142,15 +142,15 @@ export class I3dmValidator implements Validator<Buffer> {
       return false;
     }
 
-    const featureTableJson = binaryTableData!.featureTableJson;
-    const featureTableBinary = binaryTableData!.featureTableBinary;
-    const batchTableJson = binaryTableData!.batchTableJson;
-    const batchTableBinary = binaryTableData!.batchTableBinary;
-    const glbData = binaryTableData!.glbData;
+    const featureTableJson = binaryTableData.featureTableJson;
+    const featureTableBinary = binaryTableData.featureTableBinary;
+    const batchTableJson = binaryTableData.batchTableJson;
+    const batchTableBinary = binaryTableData.batchTableBinary;
+    const glbData = binaryTableData.glbData;
 
     let result = true;
 
-    const featuresLength = featureTableJson!.INSTANCES_LENGTH;
+    const featuresLength = featureTableJson.INSTANCES_LENGTH;
     if (!defined(featuresLength)) {
       const message = `Feature table must contain a INSTANCES_LENGTH property.`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(uri, message);
@@ -233,7 +233,7 @@ export class I3dmValidator implements Validator<Buffer> {
     if (defined(featureTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
         uri,
-        featureTableMessage!
+        featureTableMessage
       );
       context.addIssue(issue);
       result = false;
@@ -247,7 +247,7 @@ export class I3dmValidator implements Validator<Buffer> {
     if (defined(batchTableMessage)) {
       const issue = ContentValidationIssues.CONTENT_JSON_INVALID(
         uri,
-        batchTableMessage!
+        batchTableMessage
       );
       context.addIssue(issue);
       result = false;
@@ -288,7 +288,7 @@ export class I3dmValidator implements Validator<Buffer> {
         const gltfValidator = new GltfValidator();
         const gltfResult = await gltfValidator.validateObject(
           uri,
-          resolvedGlbData!,
+          resolvedGlbData,
           derivedContext
         );
         if (!gltfResult) {

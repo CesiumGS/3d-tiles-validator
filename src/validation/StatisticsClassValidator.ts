@@ -1,15 +1,15 @@
-import { defined } from "../base/defined";
+import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
-import { StatisticsClass } from "../structure/StatisticsClass";
-import { Schema } from "../structure/Metadata/Schema";
+import { StatisticsClass } from "3d-tiles-tools";
+import { Schema } from "3d-tiles-tools";
 
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { defaultValue } from "cesium";
+import { defaultValue } from "3d-tiles-tools";
 
 /**
  * A class for validations related to `StatisticsClass` objects.

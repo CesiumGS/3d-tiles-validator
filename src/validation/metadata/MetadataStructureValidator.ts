@@ -1,10 +1,10 @@
-import { defined } from "../../base/defined";
-import { defaultValue } from "../../base/defaultValue";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
 
-import { Schema } from "../../structure/Metadata/Schema";
+import { Schema } from "3d-tiles-tools";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
@@ -102,7 +102,7 @@ export class MetadataStructureValidator {
         result = false;
       } else {
         // Validate whether each property was defined in the class
-        const propertyNames = Object.keys(properties!);
+        const propertyNames = Object.keys(properties);
         for (const propertyName of propertyNames) {
           // The property name MUST appear as a key in
           // the properties of the schema class
@@ -127,7 +127,7 @@ export class MetadataStructureValidator {
       if (classProperty.required) {
         let propertyValue = undefined;
         if (defined(properties)) {
-          propertyValue = properties![classPropertyName];
+          propertyValue = properties[classPropertyName];
         }
         // The property value MUST be present if the property is 'required'
         if (!defined(propertyValue)) {
