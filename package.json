@@ -23,21 +23,16 @@
     "3d-tiles-validator": "./build/main"
   },
   "dependencies": {
-    "3d-tiles-tools": "^0.2.0",
-    "archiver": "^5.3.1",
-    "better-sqlite3": "^8.0.1",
+    "3d-tiles-tools": "^0.2.1",
     "cesium": "^1.97.0",
     "gltf-validator": "^2.0.0-dev.3.9",
     "minimatch": "^5.1.0",
     "node-stream-zip": "^1.10.1",
-    "yargs": "^17.5.1",
-    "zlib": "^1.0.5"
+    "yargs": "^17.5.1"
   },
   "devDependencies": {
     "@microsoft/api-documenter": "^7.19.24",
     "@microsoft/api-extractor": "^7.33.6",
-    "@types/archiver": "^5.3.1",
-    "@types/better-sqlite3": "^7.6.2",
     "@types/jasmine": "^4.0.3",
     "@types/minimatch": "^5.1.2",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
