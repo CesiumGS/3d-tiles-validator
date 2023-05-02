@@ -6,6 +6,12 @@
 
 /// <reference types="node" />
 
+import { Group } from '3d-tiles-tools';
+import { ResourceResolver } from '3d-tiles-tools';
+import { Schema } from '3d-tiles-tools';
+import { TileImplicitTiling } from '3d-tiles-tools';
+import { Tileset } from '3d-tiles-tools';
+
 // @beta
 export class ValidationIssue {
     // @internal
@@ -81,7 +87,6 @@ export class Validators {
     // @internal
     static createDefaultSchemaValidator(): SchemaValidator;
     // Warning: (ae-forgotten-export) The symbol "ValidationState" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "TileImplicitTiling" needs to be exported by the entry point index.d.ts
     // Warning: (ae-forgotten-export) The symbol "SubtreeValidator" needs to be exported by the entry point index.d.ts
     //
     // @internal

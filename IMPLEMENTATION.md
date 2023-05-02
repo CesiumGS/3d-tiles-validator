@@ -6,15 +6,9 @@ Parts of the current implementation may still change. This page is only a short 
 
 - `./src`: The entry point for the command line interface is in `main.ts`
 - `./src/validation`: The core classes for the 3D Tiles validation
-- `./src/base`: Generic, low-level utility functions
-- `./src/io`: Classes for reading and resolving resources via URIs
 - `./src/issues`: Classes defining the categories of detected issues
-- `./src/structure`: Plain old objects for the 3D Tiles types
-- `./src/tileFormats`: Validators for tile content
-- `./src/implicitTiling`: Classes that support accessing implicit tiling information
-- `./src/traversal`: Classes for traversing tilesets
-- `./src/metadata`: Classes that support accessing 3D Metadata
-- `./src/binary`: Classes to handle binary metadata from property tables
+- `./src/tileFormats`: Classes for the validation of tile contents
+- `./src/archives`: Functions that are specific for the validation of 3TZ archives/packages
 - `./specs`: Jasmine specs
 - `./specs/data`: Test data
 
