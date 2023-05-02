@@ -1,26 +1,18 @@
 [
   {
-    "name": "archiver",
+    "name": "3d-tiles-tools",
     "license": [
-      "MIT"
+      "Apache-2.0"
     ],
-    "version": "5.3.1",
-    "url": "https://www.npmjs.com/package/archiver"
-  },
-  {
-    "name": "better-sqlite3",
-    "license": [
-      "MIT"
-    ],
-    "version": "8.0.1",
-    "url": "https://www.npmjs.com/package/better-sqlite3"
+    "version": "0.2.1",
+    "url": "https://www.npmjs.com/package/3d-tiles-tools"
   },
   {
     "name": "cesium",
     "license": [
       "Apache-2.0"
     ],
-    "version": "1.100.0",
+    "version": "1.104.0",
     "url": "https://www.npmjs.com/package/cesium"
   },
   {
@@ -36,7 +28,7 @@
     "license": [
       "ISC"
     ],
-    "version": "5.1.1",
+    "version": "5.1.6",
     "url": "https://www.npmjs.com/package/minimatch"
   },
   {
@@ -52,15 +44,7 @@
     "license": [
       "MIT"
     ],
-    "version": "17.6.2",
+    "version": "17.7.2",
     "url": "https://www.npmjs.com/package/yargs"
-  },
-  {
-    "name": "zlib",
-    "license": [
-      null
-    ],
-    "version": "1.0.5",
-    "url": "https://www.npmjs.com/package/zlib"
   }
 ]
