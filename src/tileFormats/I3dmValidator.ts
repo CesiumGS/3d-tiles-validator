@@ -266,8 +266,9 @@ export class I3dmValidator implements Validator<Buffer> {
       }
     } else {
       // The GLB data was a URI. Create the URI from the buffer, and remove
-      // any zero-bytes from the string that may be introduced by padding
-      const glbUri = glbData.toString().replace(/\0/g, "");
+      // any zero-bytes and spaces from the string that may be introduced
+      // by padding
+      const glbUri = glbData.toString().replace(/\0/g, "").trim();
       const resourceResolver = context.getResourceResolver();
       const resolvedGlbData = await resourceResolver.resolveData(glbUri);
       if (!defined(resolvedGlbData)) {
