@@ -951,4 +951,12 @@ describe("Tileset validation", function () {
     );
     expect(result.length).toEqual(0);
   });
+
+  it("detects no issues in tilesets/tiles/i3dm/i3dmWithUri/tileset.json", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tiles/i3dm/i3dmWithUri/tileset.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_WARNING");
+  });
 });
