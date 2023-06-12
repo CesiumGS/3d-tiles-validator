@@ -265,9 +265,21 @@ export class I3dmValidator implements Validator<Buffer> {
         result = false;
       }
     } else {
-      // The GLB data was a URI. Create the URI from the buffer, and remove
-      // any zero-bytes and spaces from the string that may be introduced
-      // by padding
+      // The GLB data was a URI, as indicated by `gltfFormat === 0`.
+      // The padding bytes in this case should be 0x20 (space) bytes,
+      // so issue a warning if the buffer contais 0x00 (zero) bytes.
+      if (glbData.includes("\0")) {
+        const message =
+          `The field containing the URI of the glTF asset contained ` +
+          `0x00 (zero)-bytes, but should only be padded with 0x20 (space) bytes`;
+        const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
+          uri,
+          message
+        );
+        context.addIssue(issue);
+      }
+      // Create the URI from the buffer, and remove any bytes (zeros
+      // or trailing) that may be introduced by padding.
       const glbUri = glbData.toString().replace(/\0/g, "").trim();
       const resourceResolver = context.getResourceResolver();
       const resolvedGlbData = await resourceResolver.resolveData(glbUri);
