@@ -1028,7 +1028,7 @@ export class BinaryPropertyTableValidator {
       index,
       arrayOffsetType
     );
-    return arrayOffset;
+    return Number(arrayOffset);
   }
   /**
    * Returns the string offset of the given property at the specified
@@ -1065,6 +1065,6 @@ export class BinaryPropertyTableValidator {
       index,
       stringOffsetType
     );
-    return stringOffset;
+    return Number(stringOffset);
   }
 }
