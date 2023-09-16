@@ -139,7 +139,7 @@ export class ExtMeshFeaturesValidator {
 
     // Validate the featureCount
     // The featureCount MUST be defined
-    // The featureCount MUST be an integer of at least 0
+    // The featureCount MUST be an integer of at least 1
     const featureCount = featureId.featureCount;
     const featureCountPath = path + "/featureCount";
     if (
@@ -147,7 +147,7 @@ export class ExtMeshFeaturesValidator {
         featureCountPath,
         "featureCount",
         featureCount,
-        0,
+        1,
         true,
         undefined,
         false,
