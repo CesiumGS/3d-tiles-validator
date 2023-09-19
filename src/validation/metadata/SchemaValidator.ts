@@ -161,7 +161,7 @@ export class SchemaValidator implements Validator<Schema> {
         for (const [className, metadataClass] of Object.entries(classes)) {
           const metadataClassPath = classesPath + "/" + className;
 
-          // Each class name name MUST match the ID regex
+          // Each class name MUST match the ID regex
           if (
             !BasicValidator.validateIdentifierString(
               metadataClassPath,
@@ -198,7 +198,7 @@ export class SchemaValidator implements Validator<Schema> {
         for (const [enumName, metadataEnum] of Object.entries(enums)) {
           const metadataEnumPath = enumsPath + "/" + enumName;
 
-          // Each enum name name MUST match the ID regex
+          // Each enum name MUST match the ID regex
           if (
             !BasicValidator.validateIdentifierString(
               metadataEnumPath,
