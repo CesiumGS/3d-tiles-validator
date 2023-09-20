@@ -23,11 +23,12 @@
     "3d-tiles-validator": "./build/main"
   },
   "dependencies": {
-    "3d-tiles-tools": "^0.3.0",
+    "3d-tiles-tools": "file:../3d-tiles-tools",
     "cesium": "^1.97.0",
     "gltf-validator": "^2.0.0-dev.3.9",
     "minimatch": "^5.1.0",
     "node-stream-zip": "^1.10.1",
+    "sharp": "^0.32.1",
     "yargs": "^17.5.1"
   },
   "devDependencies": {
