@@ -23,6 +23,7 @@ import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
+import { SchemaResolver } from "./SchemaResolver";
 
 /**
  * A class that can validate a 3D Tiles tileset.
@@ -173,8 +174,10 @@ export class TilesetValidator implements Validator<Tileset> {
       validatedGroups: undefined,
       hasGroupsDefinition: false,
     };
-    const schemaResult = await TilesetValidator.resolveTilesetSchema(
-      tileset,
+    const schemaResult = await SchemaResolver.resolveSchema(
+      "",
+      tileset.schema,
+      tileset.schemaUri,
       context
     );
     validationState.hasSchemaDefinition = schemaResult.hasSchemaDefinition;
@@ -359,12 +362,15 @@ export class TilesetValidator implements Validator<Tileset> {
         extensionsUsed.forEach((e) => actualExtensionsUsed.add(e));
 
         // The elements in extensionsUsed MUST be unique
-        BasicValidator.validateArrayElementsUnique(
+        const elementsUnique = BasicValidator.validateArrayElementsUnique(
           extensionsUsedPath,
           "extensionsUsed",
           extensionsUsed,
           context
         );
+        if (!elementsUnique) {
+          result = false;
+        }
       }
     }
     // Validate the extensionsRequired
@@ -389,12 +395,15 @@ export class TilesetValidator implements Validator<Tileset> {
         extensionsRequired.forEach((e) => actualExtensionsRequired.add(e));
 
         // The elements in extensionsRequired MUST be unique
-        BasicValidator.validateArrayElementsUnique(
+        const elementsUnique = BasicValidator.validateArrayElementsUnique(
           extensionsRequiredPath,
           "extensionsRequired",
           extensionsRequired,
           context
         );
+        if (!elementsUnique) {
+          result = false;
+        }
       }
     }
 
@@ -449,82 +458,6 @@ export class TilesetValidator implements Validator<Tileset> {
     return result;
   }
 
-  /**
-   * Resolves the schema for the given tileset.
-   *
-   * The result will be an object with the following properties:
-   *
-   * `hasSchemaDefinition`: This is `true` if there either was a
-   * `tileset.schema` or a `tileset.schemaUri`
-   *
-   * `schema`: This is either the `tileset.schema`, or the
-   * schema that was read from the `tileset.schemaUri`. If
-   * the latter could not be resolved, `schema` will be
-   * `undefined`.
-   *
-   * @param tileset - The `Tileset` object
-   * @param context - The `ValidationContext`
-   * @returns A promise that resolves with the result object
-   */
-  static async resolveTilesetSchema(
-    tileset: Tileset,
-    context: ValidationContext
-  ): Promise<{ hasSchemaDefinition: boolean; schema?: Schema }> {
-    const schema = tileset.schema;
-    const schemaUri = tileset.schemaUri;
-    if (defined(schema) && typeof schema === "object") {
-      return {
-        hasSchemaDefinition: true,
-        schema: schema,
-      };
-    }
-    if (defined(schemaUri) && typeof schemaUri === "string") {
-      const resourceResolver = context.getResourceResolver();
-      const schemaBuffer = await resourceResolver.resolveData(schemaUri);
-      if (!defined(schemaBuffer)) {
-        const path = "/schemaUri";
-        const message = `The 'schemaUri' is '${schemaUri}' and could not be resolved`;
-        const issue = IoValidationIssues.IO_ERROR(path, message);
-        context.addIssue(issue);
-        return {
-          hasSchemaDefinition: true,
-          schema: undefined,
-        };
-      }
-
-      const bom = Buffers.getUnicodeBOMDescription(schemaBuffer);
-      if (defined(bom)) {
-        const message = `Unexpected BOM in schema JSON buffer: ${bom}`;
-        const issue = IoValidationIssues.IO_ERROR(schemaUri, message);
-        context.addIssue(issue);
-        return {
-          hasSchemaDefinition: true,
-          schema: undefined,
-        };
-      }
-
-      const schemaString = schemaBuffer.toString();
-      try {
-        const resolvedSchema = JSON.parse(schemaString);
-        return {
-          hasSchemaDefinition: true,
-          schema: resolvedSchema,
-        };
-      } catch (error) {
-        //console.log(error);
-        const issue = IoValidationIssues.JSON_PARSE_ERROR("", "" + error);
-        context.addIssue(issue);
-        return {
-          hasSchemaDefinition: true,
-          schema: undefined,
-        };
-      }
-    }
-    return {
-      hasSchemaDefinition: false,
-      schema: undefined,
-    };
-  }
 
   /**
    * Validates the given `tileset.groups`
