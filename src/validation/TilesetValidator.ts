@@ -205,6 +205,7 @@ export class TilesetValidator implements Validator<Tileset> {
           message
         );
         context.addIssue(issue);
+        result = false;
       } else if (defined(validationState.validatedSchema)) {
         if (
           TilesetValidator.validateTilesetGroups(
@@ -272,6 +273,7 @@ export class TilesetValidator implements Validator<Tileset> {
           message
         );
         context.addIssue(issue);
+        result = false;
       } else if (defined(validationState.validatedSchema)) {
         if (
           !MetadataEntityValidator.validateMetadataEntity(
