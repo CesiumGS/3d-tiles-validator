@@ -1,4 +1,5 @@
 import { defined } from "3d-tiles-tools";
+import { Schema } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 import { Validator } from "./../Validator";
@@ -8,8 +9,6 @@ import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
 
 import { MetadataClassValidator } from "./MetadataClassValidator";
 import { MetadataEnumValidator } from "./MetadataEnumValidator";
-
-import { Schema } from "3d-tiles-tools";
 
 import { IoValidationIssues } from "../../issues/IoValidationIssue";
 

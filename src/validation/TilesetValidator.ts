@@ -1,5 +1,4 @@
 import { defined } from "3d-tiles-tools";
-import { Buffers } from "3d-tiles-tools";
 
 import { Validator } from "./Validator";
 import { ValidationState } from "./ValidationState";
@@ -12,7 +11,7 @@ import { TilesetTraversingValidator } from "./TilesetTraversingValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
-import { SchemaValidator } from "./metadata/SchemaValidator";
+import { SchemaDefinitionValidator } from "./metadata/SchemaDefinitionValidator";
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 
 import { Tileset } from "3d-tiles-tools";
@@ -21,9 +20,7 @@ import { Group } from "3d-tiles-tools";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
-import { SchemaResolver } from "./SchemaResolver";
 
 /**
  * A class that can validate a 3D Tiles tileset.
@@ -136,35 +133,6 @@ export class TilesetValidator implements Validator<Tileset> {
       }
     }
 
-    // The schema and schemaUri MUST NOT be present at the same time
-    if (defined(tileset.schema) && defined(tileset.schemaUri)) {
-      const issue = JsonValidationIssues.ONE_OF_ERROR(
-        path,
-        "tileset",
-        "schema",
-        "schemaUri"
-      );
-      context.addIssue(issue);
-      result = false;
-    }
-
-    // Validate the schemaUri
-    const schemaUri = tileset.schemaUri;
-    const schemaUriPath = path + "/schemaUri";
-    if (defined(schemaUri)) {
-      // The schemaUri MUST be a string
-      if (
-        !BasicValidator.validateString(
-          schemaUriPath,
-          "schemaUri",
-          schemaUri,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
     // Create the ValidationState, and fill it with information
     // about the presence of a schema, and the validated schema
     // (if the schema is valid)
@@ -174,23 +142,25 @@ export class TilesetValidator implements Validator<Tileset> {
       validatedGroups: undefined,
       hasGroupsDefinition: false,
     };
-    const schemaResult = await SchemaResolver.resolveSchema(
-      "",
-      tileset.schema,
-      tileset.schemaUri,
-      context
-    );
-    validationState.hasSchemaDefinition = schemaResult.hasSchemaDefinition;
+    const schemaDefinition =
+      await SchemaDefinitionValidator.validateSchemaDefinition(
+        path,
+        "tileset",
+        tileset.schema,
+        tileset.schemaUri,
+        context
+      );
+    validationState.hasSchemaDefinition = schemaDefinition.hasSchemaDefinition;
+    validationState.validatedSchema = schemaDefinition.validatedSchema;
 
-    // Validate the schema
-    const schema = schemaResult.schema;
-    const schemaPath = path + "/schema";
-    if (defined(schema)) {
-      if (SchemaValidator.validateSchema(schemaPath, schema, context)) {
-        validationState.validatedSchema = schema;
-      } else {
-        result = false;
-      }
+    // When there was a schema definition, but the schema
+    // itself was not valid, then the overall result
+    // is invalid
+    if (
+      schemaDefinition.hasSchemaDefinition &&
+      !defined(schemaDefinition.validatedSchema)
+    ) {
+      result = false;
     }
 
     // Validate the groups.
@@ -457,7 +427,6 @@ export class TilesetValidator implements Validator<Tileset> {
     }
     return result;
   }
-
 
   /**
    * Validates the given `tileset.groups`
