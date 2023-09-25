@@ -1,8 +1,5 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
-import { BinaryBufferData } from "3d-tiles-tools";
-import { BinaryBufferDataResolver } from "3d-tiles-tools";
-import { BinaryBufferStructure } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
@@ -41,19 +38,7 @@ export class ExtMeshFeaturesValidator {
     gltfData: GltfData,
     context: ValidationContext
   ): Promise<boolean> {
-    // Resolve the data of the bufferView/buffer structure
-    // of the glTF
     const gltf = gltfData.gltf;
-    const binaryBufferStructure: BinaryBufferStructure = {
-      buffers: gltf.buffers,
-      bufferViews: gltf.bufferViews,
-    };
-    const resourceResolver = context.getResourceResolver();
-    const binaryBufferData = await BinaryBufferDataResolver.resolve(
-      binaryBufferStructure,
-      gltfData.binary,
-      resourceResolver
-    );
 
     // Dig into the (untyped) JSON representation of the
     // glTF, to find the mesh primtives that carry the
@@ -92,8 +77,7 @@ export class ExtMeshFeaturesValidator {
                 path,
                 extensionObject,
                 primitive,
-                gltf,
-                binaryBufferData,
+                gltfData,
                 context
               );
             if (!objectIsValid) {
@@ -113,8 +97,7 @@ export class ExtMeshFeaturesValidator {
    * @param path - The path for validation issues
    * @param meshFeatures - The EXT_mesh_features extension object
    * @param meshPrimitive - The mesh primitive that contains the extension
-   * @param gltf - The glTF object
-   * @param binaryBufferData - The binary buffer data of the glTF
+   * @param gltfData - The glTF data
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
@@ -122,8 +105,7 @@ export class ExtMeshFeaturesValidator {
     path: string,
     meshFeatures: any,
     meshPrimitive: any,
-    gltf: any,
-    binaryBufferData: BinaryBufferData,
+    gltfData: GltfData,
     context: ValidationContext
   ): Promise<boolean> {
     // Make sure that the given value is an object
@@ -167,8 +149,7 @@ export class ExtMeshFeaturesValidator {
               featureIdPath,
               featureId,
               meshPrimitive,
-              gltf,
-              binaryBufferData,
+              gltfData,
               context
             );
           if (!featureIdValid) {
@@ -187,8 +168,7 @@ export class ExtMeshFeaturesValidator {
    * @param path - The path for validation issues
    * @param featureId - The feature ID
    * @param meshPrimitive - The mesh primitive that contains the extension
-   * @param gltf - The glTF object
-   * @param binaryBufferData - The binary buffer data of the glTF
+   * @param gltfData - The glTF data
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
@@ -196,8 +176,7 @@ export class ExtMeshFeaturesValidator {
     path: string,
     featureId: any,
     meshPrimitive: any,
-    gltf: any,
-    binaryBufferData: BinaryBufferData,
+    gltfData: GltfData,
     context: ValidationContext
   ): Promise<boolean> {
     // Make sure that the given value is an object
@@ -280,8 +259,7 @@ export class ExtMeshFeaturesValidator {
           attribute,
           featureCount,
           meshPrimitive,
-          gltf,
-          binaryBufferData,
+          gltfData,
           context
         );
       if (!attributeValid) {
@@ -299,8 +277,7 @@ export class ExtMeshFeaturesValidator {
           texture,
           featureCount,
           meshPrimitive,
-          gltf,
-          binaryBufferData,
+          gltfData,
           context
         );
       if (!textureValid) {
@@ -345,8 +322,7 @@ export class ExtMeshFeaturesValidator {
    * will be used for the `_FEATURE_ID_${attribute}` attribute name)
    * @param featureCount - The `featureCount` value from the feature ID definition
    * @param meshPrimitive - The mesh primitive that contains the extension
-   * @param gltf - The glTF object
-   * @param binaryBufferData - The binary buffer data of the glTF
+   * @param gltfData - The glTF data
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
@@ -355,8 +331,7 @@ export class ExtMeshFeaturesValidator {
     attribute: any,
     featureCount: number,
     meshPrimitive: any,
-    gltf: any,
-    binaryBufferData: BinaryBufferData,
+    gltfData: GltfData,
     context: ValidationContext
   ): Promise<boolean> {
     // Validate the attribute
@@ -398,15 +373,12 @@ export class ExtMeshFeaturesValidator {
       context.addIssue(issue);
       result = false;
     } else {
-      const accessors = gltf.accessors || [];
-      const accessor = accessors[featureIdAccessorIndex];
       const accessorValid =
         await ExtMeshFeaturesValidator.validateFeatureIdAccessor(
           path,
-          accessor,
+          featureIdAccessorIndex,
           featureCount,
-          gltf,
-          binaryBufferData,
+          gltfData,
           context
         );
       if (!accessorValid) {
@@ -419,16 +391,17 @@ export class ExtMeshFeaturesValidator {
 
   private static async validateFeatureIdAccessor(
     path: string,
-    accessor: any,
+    accessorIndex: number,
     featureCount: number,
-    gltf: any,
-    binaryBufferData: BinaryBufferData,
+    gltfData: GltfData,
     context: ValidationContext
   ): Promise<boolean> {
-    // Make sure that the given value is an object
-    if (!BasicValidator.validateObject(path, "accessor", accessor, context)) {
-      return false;
-    }
+    // The validity of the accessor index and the accessor
+    // have already been checked by the glTF-Validator
+    const gltf = gltfData.gltf;
+    const accessors = gltf.accessors || [];
+    const accessor = accessors[accessorIndex];
+
     let result = true;
 
     // The accessor type must be "SCALAR"
@@ -461,10 +434,9 @@ export class ExtMeshFeaturesValidator {
       const dataValid =
         await ExtMeshFeaturesValidator.validateFeatureIdAttributeData(
           path,
-          accessor,
+          accessorIndex,
           featureCount,
-          gltf,
-          binaryBufferData,
+          gltfData,
           context
         );
       if (!dataValid) {
@@ -478,7 +450,7 @@ export class ExtMeshFeaturesValidator {
    * Validate the data of the given feature ID atribute.
    *
    * @param path - The path for validation issues
-   * @param accessor - The feature ID attribute accessor
+   * @param accessorIndex - The feature ID attribute accessor index
    * @param featureCount - The `featureCount` value from the feature ID definition
    * @param gltf - The glTF object
    * @param binaryBufferData - The binary buffer data of the glTF
@@ -487,16 +459,14 @@ export class ExtMeshFeaturesValidator {
    */
   private static async validateFeatureIdAttributeData(
     path: string,
-    accessor: any,
+    accessorIndex: number,
     featureCount: number,
-    gltf: any,
-    binaryBufferData: BinaryBufferData,
+    gltfData: GltfData,
     context: ValidationContext
   ): Promise<boolean> {
     const accessorValues = Accessors.readScalarAccessorValues(
-      accessor,
-      gltf,
-      binaryBufferData
+      accessorIndex,
+      gltfData
     );
     if (!accessorValues) {
       // This should only happen for invalid glTF assets (e.g. ones that
@@ -552,8 +522,7 @@ export class ExtMeshFeaturesValidator {
    * @param featureIdTexture - The feature ID texture definition
    * @param featureCount - The `featureCount` value from the feature ID definition
    * @param meshPrimitive - The mesh primitive that contains the extension
-   * @param gltf - The glTF object
-   * @param binaryBufferData - The binary buffer data of the glTF
+   * @param gltfData - The glTF data
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
@@ -562,8 +531,7 @@ export class ExtMeshFeaturesValidator {
     featureIdTexture: any,
     featureCount: number,
     meshPrimitive: any,
-    gltf: any,
-    binaryBufferData: BinaryBufferData,
+    gltfData: GltfData,
     context: ValidationContext
   ): Promise<boolean> {
     // Make sure that the given value is an object
@@ -575,6 +543,7 @@ export class ExtMeshFeaturesValidator {
 
     let result = true;
 
+    const gltf = gltfData.gltf;
     const textures = gltf.textures || [];
     const numTextures = textures.length;
 
@@ -693,8 +662,7 @@ export class ExtMeshFeaturesValidator {
           path,
           featureIdTexture,
           featureCount,
-          gltf,
-          binaryBufferData,
+          gltfData,
           context
         );
       if (!dataValid) {
@@ -715,8 +683,7 @@ export class ExtMeshFeaturesValidator {
    * @param path - The path for validation issues
    * @param featureIdTexture - The feature ID texture
    * @param featureCount - The `featureCount` value from the feature ID definition
-   * @param gltf - The glTF object
-   * @param binaryBufferData - The binary buffer data of the glTF
+   * @param gltfData - The glTF data
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
@@ -724,10 +691,10 @@ export class ExtMeshFeaturesValidator {
     path: string,
     featureIdTexture: any,
     featureCount: number,
-    gltf: any,
-    binaryBufferData: BinaryBufferData,
+    gltfData: GltfData,
     context: ValidationContext
   ) {
+    const gltf = gltfData.gltf;
     const textureIndex = featureIdTexture.index;
     const textures = gltf.textures || [];
     const texture = textures[textureIndex];
@@ -745,6 +712,7 @@ export class ExtMeshFeaturesValidator {
     } else {
       const bufferViewIndex = image.bufferView;
       if (defined(bufferViewIndex)) {
+        const binaryBufferData = gltfData.binaryBufferData;
         imageDataBuffer = binaryBufferData.bufferViewsData[bufferViewIndex];
       }
     }

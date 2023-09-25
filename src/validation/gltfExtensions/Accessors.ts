@@ -1,4 +1,4 @@
-import { BinaryBufferData } from "3d-tiles-tools";
+import { GltfData } from "./GltfData";
 
 /**
  * Utility methods related to glTF accessors.
@@ -20,16 +20,46 @@ export class Accessors {
    * the glTF Validator.
    *
    * @param accessor - The glTF accessor
-   * @param gltf - The glTF object
-   * @param binaryBufferData - The binary buffer data of the glTF
+   * @param gltfData - The glTF data
    * @returns The accessor values (or undefined if the input
    * glTF data was invalid)
    */
   static readScalarAccessorValues(
-    accessor: any,
-    gltf: any,
-    binaryBufferData: BinaryBufferData
+    accessorIndex: number,
+    gltfData: GltfData
   ): number[] | undefined {
+    const document = gltfData.gltfDocument;
+    const root = document.getRoot();
+    const accessors = root.listAccessors();
+    const accessor = accessors[accessorIndex];
+    const count = accessor.getCount();
+    const result = [];
+    for (let i = 0; i < count; i++) {
+      const scalar = accessor.getScalar(i);
+      result.push(scalar);
+    }
+    return result;
+  }
+
+  /**
+   * Read the values of the given accessor into an array of numbers.
+   *
+   * This assumes that the accessor has the type SCALAR, and is
+   * valid (in terms of its bufferView etc), as validated with
+   * the glTF Validator.
+   *
+   * @param accessorIndex - The glTF accessor index
+   * @param gltfData - The glTF data
+   * @returns The accessor values (or undefined if the input
+   * glTF data was invalid)
+   */
+  static readScalarAccessorValuesOwn(
+    accessorIndex: number,
+    gltfData: GltfData
+  ): number[] | undefined {
+    const gltf = gltfData.gltf;
+    const accessors = gltf.accessors || [];
+    const accessor = accessors[accessorIndex];
     const bufferViewIndex = accessor.bufferView;
     const bufferViews = gltf.bufferViews || [];
     const bufferView = bufferViews[bufferViewIndex];
@@ -43,6 +73,7 @@ export class Accessors {
         return undefined;
       }
     }
+    const binaryBufferData = gltfData.binaryBufferData;
     const bufferViewData = binaryBufferData.bufferViewsData[bufferViewIndex];
     const count = accessor.count;
     const byteOffset = accessor.byteOffset;

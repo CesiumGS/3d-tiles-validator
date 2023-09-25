@@ -23,6 +23,9 @@
     "3d-tiles-validator": "./build/main"
   },
   "dependencies": {
+    "@gltf-transform/core": "^3.2.1",
+    "@gltf-transform/extensions": "^3.2.1",
+    "@gltf-transform/functions": "^3.2.1",
     "3d-tiles-tools": "file:../3d-tiles-tools",
     "cesium": "^1.97.0",
     "gltf-validator": "^2.0.0-dev.3.9",
