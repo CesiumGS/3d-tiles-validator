@@ -27,7 +27,20 @@ export type GltfData = {
   binaryBufferData: BinaryBufferData;
 
   /**
-   * The glTF-Transform document
+   * The glTF-Transform document, or `undefined` if the document could
+   * not be read.
+   *
+   * If the document could not be read, then this was caused by the glTF
+   * being "structurally invalid", causing the glTF-Transform IO classes
+   * to bail out at one point or another. Details about the reason
+   * should be captured by the manual validation of the glTF JSON object.
+   *
+   * Specifically: If the glTF structure is 'invalid', then one cannot
+   * expect this gltfDocument to be defined. If the glTF structure is
+   * valid, then it _should_ be defined. Cases where the validator and
+   * the glTF-Transform IO classes disagree should be considered to be
+   * a bug in either of them, and reported as an internal validation
+   * error.
    */
-  gltfDocument: Document;
+  gltfDocument: Document | undefined;
 };

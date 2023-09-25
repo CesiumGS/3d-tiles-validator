@@ -63,7 +63,6 @@ export class GltfExtensionValidators {
     input: Buffer,
     context: ValidationContext
   ): Promise<GltfData | undefined> {
-
     let gltfJsonBuffer: Buffer | undefined = undefined;
     let gltfBinaryBuffer: Buffer | undefined = undefined;
     try {
@@ -126,12 +125,29 @@ export class GltfExtensionValidators {
 
   private static async readBinaryGltfDocument(
     input: Buffer
-  ): Promise<Document> {
-    // TODO Error handling
-    const io = await GltfTransform.getIO();
-    const doc = await io.readBinary(input);
-    const gltfDocument = doc as any as Document;
-    return gltfDocument;
+  ): Promise<Document | undefined> {
+    try {
+      const io = await GltfTransform.getIO();
+      const doc = await io.readBinary(input);
+
+      // TODO This obscure line avoids the error
+      // > Type 'import("...3d-tiles-tools.......").Document' is not assignable to
+      // > type 'import("...3d-tiles-validator...").Document'.
+      // >   Types have separate declarations of a private property '_graph'.ts(2322)
+      // that is probably caused by using the local, file-based,
+      // non-npm version of the 3d-tiles-tools. Verify that this
+      // works without this line when using the proper npm
+      // dependency to the tools!
+      const gltfDocument = doc as any as Document;
+
+      return gltfDocument;
+    } catch (error) {
+      // This may happen when the glTF is invalid. The exact reason should
+      // be reported by the validator. If the validator does not detect
+      // a reason, and the document could still not be read, then this
+      // should be treated as an internal error.
+      return undefined;
+    }
   }
 
   private static async readJsonGltfData(
@@ -167,14 +183,43 @@ export class GltfExtensionValidators {
     };
   }
 
-  private static async readJsonGltfDocument(input: Buffer): Promise<Document> {
-    // TODO Error handling, resource mapping, ....
+  private static async readJsonGltfDocument(
+    input: Buffer
+  ): Promise<Document | undefined> {
+    // TODO There is no way to determine the resources that
+    // are required for a glTF document, and there is no way
+    // to resolve the resoruces at load time.
+
     // See https://github.com/donmccurdy/glTF-Transform/issues/1099
-    const io = await GltfTransform.getIO();
-    const json = JSON.parse(input.toString());
-    const jsonDoc = { json, resources: {} } as JSONDocument;
-    const doc = io.readJSON(jsonDoc);
-    const gltfDocument = doc as any as Document;
-    return gltfDocument;
+    // and the NOTE in the error handling block below.
+    const resources = {};
+    try {
+      const io = await GltfTransform.getIO();
+      const json = JSON.parse(input.toString());
+      const jsonDoc = { json, resources } as JSONDocument;
+      const doc = await io.readJSON(jsonDoc);
+
+      // TODO This obscure line avoids the error
+      // > Type 'import("...3d-tiles-tools.......").Document' is not assignable to
+      // > type 'import("...3d-tiles-validator...").Document'.
+      // >   Types have separate declarations of a private property '_graph'.ts(2322)
+      // that is probably caused by using the local, file-based,
+      // non-npm version of the 3d-tiles-tools. Verify that this
+      // works without this line when using the proper npm
+      // dependency to the tools!
+
+      const gltfDocument = doc as any as Document;
+      return gltfDocument;
+    } catch (error) {
+      // This may happen when the glTF is invalid. The exact reason should
+      // be reported by the validator. If the validator does not detect
+      // a reason, and the document could still not be read, then this
+      // should be treated as an internal error.
+
+      // NOTE: The reason here may also be that a linked resource
+      // was not found. There is hardly a way to identify that.
+      // See the 'TODO' above.
+      return undefined;
+    }
   }
 }

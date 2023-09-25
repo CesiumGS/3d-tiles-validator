@@ -186,26 +186,6 @@ export class ExtMeshFeaturesValidator {
 
     let result = true;
 
-    // Validate the featureCount
-    // The featureCount MUST be defined
-    // The featureCount MUST be an integer of at least 1
-    const featureCount = featureId.featureCount;
-    const featureCountPath = path + "/featureCount";
-    if (
-      !BasicValidator.validateIntegerRange(
-        featureCountPath,
-        "featureCount",
-        featureCount,
-        1,
-        true,
-        undefined,
-        false,
-        context
-      )
-    ) {
-      result = false;
-    }
-
     // Validate the nullFeatureId
     // The nullFeatureId MUST be an integer of at least 0
     const nullFeatureId = featureId.nullFeatureId;
@@ -247,6 +227,30 @@ export class ExtMeshFeaturesValidator {
           result = false;
         }
       }
+    }
+
+    // Validate the featureCount
+    // The featureCount MUST be defined
+    // The featureCount MUST be an integer of at least 1
+    const featureCount = featureId.featureCount;
+    const featureCountPath = path + "/featureCount";
+    if (
+      !BasicValidator.validateIntegerRange(
+        featureCountPath,
+        "featureCount",
+        featureCount,
+        1,
+        true,
+        undefined,
+        false,
+        context
+      )
+    ) {
+      result = false;
+
+      // The remaining validation will require a valid featureCount.
+      // If the featureCount was not valid, then bail out early:
+      return result;
     }
 
     // Validate the attribute
@@ -449,6 +453,14 @@ export class ExtMeshFeaturesValidator {
   /**
    * Validate the data of the given feature ID atribute.
    *
+   * This assumes that the glTF data is valid as determined by the
+   * glTF Validator, **AND** as determined by the validation of
+   * the JSON part of the extension. So this method should only
+   * be called when no issues have been detected that may prevent
+   * the validation of the accessor values. If this is called
+   * with a `gltfData` object where the `gltfDocument` is
+   * `undefined`, then an `INTERNAL_ERROR` will be caused.
+   *
    * @param path - The path for validation issues
    * @param accessorIndex - The feature ID attribute accessor index
    * @param featureCount - The `featureCount` value from the feature ID definition
@@ -541,32 +553,31 @@ export class ExtMeshFeaturesValidator {
       return false;
     }
 
-    let result = true;
-
     const gltf = gltfData.gltf;
     const textures = gltf.textures || [];
     const numTextures = textures.length;
 
     // Validate the index
+    // The index MUST be defined
     // The index MUST be an integer in [0, numTextures)
     const index = featureIdTexture.index;
     const indexPath = path + "/index";
-    if (defined(index)) {
-      if (
-        !BasicValidator.validateIntegerRange(
-          indexPath,
-          "index",
-          index,
-          0,
-          true,
-          numTextures,
-          false,
-          context
-        )
-      ) {
-        result = false;
-      }
+    if (
+      !BasicValidator.validateIntegerRange(
+        indexPath,
+        "index",
+        index,
+        0,
+        true,
+        numTextures,
+        false,
+        context
+      )
+    ) {
+      return false;
     }
+
+    let result = true;
 
     // Validate the texCoord
     const texCoord = featureIdTexture.texCoord;
@@ -894,71 +905,14 @@ export class ExtMeshFeaturesValidator {
       return false;
     }
 
-    let result = true;
-
     // The presence and validity of the accessor for the TEXCOORD_n
     // attribute has already been validated by the glTF-Validator.
-    const accessors = gltf.accessors || [];
-    const accessor = accessors[texCoordAccessorIndex];
-    const type = accessor.type;
-    const componentType = accessor.componentType;
-    const normalized = accessor.normalized;
-
-    // The following validation is equivalent to what the glTF-Validator
-    // is doing for `TEXCOORD_n` attributes:
-
-    // The accessor type MUST be "VEC2"
-    if (type !== "VEC2") {
-      const message =
-        `The 'texCoord' property of the feature ID texture is ${texCoord}, ` +
-        `and refers to an accessor with type ${type}, but must refer to ` +
-        `an accessor with type VEC2`;
-      const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-        path,
-        message
-      );
-      context.addIssue(issue);
-      result = false;
-    }
-
-    // The accessor componentType MUST be FLOAT, UNSIGNED_BYTE,
-    // or UNSIGNED_SHORT
-    const FLOAT = 5126;
-    const UNSIGNED_BYTE = 5121;
-    const UNSIGNED_SHORT = 5123;
-    if (
-      componentType !== FLOAT &&
-      componentType !== UNSIGNED_BYTE &&
-      componentType !== UNSIGNED_SHORT
-    ) {
-      const message =
-        `The 'texCoord' property of the feature ID texture is ${texCoord}, ` +
-        `and refers to an accessor with component type ${componentType}, but must ` +
-        `refer to an accessor with type FLOAT, UNSIGNED_BYTE, or UNSIGNED_SHORT`;
-      const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-        path,
-        message
-      );
-      context.addIssue(issue);
-      result = false;
-    }
-
-    // When the accessor componentType is UNSIGNED_BYTE or UNSIGNED_SHORT,
-    // the the accessor MUST be normalized
-    if (componentType === UNSIGNED_BYTE || componentType === UNSIGNED_SHORT) {
-      if (normalized !== true) {
-        const message =
-          `The 'texCoord' property of the feature ID texture is ${texCoord}, ` +
-          `and refers to an accessor with component type ${componentType} ` +
-          `that is not normalized.`;
-        const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-          path,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
-    }
-    return result;
+    // This includes the validation that...
+    // - the accessor type MUST be "VEC2"
+    // - the accessor componentType MUST be FLOAT, UNSIGNED_BYTE,
+    //   or UNSIGNED_SHORT
+    // - when the accessor componentType is UNSIGNED_BYTE or
+    //   UNSIGNED_SHORT, then the accessor MUST be normalized
+    return true;
   }
 }

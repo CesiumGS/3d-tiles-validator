@@ -29,6 +29,9 @@ export class Accessors {
     gltfData: GltfData
   ): number[] | undefined {
     const document = gltfData.gltfDocument;
+    if (!document) {
+      return undefined;
+    }
     const root = document.getRoot();
     const accessors = root.listAccessors();
     const accessor = accessors[accessorIndex];
