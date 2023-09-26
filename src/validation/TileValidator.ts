@@ -198,7 +198,8 @@ export class TileValidator {
     const metadata = tile.metadata;
     const metadataPath = tilePath + "/metadata";
     if (defined(metadata)) {
-      if (!validationState.hasSchemaDefinition) {
+      const schemaState = validationState.schemaState;
+      if (!schemaState.wasPresent) {
         // If there is metadata, then there must be a schema definition
         const message =
           "The tile defines 'metadata' but the tileset does not have a schema";
@@ -208,13 +209,13 @@ export class TileValidator {
         );
         context.addIssue(issue);
         result = false;
-      } else if (defined(validationState.validatedSchema)) {
+      } else if (defined(schemaState.validatedElement)) {
         if (
           !MetadataEntityValidator.validateMetadataEntity(
             metadataPath,
             "tile.metadata",
             metadata,
-            validationState.validatedSchema,
+            schemaState.validatedElement,
             context
           )
         ) {

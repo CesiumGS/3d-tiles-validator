@@ -52,9 +52,10 @@ export class TilesetTraversingValidator {
       depthFirst: true,
     });
     try {
+      const schema = validationState.schemaState.validatedElement;
       await tilesetTraverser.traverseWithSchema(
         tileset,
-        validationState.validatedSchema,
+        schema,
         async (traversedTile: TraversedTile) => {
           // Validate the tile, and only continue the traversal
           // if it was found to be valid
@@ -244,7 +245,8 @@ export class TilesetTraversingValidator {
     const metadata = traversedTile.getMetadata();
     const metadataPath = path + "/metadata";
     if (defined(metadata)) {
-      if (!validationState.hasSchemaDefinition) {
+      const schemaState = validationState.schemaState;
+      if (!schemaState.wasPresent) {
         // If there is metadata, then there must be a schema definition
         const message =
           "The tile defines 'metadata' but the tileset does not have a schema";
@@ -255,13 +257,13 @@ export class TilesetTraversingValidator {
         context.addIssue(issue);
         return false;
       }
-      if (defined(validationState.validatedSchema)) {
+      if (defined(schemaState.validatedElement)) {
         if (
           !MetadataEntityValidator.validateMetadataEntity(
             metadataPath,
             "tile.metadata",
             metadata,
-            validationState.validatedSchema,
+            schemaState.validatedElement,
             context
           )
         ) {
@@ -371,7 +373,7 @@ export class TilesetTraversingValidator {
 
     // Validate the subtree data with a `SubtreeValidator`
     const subtreeValidator = new SubtreeValidator(
-      validationState,
+      validationState.schemaState,
       implicitTiling,
       subtreeResourceResolver
     );

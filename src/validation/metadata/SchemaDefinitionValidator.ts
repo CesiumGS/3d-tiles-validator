@@ -5,6 +5,7 @@ import { Schema } from "3d-tiles-tools";
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
 import { SchemaValidator } from "./SchemaValidator";
+import { ValidatedElement } from "../ValidatedElement";
 
 import { IoValidationIssues } from "../../issues/IoValidationIssue";
 import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
@@ -23,23 +24,23 @@ export class SchemaDefinitionValidator {
    * Validates the given schema definition.
    *
    * The returned object will contain two properties:
-   * - `hasSchemaDefintiion`: Whether any schema definition was given
-   * - `validatedSchema`: The validated `Schema` object
-   * 
-   * If neither `schema` nor `schemaUri` are given, then the result 
+   * - `wasPresent`: Whether any schema definition was given
+   * - `validatedElement`: The validated `Schema` object
+   *
+   * If neither `schema` nor `schemaUri` are given, then the result
    * will be `{false, undefined}`.
-   * 
+   *
    * If the `schema` and `schemaUri` are both given, then an error will be
    * added to the given context, `hasSchemaDefintiion` will be `true`,
-   * and the `validatedSchema` will be `undefined`.
+   * and the `validatedElement` will be `undefined`.
    *
    * If the `schemaUri` is given but invalid, then an error will be
    * added to the given context, `hasSchemaDefintiion` will be `true`,
-   * and the `validatedSchema` will be `undefined`.
-   * 
-   * If the `schema` was given, or the schema could be resolved from 
-   * the `schemaUri`, then `hasSchemaDefintiion` will be `true`, and 
-   * the `validatedSchema` will be defined if and only if the
+   * and the `validatedElement` will be `undefined`.
+   *
+   * If the `schema` was given, or the schema could be resolved from
+   * the `schemaUri`, then `hasSchemaDefintiion` will be `true`, and
+   * the `validatedElement` will be defined if and only if the
    * respective schema could be validated.
    *
    * @param path - The path for `ValidationIssue` instances
@@ -55,9 +56,7 @@ export class SchemaDefinitionValidator {
     schema: any,
     schemaUri: any,
     context: ValidationContext
-  ): Promise<
-    { hasSchemaDefinition: boolean; validatedSchema?: Schema }
-  > {
+  ): Promise<ValidatedElement<Schema>> {
     // The schema and schemaUri MUST NOT be present at the same time
     if (defined(schema) && defined(schemaUri)) {
       const issue = JsonValidationIssues.ONE_OF_ERROR(
@@ -68,8 +67,8 @@ export class SchemaDefinitionValidator {
       );
       context.addIssue(issue);
       return {
-        hasSchemaDefinition: true,
-        validatedSchema: undefined,
+        wasPresent: true,
+        validatedElement: undefined,
       };
     }
 
@@ -86,8 +85,8 @@ export class SchemaDefinitionValidator {
         )
       ) {
         return {
-          hasSchemaDefinition: true,
-          validatedSchema: undefined,
+          wasPresent: true,
+          validatedElement: undefined,
         };
       }
     }
@@ -105,16 +104,16 @@ export class SchemaDefinitionValidator {
       );
       if (!defined(resolvedSchema)) {
         return {
-          hasSchemaDefinition: true,
-          validatedSchema: undefined,
+          wasPresent: true,
+          validatedElement: undefined,
         };
       }
       schemaToValidate = resolvedSchema;
     } else {
-       // Neither the schema nor the schemaUri have been given
+      // Neither the schema nor the schemaUri have been given
       return {
-        hasSchemaDefinition: false,
-        validatedSchema: undefined,
+        wasPresent: false,
+        validatedElement: undefined,
       };
     }
 
@@ -130,8 +129,8 @@ export class SchemaDefinitionValidator {
     }
 
     return {
-      hasSchemaDefinition: true,
-      validatedSchema: validatedSchema,
+      wasPresent: true,
+      validatedElement: validatedSchema,
     };
   }
 
