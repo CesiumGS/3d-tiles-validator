@@ -1,17 +1,15 @@
 import { defined } from "3d-tiles-tools";
 
+import { PropertyTableProperty } from "3d-tiles-tools";
+import { ClassProperty } from "3d-tiles-tools";
+import { MetadataComponentTypes } from "3d-tiles-tools";
+
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
 
-import { ClassPropertyValueValidator } from "./ClassPropertyValueValidator";
-
-import { PropertyTableProperty } from "3d-tiles-tools";
-import { ClassProperty } from "3d-tiles-tools";
-
-import { MetadataComponentTypes } from "3d-tiles-tools";
-
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
-import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
+
+import { MetadataPropertyValidator } from "./MetadataPropertyValidator";
 
 /**
  * A class for validations related to `propertyTable.property` objects.
@@ -189,120 +187,17 @@ export class PropertyTablePropertyValidator {
       }
     }
 
-    // Validate the offset
-    const offset = propertyTableProperty.offset;
-    if (defined(offset)) {
-      // The 'offset' MUST not be given for variable-length arrays
-      if (isVariableLengthArray) {
-        const issue =
-          MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
-            path,
-            propertyName,
-            "offset"
-          );
-        context.addIssue(issue);
-        result = false;
-      } else {
-        if (
-          !ClassPropertyValueValidator.validateOffsetScale(
-            path,
-            propertyName,
-            classProperty,
-            "offset",
-            offset,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-    }
-
-    // Validate the scale
-    const scale = propertyTableProperty.scale;
-    if (defined(scale)) {
-      // The 'scale' MUST not be given for variable-length arrays
-      if (isVariableLengthArray) {
-        const issue =
-          MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
-            path,
-            propertyName,
-            "scale"
-          );
-        context.addIssue(issue);
-        result = false;
-      } else {
-        if (
-          !ClassPropertyValueValidator.validateOffsetScale(
-            path,
-            propertyName,
-            classProperty,
-            "scale",
-            scale,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-    }
-
-    // Validate the max
-    const max = propertyTableProperty.max;
-    if (defined(max)) {
-      // The 'max' MUST not be given for variable-length arrays
-      if (isVariableLengthArray) {
-        const issue =
-          MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
-            path,
-            propertyName,
-            "max"
-          );
-        context.addIssue(issue);
-        result = false;
-      } else {
-        if (
-          !ClassPropertyValueValidator.validateMaxMin(
-            path,
-            propertyName,
-            classProperty,
-            "max",
-            max,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-    }
-
-    // Validate the min
-    const min = propertyTableProperty.min;
-    if (defined(min)) {
-      // The 'min' MUST not be given for variable-length arrays
-      if (isVariableLengthArray) {
-        const issue =
-          MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
-            path,
-            propertyName,
-            "min"
-          );
-        context.addIssue(issue);
-        result = false;
-      } else {
-        if (
-          !ClassPropertyValueValidator.validateMaxMin(
-            path,
-            propertyName,
-            classProperty,
-            "min",
-            min,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
+    // Validate the offset/scale/max/min properties
+    const elementsAreValid =
+      MetadataPropertyValidator.validateOffsetScaleMaxMin(
+        path,
+        propertyTableProperty,
+        propertyName,
+        classProperty,
+        context
+      );
+    if (!elementsAreValid) {
+      result = false;
     }
 
     return result;

@@ -1,41 +1,43 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
-
 import { Schema } from "3d-tiles-tools";
-import { PropertyTable } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
 import { RootPropertyValidator } from "./../RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
 
-import { MetadataStructureValidator } from "./MetadataStructureValidator";
-import { PropertyTablePropertyValidator } from "./PropertyTablePropertyValidator";
+import { MetadataStructureValidator } from "../metadata/MetadataStructureValidator";
+
+import { PropertyTexturePropertyValidator } from "./PropertyTexturePropertyValidator";
 
 /**
- * A class for validations related to `propertyTable` objects.
+ * A class for validations related to `propertyTexture` objects.
  *
  * This class performs the basic JSON-level validation of the
- * property table. The validation of binary data is done with
- * the BinaryPropertyTableValidator.
+ * property texture.
+ *
+ * TODO:
+ * The validation of binary data is done with
+ * the BinaryPropertyTextureValidator.
  *
  * @internal
  */
-export class PropertyTableValidator {
+export class PropertyTextureValidator {
   /**
    * Performs the validation to ensure that the given object is a
-   * valid `propertyTable` object.
+   * valid `propertyTexture` object.
    *
    * @param path - The path for the `ValidationIssue` instances
-   * @param propertyTable - The object to validate
-   * @param numBufferViews - The number of buffer views that are available
+   * @param propertyTexture - The object to validate
+   * @param numBufferViews - The number of buffer views that are availexture
    * @param schema - The `Schema` object
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
-  static validatePropertyTable(
+  static validatePropertyTexture(
     path: string,
-    propertyTable: PropertyTable,
+    propertyTexture: any,
     numBufferViews: number,
     schema: Schema,
     context: ValidationContext
@@ -44,8 +46,8 @@ export class PropertyTableValidator {
     if (
       !BasicValidator.validateObject(
         path,
-        "propertyTable",
-        propertyTable,
+        "propertyTexture",
+        propertyTexture,
         context
       )
     ) {
@@ -58,8 +60,8 @@ export class PropertyTableValidator {
     if (
       !RootPropertyValidator.validateRootProperty(
         path,
-        "propertyTable",
-        propertyTable,
+        "propertyTexture",
+        propertyTexture,
         context
       )
     ) {
@@ -71,7 +73,7 @@ export class PropertyTableValidator {
     if (
       !ExtendedObjectsValidators.validateExtendedObject(
         path,
-        propertyTable,
+        propertyTexture,
         context
       )
     ) {
@@ -79,20 +81,20 @@ export class PropertyTableValidator {
     }
     // If there was an extension validator that overrides the
     // default validation, then skip the remaining validation.
-    if (ExtendedObjectsValidators.hasOverride(propertyTable)) {
+    if (ExtendedObjectsValidators.hasOverride(propertyTexture)) {
       return result;
     }
 
     // Validate that the class and properties are structurally
     // valid and comply to the metadata schema
-    const className = propertyTable.class;
-    const tableProperties = propertyTable.properties;
+    const className = propertyTexture.class;
+    const textureProperties = propertyTexture.properties;
     if (
       !MetadataStructureValidator.validateMetadataStructure(
         path,
-        "property table",
+        "property texture",
         className,
-        tableProperties,
+        textureProperties,
         schema,
         context
       )
@@ -106,28 +108,8 @@ export class PropertyTableValidator {
     if (
       !BasicValidator.validateOptionalString(
         path,
-        propertyTable,
+        propertyTexture,
         "name",
-        context
-      )
-    ) {
-      result = false;
-    }
-
-    // Validate the count
-    // The count MUST be an integer
-    // The count MUST be at least 1
-    const count = propertyTable.count;
-    const countPath = path + "/count";
-    if (
-      !BasicValidator.validateIntegerRange(
-        countPath,
-        "count",
-        count,
-        0,
-        true,
-        undefined,
-        false,
         context
       )
     ) {
@@ -137,7 +119,7 @@ export class PropertyTableValidator {
     // Here, the basic structure of the class and properties
     // have been determined to be valid. Continue to validate
     // the values of the properties.
-    const validProperties = defaultValue(tableProperties, {});
+    const validProperties = defaultValue(textureProperties, {});
     const validPropertyNames = Object.keys(validProperties);
     const classes = defaultValue(schema.classes, {});
     const metadataClass = classes[className];
@@ -154,7 +136,7 @@ export class PropertyTableValidator {
       const propertyValue = validProperties[propertyName];
       if (defined(propertyValue)) {
         if (
-          !PropertyTablePropertyValidator.validatePropertyTableProperty(
+          !PropertyTexturePropertyValidator.validatePropertyTextureProperty(
             propertyPath,
             propertyName,
             propertyValue,

@@ -87,4 +87,20 @@ export class GltfExtensionValidationIssues {
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
+
+  /**
+   * Indicates that a certain property was defined in a context where
+   * this type is not allowed. For example, when a variable-length
+   * array or a 'STRING' property are used in a property texture.
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static INVALID_METADATA_PROPERTY_TYPE(path: string, message: string) {
+    const type = "INVALID_METADATA_PROPERTY_TYPE";
+    const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
 }

@@ -31,17 +31,14 @@ export class SchemaDefinitionValidator {
    * will be `{false, undefined}`.
    *
    * If the `schema` and `schemaUri` are both given, then an error will be
-   * added to the given context, `hasSchemaDefintiion` will be `true`,
-   * and the `validatedElement` will be `undefined`.
+   * added to the given context, and `{ true, undefined }` will be returned.
    *
    * If the `schemaUri` is given but invalid, then an error will be
-   * added to the given context, `hasSchemaDefintiion` will be `true`,
-   * and the `validatedElement` will be `undefined`.
+   * added to the given context, and `{ true, undefined }` will be returned.
    *
    * If the `schema` was given, or the schema could be resolved from
-   * the `schemaUri`, then `hasSchemaDefintiion` will be `true`, and
-   * the `validatedElement` will be defined if and only if the
-   * respective schema could be validated.
+   * the `schemaUri`, and the schema turned out to be valid, then
+   * `{ true, validatedSchema }` will be returned.
    *
    * @param path - The path for `ValidationIssue` instances
    * @param name - A name for the containing object (usually 'tileset')

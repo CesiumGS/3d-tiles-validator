@@ -1,9 +1,18 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
-import { Schema } from "3d-tiles-tools";
 import { Buffers } from "3d-tiles-tools";
-
 import { ResourceResolver } from "3d-tiles-tools";
+
+import { Schema } from "3d-tiles-tools";
+import { Subtree } from "3d-tiles-tools";
+import { Availability } from "3d-tiles-tools";
+import { TileImplicitTiling } from "3d-tiles-tools";
+
+import { MetadataUtilities } from "3d-tiles-tools";
+import { BinaryBufferStructure } from "3d-tiles-tools";
+import { BinarySubtreeData } from "3d-tiles-tools";
+import { BinarySubtreeDataResolver } from "3d-tiles-tools";
+import { BinaryPropertyTable } from "3d-tiles-tools";
 
 import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";
@@ -13,28 +22,17 @@ import { SubtreeConsistencyValidator } from "./SubtreeConsistencyValidator";
 import { SubtreeInfoValidator } from "./SubtreeInfoValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
+import { ValidatedElement } from "./ValidatedElement";
 
 import { BinaryBufferStructureValidator } from "./BinaryBufferStructureValidator";
 
-import { BinaryPropertyTable } from "3d-tiles-tools";
-
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
-import { PropertyTableValidator } from "./metadata/PropertyTableValidator";
-import { MetadataUtilities } from "3d-tiles-tools";
-import { BinaryBufferStructure } from "3d-tiles-tools";
-
-import { BinarySubtreeData } from "3d-tiles-tools";
-import { BinarySubtreeDataResolver } from "3d-tiles-tools";
-
-import { Subtree } from "3d-tiles-tools";
-import { Availability } from "3d-tiles-tools";
-import { TileImplicitTiling } from "3d-tiles-tools";
+import { PropertyTablesDefinitionValidator } from "./metadata/PropertyTablesDefinitionValidator";
 
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { BinaryPropertyTableValidator } from "./metadata/BinaryPropertyTableValidator";
-import { ValidatedElement } from "./ValidatedElement";
 
 /**
  * A class for validations related to `subtree` objects that have
@@ -660,71 +658,24 @@ export class SubtreeValidator implements Validator<Buffer> {
   ): boolean {
     let result = true;
 
-    // This stores whether there has been a definition of propertyTables
-    // at all
-    let hasPropertyTablesDefinition = false;
+    const numBufferViews = defaultValue(subtree.bufferViews?.length, 0);
+    const propertyTablesState =
+      PropertyTablesDefinitionValidator.validatePropertyTablesDefinition(
+        path,
+        "subtree",
+        subtree.propertyTables,
+        numBufferViews,
+        this.schemaState,
+        context
+      );
 
-    // This are the validated property tables - i.e. this will only
-    // be defined if the (defined) property tables have turned out
-    // to be valid
-    let validatedPropertyTables = undefined;
-
-    // Validate the propertyTables
-    const propertyTables = subtree.propertyTables;
-    const propertyTablesPath = path + "/propertyTables";
-    if (defined(propertyTables)) {
-      hasPropertyTablesDefinition = true;
-      const numBufferViews = defaultValue(subtree.bufferViews?.length, 0);
-
-      if (!this.schemaState.wasPresent) {
-        // If there are property tables, then there MUST be a schema definition
-        const message =
-          `The subtree defines 'propertyTables' but ` +
-          `there was no schema definition`;
-        const issue = StructureValidationIssues.REQUIRED_VALUE_NOT_FOUND(
-          path,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      } else if (defined(this.schemaState.validatedElement)) {
-        // The propertyTables MUST be an array of at least 1 objects
-        if (
-          !BasicValidator.validateArray(
-            propertyTablesPath,
-            "propertyTables",
-            propertyTables,
-            1,
-            undefined,
-            "object",
-            context
-          )
-        ) {
-          result = false;
-        } else {
-          // Validate each propertyTable
-          let propertyTablesAreValid = true;
-          for (let i = 0; i < propertyTables.length; i++) {
-            const propertyTable = propertyTables[i];
-            const propertyTablePath = propertyTablesPath + "/" + i;
-            if (
-              !PropertyTableValidator.validatePropertyTable(
-                propertyTablePath,
-                propertyTable,
-                numBufferViews,
-                this.schemaState.validatedElement,
-                context
-              )
-            ) {
-              result = false;
-              propertyTablesAreValid = false;
-            }
-          }
-          if (propertyTablesAreValid) {
-            validatedPropertyTables = propertyTables;
-          }
-        }
-      }
+    // When there have been property tables, but they have
+    // not been valid, then the overall result is invalid.
+    if (
+      propertyTablesState.wasPresent &&
+      !defined(propertyTablesState.validatedElement)
+    ) {
+      result = false;
     }
 
     // Validate the tileMetadata
@@ -757,7 +708,7 @@ export class SubtreeValidator implements Validator<Buffer> {
           );
           context.addIssue(issue);
           result = false;
-        } else if (!hasPropertyTablesDefinition) {
+        } else if (!propertyTablesState.wasPresent) {
           // If there is tileMetadata, then there MUST be propertyTables
           const message =
             `The subtree defines 'tileMetadata' but ` +
@@ -770,7 +721,7 @@ export class SubtreeValidator implements Validator<Buffer> {
           result = false;
         } else if (
           defined(this.schemaState.validatedElement) &&
-          defined(validatedPropertyTables)
+          defined(propertyTablesState.validatedElement)
         ) {
           // The tileMetadata MUST be smaller than the numberOfPropertyTables
           if (
@@ -780,7 +731,7 @@ export class SubtreeValidator implements Validator<Buffer> {
               tileMetadata,
               0,
               true,
-              validatedPropertyTables.length,
+              propertyTablesState.validatedElement.length,
               false,
               context
             )
@@ -820,7 +771,7 @@ export class SubtreeValidator implements Validator<Buffer> {
           );
           context.addIssue(issue);
           result = false;
-        } else if (!hasPropertyTablesDefinition) {
+        } else if (!propertyTablesState.wasPresent) {
           // If there is contentMetadata, then there MUST be propertyTables
           const message =
             `The subtree defines 'contentMetadata' but ` +
@@ -833,7 +784,7 @@ export class SubtreeValidator implements Validator<Buffer> {
           result = false;
         } else if (
           defined(this.schemaState.validatedElement) &&
-          defined(validatedPropertyTables)
+          defined(propertyTablesState.validatedElement)
         ) {
           for (let i = 0; i < contentMetadata.length; i++) {
             const elementPath = contentMetadataPath + "/" + i;
@@ -848,7 +799,7 @@ export class SubtreeValidator implements Validator<Buffer> {
                 element,
                 0,
                 true,
-                validatedPropertyTables.length,
+                propertyTablesState.validatedElement.length,
                 false,
                 context
               )

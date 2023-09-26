@@ -1,6 +1,7 @@
 import { JSONDocument } from "@gltf-transform/core";
 import { Document } from "@gltf-transform/core";
 
+import { ResourceResolver } from "3d-tiles-tools";
 import { BinaryBufferData } from "3d-tiles-tools";
 import { BinaryBufferStructure } from "3d-tiles-tools";
 import { BinaryBufferDataResolver } from "3d-tiles-tools";
@@ -15,8 +16,22 @@ import { IoValidationIssues } from "../../issues/IoValidationIssue";
 
 import { ExtMeshFeaturesValidator } from "./ExtMeshFeaturesValidator";
 import { GltfData } from "./GltfData";
+import { ExtStructuralMetadataValidator } from "./ExtStructuralMetadataValidator";
 
+/**
+ * A class that only serves as an entry point for validating
+ * glTF extensions, given the raw glTF input data (either
+ * as embedded glTF, or as binary glTF).
+ */
 export class GltfExtensionValidators {
+  /**
+   * Ensure that the extensions in the given glTF data are valid.
+   *
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The raw glTF data
+   * @param context - The `ValidationContext`
+   * @returns Whether the object is valid
+   */
   static async validateGltfExtensions(
     path: string,
     input: Buffer,
@@ -43,9 +58,35 @@ export class GltfExtensionValidators {
     if (!extMeshFeaturesValid) {
       result = false;
     }
+
+    // Validate `EXT_structural_metadata`
+    const extStructuralMetadataValid =
+      await ExtStructuralMetadataValidator.validateGltf(
+        path,
+        gltfData,
+        context
+      );
+    if (!extStructuralMetadataValid) {
+      result = false;
+    }
+
     return result;
   }
 
+  /**
+   * Read the glTF data from the given buffer.
+   *
+   * This currently supports binary glTF and embedded glTF assets.
+   *
+   * If the data can not be read, then the appropriate issue
+   * will be added to the given context, and `undefined` will
+   * be returned
+   *
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The raw glTF data
+   * @param context - The `ValidationContext`
+   * @returns The glTF data, or `undefined`
+   */
   private static async readGltfData(
     path: string,
     input: Buffer,
@@ -58,11 +99,24 @@ export class GltfExtensionValidators {
     return GltfExtensionValidators.readJsonGltfData(path, input, context);
   }
 
+  /**
+   * Read the binary glTF data from the given buffer.
+   *
+   * If the data can not be read, then the appropriate issue
+   * will be added to the given context, and `undefined` will
+   * be returned
+   *
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The raw glTF data
+   * @param context - The `ValidationContext`
+   * @returns The glTF data, or `undefined`
+   */
   private static async readBinaryGltfData(
     path: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<GltfData | undefined> {
+    // Obtain the JSON- and binary data from the given buffer
     let gltfJsonBuffer: Buffer | undefined = undefined;
     let gltfBinaryBuffer: Buffer | undefined = undefined;
     try {
@@ -77,6 +131,7 @@ export class GltfExtensionValidators {
       return undefined;
     }
 
+    // Parse the JSON into a glTF object
     let gltf: any = undefined;
     try {
       gltf = JSON.parse(gltfJsonBuffer.toString());
@@ -86,15 +141,23 @@ export class GltfExtensionValidators {
       context.addIssue(issue);
       return undefined;
     }
-    const gltfDocument = await GltfExtensionValidators.readBinaryGltfDocument(
-      input
-    );
+
+    // Resolve the binary buffer data, which contains
+    // one (Node) Buffer for each glTF buffer object
+    // and each glTF buffer view object
+    const resourceResolver = context.getResourceResolver();
     const binaryBufferData =
       await GltfExtensionValidators.resolveBinaryBufferData(
         gltf,
         gltfBinaryBuffer,
-        context
+        resourceResolver
       );
+
+    // Create the glTF-Transform document for the glTF data
+    const gltfDocument = await GltfExtensionValidators.readBinaryGltfDocument(
+      input
+    );
+
     return {
       gltf: gltf,
       binary: gltfBinaryBuffer,
@@ -103,10 +166,20 @@ export class GltfExtensionValidators {
     };
   }
 
+  /**
+   * Return the binary buffer data that is described by
+   * the buffers/bufferViews of the given glTF, referring
+   * to the given binary buffer data.
+   *
+   * @param gltf - The glTF object
+   * @param binary - The binary buffer data
+   * @param resourceResolver - The resource resolver
+   * @returns The binary buffer data
+   */
   private static async resolveBinaryBufferData(
     gltf: any,
     binary: Buffer | undefined,
-    context: ValidationContext
+    resourceResolver: ResourceResolver
   ): Promise<BinaryBufferData> {
     // Resolve the data of the bufferView/buffer structure
     // of the glTF
@@ -114,7 +187,6 @@ export class GltfExtensionValidators {
       buffers: gltf.buffers,
       bufferViews: gltf.bufferViews,
     };
-    const resourceResolver = context.getResourceResolver();
     const binaryBufferData = await BinaryBufferDataResolver.resolve(
       binaryBufferStructure,
       binary,
@@ -123,6 +195,13 @@ export class GltfExtensionValidators {
     return binaryBufferData;
   }
 
+  /**
+   * Try to read a glTF-Tranform document from the given GLB buffer
+   * data, returning `undefined` if the document cannot be read.
+   *
+   * @param input - The input GLB buffer
+   * @returns The document, or `undefined`
+   */
   private static async readBinaryGltfDocument(
     input: Buffer
   ): Promise<Document | undefined> {
@@ -150,11 +229,27 @@ export class GltfExtensionValidators {
     }
   }
 
+  /**
+   * Read the glTF data from the given buffer, which contains
+   * glTF JSON.
+   *
+   * This currently only supports embedded glTF.
+   *
+   * If the data can not be read, then the appropriate issue
+   * will be added to the given context, and `undefined` will
+   * be returned
+   *
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The raw glTF data
+   * @param context - The `ValidationContext`
+   * @returns The glTF data, or `undefined`
+   */
   private static async readJsonGltfData(
     path: string,
     input: Buffer,
     context: ValidationContext
   ): Promise<GltfData | undefined> {
+    // Parse the glTF object from the input buffer
     let gltf: any = undefined;
     try {
       gltf = JSON.parse(input.toString());
@@ -164,13 +259,18 @@ export class GltfExtensionValidators {
       context.addIssue(issue);
       return undefined;
     }
+
+    // Resolve the binary data that is associated with
+    // the glTF asset
+    const resourceResolver = context.getResourceResolver();
     const binaryBufferData =
       await GltfExtensionValidators.resolveBinaryBufferData(
         gltf,
         undefined,
-        context
+        resourceResolver
       );
 
+    // Create the glTF-Transform document for the glTF data
     const gltfDocument = await GltfExtensionValidators.readJsonGltfDocument(
       input
     );
@@ -183,6 +283,13 @@ export class GltfExtensionValidators {
     };
   }
 
+  /**
+   * Try to read a glTF-Tranform document from the given glTF buffer
+   * data, returning `undefined` if the document cannot be read.
+   *
+   * @param input - The input GLB buffer
+   * @returns The document, or `undefined`
+   */
   private static async readJsonGltfDocument(
     input: Buffer
   ): Promise<Document | undefined> {
