@@ -295,7 +295,7 @@ export class GltfExtensionValidators {
   ): Promise<Document | undefined> {
     // TODO There is no way to determine the resources that
     // are required for a glTF document, and there is no way
-    // to resolve the resoruces at load time.
+    // to resolve the resources at load time.
 
     // See https://github.com/donmccurdy/glTF-Transform/issues/1099
     // and the NOTE in the error handling block below.

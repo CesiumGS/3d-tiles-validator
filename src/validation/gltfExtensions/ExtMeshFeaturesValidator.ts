@@ -12,6 +12,8 @@ import { StructureValidationIssues } from "../../issues/StructureValidationIssue
 import { IoValidationIssues } from "../../issues/IoValidationIssue";
 import { ValidationIssues } from "../../issues/ValidationIssues";
 import { Accessors } from "./Accessors";
+import { SamplerValidator } from "./SamplerValidator";
+import { TextureValidator } from "./TextureValidator";
 
 /**
  * A class for validating the `EXT_mesh_features` extension in
@@ -361,10 +363,8 @@ export class ExtMeshFeaturesValidator {
     // with the name `_FEATURE_ID_${attribute}` must
     // appear as an attribute in the mesh primitive
     const featureIdAttributeName = `_FEATURE_ID_${attribute}`;
-    const featureIdAccessorIndex = ExtMeshFeaturesValidator.findAccessorIndex(
-      meshPrimitive,
-      featureIdAttributeName
-    );
+    const primitiveAttributes = meshPrimitive.attributes || {};
+    const featureIdAccessorIndex = primitiveAttributes[featureIdAttributeName];
     if (featureIdAccessorIndex === undefined) {
       const message =
         `The feature ID defines the attribute ${attribute}, ` +
@@ -509,24 +509,6 @@ export class ExtMeshFeaturesValidator {
   }
 
   /**
-   * Returns the index of the accessor that contains the data
-   * of the specified attribute in the given mesh primitive,
-   * or `undefined` if this attribute does not exist.
-   *
-   * @param meshPrimitive - The mesh primitive
-   * @param attributeName - The attribute name
-   * @returns The accessor index
-   */
-  private static findAccessorIndex(
-    meshPrimitive: any,
-    attributeName: string
-  ): number | undefined {
-    const primitiveAttributes = meshPrimitive.attributes || {};
-    const accessorIndex = primitiveAttributes[attributeName];
-    return accessorIndex;
-  }
-
-  /**
    * Validate the given feature ID `texture` value that was found in
    * a feature ID definition
    *
@@ -584,10 +566,9 @@ export class ExtMeshFeaturesValidator {
     const texCoordPath = path + "/texCoord";
     if (defined(texCoord)) {
       if (
-        !ExtMeshFeaturesValidator.validateTexCoord(
+        !TextureValidator.validateTexCoordForMeshPrimitive(
           texCoordPath,
           texCoord,
-          gltf,
           meshPrimitive,
           context
         )
@@ -599,68 +580,23 @@ export class ExtMeshFeaturesValidator {
     // Validate the channels.
     // This will only check the basic validity, namely that the channels
     // (if they are defined) are an array of nonnegative integers. Whether
-    // the channels match the image structure is validated later, in
-    // `validateFeatureIdTextureData`
+    // the channels match the image structure is validated later
     const channels = featureIdTexture.channels;
-    const channelsPath = path + "/channels";
-    if (channels) {
-      if (
-        !BasicValidator.validateArray(
-          channelsPath,
-          "channels",
-          channels,
-          1,
-          undefined,
-          "number",
-          context
-        )
-      ) {
-        result = false;
-      } else {
-        if (
-          !ExtMeshFeaturesValidator.validateChannels(
-            channelsPath,
-            channels,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
+    if (!TextureValidator.validateChannels(path, channels, context)) {
+      result = false;
     }
 
     // Make sure that the sampler of the texture (if present) uses the
     // allowed values (namely, 'undefined' or 9728 (NEAREST)) for
     // its minFilter and magFilter
+    // (Note: The validity of the `texture.sampler` index has
+    // already been checked by the glTF Validator)
     const texture = textures[index];
     const samplerIndex = texture.sampler;
     if (samplerIndex !== undefined) {
       const samplers = gltf.samplers || [];
       const sampler = samplers[samplerIndex];
-      const NEAREST = 9728;
-
-      if (sampler.minFilter !== undefined && sampler.minFilter !== NEAREST) {
-        const message =
-          `The feature ID texture refers to a sampler with 'minFilter' ` +
-          `mode ${sampler.minFilter}, but the filter mode must either ` +
-          `be 'undefined', or 9728 (NEAREST)`;
-        const issue = GltfExtensionValidationIssues.INVALID_FILTER_MODE(
-          path,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
-      if (sampler.magFilter !== undefined && sampler.minFilter !== NEAREST) {
-        const message =
-          `The feature ID texture refers to a sampler with 'magFilter' ` +
-          `mode ${sampler.minFilter}, but the filter mode must either ` +
-          `be 'undefined', or 9728 (NEAREST)`;
-        const issue = GltfExtensionValidationIssues.INVALID_FILTER_MODE(
-          path,
-          message
-        );
-        context.addIssue(issue);
+      if (!SamplerValidator.validateSamplerNearest(path, sampler, context)) {
         result = false;
       }
     }
@@ -806,113 +742,6 @@ export class ExtMeshFeaturesValidator {
       return false;
     }
 
-    return true;
-  }
-
-  /**
-   * Validate the `channels` array of a feature ID texture.
-   *
-   * This will only check whether the elements of the given array
-   * are nonnegative integers. Whether or not these channels match
-   * the actual texture data will be validated in
-   * `validateFeatureIdTextureData`.
-   *
-   * @param path - The path for validation issues
-   * @param channels - The channels
-   * @param context - The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validateChannels(
-    path: string,
-    channels: number[],
-    context: ValidationContext
-  ): boolean {
-    let result = true;
-    for (let i = 0; i < channels.length; i++) {
-      const channelsElement = channels[i];
-      const channelsElementPath = path + "/" + i;
-      if (
-        !BasicValidator.validateIntegerRange(
-          channelsElementPath,
-          "channel",
-          channelsElement,
-          0,
-          true,
-          undefined,
-          false,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   * Validate the `texCoord` definition of a feature ID texture.
-   *
-   * @param path - The path for validation issues
-   * @param texCoord - The the texture coordinate set index, used for
-   * constructing the `TEXCOORD_${texCoord}` attribute name.
-   * @param gltf - The glTF object
-   * @param meshPrimitive - The mesh primitive that contains the extension
-   * @param context - The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validateTexCoord(
-    path: string,
-    texCoord: number,
-    gltf: any,
-    meshPrimitive: any,
-    context: ValidationContext
-  ): boolean {
-    // The texCoord MUST be an integer of at least 0
-    if (
-      !BasicValidator.validateIntegerRange(
-        path,
-        "texCoord",
-        texCoord,
-        0,
-        true,
-        undefined,
-        false,
-        context
-      )
-    ) {
-      return false;
-    }
-
-    // For a given texCoord value, the attribute
-    // with the name `TEXCOORD_${texCoord}` must
-    // appear as an attribute in the mesh primitive
-    const texCoordAttributeName = `TEXCOORD_${texCoord}`;
-    const texCoordAccessorIndex = ExtMeshFeaturesValidator.findAccessorIndex(
-      meshPrimitive,
-      texCoordAttributeName
-    );
-    if (texCoordAccessorIndex === undefined) {
-      const message =
-        `The feature ID defines the texCoord ${texCoord}, ` +
-        `but the attribute ${texCoordAttributeName} was not ` +
-        `found in the mesh primitive attributes`;
-      const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
-        path,
-        message
-      );
-      context.addIssue(issue);
-      return false;
-    }
-
-    // The presence and validity of the accessor for the TEXCOORD_n
-    // attribute has already been validated by the glTF-Validator.
-    // This includes the validation that...
-    // - the accessor type MUST be "VEC2"
-    // - the accessor componentType MUST be FLOAT, UNSIGNED_BYTE,
-    //   or UNSIGNED_SHORT
-    // - when the accessor componentType is UNSIGNED_BYTE or
-    //   UNSIGNED_SHORT, then the accessor MUST be normalized
     return true;
   }
 }

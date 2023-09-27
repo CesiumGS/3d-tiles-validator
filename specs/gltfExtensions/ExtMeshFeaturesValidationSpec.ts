@@ -137,8 +137,8 @@ describe("EXT_mesh_features extension validation", function () {
       "./specs/data/gltfExtensions/meshFeatures/FeatureIdTextureSamplerInvalidFilterMode.gltf"
     );
     expect(result.length).toEqual(2);
-    expect(result.get(0).type).toEqual("INVALID_FILTER_MODE");
-    expect(result.get(1).type).toEqual("INVALID_FILTER_MODE");
+    expect(result.get(0).type).toEqual("VALUE_NOT_IN_LIST");
+    expect(result.get(1).type).toEqual("VALUE_NOT_IN_LIST");
   });
 
   it("detects issues in FeatureIdTextureTextureChannelsInvalidElementType", async function () {

@@ -73,22 +73,6 @@ export class GltfExtensionValidationIssues {
   }
 
   /**
-   * Indicates that a feature ID texture sampler used a filtering
-   * method (`minFilter` or `magFilter`) that was not `undefined`
-   * and not 9728 (`NEAREST`).
-   *
-   * @param path - The path for the `ValidationIssue`
-   * @param message - The message for the `ValidationIssue`
-   * @returns The `ValidationIssue`
-   */
-  static INVALID_FILTER_MODE(path: string, message: string) {
-    const type = "INVALID_FILTER_MODE";
-    const severity = ValidationIssueSeverity.ERROR;
-    const issue = new ValidationIssue(type, path, message, severity);
-    return issue;
-  }
-
-  /**
    * Indicates that a certain property was defined in a context where
    * this type is not allowed. For example, when a variable-length
    * array or a 'STRING' property are used in a property texture.

@@ -9,7 +9,7 @@ import { ImageData } from "./ImageData";
  */
 export class ImageDataReader {
   /**
-   * Obtains the feature ID value from the specified pixel in the
+   * Obtains the value from the specified pixel and channels in the
    * given image data.
    *
    * This is computed by composing the (supposedly `UINT8`) channel
@@ -18,8 +18,8 @@ export class ImageDataReader {
    * @param imageData - The ImageData object
    * @param x - The x-coordinate
    * @param y - The y-coordinate
-   * @param channels - The `channels` definition from the feature ID texture
-   * @returns The feature ID value
+   * @param channels - The `channels` definition from the texture
+   * @returns The value
    */
   static getValue(
     imageData: ImageData,

@@ -49,7 +49,7 @@ export class MetadataPropertyValidator {
       classProperty.array && !defined(classProperty.count);
 
     let result = true;
-    
+
     // Validate the offset
     const offset = property.offset;
     if (defined(offset)) {

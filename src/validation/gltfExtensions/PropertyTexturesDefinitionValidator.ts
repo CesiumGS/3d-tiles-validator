@@ -17,7 +17,7 @@ export class PropertyTexturesDefinitionValidator {
    *
    * The returned object will contain two properties:
    * - `wasPresent`: Whether property textures have been given
-   * - `validatedElement`: The validated `PropertyTextures[]` object
+   * - `validatedElement`: The validated `PropertyTexture[]` object
    *
    * When no property textures are given, then it will just return
    * `{false, undefined}`.
@@ -32,10 +32,9 @@ export class PropertyTexturesDefinitionValidator {
    *
    * @param path - The path for `ValidationIssue` instances
    * @param name - The name of the object containing the definition
-   * (for example, 'subtree')
+   * (for example, 'metadata extension object')
    * @param propertyTextures - The actual property textures
-   * @param numBufferViews - The number of buffer views in the
-   * containing object
+   * @param gltf - The containing glTF object
    * @param schemaState - The state of the schema validation
    * @param context - The `ValidationContext`
    * @returns Information about the validity of the definition
@@ -44,7 +43,7 @@ export class PropertyTexturesDefinitionValidator {
     path: string,
     name: string,
     propertyTextures: any[] | undefined,
-    numBufferViews: number,
+    gltf: any,
     schemaState: ValidatedElement<Schema>,
     context: ValidationContext
   ): ValidatedElement<any[]> {
@@ -98,7 +97,7 @@ export class PropertyTexturesDefinitionValidator {
           !PropertyTextureValidator.validatePropertyTexture(
             propertyTexturePath,
             propertyTexture,
-            numBufferViews,
+            gltf,
             schemaState.validatedElement,
             context
           )
