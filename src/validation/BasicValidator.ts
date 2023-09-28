@@ -209,7 +209,8 @@ export class BasicValidator {
    * be added to the given context, and `false` is returned.
    *
    * If any of the elements of the array is not an integer, or it
-   * is negative, then `false` is returned.
+   * is negative, then an error will be added to the given context, 
+   * and `false` is returned.
    *
    * @param path - The path for the `ValidationIssue` message
    * @param name - The name for the `ValidationIssue` message
