@@ -3,17 +3,16 @@ import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "./../ValidationContext";
 import { BasicValidator } from "./../BasicValidator";
-import { GltfData } from "./GltfData";
-import { ImageData } from "./ImageData";
-import { ImageDataReader } from "./ImageDataReader";
 
-import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
-import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
-import { IoValidationIssues } from "../../issues/IoValidationIssue";
-import { ValidationIssues } from "../../issues/ValidationIssues";
+import { GltfData } from "./GltfData";
+import { ImageDataReader } from "./ImageDataReader";
 import { Accessors } from "./Accessors";
 import { SamplerValidator } from "./SamplerValidator";
 import { TextureValidator } from "./TextureValidator";
+
+import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
+import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
+import { ValidationIssues } from "../../issues/ValidationIssues";
 
 /**
  * A class for validating the `EXT_mesh_features` extension in
@@ -649,41 +648,17 @@ export class ExtMeshFeaturesValidator {
     const imageIndex = texture.source;
     const image = images[imageIndex];
 
-    // Read the image data buffer, either from a data URI or from
-    // the binary buffer data (using the buffer view index)
-    let imageDataBuffer;
-    const uri = image.uri;
-    if (defined(uri)) {
-      const resourceResolver = context.getResourceResolver();
-      imageDataBuffer = await resourceResolver.resolveData(uri);
-    } else {
-      const bufferViewIndex = image.bufferView;
-      if (defined(bufferViewIndex)) {
-        const binaryBufferData = gltfData.binaryBufferData;
-        imageDataBuffer = binaryBufferData.bufferViewsData[bufferViewIndex];
-      }
-    }
-    if (!imageDataBuffer) {
-      const message = `Could not resolve image data for feature ID texture`;
-      const issue = IoValidationIssues.IO_ERROR(path, message);
-      context.addIssue(issue);
-      return false;
-    }
-
-    // Try to read image data (pixels) from the image data buffer
-    let imageData: ImageData | undefined = undefined;
-    try {
-      imageData = await ImageDataReader.readUnchecked(imageDataBuffer);
-    } catch (error) {
-      const message = `Could not read feature ID texture from image data: ${error}`;
-      const issue = IoValidationIssues.IO_ERROR(path, message);
-      context.addIssue(issue);
-      return false;
-    }
-    if (!imageData) {
-      const message = `Could not read feature ID texture from image data`;
-      const issue = IoValidationIssues.IO_ERROR(path, message);
-      context.addIssue(issue);
+    // Try to read the image data from the glTF image.
+    // If this fails, then the appropriate issues will
+    // be added to the given context, and `undefined`
+    // will be returned.
+    const imageData = await ImageDataReader.readFromImage(
+      path,
+      image,
+      gltfData.binaryBufferData,
+      context
+    );
+    if (!defined(imageData)) {
       return false;
     }
 
@@ -691,31 +666,15 @@ export class ExtMeshFeaturesValidator {
     // are smaller than the number of channels in the image
     const channelsInImage = imageData.channels;
     const channels = defaultValue(featureIdTexture.channels, [0]);
-    if (channels.length > channelsInImage) {
-      const message =
-        `The feature ID texture defines ${channels.length} channels, ` +
-        `but the texture only contains ${channelsInImage} channels`;
-      const issue = GltfExtensionValidationIssues.TEXTURE_CHANNELS_OUT_OF_RANGE(
-        path,
-        message
-      );
-      context.addIssue(issue);
+    const channelsValid = TextureValidator.validateChannelsForImage(
+      path,
+      "feature ID texture",
+      channels,
+      channelsInImage,
+      context
+    );
+    if (!channelsValid) {
       return false;
-    }
-    for (let i = 0; i < channels.length; i++) {
-      const c = channels[i];
-      if (c >= channelsInImage) {
-        const message =
-          `Channel ${i} of the feature ID texture is ${c}, ` +
-          `but the texture only contains ${channelsInImage} channels`;
-        const issue =
-          GltfExtensionValidationIssues.TEXTURE_CHANNELS_OUT_OF_RANGE(
-            path,
-            message
-          );
-        context.addIssue(issue);
-        return false;
-      }
     }
 
     // Make sure that the `featureCount` matches the

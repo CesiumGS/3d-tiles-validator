@@ -1,11 +1,12 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
+import { MetadataUtilities } from "3d-tiles-tools";
 import { Schema } from "3d-tiles-tools";
 
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
-import { RootPropertyValidator } from "./../RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
+import { RootPropertyValidator } from "../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
 import { MetadataStructureValidator } from "../metadata/MetadataStructureValidator";
 
@@ -15,14 +16,14 @@ import { PropertyTexturePropertyValidator } from "./PropertyTexturePropertyValid
  * A class for validations related to `propertyTexture` objects.
  *
  * This class performs the basic JSON-level validation of the
- * property texture. 
- * 
+ * property texture.
+ *
  * The validation of any of the underlying binary data of
  * a property texture has to start at the mesh primitive
  * that refers to the property texture, because it requires
- * knowledge about the attributes (texture coordinates) 
+ * knowledge about the attributes (texture coordinates)
  * that are defined in the referring mesh primitive.
- * 
+ *
  * @internal
  */
 export class PropertyTextureValidator {
@@ -132,6 +133,10 @@ export class PropertyTextureValidator {
     for (const propertyName of validPropertyNames) {
       const propertyPath = path + "/properties/" + propertyName;
       const classProperty = classProperties[propertyName];
+      const enumValueType = MetadataUtilities.computeEnumValueType(
+        schema,
+        classProperty
+      );
 
       // Note: The check whether 'required' properties are
       // present and have values was already done by the
@@ -145,6 +150,7 @@ export class PropertyTextureValidator {
             propertyValue,
             gltf,
             classProperty,
+            enumValueType,
             context
           )
         ) {

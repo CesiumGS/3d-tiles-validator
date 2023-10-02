@@ -1,16 +1,20 @@
-import { defined } from "3d-tiles-tools";
+import { Schema, defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
+import { ValidatedElement } from "../ValidatedElement";
 
 import { GltfData } from "./GltfData";
 import { PropertyTexturesDefinitionValidator } from "./PropertyTexturesDefinitionValidator";
 import { PropertyAttributesDefinitionValidator } from "./PropertyAttributesDefinitionValidator";
+import { PropertyTextureValuesValidator } from "./PropertyTextureValuesValidator";
 
 import { SchemaDefinitionValidator } from "../metadata/SchemaDefinitionValidator";
 import { PropertyTablesDefinitionValidator } from "../metadata/PropertyTablesDefinitionValidator";
+
 import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
+import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
 
 /**
  * A class for validating the `EXT_structural_metadata` extension in
@@ -37,35 +41,66 @@ export class ExtStructuralMetadataValidator {
     gltfData: GltfData,
     context: ValidationContext
   ): Promise<boolean> {
-    const gltf = gltfData.gltf;
+    let result = true;
 
-    // Dig into the (untyped) JSON representation of the
-    // glTF, to find the extension objects.
-
-    // Check the top-level extension object.
+    // Try to find and validate the top-level extension object.
+    let schema = undefined;
     let gltfStructuralMetadata = undefined;
+
+    const gltf = gltfData.gltf;
     const extensions = gltf.extensions;
     if (extensions) {
       const structuralMetadata = extensions["EXT_structural_metadata"];
       if (structuralMetadata) {
+        // Validate the schema definition, consisting of the
+        // `schema` or `schemaUri`
+        const schemaState =
+          await SchemaDefinitionValidator.validateSchemaDefinition(
+            path,
+            "structuralMetadata",
+            structuralMetadata.schema,
+            structuralMetadata.schemaUri,
+            context
+          );
+
+        // The schema or schemaUri MUST be present
+        if (!schemaState.wasPresent) {
+          const issue = JsonValidationIssues.ANY_OF_ERROR(
+            path,
+            "structuralMetadata",
+            "schema",
+            "schemaUri"
+          );
+          context.addIssue(issue);
+          return false;
+        }
+
+        // Bail out early if there was a schema definition, but the schema
+        // itself was not valid
+        if (schemaState.wasPresent && !defined(schemaState.validatedElement)) {
+          return false;
+        }
+
         const structuralMetadataValid =
-          await ExtStructuralMetadataValidator.validateStructuralMetadata(
+          await ExtStructuralMetadataValidator.validateTopLevelStructuralMetadata(
             path,
             structuralMetadata,
+            schemaState,
             gltfData,
             context
           );
+
         // Bail out early if the top-level extension object is invalid.
         if (!structuralMetadataValid) {
           return false;
         }
         gltfStructuralMetadata = structuralMetadata;
+        schema = schemaState.validatedElement;
       }
     }
 
     // Dive into the mesh primitives of the glTF, and check if they
-    // contain the EXT_structural_metadata extension object
-    let result = true;
+    // contain EXT_structural_metadata extension objects
     const meshes = gltf.meshes;
     if (meshes) {
       if (Array.isArray(meshes)) {
@@ -87,37 +122,42 @@ export class ExtStructuralMetadataValidator {
             if (!extensions) {
               continue;
             }
-            const extensionNames = Object.keys(extensions);
-            for (const extensionName of extensionNames) {
-              if (extensionName === "EXT_structural_metadata") {
-                if (!defined(gltfStructuralMetadata)) {
-                  const message =
-                    `The primitive ${p} of mesh ${m} uses the ` +
-                    `EXT_structural_metadata extension, but ` +
-                    `no top-level EXT_structural_metadata ` +
-                    `object was found.`;
-                  const issue =
-                    GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-                      path,
-                      message
-                    );
-                  context.addIssue(issue);
-                  result = false;
-                } else {
-                  const extensionObject = extensions[extensionName];
-                  const objectIsValid =
-                    await ExtStructuralMetadataValidator.validateMeshPrimitiveStructuralMetadata(
-                      path,
-                      extensionObject,
-                      primitive,
-                      gltfStructuralMetadata,
-                      gltfData,
-                      context
-                    );
-                  if (!objectIsValid) {
-                    result = false;
-                  }
-                }
+            const extensionObject = extensions["EXT_structural_metadata"];
+            if (defined(extensionObject)) {
+              // When there is an extension object in one of the mesh
+              // primitives, and there was no top-level extension object,
+              // then bail out: There is no need to report the missing
+              // top-level object multiple times.
+              if (!defined(gltfStructuralMetadata)) {
+                const message =
+                  `The primitive ${p} of mesh ${m} uses the ` +
+                  `EXT_structural_metadata extension, but ` +
+                  `no top-level EXT_structural_metadata ` +
+                  `object was found.`;
+                const issue =
+                  GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
+                    path,
+                    message
+                  );
+                context.addIssue(issue);
+                return false;
+              }
+
+              // Here, the `gltfStructuralMetadata` and the `schema`
+              // have been validated
+
+              const objectIsValid =
+                await ExtStructuralMetadataValidator.validateMeshPrimitiveStructuralMetadata(
+                  path,
+                  extensionObject,
+                  primitive,
+                  schema!,
+                  gltfStructuralMetadata,
+                  gltfData,
+                  context
+                );
+              if (!objectIsValid) {
+                result = false;
               }
             }
           }
@@ -133,14 +173,17 @@ export class ExtStructuralMetadataValidator {
    * that was found in the given glTF.
    *
    * @param path - The path for validation issues
-   * @param meshFeatures - The EXT_mesh_features extension object
+   * @param structuralMetadata - The EXT_structural_metadata extension object
+   * @param schemaState - The object holding information about the presence
+   * and validity of the schema
    * @param gltfData - The glTF data
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
-  private static async validateStructuralMetadata(
+  private static async validateTopLevelStructuralMetadata(
     path: string,
     structuralMetadata: any,
+    schemaState: ValidatedElement<Schema>,
     gltfData: GltfData,
     context: ValidationContext
   ): Promise<boolean> {
@@ -157,24 +200,6 @@ export class ExtStructuralMetadataValidator {
     }
 
     let result = true;
-
-    // Validate the schema definition, consisting of the
-    // `schema` or `schemaUri`
-    const schemaState =
-      await SchemaDefinitionValidator.validateSchemaDefinition(
-        path,
-        "structuralMetadata",
-        structuralMetadata.schema,
-        structuralMetadata.schemaUri,
-        context
-      );
-
-    // When there was a schema definition, but the schema
-    // itself was not valid, then the overall result
-    // is invalid
-    if (schemaState.wasPresent && !defined(schemaState.validatedElement)) {
-      result = false;
-    }
 
     const gltf = gltfData.gltf;
     const numBufferViews = defaultValue(gltf.bufferViews?.length, 0);
@@ -253,6 +278,7 @@ export class ExtStructuralMetadataValidator {
    * extension object that was found in the mesh primitive
    * @param meshPrimitive - The mesh primitive that contained
    * the extension object
+   * @param schema - The metadata schema
    * @param gltfStructuralMetadata - The EXT_mesh_features object
    * that was found at the top level in the glTF asset
    * @param gltfData - The glTF data
@@ -263,6 +289,7 @@ export class ExtStructuralMetadataValidator {
     path: string,
     meshPrimitiveStructuralMetadata: any,
     meshPrimitive: any,
+    schema: Schema,
     gltfStructuralMetadata: any,
     gltfData: GltfData,
     context: ValidationContext
@@ -287,6 +314,7 @@ export class ExtStructuralMetadataValidator {
     const propertyTextures = meshPrimitiveStructuralMetadata.propertyTextures;
     const propertyTexturesPath = path + "/propertyTextures";
     if (defined(propertyTextures)) {
+      // The propertyTextures MUST be an an array of at least 1 index
       if (
         !BasicValidator.validateIndexArray(
           propertyTexturesPath,
@@ -298,7 +326,23 @@ export class ExtStructuralMetadataValidator {
       ) {
         result = false;
       } else {
-        // TODO Validate each of them!
+        for (let i = 0; i < propertyTextures.length; i++) {
+          const propertyTexturePath = propertyTexturesPath + "/" + i;
+          const propertyTextureIndex = propertyTextures[i];
+          const propertyTextureValuesValid =
+            await PropertyTextureValuesValidator.validatePropertyTextureValues(
+              propertyTexturePath,
+              propertyTextureIndex,
+              meshPrimitive,
+              schema,
+              gltfStructuralMetadata,
+              gltfData,
+              context
+            );
+          if (!propertyTextureValuesValid) {
+            result = false;
+          }
+        }
       }
     }
 
@@ -309,6 +353,7 @@ export class ExtStructuralMetadataValidator {
       meshPrimitiveStructuralMetadata.propertyAttributes;
     const propertyAttributesPath = path + "/propertyAttributes";
     if (defined(propertyAttributes)) {
+      // The propertyAttributes MUST be an an array of at least 1 index
       if (
         !BasicValidator.validateIndexArray(
           propertyAttributesPath,

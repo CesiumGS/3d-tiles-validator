@@ -2,16 +2,18 @@ import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 import { ArrayValues } from "3d-tiles-tools";
 
-import { ValidationContext } from "./../ValidationContext";
-
 import { BinaryPropertyTable } from "3d-tiles-tools";
+import { BinaryPropertyTableModel } from "3d-tiles-tools";
 
+import { ClassProperties } from "3d-tiles-tools";
 import { ClassProperty } from "3d-tiles-tools";
 
-import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
-import { BinaryPropertyTableModel } from "3d-tiles-tools";
-import { ClassProperties } from "3d-tiles-tools";
 import { BasicValidator } from "../BasicValidator";
+import { ValidationContext } from "../ValidationContext";
+
+import { MetadataValuesValidationMessages } from "./MetadataValueValidationMessages";
+
+import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
 /**
  * A class for the validation of values that are stored
@@ -41,7 +43,8 @@ export class BinaryPropertyTableValuesValidator {
   ): boolean {
     let result = true;
 
-    const metadataClass = binaryPropertyTable.metadataClass;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const metadataClass = binaryMetadata.metadataClass;
     const classProperties = defaultValue(metadataClass.properties, {});
 
     for (const propertyId of Object.keys(classProperties)) {
@@ -245,13 +248,14 @@ export class BinaryPropertyTableValuesValidator {
       binaryPropertyTable
     );
 
-    const metadataClass = binaryPropertyTable.metadataClass;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const metadataClass = binaryMetadata.metadataClass;
     const classProperties = defaultValue(metadataClass.properties, {});
     const classProperty = classProperties[propertyId];
 
     // Obtain the validEnumValues, which are all values that
     // appear as `enum.values[i].value` in the schema.
-    const binaryEnumInfo = binaryPropertyTable.binaryEnumInfo;
+    const binaryEnumInfo = binaryMetadata.binaryEnumInfo;
     const enumValueNameValues = binaryEnumInfo.enumValueNameValues;
     const nameValues = enumValueNameValues[classProperty.enumType!];
     const validEnumValues = Object.values(nameValues);
@@ -326,7 +330,8 @@ export class BinaryPropertyTableValuesValidator {
     const propertyTableProperties = defaultValue(propertyTable.properties, {});
     const propertyTablePropertry = propertyTableProperties[propertyId];
 
-    const metadataClass = binaryPropertyTable.metadataClass;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const metadataClass = binaryMetadata.metadataClass;
     const classProperties = defaultValue(metadataClass.properties, {});
     const classProperty = classProperties[propertyId];
 
@@ -344,7 +349,7 @@ export class BinaryPropertyTableValuesValidator {
 
       if (ArrayValues.anyDeepLessThan(propertyValue, definedMin)) {
         const valueMessagePart =
-          BinaryPropertyTableValuesValidator.createValueMessagePart(
+          MetadataValuesValidationMessages.createValueMessagePart(
             rawPropertyValue,
             classProperty.normalized,
             propertyTablePropertry.scale,
@@ -432,7 +437,8 @@ export class BinaryPropertyTableValuesValidator {
     const propertyTableProperties = defaultValue(propertyTable.properties, {});
     const propertyTablePropertry = propertyTableProperties[propertyId];
 
-    const metadataClass = binaryPropertyTable.metadataClass;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const metadataClass = binaryMetadata.metadataClass;
     const classProperties = defaultValue(metadataClass.properties, {});
     const classProperty = classProperties[propertyId];
 
@@ -450,7 +456,7 @@ export class BinaryPropertyTableValuesValidator {
 
       if (ArrayValues.anyDeepGreaterThan(propertyValue, definedMax)) {
         const valueMessagePart =
-          BinaryPropertyTableValuesValidator.createValueMessagePart(
+          MetadataValuesValidationMessages.createValueMessagePart(
             rawPropertyValue,
             classProperty.normalized,
             propertyTablePropertry.scale,
@@ -506,69 +512,5 @@ export class BinaryPropertyTableValuesValidator {
       }
     }
     return computedMax;
-  }
-
-  /**
-   * Creates a message that describes how a metadata value was computed.
-   *
-   * The intention is to insert this as `The value is ${valueMessagePart}`
-   * in a message that explains how the `value` was computed from the
-   * raw value, normalization, offset and scale.
-   *
-   * @param rawValue - The raw value, as obtained from the `PropertyModel`,
-   * without normalization, offset, or scale
-   * @param normalized - Whether the value is normalized
-   * @param scale - The optional scale
-   * @param offset - The optional offset
-   * @param value - The final value
-   * @returns The message part
-   */
-  private static createValueMessagePart(
-    rawValue: any,
-    normalized: boolean | undefined,
-    scale: any,
-    offset: any,
-    value: any
-  ) {
-    if (defined(offset) && defined(scale)) {
-      if (normalized === true) {
-        const messagePart =
-          `computed as normalize(rawValue)*scale+offset ` +
-          `= normalize(${rawValue})*${scale}+${offset} = ${value}`;
-        return messagePart;
-      }
-      const messagePart =
-        `computed as rawValue*scale+offset ` +
-        `= ${rawValue}*${scale}+${offset} = ${value}`;
-      return messagePart;
-    }
-    if (defined(offset)) {
-      if (normalized === true) {
-        const messagePart =
-          `computed as normalize(rawValue)+offset ` +
-          `= normalize(${rawValue})+${offset} = ${value}`;
-        return messagePart;
-      }
-      const messagePart = `computed as rawValue+offset = ${rawValue}+${offset} = ${value}`;
-      return messagePart;
-    }
-    if (defined(scale)) {
-      if (normalized === true) {
-        const messagePart =
-          `computed as normalize(rawValue)*scale ` +
-          `= normalize(${rawValue})*${scale} = ${value}`;
-        return messagePart;
-      }
-      const messagePart = `computed as rawValue*scale = ${rawValue}*${scale} = ${value}`;
-      return messagePart;
-    }
-    if (normalized === true) {
-      const messagePart =
-        `computed as normalize(rawValue) ` +
-        `= normalize(${rawValue}) = ${value}`;
-      return messagePart;
-    }
-    const messagePart = `${value}`;
-    return messagePart;
   }
 }

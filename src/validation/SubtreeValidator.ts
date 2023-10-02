@@ -13,6 +13,7 @@ import { BinaryBufferStructure } from "3d-tiles-tools";
 import { BinarySubtreeData } from "3d-tiles-tools";
 import { BinarySubtreeDataResolver } from "3d-tiles-tools";
 import { BinaryPropertyTable } from "3d-tiles-tools";
+import { BinaryMetadata } from "3d-tiles-tools";
 
 import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";
@@ -874,12 +875,15 @@ export class SubtreeValidator implements Validator<Buffer> {
       // which contains everything that is required for the
       // validation of the binary representation of the
       // property table
-      const binaryPropertyTable: BinaryPropertyTable = {
-        propertyTable: propertyTable,
+      const binaryMetadata: BinaryMetadata = {
         metadataClass: metadataClass,
         binaryEnumInfo: binaryEnumInfo,
         binaryBufferStructure: binaryBufferStructure,
         binaryBufferData: binaryBufferData,
+      };
+      const binaryPropertyTable: BinaryPropertyTable = {
+        propertyTable: propertyTable,
+        binaryMetadata: binaryMetadata,
       };
 
       if (

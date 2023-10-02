@@ -1,6 +1,7 @@
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
+import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
 
 /**
  * A class for validating feature ID or property textures in the
@@ -19,6 +20,9 @@ export class TextureValidator {
    * `TEXCOORD_${texCoord}` attribute that actually appears in a
    * mesh primitive. For this, `validateTexCoordForMeshPrimitive`
    * can be used.
+   *
+   * If the given value is not valid, then a validation error will
+   * be added to the given context, and `false` will be returned.
    *
    * @param path - The path for validation issues
    * @param texCoord - The the texture coordinate set index, used for
@@ -55,6 +59,9 @@ export class TextureValidator {
    * This will check whether the given value is a nonnegative integer,
    * and whether the resulting `TEXCOORD_${texCoord}` attribute
    * appears in the given mesh primitive.
+   *
+   * If the given value is not valid, then a validation error will
+   * be added to the given context, and `false` will be returned.
    *
    * @param path - The path for validation issues
    * @param texCoord - The the texture coordinate set index, used for
@@ -123,9 +130,15 @@ export class TextureValidator {
    * In both cases, the `channels` must be an array with at least 1
    * element, and all elements must be nonnegative integers.
    *
-   * This only performs the structural validation. The validity
-   * of the binary data that is supposed to be accessed using
-   * these channels is not checked here.
+   * This only performs the structural validation. The validity of
+   * the elements of the `channels` array for a given number of
+   * image channels can be checked with `validateChannelsForImage`.
+   *
+   * The validity of the binary data that is supposed to be accessed
+   * using these channels is not checked here.
+   *
+   * If the channels are not valid, then a validation error will be
+   * added to the given context, and `false` will be returned.
    *
    * @param path - The path for validation issues
    * @param channels - The channels
@@ -174,5 +187,59 @@ export class TextureValidator {
       }
     }
     return result;
+  }
+
+  /**
+   * Validate the given `channels`, which may be part of a feature ID
+   * texture or a property texture, for an image that has the
+   * given number of channels.
+   *
+   * If the channels are not valid, then a validation error will be
+   * added to the given context, and `false` will be returned.
+   *
+   * @param path - The path for validation issues
+   * @param name - A name for the source of the `channels` definition.
+   * This may be "feature ID texture" or "property texture property".
+   * @param channels - The channels
+   * @param channelsInImage - The number of channels in the image
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
+  static validateChannelsForImage(
+    path: string,
+    name: string,
+    channels: number[],
+    channelsInImage: number,
+    context: ValidationContext
+  ): boolean {
+    // Make sure that the `channels` contains only elements that
+    // are smaller than the number of channels in the image
+    if (channels.length > channelsInImage) {
+      const message =
+        `The ${name} defines ${channels.length} channels, ` +
+        `but the texture only contains ${channelsInImage} channels`;
+      const issue = GltfExtensionValidationIssues.TEXTURE_CHANNELS_OUT_OF_RANGE(
+        path,
+        message
+      );
+      context.addIssue(issue);
+      return false;
+    }
+    for (let i = 0; i < channels.length; i++) {
+      const c = channels[i];
+      if (c >= channelsInImage) {
+        const message =
+          `Channel ${i} of the ${name} is ${c}, ` +
+          `but the texture only contains ${channelsInImage} channels`;
+        const issue =
+          GltfExtensionValidationIssues.TEXTURE_CHANNELS_OUT_OF_RANGE(
+            path,
+            message
+          );
+        context.addIssue(issue);
+        return false;
+      }
+    }
+    return true;
   }
 }

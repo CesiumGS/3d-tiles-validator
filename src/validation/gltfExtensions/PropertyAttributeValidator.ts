@@ -20,7 +20,7 @@ import { PropertyAttributePropertyValidator } from "./PropertyAttributePropertyV
  * The validation of any of the underlying binary data of
  * a property attribute has to start at the mesh primitive
  * that refers to the property attribute, because it requires
- * knowledge about the attributes that are defined in the 
+ * knowledge about the attributes that are defined in the
  * referring mesh primitive.
  *
  * @internal

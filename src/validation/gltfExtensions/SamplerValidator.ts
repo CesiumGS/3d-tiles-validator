@@ -3,7 +3,8 @@ import { ValidationContext } from "../ValidationContext";
 import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
 
 /**
- * Methods for validating glTF `sampler` objects
+ * Methods for validating glTF `sampler` objects in the context
+ * of the glTF metadata extension validation.
  */
 export class SamplerValidator {
   /**

@@ -209,14 +209,14 @@ export class BasicValidator {
    * be added to the given context, and `false` is returned.
    *
    * If any of the elements of the array is not an integer, or it
-   * is negative, then an error will be added to the given context, 
+   * is negative, then an error will be added to the given context,
    * and `false` is returned.
    *
    * @param path - The path for the `ValidationIssue` message
    * @param name - The name for the `ValidationIssue` message
    * @param value - The value
    * @param maximumValue - The maximum value (EXCLUSIVE) that any
-   * array element may have (or `undefined` if there is no 
+   * array element may have (or `undefined` if there is no
    * upper limit)
    * @param context - The `ValidationContext` to add the issue to
    * @returns Whether the given value is an index array

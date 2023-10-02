@@ -1,6 +1,6 @@
 /**
  * An internal interface representing the image data
- * that was read for a (feature ID) texture.
+ * that was read for a feature ID- or property texture.
  *
  * @internal
  */

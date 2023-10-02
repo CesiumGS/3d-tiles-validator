@@ -1,8 +1,6 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 
-import { ValidationContext } from "./../ValidationContext";
-
 import { BinaryPropertyTable } from "3d-tiles-tools";
 import { NumericBuffers } from "3d-tiles-tools";
 
@@ -10,6 +8,8 @@ import { MetadataComponentTypes } from "3d-tiles-tools";
 import { MetadataTypes } from "3d-tiles-tools";
 
 import { ClassProperty } from "3d-tiles-tools";
+
+import { ValidationContext } from "../ValidationContext";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 import { BinaryPropertyTableValuesValidator } from "./BinaryPropertyTableValuesValidator";
@@ -36,7 +36,8 @@ export class BinaryPropertyTableValidator {
   ): boolean {
     let result = true;
 
-    const metadataClass = binaryPropertyTable.metadataClass;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const metadataClass = binaryMetadata.metadataClass;
     const classProperties = defaultValue(metadataClass.properties, {});
 
     for (const propertyId of Object.keys(classProperties)) {
@@ -196,7 +197,8 @@ export class BinaryPropertyTableValidator {
     let componentType = classProperty.componentType;
     if (type === "ENUM") {
       const enumType = classProperty.enumType!;
-      const binaryEnumInfo = binaryPropertyTable.binaryEnumInfo;
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
+      const binaryEnumInfo = binaryMetadata.binaryEnumInfo;
       const enumValueTypes = binaryEnumInfo.enumValueTypes;
       componentType = enumValueTypes[enumType];
     } else if (!defined(componentType)) {
@@ -478,7 +480,8 @@ export class BinaryPropertyTableValidator {
     const path = propertyPath + "/" + bufferViewName;
     let result = true;
 
-    const binaryBufferData = binaryPropertyTable.binaryBufferData;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const binaryBufferData = binaryMetadata.binaryBufferData;
     const bufferViewsData = defaultValue(binaryBufferData.bufferViewsData, []);
     const bufferVieData = bufferViewsData[bufferViewIndex];
 
@@ -538,7 +541,8 @@ export class BinaryPropertyTableValidator {
     const path = propertyPath + "/" + bufferViewName;
     let result = true;
 
-    const binaryBufferStructure = binaryPropertyTable.binaryBufferStructure;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const binaryBufferStructure = binaryMetadata.binaryBufferStructure;
     const bufferViews = defaultValue(binaryBufferStructure.bufferViews, []);
 
     const bufferView = bufferViews[bufferViewIndex];
@@ -603,7 +607,8 @@ export class BinaryPropertyTableValidator {
     const propertyTable = binaryPropertyTable.propertyTable;
     const propertyTableCount = propertyTable.count;
 
-    const binaryBufferStructure = binaryPropertyTable.binaryBufferStructure;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const binaryBufferStructure = binaryMetadata.binaryBufferStructure;
     const bufferViews = defaultValue(binaryBufferStructure.bufferViews, []);
 
     const bufferView = bufferViews[bufferViewIndex];
@@ -664,7 +669,8 @@ export class BinaryPropertyTableValidator {
     const path = propertyPath + "/values";
     let result = true;
 
-    const binaryBufferStructure = binaryPropertyTable.binaryBufferStructure;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const binaryBufferStructure = binaryMetadata.binaryBufferStructure;
     const bufferViews = defaultValue(binaryBufferStructure.bufferViews, []);
 
     const bufferView = bufferViews[bufferViewIndex];
@@ -711,7 +717,8 @@ export class BinaryPropertyTableValidator {
     const propertyTable = binaryPropertyTable.propertyTable;
     const propertyTableCount = propertyTable.count;
 
-    const metadataClass = binaryPropertyTable.metadataClass;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const metadataClass = binaryMetadata.metadataClass;
     const classProperties = defaultValue(metadataClass.properties, {});
     const classProperty = classProperties[propertyId];
 
@@ -719,7 +726,7 @@ export class BinaryPropertyTableValidator {
     const propertyTableProperty = propertyTableProperties[propertyId];
     const valuesBufferViewIndex = propertyTableProperty.values;
 
-    const binaryBufferStructure = binaryPropertyTable.binaryBufferStructure;
+    const binaryBufferStructure = binaryMetadata.binaryBufferStructure;
     const bufferViews = defaultValue(binaryBufferStructure.bufferViews, []);
     const valuesBufferView = bufferViews[valuesBufferViewIndex];
 
@@ -903,7 +910,8 @@ export class BinaryPropertyTableValidator {
     propertyId: string,
     binaryPropertyTable: BinaryPropertyTable
   ): number {
-    const metadataClass = binaryPropertyTable.metadataClass;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const metadataClass = binaryMetadata.metadataClass;
     const classProperties = defaultValue(metadataClass.properties, {});
     const classProperty = classProperties[propertyId];
 
@@ -1020,7 +1028,8 @@ export class BinaryPropertyTableValidator {
       propertyTableProperty.arrayOffsetType,
       "UINT32"
     );
-    const binaryBufferData = binaryPropertyTable.binaryBufferData;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const binaryBufferData = binaryMetadata.binaryBufferData;
     const bufferViewsData = defaultValue(binaryBufferData.bufferViewsData, []);
     const arrayOffsetsBufferView = bufferViewsData[arrayOffsetsBufferViewIndex];
     const arrayOffset = NumericBuffers.getNumericFromBuffer(
@@ -1056,7 +1065,8 @@ export class BinaryPropertyTableValidator {
       propertyTableProperty.stringOffsetType,
       "UINT32"
     );
-    const binaryBufferData = binaryPropertyTable.binaryBufferData;
+    const binaryMetadata = binaryPropertyTable.binaryMetadata;
+    const binaryBufferData = binaryMetadata.binaryBufferData;
     const bufferViewsData = defaultValue(binaryBufferData.bufferViewsData, []);
     const stringOffsetsBufferView =
       bufferViewsData[stringOffsetsBufferViewIndex];
