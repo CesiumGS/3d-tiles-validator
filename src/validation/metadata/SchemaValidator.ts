@@ -1,11 +1,11 @@
 import { defined } from "3d-tiles-tools";
 import { Schema } from "3d-tiles-tools";
 
-import { ValidationContext } from "./../ValidationContext";
-import { Validator } from "./../Validator";
-import { BasicValidator } from "./../BasicValidator";
-import { RootPropertyValidator } from "./../RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
+import { ValidationContext } from "../ValidationContext";
+import { Validator } from "../Validator";
+import { BasicValidator } from "../BasicValidator";
+import { RootPropertyValidator } from "../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
 import { MetadataClassValidator } from "./MetadataClassValidator";
 import { MetadataEnumValidator } from "./MetadataEnumValidator";

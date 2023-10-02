@@ -1,7 +1,7 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 
-import { ValidationContext } from "./../ValidationContext";
+import { ValidationContext } from "../ValidationContext";
 
 import { ClassProperty } from "3d-tiles-tools";
 

@@ -1,7 +1,7 @@
 import { ClassProperty } from "3d-tiles-tools";
 
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
 
 import { MetadataPropertyValidator } from "../metadata/MetadataPropertyValidator";
 

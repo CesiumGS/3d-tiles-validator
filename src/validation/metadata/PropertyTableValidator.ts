@@ -4,10 +4,10 @@ import { defaultValue } from "3d-tiles-tools";
 import { Schema } from "3d-tiles-tools";
 import { PropertyTable } from "3d-tiles-tools";
 
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
-import { RootPropertyValidator } from "./../RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
+import { RootPropertyValidator } from "../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
 import { MetadataStructureValidator } from "./MetadataStructureValidator";
 import { PropertyTablePropertyValidator } from "./PropertyTablePropertyValidator";

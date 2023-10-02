@@ -4,8 +4,8 @@ import { PropertyTableProperty } from "3d-tiles-tools";
 import { ClassProperty } from "3d-tiles-tools";
 import { MetadataComponentTypes } from "3d-tiles-tools";
 
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
 

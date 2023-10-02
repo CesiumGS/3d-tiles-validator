@@ -1,6 +1,6 @@
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
-import { NumberValidator } from "./../NumberValidator";
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
+import { NumberValidator } from "../NumberValidator";
 
 import { MetadataUtilities } from "3d-tiles-tools";
 import { defined } from "3d-tiles-tools";
