@@ -253,30 +253,34 @@ export class BinaryPropertyTableValuesValidator {
     const classProperties = defaultValue(metadataClass.properties, {});
     const classProperty = classProperties[propertyId];
 
-    // Obtain the validEnumValues, which are all values that
-    // appear as `enum.values[i].value` in the schema.
     const binaryEnumInfo = binaryMetadata.binaryEnumInfo;
+
+    // Obtain the validEnumNameValues, which are all values that
+    // appear as `enum.values[i].value` in the schema.
     const enumValueNameValues = binaryEnumInfo.enumValueNameValues;
     const nameValues = enumValueNameValues[classProperty.enumType!];
-    const validEnumValues = Object.values(nameValues);
+    const validEnumValueValues = Object.values(nameValues);
+
+    const propertyModel = propertyTableModel.getPropertyModel(propertyId)!;
 
     // Validate each property value
     for (let index = 0; index < propertyTableCount; index++) {
-      const metadataEntityModel =
-        propertyTableModel.getMetadataEntityModel(index);
-      const propertyValue = metadataEntityModel.getPropertyValue(propertyId);
+      // The validation takes place based on the RAW (numeric)
+      // values from the property model (and not on the string
+      // valuses from the metadata entity model)
+      const rawPropertyValue = propertyModel.getPropertyValue(index);
 
       // For arrays, simply validate each element individually
-      if (Array.isArray(propertyValue)) {
-        for (let i = 0; i < propertyValue.length; i++) {
-          const propertyValueElement = propertyValue[i];
-          const propertyValueElementPath = `${path}/${i}`;
+      if (Array.isArray(rawPropertyValue)) {
+        for (let i = 0; i < rawPropertyValue.length; i++) {
+          const rawPropertyValueElement = rawPropertyValue[i];
+          const rawPropertyValueElementPath = `${path}/${i}`;
           if (
             !BasicValidator.validateEnum(
-              propertyValueElementPath,
+              rawPropertyValueElementPath,
               propertyId,
-              propertyValueElement,
-              validEnumValues,
+              rawPropertyValueElement,
+              validEnumValueValues,
               context
             )
           ) {
@@ -288,8 +292,8 @@ export class BinaryPropertyTableValuesValidator {
           !BasicValidator.validateEnum(
             path,
             propertyId,
-            propertyValue,
-            validEnumValues,
+            rawPropertyValue,
+            validEnumValueValues,
             context
           )
         ) {

@@ -481,13 +481,14 @@ export class PropertyTableTestUtilities {
     const example_ENUM: ClassProperty = {
       type: "ENUM",
       enumType: "testMetadataEnum",
-      noData: 9999,
-      default: 1,
+      noData: "ExampleEnumValueNoData",
+      default: "ExampleEnumValueB",
     };
     const example_ENUM_values = [
       "ExampleEnumValueA",
       "ExampleEnumValueB",
       "ExampleEnumValueC",
+      "ExampleEnumValueNoData",
     ];
     const testMetadataEnum: MetadataEnum = {
       values: [
@@ -502,6 +503,10 @@ export class PropertyTableTestUtilities {
         {
           name: "ExampleEnumValueC",
           value: 2,
+        },
+        {
+          name: "ExampleEnumValueNoData",
+          value: 9999,
         },
       ],
     };
