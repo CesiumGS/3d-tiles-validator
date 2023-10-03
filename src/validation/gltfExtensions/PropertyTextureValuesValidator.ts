@@ -61,6 +61,10 @@ export class PropertyTextureValuesValidator {
    * the top-level glTF structural metadata object.
    * @param meshPrimitive - The glTF mesh primitive that contained
    * the extension object
+   * @param meshIndex - The index of the mesh (only for details
+   * in validation messages)
+   * @param pimitiveIndex - The index of the primitive (only for details
+   * in validation messages)
    * @param schema - The metadata schema
    * @param gltfStructuralMetadata - The top-level glTF structural
    * metadata object
@@ -72,6 +76,8 @@ export class PropertyTextureValuesValidator {
     path: string,
     propertyTextureIndex: number,
     meshPrimitive: any,
+    meshIndex: number,
+    primitiveIndex: number,
     schema: Schema,
     gltfStructuralMetadata: any,
     gltfData: GltfData,
@@ -92,6 +98,8 @@ export class PropertyTextureValuesValidator {
       {}
     );
 
+    const meshPrimitiveAttributes = defaultValue(meshPrimitive.attributes, {});
+
     // Make sure that the `texCoord` values of the properties
     // refer to valid attributes of the mesh primitive
     const propertyTexturePropertyNames = Object.keys(propertyTextureProperties);
@@ -101,16 +109,13 @@ export class PropertyTextureValuesValidator {
       const texCoord = propertyTextureProperty.texCoord;
 
       const texCoordAttributeName = `TEXCOORD_${texCoord}`;
-      const meshPrimitiveAttributes = defaultValue(
-        meshPrimitive.attributes,
-        {}
-      );
       const texCoordAttribute = meshPrimitiveAttributes[texCoordAttributeName];
       if (!defined(texCoordAttribute)) {
         const message =
           `The property texture property defines the texCoord ${texCoord}, ` +
           `but the attribute ${texCoordAttributeName} was not ` +
-          `found in the mesh primitive attributes`;
+          `found in the attributes of primitive ${primitiveIndex} ` +
+          `of mesh ${meshIndex}`;
         const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
           propertyTexturePropertyPath,
           message
@@ -149,10 +154,9 @@ export class PropertyTextureValuesValidator {
   }
 
   /**
-   * Validate the values of a single property of property texture
+   * Validate the values of a single property of a property texture
    *
-   * @param path - The path of the `PropertyTablePropery`, for
-   * `ValidationIssue` instances
+   * @param path - The path for `ValidationIssue` instances
    * @param propertyName - The property name
    * @param propertyTextureProperty - The property texture property
    * @param schema  - The metadata schema
@@ -254,9 +258,7 @@ export class PropertyTextureValuesValidator {
           path,
           propertyName,
           propertyTexturePropertyModel,
-          classProperty,
           validEnumValueValues,
-          schema,
           context
         )
       ) {
@@ -397,6 +399,8 @@ export class PropertyTextureValuesValidator {
    * @param path - The path for `ValidationIssue` instances
    * @param propertyName - The property name
    * @param propertyTexturePropertyModel - The `PropertyTexturePropertyModel`
+   * @param validEnumValueValues - The values that appeared as
+   * `enum.values[i].value` in the enum definition
    * @param context - The `ValidationContext`
    * @returns Whether the enum values have been valid
    */
@@ -404,9 +408,7 @@ export class PropertyTextureValuesValidator {
     path: string,
     propertyName: string,
     propertyTexturePropertyModel: PropertyTexturePropertyModel,
-    classProperty: ClassProperty,
     validEnumValueValues: number[],
-    schema: Schema,
     context: ValidationContext
   ): boolean {
     let result = true;

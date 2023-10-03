@@ -15,6 +15,7 @@ import { PropertyTablesDefinitionValidator } from "../metadata/PropertyTablesDef
 
 import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
 import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
+import { PropertyAttributeValuesValidator } from "./PropertyAttributeValuesValidator";
 
 /**
  * A class for validating the `EXT_structural_metadata` extension in
@@ -145,12 +146,13 @@ export class ExtStructuralMetadataValidator {
 
               // Here, the `gltfStructuralMetadata` and the `schema`
               // have been validated
-
               const objectIsValid =
                 await ExtStructuralMetadataValidator.validateMeshPrimitiveStructuralMetadata(
                   path,
                   extensionObject,
                   primitive,
+                  m,
+                  p,
                   schema!,
                   gltfStructuralMetadata,
                   gltfData,
@@ -278,6 +280,10 @@ export class ExtStructuralMetadataValidator {
    * extension object that was found in the mesh primitive
    * @param meshPrimitive - The mesh primitive that contained
    * the extension object
+   * @param meshIndex - The index of the mesh (only for details
+   * in validation messages)
+   * @param pimitiveIndex - The index of the primitive (only for details
+   * in validation messages)
    * @param schema - The metadata schema
    * @param gltfStructuralMetadata - The EXT_mesh_features object
    * that was found at the top level in the glTF asset
@@ -289,6 +295,8 @@ export class ExtStructuralMetadataValidator {
     path: string,
     meshPrimitiveStructuralMetadata: any,
     meshPrimitive: any,
+    meshIndex: number,
+    primitiveIndex: number,
     schema: Schema,
     gltfStructuralMetadata: any,
     gltfData: GltfData,
@@ -334,6 +342,8 @@ export class ExtStructuralMetadataValidator {
               propertyTexturePath,
               propertyTextureIndex,
               meshPrimitive,
+              meshIndex,
+              primitiveIndex,
               schema,
               gltfStructuralMetadata,
               gltfData,
@@ -365,7 +375,25 @@ export class ExtStructuralMetadataValidator {
       ) {
         result = false;
       } else {
-        // TODO Validate each of them!
+        for (let i = 0; i < propertyAttributes.length; i++) {
+          const propertyAttributePath = propertyAttributesPath + "/" + i;
+          const propertyAttributeIndex = propertyAttributes[i];
+          const propertyAttributeValuesValid =
+            await PropertyAttributeValuesValidator.validatePropertyAttributeValues(
+              propertyAttributePath,
+              propertyAttributeIndex,
+              meshPrimitive,
+              meshIndex,
+              primitiveIndex,
+              schema,
+              gltfStructuralMetadata,
+              gltfData,
+              context
+            );
+          if (!propertyAttributeValuesValid) {
+            result = false;
+          }
+        }
       }
     }
 

@@ -130,6 +130,14 @@ export class PropertyAttributeValidator {
       const propertyPath = path + "/properties/" + propertyName;
       const classProperty = classProperties[propertyName];
 
+      let enumValueType = undefined;
+      const enumType = classProperty.enumType;
+      if (defined(enumType)) {
+        const enums = defaultValue(schema.enums, {});
+        const metadataEnum = enums[enumType];
+        enumValueType = metadataEnum.valueType || "UINT16";
+      }
+
       // Note: The check whether 'required' properties are
       // present and have values was already done by the
       // MetadataStructureValidator
@@ -141,6 +149,7 @@ export class PropertyAttributeValidator {
             propertyName,
             propertyValue,
             classProperty,
+            enumValueType,
             context
           )
         ) {

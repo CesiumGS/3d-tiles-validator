@@ -355,13 +355,13 @@ export class MetadataValueValidator {
    * check the structure of the values (e.g. whether a `VEC2`
    * property is represented with 2 numeric values). It will
    * not check whether these values are in the range that is
-   * defined by the component type. This is intended for the 
-   * values that can be given as `offset`, `scale`, `max`, 
+   * defined by the component type. This is intended for the
+   * values that can be given as `offset`, `scale`, `max`,
    * and `min`. For example, for a `normalized` `SCALAR` `UINT8`
    * property, the value may be `1000.0` (which is out of
-   * the range of `UINT8`), because such a value can be used 
+   * the range of `UINT8`), because such a value can be used
    * in the `offset`, `scale`, `max`, and `min` properties)
-   * 
+   *
    * @param property - The ClassProperty
    * @param valueName - The name of the value (e.g. 'min' or 'offset')
    * @param value - The actual value
