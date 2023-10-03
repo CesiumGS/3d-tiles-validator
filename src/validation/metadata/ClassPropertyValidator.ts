@@ -534,6 +534,7 @@ export class ClassPropertyValidator {
           property,
           "default",
           theDefault,
+          true,
           schema,
           context
         )
@@ -552,6 +553,7 @@ export class ClassPropertyValidator {
           property,
           "noData",
           noData,
+          true,
           schema,
           context
         )

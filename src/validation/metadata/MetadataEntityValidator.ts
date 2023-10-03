@@ -120,6 +120,7 @@ export class MetadataEntityValidator {
             classProperty,
             propertyName,
             propertyValue,
+            true,
             schema,
             context
           )

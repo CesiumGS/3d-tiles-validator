@@ -83,6 +83,7 @@ export class ClassPropertyValueValidator {
             path,
             maxOrMin,
             value,
+            false,
             context
           )
         ) {
@@ -161,6 +162,7 @@ export class ClassPropertyValueValidator {
             path,
             offsetOrScale,
             value,
+            false,
             context
           )
         ) {
