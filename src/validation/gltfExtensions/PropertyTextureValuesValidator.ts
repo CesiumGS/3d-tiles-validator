@@ -33,10 +33,12 @@ import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues"
  * the BinaryPropertyTableValuesValidator: They both check the
  * enum values, min/max, and the main difference is that the
  * values are once fetched from a "BinaryPropertyTable", and
- * once from a "PropertyTexturePropertyModel". Wheter or not
+ * once from a "PropertyTexturePropertyModel". Whether or not
  * it is worthwhile to try and extract the common parts
  * (considering that they are once accessed with indices, and
- * once with pixel coordinates) has to be decided.
+ * once with pixel coordinates, and these different ways of
+ * accessign the data will affect the validation issue messages)
+ * has to be decided.
  */
 export class PropertyTextureValuesValidator {
   /**
@@ -485,6 +487,8 @@ export class PropertyTextureValuesValidator {
    * definition: 'class property' or 'property texture property'.
    * @param propertyTexturePropertyModel - The property texture
    * property model
+   * @param propertyTextureProperty - The property texture property
+   * @param classProperty - The class property
    * @param context - The `ValidationContext`
    * @returns Whether the values obeyed the limit
    */
@@ -597,6 +601,8 @@ export class PropertyTextureValuesValidator {
    * definition: 'class property' or 'property texture property'.
    * @param propertyTexturePropertyModel - The property texture
    * property model
+   * @param propertyTextureProperty - The property texture property
+   * @param classProperty - The class property
    * @param context - The `ValidationContext`
    * @returns Whether the values obeyed the limit
    */
