@@ -1,0 +1,55 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "schema": {
+    "id": "EXAMPLE_SCHEMA_ID",
+    "classes": {
+      "exampleClass": {
+        "properties": {
+          "exampleProperty": {
+            "type": "ENUM",
+            "enumType": "exampleEnum"
+          }
+        }
+      }
+    },
+    "enums" : {
+      "exampleEnum" : {
+        "valueType": "UINT8",
+        "values" : [ {
+          "name" : "NO_DATA_ENUM_VALUE",
+          "value" : 255
+        }, {
+          "name" : "EXAMPLE_ENUM_VALUE_A",
+          "value" : 0
+        }, {
+          "name" : "EXAMPLE_ENUM_VALUE_B",
+          "value" : 1
+        }, {
+          "name" : "EXAMPLE_ENUM_VALUE_C",
+          "value" : 2
+        }, {
+          "name" : "DEFAULT_ENUM_VALUE",
+          "value" : 3
+        } ]
+      }
+    }
+    
+  },
+
+  "metadata": {
+    "class": "exampleClass",
+    "properties": {
+      "exampleProperty": "EXAMPLE_ENUM_VALUE_THAT_DOES_NOT_EXIST"
+    }
+  },
+
+  "geometricError": 2.0,
+  "root": {
+    "boundingVolume": {
+      "box": [0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5]
+    },
+    "geometricError": 1.0
+  }
+}
