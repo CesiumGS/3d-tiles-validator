@@ -312,7 +312,7 @@ export class PropertyTextureValuesValidator {
           );
           if (!ArrayValues.deepEquals(computedMin, definedMin)) {
             const message =
-              `For property ${propertyName}, the property texture property ` +
+              `For property '${propertyName}', the property texture property ` +
               `defines a minimum of ${definedMin}, but the computed ` +
               `minimum value is ${computedMin}`;
             const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
@@ -369,7 +369,7 @@ export class PropertyTextureValuesValidator {
           );
           if (!ArrayValues.deepEquals(computedMax, definedMax)) {
             const message =
-              `For property ${propertyName}, the property texture property ` +
+              `For property '${propertyName}', the property texture property ` +
               `defines a maximum of ${definedMax}, but the computed ` +
               `maximum value is ${computedMax}`;
             const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
@@ -481,8 +481,7 @@ export class PropertyTextureValuesValidator {
    * property in the given property texture is smaller than
    * the given defined minimum.
    *
-   * @param path - The path of the `PropertyTablePropery`, for
-   * `ValidationIssue` instances
+   * @param path - The path for `ValidationIssue` instances
    * @param propertyName - The property name
    * @param definedMin - The defined minimum
    * @param definedMinInfo - A string indicating the source of the minimum
@@ -535,9 +534,8 @@ export class PropertyTextureValuesValidator {
           const valueMessagePart =
             MetadataValuesValidationMessages.createValueMessagePart(
               rawPropertyValue,
-              classProperty.normalized,
-              propertyTextureProperty.scale,
-              propertyTextureProperty.offset,
+              classProperty,
+              propertyTextureProperty,
               propertyValue
             );
 
@@ -595,8 +593,7 @@ export class PropertyTextureValuesValidator {
    * property in the given property texture is greater than
    * the given defined maximum.
    *
-   * @param path - The path of the `PropertyTablePropery`, for
-   * `ValidationIssue` instances
+   * @param path - The path for `ValidationIssue` instances
    * @param propertyName - The property name
    * @param definedMax - The defined maximum
    * @param definedMaxInfo - A string indicating the source of the maximum
@@ -649,9 +646,8 @@ export class PropertyTextureValuesValidator {
           const valueMessagePart =
             MetadataValuesValidationMessages.createValueMessagePart(
               rawPropertyValue,
-              classProperty.normalized,
-              propertyTextureProperty.scale,
-              propertyTextureProperty.offset,
+              classProperty,
+              propertyTextureProperty,
               propertyValue
             );
 

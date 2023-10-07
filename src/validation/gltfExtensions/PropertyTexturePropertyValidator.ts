@@ -267,6 +267,8 @@ export class PropertyTexturePropertyValidator {
       return true;
     }
 
+    // TODO Special handling for `BOOLEAN` required here!
+
     // For non-enum types, compute the required size based
     // on the number of bytes per component, and the number
     // of components per element

@@ -280,7 +280,7 @@ export class PropertyAttributeValuesValidator {
           );
           if (!ArrayValues.deepEquals(computedMin, definedMin)) {
             const message =
-              `For property ${propertyName}, the property attribute property ` +
+              `For property '${propertyName}', the property attribute property ` +
               `defines a minimum of ${definedMin}, but the computed ` +
               `minimum value for attribute ${propertyAttributeContextDescription} is ${computedMin}`;
             const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
@@ -340,7 +340,7 @@ export class PropertyAttributeValuesValidator {
           );
           if (!ArrayValues.deepEquals(computedMax, definedMax)) {
             const message =
-              `For property ${propertyName}, the property attribute property ` +
+              `For property '${propertyName}', the property attribute property ` +
               `defines a maximum of ${definedMax}, but the computed ` +
               `maximum value for attribute ${propertyAttributeContextDescription} is ${computedMax}`;
             const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
@@ -467,9 +467,8 @@ export class PropertyAttributeValuesValidator {
         const valueMessagePart =
           MetadataValuesValidationMessages.createValueMessagePart(
             rawPropertyValue,
-            classProperty.normalized,
-            propertyAttributeProperty.scale,
-            propertyAttributeProperty.offset,
+            classProperty,
+            propertyAttributeProperty,
             propertyValue
           );
 
@@ -553,9 +552,8 @@ export class PropertyAttributeValuesValidator {
         const valueMessagePart =
           MetadataValuesValidationMessages.createValueMessagePart(
             rawPropertyValue,
-            classProperty.normalized,
-            propertyAttributeProperty.scale,
-            propertyAttributeProperty.offset,
+            classProperty,
+            propertyAttributeProperty,
             propertyValue
           );
 

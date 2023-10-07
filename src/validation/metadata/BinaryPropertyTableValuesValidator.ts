@@ -147,7 +147,7 @@ export class BinaryPropertyTableValuesValidator {
           );
           if (!ArrayValues.deepEquals(computedMin, definedMin)) {
             const message =
-              `For property ${propertyId}, the property table property ` +
+              `For property '${propertyId}', the property table property ` +
               `defines a minimum of ${definedMin}, but the computed ` +
               `minimum value is ${computedMin}`;
             const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
@@ -202,7 +202,7 @@ export class BinaryPropertyTableValuesValidator {
           );
           if (!ArrayValues.deepEquals(computedMax, definedMax)) {
             const message =
-              `For property ${propertyId}, the property table property ` +
+              `For property '${propertyId}', the property table property ` +
               `defines a maximum of ${definedMax}, but the computed ` +
               `maximum value is ${computedMax}`;
             const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
@@ -355,9 +355,8 @@ export class BinaryPropertyTableValuesValidator {
         const valueMessagePart =
           MetadataValuesValidationMessages.createValueMessagePart(
             rawPropertyValue,
-            classProperty.normalized,
-            propertyTablePropertry.scale,
-            propertyTablePropertry.offset,
+            classProperty,
+            propertyTablePropertry,
             propertyValue
           );
 
@@ -462,9 +461,8 @@ export class BinaryPropertyTableValuesValidator {
         const valueMessagePart =
           MetadataValuesValidationMessages.createValueMessagePart(
             rawPropertyValue,
-            classProperty.normalized,
-            propertyTablePropertry.scale,
-            propertyTablePropertry.offset,
+            classProperty,
+            propertyTablePropertry,
             propertyValue
           );
 
