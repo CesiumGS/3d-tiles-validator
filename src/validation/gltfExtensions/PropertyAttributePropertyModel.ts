@@ -1,16 +1,19 @@
 import { ClassProperty } from "3d-tiles-tools";
 import { MetadataValues } from "3d-tiles-tools";
+import { MetadataPropertyModel } from "../metadata/MetadataPropertyModel";
 
 /**
- * A thin wrapper around the accessor data and structural description
- * of a property attribute property, serving as a model (internally)
- * to access the metadata values stored in the property attribute.
+ * Implementation of a metadata property model that for a
+ * property attribute property, backed by glTF accessor
+ * data.
  */
-export class PropertyAttributePropertyModel {
+export class PropertyAttributePropertyModel
+  implements MetadataPropertyModel<number>
+{
   /**
    * The data that was obtained from the accessor, in its
    * original form (i.e. including the normalization that
-   * maybe part of the accessor itself, but without
+   * may be part of the accessor itself, but without
    * the offset/scale that may be part of the attribute
    * definition)
    */
@@ -32,13 +35,6 @@ export class PropertyAttributePropertyModel {
    * @param accessorData - The accessor data
    * @param propertyAttributeProperty - The property attribute property
    * @param classProperty - The class property
-   * @param enumValueType - The `valueType` of the enum type of
-   * the given class property (or undefined if the class property
-   * is not an ENUM)
-   * @param valueValueNames - The mapping from enum value values
-   * to enum value names for the enum type of the given class
-   * property (or an empty dictionary when the class property is
-   * not an ENUM)
    */
   constructor(
     accessorData: number[] | number[][],
@@ -50,31 +46,7 @@ export class PropertyAttributePropertyModel {
     this.classProperty = classProperty;
   }
 
-  /**
-   * Returns the size (number of elements) of this model
-   *
-   * @returns The size
-   */
-  getSize() {
-    return this.accessorData.length;
-  }
-
-  /**
-   * Returns the property value at the given index
-   *
-   * The returned value will include possible offsets, scales, or
-   * normalization that are defined by the class property, or that
-   * are overridden via the property attribute property.
-   *
-   * The type of the returned object depends on the type of
-   * the property:
-   * - For `SCALAR` properties, it will be a `number`
-   * - For `VECn`- or `MATn` properties, it will be an array
-   *   of `number`elements
-   *
-   * @param index - The index
-   * @returns The property value
-   */
+  /** {@inheritDoc MetadataPropertyModel.getPropertyValue} */
   getPropertyValue(index: number): number | number[] {
     const propertyAttributeProperty = this.propertyAttributeProperty;
     const classProperty = this.classProperty;
@@ -92,15 +64,7 @@ export class PropertyAttributePropertyModel {
     return processedValue;
   }
 
-  /**
-   * Returns the RAW property value at the given index
-   *
-   * This value will just be the value from the acccessor, and
-   * NOT include possible offsets, scales, or normalization.
-   *
-   * @param index - The index
-   * @returns The raw property value
-   */
+  /** {@inheritDoc MetadataPropertyModel.getRawPropertyValue} */
   getRawPropertyValue(index: number): number | number[] {
     const accessorData = this.accessorData;
     return accessorData[index];

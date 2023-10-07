@@ -878,7 +878,7 @@ export class BinaryPropertyTableValidator {
     const message =
       `The 'values' buffer view of property '${propertyId}' ` +
       `stores values with type ${type} and component type ` +
-      `${componentType}.` +
+      `${componentType}. ` +
       `It is part of a property table with a 'count' of ` +
       `${propertyTableCount}. ` +
       `So there are ${propertyTableCount}*${componentCount} ` +

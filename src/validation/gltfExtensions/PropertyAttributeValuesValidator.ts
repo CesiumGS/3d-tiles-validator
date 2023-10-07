@@ -1,5 +1,6 @@
-import { ClassProperties, MetadataUtilities, defined } from "3d-tiles-tools";
+import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
+import { ClassProperties } from "3d-tiles-tools";
 import { ArrayValues } from "3d-tiles-tools";
 import { ClassProperty } from "3d-tiles-tools";
 import { Schema } from "3d-tiles-tools";
@@ -10,12 +11,13 @@ import { GltfData } from "./GltfData";
 import { Accessors } from "./Accessors";
 import { PropertyAttributePropertyModel } from "./PropertyAttributePropertyModel";
 
-import { MetadataValuesValidationMessages } from "../metadata/MetadataValueValidationMessages";
-
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
-import { BasicValidator } from "../BasicValidator";
 import { ValidationIssues } from "../../issues/ValidationIssues";
+
+import { MetadataValidationUtilities } from "../metadata/MetadataValidationUtilities";
+import { MetadataPropertyValuesValidator } from "../metadata/MetadataPropertyValuesValidator";
+import { RangeIterables } from "../metadata/RangeIterables";
 
 /**
  * A class for the validation of values that are stored
@@ -128,27 +130,36 @@ export class PropertyAttributeValuesValidator {
           path + "/properties/" + propertyName;
         const metadataClassName = propertyAttribute.class;
 
-        const classes = defaultValue(schema.classes, {});
-        const metadataClass = classes[metadataClassName];
-        const classProperties = defaultValue(metadataClass.properties, {});
-        const classProperty = classProperties[propertyName];
-
-        const propertyValuesValid =
-          await PropertyAttributeValuesValidator.validatePropertyAttributePropertyValues(
-            propertyAttributePropertyPath,
-            propertyName,
-            propertyAttributeProperty,
-            meshPrimitive,
-            meshIndex,
-            primitiveIndex,
-            schema,
-            metadataClassName,
-            classProperty,
-            gltfData,
-            context
-          );
-        if (!propertyValuesValid) {
+        const classProperty = MetadataValidationUtilities.computeClassProperty(
+          schema,
+          metadataClassName,
+          propertyName
+        );
+        if (!classProperty) {
+          const message =
+            `Could not obtain class property for property ` +
+            `${propertyName} of class ${classProperty}`;
+          const issue = ValidationIssues.INTERNAL_ERROR(path, message);
+          context.addIssue(issue);
           result = false;
+        } else {
+          const propertyValuesValid =
+            await PropertyAttributeValuesValidator.validatePropertyAttributePropertyValues(
+              propertyAttributePropertyPath,
+              propertyName,
+              propertyAttributeProperty,
+              meshPrimitive,
+              meshIndex,
+              primitiveIndex,
+              schema,
+              metadataClassName,
+              classProperty,
+              gltfData,
+              context
+            );
+          if (!propertyValuesValid) {
+            result = false;
+          }
         }
       }
     }
@@ -221,7 +232,9 @@ export class PropertyAttributeValuesValidator {
       context.addIssue(issue);
       return false;
     }
-    const propertyAttributePropertyModel = new PropertyAttributePropertyModel(
+
+    const keys = RangeIterables.range1D(accessorValues.length);
+    const metadataPropertyModel = new PropertyAttributePropertyModel(
       accessorValues,
       propertyAttributeProperty,
       classProperty
@@ -229,25 +242,34 @@ export class PropertyAttributeValuesValidator {
 
     // Perform the checks that only apply to ENUM types,
     if (classProperty.type === "ENUM") {
-      const enums = defaultValue(schema.enums, {});
-      const metadataEnum = enums[classProperty.enumType!];
-      const nameValues =
-        MetadataUtilities.computeMetadataEnumValueNameValues(metadataEnum);
-      const validEnumValueValues = Object.values(nameValues);
-      if (
-        !PropertyAttributeValuesValidator.validateEnumValues(
-          path,
-          propertyName,
-          propertyAttributePropertyModel,
-          validEnumValueValues,
-          context
-        )
-      ) {
+      const validEnumValueValues =
+        MetadataValidationUtilities.computeValidEnumValueValues(
+          schema,
+          metadataClassName,
+          propertyName
+        );
+      if (!validEnumValueValues) {
+        const message = `Could not read valid enum values for property`;
+        const issue = ValidationIssues.INTERNAL_ERROR(path, message);
+        context.addIssue(issue);
         result = false;
+      } else {
+        if (
+          !MetadataPropertyValuesValidator.validateEnumValues(
+            path,
+            propertyName,
+            keys,
+            metadataPropertyModel,
+            validEnumValueValues,
+            context
+          )
+        ) {
+          result = false;
+        }
       }
     }
 
-    const propertyAttributeContextDescription = `${attribute} of primitive ${primitiveIndex} of mesh ${meshIndex}`;
+    const propertyAttributeContextDescription = `attribute ${attribute} of primitive ${primitiveIndex} of mesh ${meshIndex}`;
 
     // Perform the checks that only apply to numeric types
     if (ClassProperties.hasNumericType(classProperty)) {
@@ -255,15 +277,16 @@ export class PropertyAttributeValuesValidator {
       // values MUST not be smaller than this minimum
       if (defined(classProperty.min)) {
         if (
-          !PropertyAttributeValuesValidator.validateMin(
+          !MetadataPropertyValuesValidator.validateMin(
             path,
             propertyName,
             classProperty.min,
             "class property",
-            propertyAttributePropertyModel,
+            keys,
+            metadataPropertyModel,
             propertyAttributeProperty,
-            classProperty,
             propertyAttributeContextDescription,
+            classProperty,
             context
           )
         ) {
@@ -276,15 +299,16 @@ export class PropertyAttributeValuesValidator {
       if (defined(propertyAttributeProperty.min)) {
         const definedMin = propertyAttributeProperty.min;
         if (
-          !PropertyAttributeValuesValidator.validateMin(
+          !MetadataPropertyValuesValidator.validateMin(
             path,
             propertyName,
-            definedMin,
+            propertyAttributeProperty.min,
             "property attribute property",
-            propertyAttributePropertyModel,
+            keys,
+            metadataPropertyModel,
             propertyAttributeProperty,
-            classProperty,
             propertyAttributeContextDescription,
+            classProperty,
             context
           )
         ) {
@@ -293,8 +317,9 @@ export class PropertyAttributeValuesValidator {
           // When none of the values is smaller than the minimum from
           // the PropertyAttributeProperty, make sure that this minimum
           // matches the computed minimum of all metadata values
-          const computedMin = PropertyAttributeValuesValidator.computeMin(
-            propertyAttributePropertyModel
+          const computedMin = MetadataPropertyValuesValidator.computeMin(
+            keys,
+            metadataPropertyModel
           );
           if (!ArrayValues.deepEquals(computedMin, definedMin)) {
             const message =
@@ -315,15 +340,16 @@ export class PropertyAttributeValuesValidator {
       // values MUST not be greater than this maximum
       if (defined(classProperty.max)) {
         if (
-          !PropertyAttributeValuesValidator.validateMax(
+          !MetadataPropertyValuesValidator.validateMax(
             path,
             propertyName,
             classProperty.max,
             "class property",
-            propertyAttributePropertyModel,
+            keys,
+            metadataPropertyModel,
             propertyAttributeProperty,
-            classProperty,
             propertyAttributeContextDescription,
+            classProperty,
             context
           )
         ) {
@@ -336,15 +362,16 @@ export class PropertyAttributeValuesValidator {
       if (defined(propertyAttributeProperty.max)) {
         const definedMax = propertyAttributeProperty.max;
         if (
-          !PropertyAttributeValuesValidator.validateMax(
+          !MetadataPropertyValuesValidator.validateMax(
             path,
             propertyName,
             definedMax,
             "property attribute property",
-            propertyAttributePropertyModel,
+            keys,
+            metadataPropertyModel,
             propertyAttributeProperty,
-            classProperty,
             propertyAttributeContextDescription,
+            classProperty,
             context
           )
         ) {
@@ -353,8 +380,9 @@ export class PropertyAttributeValuesValidator {
           // When none of the values is greater than the maximum from
           // the PropertyAttributeProperty, make sure that this maximum
           // matches the computed maximum of all metadata values
-          const computedMax = PropertyAttributeValuesValidator.computeMax(
-            propertyAttributePropertyModel
+          const computedMax = MetadataPropertyValuesValidator.computeMax(
+            keys,
+            metadataPropertyModel
           );
           if (!ArrayValues.deepEquals(computedMax, definedMax)) {
             const message =
@@ -373,243 +401,5 @@ export class PropertyAttributeValuesValidator {
     }
 
     return result;
-  }
-
-  /**
-   * Validate that the values of the specified ENUM property are valid.
-   *
-   * This applies to properties in the given binary property attribute
-   * that have the ENUM type, both for arrays and non-arrays. It
-   * will ensure that each value that appears as in the binary data
-   * is a value that was actually defined as one of the
-   * `enum.values[i].value` values in the schema definition.
-   *
-   * @param path - The path for `ValidationIssue` instances
-   * @param propertyId - The property ID
-   * @param propertyAttributePropertyModel - The property attribute property model
-   * @param validEnumValueValues - The valid enum value values
-   * @param context - The `ValidationContext`
-   * @returns Whether the enum values have been valid
-   */
-  private static validateEnumValues(
-    path: string,
-    propertyId: string,
-    propertyAttributePropertyModel: PropertyAttributePropertyModel,
-    validEnumValueValues: number[],
-    context: ValidationContext
-  ): boolean {
-    let result = true;
-
-    // Validate each property value
-    const size = propertyAttributePropertyModel.getSize();
-    for (let index = 0; index < size; index++) {
-      // The validation takes place based on the RAW (numeric)
-      // values from the property model (and not on the string
-      // valuses from the metadata entity model)
-      const rawPropertyValue =
-        propertyAttributePropertyModel.getRawPropertyValue(index);
-
-      // For arrays, simply validate each element individually
-      if (Array.isArray(rawPropertyValue)) {
-        for (let i = 0; i < rawPropertyValue.length; i++) {
-          const rawPropertyValueElement = rawPropertyValue[i];
-          const rawPropertyValueElementPath = `${path}/${i}`;
-          if (
-            !BasicValidator.validateEnum(
-              rawPropertyValueElementPath,
-              propertyId,
-              rawPropertyValueElement,
-              validEnumValueValues,
-              context
-            )
-          ) {
-            result = false;
-          }
-        }
-      } else {
-        if (
-          !BasicValidator.validateEnum(
-            path,
-            propertyId,
-            rawPropertyValue,
-            validEnumValueValues,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Validate the that none of the values of the specified
-   * property in the given property attribute data is smaller
-   * than the given defined minimum.
-   *
-   * @param path - The path for `ValidationIssue` instances
-   * @param propertyName - The property name
-   * @param definedMin - The defined minimum
-   * @param definedMinInfo - A string indicating the source of the minimum
-   * definition: 'class property' or 'property attribute property'.
-   * @param propertyAttributePropertyModel - The property attribute property model
-   * @param propertyAttributeProperty - The property attribute property
-   * @param propertyAttributeContextDescription - TODO Comment
-   * @param classProperty - The class property
-   * @param context - The `ValidationContext`
-   * @returns Whether the values obeyed the limit
-   */
-  private static validateMin(
-    path: string,
-    propertyName: string,
-    definedMin: any,
-    definedMinInfo: string,
-    propertyAttributePropertyModel: PropertyAttributePropertyModel,
-    propertyAttributeProperty: any,
-    classProperty: ClassProperty,
-    propertyAttributeContextDescription: string,
-    context: ValidationContext
-  ): boolean {
-    let result = true;
-
-    // Validate each property value
-    const size = propertyAttributePropertyModel.getSize();
-    for (let index = 0; index < size; index++) {
-      const propertyValue =
-        propertyAttributePropertyModel.getPropertyValue(index);
-      const rawPropertyValue =
-        propertyAttributePropertyModel.getPropertyValue(index);
-
-      if (ArrayValues.anyDeepLessThan(propertyValue, definedMin)) {
-        const valueMessagePart =
-          MetadataValuesValidationMessages.createValueMessagePart(
-            rawPropertyValue,
-            classProperty,
-            propertyAttributeProperty,
-            propertyValue
-          );
-
-        const message =
-          `For property '${propertyName}', the ${definedMinInfo} ` +
-          `defines a minimum of ${definedMin}, but the value in the property ` +
-          `attribute ${propertyAttributeContextDescription} at index ${index} is ${valueMessagePart}`;
-        const issue = MetadataValidationIssues.METADATA_VALUE_NOT_IN_RANGE(
-          path,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Compute the minimum value in the given property attribute property model
-   *
-   * @param propertyAttributePropertyModel - The property attribute property model
-   * @returns The minimum
-   */
-  private static computeMin(
-    propertyAttributePropertyModel: PropertyAttributePropertyModel
-  ): any {
-    const size = propertyAttributePropertyModel.getSize();
-    let computedMin = undefined;
-    for (let index = 0; index < size; index++) {
-      const propertyValue =
-        propertyAttributePropertyModel.getPropertyValue(index);
-      if (index === 0) {
-        computedMin = ArrayValues.deepClone(propertyValue);
-      } else {
-        computedMin = ArrayValues.deepMin(computedMin, propertyValue);
-      }
-    }
-    return computedMin;
-  }
-
-  /**
-   * Validate the that none of the values of the specified
-   * property in the given property attribute data is greater
-   * than the given defined maximum.
-   *
-   * @param path - The path for `ValidationIssue` instances
-   * @param propertyName - The property name
-   * @param definedMax - The defined maximum
-   * @param definedMaxInfo - A string indicating the source of the maximum
-   * definition: 'class property' or 'property attribute property'.
-   * @param propertyAttributePropertyModel - The property attribute property model
-   * @param propertyAttributeProperty - The property attribute property
-   * @param classProperty - The class property
-   * @param propertyAttributeContextDescription - TODO Comment
-   * @param context - The `ValidationContext`
-   * @returns Whether the values obeyed the limit
-   */
-  private static validateMax(
-    path: string,
-    propertyName: string,
-    definedMax: any,
-    definedMaxInfo: string,
-    propertyAttributePropertyModel: PropertyAttributePropertyModel,
-    propertyAttributeProperty: any,
-    classProperty: ClassProperty,
-    propertyAttributeContextDescription: string,
-    context: ValidationContext
-  ): boolean {
-    let result = true;
-
-    // Validate each property value
-    const size = propertyAttributePropertyModel.getSize();
-    for (let index = 0; index < size; index++) {
-      const propertyValue =
-        propertyAttributePropertyModel.getPropertyValue(index);
-      const rawPropertyValue =
-        propertyAttributePropertyModel.getPropertyValue(index);
-
-      if (ArrayValues.anyDeepGreaterThan(propertyValue, definedMax)) {
-        const valueMessagePart =
-          MetadataValuesValidationMessages.createValueMessagePart(
-            rawPropertyValue,
-            classProperty,
-            propertyAttributeProperty,
-            propertyValue
-          );
-
-        const message =
-          `For property '${propertyName}', the ${definedMaxInfo} ` +
-          `defines a maximum of ${definedMax}, but the value in the property ` +
-          `attribute ${propertyAttributeContextDescription} at index ${index} is ${valueMessagePart}`;
-        const issue = MetadataValidationIssues.METADATA_VALUE_NOT_IN_RANGE(
-          path,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Compute the maximum value in the given property attribute property model
-   *
-   * @param propertyAttributePropertyModel - The property attribute property model
-   * @returns The maximum
-   */
-  private static computeMax(
-    propertyAttributePropertyModel: PropertyAttributePropertyModel
-  ): any {
-    const size = propertyAttributePropertyModel.getSize();
-    let computedMax = undefined;
-    for (let index = 0; index < size; index++) {
-      const propertyValue =
-        propertyAttributePropertyModel.getPropertyValue(index);
-      if (index === 0) {
-        computedMax = ArrayValues.deepClone(propertyValue);
-      } else {
-        computedMax = ArrayValues.deepMax(computedMax, propertyValue);
-      }
-    }
-    return computedMax;
   }
 }
