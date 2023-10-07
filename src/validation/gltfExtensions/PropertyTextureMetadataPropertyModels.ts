@@ -2,7 +2,7 @@ import { ClassProperty } from "3d-tiles-tools";
 
 import { ImageData } from "./ImageData";
 
-import { PropertyTextureNumericMetadataPropertyModel } from "./PropertyTextureMumericMetadataPropertyModel";
+import { PropertyTextureNumericMetadataPropertyModel } from "./PropertyTextureNumericMetadataPropertyModel";
 import { PropertyTextureBooleanMetadataPropertyModel } from "./PropertyTextureBooleanMetadataPropertyModel";
 import { PropertyTextureEnumMetadataPropertyModel } from "./PropertyTextureEnumMetadataPropertyModel";
 
