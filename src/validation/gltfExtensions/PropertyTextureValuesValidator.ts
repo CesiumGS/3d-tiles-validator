@@ -425,6 +425,7 @@ export class PropertyTextureValuesValidator {
           propertyTexturePropertyModel.getRawPropertyValue(x, y);
 
         // XXX DEBUG LOG:
+        /*
         {
           const propertyValue = propertyTexturePropertyModel.getPropertyValue(
             x,
@@ -441,7 +442,7 @@ export class PropertyTextureValuesValidator {
               rawPropertyValue
           );
         }
-
+        */
         // For arrays, simply validate each element individually
         if (Array.isArray(rawPropertyValue)) {
           for (let i = 0; i < rawPropertyValue.length; i++) {
@@ -517,6 +518,7 @@ export class PropertyTextureValuesValidator {
         const rawPropertyValue =
           propertyTexturePropertyModel.getRawPropertyValue(x, y);
 
+        /*
         console.log(
           "At " +
             x +
@@ -529,6 +531,7 @@ export class PropertyTextureValuesValidator {
             " from raw " +
             rawPropertyValue
         );
+        */
 
         if (ArrayValues.anyDeepLessThan(propertyValue, definedMin)) {
           const valueMessagePart =
@@ -629,6 +632,7 @@ export class PropertyTextureValuesValidator {
         const rawPropertyValue =
           propertyTexturePropertyModel.getRawPropertyValue(x, y);
 
+        /*
         console.log(
           "At " +
             x +
@@ -641,7 +645,7 @@ export class PropertyTextureValuesValidator {
             " from raw " +
             rawPropertyValue
         );
-
+          */
         if (ArrayValues.anyDeepGreaterThan(propertyValue, definedMax)) {
           const valueMessagePart =
             MetadataValuesValidationMessages.createValueMessagePart(

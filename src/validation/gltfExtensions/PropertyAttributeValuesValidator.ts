@@ -15,6 +15,7 @@ import { MetadataValuesValidationMessages } from "../metadata/MetadataValueValid
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 import { BasicValidator } from "../BasicValidator";
+import { ValidationIssues } from "../../issues/ValidationIssues";
 
 /**
  * A class for the validation of values that are stored
@@ -119,7 +120,7 @@ export class PropertyAttributeValuesValidator {
     // If everything appeared to be valid until now, validate
     // the values of the property attribute properties in view
     // of the glTF mesh primitive attribute that they refer to
-    if (result) {
+    if (result && gltfData.gltfDocument) {
       for (const propertyName of propertyAttributePropertyNames) {
         const propertyAttributeProperty =
           propertyAttributeProperties[propertyName];
@@ -155,7 +156,9 @@ export class PropertyAttributeValuesValidator {
   }
 
   /**
-   * Validate the values of a single property of a property attribute
+   * Validate the values of a single property of a property attribute.
+   *
+   * This assumes that the gltfData contains a valid gltfDocument.
    *
    * @param path - The path for `ValidationIssue` instances
    * @param propertyName - The property name
@@ -203,8 +206,23 @@ export class PropertyAttributeValuesValidator {
         gltfData
       );
     }
+    if (accessorValues === undefined) {
+      // When it is not possible to obtain the accessor data, then
+      // this means that the gltfDocument has been undefined
+      // because it could not be read. This can be caused by
+      // - the glTF structure being invalid (but this should have
+      //   been caught by the glTF validator)
+      // - the extension object structure being invalid (in which
+      //   case an issue should already have been added to the
+      //   context, and this method should not have been called)
+      // In both cases, reaching this point indicates an internal error:
+      const message = `Could not read accessor data from glTF document`;
+      const issue = ValidationIssues.INTERNAL_ERROR(path, message);
+      context.addIssue(issue);
+      return false;
+    }
     const propertyAttributePropertyModel = new PropertyAttributePropertyModel(
-      accessorValues!,
+      accessorValues,
       propertyAttributeProperty,
       classProperty
     );

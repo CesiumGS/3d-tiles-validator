@@ -284,10 +284,10 @@ export class GltfExtensionValidators {
   }
 
   /**
-   * Try to read a glTF-Tranform document from the given glTF buffer
+   * Try to read a glTF-Tranform document from the given glTF JSON
    * data, returning `undefined` if the document cannot be read.
    *
-   * @param input - The input GLB buffer
+   * @param input - The input buffer containging glTF JSON
    * @returns The document, or `undefined`
    */
   private static async readJsonGltfDocument(

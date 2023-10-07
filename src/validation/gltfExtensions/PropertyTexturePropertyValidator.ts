@@ -69,8 +69,6 @@ export class PropertyTexturePropertyValidator {
       return false;
     }
 
-    let result = true;
-
     const textures = gltf.textures || [];
     const numTextures = textures.length;
 
@@ -91,8 +89,10 @@ export class PropertyTexturePropertyValidator {
         context
       )
     ) {
-      result = false;
+      return false;
     }
+
+    let result = true;
 
     // Validate the texCoord
     const texCoord = propertyTextureProperty.texCoord;
