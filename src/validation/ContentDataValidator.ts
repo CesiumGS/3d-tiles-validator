@@ -130,7 +130,7 @@ export class ContentDataValidator {
       return true;
     }
 
-    ContentDataValidator.trackExtensionsFound(contentData, context);
+    await ContentDataValidator.trackExtensionsFound(contentData, context);
 
     const contentDataType = await ContentDataTypeRegistry.findContentDataType(
       contentData
