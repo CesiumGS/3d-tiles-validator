@@ -87,6 +87,163 @@ export class MetadataPropertyValuesValidator {
   }
 
   /**
+   * Validate the that the values of the given property model
+   * are in the range that is defined by the `min`/`max`
+   * values of the class property, or the property itself.
+   *
+   * @param path - The path for `ValidationIssue` instances
+   * @param propertyName - The property name
+   * definition, for example, 'class property' or 'property texture property'.
+   * @param keys - The iterable of the keys that will be used for
+   * accessing the metadata property model
+   * @param metadataPropertyModel - The `MetadataPropertyModel`
+   * @param property - The property, which may contain `min` and
+   * `max` properties, and `scale` or `offset` properties that
+   * override the respective value from the class property
+   * @param propertySourceInfo - A string indicating the source of
+   * the property value, e.g. 'property table', or 'property texture'
+   * @param classProperty - The class property
+   * @param context - The `ValidationContext`
+   * @returns Whether the values obeyed the limit
+   */
+  public static validateMinMax<T>(
+    path: string,
+    propertyName: string,
+    keys: Iterable<T>,
+    metadataPropertyModel: MetadataPropertyModel<T>,
+    property: { max?: any; min?: any; scale?: any; offset?: any },
+    propertySourceInfo: string,
+    classProperty: ClassProperty,
+    context: ValidationContext
+  ) {
+    let result = true;
+    // When the ClassProperty defines a minimum, then the metadata
+    // values MUST not be smaller than this minimum
+    if (defined(classProperty.min)) {
+      if (
+        !MetadataPropertyValuesValidator.validateMin(
+          path,
+          propertyName,
+          classProperty.min,
+          "class property",
+          keys,
+          metadataPropertyModel,
+          property,
+          propertySourceInfo,
+          classProperty,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+    // When the property defines a minimum, then the metadata
+    // values MUST not be smaller than this minimum
+    if (defined(property.min)) {
+      const definedMin = property.min;
+      if (
+        !MetadataPropertyValuesValidator.validateMin(
+          path,
+          propertyName,
+          definedMin,
+          "property",
+          keys,
+          metadataPropertyModel,
+          property,
+          propertySourceInfo,
+          classProperty,
+          context
+        )
+      ) {
+        result = false;
+      } else {
+        // When none of the values is smaller than the minimum from
+        // the PropertyTextureProperty, make sure that this minimum
+        // matches the computed minimum of all metadata values
+        const computedMin = MetadataPropertyValuesValidator.computeMin(
+          keys,
+          metadataPropertyModel
+        );
+        if (!ArrayValues.deepEquals(computedMin, definedMin)) {
+          const message =
+            `For property '${propertyName}', the property ` +
+            `defines a minimum of ${definedMin}, but the computed ` +
+            `minimum value is ${computedMin}`;
+          const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
+            path,
+            message
+          );
+          context.addIssue(issue);
+          result = false;
+        }
+      }
+    }
+
+    // When the ClassProperty defines a maximum, then the metadata
+    // values MUST not be greater than this maximum
+    if (defined(classProperty.max)) {
+      if (
+        !MetadataPropertyValuesValidator.validateMax(
+          path,
+          propertyName,
+          classProperty.max,
+          "class property",
+          keys,
+          metadataPropertyModel,
+          property,
+          propertySourceInfo,
+          classProperty,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
+    // When the property defines a maximum, then the metadata
+    // values MUST not be greater than this maximum
+    if (defined(property.max)) {
+      const definedMax = property.max;
+      if (
+        !MetadataPropertyValuesValidator.validateMax(
+          path,
+          propertyName,
+          definedMax,
+          "property texture property",
+          keys,
+          metadataPropertyModel,
+          property,
+          propertySourceInfo,
+          classProperty,
+          context
+        )
+      ) {
+        result = false;
+      } else {
+        // When none of the values is greater than the maximum from
+        // the PropertyTextureProperty, make sure that this maximum
+        // matches the computed maximum of all metadata values
+        const computedMax = MetadataPropertyValuesValidator.computeMax(
+          keys,
+          metadataPropertyModel
+        );
+        if (!ArrayValues.deepEquals(computedMax, definedMax)) {
+          const message =
+            `For property '${propertyName}', the property ` +
+            `defines a maximum of ${definedMax}, but the computed ` +
+            `maximum value is ${computedMax}`;
+          const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
+            path,
+            message
+          );
+          context.addIssue(issue);
+          result = false;
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
    * Validate the that none of the values of the given
    * property model is smaller than the given defined
    * minimum.
@@ -108,7 +265,7 @@ export class MetadataPropertyValuesValidator {
    * @param context - The `ValidationContext`
    * @returns Whether the values obeyed the limit
    */
-  static validateMin<T>(
+  private static validateMin<T>(
     path: string,
     propertyName: string,
     definedMin: any,
@@ -162,7 +319,7 @@ export class MetadataPropertyValuesValidator {
    * @param metadataPropertyModel - The `MetadataPropertyModel`
    * @returns The minimum
    */
-  static computeMin<T>(
+  private static computeMin<T>(
     keys: Iterable<T>,
     metadataPropertyModel: MetadataPropertyModel<T>
   ): any {
@@ -200,7 +357,7 @@ export class MetadataPropertyValuesValidator {
    * @param context - The `ValidationContext`
    * @returns Whether the values obeyed the limit
    */
-  static validateMax<T>(
+  private static validateMax<T>(
     path: string,
     propertyName: string,
     definedMax: any,
@@ -254,7 +411,7 @@ export class MetadataPropertyValuesValidator {
    * @param metadataPropertyModel - The `MetadataPropertyModel`
    * @returns The maximum
    */
-  static computeMax<T>(
+  private static computeMax<T>(
     keys: Iterable<T>,
     metadataPropertyModel: MetadataPropertyModel<T>
   ): any {

@@ -17,16 +17,6 @@ export class BinaryPropertyTableEnumMetadataPropertyModel
   implements MetadataPropertyModel<number>
 {
   /**
-   * The underlying binary property table data
-   */
-  private readonly binaryPropertyTable: BinaryPropertyTable;
-
-  /**
-   * The property table property that is represented by this model
-   */
-  private readonly propertyTableProperty: any;
-
-  /**
    * The class property that defines the structure of the property
    */
   private readonly classProperty: ClassProperty;
@@ -56,12 +46,9 @@ export class BinaryPropertyTableEnumMetadataPropertyModel
   constructor(
     binaryPropertyTable: BinaryPropertyTable,
     propertyName: string,
-    propertyTableProperty: any,
     classProperty: ClassProperty,
     enumValueValueNames: { [key: number]: string }
   ) {
-    this.binaryPropertyTable = binaryPropertyTable;
-    this.propertyTableProperty = propertyTableProperty;
     this.classProperty = classProperty;
     this.enumValueValueNames = enumValueValueNames;
     this.propertyModel = BinaryPropertyModels.createPropertyModel(
@@ -69,28 +56,15 @@ export class BinaryPropertyTableEnumMetadataPropertyModel
       propertyName
     );
   }
+
   /** {@inheritDoc MetadataPropertyModel.getPropertyValue} */
   getPropertyValue(key: number) {
-    const propertyAttributeProperty = this.propertyTableProperty;
     const classProperty = this.classProperty;
 
-    const offsetOverride = propertyAttributeProperty.offset;
-    const scaleOverride = propertyAttributeProperty.scale;
-
     const value = this.getRawPropertyValue(key);
-    if (classProperty.enumType !== undefined) {
-      const processedValue = MetadataValues.processNumericEnumValue(
-        classProperty,
-        this.enumValueValueNames,
-        value
-      );
-      return processedValue;
-    }
-
-    const processedValue = MetadataValues.processValue(
+    const processedValue = MetadataValues.processNumericEnumValue(
       classProperty,
-      offsetOverride,
-      scaleOverride,
+      this.enumValueValueNames,
       value
     );
     return processedValue;

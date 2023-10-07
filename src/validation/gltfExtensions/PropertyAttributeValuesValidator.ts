@@ -1,7 +1,6 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 import { ClassProperties } from "3d-tiles-tools";
-import { ArrayValues } from "3d-tiles-tools";
 import { ClassProperty } from "3d-tiles-tools";
 import { Schema } from "3d-tiles-tools";
 
@@ -12,7 +11,6 @@ import { Accessors } from "./Accessors";
 import { PropertyAttributePropertyModel } from "./PropertyAttributePropertyModel";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
-import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 import { ValidationIssues } from "../../issues/ValidationIssues";
 
 import { MetadataValidationUtilities } from "../metadata/MetadataValidationUtilities";
@@ -273,130 +271,19 @@ export class PropertyAttributeValuesValidator {
 
     // Perform the checks that only apply to numeric types
     if (ClassProperties.hasNumericType(classProperty)) {
-      // When the ClassProperty defines a minimum, then the metadata
-      // values MUST not be smaller than this minimum
-      if (defined(classProperty.min)) {
-        if (
-          !MetadataPropertyValuesValidator.validateMin(
-            path,
-            propertyName,
-            classProperty.min,
-            "class property",
-            keys,
-            metadataPropertyModel,
-            propertyAttributeProperty,
-            propertyAttributeContextDescription,
-            classProperty,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-
-      // When the PropertyAttributeProperty defines a minimum, then the metadata
-      // values MUST not be smaller than this minimum
-      if (defined(propertyAttributeProperty.min)) {
-        const definedMin = propertyAttributeProperty.min;
-        if (
-          !MetadataPropertyValuesValidator.validateMin(
-            path,
-            propertyName,
-            propertyAttributeProperty.min,
-            "property attribute property",
-            keys,
-            metadataPropertyModel,
-            propertyAttributeProperty,
-            propertyAttributeContextDescription,
-            classProperty,
-            context
-          )
-        ) {
-          result = false;
-        } else {
-          // When none of the values is smaller than the minimum from
-          // the PropertyAttributeProperty, make sure that this minimum
-          // matches the computed minimum of all metadata values
-          const computedMin = MetadataPropertyValuesValidator.computeMin(
-            keys,
-            metadataPropertyModel
-          );
-          if (!ArrayValues.deepEquals(computedMin, definedMin)) {
-            const message =
-              `For property '${propertyName}', the property attribute property ` +
-              `defines a minimum of ${definedMin}, but the computed ` +
-              `minimum value for attribute ${propertyAttributeContextDescription} is ${computedMin}`;
-            const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
-              path,
-              message
-            );
-            context.addIssue(issue);
-            result = false;
-          }
-        }
-      }
-
-      // When the ClassProperty defines a maximum, then the metadata
-      // values MUST not be greater than this maximum
-      if (defined(classProperty.max)) {
-        if (
-          !MetadataPropertyValuesValidator.validateMax(
-            path,
-            propertyName,
-            classProperty.max,
-            "class property",
-            keys,
-            metadataPropertyModel,
-            propertyAttributeProperty,
-            propertyAttributeContextDescription,
-            classProperty,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-
-      // When the PropertyAttributeProperty defines a maximum, then the metadata
-      // values MUST not be greater than this maximum
-      if (defined(propertyAttributeProperty.max)) {
-        const definedMax = propertyAttributeProperty.max;
-        if (
-          !MetadataPropertyValuesValidator.validateMax(
-            path,
-            propertyName,
-            definedMax,
-            "property attribute property",
-            keys,
-            metadataPropertyModel,
-            propertyAttributeProperty,
-            propertyAttributeContextDescription,
-            classProperty,
-            context
-          )
-        ) {
-          result = false;
-        } else {
-          // When none of the values is greater than the maximum from
-          // the PropertyAttributeProperty, make sure that this maximum
-          // matches the computed maximum of all metadata values
-          const computedMax = MetadataPropertyValuesValidator.computeMax(
-            keys,
-            metadataPropertyModel
-          );
-          if (!ArrayValues.deepEquals(computedMax, definedMax)) {
-            const message =
-              `For property '${propertyName}', the property attribute property ` +
-              `defines a maximum of ${definedMax}, but the computed ` +
-              `maximum value for attribute ${propertyAttributeContextDescription} is ${computedMax}`;
-            const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
-              path,
-              message
-            );
-            context.addIssue(issue);
-            result = false;
-          }
-        }
+      if (
+        !MetadataPropertyValuesValidator.validateMinMax(
+          path,
+          propertyName,
+          keys,
+          metadataPropertyModel,
+          propertyAttributeProperty,
+          propertyAttributeContextDescription,
+          classProperty,
+          context
+        )
+      ) {
+        result = false;
       }
     }
 

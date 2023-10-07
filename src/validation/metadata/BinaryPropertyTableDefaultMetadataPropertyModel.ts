@@ -18,11 +18,6 @@ export class BinaryPropertyTableDefaultMetadataPropertyModel
   implements MetadataPropertyModel<number>
 {
   /**
-   * The underlying binary property table
-   */
-  private readonly binaryPropertyTable: BinaryPropertyTable;
-
-  /**
    * The property table property that is represented by this model
    */
   private readonly propertyTableProperty: any;
@@ -51,7 +46,6 @@ export class BinaryPropertyTableDefaultMetadataPropertyModel
     propertyTableProperty: any,
     classProperty: ClassProperty
   ) {
-    this.binaryPropertyTable = binaryPropertyTable;
     this.propertyTableProperty = propertyTableProperty;
     this.classProperty = classProperty;
     this.propertyModel = BinaryPropertyModels.createPropertyModel(
@@ -59,6 +53,8 @@ export class BinaryPropertyTableDefaultMetadataPropertyModel
       propertyName
     );
   }
+
+  /** {@inheritDoc MetadataPropertyModel.getPropertyValue} */
   getPropertyValue(key: number) {
     const propertyAttributeProperty = this.propertyTableProperty;
     const classProperty = this.classProperty;
@@ -76,6 +72,7 @@ export class BinaryPropertyTableDefaultMetadataPropertyModel
     return processedValue;
   }
 
+  /** {@inheritDoc MetadataPropertyModel.getRawPropertyValue} */
   getRawPropertyValue(key: number) {
     return this.propertyModel.getPropertyValue(key);
   }

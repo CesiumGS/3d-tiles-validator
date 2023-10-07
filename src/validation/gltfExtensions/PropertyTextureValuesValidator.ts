@@ -1,6 +1,5 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
-import { ArrayValues } from "3d-tiles-tools";
 import { ClassProperties } from "3d-tiles-tools";
 import { Schema } from "3d-tiles-tools";
 
@@ -12,7 +11,6 @@ import { TextureValidator } from "./TextureValidator";
 import { PropertyTextureMetadataPropertyModels } from "./PropertyTextureMetadataPropertyModels";
 
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
-import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
 import { RangeIterables } from "../metadata/RangeIterables";
 import { MetadataPropertyValuesValidator } from "../metadata/MetadataPropertyValuesValidator";
@@ -277,129 +275,19 @@ export class PropertyTextureValuesValidator {
           propertyTextureProperty,
           classProperty
         );
-
-      // When the ClassProperty defines a minimum, then the metadata
-      // values MUST not be smaller than this minimum
-      if (defined(classProperty.min)) {
-        if (
-          !MetadataPropertyValuesValidator.validateMin(
-            path,
-            propertyName,
-            classProperty.min,
-            "class property",
-            keys,
-            metadataPropertyModel,
-            propertyTextureProperty,
-            "property texture",
-            classProperty,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-      // When the PropertyTextureProperty defines a minimum, then the metadata
-      // values MUST not be smaller than this minimum
-      if (defined(propertyTextureProperty.min)) {
-        const definedMin = propertyTextureProperty.min;
-        if (
-          !MetadataPropertyValuesValidator.validateMin(
-            path,
-            propertyName,
-            definedMin,
-            "property texture property",
-            keys,
-            metadataPropertyModel,
-            propertyTextureProperty,
-            "property texture",
-            classProperty,
-            context
-          )
-        ) {
-          result = false;
-        } else {
-          // When none of the values is smaller than the minimum from
-          // the PropertyTextureProperty, make sure that this minimum
-          // matches the computed minimum of all metadata values
-          const computedMin = MetadataPropertyValuesValidator.computeMin(
-            keys,
-            metadataPropertyModel
-          );
-          if (!ArrayValues.deepEquals(computedMin, definedMin)) {
-            const message =
-              `For property '${propertyName}', the property texture property ` +
-              `defines a minimum of ${definedMin}, but the computed ` +
-              `minimum value is ${computedMin}`;
-            const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
-              path,
-              message
-            );
-            context.addIssue(issue);
-            result = false;
-          }
-        }
-      }
-
-      // When the ClassProperty defines a maximum, then the metadata
-      // values MUST not be greater than this maximum
-      if (defined(classProperty.max)) {
-        if (
-          !MetadataPropertyValuesValidator.validateMax(
-            path,
-            propertyName,
-            classProperty.max,
-            "class property",
-            keys,
-            metadataPropertyModel,
-            propertyTextureProperty,
-            "property texture",
-            classProperty,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-      // When the PropertyTextureProperty defines a maximum, then the metadata
-      // values MUST not be greater than this maximum
-      if (defined(propertyTextureProperty.max)) {
-        const definedMax = propertyTextureProperty.max;
-        if (
-          !MetadataPropertyValuesValidator.validateMax(
-            path,
-            propertyName,
-            definedMax,
-            "property texture property",
-            keys,
-            metadataPropertyModel,
-            propertyTextureProperty,
-            "property texture",
-            classProperty,
-            context
-          )
-        ) {
-          result = false;
-        } else {
-          // When none of the values is greater than the maximum from
-          // the PropertyTextureProperty, make sure that this maximum
-          // matches the computed maximum of all metadata values
-          const computedMax = MetadataPropertyValuesValidator.computeMax(
-            keys,
-            metadataPropertyModel
-          );
-          if (!ArrayValues.deepEquals(computedMax, definedMax)) {
-            const message =
-              `For property '${propertyName}', the property texture property ` +
-              `defines a maximum of ${definedMax}, but the computed ` +
-              `maximum value is ${computedMax}`;
-            const issue = MetadataValidationIssues.METADATA_VALUE_MISMATCH(
-              path,
-              message
-            );
-            context.addIssue(issue);
-            result = false;
-          }
-        }
+      if (
+        !MetadataPropertyValuesValidator.validateMinMax(
+          path,
+          propertyName,
+          keys,
+          metadataPropertyModel,
+          propertyTextureProperty,
+          "property texture",
+          classProperty,
+          context
+        )
+      ) {
+        result = false;
       }
     }
     return result;
