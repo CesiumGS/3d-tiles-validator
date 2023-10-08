@@ -1,31 +1,4 @@
-import fs from "fs";
-import path from "path";
-
-import { ResourceResolvers } from "3d-tiles-tools";
-
-import { ValidationContext } from "../../src/validation/ValidationContext";
-
-import { GltfExtensionValidators } from "../../src/validation/gltfExtensions/GltfExtensionValidators";
-
-async function validateGltf(gltfFileName: string) {
-  fs.readFileSync(gltfFileName);
-
-  const directory = path.dirname(gltfFileName);
-  const fileName = path.basename(gltfFileName);
-  const resourceResolver =
-    ResourceResolvers.createFileResourceResolver(directory);
-  const context = new ValidationContext(directory, resourceResolver);
-  const gltfFileData = await resourceResolver.resolveData(fileName);
-  if (gltfFileData) {
-    await GltfExtensionValidators.validateGltfExtensions(
-      gltfFileName,
-      gltfFileData,
-      context
-    );
-  }
-  const validationResult = context.getResult();
-  return validationResult;
-}
+import { validateGltf } from "./validateGltf";
 
 describe("EXT_mesh_features extension validation", function () {
   it("detects issues in FeatureIdAttributeAccessorNormalized", async function () {
@@ -256,18 +229,18 @@ describe("EXT_mesh_features extension validation", function () {
     expect(result.length).toEqual(0);
   });
 
-  it("detects issues in ValidFeatureIdAttributeDefault", async function () {
+  it("detects no issues in ValidFeatureIdAttributeDefault", async function () {
     const result = await validateGltf(
       "./specs/data/gltfExtensions/meshFeatures/ValidFeatureIdAttributeDefault/ValidFeatureIdAttributeDefault.gltf"
     );
-    // TODO THE SPECS SHOULD NEVER-EVER ANTICIPATE AN INTERNAL_ERROR!!!
-    // This test should either be omitted, or handled differently.
+    // TODO: This should actually DO cause an issue for now,
+    // because a default glTF (with external resources)
+    // can not be read with glTF-Transform.
     // See https://github.com/donmccurdy/glTF-Transform/issues/1099
-    // and the corresponding notes in `GltfExtensionValidators.ts`!
+    // and the corresponding notes in `GltfDataReader.ts`!
     console.error(
-      "Anticipating INTERNAL_ERROR for ValidFeatureIdAttributeDefault"
+      "ValidFeatureIdAttributeDefault is skipping actual data validation"
     );
-    expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("INTERNAL_ERROR");
+    expect(result.length).toEqual(0);
   });
 });
