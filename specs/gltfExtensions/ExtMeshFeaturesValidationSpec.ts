@@ -57,6 +57,14 @@ describe("EXT_mesh_features extension validation", function () {
     expect(result.get(0).type).toEqual("FEATURE_COUNT_MISMATCH");
   });
 
+  it("detects issues in FeatureIdAttributeFeatureCountMismatchForNullFeatureId", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/meshFeatures/FeatureIdAttributeFeatureCountMismatchForNullFeatureId.gltf"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("FEATURE_COUNT_MISMATCH");
+  });
+
   it("detects issues in FeatureIdAttributeFeatureCountMissing", async function () {
     const result = await validateGltf(
       "./specs/data/gltfExtensions/meshFeatures/FeatureIdAttributeFeatureCountMissing.gltf"
@@ -204,6 +212,20 @@ describe("EXT_mesh_features extension validation", function () {
   it("detects no issues in ValidFeatureIdAttributeWithByteStride", async function () {
     const result = await validateGltf(
       "./specs/data/gltfExtensions/meshFeatures/ValidFeatureIdAttributeWithByteStride.glb"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects no issues in ValidFeatureIdAttributeWithLargerFeatureCount", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/meshFeatures/ValidFeatureIdAttributeWithLargerFeatureCount.gltf"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects no issues in ValidFeatureIdAttributeWithNullFeatureId", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/meshFeatures/ValidFeatureIdAttributeWithNullFeatureId.gltf"
     );
     expect(result.length).toEqual(0);
   });

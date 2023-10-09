@@ -87,7 +87,7 @@
       "extensions" : {
         "EXT_mesh_features" : {
           "featureIds" : [ {
-            "featureCount" : 12345,
+            "featureCount" : 1,
             "texture" : {
               "index" : 1,
               "texCoord" : 0,
