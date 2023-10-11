@@ -19,7 +19,7 @@ export class Accessors {
    * valid (in terms of its bufferView etc), as validated with
    * the glTF Validator.
    *
-   * @param accessor - The glTF accessor
+   * @param accessorIndex - The glTF accessor index
    * @param gltfData - The glTF data
    * @returns The accessor values (or undefined if the input
    * glTF data was invalid)
@@ -52,7 +52,7 @@ export class Accessors {
    * is valid (in terms of its bufferView etc), as validated with
    * the glTF Validator.
    *
-   * @param accessor - The glTF accessor
+   * @param accessorIndex - The glTF accessor index
    * @param gltfData - The glTF data
    * @returns The accessor values (or undefined if the input
    * glTF data was invalid)
