@@ -26,9 +26,6 @@ import { RangeIterables } from "../metadata/RangeIterables";
  * by a `PropertyAttributeValidator`.
  *
  * @internal
- *
- * TODO There is a lot of "structural" overlap between this and
- * other classes - see PropertyTextureValuesValidator
  */
 export class PropertyAttributeValuesValidator {
   /**
@@ -128,36 +125,28 @@ export class PropertyAttributeValuesValidator {
           path + "/properties/" + propertyName;
         const metadataClassName = propertyAttribute.class;
 
+        // Assuming structural validity for the classProperty
         const classProperty = MetadataValidationUtilities.computeClassProperty(
           schema,
           metadataClassName,
           propertyName
-        );
-        if (!classProperty) {
-          const message =
-            `Could not obtain class property for property ` +
-            `${propertyName} of class ${classProperty}`;
-          const issue = ValidationIssues.INTERNAL_ERROR(path, message);
-          context.addIssue(issue);
+        )!;
+        const propertyValuesValid =
+          await PropertyAttributeValuesValidator.validatePropertyAttributePropertyValues(
+            propertyAttributePropertyPath,
+            propertyName,
+            propertyAttributeProperty,
+            meshPrimitive,
+            meshIndex,
+            primitiveIndex,
+            schema,
+            metadataClassName,
+            classProperty,
+            gltfData,
+            context
+          );
+        if (!propertyValuesValid) {
           result = false;
-        } else {
-          const propertyValuesValid =
-            await PropertyAttributeValuesValidator.validatePropertyAttributePropertyValues(
-              propertyAttributePropertyPath,
-              propertyName,
-              propertyAttributeProperty,
-              meshPrimitive,
-              meshIndex,
-              primitiveIndex,
-              schema,
-              metadataClassName,
-              classProperty,
-              gltfData,
-              context
-            );
-          if (!propertyValuesValid) {
-            result = false;
-          }
         }
       }
     }
@@ -240,30 +229,24 @@ export class PropertyAttributeValuesValidator {
 
     // Perform the checks that only apply to ENUM types,
     if (classProperty.type === "ENUM") {
+      // Assuming structural validity for the validEnumValueValues
       const validEnumValueValues =
         MetadataValidationUtilities.computeValidEnumValueValues(
           schema,
           metadataClassName,
           propertyName
-        );
-      if (!validEnumValueValues) {
-        const message = `Could not read valid enum values for property`;
-        const issue = ValidationIssues.INTERNAL_ERROR(path, message);
-        context.addIssue(issue);
+        )!;
+      if (
+        !MetadataPropertyValuesValidator.validateEnumValues(
+          path,
+          propertyName,
+          keys,
+          metadataPropertyModel,
+          validEnumValueValues,
+          context
+        )
+      ) {
         result = false;
-      } else {
-        if (
-          !MetadataPropertyValuesValidator.validateEnumValues(
-            path,
-            propertyName,
-            keys,
-            metadataPropertyModel,
-            validEnumValueValues,
-            context
-          )
-        ) {
-          result = false;
-        }
       }
     }
 

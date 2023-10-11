@@ -188,7 +188,7 @@ export class PropertyTexturePropertyValidator {
    * Validates that the given number of channels matches the
    * number of bytes of the type of the given `classProperty`.
    *
-   * The given number is either the length of the `channels` array of
+   * The given number is the length of the `channels` array of
    * a property texture property (if it is defined). If the
    * `channels` array is not defined, then this value should be
    * `1`, because the default value for the `channels` is `[0]`.
@@ -232,7 +232,7 @@ export class PropertyTexturePropertyValidator {
         const totalByteSize = classProperty.count! * byteSize;
         if (totalByteSize !== numberOfChannels) {
           const message =
-            `The property '${propertyName}' is has the enum type ` +
+            `The property '${propertyName}' has the enum type ` +
             `${enumType} with a value type of ${enumValueType} which ` +
             `consists of ${byteSize} bytes, and the property is an ` +
             `array with ${classProperty.count} elements, resulting in ` +
@@ -250,7 +250,7 @@ export class PropertyTexturePropertyValidator {
         // Handle properties that are single enums
         if (byteSize !== numberOfChannels) {
           const message =
-            `The property '${propertyName}' is has the enum type ` +
+            `The property '${propertyName}' has the enum type ` +
             `${enumType} with a value type of ${enumValueType}, which ` +
             `consists of ${byteSize} bytes, but the number of channels ` +
             `in the property texture property was ${numberOfChannels}`;
@@ -267,12 +267,37 @@ export class PropertyTexturePropertyValidator {
       return true;
     }
 
-    // TODO Special handling for `BOOLEAN` required here!
-
-    // For non-enum types, compute the required size based
-    // on the number of bytes per component, and the number
-    // of components per element
+    // When the type is ENUM, compute the size based on the
+    // number of required bits
     const type = classProperty.type;
+    if (type === "BOOLEAN") {
+      if (classProperty.array === true) {
+        // Handle BOOLEAN properties that are arrays
+        const count = classProperty.count!;
+        const totalByteSize = Math.ceil(count / 8);
+        if (totalByteSize !== numberOfChannels) {
+          const message =
+            `The property '${propertyName}' is has the type 'BOOLEAN' and it ` +
+            `is an array with ${count} elements, resulting in a total number of ` +
+            `ceil(${count}/8) = ${totalByteSize} bytes, but the number of channels ` +
+            `in the property texture property was ${numberOfChannels}`;
+          const issue =
+            GltfExtensionValidationIssues.TEXTURE_CHANNELS_OUT_OF_RANGE(
+              path,
+              message
+            );
+          context.addIssue(issue);
+          return false;
+        }
+      }
+      // For BOOLEAN properties that are not arrays, even a single
+      // channel is sufficient
+      return true;
+    }
+
+    // For non-ENUM and non-BOOLEAN types, compute the required size
+    // based on the number of bytes per component, and the number
+    // of components per element
     const componentType = classProperty.componentType;
     const componentCount = MetadataTypes.componentCountForType(type);
     const componentByteSize = MetadataComponentTypes.byteSizeForComponentType(
@@ -285,7 +310,7 @@ export class PropertyTexturePropertyValidator {
       const totalByteSize = classProperty.count! * elementByteSize;
       if (totalByteSize !== numberOfChannels) {
         const message =
-          `The property '${propertyName}' is has the component type ` +
+          `The property '${propertyName}' has the component type ` +
           `${componentType}, with a size of ${componentByteSize} bytes, ` +
           `and the type ${type} with ${componentCount} components, ` +
           `resulting in ${elementByteSize} bytes per element, and it ` +
@@ -304,7 +329,7 @@ export class PropertyTexturePropertyValidator {
       // Handle properties that are not arrays
       if (elementByteSize !== numberOfChannels) {
         const message =
-          `The property '${propertyName}' is has the component type ` +
+          `The property '${propertyName}' has the component type ` +
           `${componentType}, with a size of ${componentByteSize} bytes, ` +
           `and the type ${type} with ${componentCount} components, ` +
           `resulting in ${elementByteSize} bytes per element, but ` +
@@ -356,7 +381,6 @@ export class PropertyTexturePropertyValidator {
           message
         );
       context.addIssue(issue);
-
       return false;
     }
 

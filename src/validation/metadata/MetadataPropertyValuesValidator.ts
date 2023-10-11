@@ -158,8 +158,8 @@ export class MetadataPropertyValuesValidator {
         result = false;
       } else {
         // When none of the values is smaller than the minimum from
-        // the PropertyTextureProperty, make sure that this minimum
-        // matches the computed minimum of all metadata values
+        // the property, make sure that this minimum matches the
+        // computed minimum of all metadata values
         const computedMin = MetadataPropertyValuesValidator.computeMin(
           keys,
           metadataPropertyModel
@@ -220,8 +220,8 @@ export class MetadataPropertyValuesValidator {
         result = false;
       } else {
         // When none of the values is greater than the maximum from
-        // the PropertyTextureProperty, make sure that this maximum
-        // matches the computed maximum of all metadata values
+        // the property, make sure that this maximum matches the
+        // computed maximum of all metadata values
         const computedMax = MetadataPropertyValuesValidator.computeMax(
           keys,
           metadataPropertyModel

@@ -36,13 +36,6 @@ export class PropertyTextureBooleanMetadataPropertyModel
    * @param imageData - The image data
    * @param propertyTextureProperty - The property texture property
    * @param classProperty - The class property
-   * @param enumValueType - The `valueType` of the enum type of
-   * the given class property (or undefined if the class property
-   * is not an ENUM)
-   * @param valueValueNames - The mapping from enum value values
-   * to enum value names for the enum type of the given class
-   * property (or an empty dictionary when the class property is
-   * not an ENUM)
    */
   constructor(
     imageData: ImageData,

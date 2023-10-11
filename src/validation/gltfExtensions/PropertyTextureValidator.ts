@@ -22,7 +22,8 @@ import { PropertyTexturePropertyValidator } from "./PropertyTexturePropertyValid
  * a property texture has to start at the mesh primitive
  * that refers to the property texture, because it requires
  * knowledge about the attributes (texture coordinates)
- * that are defined in the referring mesh primitive.
+ * that are defined in the referring mesh primitive, and
+ * the glTF texture that the definition refers to.
  *
  * @internal
  */

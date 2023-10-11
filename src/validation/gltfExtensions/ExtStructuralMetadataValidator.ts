@@ -397,7 +397,6 @@ export class ExtStructuralMetadataValidator {
       }
     }
 
-    // TODO - WIP
     return result;
   }
 }

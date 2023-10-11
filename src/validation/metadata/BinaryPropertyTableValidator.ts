@@ -241,11 +241,13 @@ export class BinaryPropertyTableValidator {
       propertyId,
       binaryPropertyTable
     );
-    const componentTypeByteSize =
-      MetadataComponentTypes.byteSizeForComponentType(componentType);
-    let expectedByteLength = numValues * componentTypeByteSize;
+    let expectedByteLength;
     if (type === "BOOLEAN") {
-      expectedByteLength = Math.ceil(numValues / 8) * componentTypeByteSize;
+      expectedByteLength = Math.ceil(numValues / 8);
+    } else {
+      const componentTypeByteSize =
+        MetadataComponentTypes.byteSizeForComponentType(componentType);
+      expectedByteLength = numValues * componentTypeByteSize;
     }
 
     // Validate that the length of the 'values' buffer

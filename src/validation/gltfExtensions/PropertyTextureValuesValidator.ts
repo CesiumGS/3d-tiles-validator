@@ -25,17 +25,6 @@ import { MetadataValidationUtilities } from "../metadata/MetadataValidationUtili
  * by a `PropertyTextureValidator`.
  *
  * @internal
- *
- * TODO There is a lot of "structural" overlap between this and
- * the BinaryPropertyTableValuesValidator: They both check the
- * enum values, min/max, and the main difference is that the
- * values are once fetched from a "BinaryPropertyTable", and
- * once from a "PropertyTexturePropertyModel". Whether or not
- * it is worthwhile to try and extract the common parts
- * (considering that they are once accessed with indices, and
- * once with pixel coordinates, and these different ways of
- * accessign the data will affect the validation issue messages)
- * has to be decided.
  */
 export class PropertyTextureValuesValidator {
   /**
@@ -49,7 +38,8 @@ export class PropertyTextureValuesValidator {
    *
    * It assumes that they are structurally valid, and ONLY checks the
    * validity of the values in the context of the mesh primitive
-   * that refers to the property texture.
+   * that refers to the property texture, and the glTF texture
+   * that the property texture refers to.
    *
    * @param path - The path for the `ValidationIssue` instances
    * @param propertyTextureIndex - The index that was given in the

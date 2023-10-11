@@ -3,7 +3,7 @@ import { MetadataValues } from "3d-tiles-tools";
 import { MetadataPropertyModel } from "../metadata/MetadataPropertyModel";
 
 /**
- * Implementation of a metadata property model that for a
+ * Implementation of a metadata property model for a
  * property attribute property, backed by glTF accessor
  * data.
  */

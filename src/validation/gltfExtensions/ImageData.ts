@@ -23,7 +23,7 @@ export interface ImageData {
   /**
    * The pixels.
    *
-   * The channel `c` of the pixel at `x`, `y` is ndexed
+   * The channel `c` of the pixel at `x`, `y` is indexed
    * by `index = ((y * sizeX) + x) * channels) + c`
    */
   pixels: number[];

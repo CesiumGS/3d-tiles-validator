@@ -49,7 +49,7 @@ export class PropertyAttributePropertyValidator {
     // The attribute MUST be defined
     // The attribute MUST be a string
     const attribute = propertyAttributeProperty.attribute;
-    const attributePath = path + "/atribute";
+    const attributePath = path + "/attribute";
     if (
       !BasicValidator.validateString(
         attributePath,

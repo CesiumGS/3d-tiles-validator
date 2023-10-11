@@ -155,18 +155,7 @@ export class GltfDataReader {
   ): Promise<Document | undefined> {
     try {
       const io = await GltfTransform.getIO();
-      const doc = await io.readBinary(input);
-
-      // TODO This obscure line avoids the error
-      // > Type 'import("...3d-tiles-tools.......").Document' is not assignable to
-      // > type 'import("...3d-tiles-validator...").Document'.
-      // >   Types have separate declarations of a private property '_graph'.ts(2322)
-      // that is probably caused by using the local, file-based,
-      // non-npm version of the 3d-tiles-tools. Verify that this
-      // works without this line when using the proper npm
-      // dependency to the tools!
-      const gltfDocument = doc as any as Document;
-
+      const gltfDocument = await io.readBinary(input);
       return gltfDocument;
     } catch (error) {
       // This may happen when the glTF is invalid. The exact reason should
@@ -249,18 +238,7 @@ export class GltfDataReader {
       const io = await GltfTransform.getIO();
       const json = JSON.parse(input.toString());
       const jsonDoc = { json, resources } as JSONDocument;
-      const doc = await io.readJSON(jsonDoc);
-
-      // TODO This obscure line avoids the error
-      // > Type 'import("...3d-tiles-tools.......").Document' is not assignable to
-      // > type 'import("...3d-tiles-validator...").Document'.
-      // >   Types have separate declarations of a private property '_graph'.ts(2322)
-      // that is probably caused by using the local, file-based,
-      // non-npm version of the 3d-tiles-tools. Verify that this
-      // works without this line when using the proper npm
-      // dependency to the tools!
-
-      const gltfDocument = doc as any as Document;
+      const gltfDocument = await io.readJSON(jsonDoc);
       return gltfDocument;
     } catch (error) {
       // This may happen when the glTF is invalid. The exact reason should
