@@ -3,17 +3,17 @@ import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
+import { ValidatedElement } from "../ValidatedElement";
 
 import { GltfData } from "./GltfData";
 import { ImageDataReader } from "./ImageDataReader";
-import { Accessors } from "./Accessors";
 import { SamplerValidator } from "./SamplerValidator";
 import { TextureValidator } from "./TextureValidator";
+import { FeatureIdValidator } from "./FeatureIdValidator";
+import { FeatureIdAccessorValidator } from "./FeatureIdAccessorValidator";
+import { PropertyTableDefinitionValidator } from "./PropertyTableDefinitionValidator";
 
-import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
-import { ValidationIssues } from "../../issues/ValidationIssues";
-import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
 
 /**
  * A class for validating the `EXT_mesh_features` extension in
@@ -70,21 +70,18 @@ export class ExtMeshFeaturesValidator {
         if (!extensions) {
           continue;
         }
-        const extensionNames = Object.keys(extensions);
-        for (const extensionName of extensionNames) {
-          if (extensionName === "EXT_mesh_features") {
-            const extensionObject = extensions[extensionName];
-            const objectIsValid =
-              await ExtMeshFeaturesValidator.validateExtMeshFeatures(
-                path,
-                extensionObject,
-                primitive,
-                gltfData,
-                context
-              );
-            if (!objectIsValid) {
-              result = false;
-            }
+        const meshFeatures = extensions["EXT_mesh_features"];
+        if (defined(meshFeatures)) {
+          const objectIsValid =
+            await ExtMeshFeaturesValidator.validateExtMeshFeatures(
+              path,
+              meshFeatures,
+              primitive,
+              gltfData,
+              context
+            );
+          if (!objectIsValid) {
+            result = false;
           }
         }
       }
@@ -146,16 +143,27 @@ export class ExtMeshFeaturesValidator {
         for (let i = 0; i < featureIds.length; i++) {
           const featureId = featureIds[i];
           const featureIdPath = featureIdsPath + "/" + i;
-          const featureIdValid =
-            await ExtMeshFeaturesValidator.validateFeatureId(
+
+          const commonFeatureIdValid =
+            FeatureIdValidator.validateCommonFeatureId(
               featureIdPath,
               featureId,
-              meshPrimitive,
-              gltfData,
               context
             );
-          if (!featureIdValid) {
+          if (!commonFeatureIdValid) {
             result = false;
+          } else {
+            const featureIdValid =
+              await ExtMeshFeaturesValidator.validateMeshFeaturesFeatureId(
+                featureIdPath,
+                featureId,
+                meshPrimitive,
+                gltfData,
+                context
+              );
+            if (!featureIdValid) {
+              result = false;
+            }
           }
         }
       }
@@ -165,7 +173,11 @@ export class ExtMeshFeaturesValidator {
 
   /**
    * Validate the given feature ID object that was found in the
-   * `featureIds` array of an EXT_mesh_features extension object
+   * `featureIds` array of an EXT_mesh_features extension object.
+   *
+   * This assumes that the given object has already been validated
+   * to the extent that is checked by the `FeatureIdValidator`,
+   * with the `validateCommonFeatureId` method.
    *
    * @param path - The path for validation issues
    * @param featureId - The feature ID
@@ -174,112 +186,28 @@ export class ExtMeshFeaturesValidator {
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
-  private static async validateFeatureId(
+  private static async validateMeshFeaturesFeatureId(
     path: string,
     featureId: any,
     meshPrimitive: any,
     gltfData: GltfData,
     context: ValidationContext
   ): Promise<boolean> {
-    // Make sure that the given value is an object
-    if (!BasicValidator.validateObject(path, "featureId", featureId, context)) {
-      return false;
-    }
+    // Validate the propertyTable
+    const propertyTable = featureId.propertyTable;
+    const propertyTablePath = path + "/propertyTable";
+    const propertyTableState =
+      PropertyTableDefinitionValidator.validatePropertyTableDefinition(
+        propertyTablePath,
+        propertyTable,
+        gltfData,
+        context
+      );
 
     let result = true;
 
-    // Validate the nullFeatureId
-    // The nullFeatureId MUST be an integer of at least 0
-    const nullFeatureId = featureId.nullFeatureId;
-    const nullFeatureIdPath = path + "/nullFeatureId";
-    if (defined(nullFeatureId)) {
-      if (
-        !BasicValidator.validateIntegerRange(
-          nullFeatureIdPath,
-          "nullFeatureId",
-          nullFeatureId,
-          0,
-          true,
-          undefined,
-          false,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
-    // Validate the label
-    // The label MUST be a string
-    // The label MUST match the ID regex
-    const label = featureId.label;
-    const labelPath = path + "/label";
-    if (defined(label)) {
-      if (!BasicValidator.validateString(labelPath, "label", label, context)) {
-        result = false;
-      } else {
-        if (
-          !BasicValidator.validateIdentifierString(
-            labelPath,
-            "label",
-            label,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-    }
-
-    // Validate the featureCount
-    // The featureCount MUST be defined
-    // The featureCount MUST be an integer of at least 1
     const featureCount = featureId.featureCount;
-    const featureCountPath = path + "/featureCount";
-    if (
-      !BasicValidator.validateIntegerRange(
-        featureCountPath,
-        "featureCount",
-        featureCount,
-        1,
-        true,
-        undefined,
-        false,
-        context
-      )
-    ) {
-      result = false;
-
-      // The remaining validation will require a valid featureCount.
-      // If the featureCount was not valid, then bail out early:
-      return result;
-    }
-
-    // Validate the propertyTable
-    // If the property table is present and valid, then
-    // its `count` will be stored as `propertyTableCount`
-    let usesPropertyTable = false;
-    let propertyTableCount: number | undefined = undefined;
-    const propertyTable = featureId.propertyTable;
-    const propertyTablePath = path + "/propertyTable";
-    if (defined(propertyTable)) {
-      usesPropertyTable = true;
-      const propertyTableValid =
-        ExtMeshFeaturesValidator.validateFeatureIdPropertyTable(
-          propertyTablePath,
-          propertyTable,
-          gltfData,
-          context
-        );
-      if (!propertyTableValid) {
-        result = false;
-      } else {
-        propertyTableCount = ExtMeshFeaturesValidator.obtainPropertyTableCount(
-          propertyTable,
-          gltfData
-        );
-      }
-    }
+    const nullFeatureId = featureId.nullFeatureId;
 
     // Validate the attribute
     const attribute = featureId.attribute;
@@ -292,8 +220,7 @@ export class ExtMeshFeaturesValidator {
           featureCount,
           meshPrimitive,
           gltfData,
-          usesPropertyTable,
-          propertyTableCount,
+          propertyTableState,
           nullFeatureId,
           context
         );
@@ -313,8 +240,7 @@ export class ExtMeshFeaturesValidator {
           featureCount,
           meshPrimitive,
           gltfData,
-          usesPropertyTable,
-          propertyTableCount,
+          propertyTableState,
           nullFeatureId,
           context
         );
@@ -336,10 +262,8 @@ export class ExtMeshFeaturesValidator {
    * @param featureCount - The `featureCount` value from the feature ID definition
    * @param meshPrimitive - The mesh primitive that contains the extension
    * @param gltfData - The glTF data
-   * @param usesPropertyTable - Whether the feature ID refers to a property table
-   * @param propertyTableCount - The `count` of the property table that the
-   * feature ID refers to. This is `undefined` if the feature ID does not use
-   * a property table, or the property table reference was not valid.
+   * @param propertyTableState - The validation state of the property table
+   * definition (i.e. the index into the property tables array)
    * @param nullFeatureId - The `nullFeatureId` of the `featureId` object
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
@@ -350,8 +274,7 @@ export class ExtMeshFeaturesValidator {
     featureCount: number,
     meshPrimitive: any,
     gltfData: GltfData,
-    usesPropertyTable: boolean,
-    propertyTableCount: number | undefined,
+    propertyTableState: ValidatedElement<{ count: number }>,
     nullFeatureId: number | undefined,
     context: ValidationContext
   ): boolean {
@@ -392,169 +315,22 @@ export class ExtMeshFeaturesValidator {
       context.addIssue(issue);
       result = false;
     } else {
-      const accessorValid = ExtMeshFeaturesValidator.validateFeatureIdAccessor(
-        path,
-        featureIdAccessorIndex,
-        featureCount,
-        gltfData,
-        usesPropertyTable,
-        propertyTableCount,
-        nullFeatureId,
-        context
-      );
+      const accessorValid =
+        FeatureIdAccessorValidator.validateFeatureIdAccessor(
+          path,
+          featureIdAccessorIndex,
+          featureCount,
+          gltfData,
+          propertyTableState,
+          nullFeatureId,
+          context
+        );
       if (!accessorValid) {
         result = false;
       }
     }
 
     return result;
-  }
-
-  /**
-   * Validate the given feature ID attribute accessor index that
-   * was found in the mesh primitive attributes for the
-   * `_FEATURE_ID_${attribute}` attribute.
-   *
-   * @param path - The path for validation issues
-   * @param accessorIndex - The accessor index
-   * @param featureCount - The `featureCount` value from the feature ID definition
-   * @param gltfData - The glTF data
-   * @param usesPropertyTable - Whether the feature ID refers to a property table
-   * @param propertyTableCount - The `count` of the property table that the
-   * feature ID refers to. This is `undefined` if the feature ID does not use
-   * a property table, or the property table reference was not valid.
-   * @param nullFeatureId - The `nullFeatureId` of the `featureId` object
-   * @param context - The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validateFeatureIdAccessor(
-    path: string,
-    accessorIndex: number,
-    featureCount: number,
-    gltfData: GltfData,
-    usesPropertyTable: boolean,
-    propertyTableCount: number | undefined,
-    nullFeatureId: number | undefined,
-    context: ValidationContext
-  ): boolean {
-    // The validity of the accessor index and the accessor
-    // have already been checked by the glTF-Validator
-    const gltf = gltfData.gltf;
-    const accessors = gltf.accessors || [];
-    const accessor = accessors[accessorIndex];
-
-    let result = true;
-
-    // The accessor type must be "SCALAR"
-    if (accessor.type !== "SCALAR") {
-      const message =
-        `The feature ID attribute accessor must have the type 'SCALAR', ` +
-        `but has the type ${accessor.type}`;
-      const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-        path,
-        message
-      );
-      context.addIssue(issue);
-      result = false;
-    }
-
-    // The accessor must not be normalized
-    if (accessor.normalized === true) {
-      const message = `The feature ID attribute accessor may not be normalized`;
-      const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-        path,
-        message
-      );
-      context.addIssue(issue);
-      result = false;
-    }
-
-    // Only if the structures have been valid until now,
-    // validate the actual data of the accessor
-    if (result && gltfData.gltfDocument) {
-      const dataValid = ExtMeshFeaturesValidator.validateFeatureIdAttributeData(
-        path,
-        accessorIndex,
-        featureCount,
-        gltfData,
-        usesPropertyTable,
-        propertyTableCount,
-        nullFeatureId,
-        context
-      );
-      if (!dataValid) {
-        result = false;
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Validate the data of the given feature ID atribute.
-   *
-   * This assumes that the glTF data is valid as determined by the
-   * glTF Validator, **AND** as determined by the validation of
-   * the JSON part of the extension. So this method should only
-   * be called when no issues have been detected that may prevent
-   * the validation of the accessor values. If this is called
-   * with a `gltfData` object where the `gltfDocument` is
-   * `undefined`, then an `INTERNAL_ERROR` will be caused.
-   *
-   * @param path - The path for validation issues
-   * @param accessorIndex - The feature ID attribute accessor index
-   * @param featureCount - The `featureCount` value from the feature ID definition
-   * @param gltfData - The glTF data
-   * @param usesPropertyTable - Whether the feature ID refers to a property table
-   * @param propertyTableCount - The `count` of the property table that the
-   * feature ID refers to. This is `undefined` if the feature ID does not use
-   * a property table, or the property table reference was not valid.
-   * @param nullFeatureId - The `nullFeatureId` of the `featureId` object
-   * @param context - The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validateFeatureIdAttributeData(
-    path: string,
-    accessorIndex: number,
-    featureCount: number,
-    gltfData: GltfData,
-    usesPropertyTable: boolean,
-    propertyTableCount: number | undefined,
-    nullFeatureId: number | undefined,
-    context: ValidationContext
-  ): boolean {
-    const accessorValues = Accessors.readScalarAccessorValues(
-      accessorIndex,
-      gltfData
-    );
-    if (!accessorValues) {
-      // This should only happen for invalid glTF assets (e.g. ones that
-      // use wrong accessor component types), or when the gltfDocument
-      // could not be read due to another structual error that should
-      // be detected by the extension validation.
-      const message = `Could not read data for feature ID attribute accessor`;
-      const issue = ValidationIssues.INTERNAL_ERROR(path, message);
-      context.addIssue(issue);
-      return false;
-    }
-
-    // Validate the set of feature ID values
-    const featureIdSet = new Set<number>(accessorValues);
-    if (
-      !ExtMeshFeaturesValidator.validateFeatureIdSet(
-        path,
-        "attribute",
-        featureIdSet,
-        featureCount,
-        usesPropertyTable,
-        propertyTableCount,
-        nullFeatureId,
-        context
-      )
-    ) {
-      return false;
-    }
-
-    return true;
   }
 
   /**
@@ -566,10 +342,8 @@ export class ExtMeshFeaturesValidator {
    * @param featureCount - The `featureCount` value from the feature ID definition
    * @param meshPrimitive - The mesh primitive that contains the extension
    * @param gltfData - The glTF data
-   * @param usesPropertyTable - Whether the feature ID refers to a property table
-   * @param propertyTableCount - The `count` of the property table that the
-   * feature ID refers to. This is `undefined` if the feature ID does not use
-   * a property table, or the property table reference was not valid.
+   * @param propertyTableState - The validation state of the property table
+   * definition (i.e. the index into the property tables array)
    * @param nullFeatureId - The `nullFeatureId` of the `featureId` object
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
@@ -580,8 +354,7 @@ export class ExtMeshFeaturesValidator {
     featureCount: number,
     meshPrimitive: any,
     gltfData: GltfData,
-    usesPropertyTable: boolean,
-    propertyTableCount: number | undefined,
+    propertyTableState: ValidatedElement<{ count: number }>,
     nullFeatureId: number | undefined,
     context: ValidationContext
   ): Promise<boolean> {
@@ -667,8 +440,7 @@ export class ExtMeshFeaturesValidator {
           featureIdTexture,
           featureCount,
           gltfData,
-          usesPropertyTable,
-          propertyTableCount,
+          propertyTableState,
           nullFeatureId,
           context
         );
@@ -691,10 +463,8 @@ export class ExtMeshFeaturesValidator {
    * @param featureIdTexture - The feature ID texture
    * @param featureCount - The `featureCount` value from the feature ID definition
    * @param gltfData - The glTF data
-   * @param usesPropertyTable - Whether the feature ID refers to a property table
-   * @param propertyTableCount - The `count` of the property table that the
-   * feature ID refers to. This is `undefined` if the feature ID does not use
-   * a property table, or the property table reference was not valid.
+   * @param propertyTableState - The validation state of the property table
+   * definition (i.e. the index into the property tables array)
    * @param nullFeatureId - The `nullFeatureId` of the `featureId` object
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
@@ -704,8 +474,7 @@ export class ExtMeshFeaturesValidator {
     featureIdTexture: any,
     featureCount: number,
     gltfData: GltfData,
-    usesPropertyTable: boolean,
-    propertyTableCount: number | undefined,
+    propertyTableState: ValidatedElement<{ count: number }>,
     nullFeatureId: number | undefined,
     context: ValidationContext
   ) {
@@ -759,13 +528,12 @@ export class ExtMeshFeaturesValidator {
 
     // Validate the set of feature ID values
     if (
-      !ExtMeshFeaturesValidator.validateFeatureIdSet(
+      !FeatureIdValidator.validateFeatureIdSet(
         path,
         "texture",
         featureIdSet,
         featureCount,
-        usesPropertyTable,
-        propertyTableCount,
+        propertyTableState,
         nullFeatureId,
         context
       )
@@ -774,206 +542,5 @@ export class ExtMeshFeaturesValidator {
     }
 
     return true;
-  }
-
-  /**
-   * Validate the given set of feature ID values that have either
-   * been found in an feature ID texture or in a feature ID attribute.
-   *
-   * This will check the validity of the 'featureCount' for the
-   * given set of features, depending on the presence of the
-   * 'nullFeatureId', and whether the feature IDs are valid
-   * indices into a property table (if the property table count
-   * was given)
-   *
-   * @param path - The path for validation issues
-   * @param sourceName - The source, 'texture' or 'attribute'
-   * @param featureIdSet - The feature ID set. Note that This set
-   * might be modifified by this method!
-   * @param featureCount - The `featureCount` value from the feature ID definition
-   * @param usesPropertyTable - Whether the feature ID refers to a property table
-   * @param propertyTableCount - The `count` of the property table that the
-   * feature ID refers to. This is `undefined` if the feature ID does not use
-   * a property table, or the property table reference was not valid.
-   * @param nullFeatureId - The `nullFeatureId` of the `featureId` object
-   * @param context - The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validateFeatureIdSet(
-    path: string,
-    sourceName: string,
-    featureIdSet: Set<number>,
-    featureCount: number,
-    usesPropertyTable: boolean,
-    propertyTableCount: number | undefined,
-    nullFeatureId: number | undefined,
-    context: ValidationContext
-  ) {
-    // Make sure that the actual number of different values that appear
-    // in the source (excluding the nullFeatureId, if it was defined)
-    // is not larger than the `featureCount`
-    if (defined(nullFeatureId)) {
-      featureIdSet.delete(nullFeatureId);
-      if (featureIdSet.size > featureCount) {
-        const message =
-          `The featureID ${sourceName} contains ${featureIdSet.size} different values ` +
-          `(excluding the nullFeatureId value), but the featureCount was ${featureCount}`;
-        const issue = GltfExtensionValidationIssues.FEATURE_COUNT_MISMATCH(
-          path,
-          message
-        );
-        context.addIssue(issue);
-        return false;
-      }
-    } else {
-      if (featureIdSet.size > featureCount) {
-        const message =
-          `The feature ID ${sourceName} contains ${featureIdSet.size} different values ` +
-          `but the featureCount was ${featureCount}`;
-        const issue = GltfExtensionValidationIssues.FEATURE_COUNT_MISMATCH(
-          path,
-          message
-        );
-        context.addIssue(issue);
-        return false;
-      }
-    }
-
-    // If the feature ID refers to a property table, then make
-    // sure that it only contains feature ID values that are in
-    // the range [0, propertyTable.count)
-    if (usesPropertyTable && propertyTableCount !== undefined) {
-      const featureIdValues = [...featureIdSet];
-      const maximumFeatureId = Math.max(...featureIdValues);
-      const minimumFeatureId = Math.min(...featureIdValues);
-      if (minimumFeatureId < 0 || maximumFeatureId >= propertyTableCount) {
-        const message =
-          `The feature ID refers to a property table with ${propertyTableCount} ` +
-          `rows, so the feature IDs must be in the range ` +
-          `[0,${propertyTableCount - 1}], but the feature ID ${sourceName} ` +
-          `contains values in [${minimumFeatureId},${maximumFeatureId}]`;
-        const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(path, message);
-        context.addIssue(issue);
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * Validate the given feature ID `propertyTable` value that was found in
-   * a feature ID definition.
-   *
-   * This will check whether the `propertyTable` refers to an exising
-   * property table in the `EXT_structural_metadata` extension object,
-   * and this property table has a valid `count`.
-   *
-   * It will NOT check the validity of the property table itself. This
-   * will be done by the `EXT_structural_metadata` validator.
-   *
-   * @param path - The path for validation issues
-   * @param propertyTableIndex - The value that was found as the `propertyTable`
-   * in the definition, indicating the index into the property tables array
-   * @param gltfData - The glTF data
-   * @param context - The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validateFeatureIdPropertyTable(
-    path: string,
-    propertyTableIndex: number,
-    gltfData: GltfData,
-    context: ValidationContext
-  ): boolean {
-    const gltf = gltfData.gltf;
-    const extensions = gltf.extensions || {};
-    const structuralMetadata = extensions["EXT_structural_metadata"];
-
-    if (!structuralMetadata) {
-      const message =
-        `The feature ID refers to a property table with index ` +
-        `${propertyTableIndex}, but the glTF did not contain an ` +
-        `'EXT_structural_metadata' extension object`;
-      const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-        path,
-        message
-      );
-      context.addIssue(issue);
-      return false;
-    }
-    const propertyTables = structuralMetadata.propertyTables;
-    if (!propertyTables) {
-      const message =
-        `The feature ID refers to a property table with index ` +
-        `${propertyTableIndex}, but the 'EXT_structural_metadata' ` +
-        `extension object did not define property tables`;
-      const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-        path,
-        message
-      );
-      context.addIssue(issue);
-      return false;
-    }
-
-    // Validate the propertyTable(Index)
-    // The propertyTable MUST be an integer in [0,numPropertyTables)
-    const numPropertyTables = defaultValue(propertyTables.length, 0);
-    if (
-      !BasicValidator.validateIntegerRange(
-        path,
-        "propertyTable",
-        propertyTableIndex,
-        0,
-        true,
-        numPropertyTables,
-        false,
-        context
-      )
-    ) {
-      return false;
-    }
-
-    const propertyTable = propertyTables[propertyTableIndex];
-    if (!propertyTable) {
-      // An issue will be added to the validation context by
-      // the `EXT_structural_metadata` validation
-      return false;
-    }
-    const count = propertyTable.count;
-    if (count === undefined) {
-      // An issue will be added to the validation context by
-      // the `EXT_structural_metadata` validation
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * Obtain the `count` of the property table that is referred to
-   * with the given index.
-   *
-   * This assumes that the validity of this index has already been
-   * checked with `validateFeatureIdPropertyTable`. If any
-   * element that leads to the `count` is invalid or not defined,
-   * then `undefined` will be returned.
-   *
-   * @param propertyTableIndex - The value that was found as the `propertyTable`
-   * in the definition, indicating the index into the property tables array
-   * @param gltfData - The glTF data
-   * @returns The `count` of the property table
-   */
-  private static obtainPropertyTableCount(
-    propertyTableIndex: number,
-    gltfData: GltfData
-  ): number | undefined {
-    const gltf = gltfData.gltf;
-    const extensions = gltf.extensions || {};
-    const structuralMetadata = extensions["EXT_structural_metadata"] || {};
-    const propertyTables = structuralMetadata.propertyTables;
-    if (!propertyTables || propertyTableIndex >= propertyTables.length) {
-      return undefined;
-    }
-    const propertyTable = propertyTables[propertyTableIndex];
-    const count = propertyTable.count;
-    return count;
   }
 }

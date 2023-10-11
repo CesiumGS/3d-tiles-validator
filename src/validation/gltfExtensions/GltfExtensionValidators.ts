@@ -1,4 +1,5 @@
 import { ValidationContext } from "../ValidationContext";
+import { ExtInstanceFeaturesValidator } from "./ExtInstanceFeaturesValidator";
 
 import { ExtMeshFeaturesValidator } from "./ExtMeshFeaturesValidator";
 import { ExtStructuralMetadataValidator } from "./ExtStructuralMetadataValidator";
@@ -38,6 +39,16 @@ export class GltfExtensionValidators {
       context
     );
     if (!extMeshFeaturesValid) {
+      result = false;
+    }
+
+    // Validate `EXT_instance_features`
+    const extInstanceFeatures = await ExtInstanceFeaturesValidator.validateGltf(
+      path,
+      gltfData,
+      context
+    );
+    if (!extInstanceFeatures) {
       result = false;
     }
 
