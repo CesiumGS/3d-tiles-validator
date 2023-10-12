@@ -23,7 +23,7 @@
     "3d-tiles-validator": "./build/main"
   },
   "dependencies": {
-    "3d-tiles-tools": "^0.3.0",
+    "3d-tiles-tools": "0.3.0",
     "cesium": "^1.97.0",
     "gltf-validator": "^2.0.0-dev.3.9",
     "minimatch": "^5.1.0",
