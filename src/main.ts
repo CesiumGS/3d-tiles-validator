@@ -46,6 +46,11 @@ const args = yargs(process.argv.slice(1))
         "of the report will be derived from the input file name, " +
         "and be written into the same directory as the input file.",
     },
+    tileContentFile: {
+      type: "string",
+      alias: "f",
+      describe: "The tile content input file path",
+    },
     optionsFile: {
       type: "string",
       alias: "o",

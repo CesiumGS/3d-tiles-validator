@@ -2,9 +2,10 @@ import path from "path";
 import fs from "fs";
 
 import { defined } from "3d-tiles-tools";
+import { LazyContentData } from "3d-tiles-tools";
 import { Buffers } from "3d-tiles-tools";
-
 import { ResourceResolvers } from "3d-tiles-tools";
+import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { Validator } from "./Validator";
 import { TilesetValidator } from "./TilesetValidator";
@@ -15,10 +16,9 @@ import { ValidationState } from "./ValidationState";
 import { ValidationOptions } from "./ValidationOptions";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 import { TilesetPackageValidator } from "./TilesetPackageValidator";
+import { ContentDataValidators } from "./ContentDataValidators";
 
 import { SchemaValidator } from "./metadata/SchemaValidator";
-
-import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
@@ -172,6 +172,69 @@ export class Validators {
     context.addActiveTilesetUri(tilesetUri);
     await TilesetPackageValidator.validatePackageFile(filePath, context);
     context.removeActiveTilesetUri(tilesetUri);
+    return context.getResult();
+  }
+
+  /**
+   * Performs a default validation of the given tile content file, and
+   * returns a promise to the `ValidationResult`.
+   *
+   * The given file may be of any format. The method will detect
+   * the format, and decide whether it can perform a sensible
+   * validation, based on the existing validation functionality.
+   *
+   * @param filePath - The file path
+   * @param validationOptions - The `ValidationOptions`. When this
+   * is not given (or `undefined`), then default validation options
+   * will be used. See {@link ValidationOptions}.
+   * @returns A promise to a `ValidationResult` that is fulfilled when
+   * the validation finished.
+   * @beta
+   */
+  static async validateTileContentFile(
+    filePath: string,
+    validationOptions?: ValidationOptions
+  ): Promise<ValidationResult> {
+    const directory = path.dirname(filePath);
+    const fileName = path.basename(filePath);
+    const resourceResolver =
+      ResourceResolvers.createFileResourceResolver(directory);
+    const context = new ValidationContext(
+      directory,
+      resourceResolver,
+      validationOptions
+    );
+    const contentData = new LazyContentData(fileName, resourceResolver);
+
+    // Check if the file exists, and bail out early if it doesn't
+    const dataExists = await contentData.exists();
+    if (!dataExists) {
+      const message = `Content file ${filePath} could not be resolved`;
+      const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
+        filePath,
+        message
+      );
+      context.addIssue(issue);
+      return context.getResult();
+    }
+
+    // Find the validator for the content data, and bail
+    // out early if none could be found
+    const dataValidator = await ContentDataValidators.findContentDataValidator(
+      contentData
+    );
+    if (!defined(dataValidator)) {
+      const message = `No valid content type could be determined for ${filePath}`;
+      const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
+        filePath,
+        message
+      );
+      context.addIssue(issue);
+      return context.getResult();
+    }
+
+    // Perform the actual validation
+    await dataValidator.validateObject(fileName, contentData, context);
     return context.getResult();
   }
 
