@@ -1,16 +1,16 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
-import { RootPropertyValidator } from "./../RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
+import { Schema } from "3d-tiles-tools";
+import { PropertyTable } from "3d-tiles-tools";
+
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
+import { RootPropertyValidator } from "../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
 import { MetadataStructureValidator } from "./MetadataStructureValidator";
 import { PropertyTablePropertyValidator } from "./PropertyTablePropertyValidator";
-
-import { Schema } from "3d-tiles-tools";
-import { PropertyTable } from "3d-tiles-tools";
 
 /**
  * A class for validations related to `propertyTable` objects.

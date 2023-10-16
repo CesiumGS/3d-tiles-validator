@@ -13,7 +13,7 @@ import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues"
  * A class for validations of metadata values against the definitions
  * from a `ClassProperty` from a metadata schema.
  *
- * The methods in this class assume that the property definitions
+ * The methods in this class assume that the class property definitions
  * have already been validated with the `ClassPropertyValidator`.
  *
  * @internal
@@ -33,7 +33,7 @@ export class ClassPropertyValueValidator {
    *
    * @param propertyPath - The path for the `ValidationIssue` instances
    * @param propertyName - The name for the `ValidationIssue` instances
-   * @param property - The `ClassProperty`
+   * @param classProperty - The `ClassProperty`
    * @param maxOrMin - The name, "max" or "min"
    * @param value - The actual value
    * @param context - The `ValidationContext`
@@ -42,7 +42,7 @@ export class ClassPropertyValueValidator {
   static validateMaxMin(
     propertyPath: string,
     propertyName: string,
-    property: ClassProperty,
+    classProperty: ClassProperty,
     maxOrMin: string,
     value: any,
     context: ValidationContext
@@ -50,10 +50,10 @@ export class ClassPropertyValueValidator {
     let result = true;
 
     const path = propertyPath + "/" + maxOrMin;
-    const type = property.type;
+    const type = classProperty.type;
 
     // When the max/min is given, the property MUST have a numeric type
-    if (!ClassProperties.hasNumericType(property)) {
+    if (!ClassProperties.hasNumericType(classProperty)) {
       const issue =
         MetadataValidationIssues.METADATA_MIN_MAX_FOR_NON_NUMERIC_TYPE(
           path,
@@ -66,7 +66,7 @@ export class ClassPropertyValueValidator {
     } else {
       // The offset/scale property MUST NOT be given
       // for variable-length arrays
-      if (property.array === true && !defined(property.count)) {
+      if (classProperty.array === true && !defined(classProperty.count)) {
         const issue =
           MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
             path,
@@ -79,10 +79,11 @@ export class ClassPropertyValueValidator {
         // The max/min MUST match the structure of the defined type
         if (
           !MetadataValueValidator.validateNumericValueStructure(
-            property,
+            classProperty,
             path,
             maxOrMin,
             value,
+            false,
             context
           )
         ) {
@@ -107,7 +108,7 @@ export class ClassPropertyValueValidator {
    *
    * @param propertyPath - The path for the `ValidationIssue` instances
    * @param propertyName - The name for the `ValidationIssue` instances
-   * @param property - The `ClassProperty`
+   * @param classProperty - The `ClassProperty`
    * @param offsetOrScale - The name, "offset" or "scale"
    * @param value - The actual value
    * @param context - The `ValidationContext`
@@ -116,7 +117,7 @@ export class ClassPropertyValueValidator {
   static validateOffsetScale(
     propertyPath: string,
     propertyName: string,
-    property: ClassProperty,
+    classProperty: ClassProperty,
     offsetOrScale: string,
     value: any,
     context: ValidationContext
@@ -124,12 +125,12 @@ export class ClassPropertyValueValidator {
     let result = true;
 
     const path = propertyPath + "/" + offsetOrScale;
-    const type = property.type;
-    const componentType = property.componentType;
-    const normalized = property.normalized;
+    const type = classProperty.type;
+    const componentType = classProperty.componentType;
+    const normalized = classProperty.normalized;
 
     // When the offset/scale is given, the property MUST have a 'floating point type'
-    if (!ClassProperties.hasEffectivelyFloatingPointType(property)) {
+    if (!ClassProperties.hasEffectivelyFloatingPointType(classProperty)) {
       const issue =
         MetadataValidationIssues.METADATA_OFFSET_SCALE_FOR_NON_FLOATING_POINT_TYPE(
           path,
@@ -144,7 +145,7 @@ export class ClassPropertyValueValidator {
     } else {
       // The offset/scale property MUST NOT be given
       // for variable-length arrays
-      if (property.array === true && !defined(property.count)) {
+      if (classProperty.array === true && !defined(classProperty.count)) {
         const issue =
           MetadataValidationIssues.METADATA_PROPERTY_INVALID_FOR_VARIABLE_LENGTH_ARRAY(
             path,
@@ -157,10 +158,11 @@ export class ClassPropertyValueValidator {
         // The offset/scale MUST match the structure of the defined type
         if (
           !MetadataValueValidator.validateNumericValueStructure(
-            property,
+            classProperty,
             path,
             offsetOrScale,
             value,
+            false,
             context
           )
         ) {

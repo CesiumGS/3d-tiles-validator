@@ -1,0 +1,35 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "schema": {
+    "id": "EXAMPLE_SCHEMA_ID",
+    "classes": {
+      "exampleClass": {
+        "properties": {
+          "exampleProperty": {
+            "type": "SCALAR",
+            "componentType": "UINT16",
+            "normalized": true,
+            "max": 0.1
+          }
+        }
+      }
+    }
+  },
+
+  "metadata": {
+    "class": "exampleClass",
+    "properties": {
+      "exampleProperty": 50000
+    }
+  },
+
+  "geometricError": 2.0,
+  "root": {
+    "boundingVolume": {
+      "box": [0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5]
+    },
+    "geometricError": 1.0
+  }
+}
