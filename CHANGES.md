@@ -2,6 +2,7 @@
 Version ?.?.? - 2023-mm-dd
 
 - When an I3DM refers to an external glTF asset with a URI, then the URI has to be padded with `0x20` (space) bytes if necessary to satisfy the alignment requirements. The validator only accepted `0x00` (zero) bytes as padding bytes. Now the validator properly handles trailing spaces, and reports the presence of zero-bytes with a validation warning ([#276](https://github.com/CesiumGS/3d-tiles-validator/issues/276))
+- The case that the `geometricError` of a tile was larger than the `geometricError` of its parent was reported as an `ERROR`. The specification does not explicitly disallow this, so it is now only treated as a `WARNING` ([#286](https://github.com/CesiumGS/3d-tiles-validator/issues/286))
 
 Version 0.4.1 - 2023-05-02
 

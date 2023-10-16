@@ -120,7 +120,7 @@ export class SemanticValidationIssues {
   }
 
   /**
-   * Indicates that the geometric error of a tile was larger than
+   * Indicates a warning that the geometric error of a tile was larger than
    * the geometric error of its parent.
    *
    * @param path - The path for the `ValidationIssue`
@@ -129,7 +129,7 @@ export class SemanticValidationIssues {
    */
   static TILE_GEOMETRIC_ERRORS_INCONSISTENT(path: string, message: string) {
     const type = "TILE_GEOMETRIC_ERRORS_INCONSISTENT";
-    const severity = ValidationIssueSeverity.ERROR;
+    const severity = ValidationIssueSeverity.WARNING;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
