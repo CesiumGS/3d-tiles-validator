@@ -347,19 +347,33 @@ export class TileValidator {
     const children = tile.children;
     const childrenPath = tilePath + "/children";
     if (defined(children)) {
-      // The children MUST be an array of objects with at least 1 element
+      // The children MUST be an array of objects
       if (
         !BasicValidator.validateArray(
           childrenPath,
           "children",
           children,
-          1,
+          0,
           undefined,
           "object",
           context
         )
       ) {
         result = false;
+      } else {
+        // The children are an array of objects.
+        // The case that the array has a length of 0 will cause a warning,
+        // due to https://github.com/CesiumGS/3d-tiles/issues/752
+        if (children.length === 0) {
+          const message =
+            `The 'children' array should contain at least 1 element, ` +
+            `but had a length of 0`;
+          const issue = JsonValidationIssues.ARRAY_LENGTH_UNEXPECTED(
+            childrenPath,
+            message
+          );
+          context.addIssue(issue);
+        }
       }
     }
     return result;

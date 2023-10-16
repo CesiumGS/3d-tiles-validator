@@ -159,6 +159,21 @@ export class JsonValidationIssues {
   }
 
   /**
+   * A warning that indicates that an array SHOULD have had a
+   * certain length, but had a different length.
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static ARRAY_LENGTH_UNEXPECTED(path: string, message: string) {
+    const type = "ARRAY_LENGTH_UNEXPECTED";
+    const severity = ValidationIssueSeverity.WARNING;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  /**
    * Indicates that the length of a string does not match the length
    * that is specified via the JSON schema, using the `minLength`
    * and `maxLength` constraints.
