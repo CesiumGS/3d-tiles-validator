@@ -393,6 +393,14 @@ describe("Tileset validation", function () {
     expect(result.get(0).type).toEqual("REQUIRED_VALUE_NOT_FOUND");
   });
 
+  it("detects issues in tileChildrenEmptyArray", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tileChildrenEmptyArray.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("ARRAY_LENGTH_UNEXPECTED");
+  });
+
   it("detects issues in tileContentBoundingVolumeInvalidType", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/tileContentBoundingVolumeInvalidType.json"
