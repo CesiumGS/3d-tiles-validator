@@ -612,6 +612,80 @@ describe("Tileset validation", function () {
     expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
   });
 
+  it("detects issues in tilesetMetadataEntityPropertyEnumInvalidValue", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetMetadataEntityPropertyEnumInvalidValue.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual(
+      "CLASS_PROPERTY_ENUM_VALUE_NAME_NOT_FOUND"
+    );
+  });
+
+  it("detects issues in tilesetMetadataEntityPropertyMaxNotInRange", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetMetadataEntityPropertyMaxNotInRange.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+  });
+
+  it("detects issues in tilesetMetadataEntityPropertyMaxWithNormalizedNotInRange", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetMetadataEntityPropertyMaxWithNormalizedNotInRange.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+  });
+
+  it("detects issues in tilesetMetadataEntityPropertyMaxWithOffsetNotInRange", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetMetadataEntityPropertyMaxWithOffsetNotInRange.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+  });
+
+  it("detects issues in tilesetMetadataEntityPropertyMaxWithScaleNotInRange", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetMetadataEntityPropertyMaxWithScaleNotInRange.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+  });
+
+  it("detects issues in tilesetMetadataEntityPropertyMinNotInRange", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetMetadataEntityPropertyMinNotInRange.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+  });
+
+  it("detects issues in tilesetMetadataEntityPropertyMinWithNormalizedNotInRange", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetMetadataEntityPropertyMinWithNormalizedNotInRange.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+  });
+
+  it("detects issues in tilesetMetadataEntityPropertyMinWithOffsetNotInRange", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetMetadataEntityPropertyMinWithOffsetNotInRange.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+  });
+
+  it("detects issues in tilesetMetadataEntityPropertyMinWithScaleNotInRange", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tilesetMetadataEntityPropertyMinWithScaleNotInRange.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+  });
+
   it("detects issues in tilesetSchemaUriInvalidType", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/tilesetSchemaUriInvalidType.json"

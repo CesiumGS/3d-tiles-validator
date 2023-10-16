@@ -97,8 +97,10 @@ export class ContentValidator {
       ) {
         result = false;
       } else {
+        const groupsState = validationState.groupsState;
+
         // When a group is given, the tileset MUST define groups
-        if (!validationState.hasGroupsDefinition) {
+        if (!groupsState.wasPresent) {
           const message =
             `Tile content has a group index ${group}, ` +
             `but the containing tileset does not define groups`;
@@ -108,12 +110,12 @@ export class ContentValidator {
           );
           context.addIssue(issue);
           result = false;
-        } else if (defined(validationState.validatedGroups)) {
-          if (group >= validationState.validatedGroups.length) {
+        } else if (defined(groupsState.validatedElement)) {
+          if (group >= groupsState.validatedElement.length) {
             const message =
               `Tile content has a group index ${group}, ` +
               `but the containing tileset only contains ` +
-              `${validationState.validatedGroups.length} groups`;
+              `${groupsState.validatedElement.length} groups`;
             const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
               groupPath,
               message
@@ -163,7 +165,8 @@ export class ContentValidator {
     const metadata = content.metadata;
     const metadataPath = contentPath + "/metadata";
     if (defined(metadata)) {
-      if (!validationState.hasSchemaDefinition) {
+      const schemaState = validationState.schemaState;
+      if (!schemaState.wasPresent) {
         // If there is metadata, then there must be a schema definition
         const message =
           "The content defines 'metadata' but the tileset does not have a schema";
@@ -173,13 +176,13 @@ export class ContentValidator {
         );
         context.addIssue(issue);
         result = false;
-      } else if (defined(validationState.validatedSchema)) {
+      } else if (defined(schemaState.validatedElement)) {
         if (
           !MetadataEntityValidator.validateMetadataEntity(
             metadataPath,
             "content.metadata",
             metadata,
-            validationState.validatedSchema,
+            schemaState.validatedElement,
             context
           )
         ) {

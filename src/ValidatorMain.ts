@@ -1,19 +1,19 @@
 import path from "path";
 
 import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
+import { Iterables } from "3d-tiles-tools";
+import { TileImplicitTiling } from "3d-tiles-tools";
+import { Schema } from "3d-tiles-tools";
+
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
 import { globMatcher } from "./base/globMatcher";
 import { writeUnchecked } from "./base/writeUnchecked";
-import { Iterables } from "3d-tiles-tools";
 
-import { ValidationState } from "./validation/ValidationState";
 import { Validators } from "./validation/Validators";
 import { ValidationResult } from "./validation/ValidationResult";
 import { ValidationOptions } from "./validation/ValidationOptions";
-
-import { TileImplicitTiling } from "3d-tiles-tools";
-import { Schema } from "3d-tiles-tools";
-import { defaultValue } from "3d-tiles-tools";
+import { ValidatedElement } from "./validation/ValidatedElement";
 
 /**
  * A class summarizing the command-line functions of the validator.
@@ -219,14 +219,14 @@ export class ValidatorMain {
 
   static async validateSubtreeFile(
     fileName: string,
-    validationState: ValidationState,
+    schemaState: ValidatedElement<Schema>,
     implicitTiling: TileImplicitTiling | undefined,
     reportFileName: string | undefined
   ): Promise<ValidationResult> {
     console.log("Validating subtree " + fileName);
     const validationResult = await Validators.validateSubtreeFile(
       fileName,
-      validationState,
+      schemaState,
       implicitTiling
     );
     if (defined(reportFileName)) {
@@ -306,10 +306,13 @@ export class ValidatorMain {
     fileName: string,
     reportFileName: string | undefined
   ): Promise<void> {
-    let implicitTiling = undefined;
-    let validationState: ValidationState = {
-      hasSchemaDefinition: false,
-      hasGroupsDefinition: false,
+    // The schema for the subtrees in the specs directory
+    const specSchema: Schema = await readJsonUnchecked(
+      "specs/data/schemas/validSchema.json"
+    );
+    const specSchemaState: ValidatedElement<Schema> = {
+      wasPresent: true,
+      validatedElement: specSchema,
     };
 
     // The `TileImplicitTiling` object that defines the
@@ -317,25 +320,11 @@ export class ValidatorMain {
     const specImplicitTiling = await readJsonUnchecked(
       "specs/data/subtrees/validSubtreeImplicitTiling.json.input"
     );
-    implicitTiling = specImplicitTiling;
-
-    // The `ValidationState` object that contains the
-    // schema for the subtrees in the specs directory
-    const specSchema: Schema = await readJsonUnchecked(
-      "specs/data/schemas/validSchema.json"
-    );
-    const specValidationState: ValidationState = {
-      hasSchemaDefinition: true,
-      validatedSchema: specSchema,
-      hasGroupsDefinition: false,
-      validatedGroups: undefined,
-    };
-    validationState = specValidationState;
 
     await ValidatorMain.validateSubtreeFile(
       fileName,
-      validationState,
-      implicitTiling,
+      specSchemaState,
+      specImplicitTiling,
       reportFileName
     );
   }

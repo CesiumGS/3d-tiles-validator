@@ -200,6 +200,67 @@ export class BasicValidator {
   }
 
   /**
+   * Validate that the given value is an index array.
+   *
+   * If the value is not defined, then `false` is returned.
+   *
+   * If the value is not an array, does not have a length of at least 1,
+   * or contains an element that is not a number, then an error will
+   * be added to the given context, and `false` is returned.
+   *
+   * If any of the elements of the array is not an integer, or it
+   * is negative, then an error will be added to the given context,
+   * and `false` is returned.
+   *
+   * @param path - The path for the `ValidationIssue` message
+   * @param name - The name for the `ValidationIssue` message
+   * @param value - The value
+   * @param maximumValue - The maximum value (EXCLUSIVE) that any
+   * array element may have (or `undefined` if there is no
+   * upper limit)
+   * @param context - The `ValidationContext` to add the issue to
+   * @returns Whether the given value is an index array
+   */
+  static validateIndexArray(
+    path: string,
+    name: string,
+    value: any,
+    maximumValueExclusive: number | undefined,
+    context: ValidationContext
+  ): boolean {
+    const basicValidity = BasicValidator.validateArray(
+      path,
+      name,
+      value,
+      1,
+      undefined,
+      "number",
+      context
+    );
+    if (!basicValidity) {
+      return false;
+    }
+    for (let index = 0; index < value.length; index++) {
+      const element = value[index];
+      const elementPath = path + "/" + index;
+      const elementValid = BasicValidator.validateIntegerRange(
+        elementPath,
+        name + "[" + index + "]",
+        element,
+        0,
+        true,
+        maximumValueExclusive,
+        false,
+        context
+      );
+      if (!elementValid) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Validates that the elements in the given array are unique.
    *
    * This assumes that the basic validation of the array has already
