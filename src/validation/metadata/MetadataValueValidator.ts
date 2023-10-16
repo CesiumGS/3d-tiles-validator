@@ -1,6 +1,6 @@
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
-import { NumberValidator } from "./../NumberValidator";
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
+import { NumberValidator } from "../NumberValidator";
 
 import { MetadataUtilities } from "3d-tiles-tools";
 import { defined } from "3d-tiles-tools";
@@ -42,6 +42,12 @@ export class MetadataValueValidator {
    * validation issue message. For example, this may be "noData"
    * or "default".
    * @param value - The value
+   * @param validateValueRange - Whether the function should also
+   * validate whether the value is in the range that is defined by
+   * the class property component type (if it is a numeric value).
+   * For example, whether the components are in [0,255] when the
+   * component type is `UINT8`.
+   * @param schem - The metadata schema
    * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
@@ -51,6 +57,7 @@ export class MetadataValueValidator {
     property: ClassProperty,
     valueName: string,
     value: any,
+    validateValueRange: boolean,
     schema: Schema,
     context: ValidationContext
   ): boolean {
@@ -94,6 +101,7 @@ export class MetadataValueValidator {
       path,
       valueName,
       value,
+      validateValueRange,
       context
     );
   }
@@ -343,13 +351,24 @@ export class MetadataValueValidator {
    * Validates that a value that appears in a property is a proper
    * numeric value that matches the type of the property.
    *
-   * This is intended for the values that can be given as `offset`,
-   * `scale`, `max`, and `min`, and performs the checks as defined in
-   * `definitions.schema.json#/definitions/numericValue`.
+   * When `validateValueRange` is `false`, then this will only
+   * check the structure of the values (e.g. whether a `VEC2`
+   * property is represented with 2 numeric values). It will
+   * not check whether these values are in the range that is
+   * defined by the component type. This is intended for the
+   * values that can be given as `offset`, `scale`, `max`,
+   * and `min`. For example, for a `normalized` `SCALAR` `UINT8`
+   * property, the value may be `1000.0` (which is out of
+   * the range of `UINT8`), because such a value can be used
+   * in the `offset`, `scale`, `max`, and `min` properties)
    *
    * @param property - The ClassProperty
    * @param valueName - The name of the value (e.g. 'min' or 'offset')
    * @param value - The actual value
+   * @param validateValueRange - Whether the function should also
+   * validate whether the value is in the range that is defined by
+   * the class property component type - for example, whether the
+   * given value is in [0,255] when the component type is `UINT8`.
    * @param context - The `ValidationContext`
    * @returns Whether the value was valid
    */
@@ -358,6 +377,7 @@ export class MetadataValueValidator {
     valuePath: string,
     valueName: string,
     value: any,
+    validateValueRange: boolean,
     context: ValidationContext
   ): boolean {
     // This assumes that the validity of the given property has
@@ -378,18 +398,21 @@ export class MetadataValueValidator {
         ) {
           return false;
         }
-        // The value MUST be in the range that is
-        // determined by the componentType
-        if (
-          !NumberValidator.validateRange(
-            valuePath,
-            "value",
-            value,
-            componentType,
-            context
-          )
-        ) {
-          return false;
+
+        if (validateValueRange) {
+          // The value MUST be in the range that is
+          // determined by the componentType
+          if (
+            !NumberValidator.validateRange(
+              valuePath,
+              "value",
+              value,
+              componentType,
+              context
+            )
+          ) {
+            return false;
+          }
         }
         return true;
       }
@@ -411,14 +434,16 @@ export class MetadataValueValidator {
       ) {
         return false;
       }
-      // Each element MUST be in the range that is
-      // determined by the componentType
-      return NumberValidator.validateRanges(
-        valuePath,
-        value,
-        componentType,
-        context
-      );
+      if (validateValueRange) {
+        // Each element MUST be in the range that is
+        // determined by the componentType
+        return NumberValidator.validateRanges(
+          valuePath,
+          value,
+          componentType,
+          context
+        );
+      }
     }
 
     // Here, the value must be an array.
@@ -444,14 +469,16 @@ export class MetadataValueValidator {
         return false;
       }
 
-      // Each element MUST be in the range that is
-      // determined by the componentType
-      return NumberValidator.validateRanges(
-        valuePath,
-        value,
-        componentType,
-        context
-      );
+      if (validateValueRange) {
+        // Each element MUST be in the range that is
+        // determined by the componentType
+        return NumberValidator.validateRanges(
+          valuePath,
+          value,
+          componentType,
+          context
+        );
+      }
     }
 
     // For non-SCALAR arrays, the value MUST be an array of objects
@@ -489,17 +516,19 @@ export class MetadataValueValidator {
       ) {
         allElementsValid = false;
       } else {
-        // Each element of the array MUST be in the range that is
-        // determined by the componentType
-        if (
-          !NumberValidator.validateRanges(
-            valueElementPath,
-            valueElement,
-            componentType,
-            context
-          )
-        ) {
-          allElementsValid = false;
+        if (validateValueRange) {
+          // Each element of the array MUST be in the range that is
+          // determined by the componentType
+          if (
+            !NumberValidator.validateRanges(
+              valueElementPath,
+              valueElement,
+              componentType,
+              context
+            )
+          ) {
+            allElementsValid = false;
+          }
         }
       }
     }

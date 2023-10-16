@@ -1,16 +1,22 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
+import { ArrayValues } from "3d-tiles-tools";
+import { ClassProperties } from "3d-tiles-tools";
+import { ClassProperty } from "3d-tiles-tools";
+import { MetadataValues } from "3d-tiles-tools";
+import { Schema } from "3d-tiles-tools";
+import { MetadataEntity } from "3d-tiles-tools";
 
-import { ValidationContext } from "./../ValidationContext";
-import { BasicValidator } from "./../BasicValidator";
-import { RootPropertyValidator } from "./../RootPropertyValidator";
-import { ExtendedObjectsValidators } from "./../ExtendedObjectsValidators";
+import { ValidationContext } from "../ValidationContext";
+import { BasicValidator } from "../BasicValidator";
+import { RootPropertyValidator } from "../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
 import { MetadataStructureValidator } from "./MetadataStructureValidator";
 import { MetadataValueValidator } from "./MetadataValueValidator";
+import { MetadataValuesValidationMessages } from "./MetadataValueValidationMessages";
 
-import { Schema } from "3d-tiles-tools";
-import { MetadataEntity } from "3d-tiles-tools";
+import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 
 /**
  * A class for validations related to `metadataEntity` objects.
@@ -120,10 +126,122 @@ export class MetadataEntityValidator {
             classProperty,
             propertyName,
             propertyValue,
+            true,
             schema,
             context
           )
         ) {
+          result = false;
+        }
+      }
+    }
+
+    // If everything seemed to be valid until now, validate
+    // the metadata entity values
+    if (result) {
+      // Validate each property
+      for (const propertyName of validPropertyNames) {
+        const propertyPath = path + "/" + propertyName;
+        const classProperty = classProperties[propertyName];
+        const rawPropertyValue = validProperties[propertyName];
+        if (defined(rawPropertyValue)) {
+          if (
+            !MetadataEntityValidator.validateMetadataEntityPropertyValue(
+              propertyPath,
+              propertyName,
+              rawPropertyValue,
+              classProperty,
+              context
+            )
+          ) {
+            result = false;
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Ensure that the given value is valid for the given class property.
+   *
+   * This checks whether the value obeys the min/max that have been
+   * defined in the class property.
+   *
+   * @param path - The path for the `ValidationIssue` instances
+   * @param propertyName - The property name
+   * @param rawPropertyValue - The raw property value from the JSON,
+   * without normalization, offset, or scale
+   * @param classProperty - The class property that describes the
+   * structure of the property
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the given value was valid
+   */
+  private static validateMetadataEntityPropertyValue(
+    path: string,
+    propertyName: string,
+    rawPropertyValue: any,
+    classProperty: ClassProperty,
+    context: ValidationContext
+  ): boolean {
+    let result = true;
+    if (ClassProperties.hasNumericType(classProperty)) {
+      const propertyValue = MetadataValues.processValue(
+        classProperty,
+        undefined,
+        undefined,
+        rawPropertyValue
+      );
+
+      // When the ClassProperty defines a minimum, then the metadata
+      // values MUST not be smaller than this minimum
+      if (defined(classProperty.min)) {
+        const definedMin = classProperty.min;
+        if (ArrayValues.anyDeepLessThan(propertyValue, definedMin)) {
+          const valueMessagePart =
+            MetadataValuesValidationMessages.createValueMessagePart(
+              rawPropertyValue,
+              classProperty,
+              {},
+              propertyValue
+            );
+
+          const message =
+            `For property '${propertyName}', the class property ` +
+            `defines a minimum of ${definedMin}, but the value ` +
+            `in the metadata entity is ${valueMessagePart}`;
+          const issue = MetadataValidationIssues.METADATA_VALUE_NOT_IN_RANGE(
+            path,
+            message
+          );
+          context.addIssue(issue);
+          result = false;
+        }
+      }
+
+      // When the ClassProperty defines a maximum, then the metadata
+      // values MUST not be greater than this maximum
+      if (defined(classProperty.max)) {
+        const definedMax = classProperty.max;
+        if (ArrayValues.anyDeepGreaterThan(propertyValue, definedMax)) {
+          const valueMessagePart =
+            MetadataValuesValidationMessages.createValueMessagePart(
+              rawPropertyValue,
+              classProperty,
+              {},
+              propertyValue
+            );
+
+          const message =
+            `For property '${propertyName}', the class property ` +
+            `defines a maximum of ${definedMax}, but the value ` +
+            `in the metadata entity is ${valueMessagePart}`;
+          const issue = MetadataValidationIssues.METADATA_VALUE_NOT_IN_RANGE(
+            path,
+            message
+          );
+          context.addIssue(issue);
           result = false;
         }
       }

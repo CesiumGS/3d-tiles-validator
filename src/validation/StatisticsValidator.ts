@@ -1,15 +1,15 @@
 import { defined } from "3d-tiles-tools";
+import { Schema } from "3d-tiles-tools";
+import { Statistics } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
-import { ValidationState } from "./ValidationState";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
-
-import { Statistics } from "3d-tiles-tools";
+import { StatisticsClassValidator } from "./StatisticsClassValidator";
+import { ValidatedElement } from "./ValidatedElement";
 
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { StatisticsClassValidator } from "./StatisticsClassValidator";
 
 /**
  * A class for validations related to `statistics` objects.
@@ -23,14 +23,14 @@ export class StatisticsValidator {
    *
    * @param path - The path for `ValidationIssue` instances
    * @param statistics - The object to validate
-   * @param validationState - The `ValidationState`.
+   * @param schemaState - The state of the schema validation.
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validateStatistics(
     path: string,
     statistics: Statistics,
-    validationState: ValidationState,
+    schemaState: ValidatedElement<Schema>,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
@@ -96,7 +96,7 @@ export class StatisticsValidator {
         }
 
         // If there are classes, then there must be a schema
-        if (!validationState.hasSchemaDefinition) {
+        if (!schemaState.wasPresent) {
           const message =
             "The tileset defines 'statistics.classes' but does not have a schema";
           const issue = StructureValidationIssues.REQUIRED_VALUE_NOT_FOUND(
@@ -105,7 +105,7 @@ export class StatisticsValidator {
           );
           context.addIssue(issue);
           result = false;
-        } else if (defined(validationState.validatedSchema)) {
+        } else if (defined(schemaState.validatedElement)) {
           // Validate all entries of the classes dictionary
           for (const className of Object.keys(classes)) {
             const statisticsClass = classes[className];
@@ -113,7 +113,7 @@ export class StatisticsValidator {
               !StatisticsClassValidator.validateStatisticsClass(
                 statisticsClass,
                 className,
-                validationState.validatedSchema,
+                schemaState.validatedElement,
                 context
               )
             ) {

@@ -5,6 +5,7 @@ import { ValidationContext } from "../validation/ValidationContext";
 import { ValidationIssue } from "../validation/ValidationIssue";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
+import { GltfExtensionValidators } from "../validation/gltfExtensions/GltfExtensionValidators";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const validator = require("gltf-validator");
@@ -173,6 +174,13 @@ export class GltfValidator implements Validator<Buffer> {
         issue.addCause(cause);
       }
       context.addIssue(issue);
+    }
+
+    // XXX TODO Find a sensible place to hook in glTF extension validators
+    const extensionsValid =
+      await GltfExtensionValidators.validateGltfExtensions(uri, input, context);
+    if (!extensionsValid) {
+      return false;
     }
 
     return true;

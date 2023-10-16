@@ -49,7 +49,8 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       // byteOffset to cause an invalid alignment
       const valuesBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"].values;
-      binaryPropertyTable.binaryBufferStructure!.bufferViews![
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
+      binaryMetadata.binaryBufferStructure!.bufferViews![
         valuesBufferViewIndex
       ].byteOffset = 1;
 
@@ -74,7 +75,8 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       // byteLength to cause an invalid size
       const valuesBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"].values;
-      binaryPropertyTable.binaryBufferStructure!.bufferViews![
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
+      binaryMetadata.binaryBufferStructure!.bufferViews![
         valuesBufferViewIndex
       ].byteLength = 12345;
 
@@ -134,7 +136,8 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const arrayOffsetsBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"]
           .arrayOffsets!;
-      binaryPropertyTable.binaryBufferStructure!.bufferViews![
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
+      binaryMetadata.binaryBufferStructure!.bufferViews![
         arrayOffsetsBufferViewIndex
       ].byteOffset = 5;
 
@@ -160,7 +163,8 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const arrayOffsetsBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"]
           .arrayOffsets!;
-      binaryPropertyTable.binaryBufferStructure!.bufferViews![
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
+      binaryMetadata.binaryBufferStructure!.bufferViews![
         arrayOffsetsBufferViewIndex
       ].byteLength = 12345;
 
@@ -186,8 +190,9 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const arrayOffsetsBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"]
           .arrayOffsets!;
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
       const arrayOffsetsBufferViewData =
-        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+        binaryMetadata.binaryBufferData!.bufferViewsData![
           arrayOffsetsBufferViewIndex
         ];
       arrayOffsetsBufferViewData.writeInt32LE(12345, 4);
@@ -215,8 +220,9 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const arrayOffsetsBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"]
           .arrayOffsets!;
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
       const arrayOffsetsBufferViewData =
-        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+        binaryMetadata.binaryBufferData!.bufferViewsData![
           arrayOffsetsBufferViewIndex
         ];
       arrayOffsetsBufferViewData.writeInt32LE(0, 0);
@@ -274,9 +280,8 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       // For the test: Assign a value to the 'count' of
       // the property, so that the length of the 'values'
       // buffer view does no longer match
-      binaryPropertyTable.metadataClass.properties![
-        "testProperty"
-      ].count = 12345;
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
+      binaryMetadata.metadataClass.properties!["testProperty"].count = 12345;
 
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
         "test",
@@ -406,8 +411,9 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const arrayOffsetsBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"]
           .arrayOffsets!;
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
       const arrayOffsetsBufferViewData =
-        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+        binaryMetadata.binaryBufferData!.bufferViewsData![
           arrayOffsetsBufferViewIndex
         ];
       arrayOffsetsBufferViewData.writeInt32LE(0, 0);
@@ -465,9 +471,8 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       // For the test: Assign a value to the 'count' of
       // the property, so that the length of the 'values'
       // buffer view does no longer match
-      binaryPropertyTable.metadataClass.properties![
-        "testProperty"
-      ].count = 12345;
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
+      binaryMetadata.metadataClass.properties!["testProperty"].count = 12345;
 
       BinaryPropertyTableValidator.validateBinaryPropertyTable(
         "test",
@@ -525,7 +530,8 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const stringOffsetsBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"]
           .stringOffsets!;
-      binaryPropertyTable.binaryBufferStructure!.bufferViews![
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
+      binaryMetadata.binaryBufferStructure!.bufferViews![
         stringOffsetsBufferViewIndex
       ].byteOffset = 5;
 
@@ -551,7 +557,8 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const stringOffsetsBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"]
           .stringOffsets!;
-      binaryPropertyTable.binaryBufferStructure!.bufferViews![
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
+      binaryMetadata.binaryBufferStructure!.bufferViews![
         stringOffsetsBufferViewIndex
       ].byteLength = 12345;
 
@@ -577,8 +584,9 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const stringOffsetsBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"]
           .stringOffsets!;
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
       const stringOffsetsBufferViewData =
-        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+        binaryMetadata.binaryBufferData!.bufferViewsData![
           stringOffsetsBufferViewIndex
         ];
       stringOffsetsBufferViewData.writeInt32LE(12345, 4);
@@ -606,8 +614,9 @@ describe("metadata/BinaryPropertyTableValidationSpec", function () {
       const stringOffsetsBufferViewIndex =
         binaryPropertyTable.propertyTable.properties!["testProperty"]
           .stringOffsets!;
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
       const stringOffsetsBufferViewData =
-        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+        binaryMetadata.binaryBufferData!.bufferViewsData![
           stringOffsetsBufferViewIndex
         ];
       stringOffsetsBufferViewData.writeInt32LE(0, 0);

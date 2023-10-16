@@ -19,10 +19,9 @@ function prepareTest_example_INT16_SCALAR(
   const propertyTableProperty =
     binaryPropertyTable.propertyTable.properties!["testProperty"];
   const valuesBufferViewIndex = propertyTableProperty.values;
+  const binaryMetadata = binaryPropertyTable.binaryMetadata;
   const valuesBufferViewData =
-    binaryPropertyTable.binaryBufferData!.bufferViewsData![
-      valuesBufferViewIndex
-    ];
+    binaryMetadata.binaryBufferData!.bufferViewsData![valuesBufferViewIndex];
   valuesBufferViewData.writeInt16LE(10, 0);
   valuesBufferViewData.writeInt16LE(12, 2);
 }
@@ -33,8 +32,9 @@ function setClassPropertyOffsetScale(
   offset: any,
   scale: any
 ) {
+  const binaryMetadata = binaryPropertyTable.binaryMetadata;
   const classProperty =
-    binaryPropertyTable.metadataClass.properties!["testProperty"];
+    binaryMetadata.metadataClass.properties!["testProperty"];
   classProperty.offset = offset;
   classProperty.scale = scale;
 }
@@ -57,8 +57,9 @@ function setClassPropertyMinMax(
   min: any,
   max: any
 ) {
+  const binaryMetadata = binaryPropertyTable.binaryMetadata;
   const classProperty =
-    binaryPropertyTable.metadataClass.properties!["testProperty"];
+    binaryMetadata.metadataClass.properties!["testProperty"];
   classProperty.min = min;
   classProperty.max = max;
 }
@@ -100,8 +101,9 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
       const propertyTableProperty =
         binaryPropertyTable.propertyTable.properties!["testProperty"];
       const valuesBufferViewIndex = propertyTableProperty.values;
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
       const valuesBufferViewData =
-        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+        binaryMetadata.binaryBufferData!.bufferViewsData![
           valuesBufferViewIndex
         ];
       valuesBufferViewData.writeUInt16LE(9999, 2);
@@ -158,8 +160,9 @@ describe("metadata/BinaryPropertyTableValuesValidationSpec", function () {
       const propertyTableProperty =
         binaryPropertyTable.propertyTable.properties!["testProperty"];
       const valuesBufferViewIndex = propertyTableProperty.values;
+      const binaryMetadata = binaryPropertyTable.binaryMetadata;
       const valuesBufferViewData =
-        binaryPropertyTable.binaryBufferData!.bufferViewsData![
+        binaryMetadata.binaryBufferData!.bufferViewsData![
           valuesBufferViewIndex
         ];
       valuesBufferViewData.writeUInt16LE(12345, 2);

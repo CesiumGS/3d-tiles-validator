@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 
-import { defined } from "3d-tiles-tools";
+import { defined, Schema } from "3d-tiles-tools";
 import { Buffers } from "3d-tiles-tools";
 
 import { ResourceResolvers } from "3d-tiles-tools";
@@ -11,10 +11,10 @@ import { TilesetValidator } from "./TilesetValidator";
 import { ValidationContext } from "./ValidationContext";
 import { ValidationResult } from "./ValidationResult";
 import { SubtreeValidator } from "./SubtreeValidator";
-import { ValidationState } from "./ValidationState";
 import { ValidationOptions } from "./ValidationOptions";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 import { TilesetPackageValidator } from "./TilesetPackageValidator";
+import { ValidatedElement } from "./ValidatedElement";
 
 import { SchemaValidator } from "./metadata/SchemaValidator";
 
@@ -216,14 +216,14 @@ export class Validators {
    */
   static createDefaultSubtreeValidator(
     uri: string,
-    validationState: ValidationState,
+    schemaState: ValidatedElement<Schema>,
     implicitTiling: TileImplicitTiling | undefined
   ): SubtreeValidator {
     const directory = path.dirname(uri);
     const resourceResolver =
       ResourceResolvers.createFileResourceResolver(directory);
     const validator = new SubtreeValidator(
-      validationState,
+      schemaState,
       implicitTiling,
       resourceResolver
     );
@@ -241,7 +241,7 @@ export class Validators {
    */
   static async validateSubtreeFile(
     filePath: string,
-    validationState: ValidationState,
+    schemaState: ValidatedElement<Schema>,
     implicitTiling: TileImplicitTiling | undefined
   ): Promise<ValidationResult> {
     const directory = path.dirname(filePath);
@@ -251,7 +251,7 @@ export class Validators {
     const resourceData = await resourceResolver.resolveData(fileName);
     const validator = Validators.createDefaultSubtreeValidator(
       filePath,
-      validationState,
+      schemaState,
       implicitTiling
     );
     const context = new ValidationContext(directory, resourceResolver);
