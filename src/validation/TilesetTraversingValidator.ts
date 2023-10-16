@@ -388,8 +388,9 @@ export class TilesetTraversingValidator {
   /**
    * Validate the consistency of the given traversed tile instances.
    *
-   * This will check the conditions that must hold for parent/child
-   * tiles, for example, the consistency of the geometric error
+   * This will check whether the geometric error of the tile
+   * is larger than the geometric error of its parent, and
+   * create a warning if this is not the case.
    *
    * @param traversedParent - The parent `TraversedTile`
    * @param traversedTile - The current `TraversedTile`
@@ -404,8 +405,8 @@ export class TilesetTraversingValidator {
     const tile = traversedTile.asRawTile();
     const parent = traversedParent.asRawTile();
 
-    // Validate that the parent geometricError is not larger
-    // than the tile geometricError
+    // Create a warning when the geometric error of the tile
+    // is larger than the geometric error of its parent
     const parentGeometricError = parent.geometricError;
     const tileGeometricError = tile.geometricError;
     if (
@@ -422,9 +423,9 @@ export class TilesetTraversingValidator {
         message
       );
       context.addIssue(issue);
-      return false;
     }
-
+    // The geometric error inconsistency is only a WARNING,
+    // so the tile is still considered to be valid
     return true;
   }
 }
