@@ -16,6 +16,7 @@ import { ValidationOptions } from "./ValidationOptions";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 import { TilesetPackageValidator } from "./TilesetPackageValidator";
 import { ContentDataValidators } from "./ContentDataValidators";
+import { ValidatedElement } from "./ValidatedElement";
 
 import { SchemaValidator } from "./metadata/SchemaValidator";
 
