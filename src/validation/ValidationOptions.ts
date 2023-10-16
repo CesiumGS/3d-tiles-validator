@@ -38,6 +38,7 @@ export class ValidationOptions {
   constructor() {
     this._validateContentData = true;
     this._includeContentTypes = undefined;
+    this._excludeContentTypes = undefined;
   }
 
   /**

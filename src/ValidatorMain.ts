@@ -58,6 +58,16 @@ export class ValidatorMain {
         config.writeReports,
         validationOptions
       );
+    } else if (config.tileContentFile) {
+      const reportFileName = ValidatorMain.obtainReportFileName(
+        config,
+        config.tileContentFile
+      );
+      await ValidatorMain.validateTileContentFile(
+        config.tileContentFile,
+        reportFileName,
+        validationOptions
+      );
     } else if (config.metadataSchemaFile) {
       const reportFileName = ValidatorMain.obtainReportFileName(
         config,
@@ -170,6 +180,26 @@ export class ValidatorMain {
     console.log(`    ${numFilesWithErrors} files with errors`);
     console.log(`    ${numFilesWithWarnings} files with warnings`);
     console.log(`    ${numFilesWithInfos} files with infos`);
+  }
+
+  static async validateTileContentFile(
+    fileName: string,
+    reportFileName: string | undefined,
+    options: ValidationOptions | undefined
+  ): Promise<ValidationResult> {
+    console.log("Validating tile content " + fileName);
+
+    const validationResult = await Validators.validateTileContentFile(
+      fileName,
+      options
+    );
+    if (defined(reportFileName)) {
+      await writeUnchecked(reportFileName, validationResult.serialize());
+    } else {
+      console.log("Validation result:");
+      console.log(validationResult.serialize());
+    }
+    return validationResult;
   }
 
   static async validateSchemaFile(
