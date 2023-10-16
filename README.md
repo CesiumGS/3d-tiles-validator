@@ -57,6 +57,13 @@ This will validate all tileset files in the given directory and all its subdirec
 npx 3d-tiles-validator --tilesetsDirectory specs/data/Samples/ --tilesetGlobPattern **/*.json
 ```
 
+#### Validate a tile content file
+```
+npx 3d-tiles-validator --tileContentFile specs/data/gltfExtensions/FeatureIdAttributeAndPropertyTableFeatureIdNotInRange.gltf
+```
+
+The input file can be any of the content types that are supported by the validator. This includes B3DM, I3DM, PNTS, CMPT, and glTF/GLB files. The type of the file will be determined, and if it is not a known type, then a validation warning will be created.
+
 ### Report Files
 
 By default, validation reports are printed to the console. 
