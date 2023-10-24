@@ -1,5 +1,5 @@
 
-Version ?.?.? - 2023-mm-dd
+Version 0.5.0 - 2023-10-24
 
 - Added validation of glTF extensions via [#280](https://github.com/CesiumGS/3d-tiles-validator/pull/280) and [#284](https://github.com/CesiumGS/3d-tiles-validator/pull/284). In addition to the basic validation of glTF tile content that is performed with the glTF validator, the 3D Tiles Validator now checks the validity of certain glTF extensions:
   - For `EXT_mesh_features`, it will check the validity of feature ID attributes and feature ID textures
