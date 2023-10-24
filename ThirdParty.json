@@ -4,8 +4,32 @@
     "license": [
       "Apache-2.0"
     ],
-    "version": "0.2.1",
+    "version": "0.3.1",
     "url": "https://www.npmjs.com/package/3d-tiles-tools"
+  },
+  {
+    "name": "@gltf-transform/core",
+    "license": [
+      "MIT"
+    ],
+    "version": "3.7.4",
+    "url": "https://www.npmjs.com/package/@gltf-transform/core"
+  },
+  {
+    "name": "@gltf-transform/extensions",
+    "license": [
+      "MIT"
+    ],
+    "version": "3.7.4",
+    "url": "https://www.npmjs.com/package/@gltf-transform/extensions"
+  },
+  {
+    "name": "@gltf-transform/functions",
+    "license": [
+      "MIT"
+    ],
+    "version": "3.7.4",
+    "url": "https://www.npmjs.com/package/@gltf-transform/functions"
   },
   {
     "name": "cesium",
@@ -38,6 +62,14 @@
     ],
     "version": "1.15.0",
     "url": "https://www.npmjs.com/package/node-stream-zip"
+  },
+  {
+    "name": "sharp",
+    "license": [
+      "Apache-2.0"
+    ],
+    "version": "0.32.6",
+    "url": "https://www.npmjs.com/package/sharp"
   },
   {
     "name": "yargs",

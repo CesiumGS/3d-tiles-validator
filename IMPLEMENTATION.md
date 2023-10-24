@@ -18,8 +18,7 @@ The classes in the `./src/validation` directory are the core classes for the 3D 
 
 The entry point for the tileset validation is the `TilesetValidator` class. This class is not publicly visible, but it is the main class that is used in the public `Validators.validateTilesetFile` method. The validation process, as it is implemented in the `TilesetValidator`, is:
 
-- It receives a tileset JSON string and parses it into a `structure/Tileset.ts` object.
-  - Note: These `structure/*` classes are "plain objects". The do not have methods, and no real type checking. They _only_ hold the parsed data.
+- It receives a tileset JSON string and parses it into a `Tileset` object from the `structure` package of the `3d-tiles-tools`
 - It traverses the `Tileset` structure, and performs the validation
   - For each object type, there is a validator, like `AssetValidator`, `ContentValidator`, `TileValidator`, `BoundingVolumeValidator` etc. For now, these are mainly classes with single static functions, but they might be refined for some objects.
 
@@ -27,7 +26,7 @@ Each validation function receives a `ValidationContext` as the last parameter.
 
 The `ValidationContext` class:
 
-- Can contain configuration options that may be needed in the future (like `doValidateContents=false` or so)
+- Contains a `ValidationOptions` object that contains configuration options for the validation process (e.g. flags that determine whether tile content should be validated)
 - Maintains a `ResourceResolver` that reads a `Buffer` from a given URI (resolved in the respective context - the tileset, external tileset, or glTF)
 - Collects the `ValidationIssue` instances (errors and warnings) that are found during the traversal
 
