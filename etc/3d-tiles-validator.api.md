@@ -6,7 +6,6 @@
 
 /// <reference types="node" />
 
-import { Group } from '3d-tiles-tools';
 import { ResourceResolver } from '3d-tiles-tools';
 import { Schema } from '3d-tiles-tools';
 import { TileImplicitTiling } from '3d-tiles-tools';
@@ -86,11 +85,11 @@ export class Validators {
     //
     // @internal
     static createDefaultSchemaValidator(): SchemaValidator;
-    // Warning: (ae-forgotten-export) The symbol "ValidationState" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "ValidatedElement" needs to be exported by the entry point index.d.ts
     // Warning: (ae-forgotten-export) The symbol "SubtreeValidator" needs to be exported by the entry point index.d.ts
     //
     // @internal
-    static createDefaultSubtreeValidator(uri: string, validationState: ValidationState, implicitTiling: TileImplicitTiling | undefined): SubtreeValidator;
+    static createDefaultSubtreeValidator(uri: string, schemaState: ValidatedElement<Schema>, implicitTiling: TileImplicitTiling | undefined): SubtreeValidator;
     // Warning: (ae-forgotten-export) The symbol "TilesetValidator" needs to be exported by the entry point index.d.ts
     //
     // @internal
@@ -104,7 +103,8 @@ export class Validators {
     // @internal
     static validateSchemaFile(filePath: string): Promise<ValidationResult>;
     // @internal
-    static validateSubtreeFile(filePath: string, validationState: ValidationState, implicitTiling: TileImplicitTiling | undefined): Promise<ValidationResult>;
+    static validateSubtreeFile(filePath: string, schemaState: ValidatedElement<Schema>, implicitTiling: TileImplicitTiling | undefined): Promise<ValidationResult>;
+    static validateTileContentFile(filePath: string, validationOptions?: ValidationOptions): Promise<ValidationResult>;
     static validateTilesetFile(filePath: string, validationOptions?: ValidationOptions): Promise<ValidationResult>;
 }
 
