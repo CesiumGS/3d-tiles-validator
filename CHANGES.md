@@ -1,8 +1,15 @@
 
 Version ?.?.? - 2023-mm-dd
 
+- Added validation of glTF extensions via [#280](https://github.com/CesiumGS/3d-tiles-validator/pull/280) and [#284](https://github.com/CesiumGS/3d-tiles-validator/pull/284). In addition to the basic validation of glTF tile content that is performed with the glTF validator, the 3D Tiles Validator now checks the validity of certain glTF extensions:
+  - For `EXT_mesh_features`, it will check the validity of feature ID attributes and feature ID textures
+  - For `EXT_instance_features`, it will check the validity of the feature ID attributes that refer to the `EXT_mesh_gpu_instancing` extension
+  - For `EXT_structural_metadata`, it will check the validity of the metadata schema definition, property tables, property attributes, and property textures
+- Added a command line functionality for validating single tile content files (glTF/GLB, B3DM, I3DM, PNTS, and CMPT), via [#285](https://github.com/CesiumGS/3d-tiles-validator/pull/285)
 - When an I3DM refers to an external glTF asset with a URI, then the URI has to be padded with `0x20` (space) bytes if necessary to satisfy the alignment requirements. The validator only accepted `0x00` (zero) bytes as padding bytes. Now the validator properly handles trailing spaces, and reports the presence of zero-bytes with a validation warning ([#276](https://github.com/CesiumGS/3d-tiles-validator/issues/276))
-- The case that the `geometricError` of a tile was larger than the `geometricError` of its parent was reported as an `ERROR`. The specification does not explicitly disallow this, so it is now only treated as a `WARNING` ([#286](https://github.com/CesiumGS/3d-tiles-validator/issues/286))
+- Changed the severity level of validation issues:
+  - The case that the `geometricError` of a tile was larger than the `geometricError` of its parent was reported as an `ERROR`. The specification does not explicitly disallow this, so it is now only treated as a `WARNING` ([#286](https://github.com/CesiumGS/3d-tiles-validator/issues/286))
+  - An empty `children` array in a tile was treated as an `ERROR`, but is now treated as a `WARNING`, via [#288](https://github.com/CesiumGS/3d-tiles-validator/pull/288)
 
 Version 0.4.1 - 2023-05-02
 
