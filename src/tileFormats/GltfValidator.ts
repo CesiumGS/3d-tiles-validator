@@ -96,6 +96,7 @@ export class GltfValidator implements Validator<Buffer> {
     try {
       gltfResult = await validator.validateBytes(inputWithoutPadding, {
         uri: uri,
+        maxIssues: 1000,
         externalResourceFunction: (gltfUri: string) => {
           const resolvedDataPromise = resourceResolver.resolveData(gltfUri);
           return resolvedDataPromise.then((resolvedData: any) => {
