@@ -1,4 +1,8 @@
 
+Version ?.?.? - yyyy-mm-dd
+
+- The maximum number of issues that are reported for a single glTF asset is now limited (via [#291](https://github.com/CesiumGS/3d-tiles-validator/pull/291)).
+
 Version 0.5.0 - 2023-10-24
 
 - Added validation of glTF extensions via [#280](https://github.com/CesiumGS/3d-tiles-validator/pull/280) and [#284](https://github.com/CesiumGS/3d-tiles-validator/pull/284). In addition to the basic validation of glTF tile content that is performed with the glTF validator, the 3D Tiles Validator now checks the validity of certain glTF extensions:
