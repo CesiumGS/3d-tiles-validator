@@ -19,6 +19,15 @@ const validator = require("gltf-validator");
  */
 export class GltfValidator implements Validator<Buffer> {
   /**
+   * The maximum number of issues that should be reported by
+   * the glTF validator. For large glTF assets that contain
+   * "completely invalid" data, a large number of issues
+   * can cause out-of-memory errors.
+   * See https://github.com/CesiumGS/3d-tiles-validator/issues/290
+   */
+  private static readonly MAX_ISSUES = 1000;
+
+  /**
    * Creates a `ValidationIssue` object for the given 'message' object
    * that appears in the output of the glTF validator.
    *
@@ -96,6 +105,7 @@ export class GltfValidator implements Validator<Buffer> {
     try {
       gltfResult = await validator.validateBytes(inputWithoutPadding, {
         uri: uri,
+        maxIssues: GltfValidator.MAX_ISSUES,
         externalResourceFunction: (gltfUri: string) => {
           const resolvedDataPromise = resourceResolver.resolveData(gltfUri);
           return resolvedDataPromise.then((resolvedData: any) => {
@@ -168,7 +178,6 @@ export class GltfValidator implements Validator<Buffer> {
       );
 
       for (const gltfMessage of gltfResult.issues.messages) {
-        //console.log(gltfMessage);
         const cause =
           GltfValidator.createValidationIssueFromGltfMessage(gltfMessage);
         issue.addCause(cause);
@@ -176,7 +185,8 @@ export class GltfValidator implements Validator<Buffer> {
       context.addIssue(issue);
     }
 
-    // XXX TODO Find a sensible place to hook in glTF extension validators
+    // When the glTF itself is considered to be valid, then perform
+    // the validation of the Cesium glTF metadata extensions
     const extensionsValid =
       await GltfExtensionValidators.validateGltfExtensions(uri, input, context);
     if (!extensionsValid) {
