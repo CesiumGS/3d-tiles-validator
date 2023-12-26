@@ -2,6 +2,7 @@
 Version ?.?.? - yyyy-mm-dd
 
 - The maximum number of issues that are reported for a single glTF asset is now limited (via [#291](https://github.com/CesiumGS/3d-tiles-validator/pull/291)).
+- When the number of bytes that are required for a certain feature ID or property texture property did not match the number of `channels`, then the validator reported this as an `ERROR`, with the type `TEXTURE_CHANNELS_OUT_OF_RANGE`. This could cause errors to be reported for the case of 16-bit channels in textures, where these numbers do not have to match. Now, these cases are only reported as a `WARNING`, of the type `TEXTURE_CHANNELS_SIZE_MISMATCH`.
 
 Version 0.5.0 - 2023-10-24
 

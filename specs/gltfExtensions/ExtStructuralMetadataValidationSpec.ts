@@ -235,6 +235,14 @@ describe("EXT_structural_metadata extension validation", function () {
     expect(result.get(0).type).toEqual("IDENTIFIER_NOT_FOUND");
   });
 
+  it("detects issues in PropertyTexturePropertyChannelsSizeMismatch", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/structuralMetadata/PropertyTexturePropertyChannelsSizeMismatch.gltf"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("TEXTURE_CHANNELS_SIZE_MISMATCH");
+  });
+
   it("detects issues in PropertyTexturePropertyIndexInvalidType", async function () {
     const result = await validateGltf(
       "./specs/data/gltfExtensions/structuralMetadata/PropertyTexturePropertyIndexInvalidType.gltf"
