@@ -197,8 +197,13 @@ export class PropertyTexturePropertyValidator {
    * the type `STRING`, and has already been determined to be
    * structurally valid.
    *
-   * If the number is not valid, then a validation error will be added
-   * to the given context, and `false` will be returned.
+   * If the number is not valid, then a validation warning will be
+   * added to the given context.
+   *
+   * This makes the assumption that one channel of the image
+   * indeed consists of 8 bits. Since there is no reasonable
+   * way validate the bit depth of the image, any mismatch
+   * will only result in a WARNING (and not an error).
    *
    * @param path - The path for the `ValidationIssue` instances
    * @param propertyName - The name of the property
@@ -239,12 +244,11 @@ export class PropertyTexturePropertyValidator {
             `a total number of ${totalByteSize}, but the number of channels ` +
             `in the property texture property was ${numberOfChannels}`;
           const issue =
-            GltfExtensionValidationIssues.TEXTURE_CHANNELS_OUT_OF_RANGE(
+            GltfExtensionValidationIssues.TEXTURE_CHANNELS_SIZE_MISMATCH(
               path,
               message
             );
           context.addIssue(issue);
-          return false;
         }
       } else {
         // Handle properties that are single enums
@@ -255,12 +259,11 @@ export class PropertyTexturePropertyValidator {
             `consists of ${byteSize} bytes, but the number of channels ` +
             `in the property texture property was ${numberOfChannels}`;
           const issue =
-            GltfExtensionValidationIssues.TEXTURE_CHANNELS_OUT_OF_RANGE(
+            GltfExtensionValidationIssues.TEXTURE_CHANNELS_SIZE_MISMATCH(
               path,
               message
             );
           context.addIssue(issue);
-          return false;
         }
       }
 
@@ -282,12 +285,11 @@ export class PropertyTexturePropertyValidator {
             `ceil(${count}/8) = ${totalByteSize} bytes, but the number of channels ` +
             `in the property texture property was ${numberOfChannels}`;
           const issue =
-            GltfExtensionValidationIssues.TEXTURE_CHANNELS_OUT_OF_RANGE(
+            GltfExtensionValidationIssues.TEXTURE_CHANNELS_SIZE_MISMATCH(
               path,
               message
             );
           context.addIssue(issue);
-          return false;
         }
       }
       // For BOOLEAN properties that are not arrays, even a single
@@ -318,12 +320,11 @@ export class PropertyTexturePropertyValidator {
           `a total number of ${totalByteSize}, but the number of channels ` +
           `in the property texture property was ${numberOfChannels}`;
         const issue =
-          GltfExtensionValidationIssues.TEXTURE_CHANNELS_OUT_OF_RANGE(
+          GltfExtensionValidationIssues.TEXTURE_CHANNELS_SIZE_MISMATCH(
             path,
             message
           );
         context.addIssue(issue);
-        return false;
       }
     } else {
       // Handle properties that are not arrays
@@ -336,12 +337,11 @@ export class PropertyTexturePropertyValidator {
           `the number of channels in the property texture property ` +
           `was ${numberOfChannels}`;
         const issue =
-          GltfExtensionValidationIssues.TEXTURE_CHANNELS_OUT_OF_RANGE(
+          GltfExtensionValidationIssues.TEXTURE_CHANNELS_SIZE_MISMATCH(
             path,
             message
           );
         context.addIssue(issue);
-        return false;
       }
     }
     return true;
