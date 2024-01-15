@@ -10,7 +10,7 @@ The `ValidFeatureIdTexture.glb` and `ValidFeatureIdAttributeDefault/` are
 intended for basic tests of binary- and default (non-embedded) glTF assets. 
 
 The `ValidFeatureIdAttributeWithByteStride.glb` was created from the original
-`ValidFeatureIdAttribute.gltf` by passing reading it with glTF-Transform and
+`ValidFeatureIdAttribute.gltf` by reading it with glTF-Transform and
 writing it as binary glTF, which happens to write all attributes in an
 interleaved way, causing a byte stride to be inserted.
 
