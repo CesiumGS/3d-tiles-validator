@@ -1,6 +1,6 @@
-import { ClassProperty } from "3d-tiles-tools";
-import { MetadataValues } from "3d-tiles-tools";
-import { NumericBuffers } from "3d-tiles-tools";
+import { ClassProperty } from "@3d-tiles-tools/structure";
+import { MetadataValues } from "@3d-tiles-tools/metadata";
+import { NumericBuffers } from "@3d-tiles-tools/metadata";
 
 import { ImageData } from "./ImageData";
 import { ImageDataReader } from "./ImageDataReader";

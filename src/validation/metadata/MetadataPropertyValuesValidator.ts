@@ -1,6 +1,6 @@
-import { defined } from "3d-tiles-tools";
-import { ArrayValues } from "3d-tiles-tools";
-import { ClassProperty } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { ArrayValues } from "@3d-tiles-tools/metadata";
+import { ClassProperty } from "@3d-tiles-tools/structure";
 
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";

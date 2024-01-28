@@ -1,11 +1,13 @@
 import path from "path";
 import fs from "fs";
 
-import { defined, Schema } from "3d-tiles-tools";
-import { LazyContentData } from "3d-tiles-tools";
-import { Buffers } from "3d-tiles-tools";
-import { ResourceResolvers } from "3d-tiles-tools";
-import { TileImplicitTiling } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { LazyContentData } from "@3d-tiles-tools/base";
+import { Buffers } from "@3d-tiles-tools/base";
+import { ResourceResolvers } from "@3d-tiles-tools/base";
+
+import { Schema } from "@3d-tiles-tools/structure";
+import { TileImplicitTiling } from "@3d-tiles-tools/structure";
 
 import { Validator } from "./Validator";
 import { TilesetValidator } from "./TilesetValidator";

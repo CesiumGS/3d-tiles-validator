@@ -1,7 +1,7 @@
-import { defined } from "3d-tiles-tools";
-import { defaultValue } from "3d-tiles-tools";
-import { ClassProperties } from "3d-tiles-tools";
-import { Schema } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { defaultValue } from "@3d-tiles-tools/base";
+import { ClassProperties } from "@3d-tiles-tools/metadata";
+import { Schema } from "@3d-tiles-tools/structure";
 
 import { ValidationContext } from "../ValidationContext";
 

@@ -1,10 +1,10 @@
 import path from "path";
 
-import { defined } from "3d-tiles-tools";
-import { defaultValue } from "3d-tiles-tools";
-import { Iterables } from "3d-tiles-tools";
-import { TileImplicitTiling } from "3d-tiles-tools";
-import { Schema } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { defaultValue } from "@3d-tiles-tools/base";
+import { Iterables } from "@3d-tiles-tools/base";
+import { TileImplicitTiling } from "@3d-tiles-tools/structure";
+import { Schema } from "@3d-tiles-tools/structure";
 
 import { readJsonUnchecked } from "./base/readJsonUnchecked";
 import { globMatcher } from "./base/globMatcher";

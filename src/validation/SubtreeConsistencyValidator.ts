@@ -1,18 +1,18 @@
-import { defined } from "3d-tiles-tools";
-import { defaultValue } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { defaultValue } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 
-import { Subtree } from "3d-tiles-tools";
-import { Availability } from "3d-tiles-tools";
-import { TileImplicitTiling } from "3d-tiles-tools";
+import { Subtree } from "@3d-tiles-tools/structure";
+import { Availability } from "@3d-tiles-tools/structure";
+import { TileImplicitTiling } from "@3d-tiles-tools/structure";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
-import { ImplicitTilings } from "3d-tiles-tools";
+import { ImplicitTilings } from "@3d-tiles-tools/tilesets";
 import { BinaryBufferStructureValidator } from "./BinaryBufferStructureValidator";
-import { BinaryBufferStructure } from "3d-tiles-tools";
+import { BinaryBufferStructure } from "@3d-tiles-tools/base";
 
 /**
  * A class for the validation of the consistency of subtrees.

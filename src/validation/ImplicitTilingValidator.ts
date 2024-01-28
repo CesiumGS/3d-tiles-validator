@@ -4,7 +4,7 @@ import { TemplateUriValidator } from "./TemplateUriValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
-import { TileImplicitTiling } from "3d-tiles-tools";
+import { TileImplicitTiling } from "@3d-tiles-tools/structure";
 
 /**
  * A class for validations related to `implicitTiling` objects.

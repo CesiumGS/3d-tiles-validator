@@ -1,8 +1,8 @@
-import { defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
 
 import { ValidationOptions } from "./ValidationOptions";
-import { ContentData } from "3d-tiles-tools";
-import { ContentDataTypeRegistry } from "3d-tiles-tools";
+import { ContentData } from "@3d-tiles-tools/base";
+import { ContentDataTypeRegistry } from "@3d-tiles-tools/base";
 
 /**
  * A class for checking the settings that are stored

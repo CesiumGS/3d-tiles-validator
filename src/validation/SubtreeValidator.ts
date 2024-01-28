@@ -1,19 +1,19 @@
-import { defined } from "3d-tiles-tools";
-import { defaultValue } from "3d-tiles-tools";
-import { Buffers } from "3d-tiles-tools";
-import { ResourceResolver } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { defaultValue } from "@3d-tiles-tools/base";
+import { Buffers } from "@3d-tiles-tools/base";
+import { ResourceResolver } from "@3d-tiles-tools/base";
 
-import { Schema } from "3d-tiles-tools";
-import { Subtree } from "3d-tiles-tools";
-import { Availability } from "3d-tiles-tools";
-import { TileImplicitTiling } from "3d-tiles-tools";
+import { Schema } from "@3d-tiles-tools/structure";
+import { Subtree } from "@3d-tiles-tools/structure";
+import { Availability } from "@3d-tiles-tools/structure";
+import { TileImplicitTiling } from "@3d-tiles-tools/structure";
 
-import { MetadataUtilities } from "3d-tiles-tools";
-import { BinaryBufferStructure } from "3d-tiles-tools";
-import { BinarySubtreeData } from "3d-tiles-tools";
-import { BinarySubtreeDataResolver } from "3d-tiles-tools";
-import { BinaryPropertyTable } from "3d-tiles-tools";
-import { BinaryMetadata } from "3d-tiles-tools";
+import { MetadataUtilities } from "@3d-tiles-tools/metadata";
+import { BinaryBufferStructure } from "@3d-tiles-tools/base";
+import { BinarySubtreeData } from "@3d-tiles-tools/tilesets";
+import { BinarySubtreeDataResolver } from "@3d-tiles-tools/tilesets";
+import { BinaryPropertyTable } from "@3d-tiles-tools/metadata";
+import { BinaryMetadata } from "@3d-tiles-tools/metadata";
 
 import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";

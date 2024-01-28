@@ -1,4 +1,4 @@
-import { BinaryBufferData } from "3d-tiles-tools";
+import { BinaryBufferData } from "@3d-tiles-tools/base";
 import { Document } from "@gltf-transform/core";
 
 /**

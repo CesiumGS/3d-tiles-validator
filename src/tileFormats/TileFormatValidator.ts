@@ -1,4 +1,4 @@
-import { Buffers } from "3d-tiles-tools";
+import { Buffers } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "../validation/ValidationContext";
 

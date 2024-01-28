@@ -1,11 +1,11 @@
-import { defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
-import { Asset } from "3d-tiles-tools";
+import { Asset } from "@3d-tiles-tools/structure";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 

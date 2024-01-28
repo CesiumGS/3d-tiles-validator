@@ -1,4 +1,5 @@
-import { defaultValue, defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { defaultValue } from "@3d-tiles-tools/base";
 import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
 import { ValidatedElement } from "../ValidatedElement";
 import { ValidationContext } from "../ValidationContext";

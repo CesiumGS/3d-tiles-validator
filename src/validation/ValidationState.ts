@@ -1,5 +1,5 @@
-import { Schema } from "3d-tiles-tools";
-import { Group } from "3d-tiles-tools";
+import { Schema } from "@3d-tiles-tools/structure";
+import { Group } from "@3d-tiles-tools/structure";
 
 import { ValidatedElement } from "./ValidatedElement";
 

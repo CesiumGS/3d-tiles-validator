@@ -1,4 +1,5 @@
-import { ClassProperty, defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { ClassProperty } from "@3d-tiles-tools/structure";
 
 /**
  * Utility methods related to the messages that are part of

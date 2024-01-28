@@ -1,21 +1,21 @@
 import path from "path";
-import { defined } from "3d-tiles-tools";
-import { Buffers } from "3d-tiles-tools";
-import { UnzippingResourceResolver } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { Buffers } from "@3d-tiles-tools/base";
+import { UnzippingResourceResolver } from "@3d-tiles-tools/base";
 
 import { Validators } from "./Validators";
 import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";
 
-import { TilesetSourceResourceResolver } from "3d-tiles-tools";
+import { TilesetSourceResourceResolver } from "@3d-tiles-tools/tilesets";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 
-import { TilesetSource3tz } from "3d-tiles-tools";
-import { TilesetSource3dtiles } from "3d-tiles-tools";
-import { TilesetSourceFs } from "3d-tiles-tools";
-import { TilesetSource } from "3d-tiles-tools";
+import { TilesetSource3tz } from "@3d-tiles-tools/tilesets";
+import { TilesetSource3dtiles } from "@3d-tiles-tools/tilesets";
+import { TilesetSourceFs } from "@3d-tiles-tools/tilesets";
+import { TilesetSource } from "@3d-tiles-tools/tilesets";
 import { ArchiveValidation3tz } from "../archives/ArchiveValidation3tz";
 
 /**

@@ -1,5 +1,5 @@
-import { ClassProperty } from "3d-tiles-tools";
-import { MetadataValues } from "3d-tiles-tools";
+import { ClassProperty } from "@3d-tiles-tools/structure";
+import { MetadataValues } from "@3d-tiles-tools/metadata";
 import { MetadataPropertyModel } from "../metadata/MetadataPropertyModel";
 
 /**

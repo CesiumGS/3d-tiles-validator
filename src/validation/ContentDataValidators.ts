@@ -1,9 +1,10 @@
-import { ContentDataTypeRegistry, defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { ContentDataTypeRegistry } from "@3d-tiles-tools/base";
 
 import { Validators } from "./Validators";
 import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";
-import { ContentData } from "3d-tiles-tools";
+import { ContentData } from "@3d-tiles-tools/base";
 import { TilesetPackageValidator } from "./TilesetPackageValidator";
 
 import { B3dmValidator } from "../tileFormats/B3dmValidator";
@@ -12,7 +13,7 @@ import { PntsValidator } from "../tileFormats/PntsValidator";
 import { CmptValidator } from "../tileFormats/CmptValidator";
 import { GltfValidator } from "../tileFormats/GltfValidator";
 
-import { Tileset } from "3d-tiles-tools";
+import { Tileset } from "@3d-tiles-tools/structure";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 

@@ -1,13 +1,13 @@
-import { defined } from "3d-tiles-tools";
-import { defaultValue } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { defaultValue } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 
-import { BufferObject } from "3d-tiles-tools";
-import { BufferView } from "3d-tiles-tools";
+import { BufferObject } from "@3d-tiles-tools/structure";
+import { BufferView } from "@3d-tiles-tools/structure";
 
-import { BinaryBufferStructure } from "3d-tiles-tools";
+import { BinaryBufferStructure } from "@3d-tiles-tools/base";
 
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";

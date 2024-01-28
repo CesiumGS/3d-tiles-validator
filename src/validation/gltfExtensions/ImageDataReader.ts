@@ -1,7 +1,7 @@
 import sharp from "sharp";
 
-import { defined } from "3d-tiles-tools";
-import { BinaryBufferData } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { BinaryBufferData } from "@3d-tiles-tools/base";
 
 import { ImageData } from "./ImageData";
 import { ValidationContext } from "../ValidationContext";

@@ -1,6 +1,6 @@
 import path from "path";
-import { defined } from "3d-tiles-tools";
-import { ExplicitTraversedTile } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { ExplicitTraversedTile } from "@3d-tiles-tools/tilesets";
 
 import { ValidationContext } from "./ValidationContext";
 import { ValidationState } from "./ValidationState";
@@ -9,15 +9,15 @@ import { TileContentValidator } from "./TileContentValidator";
 import { SubtreeValidator } from "./SubtreeValidator";
 import { ImplicitTilingValidator } from "./ImplicitTilingValidator";
 
-import { TilesetTraverser } from "3d-tiles-tools";
-import { TraversedTile } from "3d-tiles-tools";
+import { TilesetTraverser } from "@3d-tiles-tools/tilesets";
+import { TraversedTile } from "@3d-tiles-tools/tilesets";
 
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 
-import { ImplicitTilingError } from "3d-tiles-tools";
+import { ImplicitTilingError } from "@3d-tiles-tools/tilesets";
 
-import { Tileset } from "3d-tiles-tools";
-import { TileImplicitTiling } from "3d-tiles-tools";
+import { Tileset } from "@3d-tiles-tools/structure";
+import { TileImplicitTiling } from "@3d-tiles-tools/structure";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 import { ValidationIssues } from "../issues/ValidationIssues";

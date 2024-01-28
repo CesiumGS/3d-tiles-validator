@@ -1,8 +1,8 @@
 import path from "path";
 
-import { defaultValue } from "3d-tiles-tools";
+import { defaultValue } from "@3d-tiles-tools/base";
 
-import { ResourceResolver } from "3d-tiles-tools";
+import { ResourceResolver } from "@3d-tiles-tools/base";
 
 import { ValidationIssue } from "./ValidationIssue";
 import { ValidationOptions } from "./ValidationOptions";

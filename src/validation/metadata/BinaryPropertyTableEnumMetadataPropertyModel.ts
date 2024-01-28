@@ -1,9 +1,9 @@
-import { PropertyModel } from "3d-tiles-tools";
-import { MetadataValues } from "3d-tiles-tools";
-import { BinaryPropertyModels } from "3d-tiles-tools";
+import { PropertyModel } from "@3d-tiles-tools/metadata";
+import { MetadataValues } from "@3d-tiles-tools/metadata";
+import { BinaryPropertyModels } from "@3d-tiles-tools/metadata";
 
-import { BinaryPropertyTable } from "3d-tiles-tools";
-import { ClassProperty } from "3d-tiles-tools";
+import { BinaryPropertyTable } from "@3d-tiles-tools/metadata";
+import { ClassProperty } from "@3d-tiles-tools/structure";
 
 import { MetadataPropertyModel } from "./MetadataPropertyModel";
 

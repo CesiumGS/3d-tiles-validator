@@ -1,4 +1,4 @@
-import { DeveloperError } from "3d-tiles-tools";
+import { DeveloperError } from "@3d-tiles-tools/base";
 
 /**
  * Methods to create iterables over ranges

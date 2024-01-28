@@ -1,13 +1,13 @@
 import { JSONDocument } from "@gltf-transform/core";
 import { Document } from "@gltf-transform/core";
 
-import { BinaryBufferData } from "3d-tiles-tools";
-import { BinaryBufferDataResolver } from "3d-tiles-tools";
-import { BinaryBufferStructure } from "3d-tiles-tools";
-import { Buffers } from "3d-tiles-tools";
-import { GltfTransform } from "3d-tiles-tools";
-import { ResourceResolver } from "3d-tiles-tools";
-import { GltfUtilities } from "3d-tiles-tools";
+import { BinaryBufferData } from "@3d-tiles-tools/base";
+import { BinaryBufferDataResolver } from "@3d-tiles-tools/base";
+import { BinaryBufferStructure } from "@3d-tiles-tools/base";
+import { Buffers } from "@3d-tiles-tools/base";
+import { GltfTransform } from "@3d-tiles-tools/tools";
+import { ResourceResolver } from "@3d-tiles-tools/base";
+import { GltfUtilities } from "@3d-tiles-tools/tools";
 
 import { ValidationContext } from "../ValidationContext";
 import { GltfData } from "./GltfData";

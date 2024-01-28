@@ -1,11 +1,11 @@
-import { defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "./ValidationContext";
 import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
-import { BoundingVolume } from "3d-tiles-tools";
+import { BoundingVolume } from "@3d-tiles-tools/structure";
 
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";

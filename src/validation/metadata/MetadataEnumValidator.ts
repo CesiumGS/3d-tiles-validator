@@ -1,4 +1,4 @@
-import { defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
@@ -6,10 +6,10 @@ import { RootPropertyValidator } from "../RootPropertyValidator";
 import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 import { NumberValidator } from "../NumberValidator";
 
-import { MetadataComponentTypes } from "3d-tiles-tools";
+import { MetadataComponentTypes } from "@3d-tiles-tools/metadata";
 
-import { MetadataEnum } from "3d-tiles-tools";
-import { EnumValue } from "3d-tiles-tools";
+import { MetadataEnum } from "@3d-tiles-tools/structure";
+import { EnumValue } from "@3d-tiles-tools/structure";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 

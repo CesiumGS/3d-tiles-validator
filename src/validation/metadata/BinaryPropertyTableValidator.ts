@@ -1,13 +1,13 @@
-import { defined } from "3d-tiles-tools";
-import { defaultValue } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { defaultValue } from "@3d-tiles-tools/base";
 
-import { BinaryPropertyTable } from "3d-tiles-tools";
-import { NumericBuffers } from "3d-tiles-tools";
+import { BinaryPropertyTable } from "@3d-tiles-tools/metadata";
+import { NumericBuffers } from "@3d-tiles-tools/metadata";
 
-import { MetadataComponentTypes } from "3d-tiles-tools";
-import { MetadataTypes } from "3d-tiles-tools";
+import { MetadataComponentTypes } from "@3d-tiles-tools/metadata";
+import { MetadataTypes } from "@3d-tiles-tools/metadata";
 
-import { ClassProperty } from "3d-tiles-tools";
+import { ClassProperty } from "@3d-tiles-tools/structure";
 
 import { ValidationContext } from "../ValidationContext";
 

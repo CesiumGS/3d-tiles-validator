@@ -1,6 +1,6 @@
-import { defined } from "3d-tiles-tools";
-import { PropertyTable } from "3d-tiles-tools";
-import { Schema } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { PropertyTable } from "@3d-tiles-tools/structure";
+import { Schema } from "@3d-tiles-tools/structure";
 
 import { ValidationContext } from "../ValidationContext";
 import { ValidatedElement } from "../ValidatedElement";

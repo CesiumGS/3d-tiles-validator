@@ -3,7 +3,7 @@ import { BasicValidator } from "./BasicValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
-import { Properties } from "3d-tiles-tools";
+import { Properties } from "@3d-tiles-tools/structure";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 

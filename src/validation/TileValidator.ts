@@ -1,4 +1,4 @@
-import { defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "./ValidationContext";
 import { ContentValidator } from "./ContentValidator";
@@ -13,8 +13,8 @@ import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 
-import { Tile } from "3d-tiles-tools";
-import { TileImplicitTiling } from "3d-tiles-tools";
+import { Tile } from "@3d-tiles-tools/structure";
+import { TileImplicitTiling } from "@3d-tiles-tools/structure";
 
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";

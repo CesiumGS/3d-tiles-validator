@@ -3,8 +3,8 @@ import crypto from "crypto";
 
 import StreamZip = require("node-stream-zip");
 
-import { IndexEntry } from "3d-tiles-tools";
-import { ArchiveFunctions3tz } from "3d-tiles-tools";
+import { IndexEntry } from "@3d-tiles-tools/tilesets";
+import { ArchiveFunctions3tz } from "@3d-tiles-tools/tilesets";
 
 // NOTE: These functions are carved out and ported to TypeScript from
 // https://github.com/bjornblissing/3d-tiles-tools/blob/2f4844d5bdd704509bff65199898981228594aaa/validator/lib/archive.js

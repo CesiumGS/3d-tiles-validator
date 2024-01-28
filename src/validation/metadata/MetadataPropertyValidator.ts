@@ -1,4 +1,5 @@
-import { ClassProperty, defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { ClassProperty } from "@3d-tiles-tools/structure";
 
 import { ValidationContext } from "../ValidationContext";
 import { ClassPropertyValueValidator } from "./ClassPropertyValueValidator";

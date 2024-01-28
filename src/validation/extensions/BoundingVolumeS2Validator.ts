@@ -1,4 +1,4 @@
-import { defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
 
 import { Validator } from "../Validator";
 import { ValidationContext } from "../ValidationContext";

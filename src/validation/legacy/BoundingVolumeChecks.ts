@@ -8,8 +8,8 @@ import {
   Matrix4,
   Plane,
 } from "cesium";
-import { defined } from "3d-tiles-tools";
-import { BoundingVolume } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { BoundingVolume } from "@3d-tiles-tools/structure";
 
 /**
  * The checks for bounding volumes from the the original 3d-tiles-validator.

@@ -1,7 +1,7 @@
-import { ClassProperty } from "3d-tiles-tools";
-import { MetadataEnum } from "3d-tiles-tools";
-import { MetadataUtilities } from "3d-tiles-tools";
-import { Schema } from "3d-tiles-tools";
+import { ClassProperty } from "@3d-tiles-tools/structure";
+import { MetadataEnum } from "@3d-tiles-tools/structure";
+import { MetadataUtilities } from "@3d-tiles-tools/metadata";
+import { Schema } from "@3d-tiles-tools/structure";
 
 /**
  * Internal utilities related to the validation of ENUM values.

@@ -1,16 +1,17 @@
-import { BinarySubtreeData, defined } from "3d-tiles-tools";
-import { defaultValue } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
+import { defaultValue } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "./ValidationContext";
 
-import { SubtreeInfos } from "3d-tiles-tools";
-import { AvailabilityInfo } from "3d-tiles-tools";
-import { ImplicitTilings } from "3d-tiles-tools";
+import { BinarySubtreeData } from "@3d-tiles-tools/tilesets";
+import { SubtreeInfos } from "@3d-tiles-tools/tilesets";
+import { AvailabilityInfo } from "@3d-tiles-tools/tilesets";
+import { ImplicitTilings } from "@3d-tiles-tools/tilesets";
 
-import { TileImplicitTiling } from "3d-tiles-tools";
+import { TileImplicitTiling } from "@3d-tiles-tools/structure";
 
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
-import { ImplicitTilingError } from "3d-tiles-tools";
+import { ImplicitTilingError } from "@3d-tiles-tools/tilesets";
 import { ValidationIssues } from "../issues/ValidationIssues";
 
 /**

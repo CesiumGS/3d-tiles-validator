@@ -1,16 +1,16 @@
 import paths from "path";
 
-import { defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
 
-import { Uris } from "3d-tiles-tools";
+import { Uris } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "./ValidationContext";
-import { ContentDataTypeRegistry } from "3d-tiles-tools";
-import { ContentData } from "3d-tiles-tools";
-import { LazyContentData } from "3d-tiles-tools";
+import { ContentDataTypeRegistry } from "@3d-tiles-tools/base";
+import { ContentData } from "@3d-tiles-tools/base";
+import { LazyContentData } from "@3d-tiles-tools/base";
 import { ContentDataValidators } from "./ContentDataValidators";
 
-import { Content } from "3d-tiles-tools";
+import { Content } from "@3d-tiles-tools/structure";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";

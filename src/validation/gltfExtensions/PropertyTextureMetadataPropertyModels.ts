@@ -1,4 +1,4 @@
-import { ClassProperty } from "3d-tiles-tools";
+import { ClassProperty } from "@3d-tiles-tools/structure";
 
 import { ImageData } from "./ImageData";
 

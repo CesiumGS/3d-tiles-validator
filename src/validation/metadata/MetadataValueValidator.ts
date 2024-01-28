@@ -2,12 +2,12 @@ import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
 import { NumberValidator } from "../NumberValidator";
 
-import { MetadataUtilities } from "3d-tiles-tools";
-import { defined } from "3d-tiles-tools";
-import { MetadataTypes } from "3d-tiles-tools";
+import { MetadataUtilities } from "@3d-tiles-tools/metadata";
+import { defined } from "@3d-tiles-tools/base";
+import { MetadataTypes } from "@3d-tiles-tools/metadata";
 
-import { Schema } from "3d-tiles-tools";
-import { ClassProperty } from "3d-tiles-tools";
+import { Schema } from "@3d-tiles-tools/structure";
+import { ClassProperty } from "@3d-tiles-tools/structure";
 
 import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues";
 

@@ -1,8 +1,8 @@
-import { defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
 
-import { PropertyTableProperty } from "3d-tiles-tools";
-import { ClassProperty } from "3d-tiles-tools";
-import { MetadataComponentTypes } from "3d-tiles-tools";
+import { PropertyTableProperty } from "@3d-tiles-tools/structure";
+import { ClassProperty } from "@3d-tiles-tools/structure";
+import { MetadataComponentTypes } from "@3d-tiles-tools/metadata";
 
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";

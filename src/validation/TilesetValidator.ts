@@ -1,4 +1,4 @@
-import { defined } from "3d-tiles-tools";
+import { defined } from "@3d-tiles-tools/base";
 
 import { Validator } from "./Validator";
 import { ValidationState } from "./ValidationState";
@@ -14,9 +14,9 @@ import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 import { SchemaDefinitionValidator } from "./metadata/SchemaDefinitionValidator";
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 
-import { Tileset } from "3d-tiles-tools";
-import { Schema } from "3d-tiles-tools";
-import { Group } from "3d-tiles-tools";
+import { Tileset } from "@3d-tiles-tools/structure";
+import { Schema } from "@3d-tiles-tools/structure";
+import { Group } from "@3d-tiles-tools/structure";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
