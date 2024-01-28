@@ -25,7 +25,7 @@ export interface MetadataPropertyModel<K> {
    * The type of the returned object depends on the type of
    * the property:
    * - For `ENUM` properties, it will be a `string` containing
-   *   the name of the repsective enum value (or `undefined`
+   *   the name of the respective enum value (or `undefined`
    *   if the value was not one of the `enum.values[i].value`
    *   values)
    * - For `BOOLEAN` properties, it will be a `boolean`
