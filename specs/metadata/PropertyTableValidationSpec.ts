@@ -1,11 +1,11 @@
 import { readJsonUnchecked } from "../../src/base/readJsonUnchecked";
-import { ResourceResolvers } from "3d-tiles-tools";
+import { ResourceResolvers } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "../../src/validation/ValidationContext";
 
 import { PropertyTableValidator } from "../../src/validation/metadata/PropertyTableValidator";
 
-import { Schema } from "3d-tiles-tools";
+import { Schema } from "@3d-tiles-tools/structure";
 
 describe("metadata/PropertyTableValidationSpec", function () {
   let fullMetadataSchema: Schema;

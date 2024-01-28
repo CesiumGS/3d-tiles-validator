@@ -1,4 +1,4 @@
-import { ResourceResolvers } from "3d-tiles-tools";
+import { ResourceResolvers } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "../../src/validation/ValidationContext";
 import { BinaryPropertyTableValidator } from "../../src/validation/metadata/BinaryPropertyTableValidator";

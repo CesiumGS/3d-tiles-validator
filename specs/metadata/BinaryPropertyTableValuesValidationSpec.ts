@@ -1,10 +1,10 @@
-import { ResourceResolvers } from "3d-tiles-tools";
+import { ResourceResolvers } from "@3d-tiles-tools/base";
 
 import { ValidationContext } from "../../src/validation/ValidationContext";
 import { BinaryPropertyTableValidator } from "../../src/validation/metadata/BinaryPropertyTableValidator";
 
 import { PropertyTableTestUtilities } from "./PropertyTableTestUtilities";
-import { BinaryPropertyTable } from "3d-tiles-tools";
+import { BinaryPropertyTable } from "@3d-tiles-tools/metadata";
 
 // A flag to enable printing all `ValidationResult`
 // instances to the console during the tests.

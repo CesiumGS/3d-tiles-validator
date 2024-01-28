@@ -1,8 +1,8 @@
 import fs from "fs";
 
-import { ResourceResolvers } from "3d-tiles-tools";
+import { ResourceResolvers } from "@3d-tiles-tools/base";
 
-import { BinaryBufferStructure } from "3d-tiles-tools";
+import { BinaryBufferStructure } from "@3d-tiles-tools/base";
 
 import { BinaryBufferStructureValidator } from "../src/validation/BinaryBufferStructureValidator";
 import { ValidationContext } from "../src/validation/ValidationContext";
