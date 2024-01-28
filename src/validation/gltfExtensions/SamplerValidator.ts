@@ -83,7 +83,7 @@ export class SamplerValidator {
     let result = true;
     if (!allowedValues.includes(sampler.minFilter)) {
       const message =
-        `The feature ID texture refers to a sampler with 'minFilter' ` +
+        `The texture refers to a sampler with 'minFilter' ` +
         `mode ${sampler.minFilter}, but the filter mode must ` +
         `be one of ${allowedValuesString}`;
 
@@ -93,7 +93,7 @@ export class SamplerValidator {
     }
     if (!allowedValues.includes(sampler.magFilter)) {
       const message =
-        `The feature ID texture refers to a sampler with 'magFilter' ` +
+        `The texture refers to a sampler with 'magFilter' ` +
         `mode ${sampler.minFilter}, but the filter mode must ` +
         `be one of ${allowedValuesString}`;
       const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(path, message);
