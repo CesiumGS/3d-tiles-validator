@@ -205,7 +205,7 @@ export class TilesetPackageValidator implements Validator<string> {
 
     const bom = Buffers.getUnicodeBOMDescription(tilesetJsonBuffer);
     if (defined(bom)) {
-      const message = `Unexpected BOM in subtree JSON buffer: ${bom}`;
+      const message = `Unexpected BOM in JSON buffer: ${bom}`;
       const issue = IoValidationIssues.IO_ERROR(uri, message);
       context.addIssue(issue);
       return false;
