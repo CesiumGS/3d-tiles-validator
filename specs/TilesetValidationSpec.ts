@@ -580,6 +580,22 @@ describe("Tileset validation", function () {
     expect(result.get(0).type).toEqual("VALUE_NOT_IN_LIST");
   });
 
+  it("detects issues in tileRefineMissingInRoot", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tileRefineMissingInRoot.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("TILE_REFINE_MISSING_IN_ROOT");
+  });
+
+  it("detects issues in tileRefineMissingInRootOfExternal", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tileRefineMissingInRootOfExternal.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("EXTERNAL_TILESET_VALIDATION_ERROR");
+  });
+
   it("detects issues in tileRefineWrongCase", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/tileRefineWrongCase.json"

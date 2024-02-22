@@ -16,16 +16,7 @@
           "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
         },
         "content": {
-          "uri": "tilesetWithMultipleExternalA.json"
-        }
-      },
-      {
-        "geometricError" : 1.0,
-        "boundingVolume" : {
-          "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
-        },
-        "content": {
-          "uri": "tilesetWithMultipleExternalB.json"
+          "uri": "tileRefineMissingInRootOfExternalA.json"
         }
       }
     ]

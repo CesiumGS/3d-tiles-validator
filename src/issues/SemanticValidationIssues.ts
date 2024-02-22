@@ -44,6 +44,21 @@ export class SemanticValidationIssues {
   }
 
   /**
+   * Indicates that the 'refine' value was not given for a root
+   * tile of a tileset.
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static TILE_REFINE_MISSING_IN_ROOT(path: string, message: string) {
+    const type = "TILE_REFINE_MISSING_IN_ROOT";
+    const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  /**
    * Indicates that the root tile of an implicit tileset was invalid.
    *
    * This is caused by the root tile of an implicit tileset defining
