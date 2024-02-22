@@ -593,7 +593,7 @@ describe("Tileset validation", function () {
       "specs/data/tilesets/tileRefineMissingInRootOfExternal.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("EXTERNAL_TILESET_VALIDATION_WARNING");
+    expect(result.get(0).type).toEqual("EXTERNAL_TILESET_VALIDATION_ERROR");
   });
 
   it("detects issues in tileRefineWrongCase", async function () {
