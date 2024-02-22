@@ -53,7 +53,7 @@ export class SemanticValidationIssues {
    */
   static TILE_REFINE_MISSING_IN_ROOT(path: string, message: string) {
     const type = "TILE_REFINE_MISSING_IN_ROOT";
-    const severity = ValidationIssueSeverity.WARNING;
+    const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }

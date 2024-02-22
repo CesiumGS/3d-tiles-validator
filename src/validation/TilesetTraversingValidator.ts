@@ -195,7 +195,7 @@ export class TilesetTraversingValidator {
           message
         );
         context.addIssue(issue);
-        // This is only a warning
+        return false;
       }
     }
 
