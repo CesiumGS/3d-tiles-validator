@@ -182,6 +182,23 @@ export class TilesetTraversingValidator {
     if (!tileValid) {
       return false;
     }
+
+    // The specification says that the "refine" property is required
+    // for the root tile of a tileset.
+    if (tileValid) {
+      const isRoot = traversedTile.level === 0;
+      const refine = tile.refine;
+      if (isRoot && !defined(refine)) {
+        const message = `The 'refine' property must be set in root tiles`;
+        const issue = SemanticValidationIssues.TILE_REFINE_MISSING_IN_ROOT(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        // This is only a warning
+      }
+    }
+
     return true;
   }
 
