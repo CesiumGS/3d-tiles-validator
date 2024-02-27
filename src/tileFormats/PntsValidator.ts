@@ -115,13 +115,14 @@ export class PntsValidator implements Validator<Buffer> {
       return false;
     }
 
-    const binaryTableData = TileFormatValidator.extractBinaryTableData(
+    const binaryTableDataState = TileFormatValidator.extractBinaryTableData(
       uri,
       input,
       headerByteLength,
       false,
       context
     );
+    const binaryTableData = binaryTableDataState.binaryTableData;
     if (!defined(binaryTableData)) {
       return false;
     }
@@ -131,7 +132,7 @@ export class PntsValidator implements Validator<Buffer> {
     const batchTableJson = binaryTableData.batchTableJson;
     const batchTableBinary = binaryTableData.batchTableBinary;
 
-    let result = true;
+    let result = binaryTableDataState.isValid;
 
     const batchLength = defaultValue(featureTableJson.BATCH_LENGTH, 0);
     const pointsLength = featureTableJson.POINTS_LENGTH;

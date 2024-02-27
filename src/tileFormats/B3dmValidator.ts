@@ -88,13 +88,14 @@ export class B3dmValidator implements Validator<Buffer> {
       return false;
     }
 
-    const binaryTableData = TileFormatValidator.extractBinaryTableData(
+    const binaryTableDataState = TileFormatValidator.extractBinaryTableData(
       uri,
       input,
       headerByteLength,
       true,
       context
     );
+    const binaryTableData = binaryTableDataState.binaryTableData;
     if (!defined(binaryTableData)) {
       return false;
     }
@@ -150,7 +151,14 @@ export class B3dmValidator implements Validator<Buffer> {
     }
 
     const gltfValidator = new GltfValidator();
-    const result = await gltfValidator.validateObject(uri, glbData, context);
-    return result;
+    const gltfResult = await gltfValidator.validateObject(
+      uri,
+      glbData,
+      context
+    );
+    if (binaryTableDataState.isValid !== true) {
+      return false;
+    }
+    return gltfResult;
   }
 }

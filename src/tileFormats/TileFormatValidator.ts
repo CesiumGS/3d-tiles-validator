@@ -110,13 +110,15 @@ export class TileFormatValidator {
    * offsets, extracts the respective JSON- and binary data,
    * parses the JSON data, and returns the result.
    *
-   * If any offset does not meet the alignment- or length
-   * requirements from the specification, then the appropriate
-   * validation issue will be added to the given context, and
-   * `undefined` will be returned.
+   * If no valid binary table data can be extracted from the
+   * given input, then the `binaryTableData` of the returned
+   * object will be `undefined`, and `isValid` will be `false`.
    *
-   * Otherwise, a `BinaryTableData` object with the valid
-   * JSON- and binary data will be returned.
+   * If valid binary table data CAN be extracted, but one of
+   * the offsets does not meet the alignment requirements from
+   * the specification, then the appropriate validation issue will
+   * be added to the given context, and the `isValid` property of
+   * the returned object will be `false`.
    *
    * @param path - The path for `ValidationIssue` instances
    * @param input - The input buffer
@@ -125,7 +127,7 @@ export class TileFormatValidator {
    * embedded GLB data. This is `true` for B3DM, `false` for PNTS,
    * and `gltfFormat===1` for I3DM.
    * @param context - The `ValidationContext`
-   * @returns The `BinaryTableData`
+   * @returns The `BinaryTableData` and its validity status
    */
   static extractBinaryTableData(
     path: string,
@@ -133,7 +135,7 @@ export class TileFormatValidator {
     headerByteLength: number,
     hasEmbeddedGlb: boolean,
     context: ValidationContext
-  ): BinaryTableData | undefined {
+  ): { binaryTableData: BinaryTableData | undefined; isValid: boolean } {
     const byteLength = input.readUInt32LE(8);
     const featureTableJsonByteLength = input.readUInt32LE(12);
     const featureTableBinaryByteLength = input.readUInt32LE(16);
@@ -151,6 +153,7 @@ export class TileFormatValidator {
       batchTableBinaryByteOffset + batchTableBinaryByteLength;
     const glbByteLength = Math.max(byteLength - glbByteOffset, 0);
 
+    let isValid = true;
     if (featureTableBinaryByteOffset % 8 > 0) {
       const issue = BinaryValidationIssues.BINARY_INVALID_ALIGNMENT_legacy(
         path,
@@ -158,7 +161,7 @@ export class TileFormatValidator {
         8
       );
       context.addIssue(issue);
-      return undefined;
+      isValid = false;
     }
 
     if (batchTableJsonByteOffset % 8 > 0) {
@@ -168,7 +171,7 @@ export class TileFormatValidator {
         8
       );
       context.addIssue(issue);
-      return undefined;
+      isValid = false;
     }
 
     if (batchTableBinaryByteOffset % 8 > 0) {
@@ -178,7 +181,7 @@ export class TileFormatValidator {
         8
       );
       context.addIssue(issue);
-      return undefined;
+      isValid = false;
     }
 
     if (hasEmbeddedGlb && glbByteOffset % 8 > 0) {
@@ -188,7 +191,7 @@ export class TileFormatValidator {
         8
       );
       context.addIssue(issue);
-      return undefined;
+      isValid = false;
     }
 
     if (byteLength % 8 > 0) {
@@ -198,7 +201,7 @@ export class TileFormatValidator {
         8
       );
       context.addIssue(issue);
-      return undefined;
+      isValid = false;
     }
 
     const computedByteLength =
@@ -216,7 +219,10 @@ export class TileFormatValidator {
         computedByteLength
       );
       context.addIssue(issue);
-      return undefined;
+      return {
+        binaryTableData: undefined,
+        isValid: false,
+      };
     }
 
     const featureTableJsonBuffer = input.subarray(
@@ -249,7 +255,10 @@ export class TileFormatValidator {
       const message = `Could not parse feature table JSON: ${error}`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(path, message);
       context.addIssue(issue);
-      return undefined;
+      return {
+        binaryTableData: undefined,
+        isValid: false,
+      };
     }
 
     try {
@@ -258,15 +267,22 @@ export class TileFormatValidator {
       const message = `Could not parse batch table JSON: ${error}`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(path, message);
       context.addIssue(issue);
-      return undefined;
+      return {
+        binaryTableData: undefined,
+        isValid: false,
+      };
     }
 
-    return {
+    const binaryTableData = {
       featureTableJson: featureTableJson,
       featureTableBinary: featureTableBinary,
       batchTableJson: batchTableJson,
       batchTableBinary: batchTableBinary,
       glbData: glbData,
+    };
+    return {
+      binaryTableData: binaryTableData,
+      isValid: isValid,
     };
   }
 }
