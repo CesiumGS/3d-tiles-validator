@@ -830,6 +830,22 @@ describe("Tileset validation", function () {
     expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
   });
 
+  it("detects issues in validTilesetWithInvalidB3dmWithGlbWithInfos", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithInvalidB3dmWithGlbWithInfos.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
+
+    // Expect the 'infos' from the glTF validation to still be present,
+    // even though the B3DM validation already caused an error due to
+    // the invalid alignment.
+    // See https://github.com/CesiumGS/3d-tiles-validator/issues/299
+    expect(result.get(0).causes.length).toEqual(2);
+    expect(result.get(0).causes[0].type).toEqual("BINARY_INVALID_ALIGNMENT");
+    expect(result.get(0).causes[1].type).toEqual("CONTENT_VALIDATION_INFO");
+  });
+
   it("detects issues in validTilesetWithInvalidSchemaFromUri", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/validTilesetWithInvalidSchemaFromUri.json"
