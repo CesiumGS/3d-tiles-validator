@@ -131,13 +131,14 @@ export class I3dmValidator implements Validator<Buffer> {
     }
     const hasEmbeddedGlb = gltfFormat === 1;
 
-    const binaryTableData = TileFormatValidator.extractBinaryTableData(
+    const binaryTableDataState = TileFormatValidator.extractBinaryTableData(
       uri,
       input,
       headerByteLength,
       hasEmbeddedGlb,
       context
     );
+    const binaryTableData = binaryTableDataState.binaryTableData;
     if (!defined(binaryTableData)) {
       return false;
     }
@@ -148,7 +149,7 @@ export class I3dmValidator implements Validator<Buffer> {
     const batchTableBinary = binaryTableData.batchTableBinary;
     const glbData = binaryTableData.glbData;
 
-    let result = true;
+    let result = binaryTableDataState.isValid;
 
     const featuresLength = featureTableJson.INSTANCES_LENGTH;
     if (!defined(featuresLength)) {
