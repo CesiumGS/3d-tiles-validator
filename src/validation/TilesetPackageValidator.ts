@@ -239,6 +239,14 @@ export class TilesetPackageValidator implements Validator<string> {
     );
     const derivedResult = derivedContext.getResult();
 
+    // Add all extensions that have been found in the tileset
+    // to the current context. They also have to appear in
+    // the 'extensionsUsed' of the containing tileset.
+    const derivedExtensionsFound = derivedContext.getExtensionsFound();
+    for (const derivedExtensionFound of derivedExtensionsFound) {
+      context.addExtensionFound(derivedExtensionFound);
+    }
+
     if (isContent) {
       const issue = ContentValidationIssues.createForContent(
         uri,

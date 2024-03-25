@@ -84,6 +84,14 @@ export class ValidationContext {
    * against the original `ResourceResolver`, yielding one that
    * resolves resources against the resulting path.
    *
+   * The returned context will initially not have any records of
+   * extensions that are 'found' (i.e. `getExtensionsFound` will
+   * be empty). Depending on the purpose of the derived context,
+   * and details about the validation of 'used' extensions
+   * (see https://github.com/CesiumGS/3d-tiles-validator/issues/231 ),
+   * the caller may decide to add the `getExtensionsUsed` of the
+   * derived context to the context that it was derived from.
+   *
    * @param uri - The (usually relative) URI
    * @returns The new instance
    */
@@ -95,7 +103,7 @@ export class ValidationContext {
       derivedResourceResolver,
       this._options
     );
-    derived._extensionsFound = this._extensionsFound;
+    derived._extensionsFound = new Set<string>();
     derived._activeTilesetUris = this._activeTilesetUris;
     return derived;
   }
@@ -106,7 +114,15 @@ export class ValidationContext {
    * It uses the same `ValidationOptions` as this one, with
    * a base URI that is derived by resolving the given URI
    * against the current base URI, and uses the given
-   * `ResourceResolver`
+   * `ResourceResolver`.
+   *
+   * The returned context will initially not have any records of
+   * extensions that are 'found' (i.e. `getExtensionsFound` will
+   * be empty). Depending on the purpose of the derived context,
+   * and details about the validation of 'used' extensions
+   * (see https://github.com/CesiumGS/3d-tiles-validator/issues/231 ),
+   * the caller may decide to add the `getExtensionsUsed` of the
+   * derived context to the context that it was derived from.
    *
    * @param uri - The (usually relative) URI
    * @param resourceResolver - The resource resolver
@@ -122,7 +138,7 @@ export class ValidationContext {
       resourceResolver,
       this._options
     );
-    derived._extensionsFound = this._extensionsFound;
+    derived._extensionsFound = new Set<string>();
     derived._activeTilesetUris = this._activeTilesetUris;
     return derived;
   }
