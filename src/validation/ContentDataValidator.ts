@@ -166,6 +166,14 @@ export class ContentDataValidator {
     );
     const derivedResult = derivedContext.getResult();
 
+    // All all extensions that have been found in the content
+    // to the current context. They also have to appear in
+    // the 'extensionsUsed' of the containing tileset.
+    const derivedExtensionsFound = derivedContext.getExtensionsFound();
+    for (const derivedExtensionFound of derivedExtensionsFound) {
+      context.addExtensionFound(derivedExtensionFound);
+    }
+
     if (isTileset) {
       const issue = ContentValidationIssues.createForExternalTileset(
         contentUri,
