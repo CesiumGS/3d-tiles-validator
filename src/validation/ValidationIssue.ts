@@ -158,12 +158,51 @@ export class ValidationIssue {
   }
 
   /**
-   * Creates a JSON string representation of this result
+   * Converts the given JSON object into a `ValidationIssue` instance.
+   *
+   * This does not perform any sanity checks on the given object.
+   * The object is assumed to be one that was created with `toJson`.
+   *
+   * @param object - The object
+   * @returns The `ValidationIssue`
+   */
+  static fromJson(object: any): ValidationIssue {
+    const type = object.type;
+    const path = object.path;
+    const message = object.message;
+    const severity = object.severity;
+    const issue = new ValidationIssue(type, path, message, severity);
+    const causes = object.causes;
+    if (causes != undefined) {
+      for (const cause of causes) {
+        const causeObject = ValidationIssue.fromJson(cause);
+        issue.addCause(causeObject);
+      }
+    }
+    return issue;
+  }
+
+  /**
+   * Creates a JSON string representation of this issue
    *
    * @returns The string representation
    * @internal
    */
   serialize(): string {
     return JSON.stringify(this.toJson(), undefined, 2);
+  }
+
+  /**
+   * Parse a `ValidationIssue` from the given JSON string.
+   *
+   * This does not perform any sanity checks. The given string is assumed
+   * to be in the shape that is created with `serialize`.
+   *
+   * @param jsonString - The JSON string
+   * @returns The `ValidationIssue`
+   */
+  static deserialize(jsonString: string): ValidationIssue {
+    const object = JSON.parse(jsonString);
+    return ValidationIssue.fromJson(object);
   }
 }
