@@ -170,6 +170,24 @@ export class ValidationResult {
   }
 
   /**
+   * Converts the given JSON object into a `ValidationResult` instance.
+   *
+   * This does not perform any sanity checks on the given object.
+   * The object is assumed to be one that was created with `toJson`.
+   *
+   * @param object - The object
+   * @returns The `ValidationResult`
+   */
+  static fromJson(object: any) {
+    const result = ValidationResult.create();
+    const issues = object.issues;
+    for (const issue of issues) {
+      result.add(ValidationIssue.fromJson(issue));
+    }
+    return result;
+  }
+
+  /**
    * Creates a JSON string representation of this result.
    *
    * Some details about the format of this result are not yet
@@ -179,5 +197,19 @@ export class ValidationResult {
    */
   serialize(): string {
     return JSON.stringify(this.toJson(), undefined, 2);
+  }
+
+  /**
+   * Parse a `ValidationResult` from the given JSON string.
+   *
+   * This does not perform any sanity checks. The given string is assumed
+   * to be in the shape that is created with `serialize`.
+   *
+   * @param jsonString - The JSON string
+   * @returns The `ValidationResult`
+   */
+  static deserialize(jsonString: string): ValidationResult {
+    const object = JSON.parse(jsonString);
+    return ValidationResult.fromJson(object);
   }
 }
