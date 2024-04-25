@@ -146,4 +146,17 @@ function validationResultFilterDemo() {
   console.log(ValidationResults.createSimpleResultString(filteredComplex));
 }
 
+function validationResultSerializationDemo() {
+  const result = createDemoResult();
+
+  const serializedJsonString = result.serialize();
+  console.log("Serialized into a JSON string:");
+  console.log(serializedJsonString);
+
+  const deserializedResult = ValidationResult.deserialize(serializedJsonString);
+  console.log("Deserialized from JSON string (simple representation):");
+  console.log(ValidationResults.createSimpleResultString(deserializedResult));
+}
+
 validationResultFilterDemo();
+validationResultSerializationDemo();
