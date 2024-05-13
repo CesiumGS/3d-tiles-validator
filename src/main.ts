@@ -92,12 +92,11 @@ const argv = args.argv;
 async function readOptionsFile(
   optionsFile: string
 ): Promise<ValidationOptions> {
-  const validationOptions: ValidationOptions = await readJsonUnchecked(
-    optionsFile
-  );
-  if (!validationOptions) {
+  const validationOptionsObject = await readJsonUnchecked(optionsFile);
+  if (!validationOptionsObject) {
     return new ValidationOptions();
   }
+  const validationOptions = ValidationOptions.fromJson(validationOptionsObject);
   return validationOptions;
 }
 
