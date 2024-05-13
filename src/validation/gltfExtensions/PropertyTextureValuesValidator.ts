@@ -94,21 +94,40 @@ export class PropertyTextureValuesValidator {
       const propertyTextureProperty = propertyTextureProperties[propertyName];
       const propertyTexturePropertyPath = path + "/properties/" + propertyName;
       const texCoord = propertyTextureProperty.texCoord;
-
-      const texCoordAttributeName = `TEXCOORD_${texCoord}`;
-      const texCoordAttribute = meshPrimitiveAttributes[texCoordAttributeName];
-      if (!defined(texCoordAttribute)) {
-        const message =
-          `The property texture property defines the texCoord ${texCoord}, ` +
-          `but the attribute ${texCoordAttributeName} was not ` +
-          `found in the attributes of primitive ${primitiveIndex} ` +
-          `of mesh ${meshIndex}`;
-        const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
-          propertyTexturePropertyPath,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
+      if (defined(texCoord)) {
+        const texCoordAttributeName = `TEXCOORD_${texCoord}`;
+        const texCoordAttribute =
+          meshPrimitiveAttributes[texCoordAttributeName];
+        if (!defined(texCoordAttribute)) {
+          const message =
+            `The property texture property defines the texCoord ${texCoord}, ` +
+            `but the attribute ${texCoordAttributeName} was not ` +
+            `found in the attributes of primitive ${primitiveIndex} ` +
+            `of mesh ${meshIndex}`;
+          const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
+            propertyTexturePropertyPath,
+            message
+          );
+          context.addIssue(issue);
+          result = false;
+        }
+      } else {
+        const texCoordAttributeName = `TEXCOORD_0`;
+        const texCoordAttribute =
+          meshPrimitiveAttributes[texCoordAttributeName];
+        if (!defined(texCoordAttribute)) {
+          const message =
+            `The property texture property does not define a texCoord value, ` +
+            `defaulting to 0, but the attribute ${texCoordAttributeName} was not ` +
+            `found in the attributes of primitive ${primitiveIndex} ` +
+            `of mesh ${meshIndex}`;
+          const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
+            propertyTexturePropertyPath,
+            message
+          );
+          context.addIssue(issue);
+          result = false;
+        }
       }
     }
 

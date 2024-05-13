@@ -259,6 +259,21 @@ describe("EXT_structural_metadata extension validation", function () {
     expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
   });
 
+  it("detects no issues in PropertyTexturePropertyTexCoordDefault", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/structuralMetadata/PropertyTexturePropertyTexCoordDefault.gltf"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects issues in PropertyTexturePropertyTexCoordInvalidValue", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/structuralMetadata/PropertyTexturePropertyTexCoordInvalidValue.gltf"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("IDENTIFIER_NOT_FOUND");
+  });
+
   it("detects issues in PropertyTexturePropertyTexturePropertyMaxMismatch", async function () {
     const result = await validateGltf(
       "./specs/data/gltfExtensions/structuralMetadata/PropertyTexturePropertyTexturePropertyMaxMismatch.gltf"
