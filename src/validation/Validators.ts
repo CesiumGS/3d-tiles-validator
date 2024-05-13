@@ -458,6 +458,33 @@ export class Validators {
       );
     }
 
+    // Register an empty validator for NGA_gpm
+    {
+      const emptyValidator = Validators.createEmptyValidator();
+      const override = false;
+      ExtendedObjectsValidators.register("NGA_gpm", emptyValidator, override);
+    }
+    // Register an empty validator for MAXAR_extent
+    {
+      const emptyValidator = Validators.createEmptyValidator();
+      const override = false;
+      ExtendedObjectsValidators.register(
+        "MAXAR_extent",
+        emptyValidator,
+        override
+      );
+    }
+    // Register an empty validator for MAXAR_grid
+    {
+      const emptyValidator = Validators.createEmptyValidator();
+      const override = false;
+      ExtendedObjectsValidators.register(
+        "MAXAR_grid",
+        emptyValidator,
+        override
+      );
+    }
+
     Validators._registeredExtensionValidators = true;
   }
 }
