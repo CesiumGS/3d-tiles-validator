@@ -15,6 +15,8 @@ import { Content } from "3d-tiles-tools";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { ValidationOptionChecks } from "./ValidationOptionChecks";
+import { ValidationIssueFilters } from "./ValidationIssueFilters";
+import { ValidationIssueSeverity } from "./ValidationIssueSeverity";
 
 /**
  * A class for validation of the data that is pointed to by a `content.uri`.
@@ -183,9 +185,29 @@ export class ContentDataValidator {
         context.addIssue(issue);
       }
     } else {
+      const includedSeverities: ValidationIssueSeverity[] = [];
+      if (
+        options.contentValidationIssueSeverity == ValidationIssueSeverity.ERROR
+      ) {
+        includedSeverities.push(ValidationIssueSeverity.ERROR);
+      } else if (
+        options.contentValidationIssueSeverity ==
+        ValidationIssueSeverity.WARNING
+      ) {
+        includedSeverities.push(ValidationIssueSeverity.WARNING);
+        includedSeverities.push(ValidationIssueSeverity.ERROR);
+      } else {
+        includedSeverities.push(ValidationIssueSeverity.INFO);
+        includedSeverities.push(ValidationIssueSeverity.WARNING);
+        includedSeverities.push(ValidationIssueSeverity.ERROR);
+      }
+      const filter = ValidationIssueFilters.byIncludedSeverities(
+        ...includedSeverities
+      );
+      const filteredDerivedResult = derivedResult.filter(filter);
       const issue = ContentValidationIssues.createForContent(
         contentUri,
-        derivedResult
+        filteredDerivedResult
       );
       if (issue) {
         context.addIssue(issue);

@@ -1,3 +1,5 @@
+import { ValidationIssueSeverity } from "./ValidationIssueSeverity";
+
 /**
  * A class describing the options for a validator within
  * a `ValidationContext`
@@ -13,6 +15,12 @@ export class ValidationOptions {
    * Whether content data should be validated at all.
    */
   private _validateContentData: boolean;
+
+  /**
+   * The severity of content validation issues that should be
+   * included in the results.
+   */
+  private _contentValidationIssueSeverity: ValidationIssueSeverity;
 
   /**
    * The content types that are included in the validation.
@@ -37,6 +45,7 @@ export class ValidationOptions {
    */
   constructor() {
     this._validateContentData = true;
+    this._contentValidationIssueSeverity = ValidationIssueSeverity.INFO;
     this._includeContentTypes = undefined;
     this._excludeContentTypes = undefined;
   }
@@ -52,6 +61,23 @@ export class ValidationOptions {
 
   set validateContentData(value: boolean) {
     this._validateContentData = value;
+  }
+
+  /**
+   * The severity of content validation issues that should
+   * be included in the result.
+   *
+   * By default, this will be `INFO`, meaning that all content
+   * validation issues will be included. It can be set to
+   * `WARNING`, to include all `ERROR` and `WARNING` issues,
+   * or to `ERROR` to only include `ERROR` issues.
+   */
+  get contentValidationIssueSeverity(): ValidationIssueSeverity {
+    return this._contentValidationIssueSeverity;
+  }
+
+  set contentValidationIssueSeverity(value: ValidationIssueSeverity) {
+    this._contentValidationIssueSeverity = value;
   }
 
   /**

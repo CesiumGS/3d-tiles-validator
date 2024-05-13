@@ -1,5 +1,7 @@
-import { JSONDocument } from "@gltf-transform/core";
 import { Document } from "@gltf-transform/core";
+import { JSONDocument } from "@gltf-transform/core";
+import { Logger } from "@gltf-transform/core";
+import { Verbosity } from "@gltf-transform/core";
 
 import { BinaryBufferData } from "3d-tiles-tools";
 import { BinaryBufferDataResolver } from "3d-tiles-tools";
@@ -155,6 +157,8 @@ export class GltfDataReader {
   ): Promise<Document | undefined> {
     try {
       const io = await GltfTransform.getIO();
+      // Avoid warning "Missing optional extension"
+      io.setLogger(new Logger(Verbosity.ERROR));
       const gltfDocument = await io.readBinary(input);
       return gltfDocument;
     } catch (error) {
@@ -236,6 +240,8 @@ export class GltfDataReader {
     const resources = {};
     try {
       const io = await GltfTransform.getIO();
+      // Avoid warning "Missing optional extension"
+      io.setLogger(new Logger(Verbosity.ERROR));
       const json = JSON.parse(input.toString());
       const jsonDoc = { json, resources } as JSONDocument;
       const gltfDocument = await io.readJSON(jsonDoc);
