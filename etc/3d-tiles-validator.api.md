@@ -18,6 +18,8 @@ export class ValidationIssue {
     // @internal
     addCause(cause: ValidationIssue): void;
     get causes(): readonly ValidationIssue[];
+    static deserialize(jsonString: string): ValidationIssue;
+    static fromJson(object: any): ValidationIssue;
     get message(): string;
     get path(): string;
     // @internal
@@ -47,6 +49,8 @@ export enum ValidationIssueSeverity {
 // @beta
 export class ValidationOptions {
     constructor();
+    get contentValidationIssueSeverity(): ValidationIssueSeverity;
+    set contentValidationIssueSeverity(value: ValidationIssueSeverity);
     get excludeContentTypes(): string[] | undefined;
     set excludeContentTypes(value: string[] | undefined);
     static fromJson(json: any): ValidationOptions;
@@ -62,7 +66,9 @@ export class ValidationResult {
     add(issue: ValidationIssue): void;
     // @internal
     static create(): ValidationResult;
+    static deserialize(jsonString: string): ValidationResult;
     filter(includePredicate: ValidationIssueFilter): ValidationResult;
+    static fromJson(object: any): ValidationResult;
     get(index: number): ValidationIssue;
     get issues(): readonly ValidationIssue[];
     get length(): number;
