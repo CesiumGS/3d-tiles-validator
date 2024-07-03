@@ -9,7 +9,6 @@ import { Availability } from "3d-tiles-tools";
 import { TileImplicitTiling } from "3d-tiles-tools";
 
 import { MetadataUtilities } from "3d-tiles-tools";
-import { BinaryBufferStructure } from "3d-tiles-tools";
 import { BinarySubtreeData } from "3d-tiles-tools";
 import { BinarySubtreeDataResolver } from "3d-tiles-tools";
 import { BinaryPropertyTable } from "3d-tiles-tools";
@@ -27,13 +26,14 @@ import { ValidatedElement } from "./ValidatedElement";
 
 import { BinaryBufferStructureValidator } from "./BinaryBufferStructureValidator";
 
+import { BinaryPropertyTableValidator } from "./metadata/BinaryPropertyTableValidator";
+
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
 import { PropertyTablesDefinitionValidator } from "./metadata/PropertyTablesDefinitionValidator";
 
 import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
-import { BinaryPropertyTableValidator } from "./metadata/BinaryPropertyTableValidator";
 
 /**
  * A class for validations related to `subtree` objects that have
@@ -213,8 +213,10 @@ export class SubtreeValidator implements Validator<Buffer> {
     const jsonBuffer = input.subarray(jsonStartByteOffset, jsonEndByteOffset);
 
     // Try to parse the JSON
+    let subtree: Subtree;
     try {
-      Buffers.getJson(jsonBuffer);
+      const jsonString = jsonBuffer.toString();
+      subtree = JSON.parse(jsonString);
     } catch (error) {
       const message = `Could not parse subtree JSON: ${error}`;
       const issue = IoValidationIssues.JSON_PARSE_ERROR(path, message);
@@ -222,17 +224,28 @@ export class SubtreeValidator implements Validator<Buffer> {
       return false;
     }
 
+    // First, validate the basic JSON structure of the buffers
+    // and bufferViews. When they are invalid, then the binary
+    // subtree data cannot be resolved, and the subtree is
+    // considered to be invalid.
     const hasBinaryBuffer = binaryByteLength > 0;
+    const bufferStructureValid =
+      BinaryBufferStructureValidator.validateBinaryBufferStructure(
+        path,
+        subtree.buffers,
+        subtree.bufferViews,
+        hasBinaryBuffer,
+        context
+      );
+    if (!bufferStructureValid) {
+      return false;
+    }
+
     const binarySubtreeData = await BinarySubtreeDataResolver.resolveFromBuffer(
       input,
       this.resourceResolver
     );
-    const result = this.validateSubtree(
-      path,
-      binarySubtreeData,
-      hasBinaryBuffer,
-      context
-    );
+    const result = this.validateSubtree(path, binarySubtreeData, context);
     return result;
   }
 
@@ -262,20 +275,34 @@ export class SubtreeValidator implements Validator<Buffer> {
       const inputString = input.toString();
       const subtree: Subtree = JSON.parse(inputString);
 
+      // First, validate the basic JSON structure of the buffers
+      // and bufferViews. When they are invalid, then the binary
+      // subtree data cannot be resolved, and the subtree is
+      // considered to be invalid.
+      const hasBinaryBuffer = false;
+      const bufferStructureValid =
+        BinaryBufferStructureValidator.validateBinaryBufferStructure(
+          path,
+          subtree.buffers,
+          subtree.bufferViews,
+          hasBinaryBuffer,
+          context
+        );
+      if (!bufferStructureValid) {
+        return false;
+      }
       const binarySubtreeData = await BinarySubtreeDataResolver.resolveFromJson(
         subtree,
         this.resourceResolver
       );
-      const hasBinaryBuffer = false;
       const result = await this.validateSubtree(
         path,
         binarySubtreeData,
-        hasBinaryBuffer,
         context
       );
       return result;
     } catch (error) {
-      //console.log(error);
+      console.log(error);
       const issue = IoValidationIssues.JSON_PARSE_ERROR(path, `${error}`);
       context.addIssue(issue);
       return false;
@@ -287,9 +314,6 @@ export class SubtreeValidator implements Validator<Buffer> {
    *
    * @param path - The path for `ValidationIssue` instances
    * @param binarySubtreeData - The `BinarySubtreeData` object
-   * @param hasBinaryBuffer - Whether the subtree data has an (internal)
-   * binary buffer, meaning that the first `Buffer` object may omit
-   * the URI.
    * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    * and indicates whether the object was valid or not.
@@ -297,7 +321,6 @@ export class SubtreeValidator implements Validator<Buffer> {
   private async validateSubtree(
     path: string,
     binarySubtreeData: BinarySubtreeData,
-    hasBinaryBuffer: boolean,
     context: ValidationContext
   ): Promise<boolean> {
     const subtree = binarySubtreeData.subtree;
@@ -331,12 +354,7 @@ export class SubtreeValidator implements Validator<Buffer> {
 
     // Validate the structure of the given subtree object,
     // on the level of JSON validity
-    const structureIsValid = this.validateSubtreeObject(
-      path,
-      subtree,
-      hasBinaryBuffer,
-      context
-    );
+    const structureIsValid = this.validateSubtreeObject(path, subtree, context);
     if (!structureIsValid) {
       result = false;
       return result;
@@ -392,18 +410,15 @@ export class SubtreeValidator implements Validator<Buffer> {
    *
    * @param path - The path for `ValidationIssue` instances
    * @param subtree - The `Subtree` object
-   * @param hasBinaryBuffer - Whether the subtree has an associated
-   * binary buffer
    * @param context - The `ValidationContext`
    * @returns A promise that resolves when the validation is finished
    */
   private validateSubtreeObject(
     path: string,
     subtree: Subtree,
-    hasBinaryBuffer: boolean,
     context: ValidationContext
   ): boolean {
-    if (!this.validateSubtreeBasic(path, subtree, hasBinaryBuffer, context)) {
+    if (!this.validateSubtreeBasic(path, subtree, context)) {
       return false;
     }
     if (!this.validateMetadata(path, subtree, context)) {
@@ -428,7 +443,6 @@ export class SubtreeValidator implements Validator<Buffer> {
   private validateSubtreeBasic(
     path: string,
     subtree: Subtree,
-    hasBinaryBuffer: boolean,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
@@ -437,24 +451,6 @@ export class SubtreeValidator implements Validator<Buffer> {
     }
 
     let result = true;
-
-    // Validate the binary buffer structure, i.e. the `buffers`
-    // and `bufferViews`
-    const binaryBufferStructure: BinaryBufferStructure = {
-      buffers: subtree.buffers ?? [],
-      bufferViews: subtree.bufferViews ?? [],
-    };
-    const firstBufferUriIsRequired = !hasBinaryBuffer;
-    if (
-      !BinaryBufferStructureValidator.validateBinaryBufferStructure(
-        path,
-        binaryBufferStructure,
-        firstBufferUriIsRequired,
-        context
-      )
-    ) {
-      result = false;
-    }
 
     // Validate the tileAvailability
     const tileAvailability = subtree.tileAvailability;

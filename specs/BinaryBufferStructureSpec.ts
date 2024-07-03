@@ -42,7 +42,8 @@ function performTestValidation(
   if (
     BinaryBufferStructureValidator.validateBinaryBufferStructure(
       path,
-      binaryBufferStructure,
+      binaryBufferStructure.buffers,
+      binaryBufferStructure.bufferViews,
       firstBufferUriIsRequired,
       context
     )

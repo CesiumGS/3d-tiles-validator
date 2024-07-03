@@ -32,10 +32,11 @@ import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
  */
 export class BinaryBufferStructureValidator {
   /**
-   * Performs the validation of the given `BinaryBufferStructure`
+   * Performs the validation of the given elements of a `BinaryBufferStructure`.
    *
    * @param path - The path for `ValidationIssue` instances
-   * @param binaryBufferStructure - The `BinaryBufferStructure` object
+   * @param buffers - The buffers
+   * @param bufferViews - The buffer views
    * @param firstBufferUriIsRequired - If this is `false`, then the
    * first buffer may omit the `uri` property, namely when it refers
    * to a  binary chunk, for example, of a binary `.subtree` file.
@@ -44,14 +45,14 @@ export class BinaryBufferStructureValidator {
    */
   static validateBinaryBufferStructure(
     path: string,
-    binaryBufferStructure: BinaryBufferStructure,
+    buffers: BufferObject[] | undefined,
+    bufferViews: BufferView[] | undefined,
     firstBufferUriIsRequired: boolean,
     context: ValidationContext
   ): boolean {
     let result = true;
 
     // Validate the buffers
-    const buffers = binaryBufferStructure.buffers;
     const buffersPath = path + "/buffers";
     if (defined(buffers)) {
       // The buffers MUST be an array of at least 1 objects
@@ -67,6 +68,7 @@ export class BinaryBufferStructureValidator {
         )
       ) {
         result = false;
+        return result;
       } else {
         // Validate each buffer
         for (let i = 0; i < buffers.length; i++) {
@@ -87,10 +89,34 @@ export class BinaryBufferStructureValidator {
         }
       }
     }
+
+    // If the buffers are invalid, bail out early
+    if (!result) {
+      return false;
+    }
+
     // Validate the bufferViews
-    const bufferViews = binaryBufferStructure.bufferViews;
     const bufferViewsPath = path + "/bufferViews";
-    if (defined<any>(bufferViews)) {
+
+    if (!defined(bufferViews)) {
+      // When there are bufferViews, but (unused) buffers, issue a warning
+      if (defined(buffers)) {
+        const issue =
+          SemanticValidationIssues.BUFFERS_WITHOUT_BUFFER_VIEWS(path);
+        context.addIssue(issue);
+      }
+    } else {
+      // When there are bufferViews, but no buffers, issue an error
+      if (!defined(buffers)) {
+        const issue =
+          SemanticValidationIssues.BUFFER_VIEWS_WITHOUT_BUFFERS(path);
+        context.addIssue(issue);
+        return false;
+      }
+
+      // Here, bufferViews and buffers are defined.
+      const numBuffers = buffers.length;
+
       //The bufferViews MUST be an array of at least 1 objects
       if (
         !BasicValidator.validateArray(
@@ -114,6 +140,7 @@ export class BinaryBufferStructureValidator {
               bufferViewPath,
               "bufferViews/" + i,
               bufferView,
+              numBuffers,
               context
             )
           ) {
@@ -220,6 +247,7 @@ export class BinaryBufferStructureValidator {
    * @param path - The path for the `ValidationIssue` instances
    * @param name - The name of the object
    * @param bufferView - The `BufferView` object
+   * @param numBuffers - The number of `buffers`
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
@@ -227,6 +255,7 @@ export class BinaryBufferStructureValidator {
     path: string,
     name: string,
     bufferView: BufferView,
+    numBuffers: number,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
@@ -239,6 +268,7 @@ export class BinaryBufferStructureValidator {
     // Validate the buffer
     // The buffer MUST be defined
     // The buffer MUST be an integer of at least 0
+    // The buffer MUST be smaller than the number of buffers
     const buffer = bufferView.buffer;
     const bufferPath = path + "/buffer";
     if (
@@ -248,7 +278,7 @@ export class BinaryBufferStructureValidator {
         buffer,
         0,
         true,
-        undefined,
+        numBuffers,
         false,
         context
       )
@@ -346,38 +376,22 @@ export class BinaryBufferStructureValidator {
       const bufferView = bufferViews[i];
       const bufferViewPath = path + "/bufferViews/" + i;
 
-      // The buffer (index) MUST be smaller than the number of buffers
-      if (
-        !BasicValidator.validateIntegerRange(
-          bufferViewPath + "/buffer",
-          "buffer",
-          bufferView.buffer,
-          0,
-          true,
-          buffers.length,
-          false,
-          context
-        )
-      ) {
-        result = false;
-      } else {
-        const bufferViewEnd = bufferView.byteOffset + bufferView.byteLength;
-        const buffer = buffers[bufferView.buffer];
+      const bufferViewEnd = bufferView.byteOffset + bufferView.byteLength;
+      const buffer = buffers[bufferView.buffer];
 
-        // The end of the buffer view MUST be at most the buffer length
-        if (bufferViewEnd > buffer.byteLength) {
-          const message =
-            `The bufferView has an offset of ${bufferView.byteOffset} ` +
-            `and a length of ${bufferView.byteLength}, yielding ` +
-            `${bufferView.byteOffset + bufferView.byteLength}, but buffer ` +
-            `${bufferView.buffer} only has a length of ${buffer.byteLength}`;
-          const issue = SemanticValidationIssues.BUFFERS_INCONSISTENT(
-            bufferViewPath,
-            message
-          );
-          context.addIssue(issue);
-          result = false;
-        }
+      // The end of the buffer view MUST be at most the buffer length
+      if (bufferViewEnd > buffer.byteLength) {
+        const message =
+          `The bufferView has an offset of ${bufferView.byteOffset} ` +
+          `and a length of ${bufferView.byteLength}, yielding ` +
+          `${bufferView.byteOffset + bufferView.byteLength}, but buffer ` +
+          `${bufferView.buffer} only has a length of ${buffer.byteLength}`;
+        const issue = SemanticValidationIssues.BUFFERS_INCONSISTENT(
+          bufferViewPath,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
       }
     }
 

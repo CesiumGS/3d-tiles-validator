@@ -24,7 +24,9 @@ import { BinaryBufferStructure } from "3d-tiles-tools";
  * and availability data, referring to the information that is
  * given in the `TileImplicitTiling` structure.
  *
- * They will **NOT** analyze the actual buffer data.
+ * They will **NOT** analyze the actual buffer data. If the subtree
+ * data is consistent, then the actual buffer data is validated based
+ * on the high-level (model) objects, using a `SubtreeInfoValidator`.
  *
  * @internal
  */
@@ -52,21 +54,25 @@ export class SubtreeConsistencyValidator {
     implicitTiling: TileImplicitTiling | undefined,
     context: ValidationContext
   ): boolean {
-    // Only if the buffers and buffer views have been valid
-    // on the JSON level, validate their consistency
-    // in terms of memory layout
-    const binaryBufferStructure: BinaryBufferStructure = {
-      buffers: subtree.buffers ?? [],
-      bufferViews: subtree.bufferViews ?? [],
-    };
-    if (
-      !BinaryBufferStructureValidator.validateBinaryBufferStructureConsistency(
-        path,
-        binaryBufferStructure,
-        context
-      )
-    ) {
-      return false;
+    // The buffers and bufferViews are optional. If they are both defined,
+    // then the SubtreeValidator already validated them on the JSON level.
+    // Here, validate their consistency in terms of memory layout
+    const buffers = subtree.buffers;
+    const bufferViews = subtree.bufferViews;
+    if (defined(buffers) && defined(bufferViews)) {
+      const binaryBufferStructure: BinaryBufferStructure = {
+        buffers: buffers,
+        bufferViews: bufferViews,
+      };
+      if (
+        !BinaryBufferStructureValidator.validateBinaryBufferStructureConsistency(
+          path,
+          binaryBufferStructure,
+          context
+        )
+      ) {
+        return false;
+      }
     }
 
     if (defined(implicitTiling)) {
