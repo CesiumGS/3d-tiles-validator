@@ -228,13 +228,13 @@ export class SubtreeValidator implements Validator<Buffer> {
     // and bufferViews. When they are invalid, then the binary
     // subtree data cannot be resolved, and the subtree is
     // considered to be invalid.
-    const hasBinaryBuffer = binaryByteLength > 0;
+    const firstBufferUriIsRequired = binaryByteLength === 0n;
     const bufferStructureValid =
       BinaryBufferStructureValidator.validateBinaryBufferStructure(
         path,
         subtree.buffers,
         subtree.bufferViews,
-        hasBinaryBuffer,
+        firstBufferUriIsRequired,
         context
       );
     if (!bufferStructureValid) {
@@ -279,13 +279,13 @@ export class SubtreeValidator implements Validator<Buffer> {
       // and bufferViews. When they are invalid, then the binary
       // subtree data cannot be resolved, and the subtree is
       // considered to be invalid.
-      const hasBinaryBuffer = false;
+      const firstBufferUriIsRequired = true;
       const bufferStructureValid =
         BinaryBufferStructureValidator.validateBinaryBufferStructure(
           path,
           subtree.buffers,
           subtree.bufferViews,
-          hasBinaryBuffer,
+          firstBufferUriIsRequired,
           context
         );
       if (!bufferStructureValid) {
