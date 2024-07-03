@@ -229,7 +229,7 @@ export class SemanticValidationIssues {
    * Indicates an inconsistency of buffers and buffer views.
    *
    * This mainly refers to the 'buffers' and 'bufferViews' of
-   * an implicit subtree. It may, for example, inciate that a
+   * an implicit subtree. It may, for example, indicate that a
    * buffer view does not fit into the buffer that it refers to.
    *
    * @param path - The path for the `ValidationIssue`
@@ -238,6 +238,39 @@ export class SemanticValidationIssues {
    */
   static BUFFERS_INCONSISTENT(path: string, message: string) {
     const type = "BUFFERS_INCONSISTENT";
+    const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  /**
+   * Indicates that a binary buffer structure (like the 'buffers' and
+   * 'bufferViews' of a subtree) contained `buffers`, but no `bufferViews`.
+   *
+   * This is only a WARNING, because it does not violate the specification,
+   * but is certainly not intended.
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static BUFFERS_WITHOUT_BUFFER_VIEWS(path: string) {
+    const type = "BUFFERS_WITHOUT_BUFFER_VIEWS";
+    const message = "The object contained 'buffers' but no 'bufferViews'";
+    const severity = ValidationIssueSeverity.WARNING;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  /**
+   * Indicates that a binary buffer structure (like the 'buffers' and
+   * 'bufferViews' of a subtree) contained `bufferViews`, but no `buffers`
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static BUFFER_VIEWS_WITHOUT_BUFFERS(path: string) {
+    const type = "BUFFER_VIEWS_WITHOUT_BUFFERS";
+    const message = "The object contained 'bufferViews' but no 'buffers'";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
