@@ -9,20 +9,22 @@ import { ValidationResult } from "../src/validation/ValidationResult";
 /**
  * Validate the specified subtree file from the `specs/data/subtrees`
  * directory.
- * 
+ *
  * Note that in order to validate a subtree file, the validator requires
- * additional data elements. Namely, the `TileImplicitTiling` that 
+ * additional data elements. Namely, the `TileImplicitTiling` that
  * defines the structure of the subtree, and a `Schema` (if the
  * subtree contains metadata).
- * 
+ *
  * This function will load this data from the additional files in
  * the `specs/data/` directory that define the same structure for
  * all subtree spec files.
- * 
+ *
  * @param fileName - The subtree file name
  * @returns A promise to the `ValidationResult`
  */
-async function validateSpecSubtreeFile(fileName: string): Promise<ValidationResult> {
+async function validateSpecSubtreeFile(
+  fileName: string
+): Promise<ValidationResult> {
   // The schema for the subtrees in the specs directory
   const specSchema: Schema = await readJsonUnchecked(
     "specs/data/schemas/validSchema.json"
@@ -45,7 +47,6 @@ async function validateSpecSubtreeFile(fileName: string): Promise<ValidationResu
   );
   return validationResult;
 }
-
 
 describe("Subtree validation", function () {
   it("detects issues in binarySubtreeComputedLengthInvalid", async function () {
@@ -388,5 +389,4 @@ describe("Subtree validation", function () {
     );
     expect(result.length).toEqual(0);
   });
-
 });
