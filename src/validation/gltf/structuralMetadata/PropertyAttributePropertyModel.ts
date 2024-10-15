@@ -1,6 +1,6 @@
 import { ClassProperty } from "3d-tiles-tools";
 import { MetadataValues } from "3d-tiles-tools";
-import { MetadataPropertyModel } from "../metadata/MetadataPropertyModel";
+import { MetadataPropertyModel } from "../../metadata/MetadataPropertyModel";
 
 /**
  * Implementation of a metadata property model for a

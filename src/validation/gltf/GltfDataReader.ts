@@ -146,7 +146,7 @@ export class GltfDataReader {
   }
 
   /**
-   * Try to read a glTF-Tranform document from the given GLB buffer
+   * Try to read a glTF-Transform document from the given GLB buffer
    * data, returning `undefined` if the document cannot be read.
    *
    * @param input - The input GLB buffer
@@ -222,10 +222,10 @@ export class GltfDataReader {
   }
 
   /**
-   * Try to read a glTF-Tranform document from the given glTF JSON
+   * Try to read a glTF-Transform document from the given glTF JSON
    * data, returning `undefined` if the document cannot be read.
    *
-   * @param input - The input buffer containging glTF JSON
+   * @param input - The input buffer containing glTF JSON
    * @returns The document, or `undefined`
    */
   private static async readJsonGltfDocument(

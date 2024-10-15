@@ -1,8 +1,9 @@
 import { ValidationContext } from "../ValidationContext";
-import { ExtInstanceFeaturesValidator } from "./ExtInstanceFeaturesValidator";
 
-import { ExtMeshFeaturesValidator } from "./ExtMeshFeaturesValidator";
-import { ExtStructuralMetadataValidator } from "./ExtStructuralMetadataValidator";
+import { ExtInstanceFeaturesValidator } from "./instanceFeatures/ExtInstanceFeaturesValidator";
+import { ExtMeshFeaturesValidator } from "./meshFeatures/ExtMeshFeaturesValidator";
+import { ExtStructuralMetadataValidator } from "./structuralMetadata/ExtStructuralMetadataValidator";
+
 import { GltfDataReader } from "./GltfDataReader";
 
 /**

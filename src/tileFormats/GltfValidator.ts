@@ -5,7 +5,7 @@ import { ValidationContext } from "../validation/ValidationContext";
 import { ValidationIssue } from "../validation/ValidationIssue";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
-import { GltfExtensionValidators } from "../validation/gltfExtensions/GltfExtensionValidators";
+import { GltfExtensionValidators } from "../validation/gltf/GltfExtensionValidators";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const validator = require("gltf-validator");

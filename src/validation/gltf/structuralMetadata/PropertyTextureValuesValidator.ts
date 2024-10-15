@@ -3,18 +3,19 @@ import { defaultValue } from "3d-tiles-tools";
 import { ClassProperties } from "3d-tiles-tools";
 import { Schema } from "3d-tiles-tools";
 
-import { ValidationContext } from "../ValidationContext";
+import { ValidationContext } from "../../ValidationContext";
 
-import { GltfData } from "./GltfData";
-import { ImageDataReader } from "./ImageDataReader";
-import { TextureValidator } from "./TextureValidator";
+import { GltfData } from "../GltfData";
+import { ImageDataReader } from "../ImageDataReader";
+import { TextureValidator } from "../TextureValidator";
+
 import { PropertyTextureMetadataPropertyModels } from "./PropertyTextureMetadataPropertyModels";
 
-import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
+import { StructureValidationIssues } from "../../../issues/StructureValidationIssues";
 
-import { RangeIterables } from "../metadata/RangeIterables";
-import { MetadataPropertyValuesValidator } from "../metadata/MetadataPropertyValuesValidator";
-import { MetadataValidationUtilities } from "../metadata/MetadataValidationUtilities";
+import { RangeIterables } from "../../metadata/RangeIterables";
+import { MetadataPropertyValuesValidator } from "../../metadata/MetadataPropertyValuesValidator";
+import { MetadataValidationUtilities } from "../../metadata/MetadataValidationUtilities";
 
 /**
  * A class for the validation of values that are stored

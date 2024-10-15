@@ -1,12 +1,12 @@
-import { ValidationContext } from "../ValidationContext";
-import { ValidatedElement } from "../ValidatedElement";
+import { ValidationContext } from "../../ValidationContext";
+import { ValidatedElement } from "../../ValidatedElement";
 
-import { GltfData } from "./GltfData";
-import { Accessors } from "./Accessors";
+import { GltfData } from "../GltfData";
+import { Accessors } from "../Accessors";
 import { FeatureIdValidator } from "./FeatureIdValidator";
 
-import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
-import { ValidationIssues } from "../../issues/ValidationIssues";
+import { GltfExtensionValidationIssues } from "../../../issues/GltfExtensionValidationIssues";
+import { ValidationIssues } from "../../../issues/ValidationIssues";
 
 /**
  * Methods related to the validation of accessors that store

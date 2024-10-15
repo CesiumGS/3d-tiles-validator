@@ -1,49 +1,44 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
-import { MetadataUtilities } from "3d-tiles-tools";
 import { Schema } from "3d-tiles-tools";
 
-import { ValidationContext } from "../ValidationContext";
-import { BasicValidator } from "../BasicValidator";
-import { RootPropertyValidator } from "../RootPropertyValidator";
-import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
+import { ValidationContext } from "../../ValidationContext";
+import { BasicValidator } from "../../BasicValidator";
+import { RootPropertyValidator } from "../../RootPropertyValidator";
+import { ExtendedObjectsValidators } from "../../ExtendedObjectsValidators";
 
-import { MetadataStructureValidator } from "../metadata/MetadataStructureValidator";
+import { MetadataStructureValidator } from "../../metadata/MetadataStructureValidator";
 
-import { PropertyTexturePropertyValidator } from "./PropertyTexturePropertyValidator";
+import { PropertyAttributePropertyValidator } from "./PropertyAttributePropertyValidator";
 
 /**
- * A class for validations related to `propertyTexture` objects.
+ * A class for validations related to `propertyAttribute` objects.
  *
  * This class performs the basic JSON-level validation of the
- * property texture.
+ * property attributes.
  *
  * The validation of any of the underlying binary data of
- * a property texture has to start at the mesh primitive
- * that refers to the property texture, because it requires
- * knowledge about the attributes (texture coordinates)
- * that are defined in the referring mesh primitive, and
- * the glTF texture that the definition refers to.
+ * a property attribute has to start at the mesh primitive
+ * that refers to the property attribute, because it requires
+ * knowledge about the attributes that are defined in the
+ * referring mesh primitive.
  *
  * @internal
  */
-export class PropertyTextureValidator {
+export class PropertyAttributeValidator {
   /**
    * Performs the validation to ensure that the given object is a
-   * valid `propertyTexture` object.
+   * valid `propertyAttribute` object.
    *
    * @param path - The path for the `ValidationIssue` instances
-   * @param propertyTexture - The object to validate
-   * @param gltf - The glTF object that contains the definitions
-   * @param meshPrimitive - The mesh primitive that contains the extension
+   * @param propertyAttribute - The object to validate
    * @param schema - The `Schema` object
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
-  static validatePropertyTexture(
+  static validatePropertyAttribute(
     path: string,
-    propertyTexture: any,
-    gltf: any,
+    propertyAttribute: any,
     schema: Schema,
     context: ValidationContext
   ): boolean {
@@ -51,8 +46,8 @@ export class PropertyTextureValidator {
     if (
       !BasicValidator.validateObject(
         path,
-        "propertyTexture",
-        propertyTexture,
+        "propertyAttribute",
+        propertyAttribute,
         context
       )
     ) {
@@ -65,8 +60,8 @@ export class PropertyTextureValidator {
     if (
       !RootPropertyValidator.validateRootProperty(
         path,
-        "propertyTexture",
-        propertyTexture,
+        "propertyAttribute",
+        propertyAttribute,
         context
       )
     ) {
@@ -78,7 +73,7 @@ export class PropertyTextureValidator {
     if (
       !ExtendedObjectsValidators.validateExtendedObject(
         path,
-        propertyTexture,
+        propertyAttribute,
         context
       )
     ) {
@@ -86,20 +81,20 @@ export class PropertyTextureValidator {
     }
     // If there was an extension validator that overrides the
     // default validation, then skip the remaining validation.
-    if (ExtendedObjectsValidators.hasOverride(propertyTexture)) {
+    if (ExtendedObjectsValidators.hasOverride(propertyAttribute)) {
       return result;
     }
 
     // Validate that the class and properties are structurally
     // valid and comply to the metadata schema
-    const className = propertyTexture.class;
-    const textureProperties = propertyTexture.properties;
+    const className = propertyAttribute.class;
+    const attributeProperties = propertyAttribute.properties;
     if (
       !MetadataStructureValidator.validateMetadataStructure(
         path,
-        "property texture",
+        "property attribute",
         className,
-        textureProperties,
+        attributeProperties,
         schema,
         context
       )
@@ -113,7 +108,7 @@ export class PropertyTextureValidator {
     if (
       !BasicValidator.validateOptionalString(
         path,
-        propertyTexture,
+        propertyAttribute,
         "name",
         context
       )
@@ -124,7 +119,7 @@ export class PropertyTextureValidator {
     // Here, the basic structure of the class and properties
     // have been determined to be valid. Continue to validate
     // the values of the properties.
-    const validProperties = defaultValue(textureProperties, {});
+    const validProperties = defaultValue(attributeProperties, {});
     const validPropertyNames = Object.keys(validProperties);
     const classes = defaultValue(schema.classes, {});
     const metadataClass = classes[className];
@@ -134,10 +129,14 @@ export class PropertyTextureValidator {
     for (const propertyName of validPropertyNames) {
       const propertyPath = path + "/properties/" + propertyName;
       const classProperty = classProperties[propertyName];
-      const enumValueType = MetadataUtilities.computeEnumValueType(
-        schema,
-        classProperty
-      );
+
+      let enumValueType = undefined;
+      const enumType = classProperty.enumType;
+      if (defined(enumType)) {
+        const enums = defaultValue(schema.enums, {});
+        const metadataEnum = enums[enumType];
+        enumValueType = metadataEnum.valueType || "UINT16";
+      }
 
       // Note: The check whether 'required' properties are
       // present and have values was already done by the
@@ -145,11 +144,10 @@ export class PropertyTextureValidator {
       const propertyValue = validProperties[propertyName];
       if (defined(propertyValue)) {
         if (
-          !PropertyTexturePropertyValidator.validatePropertyTextureProperty(
+          !PropertyAttributePropertyValidator.validatePropertyAttributeProperty(
             propertyPath,
             propertyName,
             propertyValue,
-            gltf,
             classProperty,
             enumValueType,
             context

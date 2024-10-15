@@ -1,9 +1,13 @@
-import { defaultValue, defined } from "3d-tiles-tools";
-import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
-import { ValidatedElement } from "../ValidatedElement";
-import { ValidationContext } from "../ValidationContext";
-import { GltfData } from "./GltfData";
-import { BasicValidator } from "../BasicValidator";
+import { defined } from "3d-tiles-tools";
+import { defaultValue } from "3d-tiles-tools";
+
+import { ValidationContext } from "../../ValidationContext";
+import { ValidatedElement } from "../../ValidatedElement";
+import { BasicValidator } from "../../BasicValidator";
+
+import { GltfData } from "../GltfData";
+
+import { GltfExtensionValidationIssues } from "../../../issues/GltfExtensionValidationIssues";
 
 /**
  * A class for the validation of a single property table that
@@ -20,7 +24,7 @@ export class PropertyTableDefinitionValidator {
    * - `validatedElement`: The validated property table object, only
    *    insofar that it contains a defined `count` value
    *
-   * This will check whether the `propertyTable` refers to an exising
+   * This will check whether the `propertyTable` refers to an existing
    * property table in the `EXT_structural_metadata` extension object,
    * and this property table has a valid `count`.
    *

@@ -1,12 +1,13 @@
 import { defined } from "3d-tiles-tools";
 import { Schema } from "3d-tiles-tools";
 
-import { ValidationContext } from "../ValidationContext";
-import { ValidatedElement } from "../ValidatedElement";
-import { BasicValidator } from "../BasicValidator";
+import { ValidationContext } from "../../ValidationContext";
+import { ValidatedElement } from "../../ValidatedElement";
+import { BasicValidator } from "../../BasicValidator";
+
 import { PropertyTextureValidator } from "./PropertyTextureValidator";
 
-import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
+import { StructureValidationIssues } from "../../../issues/StructureValidationIssues";
 
 /**
  * A class for validating the definition of property textures.

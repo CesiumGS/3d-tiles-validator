@@ -2,17 +2,18 @@ import { ClassProperty } from "3d-tiles-tools";
 import { MetadataValues } from "3d-tiles-tools";
 import { NumericBuffers } from "3d-tiles-tools";
 
-import { ImageData } from "./ImageData";
-import { ImageDataReader } from "./ImageDataReader";
-import { MetadataPropertyModel } from "../metadata/MetadataPropertyModel";
+import { ImageData } from "../ImageData";
+import { ImageDataReader } from "../ImageDataReader";
+
+import { MetadataPropertyModel } from "../../metadata/MetadataPropertyModel";
 
 /**
  * Implementation of a MetadataPropertyModel for a single
- * property texture property that contains enum values.
+ * property texture property that contains boolean values.
  *
  * @internal
  */
-export class PropertyTextureEnumMetadataPropertyModel
+export class PropertyTextureBooleanMetadataPropertyModel
   implements MetadataPropertyModel<[number, number]>
 {
   /**
@@ -31,60 +32,43 @@ export class PropertyTextureEnumMetadataPropertyModel
   private readonly classProperty: ClassProperty;
 
   /**
-   * The value type of the enum that is represented with the
-   * given class property
-   */
-  private readonly enumValueType: string;
-
-  /**
-   * The mapping from enum value values to enum value names for
-   * the enum type of the given class property
-   */
-  private readonly enumValueValueNames: { [key: number]: string };
-
-  /**
    * Creates a new instance
    *
    * @param imageData - The image data
    * @param propertyTextureProperty - The property texture property
    * @param classProperty - The class property
-   * @param enumValueType - The `valueType` of the enum type of
-   * the given class property
-   * @param valueValueNames - The mapping from enum value values
-   * to enum value names for the enum type of the given class
-   * property
    */
   constructor(
     imageData: ImageData,
     propertyTextureProperty: any,
-    classProperty: ClassProperty,
-    enumValueType: string,
-    enumValueValueNames: { [key: number]: string }
+    classProperty: ClassProperty
   ) {
     this.imageData = imageData;
     this.propertyTextureProperty = propertyTextureProperty;
     this.classProperty = classProperty;
-    this.enumValueType = enumValueType;
-    this.enumValueValueNames = enumValueValueNames;
   }
 
   /** {@inheritDoc MetadataPropertyModel.getPropertyValue} */
-  getPropertyValue(pixelCoordinates: [number, number]): string | string[] {
+  getPropertyValue(pixelCoordinates: [number, number]): boolean | boolean[] {
+    const propertyTextureProperty = this.propertyTextureProperty;
     const classProperty = this.classProperty;
+
+    const offsetOverride = propertyTextureProperty.offset;
+    const scaleOverride = propertyTextureProperty.scale;
 
     const value = this.getRawPropertyValue(pixelCoordinates);
 
-    const valueNames = this.enumValueValueNames;
-    const processedValue = MetadataValues.processNumericEnumValue(
+    const processedValue = MetadataValues.processValue(
       classProperty,
-      valueNames,
+      offsetOverride,
+      scaleOverride,
       value
     );
     return processedValue;
   }
 
   /** {@inheritDoc MetadataPropertyModel.getRawPropertyValue} */
-  getRawPropertyValue(pixelCoordinates: [number, number]): number | number[] {
+  getRawPropertyValue(pixelCoordinates: [number, number]): boolean | boolean[] {
     const propertyTextureProperty = this.propertyTextureProperty;
     const classProperty = this.classProperty;
     const channels = propertyTextureProperty.channels;
@@ -104,29 +88,21 @@ export class PropertyTextureEnumMetadataPropertyModel
       buffer.writeUInt8(channelValue & 0xff, c);
     }
 
-    // The enum value type is assumed to be defined
-    // for enum properties
-    const enumValueType = this.enumValueType!;
-
-    // Handle enum array properties
+    // Handle boolean array properties
     if (classProperty.array) {
       // Variable-length arrays are not supported for property
       // textures, so the `count` must be defined here
       const count = classProperty.count!;
       const value = Array<any>(count);
       for (let e = 0; e < count; e++) {
-        const element = NumericBuffers.getNumericFromBuffer(
-          buffer,
-          e,
-          enumValueType
-        );
+        const element = NumericBuffers.getBooleanFromBuffer(buffer, e);
         value[e] = element;
       }
       return value;
     }
 
-    // Handle enum (non-array) properties
-    const value = NumericBuffers.getNumericFromBuffer(buffer, 0, enumValueType);
-    return Number(value);
+    // Handle boolean (non-array) properties
+    const value = NumericBuffers.getBooleanFromBuffer(buffer, 0);
+    return value;
   }
 }

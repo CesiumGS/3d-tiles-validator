@@ -1,12 +1,12 @@
 import { ClassProperty } from "3d-tiles-tools";
 
-import { ImageData } from "./ImageData";
+import { ImageData } from "../ImageData";
 
 import { PropertyTextureNumericMetadataPropertyModel } from "./PropertyTextureNumericMetadataPropertyModel";
 import { PropertyTextureBooleanMetadataPropertyModel } from "./PropertyTextureBooleanMetadataPropertyModel";
 import { PropertyTextureEnumMetadataPropertyModel } from "./PropertyTextureEnumMetadataPropertyModel";
 
-import { MetadataPropertyModel } from "../metadata/MetadataPropertyModel";
+import { MetadataPropertyModel } from "../../metadata/MetadataPropertyModel";
 
 /**
  * Methods to create MetadataPropertyModel instances for

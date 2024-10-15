@@ -1,19 +1,21 @@
 import { defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 
-import { ValidationContext } from "../ValidationContext";
-import { BasicValidator } from "../BasicValidator";
-import { ValidatedElement } from "../ValidatedElement";
+import { ValidationContext } from "../../ValidationContext";
+import { BasicValidator } from "../../BasicValidator";
+import { ValidatedElement } from "../../ValidatedElement";
 
-import { GltfData } from "./GltfData";
-import { ImageDataReader } from "./ImageDataReader";
-import { SamplerValidator } from "./SamplerValidator";
-import { TextureValidator } from "./TextureValidator";
+import { GltfData } from "../GltfData";
+import { ImageDataReader } from "../ImageDataReader";
+import { SamplerValidator } from "../SamplerValidator";
+import { TextureValidator } from "../TextureValidator";
+
 import { FeatureIdValidator } from "./FeatureIdValidator";
 import { FeatureIdAccessorValidator } from "./FeatureIdAccessorValidator";
-import { PropertyTableDefinitionValidator } from "./PropertyTableDefinitionValidator";
 
-import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
+import { PropertyTableDefinitionValidator } from "../structuralMetadata/PropertyTableDefinitionValidator";
+
+import { StructureValidationIssues } from "../../../issues/StructureValidationIssues";
 
 /**
  * A class for validating the `EXT_mesh_features` extension in

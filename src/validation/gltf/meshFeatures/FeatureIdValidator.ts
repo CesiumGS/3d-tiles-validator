@@ -1,13 +1,13 @@
 import { defined } from "3d-tiles-tools";
 
-import { ValidationContext } from "../ValidationContext";
-import { ValidatedElement } from "../ValidatedElement";
-import { BasicValidator } from "../BasicValidator";
+import { ValidationContext } from "../../ValidationContext";
+import { ValidatedElement } from "../../ValidatedElement";
+import { BasicValidator } from "../../BasicValidator";
 
-import { GltfData } from "./GltfData";
+import { GltfData } from "../GltfData";
 
-import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
-import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
+import { GltfExtensionValidationIssues } from "../../../issues/GltfExtensionValidationIssues";
+import { JsonValidationIssues } from "../../../issues/JsonValidationIssues";
 
 /**
  * A class for validation functionality related to feature IDs, as they

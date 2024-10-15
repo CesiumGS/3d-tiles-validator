@@ -1,16 +1,16 @@
 import { defined } from "3d-tiles-tools";
 
-import { ValidationContext } from "../ValidationContext";
-import { BasicValidator } from "../BasicValidator";
-import { ValidatedElement } from "../ValidatedElement";
+import { ValidationContext } from "../../ValidationContext";
+import { BasicValidator } from "../../BasicValidator";
+import { ValidatedElement } from "../../ValidatedElement";
 
-import { GltfData } from "./GltfData";
-import { FeatureIdValidator } from "./FeatureIdValidator";
-import { PropertyTableDefinitionValidator } from "./PropertyTableDefinitionValidator";
-import { FeatureIdAccessorValidator } from "./FeatureIdAccessorValidator";
+import { GltfData } from "../GltfData";
+import { FeatureIdValidator } from "../meshFeatures/FeatureIdValidator";
+import { PropertyTableDefinitionValidator } from "../structuralMetadata/PropertyTableDefinitionValidator";
+import { FeatureIdAccessorValidator } from "../meshFeatures/FeatureIdAccessorValidator";
 
-import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
-import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
+import { GltfExtensionValidationIssues } from "../../../issues/GltfExtensionValidationIssues";
+import { StructureValidationIssues } from "../../../issues/StructureValidationIssues";
 
 /**
  * A class for validating the `EXT_instance_features` extension in

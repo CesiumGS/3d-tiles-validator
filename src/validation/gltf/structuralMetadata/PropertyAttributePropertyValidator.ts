@@ -1,10 +1,10 @@
 import { ClassProperties, ClassProperty, defined } from "3d-tiles-tools";
 
-import { ValidationContext } from "../ValidationContext";
-import { BasicValidator } from "../BasicValidator";
+import { ValidationContext } from "../../ValidationContext";
+import { BasicValidator } from "../../BasicValidator";
 
-import { MetadataPropertyValidator } from "../metadata/MetadataPropertyValidator";
-import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
+import { MetadataPropertyValidator } from "../../metadata/MetadataPropertyValidator";
+import { GltfExtensionValidationIssues } from "../../../issues/GltfExtensionValidationIssues";
 
 /**
  * A class for validations related to `propertyAttribute.property` objects.

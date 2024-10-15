@@ -1,20 +1,20 @@
 import { Schema, defined } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 
-import { ValidationContext } from "../ValidationContext";
-import { BasicValidator } from "../BasicValidator";
-import { ValidatedElement } from "../ValidatedElement";
+import { ValidationContext } from "../../ValidationContext";
+import { BasicValidator } from "../../BasicValidator";
+import { ValidatedElement } from "../../ValidatedElement";
 
-import { GltfData } from "./GltfData";
+import { GltfData } from "../GltfData";
 import { PropertyTexturesDefinitionValidator } from "./PropertyTexturesDefinitionValidator";
 import { PropertyAttributesDefinitionValidator } from "./PropertyAttributesDefinitionValidator";
 import { PropertyTextureValuesValidator } from "./PropertyTextureValuesValidator";
 
-import { SchemaDefinitionValidator } from "../metadata/SchemaDefinitionValidator";
-import { PropertyTablesDefinitionValidator } from "../metadata/PropertyTablesDefinitionValidator";
+import { SchemaDefinitionValidator } from "../../metadata/SchemaDefinitionValidator";
+import { PropertyTablesDefinitionValidator } from "../../metadata/PropertyTablesDefinitionValidator";
 
-import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
-import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
+import { GltfExtensionValidationIssues } from "../../../issues/GltfExtensionValidationIssues";
+import { JsonValidationIssues } from "../../../issues/JsonValidationIssues";
 import { PropertyAttributeValuesValidator } from "./PropertyAttributeValuesValidator";
 
 /**
@@ -282,7 +282,7 @@ export class ExtStructuralMetadataValidator {
    * the extension object
    * @param meshIndex - The index of the mesh (only for details
    * in validation messages)
-   * @param pimitiveIndex - The index of the primitive (only for details
+   * @param primitiveIndex - The index of the primitive (only for details
    * in validation messages)
    * @param schema - The metadata schema
    * @param gltfStructuralMetadata - The EXT_mesh_features object

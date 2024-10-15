@@ -2,9 +2,10 @@ import { ClassProperty } from "3d-tiles-tools";
 import { MetadataValues } from "3d-tiles-tools";
 import { NumericBuffers } from "3d-tiles-tools";
 
-import { ImageData } from "./ImageData";
-import { ImageDataReader } from "./ImageDataReader";
-import { MetadataPropertyModel } from "../metadata/MetadataPropertyModel";
+import { ImageData } from "../ImageData";
+import { ImageDataReader } from "../ImageDataReader";
+
+import { MetadataPropertyModel } from "../../metadata/MetadataPropertyModel";
 
 /**
  * Implementation of a MetadataPropertyModel for a single

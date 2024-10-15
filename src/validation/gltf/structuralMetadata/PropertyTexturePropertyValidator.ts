@@ -4,15 +4,15 @@ import { MetadataTypes } from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 import { ClassProperty } from "3d-tiles-tools";
 
-import { ValidationContext } from "../ValidationContext";
-import { BasicValidator } from "../BasicValidator";
+import { ValidationContext } from "../../ValidationContext";
+import { BasicValidator } from "../../BasicValidator";
 
-import { MetadataPropertyValidator } from "../metadata/MetadataPropertyValidator";
+import { MetadataPropertyValidator } from "../../metadata/MetadataPropertyValidator";
 
-import { GltfExtensionValidationIssues } from "../../issues/GltfExtensionValidationIssues";
+import { GltfExtensionValidationIssues } from "../../../issues/GltfExtensionValidationIssues";
 
-import { TextureValidator } from "./TextureValidator";
-import { SamplerValidator } from "./SamplerValidator";
+import { TextureValidator } from "../TextureValidator";
+import { SamplerValidator } from "../SamplerValidator";
 
 /**
  * A class for validations related to `propertyTexture.property` objects.
