@@ -18,7 +18,7 @@ import { BoundingVolumeS2ValidationIssues } from "./BoundingVolumeS2ValidationIs
  */
 export class BoundingVolumeS2Validator implements Validator<any> {
   /**
-   * Performs the validation of a `BoundungVolume` object that
+   * Performs the validation of a `BoundingVolume` object that
    * contains a `3DTILES_bounding_volume_S2` extension object.
    *
    * @param path - The path for `ValidationIssue` instances
