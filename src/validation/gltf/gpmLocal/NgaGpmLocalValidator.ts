@@ -8,7 +8,6 @@ import { GltfData } from "../GltfData";
 import { StructureValidationIssues } from "../../../issues/StructureValidationIssues";
 import { TextureValidator } from "../TextureValidator";
 
-
 /**
  * A class for validating the `NGA_gpm_local` extension in glTF assets.
  *
