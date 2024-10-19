@@ -1,0 +1,61 @@
+{
+  "asset" : {
+    "version" : "2.0"
+  },
+  "extensionsUsed" : [
+    "NGA_gpm_local"
+  ],
+  "extensions" : {
+    "NGA_gpm_local" : {
+      "storageType" : "Indirect",
+      "anchorPointsIndirect" : [
+        {
+          "position" : [
+            12.34,
+            23.45,
+            34.56
+          ],
+          "adjustmentParams" : [
+            0.1,
+            0.2,
+            0.3
+          ]
+        }
+      ],
+      "intraTileCorrelationGroups" : [
+        {
+          "groupFlags" : [
+            true,
+            true,
+            true
+          ],
+          "rotationThetas" : [
+            0.1,
+            0.2,
+            0.3
+          ],
+          "params" : [
+            {
+              "A" : 1.0,
+              "alpha" : 0.99,
+              "beta" : 0.0,
+              "T" : 10000.0
+            },
+            {
+              "A" : 1.0,
+              "alpha" : 0.99,
+              "beta" : 0.0,
+              "T" : 10000.0
+            },
+            {
+              "A" : 1.0,
+              "alpha" : 0.99,
+              "beta" : 0.0,
+              "T" : 10000.0
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
