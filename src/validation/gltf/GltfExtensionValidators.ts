@@ -5,6 +5,7 @@ import { ExtMeshFeaturesValidator } from "./meshFeatures/ExtMeshFeaturesValidato
 import { ExtStructuralMetadataValidator } from "./structuralMetadata/ExtStructuralMetadataValidator";
 
 import { GltfDataReader } from "./GltfDataReader";
+import { NgaGpmLocalValidator } from "./gpmLocal/NgaGpmLocalValidator";
 
 /**
  * A class that only serves as an entry point for validating
@@ -61,6 +62,16 @@ export class GltfExtensionValidators {
         context
       );
     if (!extStructuralMetadataValid) {
+      result = false;
+    }
+
+    // Validate `NGA_gpm_local`
+    const ngaGpmLocalValid = await NgaGpmLocalValidator.validateGltf(
+      path,
+      gltfData,
+      context
+    );
+    if (!ngaGpmLocalValid) {
       result = false;
     }
 
