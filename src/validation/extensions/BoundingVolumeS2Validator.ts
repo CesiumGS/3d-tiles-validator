@@ -218,7 +218,7 @@ export class BoundingVolumeS2Validator implements Validator<any> {
   }
 
   /**
-   * Peforms a basic validation that the given string is a valid S2 cell token
+   * Performs a basic validation that the given string is a valid S2 cell token
    *
    * @param token - The token
    * @returns Whether the token is valid
