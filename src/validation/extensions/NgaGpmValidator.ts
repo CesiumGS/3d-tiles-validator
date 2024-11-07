@@ -62,8 +62,10 @@ export class NgaGpmValidator implements Validator<any> {
       const key = "NGA_gpm";
       const ngaGpm = extensions[key];
       const ngaGpmPath = path + "/" + key;
-      if (!NgaGpmValidator.validateNgaGpm(ngaGpmPath, ngaGpm, context)) {
-        result = false;
+      if (defined(ngaGpm)) {
+        if (!NgaGpmValidator.validateNgaGpm(ngaGpmPath, ngaGpm, context)) {
+          result = false;
+        }
       }
     }
 
