@@ -10,6 +10,7 @@
     ],
     "geometricError": 2.0,
     "root": {
+        "refine": "ADD",
         "geometricError": 1.0,
         "boundingVolume": {
             "extensions": {
