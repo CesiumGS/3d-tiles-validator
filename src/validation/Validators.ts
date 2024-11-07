@@ -491,11 +491,7 @@ export class Validators {
     {
       const ngaGpmValidator = new NgaGpmValidator();
       const override = false;
-      ExtendedObjectsValidators.register(
-        "NGA_gpm",
-        ngaGpmValidator,
-        override
-      );
+      ExtendedObjectsValidators.register("NGA_gpm", ngaGpmValidator, override);
     }
 
     Validators._registeredExtensionValidators = true;

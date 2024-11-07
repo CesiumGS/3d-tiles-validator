@@ -319,7 +319,9 @@ export class NgaGpmLocalValidator {
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
-    if (!BasicValidator.validateObject(path, name, name, context)) {
+    if (
+      !BasicValidator.validateObject(path, name, anchorPointIndirect, context)
+    ) {
       return false;
     }
 
@@ -548,7 +550,9 @@ export class NgaGpmLocalValidator {
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
-    if (!BasicValidator.validateObject(path, name, name, context)) {
+    if (
+      !BasicValidator.validateObject(path, name, anchorPointDirect, context)
+    ) {
       return false;
     }
 
