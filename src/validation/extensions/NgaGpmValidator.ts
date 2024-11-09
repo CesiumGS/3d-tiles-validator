@@ -10,6 +10,7 @@ import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
 import { StructureValidationIssues } from "../../issues/StructureValidationIssues";
 
 import { NgaGpmValidatorCommon } from "./gpm/NgaGpmValidatorCommon";
+import { NgaGpmValidationIssues } from "./gpm/NgaGpmValidationIssues";
 
 /**
  * EPSG codes for WGS84 CRS realizations, as defined in the
@@ -62,8 +63,15 @@ export class NgaGpmValidator implements Validator<any> {
       // If the extension object is not an object, then a validation
       // issue was already added when validating the extension objects
       // of the tileset, when it was validated to be a root property.
-      if (defined(ngaGpm) && (typeof ngaGpm === "object")) {
-        if (!NgaGpmValidator.validateNgaGpm(ngaGpmPath, "NGA_gpm", ngaGpm, context)) {
+      if (defined(ngaGpm) && typeof ngaGpm === "object") {
+        if (
+          !NgaGpmValidator.validateNgaGpm(
+            ngaGpmPath,
+            "NGA_gpm",
+            ngaGpm,
+            context
+          )
+        ) {
           result = false;
         }
       }
@@ -97,12 +105,7 @@ export class NgaGpmValidator implements Validator<any> {
 
     // Validate the object as a RootProperty
     if (
-      !RootPropertyValidator.validateRootProperty(
-        path,
-        name,
-        object,
-        context
-      )
+      !RootPropertyValidator.validateRootProperty(path, name, object, context)
     ) {
       result = false;
     }
@@ -1827,6 +1830,73 @@ export class NgaGpmValidator implements Validator<any> {
         context
       )
     ) {
+      result = false;
+    }
+
+    // Only if the object has been structurally valid on the JSON level,
+    // validate its overall consistency in terms of array lengths
+    if (result) {
+      result = NgaGpmValidator.validateThreeDimensionalConformalConsistency(
+        path,
+        threeDimensionalConformal,
+        context
+      );
+    }
+
+    return result;
+  }
+
+  private static validateThreeDimensionalConformalConsistency(
+    path: string,
+    threeDimensionalConformal: any,
+    context: ValidationContext
+  ): boolean {
+    let result = true;
+
+    const flags = threeDimensionalConformal.flags;
+    const parameters = threeDimensionalConformal.parameters;
+    const covariance = threeDimensionalConformal.covariance;
+
+    // Compute the number of flags that are set to 'true'
+    const numTrueFlags = flags.reduce(
+      (n: number, f: boolean) => n + (f ? 1 : 0),
+      0
+    );
+
+    // The length of the parameters array MUST match the number of
+    // flags that are set to 'true'
+    if (parameters.length !== numTrueFlags) {
+      const message =
+        `The number of parameters that are given in the ` +
+        `threeDimensionalConformal must match the number of flags that ` +
+        `are set to 'true'. There are ${numTrueFlags} flags that are ` +
+        `set to 'true', but the number of parameters is ${parameters.length}`;
+      const issue = NgaGpmValidationIssues.ARRAY_LENGTH_INCONSISTENT(
+        path,
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    // The length of the array for the upper-triangular of the covariance
+    // matrix MUST be the n-th triangular number, for n being the number
+    // of flags that are set to 'true'
+    const expectedCovarianceLength =
+      NgaGpmValidatorCommon.computeTriangularNumber(numTrueFlags);
+    if (covariance.length !== expectedCovarianceLength) {
+      const message =
+        `The number of elements in the upper-triangular of the covariance of ` +
+        `the threeDimensionalConformal must be 'n*(n+1)/2', for 'n' being the ` +
+        `number of flags that are set to 'true'. There are ${numTrueFlags} ` +
+        `flags that are set to 'true', meaning that the expected length is ` +
+        `${expectedCovarianceLength}, but the length of the covariance array ` +
+        `is ${covariance.length}`;
+      const issue = NgaGpmValidationIssues.ARRAY_LENGTH_INCONSISTENT(
+        path,
+        message
+      );
+      context.addIssue(issue);
       result = false;
     }
 

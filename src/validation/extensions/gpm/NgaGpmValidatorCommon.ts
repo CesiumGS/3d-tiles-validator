@@ -366,4 +366,20 @@ export class NgaGpmValidatorCommon {
 
     return result;
   }
+
+  /**
+   * Returns the n-th triangular number, just so that this computation
+   * has a name.
+   *
+   * The https://en.wikipedia.org/wiki/Triangular_number is the number
+   * of elements in the "upper-triangular of covariance matrix" for
+   * the given number of dimensions, which is the common representation
+   * of covariance matrices in the NGA GPM extensions.
+   *
+   * @param n - The input
+   * @returns The n-th triangular number
+   */
+  static computeTriangularNumber(n: number): number {
+    return (n * (n + 1)) / 2;
+  }
 }
