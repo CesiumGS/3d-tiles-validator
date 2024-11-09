@@ -64,11 +64,14 @@ export class NgaGpmValidator implements Validator<any> {
       // issue was already added when validating the extension objects
       // of the tileset, when it was validated to be a root property.
       if (defined(ngaGpm) && typeof ngaGpm === "object") {
+        const numContentsInRootNode =
+          NgaGpmValidator.computeNumContentsInRootNode(tileset);
         if (
           !NgaGpmValidator.validateNgaGpm(
             ngaGpmPath,
             "NGA_gpm",
             ngaGpm,
+            numContentsInRootNode,
             context
           )
         ) {
@@ -81,12 +84,42 @@ export class NgaGpmValidator implements Validator<any> {
   }
 
   /**
+   * Returns the number of contents in the root node of the given
+   * tileset. The given object is not defined, does not have a
+   * root, or the root does not have contents, then 0 is returned.
+   *
+   * @param tileset - The tileset
+   * @returns The number of contents in the root node
+   */
+  private static computeNumContentsInRootNode(tileset: any) {
+    if (!defined(tileset)) {
+      return 0;
+    }
+    const root = tileset.root;
+    if (!defined(root)) {
+      return 0;
+    }
+    const content = root.content;
+    if (defined(content)) {
+      return 1;
+    }
+    const contents = root.contents;
+    if (Array.isArray(contents)) {
+      return contents.length;
+    }
+    return 0;
+  }
+
+  /**
    * Performs the validation to ensure that the given object is a
    * valid `NGA_gpm` object.
    *
    * @param path - The path for `ValidationIssue` instances
    * @param name - The name of the object
    * @param object - The object to validate
+   * @param numContentsInRootNode - The number of contents in the root
+   * node of the tileset. This is required for validating the 'contentIndex'
+   * if the 'anchorPointMetadata'
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
@@ -94,6 +127,7 @@ export class NgaGpmValidator implements Validator<any> {
     path: string,
     name: string,
     object: any,
+    numContentsInRootNode: number,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
@@ -220,6 +254,7 @@ export class NgaGpmValidator implements Validator<any> {
           anchorPointMetadataPath,
           "anchorPointMetadata",
           anchorPointMetadata,
+          numContentsInRootNode,
           context
         )
       ) {
@@ -338,6 +373,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given modelCoordSystem
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param modelCoordSystem - The modelCoordSystem
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateModelCoordSystem(
     path: string,
     name: string,
@@ -393,6 +437,16 @@ export class NgaGpmValidator implements Validator<any> {
     );
   }
 
+  /**
+   * Validate the given modelCoordSystem, assuming that it
+   * did contain the `mcsType === ECEF`
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param modelCoordSystem - The modelCoordSystem
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateModelCoordSystemEcef(
     path: string,
     modelCoordSystem: any,
@@ -419,6 +473,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given epsgEcef
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param epsgEcef - The epsgEcef
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateEpsgEcef(
     path: string,
     name: string,
@@ -450,6 +513,16 @@ export class NgaGpmValidator implements Validator<any> {
     return true;
   }
 
+  /**
+   * Validate the given modelCoordSystem, assuming that it
+   * did contain the `mcsType === UTM`
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param modelCoordSystem - The modelCoordSystem
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateModelCoordSystemUtm(
     path: string,
     modelCoordSystem: any,
@@ -491,6 +564,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given epsgUtm
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param epsgUtm - The epsgUtm
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateEpsgUtm(
     path: string,
     name: string,
@@ -530,6 +612,15 @@ export class NgaGpmValidator implements Validator<any> {
     return true;
   }
 
+  /**
+   * Validate the given referenceSystem
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param referenceSystem - The referenceSystem
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateReferenceSystem(
     path: string,
     referenceSystemName: string,
@@ -577,7 +668,7 @@ export class NgaGpmValidator implements Validator<any> {
       }
     }
 
-    // Bot the name and the description MUST be "human readable".
+    // Both the name and the description MUST be "human readable".
     // Not gonna try and validate that...
 
     // The structure requires one of two combinations of
@@ -687,6 +778,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given organizationSystemIdPair
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param organizationSystemIdPair - The organizationSystemIdPair
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateOrganizationSystemIdPair(
     path: string,
     name: string,
@@ -741,6 +841,16 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given modelCoordSystem, assuming that it
+   * did contain the `mcsType === LSR`
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param masterRecord - The modelCoordSystem
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateModelCoordSystemLsr(
     path: string,
     modelCoordSystem: any,
@@ -750,24 +860,6 @@ export class NgaGpmValidator implements Validator<any> {
     // in validateModelCoordSystem
 
     let result = true;
-
-    // Validate the mcsType
-    const mcsType = modelCoordSystem.mcsType;
-    const mcsTypePath = path + "/mcsType";
-
-    // The mcsType MUST be one of these valid values
-    const mcsTypeValues = ["ECEF", "LSR", "UTM"];
-    if (
-      !BasicValidator.validateEnum(
-        mcsTypePath,
-        "mcsType",
-        mcsType,
-        mcsTypeValues,
-        context
-      )
-    ) {
-      result = false;
-    }
 
     // Validate the origin
     const origin = modelCoordSystem.origin;
@@ -795,6 +887,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given ecefCoord
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param ecefCoord - The ecefCoord
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateEcefCoord(
     path: string,
     name: string,
@@ -839,6 +940,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given point3d
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param point3d - The point3d
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validatePoint3d(
     path: string,
     name: string,
@@ -862,6 +972,17 @@ export class NgaGpmValidator implements Validator<any> {
     return true;
   }
 
+  /**
+   * Validate the given array of unitVector objects.
+   *
+   * In this context, this array must always have 3 elements.
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param unitVectors - The unitVectors
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateUnitVectors(
     path: string,
     name: string,
@@ -902,6 +1023,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given unitVector
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param unitVector - The unitVector
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateUnitVector(
     path: string,
     name: string,
@@ -952,6 +1082,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given idInformation
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param idInformation - The idInformation
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateIdInformation(
     path: string,
     name: string,
@@ -1002,6 +1141,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given extentInformation
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param extentInformation - The extentInformation
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateExtentInformation(
     path: string,
     name: string,
@@ -1062,6 +1210,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given list of collectionRecord objects
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param collectionRecordList - The collectionRecordList
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateCollectionRecordList(
     path: string,
     name: string,
@@ -1102,6 +1259,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given collectionRecord
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param collectionRecord - The collectionRecord
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateCollectionRecord(
     path: string,
     name: string,
@@ -1164,6 +1330,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given list of sensorRecord objects
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param sensorRecords - The sensorRecords
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateSensorRecords(
     path: string,
     name: string,
@@ -1204,6 +1379,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given sensorRecord
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param sensorRecord - The sensorRecord
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateSensorRecord(
     path: string,
     name: string,
@@ -1282,6 +1466,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given list of collectionUnitRecord objects
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param collectionUnitRecords - The collectionUnitRecords
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateCollectionUnitRecords(
     path: string,
     name: string,
@@ -1322,6 +1515,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given collectionUnitRecord
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param collectionUnitRecord - The collectionUnitRecord
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateCollectionUnitRecord(
     path: string,
     name: string,
@@ -1408,6 +1610,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given unmodeledError
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param unmodeledError - The unmodeledError
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateUnmodeledError(
     path: string,
     name: string,
@@ -1482,6 +1693,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given rotationThetas
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param rotationThetas - The rotationThetas
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateRotationThetas(
     path: string,
     name: string,
@@ -1505,6 +1725,15 @@ export class NgaGpmValidator implements Validator<any> {
     return true;
   }
 
+  /**
+   * Validate the given array of unmodeledErrorPost objects
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param unmodeledErrorPosts - The unmodeledErrorPosts
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateUnmodeledErrorPosts(
     path: string,
     name: string,
@@ -1545,6 +1774,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given unmodeledErrorPost
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param unmodeledErrorPost - The unmodeledErrorPost
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateUnmodeledErrorPost(
     path: string,
     name: string,
@@ -1574,14 +1812,14 @@ export class NgaGpmValidator implements Validator<any> {
       result = false;
     }
 
-    // Validate the covarUpperTriangle
-    const covarUpperTriangle = unmodeledErrorPost.covarUpperTriangle;
-    const covarUpperTrianglePath = path + "/covarUpperTriangle";
+    // Validate the covariance
+    const covariance = unmodeledErrorPost.covariance;
+    const covariancePath = path + "/covariance";
     if (
       !NgaGpmValidator.validateCovarUpperTriangle(
-        covarUpperTrianglePath,
-        "covarUpperTriangle",
-        covarUpperTriangle,
+        covariancePath,
+        "covariance",
+        covariance,
         context
       )
     ) {
@@ -1591,6 +1829,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given covarUpperTriangle
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param covarUpperTriangle - The covarUpperTriangle
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateCovarUpperTriangle(
     path: string,
     name: string,
@@ -1614,6 +1861,15 @@ export class NgaGpmValidator implements Validator<any> {
     return true;
   }
 
+  /**
+   * Validate the given interpolationParams
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param interpolationParams - The interpolationParams
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateInterpolationParams(
     path: string,
     name: string,
@@ -1720,6 +1976,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given threeDimensionalConformal
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param threeDimensionalConformal - The threeDimensionalConformal
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateThreeDimensionalConformal(
     path: string,
     name: string,
@@ -1756,6 +2021,23 @@ export class NgaGpmValidator implements Validator<any> {
         context
       )
     ) {
+      result = false;
+    }
+
+    // The subsequent constraints imply that there must be at least
+    // one flag being set to 'true'. Check this explicitly.
+
+    // Compute the number of flags that are set to 'true'
+    const numTrueFlags = flags.reduce(
+      (n: number, f: boolean) => n + (f ? 1 : 0),
+      0
+    );
+    if (numTrueFlags === 0) {
+      const message =
+        `At least one of the flags of the threeDimensionalConformal ` +
+        `must be set to 'true'`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(path, message);
+      context.addIssue(issue);
       result = false;
     }
 
@@ -1846,6 +2128,29 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the consistency of the given threeDimensionalConformal,
+   * after its basic structural validity has been validated with
+   * `validateThreeDimensionalConformal`.
+   *
+   * This validates the lengths of the 'parameters' and 'covariance'
+   * arrays, depending on the number of 'flags' that have been
+   * set to 'true'.
+   *
+   * Note that this COULD be covered with the basic validation in
+   * `validateThreeDimensionalConformal`, by passing the expected
+   * length to the `BasicValidator.validateArray` calls. But
+   * differentiating between a length that is not valid according
+   * to the schema, and a length that is not "consistent" with
+   * the constraints of the specification allows to provide more
+   * specific validation issues, with more helpful messages.
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param threeDimensionalConformal - The threeDimensionalConformal
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateThreeDimensionalConformalConsistency(
     path: string,
     threeDimensionalConformal: any,
@@ -1903,6 +2208,15 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given ppeManifest
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param ppeManifest - The ppeManifest
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validatePpeManifest(
     path: string,
     name: string,
@@ -1925,7 +2239,7 @@ export class NgaGpmValidator implements Validator<any> {
     }
     let result = true;
 
-    // ch ppeManifest element to be a valid ppeMetadata
+    // Check each ppeManifest element to be a valid ppeMetadata
     for (let i = 0; i < ppeManifest.length; i++) {
       const ppeMetadata = ppeManifest[i];
       const ppeMetadataPath = path + "/" + i;
@@ -1943,10 +2257,22 @@ export class NgaGpmValidator implements Validator<any> {
     return result;
   }
 
+  /**
+   * Validate the given anchorPointMetadata
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param anchorPointMetadata - The anchorPointMetadata
+   * @param numContentsInRootNode - The number of contents in the root
+   * node of the tileset.
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateAnchorPointMetadata(
     path: string,
     name: string,
     anchorPointMetadata: any,
+    numContentsInRootNode: number,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
@@ -1958,7 +2284,65 @@ export class NgaGpmValidator implements Validator<any> {
 
     let result = true;
 
-    // TODO
+    // Validate the placementType
+    const placementType = anchorPointMetadata.placementType;
+    const placementTypePath = path + "/placementType";
+
+    // The placementType MUST be one of these valid values
+    const placementTypeValues = ["MeshContent", "SeparateContent"];
+    if (
+      !BasicValidator.validateEnum(
+        placementTypePath,
+        "placementType",
+        placementType,
+        placementTypeValues,
+        context
+      )
+    ) {
+      // The remaining validation depends on the mcsType,
+      // so bail out early when it is invalid
+      return false;
+    }
+
+    const contentIndex = anchorPointMetadata.contentIndex;
+    const contentIndexPath = path + "/contentIndex";
+
+    if (placementType === "MeshContent") {
+      if (defined(contentIndex)) {
+        const message =
+          `When the anchor point metadata has the placement type 'MeshContent', ` +
+          `then it may not define 'contentIndex'`;
+        const issue = StructureValidationIssues.DISALLOWED_VALUE_FOUND(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      }
+      // Nothing else to check when the placementType is "MeshContent"
+      return result;
+    }
+
+    // The placementType is "SeparateContent"
+    // Validate the contentIndex
+    // The contentIndex MUST be an integer of which I now
+    // just assume that it may not be negative, and that
+    // may not be larger than the number of contents in
+    // the root node of the tileset
+    if (
+      !BasicValidator.validateIntegerRange(
+        contentIndexPath,
+        "contentIndex",
+        contentIndex,
+        0,
+        true,
+        numContentsInRootNode,
+        false,
+        context
+      )
+    ) {
+      result = false;
+    }
 
     return result;
   }
