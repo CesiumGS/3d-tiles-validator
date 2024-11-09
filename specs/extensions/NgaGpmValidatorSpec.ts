@@ -1,6 +1,6 @@
 import { Validators } from "../../src/validation/Validators";
 
-fdescribe("Tileset NGA_gpm extension validation", function () {
+describe("Tileset NGA_gpm extension validation", function () {
   it("detects issues in ngaGpmInvalidType", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/gpm/ngaGpmInvalidType.json"
