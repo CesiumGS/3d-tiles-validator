@@ -45,9 +45,6 @@ export class NgaGpmValidator implements Validator<any> {
     tileset: any,
     context: ValidationContext
   ): Promise<boolean> {
-    // XXX TODO REMOVE DEBUG LOG
-    console.log("Validating tileset with NgaGpmValidator");
-
     // Make sure that the given value is an object
     if (!BasicValidator.validateObject(path, "tileset", tileset, context)) {
       return false;
@@ -59,11 +56,14 @@ export class NgaGpmValidator implements Validator<any> {
     // validation of the corresponding object
     const extensions = tileset.extensions;
     if (defined(extensions)) {
-      const key = "NGA_gpm";
-      const ngaGpm = extensions[key];
-      const ngaGpmPath = path + "/" + key;
-      if (defined(ngaGpm)) {
-        if (!NgaGpmValidator.validateNgaGpm(ngaGpmPath, ngaGpm, context)) {
+      const ngaGpm = extensions["NGA_gpm"];
+      const ngaGpmPath = path + "/NGA_gpm";
+
+      // If the extension object is not an object, then a validation
+      // issue was already added when validating the extension objects
+      // of the tileset, when it was validated to be a root property.
+      if (defined(ngaGpm) && (typeof ngaGpm === "object")) {
+        if (!NgaGpmValidator.validateNgaGpm(ngaGpmPath, "NGA_gpm", ngaGpm, context)) {
           result = false;
         }
       }
@@ -77,17 +77,19 @@ export class NgaGpmValidator implements Validator<any> {
    * valid `NGA_gpm` object.
    *
    * @param path - The path for `ValidationIssue` instances
+   * @param name - The name of the object
    * @param object - The object to validate
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   static validateNgaGpm(
     path: string,
+    name: string,
     object: any,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
-    if (!BasicValidator.validateObject(path, "NGA_gpm", object, context)) {
+    if (!BasicValidator.validateObject(path, name, object, context)) {
       return false;
     }
 
@@ -97,7 +99,7 @@ export class NgaGpmValidator implements Validator<any> {
     if (
       !RootPropertyValidator.validateRootProperty(
         path,
-        "NGA_gpm",
+        name,
         object,
         context
       )
@@ -632,6 +634,18 @@ export class NgaGpmValidator implements Validator<any> {
         const message =
           `When the reference system defines 'definition', ` +
           `then it may not define 'orgWithId'`;
+        const issue = StructureValidationIssues.DISALLOWED_VALUE_FOUND(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      }
+
+      if (defined(epoch)) {
+        const message =
+          `When the reference system defines 'definition', ` +
+          `then it may not define 'epoch'`;
         const issue = StructureValidationIssues.DISALLOWED_VALUE_FOUND(
           path,
           message
