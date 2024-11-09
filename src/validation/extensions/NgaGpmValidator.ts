@@ -2010,17 +2010,16 @@ export class NgaGpmValidator implements Validator<any> {
     const flagsPath = path + "/flags";
 
     // The flags MUST be an array of 7 boolean values
-    if (
-      !BasicValidator.validateArray(
-        flagsPath,
-        "flags",
-        flags,
-        7,
-        7,
-        "boolean",
-        context
-      )
-    ) {
+    const flagsValid = BasicValidator.validateArray(
+      flagsPath,
+      "flags",
+      flags,
+      7,
+      7,
+      "boolean",
+      context
+    );
+    if (!flagsValid) {
       result = false;
     }
 
@@ -2028,17 +2027,19 @@ export class NgaGpmValidator implements Validator<any> {
     // one flag being set to 'true'. Check this explicitly.
 
     // Compute the number of flags that are set to 'true'
-    const numTrueFlags = flags.reduce(
-      (n: number, f: boolean) => n + (f ? 1 : 0),
-      0
-    );
-    if (numTrueFlags === 0) {
-      const message =
-        `At least one of the flags of the threeDimensionalConformal ` +
-        `must be set to 'true'`;
-      const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(path, message);
-      context.addIssue(issue);
-      result = false;
+    if (flagsValid) {
+      const numTrueFlags = flags.reduce(
+        (n: number, f: boolean) => n + (f ? 1 : 0),
+        0
+      );
+      if (numTrueFlags === 0) {
+        const message =
+          `At least one of the flags of the threeDimensionalConformal ` +
+          `must be set to 'true'`;
+        const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(path, message);
+        context.addIssue(issue);
+        result = false;
+      }
     }
 
     // Validate the recentering
