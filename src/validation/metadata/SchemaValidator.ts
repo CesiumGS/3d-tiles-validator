@@ -4,6 +4,7 @@ import { Schema } from "3d-tiles-tools";
 import { ValidationContext } from "../ValidationContext";
 import { Validator } from "../Validator";
 import { BasicValidator } from "../BasicValidator";
+import { StringValidator } from "../StringValidator";
 import { RootPropertyValidator } from "../RootPropertyValidator";
 import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
@@ -116,7 +117,7 @@ export class SchemaValidator implements Validator<Schema> {
     // The id MUST be defined
     // The id MUST be a string
     // The id MUST be a valid identifier
-    if (!BasicValidator.validateIdentifierString(idPath, "id", id, context)) {
+    if (!StringValidator.validateIdentifierString(idPath, "id", id, context)) {
       result = false;
     }
 
@@ -162,7 +163,7 @@ export class SchemaValidator implements Validator<Schema> {
 
           // Each class name MUST match the ID regex
           if (
-            !BasicValidator.validateIdentifierString(
+            !StringValidator.validateIdentifierString(
               metadataClassPath,
               className,
               className,
@@ -199,7 +200,7 @@ export class SchemaValidator implements Validator<Schema> {
 
           // Each enum name MUST match the ID regex
           if (
-            !BasicValidator.validateIdentifierString(
+            !StringValidator.validateIdentifierString(
               metadataEnumPath,
               enumName,
               enumName,

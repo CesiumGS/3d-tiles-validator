@@ -3,6 +3,7 @@ import { defined } from "3d-tiles-tools";
 import { Validator } from "../Validator";
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
+import { StringValidator } from "../StringValidator";
 import { RootPropertyValidator } from "../RootPropertyValidator";
 import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
@@ -25,6 +26,24 @@ enum EpsgEcefCodes {
   G730 = 7656,
   Generic = 4978,
 }
+
+/**
+ * The epsilon for the validation of the length of unit vectors.
+ *
+ * When the length (magnitude) of a unit vector deviates by more
+ * than this epsilon from 1.0, then this is considered to be
+ * a validation error.
+ */
+const UNIT_VECTOR_LENGTH_EPSILON = 0.00001;
+
+/**
+ * The epsilon for the validation orthogonality unit vectors.
+ *
+ * When the absolute dot product between two unit vectors
+ * is greater than this epsilon, then this is considered
+ * to be a validation error.
+ */
+const ORTHOGONAL_VECTORS_DOT_PRODUCT_EPSILON = 0.0005;
 
 /**
  * A class for the validation of `NGA_gpm` extension objects
@@ -973,9 +992,8 @@ export class NgaGpmValidator implements Validator<any> {
   }
 
   /**
-   * Validate the given array of unitVector objects.
-   *
-   * In this context, this array must always have 3 elements.
+   * Validate the given array of three unitVector objects that form
+   * an orthogonal basis.
    *
    * @param path - The path for validation issues
    * @param name - The name of the object
@@ -1020,7 +1038,87 @@ export class NgaGpmValidator implements Validator<any> {
         result = false;
       }
     }
+
+    // If the basic structure of the vectors has been valid until now,
+    // validate that they form an orthonormal basis.
+    if (result) {
+      const unitVector0 = unitVectors[0];
+      const unitVector1 = unitVectors[1];
+      const unitVector2 = unitVectors[2];
+
+      const dot01 = NgaGpmValidator.computeDotProduct(unitVector0, unitVector1);
+      if (Math.abs(dot01) > ORTHOGONAL_VECTORS_DOT_PRODUCT_EPSILON) {
+        const message =
+          `The vectors ${name}[0] and ${name}[1] are not orthogonal, ` +
+          `their dot product is ${dot01}`;
+        const issue = NgaGpmValidationIssues.VECTORS_NOT_ORTHOGONAL(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      }
+
+      const dot12 = NgaGpmValidator.computeDotProduct(unitVector1, unitVector2);
+      if (Math.abs(dot12) > ORTHOGONAL_VECTORS_DOT_PRODUCT_EPSILON) {
+        const message =
+          `The vectors ${name}[1] and ${name}[2] are not orthogonal, ` +
+          `their dot product is ${dot12}`;
+        const issue = NgaGpmValidationIssues.VECTORS_NOT_ORTHOGONAL(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      }
+
+      const dot20 = NgaGpmValidator.computeDotProduct(unitVector2, unitVector0);
+      if (Math.abs(dot20) > ORTHOGONAL_VECTORS_DOT_PRODUCT_EPSILON) {
+        const message =
+          `The vectors ${name}[2] and ${name}[0] are not orthogonal, ` +
+          `their dot product is ${dot20}`;
+        const issue = NgaGpmValidationIssues.VECTORS_NOT_ORTHOGONAL(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      }
+    }
+
     return result;
+  }
+
+  /**
+   * Computes the dot product between the given vectors
+   *
+   * @param v0 - The first vector
+   * @param v1 - The second vector
+   * @returns The dot product
+   */
+  private static computeDotProduct(
+    v0: [number, number, number],
+    v1: [number, number, number]
+  ): number {
+    const x0 = v0[0];
+    const y0 = v0[1];
+    const z0 = v0[2];
+    const x1 = v1[0];
+    const y1 = v1[1];
+    const z1 = v1[2];
+    const dot = x0 * x1 + y0 * y1 + z0 * z1;
+    return dot;
+  }
+
+  /**
+   * Computes the length (magnitude) of the given vector
+   *
+   * @param v - The vector
+   * @returns The length
+   */
+  private static computeLength(v: [number, number, number]): number {
+    const dot = NgaGpmValidator.computeDotProduct(v, v);
+    return Math.sqrt(dot);
   }
 
   /**
@@ -1077,7 +1175,22 @@ export class NgaGpmValidator implements Validator<any> {
       }
     }
 
-    // TODO Could check for unit-length here, with a sensible epsilon
+    // If the basic structure of the vector was valid until now,
+    // validate that it has unit length
+    if (result) {
+      const length = NgaGpmValidator.computeLength(unitVector);
+      if (Math.abs(length - 1.0) > UNIT_VECTOR_LENGTH_EPSILON) {
+        const message =
+          `The vector ${name} must have unit length, but has a length ` +
+          `of ${length}`;
+        const issue = NgaGpmValidationIssues.VECTOR_NOT_UNIT_LENGTH(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      }
+    }
 
     return result;
   }
@@ -1124,17 +1237,15 @@ export class NgaGpmValidator implements Validator<any> {
     const referenceDateTime = idInformation.referenceDateTime;
     const referenceDateTimePath = path + "/referenceDateTime";
 
-    // The referenceDateTime MUST be a string
+    // The referenceDateTime MUST be an ISO8601 string
     if (
-      !BasicValidator.validateString(
+      !StringValidator.validateIso8601String(
         referenceDateTimePath,
         "referenceDateTime",
         referenceDateTime,
         context
       )
     ) {
-      // TODO It should be an ISO8601 string. This could/should
-      // be checked with the "validator.js" npm library.
       result = false;
     }
 
@@ -1543,9 +1654,9 @@ export class NgaGpmValidator implements Validator<any> {
     const referenceDateTime = collectionUnitRecord.referenceDateTime;
     const referenceDateTimePath = path + "/referenceDateTime";
 
-    // The referenceDateTime MUST be a string
+    // The referenceDateTime MUST be an ISO8601 string
     if (
-      !BasicValidator.validateString(
+      !StringValidator.validateIso8601String(
         referenceDateTimePath,
         "referenceDateTime",
         referenceDateTime,
@@ -2255,6 +2366,31 @@ export class NgaGpmValidator implements Validator<any> {
         result = false;
       }
     }
+
+    // If the basic structure was valid until now, then validate that
+    // the values of the `ppeMetadata[i].source` entries are unique.
+    if (result) {
+      const sourceValues: string[] = [];
+      for (let i = 0; i < ppeManifest.length; i++) {
+        const ppeMetadata = ppeManifest[i];
+        const source = ppeMetadata.source;
+        sourceValues.push(source);
+      }
+      const sourceValueSet = new Set<string>(...sourceValues);
+      if (sourceValueSet.size != ppeManifest.length) {
+        const message =
+          `The sources of PPE metadata entries must be unique, ` +
+          `but are ${sourceValues} `;
+        const issue =
+          NgaGpmValidationIssues.PER_POINT_ERROR_SOURCE_VALUES_NOT_UNIQUE(
+            path,
+            message
+          );
+        context.addIssue(issue);
+        result = false;
+      }
+    }
+
     return result;
   }
 
