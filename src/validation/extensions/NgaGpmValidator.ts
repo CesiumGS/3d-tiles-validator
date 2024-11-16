@@ -2376,8 +2376,8 @@ export class NgaGpmValidator implements Validator<any> {
         const source = ppeMetadata.source;
         sourceValues.push(source);
       }
-      const sourceValueSet = new Set<string>(...sourceValues);
-      if (sourceValueSet.size != ppeManifest.length) {
+      const sourceValueSet = new Set<string>(sourceValues);
+      if (sourceValueSet.size !== ppeManifest.length) {
         const message =
           `The sources of PPE metadata entries must be unique, ` +
           `but are ${sourceValues} `;
