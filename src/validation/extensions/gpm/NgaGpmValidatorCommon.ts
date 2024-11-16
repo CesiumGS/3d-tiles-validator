@@ -382,4 +382,26 @@ export class NgaGpmValidatorCommon {
   static computeTriangularNumber(n: number): number {
     return (n * (n + 1)) / 2;
   }
+
+  /**
+   * Returns whether the given number is a triangular number.
+   *
+   * The https://en.wikipedia.org/wiki/Triangular_number is the number
+   * of elements in the "upper-triangular of a covariance matrix",
+   * as used in the NGA GPM extensions.
+   *
+   * @param n - The input
+   * @returns Whether the given number is a triangular number
+   */
+  static isTriangularNumber(n: number): boolean {
+    // The n-th triangular number is T(n) = (n*(n+1))/2
+    // The inverse function for that is 0.5 * (sqrt(8*n+1) - 1)
+    // So n is a triangular number when 8*n+1 is a square
+    if (n <= 0) {
+      return false;
+    }
+    const radicand = 8 * n + 1;
+    const integralRoot = Math.round(Math.sqrt(radicand));
+    return integralRoot * integralRoot === radicand;
+  }
 }

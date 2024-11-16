@@ -1993,14 +1993,14 @@ export class NgaGpmValidator implements Validator<any> {
     covarUpperTriangle: any,
     context: ValidationContext
   ): boolean {
-    // The covarUpperTriangle MUST be an array of at least 6 numbers
+    // The covarUpperTriangle MUST be an array of 6 numbers
     if (
       !BasicValidator.validateArray(
         path,
         name,
         covarUpperTriangle,
         6,
-        undefined,
+        6,
         "number",
         context
       )

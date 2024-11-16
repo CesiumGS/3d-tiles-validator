@@ -8,6 +8,7 @@ import { GltfData } from "../GltfData";
 import { StructureValidationIssues } from "../../../issues/StructureValidationIssues";
 import { TextureValidator } from "../TextureValidator";
 import { NgaGpmValidatorCommon } from "../../extensions/gpm/NgaGpmValidatorCommon";
+import { NgaGpmValidationIssues } from "../../extensions/gpm/NgaGpmValidationIssues";
 
 /**
  * A class for validating the `NGA_gpm_local` extension in glTF assets.
@@ -269,13 +270,13 @@ export class NgaGpmLocalValidator {
     anchorPointsIndirect: any,
     context: ValidationContext
   ): boolean {
-    // The anchorPointsIndirect MUST be an array of objects
+    // The anchorPointsIndirect MUST be an array of at least 1 object
     if (
       !BasicValidator.validateArray(
         path,
         name,
         anchorPointsIndirect,
-        undefined,
+        1,
         undefined,
         "object",
         context
@@ -500,13 +501,13 @@ export class NgaGpmLocalValidator {
     anchorPointsDirect: any,
     context: ValidationContext
   ): boolean {
-    // The anchorPointsDirect MUST be an array of objects
+    // The anchorPointsDirect MUST be an array of at least 1 object
     if (
       !BasicValidator.validateArray(
         path,
         name,
         anchorPointsDirect,
-        undefined,
+        1,
         undefined,
         "object",
         context
@@ -610,16 +611,40 @@ export class NgaGpmLocalValidator {
     covarianceDirectUpperTriangle: any,
     context: ValidationContext
   ): boolean {
-    // The covarianceDirectUpperTriangle MUST be an array of numbers
-    return BasicValidator.validateArray(
-      path,
-      "covarianceDirectUpperTriangle",
-      covarianceDirectUpperTriangle,
-      undefined,
-      undefined,
-      "number",
-      context
-    );
+    // The covarianceDirectUpperTriangle MUST be an array of at least 1 number
+    if (
+      !BasicValidator.validateArray(
+        path,
+        "covarianceDirectUpperTriangle",
+        covarianceDirectUpperTriangle,
+        1,
+        undefined,
+        "number",
+        context
+      )
+    ) {
+      return false;
+    }
+
+    let result = true;
+
+    // The length of the array for the upper-triangular of the covariance
+    // matrix MUST be a triangular number
+    const n = covarianceDirectUpperTriangle.length;
+    const isTriangularNumber = NgaGpmValidatorCommon.isTriangularNumber(n);
+    if (!isTriangularNumber) {
+      const message =
+        `The number of elements in the upper-triangular of the covariance ` +
+        `matrix must be a triangular number, but is ${n}`;
+      const issue = NgaGpmValidationIssues.ARRAY_LENGTH_INCONSISTENT(
+        path,
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    return result;
   }
 
   /**
