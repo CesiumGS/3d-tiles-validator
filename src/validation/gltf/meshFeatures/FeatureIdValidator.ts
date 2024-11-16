@@ -3,6 +3,7 @@ import { defined } from "3d-tiles-tools";
 import { ValidationContext } from "../../ValidationContext";
 import { ValidatedElement } from "../../ValidatedElement";
 import { BasicValidator } from "../../BasicValidator";
+import { StringValidator } from "../../StringValidator";
 
 import { GltfData } from "../GltfData";
 
@@ -83,7 +84,7 @@ export class FeatureIdValidator {
         result = false;
       } else {
         if (
-          !BasicValidator.validateIdentifierString(
+          !StringValidator.validateIdentifierString(
             labelPath,
             "label",
             label,

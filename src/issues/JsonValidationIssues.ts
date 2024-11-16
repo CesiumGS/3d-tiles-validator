@@ -236,6 +236,27 @@ export class JsonValidationIssues {
   }
 
   /**
+   * Indicates that the the value of a string property does not meet
+   * the necessary requirements. This refers to constraints about
+   * the structure of the string value, e.g. when it has to be
+   * a valid ISO8601 string.
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static STRING_VALUE_INVALID(
+    path: string,
+    message: string
+  ) {
+    const type = "STRING_VALUE_INVALID";
+    const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+
+  /**
    * Indicates that multiple properties have been defined, when
    * only one of them should have been defined.
    *

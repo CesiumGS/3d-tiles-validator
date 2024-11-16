@@ -3,6 +3,7 @@ import { defined } from "3d-tiles-tools";
 import { Validator } from "../Validator";
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
+import { StringValidator } from "../StringValidator";
 import { RootPropertyValidator } from "../RootPropertyValidator";
 import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
@@ -1236,17 +1237,15 @@ export class NgaGpmValidator implements Validator<any> {
     const referenceDateTime = idInformation.referenceDateTime;
     const referenceDateTimePath = path + "/referenceDateTime";
 
-    // The referenceDateTime MUST be a string
+    // The referenceDateTime MUST be an ISO8601 string
     if (
-      !BasicValidator.validateString(
+      !StringValidator.validateIso8601String(
         referenceDateTimePath,
         "referenceDateTime",
         referenceDateTime,
         context
       )
     ) {
-      // TODO It should be an ISO8601 string. This could/should
-      // be checked with the "validator.js" npm library.
       result = false;
     }
 
@@ -1655,9 +1654,9 @@ export class NgaGpmValidator implements Validator<any> {
     const referenceDateTime = collectionUnitRecord.referenceDateTime;
     const referenceDateTimePath = path + "/referenceDateTime";
 
-    // The referenceDateTime MUST be a string
+    // The referenceDateTime MUST be an ISO8601 string
     if (
-      !BasicValidator.validateString(
+      !StringValidator.validateIso8601String(
         referenceDateTimePath,
         "referenceDateTime",
         referenceDateTime,
@@ -2367,6 +2366,31 @@ export class NgaGpmValidator implements Validator<any> {
         result = false;
       }
     }
+
+    // If the basic structure was valid until now, then validate that
+    // the values of the `ppeMetadata[i].source` entries are unique.
+    if (result) {
+      const sourceValues: string[] = [];
+      for (let i = 0; i < ppeManifest.length; i++) {
+        const ppeMetadata = ppeManifest[i];
+        const source = ppeMetadata.source;
+        sourceValues.push(source);
+      }
+      const sourceValueSet = new Set<string>(...sourceValues);
+      if (sourceValueSet.size != ppeManifest.length) {
+        const message =
+          `The sources of PPE metadata entries must be unique, ` +
+          `but are ${sourceValues} `;
+        const issue =
+          NgaGpmValidationIssues.PER_POINT_ERROR_SOURCE_VALUES_NOT_UNIQUE(
+            path,
+            message
+          );
+        context.addIssue(issue);
+        result = false;
+      }
+    }
+
     return result;
   }
 

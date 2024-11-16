@@ -2,6 +2,7 @@ import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
+import { StringValidator } from "../StringValidator";
 import { RootPropertyValidator } from "../RootPropertyValidator";
 import { ExtendedObjectsValidators } from "../ExtendedObjectsValidators";
 
@@ -129,7 +130,7 @@ export class MetadataClassValidator {
 
         // Each property name MUST match the ID regex
         if (
-          !BasicValidator.validateIdentifierString(
+          !StringValidator.validateIdentifierString(
             propertyPath,
             propertyName,
             propertyName,
