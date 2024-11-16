@@ -103,7 +103,7 @@ export class StringValidator {
 
   /**
    * Returns whether the given string is a valid ISO8601 string.
-   * 
+   *
    * Extracted from the "validator.js" library.
    *
    * @param str - The string

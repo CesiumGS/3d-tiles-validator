@@ -20,7 +20,6 @@ import { ValidationIssueUtils } from "../issues/ValidationIssueUtils";
  * @internal
  */
 export class BasicValidator {
-
   /**
    * Validate that the specified value has the type `"string"`,
    * if it is present.

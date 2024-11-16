@@ -245,16 +245,12 @@ export class JsonValidationIssues {
    * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
-  static STRING_VALUE_INVALID(
-    path: string,
-    message: string
-  ) {
+  static STRING_VALUE_INVALID(path: string, message: string) {
     const type = "STRING_VALUE_INVALID";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-
 
   /**
    * Indicates that multiple properties have been defined, when

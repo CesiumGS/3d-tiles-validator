@@ -70,11 +70,13 @@ export class NgaGpmValidationIssues {
    * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
-  static PER_POINT_ERROR_SOURCE_VALUES_NOT_UNIQUE(path: string, message: string) {
+  static PER_POINT_ERROR_SOURCE_VALUES_NOT_UNIQUE(
+    path: string,
+    message: string
+  ) {
     const type = "PER_POINT_ERROR_SOURCE_VALUES_NOT_UNIQUE";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-
 }
