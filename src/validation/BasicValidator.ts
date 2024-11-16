@@ -649,7 +649,7 @@ export class BasicValidator {
    * @param value - The value
    * @param allowedValues - The array of allowed values
    * @param context - The `ValidationContext` to add the issue to
-   * @returns Whether the given value has the expected type
+   * @returns Whether the given value is one of the allowed values
    */
   static validateEnum(
     path: string,
@@ -693,7 +693,7 @@ export class BasicValidator {
    * @param minProperties - The minimum number of properties
    * @param maxProperties - The maximum number of properties
    * @param context - The `ValidationContext` to add the issue to
-   * @returns Whether the given value has the expected type
+   * @returns Whether the given value has the expected number of properties
    */
   static validateNumberOfProperties(
     path: string,

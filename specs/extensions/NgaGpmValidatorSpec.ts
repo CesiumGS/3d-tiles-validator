@@ -1741,4 +1741,84 @@ describe("Tileset NGA_gpm extension validation", function () {
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("VECTOR_NOT_UNIT_LENGTH");
   });
+
+  it("detects issues in modelCoordSystemMcsTypeEcefWithAxisUnitVectors", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/modelCoordSystemMcsTypeEcefWithAxisUnitVectors.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("DISALLOWED_VALUE_FOUND");
+  });
+
+  it("detects issues in modelCoordSystemMcsTypeEcefWithCrsHorizontalUtm", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/modelCoordSystemMcsTypeEcefWithCrsHorizontalUtm.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("DISALLOWED_VALUE_FOUND");
+  });
+
+  it("detects issues in modelCoordSystemMcsTypeEcefWithCrsVertical", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/modelCoordSystemMcsTypeEcefWithCrsVertical.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("DISALLOWED_VALUE_FOUND");
+  });
+
+  it("detects issues in modelCoordSystemMcsTypeEcefWithOrigin", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/modelCoordSystemMcsTypeEcefWithOrigin.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("DISALLOWED_VALUE_FOUND");
+  });
+
+  it("detects issues in modelCoordSystemMcsTypeLsrWithCrsEcef", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/modelCoordSystemMcsTypeLsrWithCrsEcef.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("DISALLOWED_VALUE_FOUND");
+  });
+
+  it("detects issues in modelCoordSystemMcsTypeLsrWithCrsHorizontalUtm", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/modelCoordSystemMcsTypeLsrWithCrsHorizontalUtm.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("DISALLOWED_VALUE_FOUND");
+  });
+
+  it("detects issues in modelCoordSystemMcsTypeLsrWithCrsVertical", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/modelCoordSystemMcsTypeLsrWithCrsVertical.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("DISALLOWED_VALUE_FOUND");
+  });
+
+  it("detects issues in modelCoordSystemMcsTypeUtmWithAxisUnitVectors", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/modelCoordSystemMcsTypeUtmWithAxisUnitVectors.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("DISALLOWED_VALUE_FOUND");
+  });
+
+  it("detects issues in modelCoordSystemMcsTypeUtmWithCrsEcef", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/modelCoordSystemMcsTypeUtmWithCrsEcef.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("DISALLOWED_VALUE_FOUND");
+  });
+
+  it("detects issues in modelCoordSystemMcsTypeUtmWithOrigin", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/modelCoordSystemMcsTypeUtmWithOrigin.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("DISALLOWED_VALUE_FOUND");
+  });
 });

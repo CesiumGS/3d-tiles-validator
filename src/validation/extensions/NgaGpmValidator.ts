@@ -12,6 +12,7 @@ import { StructureValidationIssues } from "../../issues/StructureValidationIssue
 
 import { NgaGpmValidatorCommon } from "./gpm/NgaGpmValidatorCommon";
 import { NgaGpmValidationIssues } from "./gpm/NgaGpmValidationIssues";
+import { StructureValidator } from "../StructureValidator";
 
 /**
  * EPSG codes for WGS84 CRS realizations, as defined in the
@@ -489,6 +490,25 @@ export class NgaGpmValidator implements Validator<any> {
     ) {
       result = false;
     }
+
+    // Validate that disallowed properties are not present
+    const disallowedProperties = [
+      "crsHorizontalUtm",
+      "crsVertical",
+      "origin",
+      "axisUnitVectors",
+    ];
+    if (
+      !StructureValidator.validateDisallowedProperties(
+        path,
+        "modelCoordSystem with mcsType=ECEF",
+        modelCoordSystem,
+        disallowedProperties,
+        context
+      )
+    ) {
+      result = false;
+    }
     return result;
   }
 
@@ -574,6 +594,20 @@ export class NgaGpmValidator implements Validator<any> {
         crsVerticalPath,
         "crsVertical",
         crsVertical,
+        context
+      )
+    ) {
+      result = false;
+    }
+
+    // Validate that disallowed properties are not present
+    const disallowedProperties = ["crsEcef", "origin", "axisUnitVectors"];
+    if (
+      !StructureValidator.validateDisallowedProperties(
+        path,
+        "modelCoordSystem with mcsType=UTM",
+        modelCoordSystem,
+        disallowedProperties,
         context
       )
     ) {
@@ -696,9 +730,9 @@ export class NgaGpmValidator implements Validator<any> {
     // The organization + systemId (e.g. EPSG 4978)
     //   required  : [name, orgWithId, epoch]
     //   disallowed: [definition]
-    // The definition, as a a WKT 2 string
+    // The definition, as a WKT 2 string
     //   required  : [name, definition]
-    //   disallowed: [orgWithId]
+    //   disallowed: [orgWithId, epoch]
     //
     // The name is always required, and already checked above.
     // So fetch the other properties, and check for these combinations:
@@ -713,15 +747,16 @@ export class NgaGpmValidator implements Validator<any> {
     const epochPath = path + "/epoch";
 
     if (defined(orgWithId) && defined(epoch)) {
-      if (defined(definition)) {
-        const message =
-          `When the reference system defines 'orgWithId' and 'epoch', ` +
-          `then it may not define 'definition'`;
-        const issue = StructureValidationIssues.DISALLOWED_VALUE_FOUND(
+      const disallowedProperties = ["definition"];
+      if (
+        !StructureValidator.validateDisallowedProperties(
           path,
-          message
-        );
-        context.addIssue(issue);
+          "referenceSystem with 'orgWithId' and 'epoch'",
+          referenceSystem,
+          disallowedProperties,
+          context
+        )
+      ) {
         result = false;
       }
 
@@ -743,27 +778,16 @@ export class NgaGpmValidator implements Validator<any> {
         result = false;
       }
     } else if (defined(definition)) {
-      if (defined(orgWithId)) {
-        const message =
-          `When the reference system defines 'definition', ` +
-          `then it may not define 'orgWithId'`;
-        const issue = StructureValidationIssues.DISALLOWED_VALUE_FOUND(
+      const disallowedProperties = ["orgWithId", "epoch"];
+      if (
+        !StructureValidator.validateDisallowedProperties(
           path,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
-
-      if (defined(epoch)) {
-        const message =
-          `When the reference system defines 'definition', ` +
-          `then it may not define 'epoch'`;
-        const issue = StructureValidationIssues.DISALLOWED_VALUE_FOUND(
-          path,
-          message
-        );
-        context.addIssue(issue);
+          "referenceSystem with 'definition'",
+          referenceSystem,
+          disallowedProperties,
+          context
+        )
+      ) {
         result = false;
       }
 
@@ -897,6 +921,20 @@ export class NgaGpmValidator implements Validator<any> {
         axisUnitVectorsPath,
         "axisUnitVectors",
         axisUnitVectors,
+        context
+      )
+    ) {
+      result = false;
+    }
+
+    // Validate that disallowed properties are not present
+    const disallowedProperties = ["crsEcef", "crsHorizontalUtm", "crsVertical"];
+    if (
+      !StructureValidator.validateDisallowedProperties(
+        path,
+        "modelCoordSystem with mcsType=LSR",
+        modelCoordSystem,
+        disallowedProperties,
         context
       )
     ) {
@@ -2025,30 +2063,18 @@ export class NgaGpmValidator implements Validator<any> {
     // When the interpolation mode is "nearestNeighbor", then
     // none of the other properties may be defined.
     if (interpolationMode === "nearestNeighbor") {
-      if (defined(interpNumPosts)) {
-        const message =
-          `When the interpolation mode is 'nearestNeighbor', then the ` +
-          `interpolation parameters may not define 'interpNumPosts'`;
-        const issue = StructureValidationIssues.DISALLOWED_VALUE_FOUND(
+      const disallowedProperties = ["interpNumPosts", "dampeningParam"];
+      if (
+        !StructureValidator.validateDisallowedProperties(
           path,
-          message
-        );
-        context.addIssue(issue);
+          "interpolationParams with interpolationMode=nearestNeighbor",
+          interpolationParams,
+          disallowedProperties,
+          context
+        )
+      ) {
         result = false;
       }
-
-      if (defined(dampeningParam)) {
-        const message =
-          `When the interpolation mode is 'nearestNeighbor', then the ` +
-          `interpolation parameters may not define 'dampeningParam'`;
-        const issue = StructureValidationIssues.DISALLOWED_VALUE_FOUND(
-          path,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
-
       // Nothing else to check when interpolationMode
       // is "nearestNeighbor" - return immediately.
       return result;
@@ -2445,15 +2471,16 @@ export class NgaGpmValidator implements Validator<any> {
     const contentIndexPath = path + "/contentIndex";
 
     if (placementType === "MeshContent") {
-      if (defined(contentIndex)) {
-        const message =
-          `When the anchor point metadata has the placement type 'MeshContent', ` +
-          `then it may not define 'contentIndex'`;
-        const issue = StructureValidationIssues.DISALLOWED_VALUE_FOUND(
+      const disallowedProperties = ["contentIndex"];
+      if (
+        !StructureValidator.validateDisallowedProperties(
           path,
-          message
-        );
-        context.addIssue(issue);
+          "anchorPointMetadata with placementType=MeshContent",
+          anchorPointMetadata,
+          disallowedProperties,
+          context
+        )
+      ) {
         result = false;
       }
       // Nothing else to check when the placementType is "MeshContent"
