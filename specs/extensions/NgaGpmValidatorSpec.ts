@@ -1084,6 +1084,14 @@ describe("Tileset NGA_gpm extension validation", function () {
     expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
   });
 
+  it("detects issues in covarUpperTriangleInvalidLengthB", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/covarUpperTriangleInvalidLengthB.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
+  });
+
   it("detects issues in interpolationParamsDampeningParamInvalidType", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/gpm/interpolationParamsDampeningParamInvalidType.json"

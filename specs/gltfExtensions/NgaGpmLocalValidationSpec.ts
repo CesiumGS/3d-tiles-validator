@@ -161,6 +161,14 @@ describe("NGA_gpm_local extension validation", function () {
     expect(result.get(0).type).toEqual("ARRAY_ELEMENT_TYPE_MISMATCH");
   });
 
+  it("detects issues in anchorPointsDirectInvalidLength", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/gpmLocal/anchorPointsDirectInvalidLength.gltf"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
+  });
+
   it("detects issues in anchorPointsDirectInvalidType", async function () {
     const result = await validateGltf(
       "./specs/data/gltfExtensions/gpmLocal/anchorPointsDirectInvalidType.gltf"
@@ -175,6 +183,14 @@ describe("NGA_gpm_local extension validation", function () {
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("ARRAY_ELEMENT_TYPE_MISMATCH");
+  });
+
+  it("detects issues in anchorPointsIndirectInvalidLength", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/gpmLocal/anchorPointsIndirectInvalidLength.gltf"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
   });
 
   it("detects issues in anchorPointsIndirectInvalidType", async function () {
@@ -279,6 +295,30 @@ describe("NGA_gpm_local extension validation", function () {
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("PROPERTY_MISSING");
+  });
+
+  it("detects issues in covarianceDirectUpperTriangleInconsistentLength", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/gpmLocal/covarianceDirectUpperTriangleInconsistentLength.gltf"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("ARRAY_LENGTH_INCONSISTENT");
+  });
+
+  it("detects issues in covarianceDirectUpperTriangleInvalidLength", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/gpmLocal/covarianceDirectUpperTriangleInvalidLength.gltf"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
+  });
+
+  it("detects issues in covarianceDirectUpperTriangleElementInvalidType", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/gpmLocal/covarianceDirectUpperTriangleElementInvalidType.gltf"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("ARRAY_ELEMENT_TYPE_MISMATCH");
   });
 
   it("detects issues in directAnchorPointsDirectMissing", async function () {
