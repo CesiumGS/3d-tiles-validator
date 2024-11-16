@@ -1659,4 +1659,86 @@ describe("Tileset NGA_gpm extension validation", function () {
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("PROPERTY_MISSING");
   });
+
+  it("detects issues in lsrAxisUnitVectorsNotOrthogonalA", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/lsrAxisUnitVectorsNotOrthogonalA.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("VECTORS_NOT_ORTHOGONAL");
+  });
+
+  it("detects issues in lsrAxisUnitVectorsNotOrthogonalB", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/lsrAxisUnitVectorsNotOrthogonalB.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("VECTORS_NOT_ORTHOGONAL");
+  });
+
+  it("detects issues in lsrAxisUnitVectorsNotOrthogonalC", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/lsrAxisUnitVectorsNotOrthogonalC.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("VECTORS_NOT_ORTHOGONAL");
+  });
+
+  it("detects issues in ppeMetadataSourceValuesNotUnique", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/ppeMetadataSourceValuesNotUnique.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual(
+      "PER_POINT_ERROR_SOURCE_VALUES_NOT_UNIQUE"
+    );
+  });
+
+  it("detects issues in referenceDateTimeNotIso8601A", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/referenceDateTimeNotIso8601A.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("STRING_VALUE_INVALID");
+  });
+
+  it("detects issues in referenceDateTimeNotIso8601B", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/referenceDateTimeNotIso8601B.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("STRING_VALUE_INVALID");
+  });
+
+  it("detects issues in referenceDateTimeNotIso8601C", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/referenceDateTimeNotIso8601C.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("STRING_VALUE_INVALID");
+  });
+
+  it("detects issues in referenceDateTimeNotIso8601D", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/referenceDateTimeNotIso8601D.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("STRING_VALUE_INVALID");
+  });
+
+  it("detects issues in unitVectorNotUnitLengthA", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/unitVectorNotUnitLengthA.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("VECTOR_NOT_UNIT_LENGTH");
+  });
+
+  it("detects issues in unitVectorNotUnitLengthB", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/gpm/unitVectorNotUnitLengthB.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("VECTOR_NOT_UNIT_LENGTH");
+  });
 });
