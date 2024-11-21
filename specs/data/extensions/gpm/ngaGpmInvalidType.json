@@ -1,0 +1,32 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "geometricError": 2,
+  "root": {
+    "refine": "REPLACE",
+    "boundingVolume": {
+      "box": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0,
+        0,
+        0.5,
+        0,
+        0,
+        0,
+        0.5
+      ]
+    },
+    "geometricError": 1
+  },
+  "extensionsUsed": [
+    "NGA_gpm"
+  ],
+  "extensions": {
+    "NGA_gpm": "NOT_AN_OBJECT"
+  }
+}

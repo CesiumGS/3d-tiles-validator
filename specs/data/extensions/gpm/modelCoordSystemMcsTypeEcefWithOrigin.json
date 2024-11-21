@@ -1,0 +1,170 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "geometricError": 2.0,
+  "root": {
+    "refine": "REPLACE",
+    "boundingVolume": {
+      "box": [0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5]
+    },
+    "geometricError": 1.0
+  },
+  "extensionsUsed": ["NGA_gpm"],
+  "extensions": {
+    "NGA_gpm": {
+      "masterRecord": {
+        "version": "1.2i",
+        "implementation": "Example",
+        "modelCoordSystem": {
+          "mcsType": "ECEF",
+          "crsEcef": {
+            "id": 7662
+          },
+          "origin": {
+            "coordinates": [ 0.1, 0.2, 0.3 ],
+            "crsEcef": {
+              "id": 9753
+            }
+          }
+        },
+        "idInformation": {
+          "datasetId": "exportid",
+          "referenceDateTime": "2024-04-29T11:21:49"
+        },
+        "datasetExtentInformation": {
+          "origin": [912996.5952063048, -5541794.593278977, 3012483.770173006],
+          "lsrAxisUnitVectors": [
+            [-0.0743933049314506, 0.4697008438610212, 0.8796855992100932],
+            [0.9868514414437406, 0.16160517449656873, -0.0028284441562802665],
+            [-0.14303538712009904, 0.8682099573522005, -0.47513403160149828]
+          ],
+          "lsrLengths": [
+            5984.896982990946, 6337.485178905554, 99.99999999975178
+          ]
+        },
+        "collectionRecordList": [
+          {
+            "collectionId": "collection id",
+            "platformId": "platform id",
+            "sensorRecords": [
+              {
+                "sensorId": "sensorid",
+                "sensorType": "sensortype",
+                "sensorMode": "sensormode",
+                "collectionUnitRecords": [
+                  {
+                    "referenceDateTime": "2024-04-29T11:21:49",
+                    "collectionUnitId": "cuid",
+                    "pointSourceId": 0,
+                    "extentInformation": {
+                      "origin": [
+                        912996.5952063048, -5541794.593278977, 3012483.770173006
+                      ],
+                      "lsrAxisUnitVectors": [
+                        [
+                          -0.0743933049314506, 0.4697008438610212,
+                          0.8796855992100932
+                        ],
+                        [
+                          0.9868514414437406, 0.16160517449656873,
+                          -0.0028284441562802665
+                        ],
+                        [
+                          -0.14303538712009904, 0.8682099573522005,
+                          -0.47513403160149828
+                        ]
+                      ],
+                      "lsrLengths": [
+                        5984.896982990946, 6337.485178905554, 99.99999999975178
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "unmodeledErrorRecord": {
+        "uniqueId": "unmodeled_error",
+        "corrRotationThetas": [0.0, 0.0, 0.0],
+        "corrParams": [
+          {
+            "A": 1.0,
+            "alpha": 0.99,
+            "beta": 0.0,
+            "T": 10000.0
+          },
+          {
+            "A": 1.0,
+            "alpha": 0.99,
+            "beta": 0.0,
+            "T": 10000.0
+          },
+          {
+            "A": 1.0,
+            "alpha": 0.99,
+            "beta": 0.0,
+            "T": 10000.0
+          }
+        ],
+        "posts": [
+          {
+            "position": [12.34, 23.45, 34.56],
+            "covariance": [
+              0.1833647900304413, -0.093582914309524, 0.4550734755685732,
+              0.0572007221435672, -0.18392374133036396, 0.27486040919852534
+            ]
+          }
+        ]
+      },
+      "interpolationParams": {
+        "interpolationMode": "IDW",
+        "interpNumPosts": 6,
+        "dampeningParam": 250.0
+      },
+      "interTileCorrelationGroups": [
+        {
+          "groupFlags": [true, true, true],
+          "rotationThetas": [0.0, 0.0, 0.0],
+          "params": [
+            {
+              "A": 1.0,
+              "alpha": 0.99,
+              "beta": 0.0,
+              "T": 10000.0
+            },
+            {
+              "A": 1.0,
+              "alpha": 0.99,
+              "beta": 0.0,
+              "T": 10000.0
+            },
+            {
+              "A": 1.0,
+              "alpha": 0.99,
+              "beta": 0.0,
+              "T": 10000.0
+            }
+          ]
+        }
+      ],
+      "ppeManifest": [
+        {
+          "source": "SIGZ"
+        },
+        {
+          "source": "SIGR"
+        }
+      ],
+      "threeDimConformalParams": {
+        "flags": [true, false, true, false, true, false, true],
+        "recentering": [1.2, 2.3, 3.4],
+        "normalizingScaleFactor": 1.2,
+        "parameters": [0, 1, 2, 3],
+        "covariance": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+      }
+    }
+  }
+}

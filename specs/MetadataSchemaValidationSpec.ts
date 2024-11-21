@@ -561,7 +561,7 @@ describe("Metadata schema validation", function () {
       "specs/data/schemas/schemaIdInvalidType.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("STRING_PATTERN_MISMATCH");
+    expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
   it("detects issues in schemaIdInvalidValue", async function () {

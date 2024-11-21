@@ -24,6 +24,7 @@ import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 import { BoundingVolumeS2Validator } from "./extensions/BoundingVolumeS2Validator";
+import { NgaGpmValidator } from "./extensions/NgaGpmValidator";
 
 /**
  * Utility methods related to `Validator` instances.
@@ -445,6 +446,7 @@ export class Validators {
         override
       );
     }
+
     // Register an empty validator for 3DTILES_content_gltf
     // (The extension does not have any properties to be
     // validated)
@@ -483,6 +485,13 @@ export class Validators {
         emptyValidator,
         override
       );
+    }
+
+    // Register the validator for NGA_gpm
+    {
+      const ngaGpmValidator = new NgaGpmValidator();
+      const override = false;
+      ExtendedObjectsValidators.register("NGA_gpm", ngaGpmValidator, override);
     }
 
     Validators._registeredExtensionValidators = true;

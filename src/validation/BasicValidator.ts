@@ -21,39 +21,6 @@ import { ValidationIssueUtils } from "../issues/ValidationIssueUtils";
  */
 export class BasicValidator {
   /**
-   * Validate that the given string is a valid identifier string,
-   * as defined in the 3D Metadata Specification.
-   *
-   * @param path - The path for the `ValidationIssue` message
-   * @param name - The name for the `ValidationIssue` message
-   * @param value - The value
-   * @param context - The `ValidationContext` to add the issue to
-   * @returns Whether the given value is an identifier string
-   */
-  static validateIdentifierString(
-    path: string,
-    name: string,
-    value: string,
-    context: ValidationContext
-  ): boolean {
-    if (!BasicValidator.validateDefined(path, name, value, context)) {
-      return false;
-    }
-    const idRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
-    if (!idRegex.test(value)) {
-      const issue = JsonValidationIssues.STRING_PATTERN_MISMATCH(
-        path,
-        name,
-        value,
-        idRegex.toString()
-      );
-      context.addIssue(issue);
-      return false;
-    }
-    return true;
-  }
-
-  /**
    * Validate that the specified value has the type `"string"`,
    * if it is present.
    *
@@ -682,7 +649,7 @@ export class BasicValidator {
    * @param value - The value
    * @param allowedValues - The array of allowed values
    * @param context - The `ValidationContext` to add the issue to
-   * @returns Whether the given value has the expected type
+   * @returns Whether the given value is one of the allowed values
    */
   static validateEnum(
     path: string,
@@ -726,7 +693,7 @@ export class BasicValidator {
    * @param minProperties - The minimum number of properties
    * @param maxProperties - The maximum number of properties
    * @param context - The `ValidationContext` to add the issue to
-   * @returns Whether the given value has the expected type
+   * @returns Whether the given value has the expected number of properties
    */
   static validateNumberOfProperties(
     path: string,

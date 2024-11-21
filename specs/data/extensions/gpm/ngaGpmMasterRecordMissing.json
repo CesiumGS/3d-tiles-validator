@@ -1,0 +1,125 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "geometricError": 2,
+  "root": {
+    "refine": "REPLACE",
+    "boundingVolume": {
+      "box": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0,
+        0,
+        0.5,
+        0,
+        0,
+        0,
+        0.5
+      ]
+    },
+    "geometricError": 1
+  },
+  "extensionsUsed": [
+    "NGA_gpm"
+  ],
+  "extensions": {
+    "NGA_gpm": {
+      "unmodeledErrorRecord": {
+        "uniqueId": "unmodeled_error",
+        "corrRotationThetas": [
+          0,
+          0,
+          0
+        ],
+        "corrParams": [
+          {
+            "A": 1,
+            "alpha": 0.99,
+            "beta": 0,
+            "T": 10000
+          },
+          {
+            "A": 1,
+            "alpha": 0.99,
+            "beta": 0,
+            "T": 10000
+          },
+          {
+            "A": 1,
+            "alpha": 0.99,
+            "beta": 0,
+            "T": 10000
+          }
+        ],
+        "posts": [
+          {
+            "position": [
+              12.34,
+              23.45,
+              34.56
+            ],
+            "covariance": [
+              0.1833647900304413,
+              -0.093582914309524,
+              0.4550734755685732,
+              0.0572007221435672,
+              -0.18392374133036396,
+              0.27486040919852534
+            ]
+          }
+        ]
+      },
+      "interpolationParams": {
+        "interpolationMode": "IDW",
+        "interpNumPosts": 6,
+        "dampeningParam": 250
+      },
+      "interTileCorrelationGroups": [
+        {
+          "groupFlags": [
+            true,
+            true,
+            true
+          ],
+          "rotationThetas": [
+            0,
+            0,
+            0
+          ],
+          "params": [
+            {
+              "A": 1,
+              "alpha": 0.99,
+              "beta": 0,
+              "T": 10000
+            },
+            {
+              "A": 1,
+              "alpha": 0.99,
+              "beta": 0,
+              "T": 10000
+            },
+            {
+              "A": 1,
+              "alpha": 0.99,
+              "beta": 0,
+              "T": 10000
+            }
+          ]
+        }
+      ],
+      "ppeManifest": [
+        {
+          "source": "SIGZ"
+        },
+        {
+          "source": "SIGR"
+        }
+      ]
+    }
+  }
+}

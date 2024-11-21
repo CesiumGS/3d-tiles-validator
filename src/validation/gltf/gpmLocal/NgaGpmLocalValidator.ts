@@ -7,6 +7,8 @@ import { GltfData } from "../GltfData";
 
 import { StructureValidationIssues } from "../../../issues/StructureValidationIssues";
 import { TextureValidator } from "../TextureValidator";
+import { NgaGpmValidatorCommon } from "../../extensions/gpm/NgaGpmValidatorCommon";
+import { NgaGpmValidationIssues } from "../../extensions/gpm/NgaGpmValidationIssues";
 
 /**
  * A class for validating the `NGA_gpm_local` extension in glTF assets.
@@ -216,6 +218,7 @@ export class NgaGpmLocalValidator {
       const anchorPointsIndirectValid =
         NgaGpmLocalValidator.validateAnchorPointsIndirect(
           anchorPointsIndirectPath,
+          "anchorPointsIndirect",
           anchorPointsIndirect,
           context
         );
@@ -239,8 +242,9 @@ export class NgaGpmLocalValidator {
       result = false;
     } else {
       const intraTileCorrelationGroupsValid =
-        NgaGpmLocalValidator.validateIntraTileCorrelationGroups(
+        NgaGpmValidatorCommon.validateCorrelationGroups(
           intraTileCorrelationGroupsPath,
+          "intraTileCorrelationGroups",
           intraTileCorrelationGroups,
           context
         );
@@ -255,22 +259,24 @@ export class NgaGpmLocalValidator {
    * Validate the given array of "anchorPointIndirect" objects
    *
    * @param path - The path for validation issues
+   * @param name - The name of the object
    * @param anchorPointsIndirect - The array of objects
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   private static validateAnchorPointsIndirect(
     path: string,
+    name: string,
     anchorPointsIndirect: any,
     context: ValidationContext
   ): boolean {
-    // The anchorPointsIndirect MUST be an array of objects
+    // The anchorPointsIndirect MUST be an array of at least 1 object
     if (
       !BasicValidator.validateArray(
         path,
-        "anchorPointsIndirect",
+        name,
         anchorPointsIndirect,
-        undefined,
+        1,
         undefined,
         "object",
         context
@@ -287,6 +293,7 @@ export class NgaGpmLocalValidator {
       if (
         !NgaGpmLocalValidator.validateAnchorPointIndirect(
           anchorPointIndirectPath,
+          name + `[${i}]`,
           anchorPointIndirect,
           context
         )
@@ -301,15 +308,24 @@ export class NgaGpmLocalValidator {
    * Validate the given anchorPointIndirect
    *
    * @param path - The path for validation issues
+   * @param name - The name of the object
    * @param anchorPointIndirect - The anchorPointIndirect
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   private static validateAnchorPointIndirect(
     path: string,
+    name: string,
     anchorPointIndirect: any,
     context: ValidationContext
   ): boolean {
+    // Make sure that the given value is an object
+    if (
+      !BasicValidator.validateObject(path, name, anchorPointIndirect, context)
+    ) {
+      return false;
+    }
+
     let result = true;
 
     // Validate the position
@@ -363,230 +379,6 @@ export class NgaGpmLocalValidator {
       context
     );
     if (!covarianceMatrixValid) {
-      result = false;
-    }
-
-    return result;
-  }
-
-  /**
-   * Validate the given array of "correlationGroup" objects that
-   * have been found as the intraTileCorrelationGroups
-   *
-   * @param path - The path for validation issues
-   * @param intraTileCorrelationGroups - The array of objects
-   * @param context - The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validateIntraTileCorrelationGroups(
-    path: string,
-    intraTileCorrelationGroups: any,
-    context: ValidationContext
-  ): boolean {
-    // The intraTileCorrelationGroups MUST be an array of at most 3 objects
-    if (
-      !BasicValidator.validateArray(
-        path,
-        "intraTileCorrelationGroups",
-        intraTileCorrelationGroups,
-        0,
-        3,
-        "object",
-        context
-      )
-    ) {
-      return false;
-    }
-    let result = true;
-
-    // Validate each correlationGroup
-    for (let i = 0; i < intraTileCorrelationGroups.length; i++) {
-      const correlationGroup = intraTileCorrelationGroups[i];
-      const correlationGroupPath = path + "/" + i;
-      if (
-        !NgaGpmLocalValidator.validateCorrelationGroup(
-          correlationGroupPath,
-          correlationGroup,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Validate the given correlationGroup
-   *
-   * @param path - The path for validation issues
-   * @param correlationGroup - The correlationGroup
-   * @param context - The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validateCorrelationGroup(
-    path: string,
-    correlationGroup: any,
-    context: ValidationContext
-  ): boolean {
-    let result = true;
-
-    // Validate the groupFlags
-    const groupFlags = correlationGroup.groupFlags;
-    const groupFlagsPath = path + "/groupFlags";
-
-    // The groupFlags MUST be a 3-element array of booleans
-    const groupFlagsValid = BasicValidator.validateArray(
-      groupFlagsPath,
-      "groupFlags",
-      groupFlags,
-      3,
-      3,
-      "boolean",
-      context
-    );
-    if (!groupFlagsValid) {
-      result = false;
-    }
-
-    // Validate the rotationThetas
-    const rotationThetas = correlationGroup.rotationThetas;
-    const rotationThetasPath = path + "/rotationThetas";
-
-    // The rotationThetas MUST be a 3-element array of numbers
-    const rotationThetasValid = BasicValidator.validateArray(
-      rotationThetasPath,
-      "rotationThetas",
-      rotationThetas,
-      3,
-      3,
-      "number",
-      context
-    );
-    if (!rotationThetasValid) {
-      result = false;
-    }
-
-    // Validate the params
-    const params = correlationGroup.params;
-    const paramsPath = path + "/params";
-
-    // The params MUST be a 3-element array of objects
-    if (
-      !BasicValidator.validateArray(
-        paramsPath,
-        "params",
-        params,
-        3,
-        3,
-        "object",
-        context
-      )
-    ) {
-      result = false;
-    } else {
-      // Validate each param (an SPDCF)
-      for (let i = 0; i < params.length; i++) {
-        const param = params[i];
-        const paramPath = path + "/" + i;
-        if (!NgaGpmLocalValidator.validateSpdcf(paramPath, param, context)) {
-          result = false;
-        }
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Validate the given SPDCF (Strictly Positive-Definite Correlation Function)
-   *
-   * @param path - The path for validation issues
-   * @param spdcf - The SPDCF
-   * @param context - The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validateSpdcf(
-    path: string,
-    spdcf: any,
-    context: ValidationContext
-  ): boolean {
-    let result = true;
-
-    // Sorry about the names here. I'm trying to be consistent...
-
-    // Validate the A
-    const A = spdcf.A;
-    const APath = path + "/A";
-
-    // The A MUST be a number in (0, 1]
-    const AValid = BasicValidator.validateNumberRange(
-      APath,
-      "A",
-      A,
-      0,
-      false,
-      1,
-      true,
-      context
-    );
-    if (!AValid) {
-      result = false;
-    }
-
-    // Validate the alpha
-    const alpha = spdcf.alpha;
-    const alphaPath = path + "/alpha";
-
-    // The alpha MUST be a number in [0, 1)
-    const alphaValid = BasicValidator.validateNumberRange(
-      alphaPath,
-      "alpha",
-      alpha,
-      0,
-      true,
-      1,
-      false,
-      context
-    );
-    if (!alphaValid) {
-      result = false;
-    }
-
-    // Validate the beta
-    const beta = spdcf.beta;
-    const betaPath = path + "/beta";
-
-    // The beta MUST be a number in [0, 10]
-    const betaValid = BasicValidator.validateNumberRange(
-      betaPath,
-      "beta",
-      beta,
-      0,
-      true,
-      10,
-      true,
-      context
-    );
-    if (!betaValid) {
-      result = false;
-    }
-
-    // Validate the T
-    const T = spdcf.T;
-    const TPath = path + "/T";
-
-    // The T MUST be a number in (0, +Inf)
-    const TValid = BasicValidator.validateNumberRange(
-      TPath,
-      "T",
-      T,
-      0,
-      false,
-      undefined,
-      false,
-      context
-    );
-    if (!TValid) {
       result = false;
     }
 
@@ -656,6 +448,7 @@ export class NgaGpmLocalValidator {
       const anchorPointsDirectValid =
         NgaGpmLocalValidator.validateAnchorPointsDirect(
           anchorPointsDirectPath,
+          "anchorPointsDirect",
           anchorPointsDirect,
           context
         );
@@ -693,18 +486,28 @@ export class NgaGpmLocalValidator {
     return result;
   }
 
+  /**
+   * Validate the given array of anchorPointDirect objects
+   *
+   * @param path - The path for validation issues
+   * @param name - The name of the object
+   * @param anchorPointsDirect - The array object
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
   private static validateAnchorPointsDirect(
     path: string,
+    name: string,
     anchorPointsDirect: any,
     context: ValidationContext
   ): boolean {
-    // The anchorPointsDirect MUST be an array of objects
+    // The anchorPointsDirect MUST be an array of at least 1 object
     if (
       !BasicValidator.validateArray(
         path,
-        "anchorPointsDirect",
+        name,
         anchorPointsDirect,
-        undefined,
+        1,
         undefined,
         "object",
         context
@@ -721,6 +524,7 @@ export class NgaGpmLocalValidator {
       if (
         !NgaGpmLocalValidator.validateAnchorPointDirect(
           anchorPointDirectPath,
+          name + `[${i}]`,
           anchorPointDirect,
           context
         )
@@ -735,15 +539,24 @@ export class NgaGpmLocalValidator {
    * Validate the given anchorPointDirect
    *
    * @param path - The path for validation issues
+   * @param name - The name of the object
    * @param anchorPointDirect - The anchorPointDirect
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
   private static validateAnchorPointDirect(
     path: string,
+    name: string,
     anchorPointDirect: any,
     context: ValidationContext
   ): boolean {
+    // Make sure that the given value is an object
+    if (
+      !BasicValidator.validateObject(path, name, anchorPointDirect, context)
+    ) {
+      return false;
+    }
+
     let result = true;
 
     // Validate the position
@@ -798,16 +611,40 @@ export class NgaGpmLocalValidator {
     covarianceDirectUpperTriangle: any,
     context: ValidationContext
   ): boolean {
-    // The covarianceDirectUpperTriangle MUST be an array of numbers
-    return BasicValidator.validateArray(
-      path,
-      "covarianceDirectUpperTriangle",
-      covarianceDirectUpperTriangle,
-      undefined,
-      undefined,
-      "number",
-      context
-    );
+    // The covarianceDirectUpperTriangle MUST be an array of at least 1 number
+    if (
+      !BasicValidator.validateArray(
+        path,
+        "covarianceDirectUpperTriangle",
+        covarianceDirectUpperTriangle,
+        1,
+        undefined,
+        "number",
+        context
+      )
+    ) {
+      return false;
+    }
+
+    let result = true;
+
+    // The length of the array for the upper-triangular of the covariance
+    // matrix MUST be a triangular number
+    const n = covarianceDirectUpperTriangle.length;
+    const isTriangularNumber = NgaGpmValidatorCommon.isTriangularNumber(n);
+    if (!isTriangularNumber) {
+      const message =
+        `The number of elements in the upper-triangular of the covariance ` +
+        `matrix must be a triangular number, but is ${n}`;
+      const issue = NgaGpmValidationIssues.ARRAY_LENGTH_INCONSISTENT(
+        path,
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    return result;
   }
 
   /**
@@ -842,12 +679,39 @@ export class NgaGpmLocalValidator {
     // Validate the ppeTextures
     const ppeTextures = meshPrimitiveGpmLocal.ppeTextures;
     const ppeTexturesPath = path + "/ppeTextures";
+    return NgaGpmLocalValidator.validatePpeTextures(
+      ppeTexturesPath,
+      "ppeTextures",
+      ppeTextures,
+      gltf,
+      meshPrimitive,
+      context
+    );
+  }
 
+  /**
+   * Validate the given mesh-primitive NGA_gpm_local extension object
+   *
+   * @param path - The path for validation issues
+   * @param meshPrimitiveGpmLocal - The mesh-primitive NGA_gpm_local extension object
+   * @param gltf - The glTF that contains this object
+   * @param meshPrimitive - The mesh primitive that contains this object
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
+  private static validatePpeTextures(
+    path: string,
+    name: string,
+    ppeTextures: any,
+    gltf: any,
+    meshPrimitive: any,
+    context: ValidationContext
+  ): boolean {
     // The ppeTextures MUST be an array of objects
     if (
       !BasicValidator.validateArray(
-        ppeTexturesPath,
-        "ppeTextures",
+        path,
+        name,
         ppeTextures,
         1,
         undefined,
@@ -867,6 +731,7 @@ export class NgaGpmLocalValidator {
       if (
         !NgaGpmLocalValidator.validatePpeTexture(
           ppeTexturePath,
+          name + `[${i}]`,
           ppeTexture,
           gltf,
           meshPrimitive,
@@ -883,6 +748,7 @@ export class NgaGpmLocalValidator {
    * Validate the given ppeTexture object
    *
    * @param path - The path for validation issues
+   * @param name - The name of the object
    * @param ppeTexture - The ppeTexture object
    * @param gltf - The glTF that contains this object
    * @param meshPrimitive - The mesh primitive that contains this object
@@ -891,15 +757,14 @@ export class NgaGpmLocalValidator {
    */
   private static validatePpeTexture(
     path: string,
+    name: string,
     ppeTexture: any,
     gltf: any,
     meshPrimitive: any,
     context: ValidationContext
   ): boolean {
     // Make sure that the given value is an object
-    if (
-      !BasicValidator.validateObject(path, "ppeTexture", ppeTexture, context)
-    ) {
+    if (!BasicValidator.validateObject(path, name, ppeTexture, context)) {
       return false;
     }
 
@@ -946,7 +811,12 @@ export class NgaGpmLocalValidator {
     const traits = ppeTexture.traits;
     const traitsPath = path + "/traits";
     if (
-      !NgaGpmLocalValidator.validatePpeMetadata(traitsPath, traits, context)
+      !NgaGpmValidatorCommon.validatePpeMetadata(
+        traitsPath,
+        "traits",
+        traits,
+        context
+      )
     ) {
       result = false;
     }
@@ -984,79 +854,6 @@ export class NgaGpmLocalValidator {
     // If scale is defined, then it MUST be a number
     if (defined(scale)) {
       if (!BasicValidator.validateNumber(scalePath, "scale", scale, context)) {
-        result = false;
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   * Validate the given ppeMetadata object
-   *
-   * @param path - The path for validation issues
-   * @param ppeMetadata - The ppeMetadata object
-   * @param context - The `ValidationContext` that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  private static validatePpeMetadata(
-    path: string,
-    ppeMetadata: any,
-    context: ValidationContext
-  ): boolean {
-    // Make sure that the given value is an object
-    if (
-      !BasicValidator.validateObject(path, "ppeMetadata", ppeMetadata, context)
-    ) {
-      return false;
-    }
-
-    let result = true;
-
-    // Validate the source
-    const source = ppeMetadata.source;
-    const sourcePath = path + "/source";
-
-    // The source MUST be one of these valid values
-    const sourceValues = [
-      "SIGX",
-      "SIGY",
-      "SIGZ",
-      "VARX",
-      "VARY",
-      "VARZ",
-      "SIGR",
-    ];
-    if (
-      !BasicValidator.validateEnum(
-        sourcePath,
-        "source",
-        source,
-        sourceValues,
-        context
-      )
-    ) {
-      result = false;
-    }
-
-    // Validate the min
-    const min = ppeMetadata.min;
-    const minPath = path + "/min";
-
-    // If min is defined, then it MUST be a number
-    if (defined(min)) {
-      if (!BasicValidator.validateNumber(minPath, "min", min, context)) {
-        result = false;
-      }
-    }
-
-    // Validate the max
-    const max = ppeMetadata.max;
-    const maxPath = path + "/max";
-
-    // If max is defined, then it MUST be a number
-    if (defined(max)) {
-      if (!BasicValidator.validateNumber(maxPath, "max", max, context)) {
         result = false;
       }
     }
