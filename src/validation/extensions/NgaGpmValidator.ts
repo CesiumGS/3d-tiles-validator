@@ -38,7 +38,7 @@ enum EpsgEcefCodes {
 const UNIT_VECTOR_LENGTH_EPSILON = 0.00001;
 
 /**
- * The epsilon for the validation orthogonality unit vectors.
+ * The epsilon for the validation of orthogonality of unit vectors.
  *
  * When the absolute dot product between two unit vectors
  * is greater than this epsilon, then this is considered
