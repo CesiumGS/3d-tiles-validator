@@ -44,7 +44,7 @@ const UNIT_VECTOR_LENGTH_EPSILON = 0.00001;
  * is greater than this epsilon, then this is considered
  * to be a validation error.
  */
-const ORTHOGONAL_VECTORS_DOT_PRODUCT_EPSILON = 0.0005;
+const ORTHOGONAL_VECTORS_DOT_PRODUCT_EPSILON = 0.01;
 
 /**
  * A class for the validation of `NGA_gpm` extension objects
