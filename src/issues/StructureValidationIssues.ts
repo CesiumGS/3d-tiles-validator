@@ -35,4 +35,19 @@ export class StructureValidationIssues {
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
+
+  /**
+   * Indicates that a value that is disallowed based on the presence
+   * or absence of another value has been defined.
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static DISALLOWED_VALUE_FOUND(path: string, message: string) {
+    const type = "DISALLOWED_VALUE_FOUND";
+    const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
 }

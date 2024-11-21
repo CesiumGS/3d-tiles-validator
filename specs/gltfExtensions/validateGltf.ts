@@ -5,7 +5,7 @@ import { ResourceResolvers } from "3d-tiles-tools";
 
 import { ValidationContext } from "../../src/validation/ValidationContext";
 
-import { GltfExtensionValidators } from "../../src/validation/gltfExtensions/GltfExtensionValidators";
+import { GltfExtensionValidators } from "../../src/validation/gltf/GltfExtensionValidators";
 
 export async function validateGltf(gltfFileName: string) {
   fs.readFileSync(gltfFileName);

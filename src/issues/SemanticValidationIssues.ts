@@ -341,7 +341,7 @@ export class SemanticValidationIssues {
    * listed in the 'extensionsUsed' of a tileset.
    *
    * An extension is 'found' when it is encountered in any
-   * 'someRootProperty.extensons' dictionary during the
+   * 'someRootProperty.extensions' dictionary during the
    * traversal,
    *
    * @param path - The path for the `ValidationIssue`
@@ -364,7 +364,7 @@ export class SemanticValidationIssues {
    * the traversal.
    *
    * An extension is 'found' when it is encountered in any
-   * 'someRootProperty.extensons' dictionary during the
+   * 'someRootProperty.extensions' dictionary during the
    * traversal.
    *
    * NOTE: The exact mechanism for an extension being "used" may have to be

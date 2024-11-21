@@ -59,7 +59,7 @@ export class BasicValidator {
    *
    * If the value has the expected type, then `true` is returned.
    *
-   * If the value does not have the expeced type, a `TYPE_MISMATCH`
+   * If the value does not have the expected type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false`
    * is returned.
    *
@@ -130,7 +130,7 @@ export class BasicValidator {
    * is added to the given context, and `false` is returned.
    *
    * If the expected type is given, and any element of the array does
-   * not have the expcected type, then a `TYPE_MISMATCH` validation
+   * not have the expected type, then a `TYPE_MISMATCH` validation
    * issue is added to the given context, and `false` is returned.
    *
    * @param path - The path for the `ValidationIssue` message
@@ -264,7 +264,7 @@ export class BasicValidator {
    * Validates that the elements in the given array are unique.
    *
    * This assumes that the basic validation of the array has already
-   * been peformed. It **ONLY** checks the uniqueness of the elements.
+   * been performed. It **ONLY** checks the uniqueness of the elements.
    *
    * If the elements are unique, then `true` is returned.
    *
@@ -308,7 +308,7 @@ export class BasicValidator {
    * If the given value is not defined, a `PROPERTY_MISSING` validation
    * issue is added to the given context, and `false` is returned.
    *
-   * If the given object does not have the expeced type, a `TYPE_MISMATCH`
+   * If the given object does not have the expected type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
    * @param path - The path for the `ValidationIssue` message
@@ -337,7 +337,7 @@ export class BasicValidator {
    * If the given value is not defined, a `PROPERTY_MISSING` validation
    * issue is added to the given context, and `false` is returned.
    *
-   * If the given object does not have the expeced type, a `TYPE_MISMATCH`
+   * If the given object does not have the expected type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
    * @param path - The path for the `ValidationIssue` message
@@ -366,7 +366,7 @@ export class BasicValidator {
    * If the given value is not defined, a `PROPERTY_MISSING` validation
    * issue is added to the given context, and `false` is returned.
    *
-   * If the given object does not have the expeced type, a `TYPE_MISMATCH`
+   * If the given object does not have the expected type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
    * @param path - The path for the `ValidationIssue` message
@@ -395,7 +395,7 @@ export class BasicValidator {
    * If the given value is not defined, a `PROPERTY_MISSING` validation
    * issue is added to the given context, and `false` is returned.
    *
-   * If the given object does not have the expeced type, a `TYPE_MISMATCH`
+   * If the given object does not have the expected type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
    * @param path - The path for the `ValidationIssue` message
@@ -424,7 +424,7 @@ export class BasicValidator {
    * If the given value is not defined, a `PROPERTY_MISSING` validation
    * issue is added to the given context, and `false` is returned.
    *
-   * If the given object does not have the expeced type, a `TYPE_MISMATCH`
+   * If the given object does not have the expected type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
    * @param path - The path for the `ValidationIssue` message
@@ -465,7 +465,7 @@ export class BasicValidator {
    * If the given value is not defined, a `PROPERTY_MISSING` validation
    * issue is added to the given context, and `false` is returned.
    *
-   * If the given object does not have the expeced type, a `TYPE_MISMATCH`
+   * If the given object does not have the expected type, a `TYPE_MISMATCH`
    * validation issue is added to the given context, and `false` is returned.
    *
    * @param path - The path for the `ValidationIssue` message
