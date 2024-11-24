@@ -417,6 +417,13 @@ describe("Tileset validation", function () {
     expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
   });
 
+  it("detects no issues in tileContentBoundingVolumeWithTransform", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/tileContentBoundingVolumeWithTransform.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
   it("detects issues in tileContentGroupInvalidIndex", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/tileContentGroupInvalidIndex.json"
