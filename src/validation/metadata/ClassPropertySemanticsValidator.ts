@@ -299,7 +299,7 @@ export class ClassPropertySemanticsValidator {
         GeneralSemantics: {
           properties: {
             ID: {
-              description: "The unique identifier for the entity..",
+              description: "The unique identifier for the entity.",
               type: "STRING",
             },
             NAME: {
