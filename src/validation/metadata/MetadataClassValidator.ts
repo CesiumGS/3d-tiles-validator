@@ -25,7 +25,7 @@ export class MetadataClassValidator {
    * @param name - The name of the class
    * @param metadataClass - The actual `MetadataClass`
    * @param schema - The `Schema`
-   * @param context - The `ValidatonContext`
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateMetadataClass(

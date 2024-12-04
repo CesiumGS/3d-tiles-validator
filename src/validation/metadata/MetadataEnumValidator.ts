@@ -25,7 +25,7 @@ export class MetadataEnumValidator {
    * @param metadataEnumPath - The path for `ValidationIssue` instances
    * @param enumName - The name of the enum
    * @param metadataEnum - The actual `MetadataEnum`
-   * @param context - The `ValidatonContext`
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateMetadataEnum(
