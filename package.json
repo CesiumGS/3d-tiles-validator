@@ -1,6 +1,6 @@
 {
   "name": "3d-tiles-validator",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "license": "Apache-2.0",
   "description": "Tools for validating 3D Tiles tilesets.",
   "keywords": [
@@ -15,7 +15,7 @@
     "url": "https://github.com/CesiumGS/3d-tiles-validator/issues"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
