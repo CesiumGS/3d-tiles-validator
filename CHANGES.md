@@ -1,8 +1,24 @@
 
 Version ?.?.? - yyyy-mm-dd
 
-- The maximum number of issues that are reported for a single glTF asset is now limited (via [#291](https://github.com/CesiumGS/3d-tiles-validator/pull/291)).
-- When the number of bytes that are required for a certain property texture property did not match the number of `channels`, then the validator reported this as an `ERROR`, with the type `TEXTURE_CHANNELS_OUT_OF_RANGE`. This could cause errors to be reported for the case of 16-bit channels in textures, where these numbers do not have to match. Now, these cases are only reported as a `WARNING`, of the type `TEXTURE_CHANNELS_SIZE_MISMATCH`.
+- ...
+
+Version 0.5.1 - 2024-12-05
+
+- The maximum number of issues that are reported for a single glTF asset is now limited ([#291](https://github.com/CesiumGS/3d-tiles-validator/pull/291)).
+- When the number of bytes that are required for a certain property texture property did not match the number of `channels`, then the validator reported this as an `ERROR`, with the type `TEXTURE_CHANNELS_OUT_OF_RANGE`. This could cause errors to be reported for the case of 16-bit channels in textures, where these numbers do not have to match. Now, these cases are only reported as a `WARNING`, of the type `TEXTURE_CHANNELS_SIZE_MISMATCH` ([#293](https://github.com/CesiumGS/3d-tiles-validator/pull/293)).
+- The `refine` property for tiles is optional in general, but _required_ for the root tile. The validator did not check this. Now, it reports a  `TILE_REFINE_MISSING_IN_ROOT` error when the `refine` property is missing in a root tile ([#303](https://github.com/CesiumGS/3d-tiles-validator/pull/303)).
+- When encountering an invalid alignment in the binary data of legacy tile content files, the validator stopped the validation of these files, and only reported a `BINARY_INVALID_ALIGNMENT` error. Now, it will try to process the data despite the invalid alignment, and perform further validation steps, for example, of the binary glTF data ([#304](https://github.com/CesiumGS/3d-tiles-validator/pull/304)).
+- Fixed a bug where the validator erroneously reported validation error when external tilesets did not use extensions that had been declared in the `extensionsUsed` of the containing tileset ([#305](https://github.com/CesiumGS/3d-tiles-validator/pull/305)).
+- Added a convenience function to the `ValidationResult` class, to easily deserialize and post-process validation reports ([#307](https://github.com/CesiumGS/3d-tiles-validator/pull/307)).
+- Fixed a bug where the default value for `texCoord` properties of property texture was not handled properly ([#309](https://github.com/CesiumGS/3d-tiles-validator/pull/309)).
+- Added the option to define a severity threshold for content validation issues. Setting the `contentValidationIssueSeverity` in the validation config file will omit all content validation issues that are below this severity threshold ([#310](https://github.com/CesiumGS/3d-tiles-validator/pull/310)).
+- Fixed a bug where the validator reported an error for binary `.subtree` files that did not contain any buffers ([#313](https://github.com/CesiumGS/3d-tiles-validator/pull/313)).
+- Added support for the validation of the `NGA_gpm_local` glTF extension ([#316](https://github.com/CesiumGS/3d-tiles-validator/pull/316)).
+- Added support for the validation of the `NGA_gpm` 3D Tiles extension ([#319](https://github.com/CesiumGS/3d-tiles-validator/pull/319)).
+- Fixed a bug where the validator erroneously reported a `BOUNDING_VOLUMES_INCONSISTENT` error when a tile with a `transform` contained a `content` with a `boundingVolume` ([#322](https://github.com/CesiumGS/3d-tiles-validator/pull/322)).
+- Updated the underlying `3d-tiles-tools` dependency to include a fix for a bug where the validator reported an `INTERNAL_ERROR` when trying to validate a tileset that contains glTF that use the `EXT_meshopt_compression` extension ([#323](https://github.com/CesiumGS/3d-tiles-validator/issues/323)).
+- Fixed a bug where the semantics that are referred to as 'General Semantics' in the 3D Metadata Semantic Reference had been reported to be unknown with a `METADATA_SEMANTIC_UNKNOWN` message ([#325](https://github.com/CesiumGS/3d-tiles-validator/pull/325)).
 
 Version 0.5.0 - 2023-10-24
 
