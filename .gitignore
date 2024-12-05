@@ -3,6 +3,7 @@
 /dist
 /coverage
 /.nyc_output
+/.vscode
 tsdoc-metadata.json
 package-lock.json
 .eslintcache
