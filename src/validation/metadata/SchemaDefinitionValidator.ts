@@ -44,7 +44,7 @@ export class SchemaDefinitionValidator {
    * @param name - A name for the containing object (usually 'tileset')
    * @param schema - The `schema` object from the JSON
    * @param schemaUri - The `schemaUri` from the JSON
-   * @param context - The `ValidatonContext`
+   * @param context - The `ValidationContext`
    * @returns The schema definition validation result
    */
   static async validateSchemaDefinition(

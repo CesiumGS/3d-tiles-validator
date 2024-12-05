@@ -23,7 +23,7 @@ export class ClassPropertySemanticsValidator {
    *
    * @param metadataClassPath - The path for `ValidationIssue` instances
    * @param properties - The properties of the schema class
-   * @param context - The `ValidatonContext`
+   * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
   static validateSemantics(
@@ -233,6 +233,29 @@ export class ClassPropertySemanticsValidator {
 
     return result;
   }
+
+  /**
+   * Finds a "matcher" for the specified semantic in the given matching schema.
+   *
+   * The given semantic is just the name of the semantic. This is used property
+   * name in the matching schema. The classes in the given schema are searched
+   * for a property that has this (semantic) name. If such a "matching property"
+   * is found, it is returned, and used for checking if the property that
+   * contained the given semantic matches the "matching property".
+   *
+   * Ideally, comparing this "matching property" and the actual property should
+   * check whether the `type`, `component`, and `array` of the matching property
+   * are equal to these in the actual property. But given that semantics may
+   * have different `componentType` values, the returned property may define
+   * the `componentType` to be a RegEx that the actual component type must
+   * match against.
+   *
+   * Also see the comments for `createMatchingSchema`.
+   *
+   * @param matchingSchema - The matching metadata schema to search for semantics
+   * @param semantic - The name of the semantic
+   * @returns The matcher, or `undefined`
+   */
   private static findSemanticMatcher(
     matchingSchema: any,
     semantic: string
@@ -262,7 +285,7 @@ export class ClassPropertySemanticsValidator {
    *
    * Eventually, it might make sense to make the component types
    * unambiguous, so that the semantics definition is actually
-   * a proper `Schema`. This could be achived by specific semantics
+   * a proper `Schema`. This could be achieved by specific semantics
    * like `GEOMETRIC_ERROR_FLOAT32`.
    *
    * See https://github.com/CesiumGS/3d-tiles/issues/643
@@ -271,8 +294,39 @@ export class ClassPropertySemanticsValidator {
    */
   private static createMatchingSchema() {
     const matchingSchema = {
-      id: "CesiumMetadataSemantics-0.0.0",
+      id: "CesiumMetadataSemantics-0.0.1",
       classes: {
+        GeneralSemantics: {
+          properties: {
+            ID: {
+              description: "The unique identifier for the entity.",
+              type: "STRING",
+            },
+            NAME: {
+              description:
+                "The name of the entity. Names should be human-readable, and do not have to be unique.",
+              type: "STRING",
+            },
+            DESCRIPTION: {
+              description:
+                "Description of the entity. Typically at least a phrase, and possibly several sentences or paragraphs.",
+              type: "STRING",
+            },
+            ATTRIBUTION_IDS: {
+              description:
+                "List of attribution IDs that index into a global list of attribution strings. This semantic may be assigned to metadata at any level of granularity including tileset, group, subtree, tile, content, feature, vertex, and texel granularity. The global list of attribution strings is located in a tileset or subtree with the property semantic ATTRIBUTION_STRINGS. The following precedence order is used to locate the attribution strings: first the containing subtree (if applicable), then the containing external tileset (if applicable), and finally the root tileset.",
+              type: "SCALAR",
+              array: true,
+              componentType: "UINT(8|16|32|64)",
+            },
+            ATTRIBUTION_STRINGS: {
+              description:
+                "List of attribution strings. Each string contains information about a data provider or copyright text. Text may include embedded markup languages such as HTML. This semantic may be assigned to metadata at any granularity (wherever STRING property values can be encoded). When used in combination with ATTRIBUTION_IDS it is assigned to subtrees and tilesets.",
+              type: "STRING",
+              array: true,
+            },
+          },
+        },
         TilesetMetadataSemantics: {
           properties: {
             TILESET_FEATURE_ID_LABELS: {

@@ -1,0 +1,15 @@
+{
+  "id": "EXAMPLE_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "exampleProperty": {
+          "type": "SCALAR",
+          "componentType": "INT32",
+          "array": true,
+          "semantic": "ATTRIBUTION_IDS"
+        }
+      }
+    }
+  }
+}

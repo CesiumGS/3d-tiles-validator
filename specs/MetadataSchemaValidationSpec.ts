@@ -603,9 +603,17 @@ describe("Metadata schema validation", function () {
     expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
-  it("detects issues in metadataClassPropertySemanticComponentTypeMismatch", async function () {
+  it("detects issues in metadataClassPropertySemanticComponentTypeMismatchA", async function () {
     const result = await Validators.validateSchemaFile(
-      "specs/data/schemas/metadataClassPropertySemanticComponentTypeMismatch.json"
+      "specs/data/schemas/metadataClassPropertySemanticComponentTypeMismatchA.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
+  });
+
+  it("detects issues in metadataClassPropertySemanticComponentTypeMismatchB", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/metadataClassPropertySemanticComponentTypeMismatchB.json"
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
@@ -625,6 +633,13 @@ describe("Metadata schema validation", function () {
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
+  });
+
+  it("detects no issues in metadataClassPropertySemanticGeneric", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/metadataClassPropertySemanticGeneric.json"
+    );
+    expect(result.length).toEqual(0);
   });
 
   it("detects issues in metadataClassPropertySemanticNormalizedMismatch", async function () {
