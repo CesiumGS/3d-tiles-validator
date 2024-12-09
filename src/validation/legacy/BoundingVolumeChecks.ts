@@ -179,13 +179,13 @@ export class BoundingVolumeChecks {
       center.y,
       center.z,
       halfAxes[0],
-      halfAxes[3],
-      halfAxes[6],
       halfAxes[1],
-      halfAxes[4],
-      halfAxes[7],
       halfAxes[2],
+      halfAxes[3],
+      halfAxes[4],
       halfAxes[5],
+      halfAxes[6],
+      halfAxes[7],
       halfAxes[8],
     ];
     return returnBox;
