@@ -63,6 +63,13 @@ export class ValidationContext {
    */
   private _activeTilesetUris: Set<string>;
 
+  /**
+   * The set of schema objects that will be used for validating
+   * metadata class property semantics, in the
+   * `ClassPropertySemanticsValidator`.
+   */
+  private _semanticMatchingSchemas: Set<any>;
+
   constructor(
     baseUri: string,
     resourceResolver: ResourceResolver,
@@ -74,6 +81,7 @@ export class ValidationContext {
     this._resourceResolver = resourceResolver;
     this._extensionsFound = new Set<string>();
     this._activeTilesetUris = new Set<string>();
+    this._semanticMatchingSchemas = new Set<any>();
   }
 
   /**
@@ -105,6 +113,7 @@ export class ValidationContext {
     );
     derived._extensionsFound = new Set<string>();
     derived._activeTilesetUris = this._activeTilesetUris;
+    derived._semanticMatchingSchemas = this._semanticMatchingSchemas;
     return derived;
   }
 
@@ -140,6 +149,7 @@ export class ValidationContext {
     );
     derived._extensionsFound = new Set<string>();
     derived._activeTilesetUris = this._activeTilesetUris;
+    derived._semanticMatchingSchemas = this._semanticMatchingSchemas;
     return derived;
   }
 
@@ -179,6 +189,14 @@ export class ValidationContext {
 
   isActiveTilesetUri(uri: string): boolean {
     return this._activeTilesetUris.has(uri);
+  }
+
+  addSemanticMatchingSchema(schema: any) {
+    this._semanticMatchingSchemas.add(schema);
+  }
+
+  getSemanticMatchingSchemas(): any[] {
+    return [...this._semanticMatchingSchemas];
   }
 
   getOptions(): ValidationOptions {

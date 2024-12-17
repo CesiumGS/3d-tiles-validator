@@ -33,6 +33,12 @@ export class ValidationOptions {
   private _excludeContentTypes: string[] | undefined;
 
   /**
+   * The names of files that contain metadata schemas with
+   * semantic definitions
+   */
+  private _semanticSchemaFileNames: string[] | undefined;
+
+  /**
    * Default constructor.
    *
    * The default options will be:
@@ -48,10 +54,11 @@ export class ValidationOptions {
     this._contentValidationIssueSeverity = ValidationIssueSeverity.INFO;
     this._includeContentTypes = undefined;
     this._excludeContentTypes = undefined;
+    this._semanticSchemaFileNames = undefined;
   }
 
   /**
-   * The flag that incicates whether content data should
+   * The flag that indicates whether content data should
    * be validated at all. When this is `false`, then
    * all content data validations will be skipped.
    */
@@ -136,6 +143,18 @@ export class ValidationOptions {
 
   set excludeContentTypes(value: string[] | undefined) {
     this._excludeContentTypes = value;
+  }
+
+  /**
+   * The names of files that contain metadata schema definitions
+   * for the valid metadata semantics
+   */
+  get semanticSchemaFileNames(): string[] | undefined {
+    return this._semanticSchemaFileNames;
+  }
+
+  set semanticSchemaFileNames(value: string[] | undefined) {
+    this._semanticSchemaFileNames = value;
   }
 
   /**
