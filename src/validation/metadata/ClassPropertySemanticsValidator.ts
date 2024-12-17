@@ -60,8 +60,7 @@ export class ClassPropertySemanticsValidator {
 
     // Validate that the type of the property matches
     // the type that is required via the semantic
-    const matchingSchema =
-      ClassPropertySemanticsValidator.createMatchingSchema();
+    const semanticMatchingSchemas = context.getSemanticMatchingSchemas();
     for (const propertyName of Object.keys(properties)) {
       const property = properties[propertyName];
       if (!defined(property)) {
@@ -79,7 +78,7 @@ export class ClassPropertySemanticsValidator {
       // the given semantic, a warning will be created
       const semanticMatcher =
         ClassPropertySemanticsValidator.findSemanticMatcher(
-          matchingSchema,
+          semanticMatchingSchemas,
           semantic
         );
       if (!defined(semanticMatcher)) {
@@ -143,7 +142,7 @@ export class ClassPropertySemanticsValidator {
 
     if (property.type !== semanticMatcher.type) {
       const message =
-        `Property '${propertyName} has semantic '${semantic}', ` +
+        `Property '${propertyName}' has semantic '${semantic}', ` +
         `which requires type '${semanticMatcher.type}', but the ` +
         `property has type '${property.type}'`;
       const issue = MetadataValidationIssues.METADATA_SEMANTIC_INVALID(
@@ -159,7 +158,7 @@ export class ClassPropertySemanticsValidator {
       const regex = new RegExp("^" + semanticMatcher.componentType + "$");
       if (!regex.test(componentType)) {
         const message =
-          `Property '${propertyName} has semantic '${semantic}', ` +
+          `Property '${propertyName}' has semantic '${semantic}', ` +
           `which requires the component type to match ` +
           `'${semanticMatcher.componentType}', but the ` +
           `property has component type '${componentType}'`;
@@ -175,7 +174,7 @@ export class ClassPropertySemanticsValidator {
     const propertyArray = defaultValue(property.array, false);
     if (propertyArray !== matcherArray) {
       const message =
-        `Property '${propertyName} has semantic '${semantic}', ` +
+        `Property '${propertyName}' has semantic '${semantic}', ` +
         `which requires the 'array' property to be '${matcherArray}' ` +
         `but the 'array' property is '${property.array}'`;
       const issue = MetadataValidationIssues.METADATA_SEMANTIC_INVALID(
@@ -189,7 +188,7 @@ export class ClassPropertySemanticsValidator {
     if (property.array === true) {
       if (property.count !== semanticMatcher.count) {
         const message =
-          `Property '${propertyName} has semantic '${semantic}', which ` +
+          `Property '${propertyName}' has semantic '${semantic}', which ` +
           `requires the 'count' property to be '${semanticMatcher.count}' ` +
           `but the 'count' property is '${property.count}'`;
         const issue = MetadataValidationIssues.METADATA_SEMANTIC_INVALID(
@@ -205,7 +204,7 @@ export class ClassPropertySemanticsValidator {
     const propertyNormalized = defaultValue(property.normalized, false);
     if (propertyNormalized !== matcherNormalized) {
       const message =
-        `Property '${propertyName} has semantic '${semantic}', which ` +
+        `Property '${propertyName}' has semantic '${semantic}', which ` +
         `requires the 'normalized' property to be '${matcherNormalized}' ` +
         `but the 'normalized' property is '${property.normalized}'`;
       const issue = MetadataValidationIssues.METADATA_SEMANTIC_INVALID(
@@ -220,7 +219,7 @@ export class ClassPropertySemanticsValidator {
     // but the check is done here for completeness
     if (property.enumType !== semanticMatcher.enumType) {
       const message =
-        `Property '${propertyName} has semantic '${semantic}', ` +
+        `Property '${propertyName}' has semantic '${semantic}', ` +
         `which requires enumType '${semanticMatcher.enumType}', but the ` +
         `property has enumType '${property.enumType}'`;
       const issue = MetadataValidationIssues.METADATA_SEMANTIC_INVALID(
@@ -235,13 +234,13 @@ export class ClassPropertySemanticsValidator {
   }
 
   /**
-   * Finds a "matcher" for the specified semantic in the given matching schema.
+   * Finds a "matcher" for the specified semantic in the given matching schemas.
    *
-   * The given semantic is just the name of the semantic. This is used property
-   * name in the matching schema. The classes in the given schema are searched
-   * for a property that has this (semantic) name. If such a "matching property"
-   * is found, it is returned, and used for checking if the property that
-   * contained the given semantic matches the "matching property".
+   * The given semantic is just the name of the semantic. This is used as a
+   * property name in the matching schema. The classes in the given schemas are
+   * searched for a property that has this (semantic) name. If such a
+   * "matching property" is found, it is returned, and used for checking if
+   * the property that contained the given semantic matches the "matching property".
    *
    * Ideally, comparing this "matching property" and the actual property should
    * check whether the `type`, `component`, and `array` of the matching property
@@ -250,238 +249,26 @@ export class ClassPropertySemanticsValidator {
    * the `componentType` to be a RegEx that the actual component type must
    * match against.
    *
-   * Also see the comments for `createMatchingSchema`.
-   *
    * @param matchingSchema - The matching metadata schema to search for semantics
    * @param semantic - The name of the semantic
    * @returns The matcher, or `undefined`
    */
   private static findSemanticMatcher(
-    matchingSchema: any,
+    matchingSchemas: any,
     semantic: string
   ): any {
-    const matchingClasses = defaultValue(matchingSchema.classes, {});
-    for (const className of Object.keys(matchingClasses)) {
-      const matchingClass = matchingClasses[className];
-      const matchingProperties = defaultValue(matchingClass.properties, {});
-      for (const semanticName of Object.keys(matchingProperties)) {
-        if (semanticName === semantic) {
-          return matchingProperties[semanticName];
+    for (const matchingSchema of matchingSchemas) {
+      const matchingClasses = defaultValue(matchingSchema.classes, {});
+      for (const className of Object.keys(matchingClasses)) {
+        const matchingClass = matchingClasses[className];
+        const matchingProperties = defaultValue(matchingClass.properties, {});
+        for (const semanticName of Object.keys(matchingProperties)) {
+          if (semanticName === semantic) {
+            return matchingProperties[semanticName];
+          }
         }
       }
     }
     return undefined;
-  }
-
-  /**
-   * Creates an object that resembles a `Schema`, but that is
-   * used for matching the `semantic` of properties.
-   *
-   * The only difference to a `Schema` is that the
-   * `matchingSchema.classes[className].properties[semanticName].componentType`
-   * is a string that is used for creating a regular expression that the
-   * actual `componentType` has to match. E.g. this may be `"FLOAT(32|64)"`
-   * when the component type can either be `FLOAT32` or `FLOAT64`.
-   *
-   * Eventually, it might make sense to make the component types
-   * unambiguous, so that the semantics definition is actually
-   * a proper `Schema`. This could be achieved by specific semantics
-   * like `GEOMETRIC_ERROR_FLOAT32`.
-   *
-   * See https://github.com/CesiumGS/3d-tiles/issues/643
-   *
-   * @returns The matching schema
-   */
-  private static createMatchingSchema() {
-    const matchingSchema = {
-      id: "CesiumMetadataSemantics-0.0.1",
-      classes: {
-        GeneralSemantics: {
-          properties: {
-            ID: {
-              description: "The unique identifier for the entity.",
-              type: "STRING",
-            },
-            NAME: {
-              description:
-                "The name of the entity. Names should be human-readable, and do not have to be unique.",
-              type: "STRING",
-            },
-            DESCRIPTION: {
-              description:
-                "Description of the entity. Typically at least a phrase, and possibly several sentences or paragraphs.",
-              type: "STRING",
-            },
-            ATTRIBUTION_IDS: {
-              description:
-                "List of attribution IDs that index into a global list of attribution strings. This semantic may be assigned to metadata at any level of granularity including tileset, group, subtree, tile, content, feature, vertex, and texel granularity. The global list of attribution strings is located in a tileset or subtree with the property semantic ATTRIBUTION_STRINGS. The following precedence order is used to locate the attribution strings: first the containing subtree (if applicable), then the containing external tileset (if applicable), and finally the root tileset.",
-              type: "SCALAR",
-              array: true,
-              componentType: "UINT(8|16|32|64)",
-            },
-            ATTRIBUTION_STRINGS: {
-              description:
-                "List of attribution strings. Each string contains information about a data provider or copyright text. Text may include embedded markup languages such as HTML. This semantic may be assigned to metadata at any granularity (wherever STRING property values can be encoded). When used in combination with ATTRIBUTION_IDS it is assigned to subtrees and tilesets.",
-              type: "STRING",
-              array: true,
-            },
-          },
-        },
-        TilesetMetadataSemantics: {
-          properties: {
-            TILESET_FEATURE_ID_LABELS: {
-              description:
-                "The union of all the feature ID labels in glTF content using the EXT_mesh_features and EXT_instance_features extensions.",
-              type: "STRING",
-              array: true,
-            },
-            TILESET_CRS_GEOCENTRIC: {
-              description:
-                "The geocentric coordinate reference system (CRS) of the tileset.",
-              type: "STRING",
-            },
-            TILESET_CRS_COORDINATE_EPOCH: {
-              description:
-                "The coordinate epoch for coordinates that are referenced to a dynamic CRS such as WGS 84.",
-              type: "STRING",
-            },
-          },
-        },
-        TileMetadataSemantics: {
-          properties: {
-            TILE_BOUNDING_BOX: {
-              description:
-                "The bounding volume of the tile, expressed as a box. Equivalent to tile.boundingVolume.box.",
-              type: "SCALAR",
-              componentType: "FLOAT(32|64)",
-              array: true,
-              count: 12,
-            },
-            TILE_BOUNDING_REGION: {
-              description:
-                "The bounding volume of the tile, expressed as a region. Equivalent to tile.boundingVolume.region.",
-              type: "SCALAR",
-              componentType: "FLOAT(32|64)",
-              array: true,
-              count: 6,
-            },
-            TILE_BOUNDING_SPHERE: {
-              description:
-                "The bounding volume of the tile, expressed as a sphere. Equivalent to tile.boundingVolume.sphere.",
-              type: "SCALAR",
-              componentType: "FLOAT(32|64)",
-              array: true,
-              count: 4,
-            },
-            TILE_BOUNDING_S2_CELL: {
-              description:
-                "The bounding volume of the tile, expressed as an S2 Cell ID using the 64-bit representation instead of the hexadecimal representation. Only applicable to 3DTILES_bounding_volume_S2.",
-              type: "SCALAR",
-              componentType: "UINT64",
-            },
-            TILE_MINIMUM_HEIGHT: {
-              description:
-                "The minimum height of the tile above (or below) the WGS84 ellipsoid.",
-              type: "SCALAR",
-              componentType: "FLOAT(32|64)",
-            },
-            TILE_MAXIMUM_HEIGHT: {
-              description:
-                "The maximum height of the tile above (or below) the WGS84 ellipsoid.",
-              type: "SCALAR",
-              componentType: "FLOAT(32|64)",
-            },
-            TILE_HORIZON_OCCLUSION_POINT: {
-              description:
-                "The horizon occlusion point of the tile expressed in an ellipsoid-scaled fixed frame. If this point is below the horizon, the entire tile is below the horizon.",
-              type: "VEC3",
-              componentType: "FLOAT(32|64)",
-            },
-            TILE_GEOMETRIC_ERROR: {
-              description:
-                "The geometric error of the tile. Equivalent to tile.geometricError.",
-              type: "SCALAR",
-              componentType: "FLOAT(32|64)",
-            },
-            TILE_REFINE: {
-              description:
-                "The tile refinement type. Valid values are 0 (ADD) and 1 (REPLACE). Equivalent to tile.refine.",
-              type: "SCALAR",
-              componentType: "UINT8",
-            },
-            TILE_TRANSFORM: {
-              description: "The tile transform. Equivalent to tile.transform.",
-              type: "MAT4",
-              componentType: "FLOAT(32|64)",
-            },
-          },
-        },
-        ContentMetadataSemantics: {
-          properties: {
-            CONTENT_BOUNDING_BOX: {
-              description:
-                "The bounding volume of the content of a tile, expressed as a box. Equivalent to tile.content.boundingVolume.box.",
-              type: "SCALAR",
-              componentType: "FLOAT(32|64)",
-              array: true,
-              count: 12,
-            },
-            CONTENT_BOUNDING_REGION: {
-              description:
-                "The bounding volume of the content of a tile, expressed as a region. Equivalent to tile.content.boundingVolume.region.",
-              type: "SCALAR",
-              componentType: "FLOAT(32|64)",
-              array: true,
-              count: 6,
-            },
-            CONTENT_BOUNDING_SPHERE: {
-              description:
-                "The bounding volume of the content of a tile, expressed as a sphere. Equivalent to tile.content.boundingVolume.sphere.",
-              type: "SCALAR",
-              componentType: "FLOAT(32|64)",
-              array: true,
-              count: 4,
-            },
-            CONTENT_BOUNDING_S2_CELL: {
-              description:
-                "The bounding volume of the content of a tile, expressed as an S2 Cell ID using the 64-bit representation instead of the hexadecimal representation. Only applicable to 3DTILES_bounding_volume_S2.",
-              type: "SCALAR",
-              componentType: "UINT64",
-            },
-            CONTENT_MINIMUM_HEIGHT: {
-              description:
-                "The minimum height of the content of a tile above (or below) the WGS84 ellipsoid.",
-              type: "SCALAR",
-              componentType: "FLOAT(32|64)",
-            },
-            CONTENT_MAXIMUM_HEIGHT: {
-              description:
-                "The maximum height of the content of a tile above (or below) the WGS84 ellipsoid.",
-              type: "SCALAR",
-              componentType: "FLOAT(32|64)",
-            },
-            CONTENT_HORIZON_OCCLUSION_POINT: {
-              description:
-                "The horizon occlusion point of the content of a tile expressed in an ellipsoid-scaled fixed frame. If this point is below the horizon, the entire content is below the horizon.",
-              type: "VEC3",
-              componentType: "FLOAT(32|64)",
-            },
-            CONTENT_URI: {
-              description:
-                "The content uri. Overrides the implicit tile’s generated content uri. Equivalent to tile.content.uri",
-              type: "STRING",
-              componentType: "FLOAT(32|64)",
-            },
-            CONTENT_GROUP_ID: {
-              description:
-                "The content group ID. Equivalent to tile.content.group.",
-              type: "SCALAR",
-              componentType: "UINT(8|16|32|64)",
-            },
-          },
-        },
-      },
-    };
-    return matchingSchema;
   }
 }

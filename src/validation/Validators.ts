@@ -25,6 +25,7 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 import { BoundingVolumeS2Validator } from "./extensions/BoundingVolumeS2Validator";
 import { NgaGpmValidator } from "./extensions/NgaGpmValidator";
+import { ValidationContexts } from "./ValidationContexts";
 
 /**
  * Utility methods related to `Validator` instances.
@@ -57,7 +58,7 @@ export class Validators {
    * returns a promise to the `ValidationResult`.
    *
    * The given file may be a `tileset.json` file, or a tileset
-   * package file, as incdicated by a `.3tz` or `.3dtiles` file
+   * package file, as indicated by a `.3tz` or `.3dtiles` file
    * extensions.
    *
    * @param filePath - The file path
@@ -118,6 +119,11 @@ export class Validators {
       resourceResolver,
       validationOptions
     );
+    ValidationContexts.initializeSemanticMatchingSchemas(
+      context,
+      validationOptions?.semanticSchemaFileNames
+    );
+
     const tilesetUri = context.resolveUri(fileName);
     context.addActiveTilesetUri(tilesetUri);
     const resourceData = await resourceResolver.resolveData(fileName);
@@ -169,6 +175,11 @@ export class Validators {
       resourceResolver,
       validationOptions
     );
+    ValidationContexts.initializeSemanticMatchingSchemas(
+      context,
+      validationOptions?.semanticSchemaFileNames
+    );
+
     const tilesetUri = context.resolveUri(filePath);
     context.addActiveTilesetUri(tilesetUri);
     await TilesetPackageValidator.validatePackageFile(filePath, context);
@@ -205,6 +216,11 @@ export class Validators {
       resourceResolver,
       validationOptions
     );
+    ValidationContexts.initializeSemanticMatchingSchemas(
+      context,
+      validationOptions?.semanticSchemaFileNames
+    );
+
     const contentData = new LazyContentData(fileName, resourceResolver);
 
     // Check if the file exists, and bail out early if it doesn't
@@ -267,6 +283,7 @@ export class Validators {
     const resourceData = await resourceResolver.resolveData(fileName);
     const validator = Validators.createDefaultSchemaValidator();
     const context = new ValidationContext(directory, resourceResolver);
+    ValidationContexts.initializeSemanticMatchingSchemas(context, undefined);
     const jsonString = resourceData ? resourceData.toString() : "";
     await validator.validateJsonString(jsonString, context);
     return context.getResult();
@@ -319,6 +336,7 @@ export class Validators {
       implicitTiling
     );
     const context = new ValidationContext(directory, resourceResolver);
+    ValidationContexts.initializeSemanticMatchingSchemas(context, undefined);
     if (!defined(resourceData)) {
       const message = `Could not read subtree file ${filePath}`;
       const issue = IoValidationIssues.IO_ERROR(filePath, message);
