@@ -222,10 +222,6 @@ export class ValidationContexts {
     );
     if (schemaFileNames) {
       for (const schemaFileName of schemaFileNames) {
-        console.log(
-          "Registering metadata schema semantic definitions from ",
-          schemaFileName
-        );
         ValidationContexts.addSemanticMatchingSchema(context, schemaFileName);
       }
     }
