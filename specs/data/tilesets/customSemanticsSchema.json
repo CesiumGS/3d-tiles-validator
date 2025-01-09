@@ -1,0 +1,25 @@
+{
+  "id": "EXAMPLE-Semantics-0.0.0",
+  "description": "A schema file that defines custom semantics to test the handling of the 'semantic matching schemas'",
+  "classes": {
+    "CustomSemanticsA": {
+      "properties": {
+        "CUSTOM_SEMANTICS_SIMPLE": {
+          "description": "Example for simple custom semantics",
+          "type": "STRING"
+        }
+      }
+    },
+    "CustomSemanticsB": {
+      "properties": {
+        "CUSTOM_SEMANTICS_COMPLEX": {
+          "description": "Example for complex custom semantics",
+          "type": "VEC3",
+          "componentType": "FLOAT32",
+          "array": true,
+          "count": 2
+        }
+      }
+    }
+  }
+}
