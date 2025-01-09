@@ -1,0 +1,38 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "schema": {
+    "id": "EXAMPLE_ID",
+    "classes": {
+      "exampleClass": {
+        "properties": {
+          "examplePropertyA": {
+            "type": "STRING",
+            "array": true,
+            "semantic": "ATTRIBUTION_STRINGS"
+          },
+          "examplePropertyB": {
+            "type": "STRING",
+            "semantic": "CUSTOM_SEMANTICS_SIMPLE"
+          },
+          "examplePropertyC": {
+            "type": "VEC3",
+            "componentType": "FLOAT32",
+            "array": true,
+            "count": 2,
+            "semantic": "CUSTOM_SEMANTICS_COMPLEX"
+          }
+        }
+      }
+    }
+  },
+  "geometricError": 2.0,
+  "root": {
+    "refine": "REPLACE",
+    "boundingVolume": {
+      "box": [0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5]
+    },
+    "geometricError": 1.0
+  }
+}

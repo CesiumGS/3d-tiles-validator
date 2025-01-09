@@ -1,3 +1,4 @@
+import { ValidationOptions } from "../src/validation/ValidationOptions";
 import { Validators } from "../src/validation/Validators";
 
 describe("Tileset validation", function () {
@@ -802,6 +803,43 @@ describe("Tileset validation", function () {
       "specs/data/tilesets/validTileset.json"
     );
     expect(result.length).toEqual(0);
+  });
+
+  it("detects issues in validTilesetWithCustomSemantics", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithCustomSemantics.json"
+    );
+    expect(result.length).toEqual(2);
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_UNKNOWN");
+    expect(result.get(1).type).toEqual("METADATA_SEMANTIC_UNKNOWN");
+  });
+
+  it("detects no issues in validTilesetWithCustomSemantics when registering the custom semantics matcher", async function () {
+    const validationOptions: ValidationOptions = ValidationOptions.fromJson({
+      semanticSchemaFileNames: [
+        "specs/data/tilesets/customSemanticsSchema.json",
+      ],
+    });
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithCustomSemantics.json",
+      validationOptions
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects issues in validTilesetWithCustomSemanticsWithInvalidType (after registering the custom semantics matcher)", async function () {
+    const validationOptions: ValidationOptions = ValidationOptions.fromJson({
+      semanticSchemaFileNames: [
+        "specs/data/tilesets/customSemanticsSchema.json",
+      ],
+    });
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithCustomSemanticsWithInvalidType.json",
+      validationOptions
+    );
+    expect(result.length).toEqual(2);
+    expect(result.get(0).type).toEqual("METADATA_SEMANTIC_INVALID");
+    expect(result.get(1).type).toEqual("METADATA_SEMANTIC_INVALID");
   });
 
   it("detects issues in validTilesetWithExternalValidTilesetWithValidB3dmWithInvalidGlb", async function () {
