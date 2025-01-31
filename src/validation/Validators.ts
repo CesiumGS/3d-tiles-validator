@@ -495,6 +495,16 @@ export class Validators {
         override
       );
     }
+    // Register an empty validator for MAXAR_content_geojson
+    {
+      const emptyValidator = Validators.createEmptyValidator();
+      const override = false;
+      ExtendedObjectsValidators.register(
+        "MAXAR_content_geojson",
+        emptyValidator,
+        override
+      );
+    }
     // Register an empty validator for MAXAR_extent
     {
       const emptyValidator = Validators.createEmptyValidator();
