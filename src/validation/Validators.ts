@@ -525,6 +525,26 @@ export class Validators {
         override
       );
     }
+    // Register an empty validator for VRICON_class
+    {
+      const emptyValidator = Validators.createEmptyValidator();
+      const override = false;
+      ExtendedObjectsValidators.register(
+        "VRICON_class",
+        emptyValidator,
+        override
+      );
+    }
+    // Register an empty validator for VRICON_grid
+    {
+      const emptyValidator = Validators.createEmptyValidator();
+      const override = false;
+      ExtendedObjectsValidators.register(
+        "VRICON_grid",
+        emptyValidator,
+        override
+      );
+    }
 
     // Register the validator for NGA_gpm
     {
