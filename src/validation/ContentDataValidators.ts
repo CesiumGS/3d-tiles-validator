@@ -1,9 +1,11 @@
-import { ContentDataTypeRegistry, defined } from "3d-tiles-tools";
+import { defined } from "3d-tiles-tools";
+import { ContentData } from "3d-tiles-tools";
+import { ContentDataTypes } from "3d-tiles-tools";
+import { ContentDataTypeRegistry } from "3d-tiles-tools";
 
 import { Validators } from "./Validators";
 import { Validator } from "./Validator";
 import { ValidationContext } from "./ValidationContext";
-import { ContentData } from "3d-tiles-tools";
 import { TilesetPackageValidator } from "./TilesetPackageValidator";
 
 import { B3dmValidator } from "../tileFormats/B3dmValidator";
@@ -53,36 +55,28 @@ export class ContentDataValidators {
       return;
     }
 
-    // The keys that are used here are the strings that are
-    // returned by the `ContentDataTypeRegistry`, for a
-    // given `ContentData`.
-    // THESE STRINGS ARE NOT SPECIFIED.
-    // Using them here is relying on an implementation
-    // detail. Whether or not these strings should be
-    // public and/or specified has to be decided.
-
     ContentDataValidators.registerForBuffer(
-      "CONTENT_TYPE_GLB",
+      ContentDataTypes.CONTENT_TYPE_GLB,
       new GltfValidator()
     );
 
     ContentDataValidators.registerForBuffer(
-      "CONTENT_TYPE_B3DM",
+      ContentDataTypes.CONTENT_TYPE_B3DM,
       new B3dmValidator()
     );
 
     ContentDataValidators.registerForBuffer(
-      "CONTENT_TYPE_I3DM",
+      ContentDataTypes.CONTENT_TYPE_I3DM,
       new I3dmValidator()
     );
 
     ContentDataValidators.registerForBuffer(
-      "CONTENT_TYPE_CMPT",
+      ContentDataTypes.CONTENT_TYPE_CMPT,
       new CmptValidator()
     );
 
     ContentDataValidators.registerForBuffer(
-      "CONTENT_TYPE_PNTS",
+      ContentDataTypes.CONTENT_TYPE_PNTS,
       new PntsValidator()
     );
 
@@ -107,21 +101,30 @@ export class ContentDataValidators {
       );
     }
 
-    ContentDataValidators.register("CONTENT_TYPE_GEOM", geomValidator);
-    ContentDataValidators.register("CONTENT_TYPE_VCTR", vctrValidator);
-    ContentDataValidators.register("CONTENT_TYPE_GEOJSON", geojsonValidator);
+    ContentDataValidators.register(
+      ContentDataTypes.CONTENT_TYPE_GEOM,
+      geomValidator
+    );
+    ContentDataValidators.register(
+      ContentDataTypes.CONTENT_TYPE_VCTR,
+      vctrValidator
+    );
+    ContentDataValidators.register(
+      ContentDataTypes.CONTENT_TYPE_GEOJSON,
+      geojsonValidator
+    );
 
     ContentDataValidators.register(
-      "CONTENT_TYPE_3TZ",
+      ContentDataTypes.CONTENT_TYPE_3TZ,
       ContentDataValidators.createPackageValidator()
     );
 
     ContentDataValidators.register(
-      "CONTENT_TYPE_TILESET",
+      ContentDataTypes.CONTENT_TYPE_TILESET,
       ContentDataValidators.createTilesetValidator()
     );
     ContentDataValidators.register(
-      "CONTENT_TYPE_GLTF",
+      ContentDataTypes.CONTENT_TYPE_GLTF,
       ContentDataValidators.createGltfJsonValidator()
     );
 
