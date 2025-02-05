@@ -1,16 +1,15 @@
 import paths from "path";
 
-import { defined } from "3d-tiles-tools";
-
 import { Uris } from "3d-tiles-tools";
+import { defined } from "3d-tiles-tools";
+import { ContentData } from "3d-tiles-tools";
+import { ContentDataTypes } from "3d-tiles-tools";
+import { ContentDataTypeRegistry } from "3d-tiles-tools";
+import { LazyContentData } from "3d-tiles-tools";
+import { Content } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
-import { ContentDataTypeRegistry } from "3d-tiles-tools";
-import { ContentData } from "3d-tiles-tools";
-import { LazyContentData } from "3d-tiles-tools";
 import { ContentDataValidators } from "./ContentDataValidators";
-
-import { Content } from "3d-tiles-tools";
 
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
@@ -137,7 +136,7 @@ export class ContentDataValidator {
     const contentDataType = await ContentDataTypeRegistry.findContentDataType(
       contentData
     );
-    const isTileset = contentDataType === "CONTENT_TYPE_TILESET";
+    const isTileset = contentDataType === ContentDataTypes.CONTENT_TYPE_TILESET;
 
     // If the content is an external tileset, then add its
     // resolved URI to the context as an "activeTilesetUri",
@@ -236,21 +235,17 @@ export class ContentDataValidator {
     contentData: ContentData,
     context: ValidationContext
   ) {
-    const magic = await contentData.getMagic();
-    const isGlb = magic.toString("ascii") === "glTF";
-    if (isGlb) {
-      context.addExtensionFound("3DTILES_content_gltf");
-    }
     const contentDataType = await ContentDataTypeRegistry.findContentDataType(
       contentData
     );
-    const isGltf = contentDataType === "CONTENT_TYPE_GLTF";
-    if (isGltf) {
+    if (contentDataType === ContentDataTypes.CONTENT_TYPE_GLB) {
       context.addExtensionFound("3DTILES_content_gltf");
-    }
-    const isProbably3tz = contentData.extension === ".3tz";
-    if (isProbably3tz) {
+    } else if (contentDataType === ContentDataTypes.CONTENT_TYPE_GLTF) {
+      context.addExtensionFound("3DTILES_content_gltf");
+    } else if (contentDataType === ContentDataTypes.CONTENT_TYPE_3TZ) {
       context.addExtensionFound("MAXAR_content_3tz");
+    } else if (contentDataType === ContentDataTypes.CONTENT_TYPE_GEOJSON) {
+      context.addExtensionFound("MAXAR_content_geojson");
     }
   }
 }
