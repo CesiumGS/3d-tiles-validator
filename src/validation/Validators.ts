@@ -478,23 +478,6 @@ export class Validators {
       );
     }
 
-    // Register an empty validator for NGA_gpm
-    {
-      const emptyValidator = Validators.createEmptyValidator();
-      const override = false;
-      ExtendedObjectsValidators.register("NGA_gpm", emptyValidator, override);
-    }
-
-    // Register an empty validator for MAXAR_content_3tz
-    {
-      const emptyValidator = Validators.createEmptyValidator();
-      const override = false;
-      ExtendedObjectsValidators.register(
-        "MAXAR_content_3tz",
-        emptyValidator,
-        override
-      );
-    }
     // Register an empty validator for MAXAR_content_geojson
     {
       const emptyValidator = Validators.createEmptyValidator();
@@ -505,6 +488,7 @@ export class Validators {
         override
       );
     }
+
     // Register an empty validator for MAXAR_extent
     {
       const emptyValidator = Validators.createEmptyValidator();
@@ -515,6 +499,7 @@ export class Validators {
         override
       );
     }
+
     // Register an empty validator for MAXAR_grid
     {
       const emptyValidator = Validators.createEmptyValidator();
@@ -525,6 +510,7 @@ export class Validators {
         override
       );
     }
+
     // Register an empty validator for VRICON_class
     {
       const emptyValidator = Validators.createEmptyValidator();
@@ -535,6 +521,7 @@ export class Validators {
         override
       );
     }
+
     // Register an empty validator for VRICON_grid
     {
       const emptyValidator = Validators.createEmptyValidator();
