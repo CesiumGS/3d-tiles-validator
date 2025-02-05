@@ -1,0 +1,89 @@
+{
+  "extras" : {
+    "info": {
+      "note": "The VRICON_class example has been taken from the specification README.md"
+    }
+  },
+  "extensionsUsed": [
+    "VRICON_class"
+  ],
+  "extensions": {
+    "VRICON_class": {
+      "geometry": [
+      {
+        "name": "dsm",
+        "class": 1
+      }
+      ],
+      "texture": [
+      {
+        "name": "r3dm::cdm_difference",
+        "class": 18
+      },
+      {
+        "name": "r3dm::date_avg",
+        "class": 98
+      },
+      {
+        "name": "r3dm::date_first",
+        "class": 96
+      },
+      {
+        "name": "r3dm::date_last",
+        "class": 97
+      },
+      {
+        "name": "r3dm::image_count",
+        "class": 32
+      },
+      {
+        "name": "r3dm::ndvi",
+        "class": 2314
+      },
+      {
+        "name": "r3dm::ndvi_cnt",
+        "class": 2317
+      },
+      {
+        "name": "r3dm::ndvi_max",
+        "class": 2315
+      },
+      {
+        "name": "r3dm::ndvi_min",
+        "class": 2316
+      },
+      {
+        "name": "r3dm::security",
+        "class": 48
+      },
+      {
+        "name": "r3dm::uncertainty_ce90",
+        "class": 49
+      },
+      {
+        "name": "r3dm::uncertainty_le90",
+        "class": 50
+      },
+      {
+        "name": "r3dm::universal_mix",
+        "class": 86
+      },
+      {
+        "name": "texture",
+        "class": 1
+      }
+      ]
+    } 
+  },
+  "asset" : {
+    "version" : "1.1"
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "refine": "REPLACE",
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0
+  }
+}
