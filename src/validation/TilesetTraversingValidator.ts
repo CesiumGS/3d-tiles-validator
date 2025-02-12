@@ -99,7 +99,7 @@ export class TilesetTraversingValidator {
       );
     } catch (error) {
       // There may be different kinds of errors that are thrown
-      // during the traveral of the tileset and its validation.
+      // during the traversal of the tileset and its validation.
       // An `ImplicitTilingError` indicates that an implicit
       // tileset was invalid (e.g. a missing subtree file or
       // one of its buffers). The `ImplicitTilingError` is
