@@ -16,6 +16,8 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { ValidationOptionChecks } from "./ValidationOptionChecks";
 import { ValidationIssueFilters } from "./ValidationIssueFilters";
 import { ValidationIssueSeverity } from "./ValidationIssueSeverity";
+import { ValidationResult } from "./ValidationResult";
+import { Validator } from "./Validator";
 
 /**
  * A class for validation of the data that is pointed to by a `content.uri`.
@@ -137,27 +139,63 @@ export class ContentDataValidator {
       contentData
     );
     const isTileset = contentDataType === ContentDataTypes.CONTENT_TYPE_TILESET;
+    const is3tz = contentDataType === ContentDataTypes.CONTENT_TYPE_3TZ;
 
-    // If the content is an external tileset, then add its
-    // resolved URI to the context as an "activeTilesetUri",
-    // to detect cycles
-    const resolvedContentUri = context.resolveUri(contentUri);
     if (isTileset) {
-      if (context.isActiveTilesetUri(resolvedContentUri)) {
-        const message = `External tileset content ${contentUri} creates a cycle`;
-        const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
-          contentPath,
-          message
-        );
-        context.addIssue(issue);
-        return false;
-      }
-      context.addActiveTilesetUri(resolvedContentUri);
+      const result = await ContentDataValidator.validateExternalTilesetContent(
+        contentPath,
+        contentUri,
+        contentData,
+        dataValidator,
+        context
+      );
+      return result;
     }
+    const result = await ContentDataValidator.validateSimpleContent(
+      contentUri,
+      contentData,
+      dataValidator,
+      is3tz,
+      context
+    );
+    return result;
+  }
+
+  /**
+   * Implementation of `validateContentDataInternal` for the case that
+   * the content is an external tileset.
+   *
+   * @param contentPath - The path for the `ValidationIssue` instances.
+   * @param contentUri - The URI of the content
+   * @param context - The `ValidationContext`
+   * @param contentData - The content data
+   * @param dataValidator - The validator for the content data
+   * @returns A promise that resolves when the validation is finished
+   */
+  private static async validateExternalTilesetContent(
+    contentPath: string,
+    contentUri: string,
+    contentData: ContentData,
+    dataValidator: Validator<ContentData>,
+    context: ValidationContext
+  ): Promise<boolean> {
+    // Add the resolved URI of the external tileset to the context as
+    // an "activeTilesetUri", to detect cycles
+    const resolvedTilesetContentUri = context.resolveUri(contentUri);
+    if (context.isActiveTilesetUri(resolvedTilesetContentUri)) {
+      const message = `External tileset content ${contentUri} creates a cycle`;
+      const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
+        contentPath,
+        message
+      );
+      context.addIssue(issue);
+      return false;
+    }
+    context.addActiveTilesetUri(resolvedTilesetContentUri);
 
     // Create a new context to collect the issues that are found in
-    // the data. If there are issues, then they will be stored as
-    // the 'causes' of a single content validation issue.
+    // the external tileset. If there are issues, then they will be
+    // stored as the 'causes' of a single content validation issue.
     const dirName = paths.dirname(contentData.uri);
     const derivedContext = context.deriveFromUri(dirName);
     const result = await dataValidator.validateObject(
@@ -167,57 +205,111 @@ export class ContentDataValidator {
     );
     const derivedResult = derivedContext.getResult();
 
-    // Add all extensions that have been found in the content
-    // to the current context. They also have to appear in
-    // the 'extensionsUsed' of the containing tileset.
+    // Add all extensions that have been found in the external
+    // tileset to the current context. They also have to appear
+    // in the 'extensionsUsed' of the containing tileset.
     const derivedExtensionsFound = derivedContext.getExtensionsFound();
     for (const derivedExtensionFound of derivedExtensionsFound) {
       context.addExtensionFound(derivedExtensionFound);
     }
 
-    if (isTileset) {
-      const issue = ContentValidationIssues.createForExternalTileset(
-        contentUri,
-        derivedResult
-      );
-      if (issue) {
-        context.addIssue(issue);
-      }
-    } else {
-      const includedSeverities: ValidationIssueSeverity[] = [];
-      if (
-        options.contentValidationIssueSeverity == ValidationIssueSeverity.ERROR
-      ) {
-        includedSeverities.push(ValidationIssueSeverity.ERROR);
-      } else if (
-        options.contentValidationIssueSeverity ==
-        ValidationIssueSeverity.WARNING
-      ) {
-        includedSeverities.push(ValidationIssueSeverity.WARNING);
-        includedSeverities.push(ValidationIssueSeverity.ERROR);
-      } else {
-        includedSeverities.push(ValidationIssueSeverity.INFO);
-        includedSeverities.push(ValidationIssueSeverity.WARNING);
-        includedSeverities.push(ValidationIssueSeverity.ERROR);
-      }
-      const filter = ValidationIssueFilters.byIncludedSeverities(
-        ...includedSeverities
-      );
-      const filteredDerivedResult = derivedResult.filter(filter);
-      const issue = ContentValidationIssues.createForContent(
-        contentUri,
-        filteredDerivedResult
-      );
-      if (issue) {
-        context.addIssue(issue);
-      }
+    const issue = ContentValidationIssues.createForExternalTileset(
+      contentUri,
+      derivedResult
+    );
+    if (issue) {
+      context.addIssue(issue);
     }
 
-    if (isTileset) {
-      context.removeActiveTilesetUri(resolvedContentUri);
-    }
+    context.removeActiveTilesetUri(resolvedTilesetContentUri);
 
     return result;
+  }
+
+  /**
+   * Implementation of `validateContentDataInternal` for the case that
+   * the content is NOT an external tileset.
+   *
+   * @param contentUri - The URI of the content
+   * @param context - The `ValidationContext`
+   * @param contentData - The content data
+   * @param dataValidator - The validator for the content data
+   * @param is3tz - Whether the content is a 3TZ package
+   * @returns A promise that resolves when the validation is finished
+   */
+  private static async validateSimpleContent(
+    contentUri: string,
+    contentData: ContentData,
+    dataValidator: Validator<ContentData>,
+    is3tz: boolean,
+    context: ValidationContext
+  ): Promise<boolean> {
+    // Special handling for 3TZ:
+    //
+    // The context usually refers to the directory that the content
+    // is contained in (for example, a URI like `../images/image.png`
+    // that is used in a glTF file like `example/directory/file.gltf`
+    // has to be resolved to `example/images/image.png`).
+    //
+    // But for 3TZ, it has to determine the absolute (!) path from
+    // the content URI to even be able to open the 3TZ (because 3TZ
+    // can only be a file in the local file system), and there are no
+    // resources to be resolved FROM the 3TZ that are NOT part of
+    // the 3TZ.
+    let dirName = ".";
+    if (!is3tz) {
+      dirName = paths.dirname(contentData.uri);
+    }
+    const derivedContext = context.deriveFromUri(dirName);
+    const result = await dataValidator.validateObject(
+      contentUri,
+      contentData,
+      derivedContext
+    );
+    const derivedResult = derivedContext.getResult();
+    const options = context.getOptions();
+    const filteredDerivedResult = ContentDataValidator.filterResult(
+      derivedResult,
+      options.contentValidationIssueSeverity
+    );
+    const issue = ContentValidationIssues.createForContent(
+      contentUri,
+      filteredDerivedResult
+    );
+    if (issue) {
+      context.addIssue(issue);
+    }
+    return result;
+  }
+
+  /**
+   * Filter the given result, and return a new result that only contains
+   * validation issues that are at least as severe as the given severity.
+   *
+   * @param result - The validation result
+   * @param severity - The highest validation issue severity that should be included
+   * @returns The filtered result
+   */
+  private static filterResult(
+    result: ValidationResult,
+    severity: ValidationIssueSeverity
+  ) {
+    const includedSeverities: ValidationIssueSeverity[] = [];
+    if (severity == ValidationIssueSeverity.ERROR) {
+      includedSeverities.push(ValidationIssueSeverity.ERROR);
+    } else if (severity == ValidationIssueSeverity.WARNING) {
+      includedSeverities.push(ValidationIssueSeverity.WARNING);
+      includedSeverities.push(ValidationIssueSeverity.ERROR);
+    } else {
+      includedSeverities.push(ValidationIssueSeverity.INFO);
+      includedSeverities.push(ValidationIssueSeverity.WARNING);
+      includedSeverities.push(ValidationIssueSeverity.ERROR);
+    }
+    const filter = ValidationIssueFilters.byIncludedSeverities(
+      ...includedSeverities
+    );
+    const filteredResult = result.filter(filter);
+    return filteredResult;
   }
 
   /**

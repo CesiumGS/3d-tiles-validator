@@ -49,7 +49,6 @@ export class TilesetPackageValidator implements Validator<string> {
     resolvedUri: string,
     context: ValidationContext
   ): Promise<boolean> {
-    //console.log("TilesetPackageValidator resolvedUri is " + resolvedUri);
     const isContent = true;
     const result = TilesetPackageValidator.validatePackageFileInternal(
       resolvedUri,
@@ -94,6 +93,42 @@ export class TilesetPackageValidator implements Validator<string> {
    * a valid tileset.
    */
   private static async validatePackageFileInternal(
+    uri: string,
+    isContent: boolean,
+    context: ValidationContext
+  ): Promise<boolean> {
+    try {
+      const result = await TilesetPackageValidator.validatePackageFileUnchecked(
+        uri,
+        isContent,
+        context
+      );
+      return result;
+    } catch (error) {
+      const message = `Failed to open ${uri}. Input file is invalid.`;
+      const issue = IoValidationIssues.IO_ERROR(uri, message);
+      context.addIssue(issue);
+      return false;
+    }
+  }
+
+  /**
+   * Validates the tileset that is contained in the package that is
+   * pointed to by the given URI (assuming that it is a file in
+   * the local file system).
+   *
+   * @param uri - The full URI of the package file
+   * @param isContent - Whether the given package was found as a tile
+   * content. If this is the case, then the issues that are found
+   * in the package will be summarized in a `CONTENT_VALIDATION_`
+   * issue. Otherwise, they will be added directly to the given context.
+   * @param context - The `ValidationContext`
+   * @returns A promise that indicates whether the package contained
+   * a valid tileset.
+   * @throws Error if opening the tileset source causes an unhandled
+   * error.
+   */
+  private static async validatePackageFileUnchecked(
     uri: string,
     isContent: boolean,
     context: ValidationContext
