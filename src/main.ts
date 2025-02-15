@@ -116,7 +116,7 @@ async function main() {
   if (argv.optionsFile) {
     config.options = await readOptionsFile(argv.optionsFile);
   }
-  ValidatorMain.performValidation(args, config);
+  await ValidatorMain.performValidation(args, config);
 }
 
-main();
+void main();

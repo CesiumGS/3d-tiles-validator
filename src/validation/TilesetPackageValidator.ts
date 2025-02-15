@@ -150,14 +150,14 @@ export class TilesetPackageValidator implements Validator<string> {
       context.addIssue(issue);
       return true;
     }
-    tilesetSource.open(uri);
+    await tilesetSource.open(uri);
     const result = await TilesetPackageValidator.validatePackageInternal(
       uri,
       tilesetSource,
       isContent,
       context
     );
-    tilesetSource.close();
+    await tilesetSource.close();
     return result;
   }
 
