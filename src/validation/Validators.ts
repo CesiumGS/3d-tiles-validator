@@ -393,18 +393,18 @@ export class Validators {
   }
 
   /**
-   * Creates a `Validator` that only adds a `CONTENT_VALIDATION_WARNING`
+   * Creates a `Validator` that only adds a `CONTENT_VALIDATION_INFO`
    * with the given message to the given context when it is called.
    *
    * This is used for "dummy" validators that handle content data types
    * that are already anticipated (like VCTR or GEOM), but not validated
    * explicitly.
    *
-   * @param message - The message for the warning
+   * @param message - The message for the info
    * @returns The new validator
    * @internal
    */
-  static createContentValidationWarning(message: string): Validator<Buffer> {
+  static createContentValidationInfo(message: string): Validator<Buffer> {
     return {
       async validateObject(
         inputPath: string,
@@ -412,7 +412,7 @@ export class Validators {
         input: Buffer,
         context: ValidationContext
       ): Promise<boolean> {
-        const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
+        const issue = ContentValidationIssues.CONTENT_VALIDATION_INFO(
           inputPath,
           message
         );
