@@ -1,5 +1,6 @@
 import path from "path";
 import { defined } from "3d-tiles-tools";
+import { ImplicitTilings } from "3d-tiles-tools";
 import { ExplicitTraversedTile } from "3d-tiles-tools";
 
 import { ValidationContext } from "./ValidationContext";
@@ -157,7 +158,6 @@ export class TilesetTraversingValidator {
     // should cause the validation to fail with which message.
     // Maybe some of these validation steps should be pulled
     // out of "validateTile", or enabled/disabled via flags.
-
     if (traversedTile instanceof ExplicitTraversedTile) {
       const explicitPartIsValid =
         await TilesetTraversingValidator.validateExplicitTraversedTile(
@@ -237,21 +237,25 @@ export class TilesetTraversingValidator {
         return false;
       }
 
-      // If the tile is the root of a subtree, then
-      // validate the subtree data
-      const subtreeUri = traversedTile.getSubtreeUri();
-      if (defined(subtreeUri)) {
-        const subtreeRootValid =
-          await TilesetTraversingValidator.validateSubtreeRoot(
-            path,
-            implicitTiling,
-            subtreeUri,
-            validationState,
-            context
-          );
-        if (!subtreeRootValid) {
-          return false;
-        }
+      // Validate the subtree data that will be expected
+      // for the root of the implicit tileset
+      const rootCoordinates =
+        ImplicitTilings.createRootCoordinates(implicitTiling);
+      const subtreeUri = ImplicitTilings.substituteTemplateUri(
+        implicitTiling.subdivisionScheme,
+        implicitTiling.subtrees.uri,
+        rootCoordinates
+      );
+      const subtreeRootValid =
+        await TilesetTraversingValidator.validateSubtreeRoot(
+          path,
+          implicitTiling,
+          subtreeUri,
+          validationState,
+          context
+        );
+      if (!subtreeRootValid) {
+        return false;
       }
     }
 
@@ -355,7 +359,7 @@ export class TilesetTraversingValidator {
    * resolve the resulting data, and pass it to a `SubtreeValidator`.
    *
    * @param tilePath - The path for `ValidationIssue` instances
-   * @param implicitTiling - The `TileImpllicitTiling`
+   * @param implicitTiling - The `TileImplicitTiling`
    * @param subtreeUri - The subtree URI
    * @param validationState - The `ValidationState`
    * @param context - The `ValidationContext`
