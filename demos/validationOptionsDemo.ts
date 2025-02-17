@@ -1,3 +1,4 @@
+import { ContentDataTypes } from "3d-tiles-tools";
 import {
   Validators,
   ValidationOptions,
@@ -10,7 +11,7 @@ async function runWithIncluded() {
   const options = ValidationOptions.fromJson({
     validateContentData: true, // The default
     includeContentTypes: [
-      "CONTENT_TYPE_B3DM", // Explicitly included here
+      ContentDataTypes.CONTENT_TYPE_B3DM, // Explicitly included here
     ],
     excludeContentTypes: undefined, // The default
   });
@@ -30,7 +31,7 @@ async function runWithoutIncluded() {
   const options = ValidationOptions.fromJson({
     validateContentData: true, // The default
     includeContentTypes: [
-      //"CONTENT_TYPE_B3DM", // Not included here!
+      //ContentDataTypes.CONTENT_TYPE_B3DM, // Not included here!
     ],
     excludeContentTypes: undefined, // The default
   });
@@ -51,7 +52,7 @@ async function runWithExcluded() {
     validateContentData: true, // The default
     includeContentTypes: undefined, // The default
     excludeContentTypes: [
-      "CONTENT_TYPE_B3DM" // Explicitly excluded here
+      ContentDataTypes.CONTENT_TYPE_B3DM // Explicitly excluded here
     ]
   });
   const tilesetFile = "specs/data/tilesets/validTilesetWithInvalidB3dm.json";
@@ -71,7 +72,7 @@ async function runWithoutExcluded() {
     validateContentData: true, // The default
     includeContentTypes: undefined, // The default
     excludeContentTypes: [
-      // "CONTENT_TYPE_B3DM" // NOT Excluded here
+      // ContentDataTypes.CONTENT_TYPE_B3DM // NOT Excluded here
     ]
   });
   const tilesetFile = "specs/data/tilesets/validTilesetWithInvalidB3dm.json";

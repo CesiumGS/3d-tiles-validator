@@ -1,0 +1,51 @@
+{
+  "extras" : {
+    "info": {
+      "note": "The VRICON_grid is a legacy name for MAXAR_grid. The example here has been taken from the MAXAR_grid specification README.md"
+    }
+  },
+  "extensionsUsed": [
+    "VRICON_grid"
+  ],
+  "extensions": {
+    "VRICON_grid": {
+      "type": "quad",
+      "center": [3097202.3706942615, 500000.00000000122],
+      "size": [2088960.0, 2088960.0],
+      "srs": {
+        "referenceSystem": "ITRF2008",
+        "epoch": "2005.0",
+        "coordinateSystem": "UTM14N",
+        "elevation": "ELLIPSOID"
+      }
+    }    
+  },
+  "asset" : {
+    "version" : "1.1"
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "refine": "REPLACE",
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0,
+    "extensions": {
+      "VRICON_grid": {
+        "boundingBox": [
+          3425906.396465421,
+          500000.0000000012,
+          3546738.395635767,
+          694559.9877318252,
+          -581.1745009114966,
+          445.7444586344063
+        ],
+        "index": [
+          5,
+          4
+        ],
+        "level": 3
+      }      
+    }
+  }
+}

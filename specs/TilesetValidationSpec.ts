@@ -936,7 +936,30 @@ describe("Tileset validation", function () {
     expect(result.get(0).type).toEqual("CONTENT_VALIDATION_INFO");
   });
 
-  it("detects no issues in validTilesetWithInvalidI3dm", async function () {
+  it("detects no issues in validTilesetWithValid3tz", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithValid3tz.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects issues in validTilesetWith3tzWithError", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWith3tzWithError.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
+  });
+
+  it("detects issues in validTilesetWithInvalid3tz", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithInvalid3tz.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
+  });
+
+  it("detects issues in validTilesetWithInvalidI3dm", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/validTilesetWithInvalidI3dm.json"
     );
@@ -944,7 +967,7 @@ describe("Tileset validation", function () {
     expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
   });
 
-  it("detects no issues in validTilesetWithInvalidPnts", async function () {
+  it("detects issues in validTilesetWithInvalidPnts", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/validTilesetWithInvalidPnts.json"
     );
