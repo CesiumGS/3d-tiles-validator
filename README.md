@@ -133,6 +133,75 @@ The configuration can also contain an `options` object. This object summarizes t
 ```
 This will cause the validator to validate all JSON files in the specified directory, but only consider B3DM- and GLB tile content data during the validation.
 
+### Custom Metadata Semantics
+
+The [3D Metadata Specification](https://github.com/CesiumGS/3d-tiles/tree/main/specification/Metadata) allows for the definition of custom _semantics_ for metadata properties. The built-in semantics are described in the [3D Metadata Semantic Reference](https://github.com/CesiumGS/3d-tiles/tree/main/specification/Metadata/Semantics). For other semantics, the validator will by default generate a `METADATA_SEMANTIC_UNKNOWN` issue. 
+
+To avoid these warnings, clients can define their own semantics in a metadata schema file, so that they are taken into account during the validation process. Some details of this process might still change (see [`3d-tiles/issues/643`](https://github.com/CesiumGS/3d-tiles/issues/643) for a discussion). But the current state of the support of metadata semantics validation in the 3D Tiles Validator is described here.
+
+#### Metadata Semantics Schema
+
+A 'semantics schema' is a [3D Metadata Schema](https://github.com/CesiumGS/3d-tiles/tree/main/specification/Metadata#schema) file that describes the _semantics_ that may appear in another metadata schema. In a semantics schema, the property names are just the names of the semantics. For example, when a client wants to define a semantic for a class like `ExampleClass`, and this semantic has the name `EXAMPLE_SEMANTIC`, then this structure can be represented in a semantics schema file as follows:
+
+**`exampleSemanticsSchema.json`:**
+```json
+{
+  "id": "Example-Semantics-0.0.0",
+  "description": "A metadata schema where each class property has a name that represents one possible semantic of a metadata property, and that is used for validating semantics, by passing it in as one of the 'semanticSchemaFileNames' of the validation options",
+  "classes": {
+    "ExampleClassSemantics": {
+      "description": "A class where each property is a semantic for a property of the 'ExampleClass'",
+      "properties": {
+        "EXAMPLE_SEMANTIC": {
+          "name": "The 'EXAMPLE_SEMANTIC' structure",
+          "description": "The structure that a property must have so that it can have the 'EXAMPLE_SEMANTIC'",
+          "type": "SCALAR",
+          "componentType": "FLOAT32"
+        }
+      }
+    }
+  }
+}
+```
+
+> Note: 
+> 
+> This schema file contains elaborate names and descriptions. These are optional on a technical level. An equivalent schema file is
+> ```json
+> {
+>   "id": "Example-Semantics-0.0.0",
+>   "classes": {
+>     "ExampleClassSemantics": {
+>       "properties": {
+>         "EXAMPLE_SEMANTIC": {
+>           "type": "SCALAR",
+>           "componentType": "FLOAT32"
+>         }
+>       }
+>     }
+>   }
+> }
+> ```
+> But adding names and descriptions is strongly recommended for documentation purposes. 
+
+#### Metadata Semantics Schema Registration
+
+In order to include a 'semantics schema' in the validation process, the name of the schema file can be passed to the validator, as part of the validation options:
+
+**`exampleOptions.json`:**
+```json
+{
+  "semanticSchemaFileNames": ["exampleSemanticsSchema.json"]
+}
+```
+
+This options file can then be passed to the validator:
+```
+npx 3d-tiles-validator --optionsFile exampleOptions.json -t ./data/exampleTileset.json
+```
+
+The validator will then validate the semantics that are defined in the tileset JSON against the structure that was defined in the semantics schema.
+
 
 
 ## Developer Setup
