@@ -82,7 +82,7 @@ export class ContentDataValidators {
 
     // Certain content types are known to be encountered,
     // but are not (yet) validated. These can either be
-    // ignored, or cause a warning. In the future, this
+    // ignored, or cause an info. In the future, this
     // should be configurable, probably even on a per-type
     // basis, via the command line or a config file
     const ignoreUnhandledContentTypes = false;
@@ -90,13 +90,13 @@ export class ContentDataValidators {
     let vctrValidator = Validators.createEmptyValidator();
     let geojsonValidator = Validators.createEmptyValidator();
     if (!ignoreUnhandledContentTypes) {
-      geomValidator = Validators.createContentValidationWarning(
+      geomValidator = Validators.createContentValidationInfo(
         "Skipping 'geom' validation"
       );
-      vctrValidator = Validators.createContentValidationWarning(
+      vctrValidator = Validators.createContentValidationInfo(
         "Skipping 'vctr' validation"
       );
-      geojsonValidator = Validators.createContentValidationWarning(
+      geojsonValidator = Validators.createContentValidationInfo(
         "Skipping 'geojson' validation"
       );
     }

@@ -87,7 +87,7 @@ npx 3d-tiles-validator --optionsFile exampleOptions.json
 The options represent the properties of the `ValidationOptions` class. For example, using the following `exampleOptions.json` file, then the validator will only validate the tileset JSON structure, but _no_ tile content data:
 ```JSON
 {
-  "validateContentData": false,
+  "validateContentData": false
 }
 ```
 The following options will cause the validator to _include_ B3DM- and GLB files in the validation process, but ignore all other content types:
