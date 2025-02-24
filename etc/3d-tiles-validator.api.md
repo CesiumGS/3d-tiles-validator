@@ -56,6 +56,8 @@ export class ValidationOptions {
     static fromJson(json: any): ValidationOptions;
     get includeContentTypes(): string[] | undefined;
     set includeContentTypes(value: string[] | undefined);
+    get semanticSchemaFileNames(): string[] | undefined;
+    set semanticSchemaFileNames(value: string[] | undefined);
     get validateContentData(): boolean;
     set validateContentData(value: boolean);
 }
@@ -86,7 +88,7 @@ export class ValidationResult {
 // @beta
 export class Validators {
     // @internal
-    static createContentValidationWarning(message: string): Validator<Buffer>;
+    static createContentValidationInfo(message: string): Validator<Buffer>;
     // Warning: (ae-forgotten-export) The symbol "SchemaValidator" needs to be exported by the entry point index.d.ts
     //
     // @internal
