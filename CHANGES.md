@@ -1,5 +1,5 @@
 
-Version 0.6.0 - yyyy-mm-dd
+Version 0.6.0 - 2025-02-24
 
 - Fixed a bug where a `BOUNDING_VOLUMES_INCONSISTENT` error was reported when a tile defined a `transform` [#328](https://github.com/CesiumGS/3d-tiles-validator/pull/328)
 - Allow users to provide schema files for validating custom metadata semantics [#329](https://github.com/CesiumGS/3d-tiles-validator/pull/329)
@@ -10,7 +10,7 @@ Version 0.6.0 - yyyy-mm-dd
 - Updated `3d-tiles-tools` version to `0.5.0`
   - Minor updates for the new `async` API that was introduced via [`3d-tiles-tools/pull/167`](https://github.com/CesiumGS/3d-tiles-tools/pull/167)
   - Includes a bugfix from [`3d-tiles-tools/pull/173](https://github.com/CesiumGS/3d-tiles-tools/pull/173) where 3TZ files that contained certain local ZIP file headers caused an internal error in the validator
-
+- Changed the severity of issues that have been generated for content types that are known but not validated (like `VCTR`, `GEOM`, and `GEOJSON`) from `WARNING` to `INFO` [#332](https://github.com/CesiumGS/3d-tiles-validator/pull/332)
 
 Version 0.5.1 - 2024-12-05
 
