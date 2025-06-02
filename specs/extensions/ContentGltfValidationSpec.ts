@@ -112,6 +112,13 @@ describe("Tileset 3DTILES_content_gltf extension validation", function () {
     expect(result.length).toEqual(0);
   });
 
+  it("detects no issues in validTileset_1_0_withExtensionObject", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/contentGltf/validTileset_1_0_withExtensionObject.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
   it("detects no issues in validTileset_1_1_withContentGltfUsedAndFound", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/contentGltf/validTileset_1_1_withContentGltfUsedAndFound.json"
