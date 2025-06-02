@@ -337,6 +337,28 @@ export class SemanticValidationIssues {
   }
 
   /**
+   * Indicates that a certain extension would be required
+   * to be listed in the `extensionsRequired`, but was not
+   * declared there.
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @param extensionName - The extension name
+   * @returns The `ValidationIssue`
+   */
+  static EXTENSION_REQUIRED_BUT_NOT_DECLARED(
+    path: string,
+    extensionName: string
+  ) {
+    const type = "EXTENSION_REQUIRED_BUT_NOT_DECLARED";
+    const severity = ValidationIssueSeverity.ERROR;
+    const message =
+      `The extension '${extensionName}' is required, but ` +
+      `was not declared in 'extensionsRequired'`;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  /**
    * Indicates that a certain extension was found, but was not
    * listed in the 'extensionsUsed' of a tileset.
    *

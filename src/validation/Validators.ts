@@ -17,6 +17,7 @@ import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
 import { TilesetPackageValidator } from "./TilesetPackageValidator";
 import { ContentDataValidators } from "./ContentDataValidators";
 import { ValidatedElement } from "./ValidatedElement";
+import { ValidationContexts } from "./ValidationContexts";
 
 import { SchemaValidator } from "./metadata/SchemaValidator";
 
@@ -25,7 +26,7 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 import { BoundingVolumeS2Validator } from "./extensions/BoundingVolumeS2Validator";
 import { NgaGpmValidator } from "./extensions/NgaGpmValidator";
-import { ValidationContexts } from "./ValidationContexts";
+import { ContentGltfValidator } from "./extensions/ContentGltfValidator";
 
 /**
  * Utility methods related to `Validator` instances.
@@ -465,15 +466,13 @@ export class Validators {
       );
     }
 
-    // Register an empty validator for 3DTILES_content_gltf
-    // (The extension does not have any properties to be
-    // validated)
+    // Register the validator for 3DTILES_content_gltf
     {
-      const emptyValidator = Validators.createEmptyValidator();
+      const contentGltfValidator = new ContentGltfValidator();
       const override = false;
       ExtendedObjectsValidators.register(
         "3DTILES_content_gltf",
-        emptyValidator,
+        contentGltfValidator,
         override
       );
     }
