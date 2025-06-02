@@ -10,6 +10,8 @@ import { AssetValidator } from "./AssetValidator";
 import { TilesetTraversingValidator } from "./TilesetTraversingValidator";
 import { RootPropertyValidator } from "./RootPropertyValidator";
 import { ExtendedObjectsValidators } from "./ExtendedObjectsValidators";
+import { ValidatedElement } from "./ValidatedElement";
+import { ExtensionsDeclarationsValidator } from "./ExtensionsDeclarationsValidator";
 
 import { SchemaDefinitionValidator } from "./metadata/SchemaDefinitionValidator";
 import { MetadataEntityValidator } from "./metadata/MetadataEntityValidator";
@@ -21,7 +23,6 @@ import { Group } from "3d-tiles-tools";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
-import { ValidatedElement } from "./ValidatedElement";
 
 /**
  * A class that can validate a 3D Tiles tileset.
@@ -304,89 +305,30 @@ export class TilesetValidator implements Validator<Tileset> {
   ): boolean {
     let result = true;
 
-    // These are the actual sets of unique string values that
-    // are found in 'extensionsUsed' and 'extensionsRequired'
-    const actualExtensionsUsed = new Set<string>();
-    const actualExtensionsRequired = new Set<string>();
-
-    // Validate the extensionsUsed
     const extensionsUsed = tileset.extensionsUsed;
     const extensionsUsedPath = path + "/extensionsUsed";
-    if (defined(extensionsUsed)) {
-      // The extensionsUsed MUST be an array of strings with
-      // a length of at least 1
-      if (
-        !BasicValidator.validateArray(
-          extensionsUsedPath,
-          "extensionsUsed",
-          extensionsUsed,
-          1,
-          undefined,
-          "string",
-          context
-        )
-      ) {
-        result = false;
-      } else {
-        extensionsUsed.forEach((e) => actualExtensionsUsed.add(e));
 
-        // The elements in extensionsUsed MUST be unique
-        const elementsUnique = BasicValidator.validateArrayElementsUnique(
-          extensionsUsedPath,
-          "extensionsUsed",
-          extensionsUsed,
-          context
-        );
-        if (!elementsUnique) {
-          result = false;
-        }
-      }
-    }
-    // Validate the extensionsRequired
     const extensionsRequired = tileset.extensionsRequired;
     const extensionsRequiredPath = path + "/extensionsRequired";
-    if (defined(extensionsRequired)) {
-      // The extensionsRequired MUST be an array of strings with
-      // a length of at least 1
-      if (
-        !BasicValidator.validateArray(
-          extensionsRequiredPath,
-          "extensionsRequired",
-          extensionsRequired,
-          1,
-          undefined,
-          "string",
-          context
-        )
-      ) {
-        result = false;
-      } else {
-        extensionsRequired.forEach((e) => actualExtensionsRequired.add(e));
 
-        // The elements in extensionsRequired MUST be unique
-        const elementsUnique = BasicValidator.validateArrayElementsUnique(
-          extensionsRequiredPath,
-          "extensionsRequired",
-          extensionsRequired,
-          context
-        );
-        if (!elementsUnique) {
-          result = false;
-        }
-      }
+    if (
+      !ExtensionsDeclarationsValidator.validateExtensionDeclarationConsistency(
+        path,
+        extensionsUsed,
+        extensionsRequired,
+        context
+      )
+    ) {
+      return false;
     }
 
-    // Each extension in extensionsRequired MUST also
-    // appear in extensionsUsed.
-    for (const extensionName of actualExtensionsRequired) {
-      if (!actualExtensionsUsed.has(extensionName)) {
-        const issue = SemanticValidationIssues.EXTENSION_REQUIRED_BUT_NOT_USED(
-          extensionsUsedPath,
-          extensionName
-        );
-        context.addIssue(issue);
-        result = false;
-      }
+    const actualExtensionsUsed = new Set<string>();
+    if (defined(extensionsUsed)) {
+      extensionsUsed.forEach((e) => actualExtensionsUsed.add(e));
+    }
+    const actualExtensionsRequired = new Set<string>();
+    if (defined(extensionsRequired)) {
+      extensionsRequired.forEach((e) => actualExtensionsRequired.add(e));
     }
 
     // Each extension that is found during the validation
@@ -395,10 +337,45 @@ export class TilesetValidator implements Validator<Tileset> {
     // in the 'extensionsUsed'
     const actualExtensionsFound = context.getExtensionsFound();
 
-    // TODO: A cleaner solution has to be found for this. See
-    // https://github.com/CesiumGS/3d-tiles-validator/issues/231
+    // Special handling for the "3DTILES_content_gltf" extension:
+    // (also see https://github.com/CesiumGS/3d-tiles-validator/issues/231)
+
+    // When the tileset version is 1.0, and the extension was
+    // declared in 'extensionsUsed', then it must also be
+    // declared in 'extensionsRequired'
+    if (tileset.asset?.version === "1.0") {
+      if (
+        actualExtensionsUsed.has("3DTILES_content_gltf") &&
+        !actualExtensionsRequired.has("3DTILES_content_gltf")
+      ) {
+        const issue =
+          SemanticValidationIssues.EXTENSION_REQUIRED_BUT_NOT_DECLARED(
+            extensionsRequiredPath,
+            "3DTILES_content_gltf"
+          );
+        context.addIssue(issue);
+        result = false;
+      }
+    }
+
+    // The 3DTILES_content_gltf extension can end up in the
+    // "actualExtensionsFound" in two ways:
+    // - because an actual glTF content was found.
+    // - because a tileset.extensions["3DTILES_content_gltf"] was found
+    // Only the latter is relevant for the further checks here.
+    // So remove this from the actualExtensionsFound when it was
+    // only found as a tile content.
     if (tileset.asset?.version === "1.1") {
-      actualExtensionsFound.delete("3DTILES_content_gltf");
+      const tilesetExtensions = tileset.extensions;
+      if (!defined(tilesetExtensions)) {
+        actualExtensionsFound.delete("3DTILES_content_gltf");
+      } else {
+        const tilesetContentGltfExtensionObject =
+          tilesetExtensions["3DTILES_content_gltf"];
+        if (!defined(tilesetContentGltfExtensionObject)) {
+          actualExtensionsFound.delete("3DTILES_content_gltf");
+        }
+      }
     }
 
     for (const extensionName of actualExtensionsFound) {
