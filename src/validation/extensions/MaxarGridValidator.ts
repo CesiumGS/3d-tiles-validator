@@ -3,6 +3,7 @@ import { defined } from "3d-tiles-tools";
 import { Validator } from "../Validator";
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
+import { StructureValidator } from "../StructureValidator";
 import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
 
 /**
@@ -230,43 +231,15 @@ export class MaxarGridValidator implements Validator<any> {
     maxar_grid: any,
     context: ValidationContext
   ): boolean {
-    let result = true;
-
     // For s2/geod types, center, size, and srs properties must NOT be present
-    if (defined(maxar_grid.center)) {
-      const issue = JsonValidationIssues.TYPE_UNEXPECTED(
-        path + "/center",
-        "center",
-        "undefined",
-        "defined"
-      );
-      context.addIssue(issue);
-      result = false;
-    }
-
-    if (defined(maxar_grid.size)) {
-      const issue = JsonValidationIssues.TYPE_UNEXPECTED(
-        path + "/size",
-        "size",
-        "undefined",
-        "defined"
-      );
-      context.addIssue(issue);
-      result = false;
-    }
-
-    if (defined(maxar_grid.srs)) {
-      const issue = JsonValidationIssues.TYPE_UNEXPECTED(
-        path + "/srs",
-        "srs",
-        "undefined",
-        "defined"
-      );
-      context.addIssue(issue);
-      result = false;
-    }
-
-    return result;
+    const disallowedProperties = ["center", "size", "srs"];
+    return StructureValidator.validateDisallowedProperties(
+      path,
+      "MAXAR_grid with type=s2 or type=geod",
+      maxar_grid,
+      disallowedProperties,
+      context
+    );
   }
 
   /**
@@ -503,24 +476,58 @@ export class MaxarGridValidator implements Validator<any> {
       )
     ) {
       result = false;
-    }
-
-    // Validate level property (required)
-    const level = maxar_grid.level;
-    const levelPath = path + "/level";
-    if (!BasicValidator.validateInteger(levelPath, "level", level, context)) {
-      result = false;
     } else {
-      // Level must be >= 0
-      if (level < 0) {
-        const message = `The 'level' property must be >= 0, but is ${level}`;
+      // Semantic validation: xmin <= xmax, ymin <= ymax, zmin <= zmax
+      // boundingBox format: [xmin, ymin, xmax, ymax, zmin, zmax]
+      const [xmin, ymin, xmax, ymax, zmin, zmax] = boundingBox;
+
+      if (xmin > xmax) {
+        const message = `The boundingBox xmin (${xmin}) must be <= xmax (${xmax})`;
         const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(
-          levelPath,
+          boundingBoxPath,
           message
         );
         context.addIssue(issue);
         result = false;
       }
+
+      if (ymin > ymax) {
+        const message = `The boundingBox ymin (${ymin}) must be <= ymax (${ymax})`;
+        const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(
+          boundingBoxPath,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      }
+
+      if (zmin > zmax) {
+        const message = `The boundingBox zmin (${zmin}) must be <= zmax (${zmax})`;
+        const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(
+          boundingBoxPath,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      }
+    }
+
+    // Validate level property (required)
+    const level = maxar_grid.level;
+    const levelPath = path + "/level";
+    if (
+      !BasicValidator.validateIntegerRange(
+        levelPath,
+        "level",
+        level,
+        0,
+        true,
+        undefined,
+        false,
+        context
+      )
+    ) {
+      result = false;
     }
 
     // Validate index property (required)
@@ -543,13 +550,18 @@ export class MaxarGridValidator implements Validator<any> {
       for (let i = 0; i < index.length; i++) {
         const indexValue = index[i];
         const indexValuePath = indexPath + "/" + i;
-        if (!Number.isInteger(indexValue) || indexValue < 0) {
-          const message = `The 'index[${i}]' property must be an integer >= 0, but is ${indexValue}`;
-          const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(
+        if (
+          !BasicValidator.validateIntegerRange(
             indexValuePath,
-            message
-          );
-          context.addIssue(issue);
+            `index[${i}]`,
+            indexValue,
+            0,
+            true,
+            undefined,
+            false,
+            context
+          )
+        ) {
           result = false;
         }
       }
@@ -560,44 +572,37 @@ export class MaxarGridValidator implements Validator<any> {
       const metersPerPixel = maxar_grid.metersPerPixel;
       const metersPerPixelPath = path + "/metersPerPixel";
       if (
-        !BasicValidator.validateNumber(
+        !BasicValidator.validateNumberRange(
           metersPerPixelPath,
           "metersPerPixel",
           metersPerPixel,
+          0,
+          true,
+          undefined,
+          false,
           context
         )
       ) {
         result = false;
-      } else {
-        // metersPerPixel must be >= 0
-        if (metersPerPixel < 0) {
-          const message = `The 'metersPerPixel' property must be >= 0, but is ${metersPerPixel}`;
-          const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(
-            metersPerPixelPath,
-            message
-          );
-          context.addIssue(issue);
-          result = false;
-        }
       }
     }
 
     if (defined(maxar_grid.face)) {
       const face = maxar_grid.face;
       const facePath = path + "/face";
-      if (!BasicValidator.validateInteger(facePath, "face", face, context)) {
+      if (
+        !BasicValidator.validateIntegerRange(
+          facePath,
+          "face",
+          face,
+          0,
+          true,
+          5,
+          true,
+          context
+        )
+      ) {
         result = false;
-      } else {
-        // face must be between 0-5
-        if (face < 0 || face > 5) {
-          const message = `The 'face' property must be between 0-5, but is ${face}`;
-          const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(
-            facePath,
-            message
-          );
-          context.addIssue(issue);
-          result = false;
-        }
       }
     }
 
