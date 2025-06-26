@@ -1,0 +1,54 @@
+{
+  "extensionsUsed": [
+    "MAXAR_content_geojson"
+  ],
+  "extensionsRequired": [
+    "MAXAR_content_geojson"
+  ],  
+  "asset" : {
+    "version" : "1.1"
+  },
+  "schema": {
+    "id": "EXAMPLE_SCHEMA_ID",
+    "classes": {
+      "tileset": {
+        "properties": {
+          "content_type": {
+            "type": "STRING"
+          },
+          "name": {
+            "type": "STRING"
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "class": "tileset",
+    "properties": {
+      "content_type": "VECTOR",
+      "name": "Test Layer"
+    },
+    "extensions": {
+      "MAXAR_content_geojson": {
+        "propertiesSchemaUri": 123
+      }
+    }
+  },  
+  "geometricError" : 2.0,
+  "root" : {
+    "content": {
+      "uri": "lineString.geojson",
+      "extensions": {
+        "MAXAR_content_geojson": {
+          "propertiesSchemaUri": 123
+        }
+      }
+    },
+    "refine": "REPLACE",
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0
+  }
+}

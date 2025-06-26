@@ -27,6 +27,7 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { BoundingVolumeS2Validator } from "./extensions/BoundingVolumeS2Validator";
 import { NgaGpmValidator } from "./extensions/NgaGpmValidator";
 import { ContentGltfValidator } from "./extensions/ContentGltfValidator";
+import { MaxarContentGeojsonValidator } from "./extensions/MaxarContentGeojsonValidator";
 
 /**
  * Utility methods related to `Validator` instances.
@@ -477,13 +478,13 @@ export class Validators {
       );
     }
 
-    // Register an empty validator for MAXAR_content_geojson
+    // Register the validator for MAXAR_content_geojson
     {
-      const emptyValidator = Validators.createEmptyValidator();
+      const maxarContentGeojsonValidator = new MaxarContentGeojsonValidator();
       const override = false;
       ExtendedObjectsValidators.register(
         "MAXAR_content_geojson",
-        emptyValidator,
+        maxarContentGeojsonValidator,
         override
       );
     }

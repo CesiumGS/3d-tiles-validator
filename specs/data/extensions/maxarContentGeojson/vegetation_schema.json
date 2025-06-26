@@ -1,0 +1,31 @@
+{
+  "name": "Vegetation Properties Schema",
+  "semantic": "vegetation_data",
+  "geometry": {
+    "type": "Polygon",
+    "dimensions": 2
+  },
+  "properties": [
+    {
+      "id": "vegetationId",
+      "type": "Integer",
+      "description": "Unique identifier for vegetation",
+      "required": true
+    },
+    {
+      "id": "species",
+      "type": "String",
+      "description": "Species of vegetation",
+      "required": true
+    },
+    {
+      "id": "height",
+      "type": "Float",
+      "description": "Height in meters",
+      "unit": "meters",
+      "min": 0.0,
+      "max": 100.0,
+      "required": false
+    }
+  ]
+}
