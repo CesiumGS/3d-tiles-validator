@@ -1,0 +1,79 @@
+{
+  "name": "Invalid Default Types Schema",
+  "semantic": "test_data",
+  "geometry": {
+    "type": "Point",
+    "dimensions": 2
+  },
+  "properties": [
+    {
+      "id": "invalidStringDefault",
+      "type": "String",
+      "description": "String property with number default",
+      "required": false,
+      "default": 123
+    },
+    {
+      "id": "invalidIntegerDefault",
+      "type": "Integer",
+      "description": "Integer property with string default",
+      "required": false,
+      "default": "not a number"
+    },
+    {
+      "id": "invalidFloatDefault",
+      "type": "Float",
+      "description": "Float property with boolean default",
+      "required": false,
+      "default": true
+    },
+    {
+      "id": "invalidBooleanDefault",
+      "type": "Boolean",
+      "description": "Boolean property with string default",
+      "required": false,
+      "default": "false"
+    },
+    {
+      "id": "validStringDefault",
+      "type": "String",
+      "description": "String property with valid string default (including empty)",
+      "required": false,
+      "default": ""
+    },
+    {
+      "id": "validIntegerDefault",
+      "type": "Integer",
+      "description": "Integer property with valid integer default",
+      "required": false,
+      "default": 42
+    },
+    {
+      "id": "validFloatDefault",
+      "type": "Float",
+      "description": "Float property with valid float default",
+      "required": false,
+      "default": 3.14
+    },
+    {
+      "id": "validBooleanDefault",
+      "type": "Boolean",
+      "description": "Boolean property with valid boolean default",
+      "required": false,
+      "default": false
+    },
+    {
+      "id": "invalidVariantDefault",
+      "type": "Variant",
+      "description": "Variant property with default (not allowed)",
+      "required": false,
+      "default": "not allowed"
+    },
+    {
+      "id": "validVariantNoDefault",
+      "type": "Variant",
+      "description": "Variant property without default (allowed)",
+      "required": false
+    }
+  ]
+}

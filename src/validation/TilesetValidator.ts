@@ -23,6 +23,7 @@ import { Group } from "3d-tiles-tools";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
+import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 /**
  * A class that can validate a 3D Tiles tileset.
@@ -380,11 +381,25 @@ export class TilesetValidator implements Validator<Tileset> {
 
     for (const extensionName of actualExtensionsFound) {
       if (!actualExtensionsUsed.has(extensionName)) {
-        const issue = SemanticValidationIssues.EXTENSION_FOUND_BUT_NOT_USED(
-          extensionsUsedPath,
-          extensionName
-        );
-        context.addIssue(issue);
+        // Special handling for MAXAR_content_geojson: GeoJSON content is not valid
+        // by default in 3D Tiles and requires this extension to be declared
+        if (extensionName === "MAXAR_content_geojson") {
+          const message =
+            `GeoJSON content is not valid by default in 3D Tiles. ` +
+            `The MAXAR_content_geojson extension must be declared in extensionsUsed ` +
+            `to use GeoJSON content.`;
+          const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
+            extensionsUsedPath,
+            message
+          );
+          context.addIssue(issue);
+        } else {
+          const issue = SemanticValidationIssues.EXTENSION_FOUND_BUT_NOT_USED(
+            extensionsUsedPath,
+            extensionName
+          );
+          context.addIssue(issue);
+        }
         result = false;
       }
     }

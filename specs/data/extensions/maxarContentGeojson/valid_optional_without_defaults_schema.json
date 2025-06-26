@@ -1,0 +1,52 @@
+{
+  "name": "Valid Schema with Optional Properties Without Defaults",
+  "semantic": "test_data",
+  "geometry": {
+    "type": "Point",
+    "dimensions": 2
+  },
+  "properties": [
+    {
+      "id": "validStringNoDefault",
+      "type": "String",
+      "description": "Non-required String property without default value (defaults to null)",
+      "required": false
+    },
+    {
+      "id": "validIntegerNoDefault",
+      "type": "Integer",
+      "description": "Non-required Integer property without default value (defaults to null)"
+    },
+    {
+      "id": "validFloatNoDefault",
+      "type": "Float",
+      "description": "Non-required Float property without default value (defaults to null)",
+      "required": false
+    },
+    {
+      "id": "validBooleanNoDefault",
+      "type": "Boolean",
+      "description": "Non-required Boolean property without default value (defaults to null)",
+      "required": false
+    },
+    {
+      "id": "validVariantNoDefault",
+      "type": "Variant",
+      "description": "Non-required Variant property without default (allowed)",
+      "required": false
+    },
+    {
+      "id": "validStringWithDefault",
+      "type": "String",
+      "description": "Non-required String property with default value",
+      "required": false,
+      "default": "default_value"
+    },
+    {
+      "id": "validRequiredNoDefault",
+      "type": "Integer",
+      "description": "Required property without default (allowed)",
+      "required": true
+    }
+  ]
+}
