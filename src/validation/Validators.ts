@@ -27,6 +27,7 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { BoundingVolumeS2Validator } from "./extensions/BoundingVolumeS2Validator";
 import { NgaGpmValidator } from "./extensions/NgaGpmValidator";
 import { ContentGltfValidator } from "./extensions/ContentGltfValidator";
+import { MaxarGridValidator } from "./extensions/MaxarGridValidator";
 
 /**
  * Utility methods related to `Validator` instances.
@@ -499,13 +500,13 @@ export class Validators {
       );
     }
 
-    // Register an empty validator for MAXAR_grid
+    // Register the validator for MAXAR_grid
     {
-      const emptyValidator = Validators.createEmptyValidator();
+      const maxarGridValidator = new MaxarGridValidator();
       const override = false;
       ExtendedObjectsValidators.register(
         "MAXAR_grid",
-        emptyValidator,
+        maxarGridValidator,
         override
       );
     }
