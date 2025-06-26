@@ -1,0 +1,40 @@
+{
+  "name": "Test Content Properties Schema",
+  "semantic": "test_content_data",
+  "geometry": {
+    "type": "LineString",
+    "dimensions": 2
+  },
+  "properties": [
+    {
+      "id": "contentId",
+      "type": "Integer",
+      "description": "Unique identifier for content",
+      "required": true
+    },
+    {
+      "id": "contentName",
+      "type": "String",
+      "description": "Name of the content feature",
+      "required": false,
+      "default": "Unnamed Feature"
+    },
+    {
+      "id": "elevation",
+      "type": "Float",
+      "description": "Elevation in meters",
+      "unit": "meters",
+      "min": -1000.0,
+      "max": 9000.0,
+      "required": false,
+      "default": 0.0
+    },
+    {
+      "id": "isActive",
+      "type": "Boolean",
+      "description": "Whether the feature is active",
+      "required": false,
+      "default": true
+    }
+  ]
+}
