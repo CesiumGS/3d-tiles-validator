@@ -197,10 +197,15 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     // Validate required properties: semantic, geometry, properties
     const requiredProperties = ["semantic", "geometry", "properties"];
     for (const propertyName of requiredProperties) {
-      if (!defined(schema[propertyName])) {
-        const message = `The schema must define the '${propertyName}' property`;
-        const issue = JsonValidationIssues.PROPERTY_MISSING(path, message);
-        context.addIssue(issue);
+      const propertyPath = path + "/" + propertyName;
+      if (
+        !BasicValidator.validateDefined(
+          propertyPath,
+          propertyName,
+          schema[propertyName],
+          context
+        )
+      ) {
         result = false;
       }
     }
@@ -281,59 +286,36 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     // Validate required type property
     const type = geometry.type;
     const typePath = path + "/type";
-    if (!defined(type)) {
-      const message = "The geometry must define the 'type' property";
-      const issue = JsonValidationIssues.PROPERTY_MISSING(typePath, message);
-      context.addIssue(issue);
+    const validTypes = [
+      "Point",
+      "LineString",
+      "Polygon",
+      "MultiPoint",
+      "MultiLineString",
+      "MultiPolygon",
+    ];
+    if (
+      !BasicValidator.validateEnum(typePath, "type", type, validTypes, context)
+    ) {
       result = false;
-    } else {
-      const validTypes = [
-        "Point",
-        "LineString",
-        "Polygon",
-        "MultiPoint",
-        "MultiLineString",
-        "MultiPolygon",
-      ];
-      if (
-        !BasicValidator.validateEnum(
-          typePath,
-          "type",
-          type,
-          validTypes,
-          context
-        )
-      ) {
-        result = false;
-      }
     }
 
     // Validate required dimensions property
     const dimensions = geometry.dimensions;
     const dimensionsPath = path + "/dimensions";
-    if (!defined(dimensions)) {
-      const message = "The geometry must define the 'dimensions' property";
-      const issue = JsonValidationIssues.PROPERTY_MISSING(
+    if (
+      !BasicValidator.validateIntegerRange(
         dimensionsPath,
-        message
-      );
-      context.addIssue(issue);
+        "dimensions",
+        dimensions,
+        2,
+        true,
+        3,
+        true,
+        context
+      )
+    ) {
       result = false;
-    } else {
-      if (
-        !BasicValidator.validateIntegerRange(
-          dimensionsPath,
-          "dimensions",
-          dimensions,
-          2,
-          true,
-          3,
-          true,
-          context
-        )
-      ) {
-        result = false;
-      }
     }
 
     return result;
@@ -408,38 +390,18 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     // Validate required id property
     const id = property.id;
     const idPath = path + "/id";
-    if (!defined(id)) {
-      const message = "The property must define the 'id' property";
-      const issue = JsonValidationIssues.PROPERTY_MISSING(idPath, message);
-      context.addIssue(issue);
+    if (!BasicValidator.validateString(idPath, "id", id, context)) {
       result = false;
-    } else {
-      if (!BasicValidator.validateString(idPath, "id", id, context)) {
-        result = false;
-      }
     }
 
     // Validate required type property
     const type = property.type;
     const typePath = path + "/type";
-    if (!defined(type)) {
-      const message = "The property must define the 'type' property";
-      const issue = JsonValidationIssues.PROPERTY_MISSING(typePath, message);
-      context.addIssue(issue);
+    const validTypes = ["Integer", "Float", "String", "Boolean", "Variant"];
+    if (
+      !BasicValidator.validateEnum(typePath, "type", type, validTypes, context)
+    ) {
       result = false;
-    } else {
-      const validTypes = ["Integer", "Float", "String", "Boolean", "Variant"];
-      if (
-        !BasicValidator.validateEnum(
-          typePath,
-          "type",
-          type,
-          validTypes,
-          context
-        )
-      ) {
-        result = false;
-      }
     }
 
     // Validate optional properties
