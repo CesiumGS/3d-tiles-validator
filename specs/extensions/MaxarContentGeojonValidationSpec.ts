@@ -1,16 +1,23 @@
 import { Validators } from "../../src/validation/Validators";
 
 describe("Tileset MAXAR_content_geojson extension validation", function () {
-  it("detects issues in validTilesetWithGeojson", async function () {
+  it("detects issues in invalidTilesetWithGeojson", async function () {
     const result = await Validators.validateTilesetFile(
-      "specs/data/extensions/maxarContentGeojson/validTilesetWithGeojson.json"
+      "specs/data/extensions/maxarContentGeojson/invalidTilesetWithGeojson.json"
     );
-    // Expect one info for skipping the GeoJSON validation
-    // and one for the missing declaration of the
-    // MAXAR_content_geojson usage in the extensionsUsed
+    // Expect validation errors because GeoJSON content is used without
+    // declaring the MAXAR_content_geojson extension in extensionsUsed
     expect(result.length).toEqual(2);
+
+    // Should have content validation info for GeoJSON content
     expect(result.get(0).type).toEqual("CONTENT_VALIDATION_INFO");
-    expect(result.get(1).type).toEqual("EXTENSION_FOUND_BUT_NOT_USED");
+    expect(result.get(0).message).toContain("caused validation infos");
+
+    // Should have content validation error for undeclared extension
+    expect(result.get(1).type).toEqual("CONTENT_VALIDATION_ERROR");
+    expect(result.get(1).message).toContain(
+      "GeoJSON content is not valid by default"
+    );
   });
 
   it("detects invalid propertiesSchemaUri type", async function () {
