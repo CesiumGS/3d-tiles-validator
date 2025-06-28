@@ -1,0 +1,34 @@
+{
+  "extras" : {
+    "info": {
+      "note": "Test file with invalid elevation value for MAXAR_grid extension validation"
+    }
+  },
+  "extensionsUsed": [
+    "MAXAR_grid"
+  ],
+  "extensions": {
+    "MAXAR_grid": {
+      "type": "quad",
+      "center": [3097202.3706942615, 500000.00000000122],
+      "size": [2088960.0, 2088960.0],
+      "srs": {
+        "referenceSystem": "ITRF2008",
+        "epoch": "2005.0",
+        "coordinateSystem": "UTM14N",
+        "elevation": "INVALID_ELEVATION"
+      }
+    }    
+  },
+  "asset" : {
+    "version" : "1.1"
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "refine": "REPLACE",
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0
+  }
+}
