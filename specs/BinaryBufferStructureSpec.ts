@@ -123,7 +123,7 @@ describe("3d-tiles-tools", function () {
     performTestValidation(binaryBufferStructure, context);
     const result = context.getResult();
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("ARRAY_LENGTH_MISMATCH");
+    expect(result.get(0).type).toEqual("STRING_LENGTH_MISMATCH");
   });
 
   it("detects issues in buffersElementNameInvalidType", async function () {
