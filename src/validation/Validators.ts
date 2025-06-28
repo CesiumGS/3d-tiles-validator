@@ -27,6 +27,7 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { BoundingVolumeS2Validator } from "./extensions/BoundingVolumeS2Validator";
 import { NgaGpmValidator } from "./extensions/NgaGpmValidator";
 import { ContentGltfValidator } from "./extensions/ContentGltfValidator";
+import { MaxarExtentValidator } from "./extensions/MaxarExtentValidator";
 import { MaxarGridValidator } from "./extensions/MaxarGridValidator";
 
 /**
@@ -489,13 +490,13 @@ export class Validators {
       );
     }
 
-    // Register an empty validator for MAXAR_extent
+    // Register the validator for MAXAR_extent
     {
-      const emptyValidator = Validators.createEmptyValidator();
+      const maxarExtentValidator = new MaxarExtentValidator();
       const override = false;
       ExtendedObjectsValidators.register(
         "MAXAR_extent",
-        emptyValidator,
+        maxarExtentValidator,
         override
       );
     }
