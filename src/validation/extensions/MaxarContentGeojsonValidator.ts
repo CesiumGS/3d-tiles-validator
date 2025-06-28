@@ -214,10 +214,12 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     if (defined(schema.semantic)) {
       const semanticPath = path + "/semantic";
       if (
-        !BasicValidator.validateString(
+        !BasicValidator.validateStringLength(
           semanticPath,
           "semantic",
           schema.semantic,
+          1,
+          undefined,
           context
         )
       ) {
@@ -255,7 +257,14 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     if (defined(schema.name)) {
       const namePath = path + "/name";
       if (
-        !BasicValidator.validateString(namePath, "name", schema.name, context)
+        !BasicValidator.validateStringLength(
+          namePath,
+          "name",
+          schema.name,
+          1,
+          undefined,
+          context
+        )
       ) {
         result = false;
       }
@@ -390,7 +399,16 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     // Validate required id property
     const id = property.id;
     const idPath = path + "/id";
-    if (!BasicValidator.validateString(idPath, "id", id, context)) {
+    if (
+      !BasicValidator.validateStringLength(
+        idPath,
+        "id",
+        id,
+        1,
+        undefined,
+        context
+      )
+    ) {
       result = false;
     }
 
@@ -408,10 +426,12 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     if (defined(property.description)) {
       const descriptionPath = path + "/description";
       if (
-        !BasicValidator.validateString(
+        !BasicValidator.validateStringLength(
           descriptionPath,
           "description",
           property.description,
+          1,
+          undefined,
           context
         )
       ) {
@@ -422,7 +442,14 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     if (defined(property.unit)) {
       const unitPath = path + "/unit";
       if (
-        !BasicValidator.validateString(unitPath, "unit", property.unit, context)
+        !BasicValidator.validateStringLength(
+          unitPath,
+          "unit",
+          property.unit,
+          1,
+          undefined,
+          context
+        )
       ) {
         result = false;
       }
@@ -431,10 +458,12 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     if (defined(property.semantic)) {
       const semanticPath = path + "/semantic";
       if (
-        !BasicValidator.validateString(
+        !BasicValidator.validateStringLength(
           semanticPath,
           "semantic",
           property.semantic,
+          1,
+          undefined,
           context
         )
       ) {
