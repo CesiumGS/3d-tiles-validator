@@ -1,0 +1,28 @@
+{
+  "extras" : {
+    "info": {
+      "note": "Test file with invalid boundingBox semantics (xmin > xmax)"
+    }
+  },
+  "extensionsUsed": [
+    "MAXAR_grid"
+  ],
+  "extensions": {
+    "MAXAR_grid": {
+      "boundingBox": [100.0, 50.0, 50.0, 100.0, 0.0, 10.0],
+      "level": 5,
+      "index": [2, 3]
+    }    
+  },
+  "asset" : {
+    "version" : "1.1"
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "refine": "REPLACE",
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0
+  }
+}

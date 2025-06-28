@@ -1,0 +1,27 @@
+{
+  "extras" : {
+    "info": {
+      "note": "Test file with S2 grid type that incorrectly includes size property"
+    }
+  },
+  "extensionsUsed": [
+    "MAXAR_grid"
+  ],
+  "extensions": {
+    "MAXAR_grid": {
+      "type": "s2",
+      "size": [2088960.0, 2088960.0]
+    }    
+  },
+  "asset" : {
+    "version" : "1.1"
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "refine": "REPLACE",
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0
+  }
+}
