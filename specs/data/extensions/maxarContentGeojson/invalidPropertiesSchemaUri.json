@@ -38,12 +38,7 @@
   "geometricError" : 2.0,
   "root" : {
     "content": {
-      "uri": "lineString.geojson",
-      "extensions": {
-        "MAXAR_content_geojson": {
-          "propertiesSchemaUri": 123
-        }
-      }
+      "uri": "lineString.geojson"
     },
     "refine": "REPLACE",
     "boundingVolume" : {

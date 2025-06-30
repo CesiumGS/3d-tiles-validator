@@ -1,7 +1,7 @@
 {
   "extras" : {
     "info": {
-      "note": "This tileset is INVALID because it uses GeoJSON content (lineString.geojson) without declaring the MAXAR_content_geojson extension in extensionsUsed. GeoJSON files are not valid content by default in 3D Tiles and require the MAXAR_content_geojson extension to be explicitly declared."
+      "note": "This tileset is INVALID because it uses GeoJSON content (lineString.geojson) without declaring the MAXAR_content_geojson extension in the extensions section. The extension must be declared in extensionsUsed, extensionsRequired, and the extensions object to use GeoJSON content in 3D Tiles."
     }
   },
   "asset" : {

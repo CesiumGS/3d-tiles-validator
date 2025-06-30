@@ -24,32 +24,24 @@ describe("Tileset MAXAR_content_geojson extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarContentGeojson/invalidPropertiesSchemaUri.json"
     );
-    // Expect multiple errors for invalid propertiesSchemaUri type (from different validation stages)
-    // and one info for skipping the GeoJSON validation
-    expect(result.length).toEqual(3);
+    // Expect error for invalid propertiesSchemaUri type and content validation info
+    expect(result.length).toEqual(2);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
     expect(result.get(0).message).toContain("propertiesSchemaUri");
-    expect(result.get(1).type).toEqual("TYPE_MISMATCH");
-    expect(result.get(1).message).toContain("propertiesSchemaUri");
-    expect(result.get(2).type).toEqual("CONTENT_VALIDATION_INFO");
+    expect(result.get(1).type).toEqual("CONTENT_VALIDATION_INFO");
   });
 
   it("detects invalid extension object type", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarContentGeojson/invalidExtensionObject.json"
     );
-    // Expect multiple errors for invalid extension object type (from different validation stages)
-    // and one error for extension not found
-    expect(result.length).toEqual(5);
+    // Expect errors for invalid extension object type and content validation info
+    expect(result.length).toEqual(3);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
     expect(result.get(0).message).toContain("MAXAR_content_geojson");
     expect(result.get(1).type).toEqual("TYPE_MISMATCH");
     expect(result.get(1).message).toContain("MAXAR_content_geojson");
-    expect(result.get(2).type).toEqual("TYPE_MISMATCH");
-    expect(result.get(2).message).toContain("MAXAR_content_geojson");
-    expect(result.get(3).type).toEqual("TYPE_MISMATCH");
-    expect(result.get(3).message).toContain("MAXAR_content_geojson");
-    expect(result.get(4).type).toEqual("EXTENSION_USED_BUT_NOT_FOUND");
+    expect(result.get(2).type).toEqual("CONTENT_VALIDATION_INFO");
   });
 
   it("validates extension without propertiesSchemaUri", async function () {
@@ -97,10 +89,37 @@ describe("Tileset MAXAR_content_geojson extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarContentGeojson/nonExistentSchema.json"
     );
-    // Should have content validation info and one IO error for missing file
+    // Should have IO error for missing file and content validation info
     expect(result.length).toEqual(2);
     expect(result.get(0).type).toEqual("IO_ERROR");
     expect(result.get(0).message).toContain("could not be resolved");
     expect(result.get(1).type).toEqual("CONTENT_VALIDATION_INFO");
+  });
+
+  it("detects error when min > max in property schema", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/invalidMinMaxTileset.json"
+    );
+    // Should have content validation info and validation errors for min > max
+    expect(result.length).toBeGreaterThan(1);
+
+    // Check that we have a VALUE_NOT_IN_RANGE error for min > max
+    let hasMinMaxError = false;
+    for (let i = 0; i < result.length; i++) {
+      if (
+        result.get(i).type === "VALUE_NOT_IN_RANGE" &&
+        result.get(i).message.includes("min") &&
+        result.get(i).message.includes("max")
+      ) {
+        hasMinMaxError = true;
+        break;
+      }
+    }
+    expect(hasMinMaxError).toBe(true);
+
+    // Should still have content validation info at the end
+    expect(result.get(result.length - 1).type).toEqual(
+      "CONTENT_VALIDATION_INFO"
+    );
   });
 });

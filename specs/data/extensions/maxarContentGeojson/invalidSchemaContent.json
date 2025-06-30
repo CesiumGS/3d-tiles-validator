@@ -8,6 +8,11 @@
   "asset" : {
     "version" : "1.1"
   },
+  "extensions": {
+    "MAXAR_content_geojson": {
+      "propertiesSchemaUri": "invalid_content_schema.json"
+    }
+  },
   "schema": {
     "id": "EXAMPLE_SCHEMA_ID",
     "classes": {
@@ -38,12 +43,7 @@
   "geometricError" : 2.0,
   "root" : {
     "content": {
-      "uri": "lineString.geojson",
-      "extensions": {
-        "MAXAR_content_geojson": {
-          "propertiesSchemaUri": "invalid_content_schema.json"
-        }
-      }
+      "uri": "lineString.geojson"
     },
     "refine": "REPLACE",
     "boundingVolume" : {
