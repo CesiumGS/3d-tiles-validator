@@ -1,0 +1,30 @@
+{
+  "name": "Invalid Required with Default Properties Schema",
+  "semantic": "test_data",
+  "geometry": {
+    "type": "Point",
+    "dimensions": 2
+  },
+  "properties": [
+    {
+      "id": "invalidRequiredWithDefault",
+      "type": "String",
+      "description": "Property that is required but has a default value",
+      "required": true,
+      "default": "This should not be allowed"
+    },
+    {
+      "id": "validRequired",
+      "type": "Integer",
+      "description": "Property that is required without default",
+      "required": true
+    },
+    {
+      "id": "validOptionalWithDefault",
+      "type": "String",
+      "description": "Property that is optional with default",
+      "required": false,
+      "default": "This is allowed"
+    }
+  ]
+}

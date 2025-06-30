@@ -122,4 +122,32 @@ describe("Tileset MAXAR_content_geojson extension validation", function () {
       "CONTENT_VALIDATION_INFO"
     );
   });
+
+  it("detects error when required property has default value", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/invalidRequiredWithDefaultTileset.json"
+    );
+    // Should have content validation info and validation errors for required with default
+    expect(result.length).toBeGreaterThan(1);
+
+    // Check that we have a VALUE_NOT_IN_RANGE error for required property with default
+    let hasRequiredDefaultError = false;
+    for (let i = 0; i < result.length; i++) {
+      if (
+        result.get(i).type === "VALUE_NOT_IN_RANGE" &&
+        result
+          .get(i)
+          .message.includes("required property cannot have a default value")
+      ) {
+        hasRequiredDefaultError = true;
+        break;
+      }
+    }
+    expect(hasRequiredDefaultError).toBe(true);
+
+    // Should still have content validation info at the end
+    expect(result.get(result.length - 1).type).toEqual(
+      "CONTENT_VALIDATION_INFO"
+    );
+  });
 });

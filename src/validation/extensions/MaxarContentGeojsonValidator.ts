@@ -485,6 +485,18 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
       }
     }
 
+    // Validate that required properties do not have a default value
+    if (
+      defined(property.required) &&
+      property.required === true &&
+      defined(property.default)
+    ) {
+      const message = "A required property cannot have a default value";
+      const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(path, message);
+      context.addIssue(issue);
+      result = false;
+    }
+
     // Validate min/max properties (only for Integer and Float types)
     if (type === "Integer" || type === "Float") {
       if (defined(property.min)) {
