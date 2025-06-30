@@ -9,9 +9,7 @@
     "version" : "1.1"
   },
   "extensions": {
-    "MAXAR_content_geojson": {
-      "propertiesSchemaUri": "non_existent_schema.json"
-    }
+    "MAXAR_content_geojson": {}
   },
   "schema": {
     "id": "EXAMPLE_SCHEMA_ID",
@@ -36,7 +34,7 @@
     },
     "extensions": {
       "MAXAR_content_geojson": {
-        "propertiesSchemaUri": "test_schema.json"
+        "propertiesSchemaUri": "non_existent_schema.json"
       }
     }
   },  

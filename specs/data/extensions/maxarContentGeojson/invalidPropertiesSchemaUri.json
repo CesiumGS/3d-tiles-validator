@@ -8,6 +8,9 @@
   "asset" : {
     "version" : "1.1"
   },
+  "extensions": {
+    "MAXAR_content_geojson": {}
+  },
   "schema": {
     "id": "EXAMPLE_SCHEMA_ID",
     "classes": {
