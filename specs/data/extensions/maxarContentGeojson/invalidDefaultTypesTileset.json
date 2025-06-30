@@ -1,9 +1,4 @@
 {
-  "extras" : {
-    "info": {
-      "note": "The MAXAR_content_geojson example has been taken from the specification README.md"
-    }
-  },
   "extensionsUsed": [
     "MAXAR_content_geojson"
   ],
@@ -24,16 +19,7 @@
           "content_type": {
             "type": "STRING"
           },
-          "geometry_model": {
-            "type": "STRING"
-          },
           "name": {
-            "type": "STRING"
-          },
-          "schema": {
-            "type": "STRING"
-          },
-          "wff_version": {
             "type": "STRING"
           }
         }
@@ -44,14 +30,11 @@
     "class": "tileset",
     "properties": {
       "content_type": "VECTOR",
-      "geometry_model": "OBJECTS",
-      "name": "Vegetation Layer",
-      "schema": "wff/15",
-      "wff_version": "1.5"
+      "name": "Test Layer"
     },
     "extensions": {
       "MAXAR_content_geojson": {
-        "propertiesSchemaUri": "vegetation_schema.json"
+        "propertiesSchemaUri": "invalid_default_types_schema.json"
       }
     }
   },  
