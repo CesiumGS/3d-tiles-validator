@@ -13,8 +13,7 @@ import { I3dmValidator } from "../tileFormats/I3dmValidator";
 import { PntsValidator } from "../tileFormats/PntsValidator";
 import { CmptValidator } from "../tileFormats/CmptValidator";
 import { GltfValidator } from "../tileFormats/GltfValidator";
-
-import { ContentValidationIssues } from "../issues/ContentValidationIssues";
+import { GeojsonValidator } from "../tileFormats/GeojsonValidator";
 
 import { Tileset } from "3d-tiles-tools";
 
@@ -135,31 +134,17 @@ export class ContentDataValidators {
   /**
    * Creates a validator for GeoJSON content data.
    *
-   * GeoJSON files are not valid content by default in 3D Tiles unless
-   * the MAXAR_content_geojson extension is specified.
+   * This validator will parse the JSON from the content data buffer,
+   * validate it as proper GeoJSON according to the GeoJSON specification,
+   * and provide detailed validation feedback.
    *
    * @returns The validator
    */
   private static createGeojsonValidator(): Validator<ContentData> {
-    const validator = {
-      async validateObject(
-        inputPath: string,
-        input: ContentData,
-        context: ValidationContext
-      ): Promise<boolean> {
-        // Just add an info message - the actual validation of whether
-        // the extension is declared is handled at the tileset level
-        const message =
-          "GeoJSON content validation is handled by MAXAR_content_geojson extension";
-        const issue = ContentValidationIssues.CONTENT_VALIDATION_INFO(
-          inputPath,
-          message
-        );
-        context.addIssue(issue);
-        return true;
-      },
-    };
-    return validator;
+    const bufferValidator = new GeojsonValidator();
+    const contentDataValidator =
+      ContentDataValidators.wrapBufferValidator(bufferValidator);
+    return contentDataValidator;
   }
 
   /**
