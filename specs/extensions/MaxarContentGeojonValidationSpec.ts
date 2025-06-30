@@ -150,4 +150,30 @@ describe("Tileset MAXAR_content_geojson extension validation", function () {
       "CONTENT_VALIDATION_INFO"
     );
   });
+
+  it("detects error when non-required non-Variant properties lack default values", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/invalidMissingDefaultTileset.json"
+    );
+    // Should have multiple validation errors for missing default values
+    expect(result.length).toBeGreaterThan(4);
+
+    // Check that we have PROPERTY_MISSING errors for non-required properties without defaults
+    let missingDefaultErrors = 0;
+    for (let i = 0; i < result.length; i++) {
+      if (
+        result.get(i).type === "PROPERTY_MISSING" &&
+        result.get(i).message.includes("must specify a default value")
+      ) {
+        missingDefaultErrors++;
+      }
+    }
+    // Should have errors for String, Integer, Float, and Boolean types (4 total)
+    expect(missingDefaultErrors).toEqual(4);
+
+    // Should still have content validation info at the end
+    expect(result.get(result.length - 1).type).toEqual(
+      "CONTENT_VALIDATION_INFO"
+    );
+  });
 });

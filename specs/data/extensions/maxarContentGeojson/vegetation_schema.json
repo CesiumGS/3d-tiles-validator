@@ -25,7 +25,8 @@
       "unit": "meters",
       "min": 0.0,
       "max": 100.0,
-      "required": false
+      "required": false,
+      "default": 1.0
     }
   ]
 }
