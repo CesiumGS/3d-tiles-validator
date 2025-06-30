@@ -176,4 +176,40 @@ describe("Tileset MAXAR_content_geojson extension validation", function () {
       "CONTENT_VALIDATION_INFO"
     );
   });
+
+  it("detects error when default values have incorrect types", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/invalidDefaultTypesTileset.json"
+    );
+    // Should have multiple validation errors for incorrect default value types
+    expect(result.length).toBeGreaterThan(5);
+
+    // Check that we have TYPE_MISMATCH errors for incorrect default value types
+    let typeMismatchErrors = 0;
+    let variantDefaultErrors = 0;
+    for (let i = 0; i < result.length; i++) {
+      if (result.get(i).type === "TYPE_MISMATCH") {
+        typeMismatchErrors++;
+      }
+      if (
+        result.get(i).type === "VALUE_NOT_IN_RANGE" &&
+        result
+          .get(i)
+          .message.includes(
+            "Variant type properties cannot have default values"
+          )
+      ) {
+        variantDefaultErrors++;
+      }
+    }
+    // Should have errors for String, Integer, Float, and Boolean types with wrong defaults (4 total)
+    expect(typeMismatchErrors).toEqual(4);
+    // Should have error for Variant type with default value (1 total)
+    expect(variantDefaultErrors).toEqual(1);
+
+    // Should still have content validation info at the end
+    expect(result.get(result.length - 1).type).toEqual(
+      "CONTENT_VALIDATION_INFO"
+    );
+  });
 });

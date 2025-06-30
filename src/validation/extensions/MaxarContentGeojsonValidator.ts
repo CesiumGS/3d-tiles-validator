@@ -500,10 +500,67 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     // Validate that non-required properties of specific types must have a default value
     const isRequired = defined(property.required) ? property.required : false;
     if (!isRequired && type !== "Variant" && !defined(property.default)) {
-      const message = `Non-required properties of type '${type}' must specify a default value (only Variant types can be null)`;
+      const message = `Non-required properties of type '${type}' must specify a default value`;
       const issue = JsonValidationIssues.PROPERTY_MISSING(path, message);
       context.addIssue(issue);
       result = false;
+    }
+
+    // Validate that default values match their property types
+    if (defined(property.default)) {
+      const defaultPath = path + "/default";
+      const defaultValue = property.default;
+
+      if (type === "Variant") {
+        const message = "Variant type properties cannot have default values";
+        const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(path, message);
+        context.addIssue(issue);
+        result = false;
+      } else if (type === "String") {
+        if (
+          !BasicValidator.validateString(
+            defaultPath,
+            "default",
+            defaultValue,
+            context
+          )
+        ) {
+          result = false;
+        }
+      } else if (type === "Integer") {
+        if (
+          !BasicValidator.validateInteger(
+            defaultPath,
+            "default",
+            defaultValue,
+            context
+          )
+        ) {
+          result = false;
+        }
+      } else if (type === "Float") {
+        if (
+          !BasicValidator.validateNumber(
+            defaultPath,
+            "default",
+            defaultValue,
+            context
+          )
+        ) {
+          result = false;
+        }
+      } else if (type === "Boolean") {
+        if (
+          !BasicValidator.validateBoolean(
+            defaultPath,
+            "default",
+            defaultValue,
+            context
+          )
+        ) {
+          result = false;
+        }
+      }
     }
 
     // Validate min/max properties (only for Integer and Float types)
