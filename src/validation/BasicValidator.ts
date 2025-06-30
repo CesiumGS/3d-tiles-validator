@@ -773,7 +773,7 @@ export class BasicValidator {
       const message =
         `String '${name}' must have a length of ${rangeDescription}, ` +
         `but the actual length is ${value.length}`;
-      const issue = JsonValidationIssues.ARRAY_LENGTH_MISMATCH(path, message);
+      const issue = JsonValidationIssues.STRING_LENGTH_MISMATCH(path, message);
       context.addIssue(issue);
       return false;
     }
