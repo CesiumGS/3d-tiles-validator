@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": "invalid_coordinates"
+      },
+      "properties": {
+        "name": "Invalid Point"
+      }
+    }
+  ]
+}
