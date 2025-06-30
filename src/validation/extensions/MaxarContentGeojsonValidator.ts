@@ -257,7 +257,14 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     if (defined(schema.name)) {
       const namePath = path + "/name";
       if (
-        !BasicValidator.validateString(namePath, "name", schema.name, context)
+        !BasicValidator.validateStringLength(
+          namePath,
+          "name",
+          schema.name,
+          1,
+          undefined,
+          context
+        )
       ) {
         result = false;
       }
