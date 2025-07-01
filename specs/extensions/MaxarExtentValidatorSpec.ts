@@ -86,4 +86,26 @@ describe("Tileset MAXAR_extent extension validation", function () {
     );
     expect(result.get(0).message).toContain("Point, LineString");
   });
+
+  it("detects insufficient coordinates in extent polygon", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/insufficientCoordinatesTileset.json"
+    );
+    expect(result.length).toBeGreaterThan(0);
+    expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
+    expect(result.get(0).message).toContain(
+      "must have at least 3 unique coordinates"
+    );
+  });
+
+  it("detects self-intersecting extent polygon", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/selfIntersectingTileset.json"
+    );
+    expect(result.length).toBeGreaterThan(0);
+    expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
+    expect(result.get(0).message).toContain(
+      "is self-intersecting, which is forbidden"
+    );
+  });
 });

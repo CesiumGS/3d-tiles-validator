@@ -181,6 +181,16 @@ export class MaxarExtentValidator implements Validator<any> {
         return false;
       }
 
+      // Validate minimum coordinate count and self-intersection
+      const extentValid = MaxarExtentValidator.validateExtentRequirements(
+        path,
+        geojsonObject,
+        context
+      );
+      if (!extentValid) {
+        return false;
+      }
+
       // Validate spatial containment within root tile bounding volume
       const spatialValid =
         await MaxarExtentValidator.validateSpatialContainment(
@@ -310,6 +320,226 @@ export class MaxarExtentValidator implements Validator<any> {
     }
 
     return true;
+  }
+
+  /**
+   * Validates extent-specific requirements: minimum coordinate count and self-intersection
+   *
+   * @param path - The path for ValidationIssue instances
+   * @param geojsonObject - The parsed GeoJSON object
+   * @param context - The ValidationContext that any issues will be added to
+   * @returns Whether the extent requirements are met
+   */
+  static validateExtentRequirements(
+    path: string,
+    geojsonObject: any,
+    context: ValidationContext
+  ): boolean {
+    let result = true;
+
+    function validateGeometry(geometry: any): boolean {
+      if (!geometry || !geometry.type || !geometry.coordinates) {
+        return true; // Skip invalid geometries (already handled by GeoJSON validator)
+      }
+
+      const type = geometry.type;
+      if (type === "Polygon") {
+        return MaxarExtentValidator.validatePolygonExtent(
+          geometry.coordinates,
+          path,
+          context
+        );
+      } else if (type === "MultiPolygon") {
+        for (let i = 0; i < geometry.coordinates.length; i++) {
+          if (
+            !MaxarExtentValidator.validatePolygonExtent(
+              geometry.coordinates[i],
+              path,
+              context
+            )
+          ) {
+            return false;
+          }
+        }
+        return true;
+      } else if (type === "GeometryCollection") {
+        if (geometry.geometries) {
+          for (const subGeometry of geometry.geometries) {
+            if (!validateGeometry(subGeometry)) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+      return true;
+    }
+
+    // Handle different GeoJSON types
+    if (geojsonObject.type === "Feature") {
+      result = validateGeometry(geojsonObject.geometry);
+    } else if (geojsonObject.type === "FeatureCollection") {
+      for (const feature of geojsonObject.features || []) {
+        if (!validateGeometry(feature.geometry)) {
+          result = false;
+          break;
+        }
+      }
+    } else {
+      // Direct geometry object
+      result = validateGeometry(geojsonObject);
+    }
+
+    return result;
+  }
+
+  /**
+   * Validates a polygon's coordinates for extent requirements
+   *
+   * @param polygonCoords - The polygon coordinates array
+   * @param path - The path for ValidationIssue instances
+   * @param context - The ValidationContext that any issues will be added to
+   * @returns Whether the polygon meets extent requirements
+   */
+  static validatePolygonExtent(
+    polygonCoords: number[][][],
+    path: string,
+    context: ValidationContext
+  ): boolean {
+    let result = true;
+
+    // Validate each ring (exterior and holes)
+    for (let ringIndex = 0; ringIndex < polygonCoords.length; ringIndex++) {
+      const ring = polygonCoords[ringIndex];
+
+      // Check minimum coordinate count (at least 3 unique coordinates)
+      const uniqueCoords = MaxarExtentValidator.getUniqueCoordinates(ring);
+      if (uniqueCoords.length < 3) {
+        const message = `Extent polygon ring must have at least 3 unique coordinates, but has ${uniqueCoords.length}`;
+        const issue = SemanticValidationIssues.BOUNDING_VOLUMES_INCONSISTENT(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      }
+
+      // Check for self-intersection
+      if (MaxarExtentValidator.isRingSelfIntersecting(ring)) {
+        const message = `Extent polygon ring ${ringIndex} is self-intersecting, which is forbidden`;
+        const issue = SemanticValidationIssues.BOUNDING_VOLUMES_INCONSISTENT(
+          path,
+          message
+        );
+        context.addIssue(issue);
+        result = false;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Gets unique coordinates from a ring, excluding the closing coordinate
+   */
+  static getUniqueCoordinates(ring: number[][]): number[][] {
+    if (ring.length === 0) return [];
+
+    const unique: number[][] = [];
+    const seen = new Set<string>();
+
+    // Process all coordinates except the last one (which should close the ring)
+    const coordsToCheck =
+      ring.length > 0 &&
+      ring[0][0] === ring[ring.length - 1][0] &&
+      ring[0][1] === ring[ring.length - 1][1]
+        ? ring.slice(0, -1)
+        : ring;
+
+    for (const coord of coordsToCheck) {
+      const key = `${coord[0]},${coord[1]}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(coord);
+      }
+    }
+
+    return unique;
+  }
+
+  /**
+   * Checks if a ring is self-intersecting using a simple line segment intersection algorithm
+   */
+  static isRingSelfIntersecting(ring: number[][]): boolean {
+    if (ring.length < 4) return false; // Need at least 4 points to form a closed polygon
+
+    // Check each edge against every other non-adjacent edge
+    for (let i = 0; i < ring.length - 1; i++) {
+      const edge1Start = ring[i];
+      const edge1End = ring[i + 1];
+
+      for (let j = i + 2; j < ring.length - 1; j++) {
+        // Skip adjacent edges and the closing edge
+        if (j === ring.length - 2 && i === 0) continue; // Skip last edge vs first edge
+
+        const edge2Start = ring[j];
+        const edge2End = ring[j + 1];
+
+        if (
+          MaxarExtentValidator.doLineSegmentsIntersect(
+            edge1Start,
+            edge1End,
+            edge2Start,
+            edge2End
+          )
+        ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Checks if two line segments intersect using the orientation method
+   */
+  static doLineSegmentsIntersect(
+    p1: number[],
+    q1: number[],
+    p2: number[],
+    q2: number[]
+  ): boolean {
+    const orientation = (p: number[], q: number[], r: number[]): number => {
+      const val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1]);
+      if (Math.abs(val) < 1e-10) return 0; // Collinear
+      return val > 0 ? 1 : 2; // Clockwise or Counterclockwise
+    };
+
+    const onSegment = (p: number[], q: number[], r: number[]): boolean => {
+      return (
+        q[0] <= Math.max(p[0], r[0]) &&
+        q[0] >= Math.min(p[0], r[0]) &&
+        q[1] <= Math.max(p[1], r[1]) &&
+        q[1] >= Math.min(p[1], r[1])
+      );
+    };
+
+    const o1 = orientation(p1, q1, p2);
+    const o2 = orientation(p1, q1, q2);
+    const o3 = orientation(p2, q2, p1);
+    const o4 = orientation(p2, q2, q1);
+
+    // General case
+    if (o1 !== o2 && o3 !== o4) return true;
+
+    // Special cases - collinear points
+    if (o1 === 0 && onSegment(p1, p2, q1)) return true;
+    if (o2 === 0 && onSegment(p1, q2, q1)) return true;
+    if (o3 === 0 && onSegment(p2, p1, q2)) return true;
+    if (o4 === 0 && onSegment(p2, q1, q2)) return true;
+
+    return false;
   }
 
   /**
