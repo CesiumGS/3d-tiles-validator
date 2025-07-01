@@ -31,4 +31,22 @@ describe("Tileset MAXAR_extent extension validation", function () {
     expect(result.length).toBeGreaterThan(0);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
+
+  it("detects issues in invalidNonResolvableUri", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/invalidNonResolvableUri.json"
+    );
+    expect(result.length).toBeGreaterThan(0);
+    expect(result.get(0).type).toEqual("IO_ERROR");
+    expect(result.get(0).message).toContain("could not be resolved");
+  });
+
+  it("detects issues in invalidGeojsonContent", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/invalidGeojsonContent.json"
+    );
+    expect(result.length).toBeGreaterThan(0);
+    expect(result.get(0).type).toEqual("TYPE_MISMATCH");
+    expect(result.get(0).message).toContain("coordinates");
+  });
 });
