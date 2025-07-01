@@ -1,0 +1,26 @@
+{
+  "extras" : {
+    "info": {
+      "note": "Test file with valid MAXAR_extent extension and spatial containment"
+    }
+  },
+  "extensionsUsed": [
+    "MAXAR_extent"
+  ],
+  "extensions": {
+    "MAXAR_extent": {
+      "uri": "small_extent.geojson"
+    }    
+  },
+  "asset" : {
+    "version" : "1.1"
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "refine": "REPLACE",
+    "boundingVolume" : {
+      "region": [-0.017453292519943295, -0.017453292519943295, 0.017453292519943295, 0.017453292519943295, 0.0, 1000.0]
+    },
+    "geometricError" : 1.0
+  }
+}

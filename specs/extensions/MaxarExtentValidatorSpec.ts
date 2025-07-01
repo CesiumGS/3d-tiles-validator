@@ -49,4 +49,22 @@ describe("Tileset MAXAR_extent extension validation", function () {
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
     expect(result.get(0).message).toContain("coordinates");
   });
+
+  it("validates spatial containment with validTilesetWithSpatialExtent", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/validTilesetWithSpatialExtent.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects spatial containment issues in invalidSpatialExtent", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/invalidSpatialExtent.json"
+    );
+    expect(result.length).toBeGreaterThan(0);
+    expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
+    expect(result.get(0).message).toContain(
+      "not contained within the root tile's bounding volume"
+    );
+  });
 });
