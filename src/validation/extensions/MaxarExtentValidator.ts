@@ -161,13 +161,23 @@ export class MaxarExtentValidator implements Validator<any> {
         return false;
       }
 
-      // Parse the GeoJSON for spatial validation
+      // Parse the GeoJSON for additional validation
       let geojsonObject: any;
       try {
         const jsonString = uriData.toString("utf-8");
         geojsonObject = JSON.parse(jsonString);
       } catch (error) {
         // JSON parsing error already handled by GeojsonValidator
+        return false;
+      }
+
+      // Validate that GeoJSON contains only Polygon or MultiPolygon shapes
+      const geometryValid = MaxarExtentValidator.validateGeometryTypes(
+        path,
+        geojsonObject,
+        context
+      );
+      if (!geometryValid) {
         return false;
       }
 
@@ -232,6 +242,71 @@ export class MaxarExtentValidator implements Validator<any> {
         context.addIssue(issue);
         return false;
       }
+    }
+
+    return true;
+  }
+
+  /**
+   * Validates that the GeoJSON contains only Polygon or MultiPolygon geometries
+   *
+   * @param path - The path for ValidationIssue instances
+   * @param geojsonObject - The parsed GeoJSON object
+   * @param context - The ValidationContext that any issues will be added to
+   * @returns Whether all geometries are Polygon or MultiPolygon
+   */
+  static validateGeometryTypes(
+    path: string,
+    geojsonObject: any,
+    context: ValidationContext
+  ): boolean {
+    const invalidGeometries: string[] = [];
+
+    function checkGeometry(geometry: any): void {
+      if (!geometry || !geometry.type) {
+        return;
+      }
+
+      const type = geometry.type;
+      if (type !== "Polygon" && type !== "MultiPolygon") {
+        if (type === "GeometryCollection") {
+          // Recursively check geometries in collection
+          if (geometry.geometries) {
+            for (const subGeometry of geometry.geometries) {
+              checkGeometry(subGeometry);
+            }
+          }
+        } else {
+          // Invalid geometry type
+          invalidGeometries.push(type);
+        }
+      }
+    }
+
+    // Handle different GeoJSON types
+    if (geojsonObject.type === "Feature") {
+      checkGeometry(geojsonObject.geometry);
+    } else if (geojsonObject.type === "FeatureCollection") {
+      for (const feature of geojsonObject.features || []) {
+        checkGeometry(feature.geometry);
+      }
+    } else {
+      // Direct geometry object
+      checkGeometry(geojsonObject);
+    }
+
+    // Report any invalid geometry types found
+    if (invalidGeometries.length > 0) {
+      const uniqueTypes = [...new Set(invalidGeometries)];
+      const message = `MAXAR_extent GeoJSON must contain only Polygon or MultiPolygon geometries, but found: ${uniqueTypes.join(
+        ", "
+      )}`;
+      const issue = SemanticValidationIssues.BOUNDING_VOLUMES_INCONSISTENT(
+        path,
+        message
+      );
+      context.addIssue(issue);
+      return false;
     }
 
     return true;

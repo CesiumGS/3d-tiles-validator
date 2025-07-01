@@ -67,4 +67,23 @@ describe("Tileset MAXAR_extent extension validation", function () {
       "not contained within the root tile's bounding volume"
     );
   });
+
+  it("validates GeoJSON with only Polygon and MultiPolygon geometries", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/validPolygonsOnlyTileset.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects invalid geometry types in GeoJSON", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/invalidGeometryTypesTileset.json"
+    );
+    expect(result.length).toBeGreaterThan(0);
+    expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
+    expect(result.get(0).message).toContain(
+      "must contain only Polygon or MultiPolygon geometries"
+    );
+    expect(result.get(0).message).toContain("Point, LineString");
+  });
 });
