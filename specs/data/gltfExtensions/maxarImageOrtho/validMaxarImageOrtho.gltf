@@ -1,0 +1,27 @@
+{
+  "asset": {
+    "version": "2.0"
+  },
+  "extensionsUsed": [
+    "MAXAR_image_ortho"
+  ],
+  "images": [
+    {
+      "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+      "extensions": {
+        "MAXAR_image_ortho": {
+          "transform": [0.0, 8.1875, -8.1875, 0.0, 3542945.276954, 782027.09375],
+          "srs": {
+            "referenceSystem": "ITRF2008",
+            "epoch": "2005.0",
+            "coordinateSystem": "UTM14N",
+            "elevation": "ELLIPSOID",
+            "axis": "NED",
+            "unitHorizontal": "METER",
+            "unitVertical": "METER"
+          }
+        }
+      }
+    }
+  ]
+}
