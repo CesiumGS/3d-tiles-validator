@@ -1,0 +1,23 @@
+{
+  "asset": {
+    "version": "2.0"
+  },
+  "extensionsUsed": [
+    "MAXAR_image_ortho"
+  ],
+  "images": [
+    {
+      "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+      "extensions": {
+        "MAXAR_image_ortho": {
+          "srs": {
+            "referenceSystem": "ITRF2008",
+            "epoch": "2005.0",
+            "coordinateSystem": "INVALID_SYSTEM",
+            "elevation": "ELLIPSOID"
+          }
+        }
+      }
+    }
+  ]
+}
