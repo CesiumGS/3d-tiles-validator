@@ -1,0 +1,55 @@
+{
+  "extensionsUsed": ["MAXAR_nonvisual_geometry"],
+  "asset": {
+    "version": "2.0"
+  },
+  "extras": {
+    "info": {
+      "note": "Node extension mesh property has invalid value (negative integer)"
+    }
+  },
+  "nodes": [{
+    "name": "Test Node",
+    "extensions": {
+      "MAXAR_nonvisual_geometry": {
+        "mesh": -1
+      }
+    }
+  }],
+  "meshes": [{
+    "primitives": [{
+      "attributes": {
+        "POSITION": 0
+      },
+      "indices": 1
+    }]
+  }],
+  "accessors": [{
+    "bufferView": 0,
+    "componentType": 5126,
+    "count": 3,
+    "type": "VEC3"
+  }, {
+    "bufferView": 1,
+    "componentType": 5123,
+    "count": 3,
+    "type": "SCALAR"
+  }],
+  "bufferViews": [{
+    "buffer": 0,
+    "byteOffset": 0,
+    "byteLength": 36
+  }, {
+    "buffer": 0,
+    "byteOffset": 36,
+    "byteLength": 6
+  }],
+  "buffers": [{
+    "uri": "data:application/gltf-buffer;base64,AAAAAAAAAAAAAIA/AAAAAAAAgD8AAAAAAACAPwAAAAAAAAAAAAEAAgA=",
+    "byteLength": 42
+  }],
+  "scene": 0,
+  "scenes": [{
+    "nodes": [0]
+  }]
+}
