@@ -1,0 +1,168 @@
+{
+  "extensionsUsed": ["MAXAR_nonvisual_geometry"],
+  "asset": {
+    "version": "2.0"
+  },
+  "extras": {
+    "info": {
+      "note": "Complex example with node extension and multiple primitive extensions"
+    }
+  },
+  "nodes": [{
+    "name": "Building",
+    "mesh": 0,
+    "extensions": {
+      "MAXAR_nonvisual_geometry": {
+        "mesh": 1
+      }
+    }
+  }],
+  "meshes": [{
+    "name": "Visual Building Mesh",
+    "primitives": [{
+      "attributes": {
+        "POSITION": 0,
+        "NORMAL": 1
+      },
+      "indices": 2
+    }]
+  }, {
+    "name": "Nonvisual Building Mesh",
+    "primitives": [{
+      "attributes": {
+        "POSITION": 3
+      },
+      "indices": 4,
+      "extensions": {
+        "MAXAR_nonvisual_geometry": {
+          "shape": "surface",
+          "type": "roadway"
+        }
+      }
+    }, {
+      "attributes": {
+        "POSITION": 5
+      },
+      "mode": 3,
+      "extensions": {
+        "MAXAR_nonvisual_geometry": {
+          "shape": "path",
+          "type": "ladder"
+        }
+      }
+    }, {
+      "attributes": {
+        "POSITION": 6
+      },
+      "indices": 7,
+      "extensions": {
+        "MAXAR_nonvisual_geometry": {
+          "shape": "volume",
+          "type": "collision"
+        }
+      }
+    }, {
+      "attributes": {
+        "POSITION": 8
+      },
+      "mode": 0,
+      "extensions": {
+        "MAXAR_nonvisual_geometry": {
+          "shape": "points",
+          "type": "trigger"
+        }
+      }
+    }]
+  }],
+  "accessors": [{
+    "bufferView": 0,
+    "componentType": 5126,
+    "count": 4,
+    "type": "VEC3"
+  }, {
+    "bufferView": 1,
+    "componentType": 5126,
+    "count": 4,
+    "type": "VEC3"
+  }, {
+    "bufferView": 2,
+    "componentType": 5123,
+    "count": 6,
+    "type": "SCALAR"
+  }, {
+    "bufferView": 3,
+    "componentType": 5126,
+    "count": 4,
+    "type": "VEC3"
+  }, {
+    "bufferView": 4,
+    "componentType": 5123,
+    "count": 6,
+    "type": "SCALAR"
+  }, {
+    "bufferView": 5,
+    "componentType": 5126,
+    "count": 4,
+    "type": "VEC3"
+  }, {
+    "bufferView": 6,
+    "componentType": 5126,
+    "count": 4,
+    "type": "VEC3"
+  }, {
+    "bufferView": 7,
+    "componentType": 5123,
+    "count": 12,
+    "type": "SCALAR"
+  }, {
+    "bufferView": 8,
+    "componentType": 5126,
+    "count": 3,
+    "type": "VEC3"
+  }],
+  "bufferViews": [{
+    "buffer": 0,
+    "byteOffset": 0,
+    "byteLength": 48
+  }, {
+    "buffer": 0,
+    "byteOffset": 48,
+    "byteLength": 48
+  }, {
+    "buffer": 0,
+    "byteOffset": 96,
+    "byteLength": 12
+  }, {
+    "buffer": 0,
+    "byteOffset": 108,
+    "byteLength": 48
+  }, {
+    "buffer": 0,
+    "byteOffset": 156,
+    "byteLength": 12
+  }, {
+    "buffer": 0,
+    "byteOffset": 168,
+    "byteLength": 48
+  }, {
+    "buffer": 0,
+    "byteOffset": 216,
+    "byteLength": 48
+  }, {
+    "buffer": 0,
+    "byteOffset": 264,
+    "byteLength": 24
+  }, {
+    "buffer": 0,
+    "byteOffset": 288,
+    "byteLength": 36
+  }],
+  "buffers": [{
+    "uri": "data:application/gltf-buffer;base64,AAAAAAAAAAAAAIA/AAAAAAAAgD8AAAAAAACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAABAAIAAwAAAAEAAgAAAAAAAAAAAACAPwAAAAAAAIA/AAAAAAAAgD8AAIA/AAAAAAAAAAAAAAAAAAABAAIAAQADAAIAAAAAAAAAAAAAAAAAAACAP2ZmZj8AAAAAAAAAAAAAAAAAAIA/ZmZmPwAAAAAAAAAAAACAPwAAAAAAAIA/AAAAAAAAgD8AAIA/AAAAAAAAAAAAAAAAAAABAAIAAQADAAIAAAABAAMAAQAAAAMAAAACAAMAAAAAAAAAAAAAAIA/AAAAAAAAgD8AAAAAAACAPwAAAAA=",
+    "byteLength": 324
+  }],
+  "scene": 0,
+  "scenes": [{
+    "nodes": [0]
+  }]
+}
