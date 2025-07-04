@@ -1,0 +1,70 @@
+{
+  "asset": {
+    "version": "2.0"
+  },
+  "extensionsUsed": [
+    "KHR_lights_punctual"
+  ],
+  "extensions": {
+    "KHR_lights_punctual": {
+      "lights": [
+        {
+          "type": "directional",
+          "color": [1.0, 0.9, 0.7],
+          "intensity": 3.0,
+          "name": "Directional Light"
+        },
+        {
+          "type": "point",
+          "color": [1.0, 0.0, 0.0],
+          "intensity": 20.0,
+          "range": 100.0,
+          "name": "Point Light"
+        },
+        {
+          "type": "spot",
+          "color": [0.3, 0.7, 1.0],
+          "intensity": 40.0,
+          "spot": {
+            "innerConeAngle": 0.785398163397448,
+            "outerConeAngle": 1.57079632679
+          },
+          "name": "Spot Light"
+        }
+      ]
+    }
+  },
+  "scenes": [
+    {
+      "nodes": [0, 1, 2]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "directional_light",
+      "extensions": {
+        "KHR_lights_punctual": {
+          "light": 0
+        }
+      }
+    },
+    {
+      "name": "point_light",
+      "extensions": {
+        "KHR_lights_punctual": {
+          "light": 1
+        }
+      },
+      "translation": [0, 22, 0]
+    },
+    {
+      "name": "spot_light",
+      "extensions": {
+        "KHR_lights_punctual": {
+          "light": 2
+        }
+      },
+      "translation": [10, 10, 10]
+    }
+  ]
+}
