@@ -1,0 +1,57 @@
+{
+  "extensionsUsed": ["MAXAR_nonvisual_geometry"],
+  "asset": {
+    "version": "2.0"
+  },
+  "extras": {
+    "info": {
+      "note": "Valid primitive extension with volume shape and TRIANGLES mode"
+    }
+  },
+  "meshes": [{
+    "primitives": [{
+      "attributes": {
+        "POSITION": 0
+      },
+      "indices": 1,
+      "mode": 4,
+      "extensions": {
+        "MAXAR_nonvisual_geometry": {
+          "shape": "volume",
+          "type": "collision"
+        }
+      }
+    }]
+  }],
+  "accessors": [{
+    "bufferView": 0,
+    "componentType": 5126,
+    "count": 4,
+    "type": "VEC3"
+  }, {
+    "bufferView": 1,
+    "componentType": 5123,
+    "count": 12,
+    "type": "SCALAR"
+  }],
+  "bufferViews": [{
+    "buffer": 0,
+    "byteOffset": 0,
+    "byteLength": 48
+  }, {
+    "buffer": 0,
+    "byteOffset": 48,
+    "byteLength": 24
+  }],
+  "buffers": [{
+    "uri": "data:application/gltf-buffer;base64,AAAAAAAAAAAAAIA/AAAAAAAAgD8AAAAAAACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAAABAAIAAQADAAIAAAABAAMAAQAAAAMAAAACAAMAAA==",
+    "byteLength": 72
+  }],
+  "nodes": [{
+    "mesh": 0
+  }],
+  "scene": 0,
+  "scenes": [{
+    "nodes": [0]
+  }]
+}

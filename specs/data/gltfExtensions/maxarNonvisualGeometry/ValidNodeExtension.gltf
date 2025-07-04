@@ -1,0 +1,99 @@
+{
+  "extensionsUsed": ["MAXAR_nonvisual_geometry"],
+  "asset": {
+    "version": "2.0"
+  },
+  "extras": {
+    "info": {
+      "note": "Valid node extension referencing existing mesh"
+    }
+  },
+  "nodes": [{
+    "name": "Visual Node",
+    "mesh": 0,
+    "extensions": {
+      "MAXAR_nonvisual_geometry": {
+        "mesh": 1
+      }
+    }
+  }],
+  "meshes": [{
+    "name": "Visual Mesh",
+    "primitives": [{
+      "attributes": {
+        "POSITION": 0,
+        "NORMAL": 1
+      },
+      "indices": 2
+    }]
+  }, {
+    "name": "Nonvisual Mesh",
+    "primitives": [{
+      "attributes": {
+        "POSITION": 3
+      },
+      "indices": 4,
+      "extensions": {
+        "MAXAR_nonvisual_geometry": {
+          "shape": "surface",
+          "type": "collision"
+        }
+      }
+    }]
+  }],
+  "accessors": [{
+    "bufferView": 0,
+    "componentType": 5126,
+    "count": 4,
+    "type": "VEC3"
+  }, {
+    "bufferView": 1,
+    "componentType": 5126,
+    "count": 4,
+    "type": "VEC3"
+  }, {
+    "bufferView": 2,
+    "componentType": 5123,
+    "count": 6,
+    "type": "SCALAR"
+  }, {
+    "bufferView": 3,
+    "componentType": 5126,
+    "count": 4,
+    "type": "VEC3"
+  }, {
+    "bufferView": 4,
+    "componentType": 5123,
+    "count": 6,
+    "type": "SCALAR"
+  }],
+  "bufferViews": [{
+    "buffer": 0,
+    "byteOffset": 0,
+    "byteLength": 48
+  }, {
+    "buffer": 0,
+    "byteOffset": 48,
+    "byteLength": 48
+  }, {
+    "buffer": 0,
+    "byteOffset": 96,
+    "byteLength": 12
+  }, {
+    "buffer": 0,
+    "byteOffset": 108,
+    "byteLength": 48
+  }, {
+    "buffer": 0,
+    "byteOffset": 156,
+    "byteLength": 12
+  }],
+  "buffers": [{
+    "uri": "data:application/gltf-buffer;base64,AAAAAAAAAAAAAIA/AAAAAAAAgD8AAAAAAACAPwAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAABAAIAAwAAAAEAAgAAAAAAAAAAAACAPwAAAAAAAIA/AAAAAAAAgD8AAIA/AAAAAAAAAAAAAAAAAAABAAIAAQADAAIA",
+    "byteLength": 168
+  }],
+  "scene": 0,
+  "scenes": [{
+    "nodes": [0]
+  }]
+}

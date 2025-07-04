@@ -1,0 +1,47 @@
+{
+  "extensionsUsed": ["MAXAR_nonvisual_geometry"],
+  "asset": {
+    "version": "2.0"
+  },
+  "extras": {
+    "info": {
+      "note": "Valid primitive extension with points shape and POINTS mode"
+    }
+  },
+  "meshes": [{
+    "primitives": [{
+      "attributes": {
+        "POSITION": 0
+      },
+      "mode": 0,
+      "extensions": {
+        "MAXAR_nonvisual_geometry": {
+          "shape": "points",
+          "type": "trigger"
+        }
+      }
+    }]
+  }],
+  "accessors": [{
+    "bufferView": 0,
+    "componentType": 5126,
+    "count": 3,
+    "type": "VEC3"
+  }],
+  "bufferViews": [{
+    "buffer": 0,
+    "byteOffset": 0,
+    "byteLength": 36
+  }],
+  "buffers": [{
+    "uri": "data:application/gltf-buffer;base64,AAAAAAAAAAAAAIA/AAAAAAAAgD8AAAAAAACAPwAAAAA=",
+    "byteLength": 36
+  }],
+  "nodes": [{
+    "mesh": 0
+  }],
+  "scene": 0,
+  "scenes": [{
+    "nodes": [0]
+  }]
+}
