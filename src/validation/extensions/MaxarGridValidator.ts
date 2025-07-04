@@ -5,6 +5,7 @@ import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
 import { StructureValidator } from "../StructureValidator";
 import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
+import { MaxarValidatorCommon } from "./maxar/MaxarValidatorCommon";
 
 /**
  * A class for the validation of `MAXAR_grid` extension objects
@@ -209,7 +210,7 @@ export class MaxarGridValidator implements Validator<any> {
     if (!BasicValidator.validateObject(srsPath, "srs", srs, context)) {
       result = false;
     } else {
-      if (!MaxarGridValidator.validateSrs(srsPath, srs, context)) {
+      if (!MaxarValidatorCommon.validateSrs(srsPath, srs, context)) {
         result = false;
       }
     }
@@ -240,208 +241,6 @@ export class MaxarGridValidator implements Validator<any> {
       disallowedProperties,
       context
     );
-  }
-
-  /**
-   * Validates the spatial reference system (srs) object
-   *
-   * @param path - The path for ValidationIssue instances
-   * @param srs - The srs object to validate
-   * @param context - The ValidationContext that any issues will be added to
-   * @returns Whether the object was valid
-   */
-  static validateSrs(
-    path: string,
-    srs: any,
-    context: ValidationContext
-  ): boolean {
-    let result = true;
-
-    // Validate referenceSystem (required)
-    const referenceSystem = srs.referenceSystem;
-    const referenceSystemPath = path + "/referenceSystem";
-    if (
-      !BasicValidator.validateString(
-        referenceSystemPath,
-        "referenceSystem",
-        referenceSystem,
-        context
-      )
-    ) {
-      result = false;
-    } else {
-      const validReferenceSystems = ["WGS84-G1762", "ITRF2008"];
-      if (
-        !BasicValidator.validateEnum(
-          referenceSystemPath,
-          "referenceSystem",
-          referenceSystem,
-          validReferenceSystems,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
-    // Validate epoch (required)
-    const epoch = srs.epoch;
-    const epochPath = path + "/epoch";
-    if (!BasicValidator.validateString(epochPath, "epoch", epoch, context)) {
-      result = false;
-    } else {
-      // Validate epoch pattern: decimal year
-      const epochPattern = /^[0-9]+(\.[0-9]+)?$/;
-      if (!epochPattern.test(epoch)) {
-        const message = `The 'epoch' property must be a decimal year string, but is '${epoch}'`;
-        const issue = JsonValidationIssues.STRING_VALUE_INVALID(
-          epochPath,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
-    }
-
-    // Validate coordinateSystem (required)
-    const coordinateSystem = srs.coordinateSystem;
-    const coordinateSystemPath = path + "/coordinateSystem";
-    if (
-      !BasicValidator.validateString(
-        coordinateSystemPath,
-        "coordinateSystem",
-        coordinateSystem,
-        context
-      )
-    ) {
-      result = false;
-    } else {
-      // Validate coordinateSystem patterns
-      const geodEcefPattern = /^(GEOD|ECEF)$/;
-      const utmPattern = /^UTM(0[123456789]|60|[12345][0123456789])[NS]$/;
-      const s2Pattern = /^S2F[123456]$/;
-
-      if (
-        !geodEcefPattern.test(coordinateSystem) &&
-        !utmPattern.test(coordinateSystem) &&
-        !s2Pattern.test(coordinateSystem)
-      ) {
-        const message = `The 'coordinateSystem' property has invalid value '${coordinateSystem}'`;
-        const issue = JsonValidationIssues.STRING_VALUE_INVALID(
-          coordinateSystemPath,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
-    }
-
-    // Validate elevation (required)
-    const elevation = srs.elevation;
-    const elevationPath = path + "/elevation";
-    if (
-      !BasicValidator.validateString(
-        elevationPath,
-        "elevation",
-        elevation,
-        context
-      )
-    ) {
-      result = false;
-    } else {
-      const validElevations = ["ELLIPSOID", "EGM2008"];
-      if (
-        !BasicValidator.validateEnum(
-          elevationPath,
-          "elevation",
-          elevation,
-          validElevations,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
-    // Validate optional properties
-    if (defined(srs.axis)) {
-      const axis = srs.axis;
-      const axisPath = path + "/axis";
-      if (!BasicValidator.validateString(axisPath, "axis", axis, context)) {
-        result = false;
-      } else {
-        const validAxis = ["NED", "ENU"];
-        if (
-          !BasicValidator.validateEnum(
-            axisPath,
-            "axis",
-            axis,
-            validAxis,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-    }
-
-    if (defined(srs.unitHorizontal)) {
-      const unitHorizontal = srs.unitHorizontal;
-      const unitHorizontalPath = path + "/unitHorizontal";
-      if (
-        !BasicValidator.validateString(
-          unitHorizontalPath,
-          "unitHorizontal",
-          unitHorizontal,
-          context
-        )
-      ) {
-        result = false;
-      } else {
-        const validUnits = ["METER", "DEGREE"];
-        if (
-          !BasicValidator.validateEnum(
-            unitHorizontalPath,
-            "unitHorizontal",
-            unitHorizontal,
-            validUnits,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-    }
-
-    if (defined(srs.unitVertical)) {
-      const unitVertical = srs.unitVertical;
-      const unitVerticalPath = path + "/unitVertical";
-      if (
-        !BasicValidator.validateString(
-          unitVerticalPath,
-          "unitVertical",
-          unitVertical,
-          context
-        )
-      ) {
-        result = false;
-      } else {
-        const validUnits = ["METER"];
-        if (
-          !BasicValidator.validateEnum(
-            unitVerticalPath,
-            "unitVertical",
-            unitVertical,
-            validUnits,
-            context
-          )
-        ) {
-          result = false;
-        }
-      }
-    }
-
-    return result;
   }
 
   /**

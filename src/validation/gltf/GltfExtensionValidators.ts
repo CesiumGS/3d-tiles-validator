@@ -6,6 +6,7 @@ import { ExtStructuralMetadataValidator } from "./structuralMetadata/ExtStructur
 
 import { GltfDataReader } from "./GltfDataReader";
 import { NgaGpmLocalValidator } from "./gpmLocal/NgaGpmLocalValidator";
+import { MaxarImageOrthoValidator } from "./imageOrtho/MaxarImageOrthoValidator";
 
 /**
  * A class that only serves as an entry point for validating
@@ -72,6 +73,16 @@ export class GltfExtensionValidators {
       context
     );
     if (!ngaGpmLocalValid) {
+      result = false;
+    }
+
+    // Validate `MAXAR_image_ortho`
+    const maxarImageOrthoValid = await MaxarImageOrthoValidator.validateGltf(
+      path,
+      gltfData,
+      context
+    );
+    if (!maxarImageOrthoValid) {
       result = false;
     }
 
