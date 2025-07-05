@@ -74,7 +74,7 @@
     "about:package-copy": "echo 'Copy the entry point for the application from the bin to the build directory'",
     "about:package": "echo 'Prepare a package that can then be published on NPM'",
     "start": "npx ts-node src/main.ts",
-    "eslint": "eslint \"./**/*.ts\" --cache",
+    "eslint": "eslint \"./**/*.ts\" --cache --max-warnings=0",
     "build": "npx tsc",
     "test": "ts-node node_modules/jasmine/bin/jasmine --config=specs/jasmine.json",
     "coverage": "nyc npm run test",
