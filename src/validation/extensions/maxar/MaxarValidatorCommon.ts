@@ -32,19 +32,34 @@ export class MaxarValidatorCommon {
 
     let result = true;
 
-    // Validate required properties
-    const requiredProperties = [
-      "referenceSystem",
-      "epoch",
-      "coordinateSystem",
-      "elevation",
-    ];
-    for (const property of requiredProperties) {
-      if (!defined(srs[property])) {
-        const propertyPath = path + "/" + property;
-        const message = `The '${property}' property is required`;
-        const issue = JsonValidationIssues.PROPERTY_MISSING(
-          propertyPath,
+    // Validate referenceSystem enum
+    const referenceSystem = srs.referenceSystem;
+    const referenceSystemPath = path + "/referenceSystem";
+    const validReferenceSystemValues = ["WGS84-G1762", "ITRF2008"];
+    if (
+      !BasicValidator.validateEnum(
+        referenceSystemPath,
+        "referenceSystem",
+        referenceSystem,
+        validReferenceSystemValues,
+        context
+      )
+    ) {
+      result = false;
+    }
+
+    // Validate epoch pattern
+    const epoch = srs.epoch;
+    const epochPath = path + "/epoch";
+    if (!BasicValidator.validateString(epochPath, "epoch", epoch, context)) {
+      result = false;
+    } else {
+      const epochPattern = /^[0-9]+(\.[0-9]+)?$/;
+      if (!epochPattern.test(epoch)) {
+        const message =
+          "The 'epoch' must match the pattern '^[0-9]+(\\.[0-9]+)?$'";
+        const issue = JsonValidationIssues.STRING_VALUE_INVALID(
+          epochPath,
           message
         );
         context.addIssue(issue);
@@ -52,87 +67,44 @@ export class MaxarValidatorCommon {
       }
     }
 
-    // Validate referenceSystem enum
-    const referenceSystem = srs.referenceSystem;
-    if (defined(referenceSystem)) {
-      const referenceSystemPath = path + "/referenceSystem";
-      const validReferenceSystemValues = ["WGS84-G1762", "ITRF2008"];
-      if (
-        !BasicValidator.validateEnum(
-          referenceSystemPath,
-          "referenceSystem",
-          referenceSystem,
-          validReferenceSystemValues,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
-    // Validate epoch pattern
-    const epoch = srs.epoch;
-    if (defined(epoch)) {
-      const epochPath = path + "/epoch";
-      if (!BasicValidator.validateString(epochPath, "epoch", epoch, context)) {
-        result = false;
-      } else {
-        const epochPattern = /^[0-9]+(\.[0-9]+)?$/;
-        if (!epochPattern.test(epoch)) {
-          const message =
-            "The 'epoch' must match the pattern '^[0-9]+(\\.[0-9]+)?$'";
-          const issue = JsonValidationIssues.STRING_VALUE_INVALID(
-            epochPath,
-            message
-          );
-          context.addIssue(issue);
-          result = false;
-        }
-      }
-    }
-
     // Validate coordinateSystem
     const coordinateSystem = srs.coordinateSystem;
-    if (defined(coordinateSystem)) {
-      const coordinateSystemPath = path + "/coordinateSystem";
+    const coordinateSystemPath = path + "/coordinateSystem";
+    if (
+      !BasicValidator.validateString(
+        coordinateSystemPath,
+        "coordinateSystem",
+        coordinateSystem,
+        context
+      )
+    ) {
+      result = false;
+    } else {
       if (
-        !BasicValidator.validateString(
+        !MaxarValidatorCommon.validateCoordinateSystem(
           coordinateSystemPath,
-          "coordinateSystem",
           coordinateSystem,
           context
         )
       ) {
         result = false;
-      } else {
-        if (
-          !MaxarValidatorCommon.validateCoordinateSystem(
-            coordinateSystemPath,
-            coordinateSystem,
-            context
-          )
-        ) {
-          result = false;
-        }
       }
     }
 
     // Validate elevation enum
     const elevation = srs.elevation;
-    if (defined(elevation)) {
-      const elevationPath = path + "/elevation";
-      const validElevationValues = ["ELLIPSOID", "EGM2008"];
-      if (
-        !BasicValidator.validateEnum(
-          elevationPath,
-          "elevation",
-          elevation,
-          validElevationValues,
-          context
-        )
-      ) {
-        result = false;
-      }
+    const elevationPath = path + "/elevation";
+    const validElevationValues = ["ELLIPSOID", "EGM2008"];
+    if (
+      !BasicValidator.validateEnum(
+        elevationPath,
+        "elevation",
+        elevation,
+        validElevationValues,
+        context
+      )
+    ) {
+      result = false;
     }
 
     // Validate optional properties with defaults
@@ -158,20 +130,19 @@ export class MaxarValidatorCommon {
     }
 
     // Check UTM pattern: UTM(01-60)[NS]
-    const utmPattern = /^UTM(0[123456789]|60|[12345][0123456789])[NS]$/;
+    const utmPattern = /^UTM(0[1-9]|[1-5][0-9]|60)[NS]$/;
     if (utmPattern.test(coordinateSystem)) {
       return true;
     }
 
     // Check S2 pattern: S2F[1-6]
-    const s2Pattern = /^S2F[123456]$/;
+    const s2Pattern = /^S2F[1-6]$/;
     if (s2Pattern.test(coordinateSystem)) {
       return true;
     }
 
     // If none of the patterns match, it's invalid
-    const message =
-      "The 'coordinateSystem' must be 'GEOD', 'ECEF', match UTM pattern 'UTM(01-60)[NS]', or S2 pattern 'S2F[1-6]'";
+    const message = `The 'coordinateSystem' value '${coordinateSystem}' is invalid. It must be 'GEOD', 'ECEF', match UTM pattern 'UTM(01-60)[NS]', or S2 pattern 'S2F[1-6]'`;
     const issue = JsonValidationIssues.STRING_VALUE_INVALID(path, message);
     context.addIssue(issue);
     return false;

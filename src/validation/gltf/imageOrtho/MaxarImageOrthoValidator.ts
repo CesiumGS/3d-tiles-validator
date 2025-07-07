@@ -2,12 +2,9 @@ import { defined } from "3d-tiles-tools";
 
 import { ValidationContext } from "../../ValidationContext";
 import { BasicValidator } from "../../BasicValidator";
-import { StructureValidator } from "../../StructureValidator";
 
 import { GltfData } from "../GltfData";
 
-import { JsonValidationIssues } from "../../../issues/JsonValidationIssues";
-import { SemanticValidationIssues } from "../../../issues/SemanticValidationIssues";
 import { MaxarValidatorCommon } from "../../extensions/maxar/MaxarValidatorCommon";
 
 /**
@@ -118,15 +115,8 @@ export class MaxarImageOrthoValidator {
     // Validate the srs property (required)
     const srs = maxarImageOrtho.srs;
     const srsPath = path + "/srs";
-    if (!defined(srs)) {
-      const message = "The 'srs' property is required";
-      const issue = JsonValidationIssues.PROPERTY_MISSING(srsPath, message);
-      context.addIssue(issue);
+    if (!MaxarValidatorCommon.validateSrs(srsPath, srs, context)) {
       result = false;
-    } else {
-      if (!MaxarValidatorCommon.validateSrs(srsPath, srs, context)) {
-        result = false;
-      }
     }
 
     return result;
