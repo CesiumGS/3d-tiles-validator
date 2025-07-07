@@ -78,7 +78,7 @@ describe("MAXAR_nonvisual_geometry extension validation", function () {
       "./specs/data/gltfExtensions/maxarNonvisualGeometry/PrimitiveExtensionTypeEmpty.gltf"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("INVALID_GLTF_STRUCTURE");
+    expect(result.get(0).type).toEqual("STRING_LENGTH_MISMATCH");
   });
 
   it("detects issues in ShapePointsIncompatibleMode", async function () {

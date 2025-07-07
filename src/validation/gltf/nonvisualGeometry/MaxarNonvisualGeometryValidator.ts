@@ -144,38 +144,33 @@ export class MaxarNonvisualGeometryValidator {
     const mesh = nodeExtension.mesh;
     const meshPath = path + "/mesh";
 
-    // The mesh property is required
-    if (!BasicValidator.validateDefined(meshPath, "mesh", mesh, context)) {
+    // The mesh must be a valid glTF ID (non-negative integer)
+    if (
+      !BasicValidator.validateIntegerRange(
+        meshPath,
+        "mesh",
+        mesh,
+        0,
+        true,
+        undefined,
+        false,
+        context
+      )
+    ) {
       result = false;
     } else {
-      // The mesh must be a valid glTF ID (non-negative integer)
-      if (
-        !BasicValidator.validateIntegerRange(
+      // Validate that the mesh index references an existing mesh
+      const meshes = gltf.meshes || [];
+      if (mesh >= meshes.length) {
+        const message =
+          `The mesh index ${mesh} is out of range. ` +
+          `The glTF contains ${meshes.length} meshes.`;
+        const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
           meshPath,
-          "mesh",
-          mesh,
-          0,
-          true,
-          undefined,
-          false,
-          context
-        )
-      ) {
+          message
+        );
+        context.addIssue(issue);
         result = false;
-      } else {
-        // Validate that the mesh index references an existing mesh
-        const meshes = gltf.meshes || [];
-        if (mesh >= meshes.length) {
-          const message =
-            `The mesh index ${mesh} is out of range. ` +
-            `The glTF contains ${meshes.length} meshes.`;
-          const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
-            meshPath,
-            message
-          );
-          context.addIssue(issue);
-          result = false;
-        }
       }
     }
 
@@ -216,34 +211,29 @@ export class MaxarNonvisualGeometryValidator {
     const shape = primitiveExtension.shape;
     const shapePath = path + "/shape";
 
-    // The shape property is required
-    if (!BasicValidator.validateDefined(shapePath, "shape", shape, context)) {
+    // The shape must be one of the allowed enum values
+    const allowedShapes = ["points", "path", "surface", "volume"];
+    if (
+      !BasicValidator.validateEnum(
+        shapePath,
+        "shape",
+        shape,
+        allowedShapes,
+        context
+      )
+    ) {
       result = false;
     } else {
-      // The shape must be one of the allowed enum values
-      const allowedShapes = ["points", "path", "surface", "volume"];
-      if (
-        !BasicValidator.validateEnum(
-          shapePath,
-          "shape",
+      // Validate shape-to-primitive-mode compatibility
+      const shapeCompatibilityValid =
+        MaxarNonvisualGeometryValidator.validateShapeCompatibility(
+          path,
           shape,
-          allowedShapes,
+          primitive,
           context
-        )
-      ) {
+        );
+      if (!shapeCompatibilityValid) {
         result = false;
-      } else {
-        // Validate shape-to-primitive-mode compatibility
-        const shapeCompatibilityValid =
-          MaxarNonvisualGeometryValidator.validateShapeCompatibility(
-            path,
-            shape,
-            primitive,
-            context
-          );
-        if (!shapeCompatibilityValid) {
-          result = false;
-        }
       }
     }
 
@@ -251,24 +241,18 @@ export class MaxarNonvisualGeometryValidator {
     const type = primitiveExtension.type;
     const typePath = path + "/type";
 
-    // The type property is required
-    if (!BasicValidator.validateDefined(typePath, "type", type, context)) {
+    // The type property is required and must be a non-empty string
+    if (
+      !BasicValidator.validateStringLength(
+        typePath,
+        "type",
+        type,
+        1,
+        undefined,
+        context
+      )
+    ) {
       result = false;
-    } else {
-      // The type must be a non-empty string
-      if (
-        !BasicValidator.validateType(typePath, "type", type, "string", context)
-      ) {
-        result = false;
-      } else if (type.length === 0) {
-        const message = "The type property must be a non-empty string";
-        const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-          typePath,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
     }
 
     return result;
