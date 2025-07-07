@@ -12,7 +12,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/invalidEmptyUri.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("STRING_VALUE_INVALID");
   });
 
@@ -20,7 +20,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/invalidMissingUri.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("PROPERTY_MISSING");
   });
 
@@ -28,7 +28,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/invalidUriType.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
   });
 
@@ -36,7 +36,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/invalidNonResolvableUri.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("IO_ERROR");
     expect(result.get(0).message).toContain("could not be resolved");
   });
@@ -45,7 +45,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/invalidGeojsonContent.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
     expect(result.get(0).message).toContain("coordinates");
   });
@@ -61,7 +61,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/invalidSpatialExtent.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
     expect(result.get(0).message).toContain(
       "not contained within the root tile's bounding volume"
@@ -79,7 +79,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/invalidGeometryTypesTileset.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
     expect(result.get(0).message).toContain(
       "must contain only Polygon or MultiPolygon geometries"
@@ -91,7 +91,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/insufficientCoordinatesTileset.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
     expect(result.get(0).message).toContain(
       "must have at least 3 unique coordinates"
@@ -102,7 +102,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/selfIntersectingTileset.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
     expect(result.get(0).message).toContain(
       "is self-intersecting, which is forbidden"
