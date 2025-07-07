@@ -30,7 +30,7 @@ describe("MAXAR_nonvisual_geometry extension validation", function () {
       "./specs/data/gltfExtensions/maxarNonvisualGeometry/NodeExtensionMeshNotFound.gltf"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("IDENTIFIER_NOT_FOUND");
+    expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
   });
 
   it("detects issues in PrimitiveExtensionShapeMissing", async function () {

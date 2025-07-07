@@ -144,6 +144,7 @@ export class MaxarNonvisualGeometryValidator {
     const mesh = nodeExtension.mesh;
     const meshPath = path + "/mesh";
 
+    const meshes = gltf.meshes || [];
     // The mesh must be a valid glTF ID (non-negative integer)
     if (
       !BasicValidator.validateIntegerRange(
@@ -152,26 +153,12 @@ export class MaxarNonvisualGeometryValidator {
         mesh,
         0,
         true,
-        undefined,
+        meshes.length,
         false,
         context
       )
     ) {
       result = false;
-    } else {
-      // Validate that the mesh index references an existing mesh
-      const meshes = gltf.meshes || [];
-      if (mesh >= meshes.length) {
-        const message =
-          `The mesh index ${mesh} is out of range. ` +
-          `The glTF contains ${meshes.length} meshes.`;
-        const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
-          meshPath,
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
     }
 
     return result;
