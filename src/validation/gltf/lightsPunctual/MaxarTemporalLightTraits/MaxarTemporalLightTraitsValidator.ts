@@ -78,67 +78,56 @@ export class MaxarTemporalLightTraitsValidator {
 
     // Validate the waveform property (required)
     const waveform = flashing.waveform;
-    if (!defined(waveform)) {
-      const message = "The 'waveform' property is required";
-      const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-        path,
-        message
-      );
-      context.addIssue(issue);
+    const validWaveforms = ["sine", "square", "triangle"];
+    if (
+      !BasicValidator.validateEnum(
+        path + "/waveform",
+        "waveform",
+        waveform,
+        validWaveforms,
+        context
+      )
+    ) {
       result = false;
-    } else {
-      const validWaveforms = ["sine", "square", "triangle"];
-      if (typeof waveform !== "string" || !validWaveforms.includes(waveform)) {
-        const message = `The 'waveform' property must be one of: ${validWaveforms.join(
-          ", "
-        )}`;
-        const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-          path + "/waveform",
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
     }
 
     // Validate the frequency property (required)
     const frequency = flashing.frequency;
-    if (!defined(frequency)) {
-      const message = "The 'frequency' property is required";
-      const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-        path,
-        message
-      );
-      context.addIssue(issue);
+    if (
+      !BasicValidator.validateNumberRange(
+        path + "/frequency",
+        "frequency",
+        frequency,
+        0.0,
+        false,
+        undefined,
+        false,
+        context
+      )
+    ) {
       result = false;
-    } else {
-      if (typeof frequency !== "number" || frequency <= 0) {
-        const message = "The 'frequency' property must be a positive number";
-        const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
-          path + "/frequency",
-          message
-        );
-        context.addIssue(issue);
-        result = false;
-      }
     }
 
     // Validate the duty property (optional)
     const duty = flashing.duty;
     if (defined(duty)) {
-      if (typeof duty !== "number" || duty < 0.0 || duty > 1.0) {
-        const message =
-          "The 'duty' property must be a number between 0.0 and 1.0";
-        const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
+      if (
+        !BasicValidator.validateNumberRange(
           path + "/duty",
-          message
-        );
-        context.addIssue(issue);
+          "duty",
+          duty,
+          0.0,
+          true,
+          1.0,
+          true,
+          context
+        )
+      ) {
         result = false;
       }
 
       // Validate that duty is only used with square waveforms
-      if (defined(waveform) && waveform !== "square") {
+      if (waveform !== "square") {
         const message =
           "The 'duty' property is only applicable for 'square' waveforms";
         const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
@@ -153,13 +142,14 @@ export class MaxarTemporalLightTraitsValidator {
     // Validate the amplitudeOffset property (optional)
     const amplitudeOffset = flashing.amplitudeOffset;
     if (defined(amplitudeOffset)) {
-      if (typeof amplitudeOffset !== "number") {
-        const message = "The 'amplitudeOffset' property must be a number";
-        const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
+      if (
+        !BasicValidator.validateNumber(
           path + "/amplitudeOffset",
-          message
-        );
-        context.addIssue(issue);
+          "amplitudeOffset",
+          amplitudeOffset,
+          context
+        )
+      ) {
         result = false;
       }
     }
@@ -167,13 +157,14 @@ export class MaxarTemporalLightTraitsValidator {
     // Validate the amplitudeScale property (optional)
     const amplitudeScale = flashing.amplitudeScale;
     if (defined(amplitudeScale)) {
-      if (typeof amplitudeScale !== "number") {
-        const message = "The 'amplitudeScale' property must be a number";
-        const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
+      if (
+        !BasicValidator.validateNumber(
           path + "/amplitudeScale",
-          message
-        );
-        context.addIssue(issue);
+          "amplitudeScale",
+          amplitudeScale,
+          context
+        )
+      ) {
         result = false;
       }
     }
@@ -181,13 +172,14 @@ export class MaxarTemporalLightTraitsValidator {
     // Validate the phaseOffset property (optional)
     const phaseOffset = flashing.phaseOffset;
     if (defined(phaseOffset)) {
-      if (typeof phaseOffset !== "number") {
-        const message = "The 'phaseOffset' property must be a number";
-        const issue = GltfExtensionValidationIssues.INVALID_GLTF_STRUCTURE(
+      if (
+        !BasicValidator.validateNumber(
           path + "/phaseOffset",
-          message
-        );
-        context.addIssue(issue);
+          "phaseOffset",
+          phaseOffset,
+          context
+        )
+      ) {
         result = false;
       }
     }
