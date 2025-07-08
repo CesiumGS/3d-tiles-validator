@@ -7,10 +7,47 @@ import { JsonValidationIssues } from "../issues/JsonValidationIssues";
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 /**
+ * Validation strictness modes for GeoJSON content
+ */
+export enum GeojsonValidationMode {
+  /**
+   * Consumer mode - Only FeatureCollection is allowed at root level.
+   *
+   * This mode is appropriate for:
+   * - Web mapping applications that expect collections of features
+   * - APIs that serve GeoJSON data to web clients
+   * - Systems that need to iterate over multiple geographic features
+   * - Applications that display feature properties in UI components
+   *
+   * Most GeoJSON consumers (mapping libraries, web apps, servers) expect
+   * a FeatureCollection as the root object because it provides a consistent
+   * structure for handling multiple features with properties.
+   */
+  CONSUMER = "consumer",
+
+  /**
+   * Strict mode - All valid GeoJSON types can be used at root level.
+   *
+   * This mode is appropriate for:
+   * - Data interchange between GIS systems
+   * - Scientific applications that work with raw geometric data
+   * - Systems that need to validate against the official GeoJSON specification
+   * - Applications that handle single geometric objects without properties
+   *
+   * The official GeoJSON specification (RFC 7946) allows any of these types
+   * at the root level: Point, LineString, Polygon, MultiPoint, MultiLineString,
+   * MultiPolygon, GeometryCollection, Feature, or FeatureCollection.
+   */
+  STRICT = "strict",
+}
+
+/**
  * A class for validating GeoJSON content data.
  *
  * This validator parses JSON from buffer data and validates it against
- * the GeoJSON specification schema, ensuring proper structure and types.
+ * the GeoJSON specification schema (geojson.schema.json), ensuring proper
+ * structure and types for all GeoJSON objects including Feature,
+ * FeatureCollection, and all geometry types.
  *
  * @internal
  */
@@ -35,11 +72,13 @@ export class GeojsonValidator implements Validator<Buffer> {
       return false;
     }
 
-    // Validate the GeoJSON structure
+    // Validate the GeoJSON structure using consumer mode by default
+    // Consumer mode is appropriate for 3D Tiles as it expects FeatureCollections
     const result = await GeojsonValidator.validateGeojsonObject(
       uri,
       geojsonObject,
-      context
+      context,
+      GeojsonValidationMode.CONSUMER
     );
 
     return result;
@@ -51,12 +90,14 @@ export class GeojsonValidator implements Validator<Buffer> {
    * @param path - The path for ValidationIssue instances
    * @param geojson - The GeoJSON object to validate
    * @param context - The ValidationContext that any issues will be added to
+   * @param mode - The validation mode to use (consumer or strict)
    * @returns Whether the GeoJSON object was valid
    */
   static async validateGeojsonObject(
     path: string,
     geojson: any,
-    context: ValidationContext
+    context: ValidationContext,
+    mode: GeojsonValidationMode = GeojsonValidationMode.CONSUMER
   ): Promise<boolean> {
     // Make sure that the given value is an object
     if (!BasicValidator.validateObject(path, "geojson", geojson, context)) {
@@ -75,9 +116,43 @@ export class GeojsonValidator implements Validator<Buffer> {
       return false;
     }
 
+    // Validate based on GeoJSON type and validation mode
+    let validTypes: string[];
+
+    if (mode === GeojsonValidationMode.CONSUMER) {
+      // Consumer mode: Only FeatureCollection is allowed at root level
+      // This is appropriate for web mapping applications and most GeoJSON consumers
+      validTypes = ["FeatureCollection"];
+    } else {
+      // Strict mode: All valid GeoJSON types are allowed at root level
+      // This follows the official GeoJSON specification (RFC 7946)
+      validTypes = [
+        "Point",
+        "LineString",
+        "Polygon",
+        "MultiPoint",
+        "MultiLineString",
+        "MultiPolygon",
+        "GeometryCollection",
+        "Feature",
+        "FeatureCollection",
+      ];
+    }
+
+    if (
+      !BasicValidator.validateEnum(
+        path + "/type",
+        "type",
+        geojson.type,
+        validTypes,
+        context
+      )
+    ) {
+      return false;
+    }
+
     // Validate based on GeoJSON type
-    const type = geojson.type;
-    switch (type) {
+    switch (geojson.type) {
       case "Point":
         return GeojsonValidator.validatePoint(path, geojson, context);
       case "LineString":
@@ -105,7 +180,10 @@ export class GeojsonValidator implements Validator<Buffer> {
           context
         );
       default: {
-        const message = `Invalid GeoJSON type: ${type}. Must be one of: Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection, Feature, FeatureCollection`;
+        // This should not be reached due to validateEnum above, but kept for safety
+        const message = `Invalid GeoJSON type: ${
+          geojson.type
+        }. Must be one of: ${validTypes.join(", ")}`;
         const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
           path + "/type",
           message
@@ -212,7 +290,7 @@ export class GeojsonValidator implements Validator<Buffer> {
   }
 
   /**
-   * Validates a Point geometry
+   * Validates a Point geometry according to the GeoJSON schema
    */
   private static validatePoint(
     path: string,
@@ -221,8 +299,35 @@ export class GeojsonValidator implements Validator<Buffer> {
   ): boolean {
     let result = true;
 
-    // Validate required coordinates
+    // Validate required type property (must be "Point")
     if (
+      !BasicValidator.validateString(
+        path + "/type",
+        "type",
+        point.type,
+        context
+      )
+    ) {
+      result = false;
+    } else if (point.type !== "Point") {
+      const message = `Point type must be "Point", but was "${point.type}"`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
+        path + "/type",
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    // Validate required coordinates
+    if (!defined(point.coordinates)) {
+      const issue = JsonValidationIssues.PROPERTY_MISSING(
+        path + "/coordinates",
+        "coordinates"
+      );
+      context.addIssue(issue);
+      result = false;
+    } else if (
       !GeojsonValidator.validatePosition(
         path + "/coordinates",
         point.coordinates,
@@ -241,7 +346,7 @@ export class GeojsonValidator implements Validator<Buffer> {
   }
 
   /**
-   * Validates a LineString geometry
+   * Validates a LineString geometry according to the GeoJSON schema
    */
   private static validateLineString(
     path: string,
@@ -250,8 +355,35 @@ export class GeojsonValidator implements Validator<Buffer> {
   ): boolean {
     let result = true;
 
-    // Validate required coordinates
+    // Validate required type property (must be "LineString")
     if (
+      !BasicValidator.validateString(
+        path + "/type",
+        "type",
+        lineString.type,
+        context
+      )
+    ) {
+      result = false;
+    } else if (lineString.type !== "LineString") {
+      const message = `LineString type must be "LineString", but was "${lineString.type}"`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
+        path + "/type",
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    // Validate required coordinates
+    if (!defined(lineString.coordinates)) {
+      const issue = JsonValidationIssues.PROPERTY_MISSING(
+        path + "/coordinates",
+        "coordinates"
+      );
+      context.addIssue(issue);
+      result = false;
+    } else if (
       !GeojsonValidator.validateCoordinatesArray(
         path + "/coordinates",
         lineString.coordinates,
@@ -283,7 +415,7 @@ export class GeojsonValidator implements Validator<Buffer> {
   }
 
   /**
-   * Validates a Polygon geometry
+   * Validates a Polygon geometry according to the GeoJSON schema
    */
   private static validatePolygon(
     path: string,
@@ -292,8 +424,35 @@ export class GeojsonValidator implements Validator<Buffer> {
   ): boolean {
     let result = true;
 
-    // Validate required coordinates
+    // Validate required type property (must be "Polygon")
     if (
+      !BasicValidator.validateString(
+        path + "/type",
+        "type",
+        polygon.type,
+        context
+      )
+    ) {
+      result = false;
+    } else if (polygon.type !== "Polygon") {
+      const message = `Polygon type must be "Polygon", but was "${polygon.type}"`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
+        path + "/type",
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    // Validate required coordinates
+    if (!defined(polygon.coordinates)) {
+      const issue = JsonValidationIssues.PROPERTY_MISSING(
+        path + "/coordinates",
+        "coordinates"
+      );
+      context.addIssue(issue);
+      result = false;
+    } else if (
       !BasicValidator.validateArray(
         path + "/coordinates",
         "coordinates",
@@ -342,7 +501,7 @@ export class GeojsonValidator implements Validator<Buffer> {
   }
 
   /**
-   * Validates a MultiPoint geometry
+   * Validates a MultiPoint geometry according to the GeoJSON schema
    */
   private static validateMultiPoint(
     path: string,
@@ -351,8 +510,35 @@ export class GeojsonValidator implements Validator<Buffer> {
   ): boolean {
     let result = true;
 
-    // Validate required coordinates
+    // Validate required type property (must be "MultiPoint")
     if (
+      !BasicValidator.validateString(
+        path + "/type",
+        "type",
+        multiPoint.type,
+        context
+      )
+    ) {
+      result = false;
+    } else if (multiPoint.type !== "MultiPoint") {
+      const message = `MultiPoint type must be "MultiPoint", but was "${multiPoint.type}"`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
+        path + "/type",
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    // Validate required coordinates
+    if (!defined(multiPoint.coordinates)) {
+      const issue = JsonValidationIssues.PROPERTY_MISSING(
+        path + "/coordinates",
+        "coordinates"
+      );
+      context.addIssue(issue);
+      result = false;
+    } else if (
       !BasicValidator.validateArray(
         path + "/coordinates",
         "coordinates",
@@ -387,7 +573,7 @@ export class GeojsonValidator implements Validator<Buffer> {
   }
 
   /**
-   * Validates a MultiLineString geometry
+   * Validates a MultiLineString geometry according to the GeoJSON schema
    */
   private static validateMultiLineString(
     path: string,
@@ -396,8 +582,35 @@ export class GeojsonValidator implements Validator<Buffer> {
   ): boolean {
     let result = true;
 
-    // Validate required coordinates
+    // Validate required type property (must be "MultiLineString")
     if (
+      !BasicValidator.validateString(
+        path + "/type",
+        "type",
+        multiLineString.type,
+        context
+      )
+    ) {
+      result = false;
+    } else if (multiLineString.type !== "MultiLineString") {
+      const message = `MultiLineString type must be "MultiLineString", but was "${multiLineString.type}"`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
+        path + "/type",
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    // Validate required coordinates
+    if (!defined(multiLineString.coordinates)) {
+      const issue = JsonValidationIssues.PROPERTY_MISSING(
+        path + "/coordinates",
+        "coordinates"
+      );
+      context.addIssue(issue);
+      result = false;
+    } else if (
       !BasicValidator.validateArray(
         path + "/coordinates",
         "coordinates",
@@ -446,7 +659,7 @@ export class GeojsonValidator implements Validator<Buffer> {
   }
 
   /**
-   * Validates a MultiPolygon geometry
+   * Validates a MultiPolygon geometry according to the GeoJSON schema
    */
   private static validateMultiPolygon(
     path: string,
@@ -455,8 +668,35 @@ export class GeojsonValidator implements Validator<Buffer> {
   ): boolean {
     let result = true;
 
-    // Validate required coordinates
+    // Validate required type property (must be "MultiPolygon")
     if (
+      !BasicValidator.validateString(
+        path + "/type",
+        "type",
+        multiPolygon.type,
+        context
+      )
+    ) {
+      result = false;
+    } else if (multiPolygon.type !== "MultiPolygon") {
+      const message = `MultiPolygon type must be "MultiPolygon", but was "${multiPolygon.type}"`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
+        path + "/type",
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    // Validate required coordinates
+    if (!defined(multiPolygon.coordinates)) {
+      const issue = JsonValidationIssues.PROPERTY_MISSING(
+        path + "/coordinates",
+        "coordinates"
+      );
+      context.addIssue(issue);
+      result = false;
+    } else if (
       !BasicValidator.validateArray(
         path + "/coordinates",
         "coordinates",
@@ -522,7 +762,7 @@ export class GeojsonValidator implements Validator<Buffer> {
   }
 
   /**
-   * Validates a GeometryCollection
+   * Validates a GeometryCollection according to the GeoJSON schema
    */
   private static validateGeometryCollection(
     path: string,
@@ -531,8 +771,35 @@ export class GeojsonValidator implements Validator<Buffer> {
   ): boolean {
     let result = true;
 
-    // Validate required geometries
+    // Validate required type property (must be "GeometryCollection")
     if (
+      !BasicValidator.validateString(
+        path + "/type",
+        "type",
+        geometryCollection.type,
+        context
+      )
+    ) {
+      result = false;
+    } else if (geometryCollection.type !== "GeometryCollection") {
+      const message = `GeometryCollection type must be "GeometryCollection", but was "${geometryCollection.type}"`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
+        path + "/type",
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    // Validate required geometries
+    if (!defined(geometryCollection.geometries)) {
+      const issue = JsonValidationIssues.PROPERTY_MISSING(
+        path + "/geometries",
+        "geometries"
+      );
+      context.addIssue(issue);
+      result = false;
+    } else if (
       !BasicValidator.validateArray(
         path + "/geometries",
         "geometries",
@@ -617,7 +884,29 @@ export class GeojsonValidator implements Validator<Buffer> {
       return false;
     }
 
+    // Validate geometry type against allowed values
     const type = geometry.type;
+    const validGeometryTypes = [
+      "Point",
+      "LineString",
+      "Polygon",
+      "MultiPoint",
+      "MultiLineString",
+      "MultiPolygon",
+    ];
+
+    if (
+      !BasicValidator.validateEnum(
+        path + "/type",
+        "type",
+        type,
+        validGeometryTypes,
+        context
+      )
+    ) {
+      return false;
+    }
+
     switch (type) {
       case "Point":
         return GeojsonValidator.validatePoint(path, geometry, context);
@@ -636,7 +925,10 @@ export class GeojsonValidator implements Validator<Buffer> {
       case "MultiPolygon":
         return GeojsonValidator.validateMultiPolygon(path, geometry, context);
       default: {
-        const message = `Invalid geometry type: ${type}. Must be one of: Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon`;
+        // This should not be reached due to validateEnum above, but kept for safety
+        const message = `Invalid geometry type: ${type}. Must be one of: ${validGeometryTypes.join(
+          ", "
+        )}`;
         const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
           path + "/type",
           message
@@ -648,7 +940,7 @@ export class GeojsonValidator implements Validator<Buffer> {
   }
 
   /**
-   * Validates a Feature object
+   * Validates a Feature object according to the GeoJSON schema
    */
   private static validateFeature(
     path: string,
@@ -657,8 +949,35 @@ export class GeojsonValidator implements Validator<Buffer> {
   ): boolean {
     let result = true;
 
-    // Validate required properties
+    // Validate required type property (must be "Feature")
     if (
+      !BasicValidator.validateString(
+        path + "/type",
+        "type",
+        feature.type,
+        context
+      )
+    ) {
+      result = false;
+    } else if (feature.type !== "Feature") {
+      const message = `Feature type must be "Feature", but was "${feature.type}"`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
+        path + "/type",
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    // Validate required properties (can be null or object)
+    if (!defined(feature.properties)) {
+      const issue = JsonValidationIssues.PROPERTY_MISSING(
+        path + "/properties",
+        "properties"
+      );
+      context.addIssue(issue);
+      result = false;
+    } else if (
       !GeojsonValidator.validateProperties(
         path + "/properties",
         feature.properties,
@@ -668,8 +987,15 @@ export class GeojsonValidator implements Validator<Buffer> {
       result = false;
     }
 
-    // Validate required geometry
-    if (
+    // Validate required geometry (can be null or geometry object)
+    if (!defined(feature.geometry)) {
+      const issue = JsonValidationIssues.PROPERTY_MISSING(
+        path + "/geometry",
+        "geometry"
+      );
+      context.addIssue(issue);
+      result = false;
+    } else if (
       !GeojsonValidator.validateGeometry(
         path + "/geometry",
         feature.geometry,
@@ -679,7 +1005,7 @@ export class GeojsonValidator implements Validator<Buffer> {
       result = false;
     }
 
-    // Validate optional id
+    // Validate optional id (must be string or number if present)
     if (defined(feature.id)) {
       if (typeof feature.id !== "string" && typeof feature.id !== "number") {
         const issue = JsonValidationIssues.TYPE_MISMATCH(
@@ -702,7 +1028,7 @@ export class GeojsonValidator implements Validator<Buffer> {
   }
 
   /**
-   * Validates a FeatureCollection object
+   * Validates a FeatureCollection object according to the GeoJSON schema
    */
   private static validateFeatureCollection(
     path: string,
@@ -711,8 +1037,35 @@ export class GeojsonValidator implements Validator<Buffer> {
   ): boolean {
     let result = true;
 
-    // Validate required features
+    // Validate required type property (must be "FeatureCollection")
     if (
+      !BasicValidator.validateString(
+        path + "/type",
+        "type",
+        featureCollection.type,
+        context
+      )
+    ) {
+      result = false;
+    } else if (featureCollection.type !== "FeatureCollection") {
+      const message = `FeatureCollection type must be "FeatureCollection", but was "${featureCollection.type}"`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
+        path + "/type",
+        message
+      );
+      context.addIssue(issue);
+      result = false;
+    }
+
+    // Validate required features array
+    if (!defined(featureCollection.features)) {
+      const issue = JsonValidationIssues.PROPERTY_MISSING(
+        path + "/features",
+        "features"
+      );
+      context.addIssue(issue);
+      result = false;
+    } else if (
       !BasicValidator.validateArray(
         path + "/features",
         "features",
@@ -725,6 +1078,7 @@ export class GeojsonValidator implements Validator<Buffer> {
     ) {
       result = false;
     } else {
+      // Validate each feature in the collection
       for (let i = 0; i < featureCollection.features.length; i++) {
         const featurePath = path + `/features[${i}]`;
         const feature = featureCollection.features[i];
@@ -737,17 +1091,6 @@ export class GeojsonValidator implements Validator<Buffer> {
             context
           )
         ) {
-          result = false;
-          continue;
-        }
-
-        if (feature.type !== "Feature") {
-          const message = `Feature type must be "Feature", but was "${feature.type}"`;
-          const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
-            featurePath + "/type",
-            message
-          );
-          context.addIssue(issue);
           result = false;
           continue;
         }

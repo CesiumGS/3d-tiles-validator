@@ -199,4 +199,97 @@ describe("Tileset MAXAR_content_geojson extension validation", function () {
       "Properties 'min' and 'max' can only be used with Integer and Float types, but property type is 'Variant'"
     );
   });
+
+  it("validates non-required properties without default values (defaults to null)", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/validOptionalWithoutDefaultsTileset.json"
+    );
+
+    // Should have no validation errors - non-required properties are allowed to omit defaults
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects error when default values have incorrect types", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/invalidDefaultTypesTileset.json"
+    );
+
+    expect(result.length).toEqual(5);
+
+    // Check that we have TYPE_MISMATCH errors for incorrect default value types
+    expect(result.get(0).type).toEqual("TYPE_MISMATCH");
+    expect(result.get(0).message).toContain(
+      "property must have type 'string', but has type 'number'"
+    );
+
+    expect(result.get(1).type).toEqual("TYPE_MISMATCH");
+    expect(result.get(1).message).toContain(
+      "roperty must have type 'integer', but has type 'string'"
+    );
+
+    expect(result.get(2).type).toEqual("TYPE_MISMATCH");
+    expect(result.get(2).message).toContain(
+      "property must have type 'number', but has type 'boolean'"
+    );
+
+    expect(result.get(3).type).toEqual("TYPE_MISMATCH");
+    expect(result.get(3).message).toContain(
+      "property must have type 'boolean', but has type 'string'"
+    );
+
+    expect(result.get(4).type).toEqual("VALUE_NOT_IN_RANGE");
+    expect(result.get(4).message).toContain(
+      "Variant type properties cannot have default values"
+    );
+  });
+
+  it("detects error when propertiesSchemaUri has invalid URI format", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/invalidUriFormat.json"
+    );
+    // Should have validation error for invalid URI format
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("STRING_VALUE_INVALID");
+    expect(result.get(0).message).toContain("must be a valid URI");
+  });
+
+  it("detects error when min/max properties are used on non-numeric types", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/invalidMinMaxOnNonNumericType.json"
+    );
+
+    expect(result.length).toEqual(3);
+
+    // Check that we have VALUE_NOT_IN_RANGE errors for min/max on wrong types
+    expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
+    expect(result.get(0).message).toContain(
+      "Properties 'min' and 'max' can only be used with Integer and Float types, but property type is 'String'"
+    );
+
+    expect(result.get(1).type).toEqual("VALUE_NOT_IN_RANGE");
+    expect(result.get(1).message).toContain(
+      "Properties 'min' and 'max' can only be used with Integer and Float types, but property type is 'Boolean'"
+    );
+
+    expect(result.get(2).type).toEqual("VALUE_NOT_IN_RANGE");
+    expect(result.get(2).message).toContain(
+      "Properties 'min' and 'max' can only be used with Integer and Float types, but property type is 'Variant'"
+    );
+  });
+
+  it("detects error when GeoJSON contains bare geometry instead of Feature or FeatureCollection", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/bareGeometryTileset.json"
+    );
+
+    // Should have validation error because while bare geometry is technically valid GeoJSON,
+    // most GeoJSON consumers expect Features or FeatureCollections at the root level
+    expect(result.length).toEqual(1);
+
+    // Check that we have a content validation error for the bare geometry
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
+    expect(result.get(0).message).toContain(
+      "bare_geometry.geojson caused validation errors"
+    );
+  });
 });
