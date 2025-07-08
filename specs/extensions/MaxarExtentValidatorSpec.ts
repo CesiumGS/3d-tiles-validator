@@ -108,4 +108,15 @@ describe("Tileset MAXAR_extent extension validation", function () {
       "is self-intersecting, which is forbidden"
     );
   });
+
+  it("detects complex extent with vertex outside southern hemisphere region bounds", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/extentOverflowingTileTileset.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
+    expect(result.get(0).message).toContain(
+      "not contained within the root tile's bounding volume"
+    );
+  });
 });
