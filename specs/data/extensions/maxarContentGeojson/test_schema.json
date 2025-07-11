@@ -1,0 +1,23 @@
+{
+  "name": "Test Properties Schema",
+  "semantic": "test_data",
+  "geometry": {
+    "type": "Point",
+    "dimensions": 3
+  },
+  "properties": [
+    {
+      "id": "testId",
+      "type": "Integer",
+      "description": "Test identifier",
+      "required": true
+    },
+    {
+      "id": "testName",
+      "type": "String",
+      "description": "Test name",
+      "required": false,
+      "default": "Test"
+    }
+  ]
+}

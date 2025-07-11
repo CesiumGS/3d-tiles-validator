@@ -13,6 +13,7 @@ import { I3dmValidator } from "../tileFormats/I3dmValidator";
 import { PntsValidator } from "../tileFormats/PntsValidator";
 import { CmptValidator } from "../tileFormats/CmptValidator";
 import { GltfValidator } from "../tileFormats/GltfValidator";
+import { GeojsonValidator } from "../tileFormats/GeojsonValidator";
 
 import { Tileset } from "3d-tiles-tools";
 
@@ -88,7 +89,6 @@ export class ContentDataValidators {
     const ignoreUnhandledContentTypes = false;
     let geomValidator = Validators.createEmptyValidator();
     let vctrValidator = Validators.createEmptyValidator();
-    let geojsonValidator = Validators.createEmptyValidator();
     if (!ignoreUnhandledContentTypes) {
       geomValidator = Validators.createContentValidationInfo(
         "Skipping 'geom' validation"
@@ -96,10 +96,10 @@ export class ContentDataValidators {
       vctrValidator = Validators.createContentValidationInfo(
         "Skipping 'vctr' validation"
       );
-      geojsonValidator = Validators.createContentValidationInfo(
-        "Skipping 'geojson' validation"
-      );
     }
+
+    // GeoJSON content requires the MAXAR_content_geojson extension
+    const geojsonValidator = ContentDataValidators.createGeojsonValidator();
 
     ContentDataValidators.register(
       ContentDataTypes.CONTENT_TYPE_GEOM,
@@ -129,6 +129,22 @@ export class ContentDataValidators {
     );
 
     ContentDataValidators._registeredDefaults = true;
+  }
+
+  /**
+   * Creates a validator for GeoJSON content data.
+   *
+   * This validator will parse the JSON from the content data buffer,
+   * validate it as proper GeoJSON according to the GeoJSON specification,
+   * and provide detailed validation feedback.
+   *
+   * @returns The validator
+   */
+  private static createGeojsonValidator(): Validator<ContentData> {
+    const bufferValidator = new GeojsonValidator();
+    const contentDataValidator =
+      ContentDataValidators.wrapBufferValidator(bufferValidator);
+    return contentDataValidator;
   }
 
   /**
