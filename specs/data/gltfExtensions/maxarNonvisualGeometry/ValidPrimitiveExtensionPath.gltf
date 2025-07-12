@@ -1,0 +1,47 @@
+{
+  "extensionsUsed": ["MAXAR_nonvisual_geometry"],
+  "asset": {
+    "version": "2.0"
+  },
+  "extras": {
+    "info": {
+      "note": "Valid primitive extension with path shape and LINE_STRIP mode"
+    }
+  },
+  "meshes": [{
+    "primitives": [{
+      "attributes": {
+        "POSITION": 0
+      },
+      "mode": 3,
+      "extensions": {
+        "MAXAR_nonvisual_geometry": {
+          "shape": "path",
+          "type": "ladder"
+        }
+      }
+    }]
+  }],
+  "accessors": [{
+    "bufferView": 0,
+    "componentType": 5126,
+    "count": 4,
+    "type": "VEC3"
+  }],
+  "bufferViews": [{
+    "buffer": 0,
+    "byteOffset": 0,
+    "byteLength": 48
+  }],
+  "buffers": [{
+    "uri": "data:application/gltf-buffer;base64,AAAAAAAAAAAAAIA/AAAAAAAAgD8AAAAAAACAPwAAgD8AAAAAAAAAAAAAAAA=",
+    "byteLength": 48
+  }],
+  "nodes": [{
+    "mesh": 0
+  }],
+  "scene": 0,
+  "scenes": [{
+    "nodes": [0]
+  }]
+}
