@@ -1,0 +1,43 @@
+{
+  "asset": {
+    "version": "2.0"
+  },
+  "extensionsUsed": [
+    "KHR_lights_punctual",
+    "MAXAR_temporal_light_traits"
+  ],
+  "extensions": {
+    "KHR_lights_punctual": {
+      "lights": [
+        {
+          "type": "point",
+          "color": [1.0, 0.0, 0.0],
+          "intensity": 20.0,
+          "name": "Invalid Flashing Light",
+          "extensions": {
+            "MAXAR_temporal_light_traits": {
+              "flashing": {
+                "frequency": 2.0
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "scenes": [
+    {
+      "nodes": [0]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "invalid_flashing_light",
+      "extensions": {
+        "KHR_lights_punctual": {
+          "light": 0
+        }
+      }
+    }
+  ]
+}
