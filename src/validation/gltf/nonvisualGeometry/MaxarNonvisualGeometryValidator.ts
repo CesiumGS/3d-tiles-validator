@@ -6,7 +6,6 @@ import { BasicValidator } from "../../BasicValidator";
 import { GltfData } from "../GltfData";
 
 import { GltfExtensionValidationIssues } from "../../../issues/GltfExtensionValidationIssues";
-import { StructureValidationIssues } from "../../../issues/StructureValidationIssues";
 
 /**
  * A class for validating the `MAXAR_nonvisual_geometry` extension in
