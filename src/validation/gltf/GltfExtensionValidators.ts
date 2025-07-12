@@ -6,6 +6,7 @@ import { ExtStructuralMetadataValidator } from "./structuralMetadata/ExtStructur
 
 import { GltfDataReader } from "./GltfDataReader";
 import { NgaGpmLocalValidator } from "./gpmLocal/NgaGpmLocalValidator";
+import { MaxarImageOrthoValidator } from "./imageOrtho/MaxarImageOrthoValidator";
 import { KhrLightsPunctualValidator } from "./lightsPunctual/KhrLightsPunctualValidator";
 
 /**
@@ -76,13 +77,23 @@ export class GltfExtensionValidators {
       result = false;
     }
 
-    // Validate `KHR_lights_punctual`
+    // Validate `MAXAR_image_ortho`
+    const maxarImageOrthoValid = await MaxarImageOrthoValidator.validateGltf(
+      path,
+      gltfData,
+      context
+    );
+    if (!maxarImageOrthoValid) {
+      result = false;
+    }
+
+     // Validate `KHR_lights_punctual`
     const khrLightsPunctualValid =
       await KhrLightsPunctualValidator.validateGltf(path, gltfData, context);
     if (!khrLightsPunctualValid) {
       result = false;
-    }
-
+    }      
+      
     return result;
   }
 }
