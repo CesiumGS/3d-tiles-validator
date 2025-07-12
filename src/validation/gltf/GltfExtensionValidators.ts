@@ -87,13 +87,13 @@ export class GltfExtensionValidators {
       result = false;
     }
 
-     // Validate `KHR_lights_punctual`
+    // Validate `KHR_lights_punctual`
     const khrLightsPunctualValid =
       await KhrLightsPunctualValidator.validateGltf(path, gltfData, context);
     if (!khrLightsPunctualValid) {
       result = false;
-    }      
-      
+    }
+
     return result;
   }
 }
