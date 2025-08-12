@@ -1,5 +1,4 @@
 {
-  "extensionsUsed": ["MAXAR_nonvisual_geometry"],
   "asset": {
     "version": "2.0"
   },
@@ -8,48 +7,101 @@
       "note": "Primitive extension missing required shape property"
     }
   },
-  "meshes": [{
-    "primitives": [{
-      "attributes": {
-        "POSITION": 0
-      },
-      "indices": 1,
-      "extensions": {
-        "MAXAR_nonvisual_geometry": {
-          "type": "collision"
+  "extensionsUsed": [
+    "MAXAR_nonvisual_geometry"
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "count": 48,
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "normalized": false,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "count": 48,
+      "normalized": false,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 0,
+      "componentType": 5123,
+      "count": 84,
+      "normalized": false,
+      "type": "SCALAR"
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 576,
+      "byteOffset": 0,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 576,
+      "byteOffset": 576,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 168,
+      "byteOffset": 1152,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 1320,
+      "uri": "data:application/octet-stream;base64,AAAAAAAAgL8AAIC/AAAAAAAAgL8AAIC/AAAAAAAAgL8AAIC/AAAAAAAAgD8AAIC/AAAAAAAAgD8AAIC/AAAAAAAAgD8AAIC/8wQ1PwAAgL/zBDW/8wQ1PwAAgL/zBDW/8wQ1PwAAgL/zBDW/8wQ1PwAAgD/zBDW/8wQ1PwAAgD/zBDW/8wQ1PwAAgD/zBDW/AACAPwAAgL8AAACAAACAPwAAgL8AAACAAACAPwAAgL8AAACAAACAPwAAgD8AAACAAACAPwAAgD8AAACAAACAPwAAgD8AAACA8wQ1PwAAgL/zBDU/8wQ1PwAAgL/zBDU/8wQ1PwAAgL/zBDU/8wQ1PwAAgD/zBDU/8wQ1PwAAgD/zBDU/8wQ1PwAAgD/zBDU/AAAAAAAAgL8AAIA/AAAAAAAAgL8AAIA/AAAAAAAAgL8AAIA/AAAAAAAAgD8AAIA/AAAAAAAAgD8AAIA/AAAAAAAAgD8AAIA/8wQ1vwAAgL/zBDU/8wQ1vwAAgL/zBDU/8wQ1vwAAgL/zBDU/8wQ1vwAAgD/zBDU/8wQ1vwAAgD/zBDU/8wQ1vwAAgD/zBDU/AACAvwAAgL8AAACAAACAvwAAgL8AAACAAACAvwAAgL8AAACAAACAvwAAgD8AAACAAACAvwAAgD8AAACAAACAvwAAgD8AAACA8wQ1vwAAgL/zBDW/8wQ1vwAAgL/zBDW/8wQ1vwAAgL/zBDW/8wQ1vwAAgD/zBDW/8wQ1vwAAgD/zBDW/8wQ1vwAAgD/zBDW/AAAAAAAAgL8AAAAA/O/DPgAAAAAug2y//O/DvgAAAAAug2y/AAAAAAAAgD8AAAAA/O/DPgAAAAAug2y//O/DvgAAAAAug2y/AAAAAAAAgL8AAAAA/O/DPgAAAAAug2y/LoNsPwAAAAD878O+AAAAAAAAgD8AAAAA/O/DPgAAAAAug2y/LoNsPwAAAAD878O+AAAAAAAAgL8AAAAALoNsPwAAAAD878M+LoNsPwAAAAD878O+AAAAAAAAgD8AAAAALoNsPwAAAAD878M+LoNsPwAAAAD878O+AAAAAAAAgL8AAAAA/O/DPgAAAAAug2w/LoNsPwAAAAD878M+AAAAAAAAgD8AAAAA/O/DPgAAAAAug2w/LoNsPwAAAAD878M+AAAAAAAAgL8AAAAA/O/DPgAAAAAug2w//O/DvgAAAAAug2w/AAAAAAAAgD8AAAAA/O/DPgAAAAAug2w//O/DvgAAAAAug2w/AAAAAAAAgL8AAAAA/O/DvgAAAAAug2w/LoNsvwAAAAD878M+AAAAAAAAgD8AAAAA/O/DvgAAAAAug2w/LoNsvwAAAAD878M+AAAAAAAAgL8AAAAALoNsvwAAAAD878M+LoNsvwAAAAD878O+AAAAAAAAgD8AAAAALoNsvwAAAAD878M+LoNsvwAAAAD878O+AAAAAAAAgL8AAAAA/O/DvgAAAAAug2y/LoNsvwAAAAD878O+AAAAAAAAgD8AAAAA/O/DvgAAAAAug2y/LoNsvwAAAAD878O+AQAEAAoAAQAKAAcACAALABEACAARAA4ADQAQABcADQAXABQAEwAWABwAEwAcABkAGgAdACIAGgAiAB8AIAAjACgAIAAoACUADwAJAAMAAwAtACcAJwAhABsAGwAVAA8ADwADACcAJwAbAA8AJgApAC8AJgAvACwAKwAuAAUAKwAFAAIAKgAAAAYABgAMABIAEgAYAB4AHgAkACoAKgAGABIAEgAeACoA"
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0
+          },
+          "extensions": {
+            "MAXAR_nonvisual_geometry": {
+              "type": "collision"
+            }
+          },
+          "indices": 2,
+          "mode": 4
         }
-      }
-    }]
-  }],
-  "accessors": [{
-    "bufferView": 0,
-    "componentType": 5126,
-    "count": 3,
-    "type": "VEC3"
-  }, {
-    "bufferView": 1,
-    "componentType": 5123,
-    "count": 3,
-    "type": "SCALAR"
-  }],
-  "bufferViews": [{
-    "buffer": 0,
-    "byteOffset": 0,
-    "byteLength": 36
-  }, {
-    "buffer": 0,
-    "byteOffset": 36,
-    "byteLength": 6
-  }],
-  "buffers": [{
-    "uri": "data:application/gltf-buffer;base64,AAAAAAAAAAAAAIA/AAAAAAAAgD8AAAAAAACAPwAAAAAAAAAAAAEAAgA=",
-    "byteLength": 42
-  }],
-  "nodes": [{
-    "mesh": 0
-  }],
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0
+    }
+  ],
   "scene": 0,
-  "scenes": [{
-    "nodes": [0]
-  }]
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ]
 }

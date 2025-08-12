@@ -1,5 +1,4 @@
 {
-  "extensionsUsed": ["MAXAR_nonvisual_geometry"],
   "asset": {
     "version": "2.0"
   },
@@ -8,50 +7,72 @@
       "note": "Path shape with incompatible primitive mode (TRIANGLES instead of LINES/LINE_LOOP/LINE_STRIP)"
     }
   },
-  "meshes": [{
-    "primitives": [{
-      "attributes": {
-        "POSITION": 0
-      },
-      "indices": 1,
-      "mode": 4,
-      "extensions": {
-        "MAXAR_nonvisual_geometry": {
-          "shape": "path",
-          "type": "ladder"
+  "extensionsUsed": [
+    "MAXAR_nonvisual_geometry"
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "count": 5,
+      "max": [
+        0.0,
+        5.0,
+        0.0
+      ],
+      "min": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "normalized": false,
+      "type": "VEC3"
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 60,
+      "byteOffset": 0,
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 60,
+      "uri": "data:application/octet-stream;base64,AAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAgEAAAAAAAAAAAAAAoEAAAAAA"
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0
+          },
+          "extensions": {
+            "MAXAR_nonvisual_geometry": {
+              "shape": "path",
+              "type": "ladder"
+            }
+          },
+          "mode": 4
         }
-      }
-    }]
-  }],
-  "accessors": [{
-    "bufferView": 0,
-    "componentType": 5126,
-    "count": 3,
-    "type": "VEC3"
-  }, {
-    "bufferView": 1,
-    "componentType": 5123,
-    "count": 3,
-    "type": "SCALAR"
-  }],
-  "bufferViews": [{
-    "buffer": 0,
-    "byteOffset": 0,
-    "byteLength": 36
-  }, {
-    "buffer": 0,
-    "byteOffset": 36,
-    "byteLength": 6
-  }],
-  "buffers": [{
-    "uri": "data:application/gltf-buffer;base64,AAAAAAAAAAAAAIA/AAAAAAAAgD8AAAAAAACAPwAAAAAAAAAAAAEAAgA=",
-    "byteLength": 42
-  }],
-  "nodes": [{
-    "mesh": 0
-  }],
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0
+    }
+  ],
   "scene": 0,
-  "scenes": [{
-    "nodes": [0]
-  }]
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ]
 }

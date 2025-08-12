@@ -1,5 +1,4 @@
 {
-  "extensionsUsed": ["MAXAR_nonvisual_geometry"],
   "asset": {
     "version": "2.0"
   },
@@ -8,40 +7,72 @@
       "note": "Valid primitive extension with points shape and POINTS mode"
     }
   },
-  "meshes": [{
-    "primitives": [{
-      "attributes": {
-        "POSITION": 0
-      },
-      "mode": 0,
-      "extensions": {
-        "MAXAR_nonvisual_geometry": {
-          "shape": "points",
-          "type": "trigger"
+  "extensionsUsed": [
+    "MAXAR_nonvisual_geometry"
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "count": 2,
+      "max": [
+        2.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "normalized": false,
+      "type": "VEC3"
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 24,
+      "byteOffset": 0,
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 24,
+      "uri": "data:application/octet-stream;base64,AACAPwAAgD8AAIA/AAAAQAAAgD8AAIA/"
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0
+          },
+          "extensions": {
+            "MAXAR_nonvisual_geometry": {
+              "shape": "points",
+              "type": "trigger"
+            }
+          },
+          "mode": 0
         }
-      }
-    }]
-  }],
-  "accessors": [{
-    "bufferView": 0,
-    "componentType": 5126,
-    "count": 3,
-    "type": "VEC3"
-  }],
-  "bufferViews": [{
-    "buffer": 0,
-    "byteOffset": 0,
-    "byteLength": 36
-  }],
-  "buffers": [{
-    "uri": "data:application/gltf-buffer;base64,AAAAAAAAAAAAAIA/AAAAAAAAgD8AAAAAAACAPwAAAAA=",
-    "byteLength": 36
-  }],
-  "nodes": [{
-    "mesh": 0
-  }],
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0
+    }
+  ],
   "scene": 0,
-  "scenes": [{
-    "nodes": [0]
-  }]
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ]
 }
