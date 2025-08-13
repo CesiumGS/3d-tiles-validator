@@ -1,0 +1,108 @@
+{
+  "asset": {
+    "version": "2.0"
+  },
+  "extras": {
+    "info": {
+      "note": "Valid primitive extension with surface shape and TRIANGLES mode"
+    }
+  },
+  "extensionsUsed": [
+    "MAXAR_nonvisual_geometry"
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "count": 44,
+      "max": [
+        3.7761683464050293,
+        0.0,
+        1.0
+      ],
+      "min": [
+        -3.7761683464050293,
+        0.0,
+        -1.0
+      ],
+      "normalized": false,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "count": 44,
+      "normalized": false,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 0,
+      "componentType": 5123,
+      "count": 180,
+      "normalized": false,
+      "type": "SCALAR"
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 528,
+      "byteOffset": 0,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 528,
+      "byteOffset": 528,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 360,
+      "byteOffset": 1056,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 1416,
+      "uri": "data:application/octet-stream;base64,vqxxwAAAAAAAAIA//1ZBwAAAAAAAAIA/PwERwAAAAAAAAIA//lbBvwAAAAAAAIA//lZBvwAAAAAAAIA/AAAAAAAAAAAAAIA/AVdBPwAAAAAAAIA//lbBPwAAAAAAAIA/PwERQAAAAAAAAIA/AFdBQAAAAAAAAIA/vqxxQAAAAAAAAIA/vqxxwAAAAACqqqo+/1ZBwAAAAACqqqo+PwERwAAAAACqqqo+/lbBvwAAAACqqqo+/lZBvwAAAACqqqo+AAAAAAAAAACqqqo+AVdBPwAAAACqqqo+/lbBPwAAAACqqqo+PwERQAAAAACqqqo+AFdBQAAAAACqqqo+vqxxQAAAAACqqqo+vqxxwAAAAACsqqq+/1ZBwAAAAACsqqq+PwERwAAAAACsqqq+/lbBvwAAAACsqqq+/lZBvwAAAACsqqq+AAAAAAAAAACsqqq+AVdBPwAAAACsqqq+/lbBPwAAAACsqqq+PwERQAAAAACsqqq+AFdBQAAAAACsqqq+vqxxQAAAAACsqqq+vqxxwAAAAAAAAIC//1ZBwAAAAAAAAIC/PwERwAAAAAAAAIC//lbBvwAAAAAAAIC//lZBvwAAAAAAAIC/AAAAAAAAAAAAAIC/AVdBPwAAAAAAAIC//lbBPwAAAAAAAIC/PwERQAAAAAAAAIC/AFdBQAAAAAAAAIC/vqxxQAAAAAAAAIC/AAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAABAAwAAAAMAAsAAQACAA0AAQANAAwAAgADAA4AAgAOAA0AAwAEAA8AAwAPAA4ABAAFABAABAAQAA8ABQAGABEABQARABAABgAHABIABgASABEABwAIABMABwATABIACAAJABQACAAUABMACQAKABUACQAVABQACwAMABcACwAXABYADAANABgADAAYABcADQAOABkADQAZABgADgAPABoADgAaABkADwAQABsADwAbABoAEAARABwAEAAcABsAEQASAB0AEQAdABwAEgATAB4AEgAeAB0AEwAUAB8AEwAfAB4AFAAVACAAFAAgAB8AFgAXACIAFgAiACEAFwAYACMAFwAjACIAGAAZACQAGAAkACMAGQAaACUAGQAlACQAGgAbACYAGgAmACUAGwAcACcAGwAnACYAHAAdACgAHAAoACcAHQAeACkAHQApACgAHgAfACoAHgAqACkAHwAgACsAHwArACoA"
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0
+          },
+          "extensions": {
+            "MAXAR_nonvisual_geometry": {
+              "shape": "surface",
+              "type": "roadway"
+            }
+          },
+          "indices": 2,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ]
+}
