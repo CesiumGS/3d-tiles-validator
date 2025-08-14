@@ -1,0 +1,57 @@
+{
+  "extras": {
+    "info": {
+      "note": "This tileset is INVALID because the referenced schema (duplicate_property_ids_schema.json) contains properties with duplicate IDs, which violates the requirement that property IDs must be unique within a schema."
+    }
+  },
+  "extensionsUsed": [
+    "MAXAR_content_geojson"
+  ],
+  "extensionsRequired": [
+    "MAXAR_content_geojson"
+  ],
+  "asset": {
+    "version": "1.1"
+  },
+  "extensions": {
+    "MAXAR_content_geojson": {}
+  },
+  "schema": {
+    "id": "EXAMPLE_SCHEMA_ID",
+    "classes": {
+      "tileset": {
+        "properties": {
+          "content_type": {
+            "type": "STRING"
+          },
+          "name": {
+            "type": "STRING"
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "class": "tileset",
+    "properties": {
+      "content_type": "VECTOR",
+      "name": "Test Layer"
+    },
+    "extensions": {
+      "MAXAR_content_geojson": {
+        "propertiesSchemaUri": "duplicate_property_ids_schema.json"
+      }
+    }
+  },
+  "geometricError": 2.0,
+  "root": {
+    "content": {
+      "uri": "lineString.geojson"
+    },
+    "refine": "REPLACE",
+    "boundingVolume": {
+      "box": [0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5]
+    },
+    "geometricError": 1.0
+  }
+}

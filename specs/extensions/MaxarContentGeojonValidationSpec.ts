@@ -226,6 +226,34 @@ describe("Tileset MAXAR_content_geojson extension validation", function () {
     expect(result.length).toEqual(0);
   });
 
+  it("detects error when schema contains duplicate property IDs", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/duplicatePropertyIdsTileset.json"
+    );
+
+    // Should have validation errors for duplicate property IDs
+    expect(result.length).toBeGreaterThan(0);
+
+    // Find the duplicate ID error
+    let foundDuplicateIdError = false;
+    for (let i = 0; i < result.length; i++) {
+      const issue = result.get(i);
+      if (
+        issue.type === "VALUE_NOT_IN_RANGE" &&
+        issue.message.includes("Property ID") &&
+        issue.message.includes("is not unique")
+      ) {
+        foundDuplicateIdError = true;
+        expect(issue.message).toContain("duplicateId");
+        expect(issue.message).toContain("All property IDs must be unique");
+        break;
+      }
+    }
+
+    // Should have found at least one duplicate ID error
+    expect(foundDuplicateIdError).toBe(true);
+  });
+
   it("detects error when default values have incorrect types", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarContentGeojson/invalidDefaultTypesTileset.json"

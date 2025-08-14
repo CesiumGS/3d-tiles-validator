@@ -441,6 +441,58 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
       }
     }
 
+    // Validate that property IDs are unique
+    if (
+      !MaxarContentGeojsonValidator.validateUniquePropertyIds(
+        path,
+        properties,
+        context
+      )
+    ) {
+      result = false;
+    }
+
+    return result;
+  }
+
+  /**
+   * Validates that property IDs are unique within the properties array
+   *
+   * @param path - The path for ValidationIssue instances
+   * @param properties - The properties array to validate
+   * @param context - The ValidationContext that any issues will be added to
+   * @returns Whether all property IDs are unique
+   */
+  static validateUniquePropertyIds(
+    path: string,
+    properties: any,
+    context: ValidationContext
+  ): boolean {
+    let result = true;
+    const seenIds = new Set<string>();
+    const duplicateIds = new Set<string>();
+
+    // Check for duplicate IDs
+    for (let i = 0; i < properties.length; i++) {
+      const property = properties[i];
+      if (defined(property) && defined(property.id)) {
+        const id = property.id;
+        if (seenIds.has(id)) {
+          duplicateIds.add(id);
+        } else {
+          seenIds.add(id);
+        }
+      }
+    }
+
+    // Report errors for each duplicate ID
+    for (const duplicateId of duplicateIds) {
+      const message = `Property ID '${duplicateId}' is not unique. All property IDs must be unique within the schema.`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(path, message);
+      context.addIssue(issue);
+      result = false;
+    }
+
     return result;
   }
 
