@@ -16,6 +16,23 @@ describe("Tileset MAXAR_content_geojson extension validation", function () {
     );
   });
 
+  it("detects error when extension is in extensionsUsed but not in extensionsRequired", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/extensionsUsedButNotRequiredTileset.json"
+    );
+
+    // Should have validation error because MAXAR_content_geojson must be in both
+    // extensionsUsed AND extensionsRequired when using GeoJSON content
+    expect(result.length).toEqual(1);
+
+    // Should have extension validation error for missing from extensionsRequired
+    expect(result.get(0).type).toEqual("EXTENSION_REQUIRED_BUT_NOT_DECLARED");
+    expect(result.get(0).message).toContain("MAXAR_content_geojson");
+    expect(result.get(0).message).toContain(
+      "was not declared in 'extensionsRequired'"
+    );
+  });
+
   it("detects invalid propertiesSchemaUri type", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarContentGeojson/invalidPropertiesSchemaUri.json"

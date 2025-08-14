@@ -359,6 +359,22 @@ export class TilesetValidator implements Validator<Tileset> {
       }
     }
 
+    // Special handling for the "MAXAR_content_geojson" extension:
+    // When the extension is declared in 'extensionsUsed', it must also be
+    // declared in 'extensionsRequired' because GeoJSON content requires this extension
+    if (
+      actualExtensionsUsed.has("MAXAR_content_geojson") &&
+      !actualExtensionsRequired.has("MAXAR_content_geojson")
+    ) {
+      const issue =
+        SemanticValidationIssues.EXTENSION_REQUIRED_BUT_NOT_DECLARED(
+          extensionsRequiredPath,
+          "MAXAR_content_geojson"
+        );
+      context.addIssue(issue);
+      result = false;
+    }
+
     // The 3DTILES_content_gltf extension can end up in the
     // "actualExtensionsFound" in two ways:
     // - because an actual glTF content was found.

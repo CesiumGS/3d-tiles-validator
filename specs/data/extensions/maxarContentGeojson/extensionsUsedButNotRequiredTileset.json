@@ -1,0 +1,52 @@
+{
+  "extras": {
+    "info": {
+      "note": "This tileset is INVALID because MAXAR_content_geojson is declared in extensionsUsed but NOT in extensionsRequired. For GeoJSON content, the extension must be declared in both arrays."
+    }
+  },
+  "extensionsUsed": [
+    "MAXAR_content_geojson"
+  ],
+  "asset": {
+    "version": "1.1"
+  },
+  "extensions": {
+    "MAXAR_content_geojson": {}
+  },
+  "schema": {
+    "id": "EXAMPLE_SCHEMA_ID",
+    "classes": {
+      "tileset": {
+        "properties": {
+          "content_type": {
+            "type": "STRING"
+          },
+          "name": {
+            "type": "STRING"
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "class": "tileset",
+    "properties": {
+      "content_type": "VECTOR",
+      "name": "Test Layer"
+    },
+    "extensions": {
+      "MAXAR_content_geojson": {}
+    }
+  },
+  "geometricError": 2.0,
+  "root": {
+    "content": {
+      "uri": "lineString.geojson"
+    },
+    "refine": "REPLACE",
+    "boundingVolume": {
+      "box": [0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5]
+    },
+    "geometricError": 1.0
+  }
+}
