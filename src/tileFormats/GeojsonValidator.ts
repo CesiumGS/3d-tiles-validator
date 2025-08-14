@@ -895,6 +895,19 @@ export class GeojsonValidator implements Validator<Buffer> {
       "MultiPolygon",
     ];
 
+    // Special handling for GeometryCollection to provide a more specific error message
+    if (type === "GeometryCollection") {
+      const message = `GeometryCollection is not supported by the MAXAR_content_geojson extension. Supported geometry types are: ${validGeometryTypes.join(
+        ", "
+      )}`;
+      const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(
+        path + "/type",
+        message
+      );
+      context.addIssue(issue);
+      return false;
+    }
+
     if (
       !BasicValidator.validateEnum(
         path + "/type",

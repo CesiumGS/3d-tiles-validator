@@ -292,4 +292,30 @@ describe("Tileset MAXAR_content_geojson extension validation", function () {
       "bare_geometry.geojson caused validation errors"
     );
   });
+
+  it("detects error when GeoJSON contains GeometryCollection geometry", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarContentGeojson/geometryCollectionTileset.json"
+    );
+
+    // Should have validation error because GeometryCollection is not supported
+    // by the MAXAR_content_geojson extension, even though it's valid GeoJSON
+    expect(result.length).toEqual(1);
+
+    // Check that we have a content validation error for the GeometryCollection
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_ERROR");
+    expect(result.get(0).message).toContain(
+      "geometryCollection.geojson caused validation errors"
+    );
+
+    // Check that the specific error message mentions MAXAR_content_geojson extension
+    expect(result.get(0).causes.length).toEqual(1);
+    expect(result.get(0).causes[0].type).toEqual("VALUE_NOT_IN_LIST");
+    expect(result.get(0).causes[0].message).toContain(
+      "GeometryCollection is not supported by the MAXAR_content_geojson extension"
+    );
+    expect(result.get(0).causes[0].message).toContain(
+      "Supported geometry types are: Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon"
+    );
+  });
 });
