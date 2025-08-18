@@ -76,8 +76,8 @@ describe("Tileset MAXAR_content_geojson extension validation", function () {
       "specs/data/extensions/maxarContentGeojson/invalidSchemaContent.json"
     );
 
-    // Should have exactly 7 errors for invalid schema content
-    expect(result.length).toEqual(7);
+    // Should have exactly 6 errors for invalid schema content
+    expect(result.length).toEqual(6);
 
     // Check that we have validation errors for the schema
     expect(result.get(0).message).toContain("property is required");
@@ -88,17 +88,14 @@ describe("Tileset MAXAR_content_geojson extension validation", function () {
     expect(result.get(2).type).toEqual("VALUE_NOT_IN_RANGE");
     expect(result.get(2).message).toContain("property must be in");
 
-    expect(result.get(3).type).toEqual("VALUE_NOT_IN_RANGE");
-    expect(result.get(3).message).toContain("requires dimensions");
+    expect(result.get(3).type).toEqual("STRING_LENGTH_MISMATCH");
+    expect(result.get(3).message).toContain("must have a length of at least 1");
 
-    expect(result.get(4).type).toEqual("STRING_LENGTH_MISMATCH");
-    expect(result.get(4).message).toContain("must have a length of at least 1");
+    expect(result.get(4).type).toEqual("VALUE_NOT_IN_LIST");
+    expect(result.get(4).message).toContain("InvalidType");
 
-    expect(result.get(5).type).toEqual("VALUE_NOT_IN_LIST");
-    expect(result.get(5).message).toContain("InvalidType");
-
-    expect(result.get(6).type).toEqual("VALUE_NOT_IN_RANGE");
-    expect(result.get(6).message).toContain(
+    expect(result.get(5).type).toEqual("VALUE_NOT_IN_RANGE");
+    expect(result.get(5).message).toContain(
       "can only be used with Integer and Float types"
     );
   });

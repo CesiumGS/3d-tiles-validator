@@ -3,7 +3,6 @@ import { defined } from "3d-tiles-tools";
 import { Validator } from "../Validator";
 import { ValidationContext } from "../ValidationContext";
 import { BasicValidator } from "../BasicValidator";
-import { StructureValidator } from "../StructureValidator";
 import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
 import { IoValidationIssues } from "../../issues/IoValidationIssue";
 
@@ -76,20 +75,6 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
     }
 
     let result = true;
-
-    // Validate that only propertiesSchemaUri is supported (not inline propertiesSchema)
-    const disallowedProperties = ["propertiesSchema"];
-    if (
-      !StructureValidator.validateDisallowedProperties(
-        path,
-        "MAXAR_content_geojson",
-        maxar_content_geojson,
-        disallowedProperties,
-        context
-      )
-    ) {
-      result = false;
-    }
 
     // Validate propertiesSchemaUri property (optional)
     const propertiesSchemaUri = maxar_content_geojson.propertiesSchemaUri;
@@ -353,48 +338,7 @@ export class MaxarContentGeojsonValidator implements Validator<any> {
       result = false;
     }
 
-    // Validate geometry type and dimensions consistency
-    if (defined(type) && defined(dimensions)) {
-      if (
-        !MaxarContentGeojsonValidator.validateGeometryTypeDimensionsConsistency(
-          path,
-          type,
-          dimensions,
-          context
-        )
-      ) {
-        result = false;
-      }
-    }
-
     return result;
-  }
-
-  /**
-   * Validates that geometry type and dimensions are consistent
-   *
-   * @param path - The path for ValidationIssue instances
-   * @param type - The geometry type
-   * @param dimensions - The dimensions value
-   * @param context - The ValidationContext that any issues will be added to
-   * @returns Whether the geometry type and dimensions are consistent
-   */
-  static validateGeometryTypeDimensionsConsistency(
-    path: string,
-    type: string,
-    dimensions: number,
-    context: ValidationContext
-  ): boolean {
-    // All geometry types support 2D and 3D coordinates
-    // This is a basic validation - more specific constraints could be added
-    // based on the specific requirements of each geometry type
-    if (dimensions < 2 || dimensions > 3) {
-      const message = `Geometry type '${type}' requires dimensions to be 2 or 3, but got ${dimensions}`;
-      const issue = JsonValidationIssues.VALUE_NOT_IN_RANGE(path, message);
-      context.addIssue(issue);
-      return false;
-    }
-    return true;
   }
 
   /**
