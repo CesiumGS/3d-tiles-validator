@@ -1021,6 +1021,14 @@ describe("Tileset validation", function () {
     expect(result.length).toEqual(0);
   });
 
+  it("detects issues in extensionNotDeclaredAsRequired", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/extensionNotDeclaredAsRequired.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("EXTENSION_REQUIRED_BUT_NOT_DECLARED");
+  });
+
   it("detects issues in extensionRequiredButNotUsed", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/extensionRequiredButNotUsed.json"

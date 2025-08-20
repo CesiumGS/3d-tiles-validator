@@ -1,0 +1,24 @@
+{
+  "extras": {
+    "info": {
+      "note": "This tileset is INVALID because it uses the MAXAR_content_3tz extension, but does not list it in the 'extensionsRequired'"
+    }
+  },
+  "extensionsUsed": [
+    "MAXAR_content_3tz"
+  ],
+  "asset" : {
+    "version" : "1.1"
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "refine": "REPLACE",
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0,
+    "content": {
+      "uri": "tiles/3tz/simple.3tz"
+    }
+  }
+}

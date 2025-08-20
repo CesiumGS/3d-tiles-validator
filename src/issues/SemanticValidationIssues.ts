@@ -364,7 +364,9 @@ export class SemanticValidationIssues {
    *
    * An extension is 'found' when it is encountered in any
    * 'someRootProperty.extensions' dictionary during the
-   * traversal,
+   * traversal, or when it is an extension that allows a
+   * new content type, and this type has been encountered
+   * as a tile content.
    *
    * @param path - The path for the `ValidationIssue`
    * @param extensionName - The extension name
