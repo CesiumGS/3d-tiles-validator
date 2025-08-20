@@ -1,0 +1,44 @@
+{
+  "name": "Schema with Duplicate Property IDs",
+  "semantic": "test_duplicate_ids",
+  "geometry": {
+    "type": "Point",
+    "dimensions": 2
+  },
+  "properties": [
+    {
+      "id": "duplicateId",
+      "type": "Integer",
+      "description": "First property with duplicate ID",
+      "required": true
+    },
+    {
+      "id": "uniqueId",
+      "type": "String",
+      "description": "Property with unique ID",
+      "required": false,
+      "default": "unique"
+    },
+    {
+      "id": "duplicateId",
+      "type": "Float",
+      "description": "Second property with duplicate ID",
+      "required": false,
+      "default": 0.0
+    },
+    {
+      "id": "anotherId",
+      "type": "Boolean",
+      "description": "Another unique property",
+      "required": false,
+      "default": true
+    },
+    {
+      "id": "duplicateId",
+      "type": "String",
+      "description": "Third property with duplicate ID",
+      "required": false,
+      "default": "third"
+    }
+  ]
+}

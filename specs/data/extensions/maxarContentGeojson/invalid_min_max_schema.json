@@ -1,0 +1,34 @@
+{
+  "name": "Invalid Min/Max Properties Schema",
+  "semantic": "test_data",
+  "geometry": {
+    "type": "Point",
+    "dimensions": 2
+  },
+  "properties": [
+    {
+      "id": "invalidMinMax",
+      "type": "Integer",
+      "description": "Property with invalid min > max",
+      "min": 100,
+      "max": 50,
+      "required": true
+    },
+    {
+      "id": "validMinMax",
+      "type": "Float",
+      "description": "Property with valid min <= max",
+      "min": 10.5,
+      "max": 20.5,
+      "required": true
+    },
+    {
+      "id": "equalMinMax",
+      "type": "Integer",
+      "description": "Property with min = max",
+      "min": 42,
+      "max": 42,
+      "required": true
+    }
+  ]
+}

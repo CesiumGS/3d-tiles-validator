@@ -1,7 +1,7 @@
 {
-  "extras" : {
+  "extras": {
     "info": {
-      "note": "The MAXAR_content_geojson example has been taken from the specification README.md"
+      "note": "This tileset is INVALID because the referenced schema (duplicate_property_ids_schema.json) contains properties with duplicate IDs, which violates the requirement that property IDs must be unique within a schema."
     }
   },
   "extensionsUsed": [
@@ -9,9 +9,9 @@
   ],
   "extensionsRequired": [
     "MAXAR_content_geojson"
-  ],  
-  "asset" : {
-    "version" : "1.1"
+  ],
+  "asset": {
+    "version": "1.1"
   },
   "extensions": {
     "MAXAR_content_geojson": {}
@@ -24,16 +24,7 @@
           "content_type": {
             "type": "STRING"
           },
-          "geometry_model": {
-            "type": "STRING"
-          },
           "name": {
-            "type": "STRING"
-          },
-          "schema": {
-            "type": "STRING"
-          },
-          "wff_version": {
             "type": "STRING"
           }
         }
@@ -44,26 +35,23 @@
     "class": "tileset",
     "properties": {
       "content_type": "VECTOR",
-      "geometry_model": "OBJECTS",
-      "name": "Vegetation Layer",
-      "schema": "wff/15",
-      "wff_version": "1.5"
+      "name": "Test Layer"
     },
     "extensions": {
       "MAXAR_content_geojson": {
-        "propertiesSchemaUri": "vegetation_schema.json"
+        "propertiesSchemaUri": "duplicate_property_ids_schema.json"
       }
     }
-  },  
-  "geometricError" : 2.0,
-  "root" : {
+  },
+  "geometricError": 2.0,
+  "root": {
     "content": {
       "uri": "lineString.geojson"
     },
     "refine": "REPLACE",
-    "boundingVolume" : {
-      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    "boundingVolume": {
+      "box": [0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5]
     },
-    "geometricError" : 1.0
+    "geometricError": 1.0
   }
 }

@@ -1,0 +1,34 @@
+{
+  "name": "Invalid Min/Max Schema",
+  "semantic": "test_invalid_minmax",
+  "geometry": {
+    "type": "Point",
+    "dimensions": 2
+  },
+  "properties": [
+    {
+      "id": "stringWithMin",
+      "type": "String",
+      "description": "String property with invalid min",
+      "required": false,
+      "default": "test",
+      "min": 1
+    },
+    {
+      "id": "booleanWithMax",
+      "type": "Boolean",
+      "description": "Boolean property with invalid max",
+      "required": false,
+      "default": true,
+      "max": 10
+    },
+    {
+      "id": "variantWithMinMax",
+      "type": "Variant",
+      "description": "Variant property with invalid min/max",
+      "required": false,
+      "min": 0,
+      "max": 100
+    }
+  ]
+}
