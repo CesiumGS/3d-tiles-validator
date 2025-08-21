@@ -519,6 +519,9 @@ export class MaxarExtentValidator implements Validator<any> {
 
   /**
    * Checks if a ring is self-intersecting using a simple line segment intersection algorithm
+   *
+   * @param ring - Array of coordinate pairs forming a ring [longitude, latitude]
+   * @returns Whether the ring has self-intersecting edges
    */
   static isRingSelfIntersecting(ring: number[][]): boolean {
     if (ring.length < 4) return false; // Need at least 4 points to form a closed polygon
@@ -553,6 +556,12 @@ export class MaxarExtentValidator implements Validator<any> {
 
   /**
    * Checks if two line segments intersect using the orientation method
+   *
+   * @param p1 - First point of first line segment [x, y]
+   * @param q1 - Second point of first line segment [x, y]
+   * @param p2 - First point of second line segment [x, y]
+   * @param q2 - Second point of second line segment [x, y]
+   * @returns Whether the two line segments intersect
    */
   static doLineSegmentsIntersect(
     p1: number[],
@@ -694,11 +703,20 @@ export class MaxarExtentValidator implements Validator<any> {
 
   /**
    * Checks if a point is within a region bounding volume
+   *
+   * @param cartographic - The cartographic position to check (longitude/latitude in radians, height in meters)
+   * @param region - The region array [west, south, east, north, minHeight, maxHeight] in radians and meters
+   * @returns Whether the point is contained within the region bounds
    */
   static isPointInRegion(
     cartographic: Cartographic,
     region: number[]
   ): boolean {
+    // Validate region array has exactly 6 elements
+    if (!region || region.length !== 6) {
+      return false;
+    }
+
     const [west, south, east, north, minHeight, maxHeight] = region;
 
     return (
