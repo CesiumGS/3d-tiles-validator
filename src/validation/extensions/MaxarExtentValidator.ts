@@ -690,14 +690,23 @@ export class MaxarExtentValidator implements Validator<any> {
     } else if (defined(boundingVolume.box)) {
       // TODO: Box bounding volume spatial validation requires complex coordinate system conversion
       // For now, skip spatial validation for box bounding volumes
+      console.warn(
+        "MAXAR_extent: Spatial validation not yet implemented for box bounding volumes - skipping containment check"
+      );
       return true;
     } else if (defined(boundingVolume.sphere)) {
       // TODO: Sphere bounding volume spatial validation requires complex coordinate system conversion
       // For now, skip spatial validation for sphere bounding volumes
+      console.warn(
+        "MAXAR_extent: Spatial validation not yet implemented for sphere bounding volumes - skipping containment check"
+      );
       return true;
     }
 
     // Unknown bounding volume type, assume contained
+    console.warn(
+      "MAXAR_extent: Unknown bounding volume type - skipping containment check"
+    );
     return true;
   }
 
