@@ -458,30 +458,63 @@ export class MaxarExtentValidator implements Validator<any> {
 
   /**
    * Gets unique coordinates from a ring, excluding the closing coordinate
+   * Uses epsilon-based comparison to handle floating point precision issues
+   *
+   * @param ring - Array of coordinate pairs [longitude, latitude]
+   * @returns Array of unique coordinates with duplicates removed
    */
   static getUniqueCoordinates(ring: number[][]): number[][] {
     if (ring.length === 0) return [];
 
     const unique: number[][] = [];
-    const seen = new Set<string>();
+    const epsilon = 1e-10; // Consistent epsilon for coordinate comparison
 
     // Process all coordinates except the last one (which should close the ring)
     const coordsToCheck =
       ring.length > 0 &&
-      ring[0][0] === ring[ring.length - 1][0] &&
-      ring[0][1] === ring[ring.length - 1][1]
+      MaxarExtentValidator.coordinatesEqual(
+        ring[0],
+        ring[ring.length - 1],
+        epsilon
+      )
         ? ring.slice(0, -1)
         : ring;
 
     for (const coord of coordsToCheck) {
-      const key = `${coord[0]},${coord[1]}`;
-      if (!seen.has(key)) {
-        seen.add(key);
+      // Check if this coordinate is already in the unique list
+      const isDuplicate = unique.some((existingCoord) =>
+        MaxarExtentValidator.coordinatesEqual(coord, existingCoord, epsilon)
+      );
+
+      if (!isDuplicate) {
         unique.push(coord);
       }
     }
 
     return unique;
+  }
+
+  /**
+   * Compares two coordinates for equality within epsilon tolerance
+   *
+   * @param coord1 - First coordinate [longitude, latitude]
+   * @param coord2 - Second coordinate [longitude, latitude]
+   * @param epsilon - Tolerance for floating point comparison
+   * @returns Whether the coordinates are equal within tolerance
+   */
+  static coordinatesEqual(
+    coord1: number[],
+    coord2: number[],
+    epsilon: number
+  ): boolean {
+    if (coord1.length !== coord2.length) return false;
+
+    for (let i = 0; i < coord1.length; i++) {
+      if (Math.abs(coord1[i] - coord2[i]) > epsilon) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
