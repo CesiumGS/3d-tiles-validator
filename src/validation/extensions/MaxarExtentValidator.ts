@@ -162,14 +162,24 @@ export class MaxarExtentValidator implements Validator<any> {
       }
 
       // Parse the GeoJSON for additional validation
+      // Note: Basic JSON validity is already checked by GeojsonValidator above,
+      // but we need the parsed object for geometric validation
       let geojsonObject: any;
       try {
         const jsonString = uriData.toString("utf-8");
         geojsonObject = JSON.parse(jsonString);
       } catch (error) {
-        // JSON parsing error already handled by GeojsonValidator
+        // This should not happen since GeojsonValidator already validated the JSON,
+        // but we handle it defensively
+        const message = `Failed to parse GeoJSON content: ${error}`;
+        const issue = IoValidationIssues.JSON_PARSE_ERROR(path, message);
+        context.addIssue(issue);
         return false;
       }
+
+      // Perform all geometric validations and accumulate results
+      // This allows us to report multiple issues instead of failing on the first one
+      let allValidationsValid = true;
 
       // Validate that GeoJSON contains only Polygon or MultiPolygon shapes
       const geometryValid = MaxarExtentValidator.validateGeometryTypes(
@@ -178,29 +188,36 @@ export class MaxarExtentValidator implements Validator<any> {
         context
       );
       if (!geometryValid) {
-        return false;
+        allValidationsValid = false;
       }
 
-      // Validate minimum coordinate count and self-intersection
-      const extentValid = MaxarExtentValidator.validateExtentRequirements(
-        path,
-        geojsonObject,
-        context
-      );
-      if (!extentValid) {
-        return false;
-      }
-
-      // Validate spatial containment within root tile bounding volume
-      const spatialValid =
-        await MaxarExtentValidator.validateSpatialContainment(
+      // Only proceed with geometric validation if we have valid geometry types
+      // This follows the pattern of checking JSON-level validity before higher-level validity
+      if (geometryValid) {
+        // Validate minimum coordinate count and self-intersection
+        const extentValid = MaxarExtentValidator.validateExtentRequirements(
           path,
           geojsonObject,
-          tileset,
           context
         );
+        if (!extentValid) {
+          allValidationsValid = false;
+        }
 
-      return spatialValid;
+        // Validate spatial containment within root tile bounding volume
+        const spatialValid =
+          await MaxarExtentValidator.validateSpatialContainment(
+            path,
+            geojsonObject,
+            tileset,
+            context
+          );
+        if (!spatialValid) {
+          allValidationsValid = false;
+        }
+      }
+
+      return allValidationsValid;
     } catch (error) {
       const message = `Error resolving URI '${uri}': ${error}`;
       const issue = IoValidationIssues.IO_ERROR(path, message);
@@ -556,18 +573,10 @@ export class MaxarExtentValidator implements Validator<any> {
         return;
       }
 
+      // Only extract coordinates from Polygon and MultiPolygon geometries
+      // since those are the only valid types for MAXAR_extent
       switch (geometry.type) {
-        case "Point":
-          coordinates.push(geometry.coordinates);
-          break;
-        case "LineString":
-        case "MultiPoint":
-          for (const coord of geometry.coordinates) {
-            coordinates.push(coord);
-          }
-          break;
         case "Polygon":
-        case "MultiLineString":
           for (const ring of geometry.coordinates) {
             for (const coord of ring) {
               coordinates.push(coord);
@@ -590,6 +599,8 @@ export class MaxarExtentValidator implements Validator<any> {
             }
           }
           break;
+        // Skip other geometry types (Point, LineString, etc.) as they are invalid for MAXAR_extent
+        // and should have been caught by validateGeometryTypes
       }
     }
 
