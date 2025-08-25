@@ -149,31 +149,26 @@ export class MaxarExtentValidator implements Validator<any> {
         return false;
       }
 
-      // Validate the resolved content as GeoJSON
-      const geojsonValidator = new GeojsonValidator();
-      const geojsonValid = await geojsonValidator.validateObject(
-        uri,
-        uriData,
-        context
-      );
-
-      if (!geojsonValid) {
-        return false;
-      }
-
-      // Parse the GeoJSON for additional validation
-      // Note: Basic JSON validity is already checked by GeojsonValidator above,
-      // but we need the parsed object for geometric validation
+      // Parse the JSON once for both GeoJSON validation and geometric validation
       let geojsonObject: any;
       try {
         const jsonString = uriData.toString("utf-8");
         geojsonObject = JSON.parse(jsonString);
       } catch (error) {
-        // This should not happen since GeojsonValidator already validated the JSON,
-        // but we handle it defensively
-        const message = `Failed to parse GeoJSON content: ${error}`;
+        const message = `Invalid JSON in GeoJSON file: ${error}`;
         const issue = IoValidationIssues.JSON_PARSE_ERROR(path, message);
         context.addIssue(issue);
+        return false;
+      }
+
+      // Validate the parsed GeoJSON object using the static method
+      const geojsonValid = await GeojsonValidator.validateGeojsonObject(
+        uri,
+        geojsonObject,
+        context
+      );
+
+      if (!geojsonValid) {
         return false;
       }
 
