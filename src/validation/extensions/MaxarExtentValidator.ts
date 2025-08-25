@@ -172,10 +172,6 @@ export class MaxarExtentValidator implements Validator<any> {
         return false;
       }
 
-      // Perform all geometric validations and accumulate results
-      // This allows us to report multiple issues instead of failing on the first one
-      let allValidationsValid = true;
-
       // Validate that GeoJSON contains only Polygon or MultiPolygon shapes
       const geometryValid = MaxarExtentValidator.validateGeometryTypes(
         path,
@@ -183,33 +179,33 @@ export class MaxarExtentValidator implements Validator<any> {
         context
       );
       if (!geometryValid) {
+        return false;
+      }
+
+      // Perform all geometric validations and accumulate results
+      // This allows us to report multiple issues instead of failing on the first one
+      let allValidationsValid = true;
+
+      // Validate minimum coordinate count and self-intersection
+      const extentValid = MaxarExtentValidator.validateExtentRequirements(
+        path,
+        geojsonObject,
+        context
+      );
+      if (!extentValid) {
         allValidationsValid = false;
       }
 
-      // Only proceed with geometric validation if we have valid geometry types
-      // This follows the pattern of checking JSON-level validity before higher-level validity
-      if (geometryValid) {
-        // Validate minimum coordinate count and self-intersection
-        const extentValid = MaxarExtentValidator.validateExtentRequirements(
+      // Validate spatial containment within root tile bounding volume
+      const spatialValid =
+        await MaxarExtentValidator.validateSpatialContainment(
           path,
           geojsonObject,
+          tileset,
           context
         );
-        if (!extentValid) {
-          allValidationsValid = false;
-        }
-
-        // Validate spatial containment within root tile bounding volume
-        const spatialValid =
-          await MaxarExtentValidator.validateSpatialContainment(
-            path,
-            geojsonObject,
-            tileset,
-            context
-          );
-        if (!spatialValid) {
-          allValidationsValid = false;
-        }
+      if (!spatialValid) {
+        allValidationsValid = false;
       }
 
       return allValidationsValid;
