@@ -137,84 +137,76 @@ export class MaxarExtentValidator implements Validator<any> {
     tileset: any,
     context: ValidationContext
   ): Promise<boolean> {
-    try {
-      // Attempt to resolve the URI
-      const resourceResolver = context.getResourceResolver();
-      const uriData = await resourceResolver.resolveData(uri);
+    // Attempt to resolve the URI
+    const resourceResolver = context.getResourceResolver();
+    const uriData = await resourceResolver.resolveData(uri);
 
-      if (!defined(uriData)) {
-        const message = `The URI '${uri}' could not be resolved`;
-        const issue = IoValidationIssues.IO_ERROR(path, message);
-        context.addIssue(issue);
-        return false;
-      }
-
-      // Parse the JSON once for both GeoJSON validation and geometric validation
-      let geojsonObject: any;
-      try {
-        const jsonString = uriData.toString("utf-8");
-        geojsonObject = JSON.parse(jsonString);
-      } catch (error) {
-        const message = `Invalid JSON in GeoJSON file: ${error}`;
-        const issue = IoValidationIssues.JSON_PARSE_ERROR(path, message);
-        context.addIssue(issue);
-        return false;
-      }
-
-      // Validate the parsed GeoJSON object using the static method
-      const geojsonValid = await GeojsonValidator.validateGeojsonObject(
-        uri,
-        geojsonObject,
-        context
-      );
-
-      if (!geojsonValid) {
-        return false;
-      }
-
-      // Validate that GeoJSON contains only Polygon or MultiPolygon shapes
-      const geometryValid = MaxarExtentValidator.validateGeometryTypes(
-        path,
-        geojsonObject,
-        context
-      );
-      if (!geometryValid) {
-        return false;
-      }
-
-      // Perform all geometric validations and accumulate results
-      // This allows us to report multiple issues instead of failing on the first one
-      let allValidationsValid = true;
-
-      // Validate minimum coordinate count and self-intersection
-      const extentValid = MaxarExtentValidator.validateExtentRequirements(
-        path,
-        geojsonObject,
-        context
-      );
-      if (!extentValid) {
-        allValidationsValid = false;
-      }
-
-      // Validate spatial containment within root tile bounding volume
-      const spatialValid =
-        await MaxarExtentValidator.validateSpatialContainment(
-          path,
-          geojsonObject,
-          tileset,
-          context
-        );
-      if (!spatialValid) {
-        allValidationsValid = false;
-      }
-
-      return allValidationsValid;
-    } catch (error) {
-      const message = `Error resolving URI '${uri}': ${error}`;
+    if (!defined(uriData)) {
+      const message = `The URI '${uri}' could not be resolved`;
       const issue = IoValidationIssues.IO_ERROR(path, message);
       context.addIssue(issue);
       return false;
     }
+
+    // Parse the JSON once for both GeoJSON validation and geometric validation
+    let geojsonObject: any;
+    try {
+      const jsonString = uriData.toString("utf-8");
+      geojsonObject = JSON.parse(jsonString);
+    } catch (error) {
+      const message = `Invalid JSON in GeoJSON file: ${error}`;
+      const issue = IoValidationIssues.JSON_PARSE_ERROR(path, message);
+      context.addIssue(issue);
+      return false;
+    }
+
+    // Validate the parsed GeoJSON object using the static method
+    const geojsonValid = await GeojsonValidator.validateGeojsonObject(
+      uri,
+      geojsonObject,
+      context
+    );
+
+    if (!geojsonValid) {
+      return false;
+    }
+
+    // Validate that GeoJSON contains only Polygon or MultiPolygon shapes
+    const geometryValid = MaxarExtentValidator.validateGeometryTypes(
+      path,
+      geojsonObject,
+      context
+    );
+    if (!geometryValid) {
+      return false;
+    }
+
+    // Perform all geometric validations and accumulate results
+    // This allows us to report multiple issues instead of failing on the first one
+    let allValidationsValid = true;
+
+    // Validate minimum coordinate count and self-intersection
+    const extentValid = MaxarExtentValidator.validateExtentRequirements(
+      path,
+      geojsonObject,
+      context
+    );
+    if (!extentValid) {
+      allValidationsValid = false;
+    }
+
+    // Validate spatial containment within root tile bounding volume
+    const spatialValid = await MaxarExtentValidator.validateSpatialContainment(
+      path,
+      geojsonObject,
+      tileset,
+      context
+    );
+    if (!spatialValid) {
+      allValidationsValid = false;
+    }
+
+    return allValidationsValid;
   }
 
   /**
