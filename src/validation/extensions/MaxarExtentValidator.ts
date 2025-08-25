@@ -73,7 +73,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param context - The ValidationContext that any issues will be added to
    * @returns Whether the object was valid
    */
-  static async validateMaxarExtent(
+  private static async validateMaxarExtent(
     path: string,
     maxar_extent: any,
     tileset: any,
@@ -136,7 +136,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param context - The ValidationContext that any issues will be added to
    * @returns Whether the URI content was valid
    */
-  static async validateUriContent(
+  private static async validateUriContent(
     path: string,
     uri: string,
     tileset: any,
@@ -224,7 +224,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param context - The ValidationContext that any issues will be added to
    * @returns Whether all coordinates are contained within the bounding volume
    */
-  static async validateSpatialContainment(
+  private static async validateSpatialContainment(
     path: string,
     geojsonObject: any,
     tileset: any,
@@ -270,7 +270,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param context - The ValidationContext that any issues will be added to
    * @returns Whether all geometries are Polygon or MultiPolygon
    */
-  static validateGeometryTypes(
+  private static validateGeometryTypes(
     path: string,
     geojsonObject: any,
     context: ValidationContext
@@ -335,7 +335,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param context - The ValidationContext that any issues will be added to
    * @returns Whether the extent requirements are met
    */
-  static validateExtentRequirements(
+  private static validateExtentRequirements(
     path: string,
     geojsonObject: any,
     context: ValidationContext
@@ -406,7 +406,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param context - The ValidationContext that any issues will be added to
    * @returns Whether the polygon meets extent requirements
    */
-  static validatePolygonExtent(
+  private static validatePolygonExtent(
     polygonCoords: number[][][],
     path: string,
     context: ValidationContext
@@ -451,7 +451,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param ring - Array of coordinate pairs [longitude, latitude]
    * @returns Array of unique coordinates with duplicates removed
    */
-  static getUniqueCoordinates(ring: number[][]): number[][] {
+  private static getUniqueCoordinates(ring: number[][]): number[][] {
     if (ring.length === 0) return [];
 
     const unique: number[][] = [];
@@ -493,7 +493,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param epsilon - Tolerance for floating point comparison
    * @returns Whether the coordinates are equal within tolerance
    */
-  static coordinatesEqual(
+  private static coordinatesEqual(
     coord1: number[],
     coord2: number[],
     epsilon: number
@@ -514,7 +514,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param ring - Array of coordinate pairs forming a ring [longitude, latitude]
    * @returns Whether the ring has self-intersecting edges
    */
-  static isRingSelfIntersecting(ring: number[][]): boolean {
+  private static isRingSelfIntersecting(ring: number[][]): boolean {
     if (ring.length < 4) return false; // Need at least 4 points to form a closed polygon
 
     // Check each edge against every other non-adjacent edge
@@ -554,7 +554,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param q2 - Second point of second line segment [x, y]
    * @returns Whether the two line segments intersect
    */
-  static doLineSegmentsIntersect(
+  private static doLineSegmentsIntersect(
     p1: number[],
     q1: number[],
     p2: number[],
@@ -598,7 +598,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param geojsonObject - The GeoJSON object to extract coordinates from
    * @returns Array of coordinate arrays [longitude, latitude, optional height]
    */
-  static extractAllCoordinates(geojsonObject: any): number[][] {
+  private static extractAllCoordinates(geojsonObject: any): number[][] {
     const coordinates: number[][] = [];
 
     function extractFromGeometry(geometry: any): void {
@@ -659,7 +659,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param boundingVolume - The bounding volume to check against
    * @returns Whether the coordinate is contained within the bounding volume
    */
-  static isCoordinateContained(
+  private static isCoordinateContained(
     coordinate: number[],
     boundingVolume: any
   ): boolean {
@@ -708,7 +708,7 @@ export class MaxarExtentValidator implements Validator<any> {
    * @param region - The region array [west, south, east, north, minHeight, maxHeight] in radians and meters
    * @returns Whether the point is contained within the region bounds
    */
-  static isPointInRegion(
+  private static isPointInRegion(
     cartographic: Cartographic,
     region: number[]
   ): boolean {
