@@ -23,7 +23,6 @@ import { Group } from "3d-tiles-tools";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
-import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 
 /**
  * A class that can validate a 3D Tiles tileset.
@@ -359,22 +358,6 @@ export class TilesetValidator implements Validator<Tileset> {
       }
     }
 
-    // Special handling for the "MAXAR_content_geojson" extension:
-    // When the extension is declared in 'extensionsUsed', it must also be
-    // declared in 'extensionsRequired' because GeoJSON content requires this extension
-    if (
-      actualExtensionsUsed.has("MAXAR_content_geojson") &&
-      !actualExtensionsRequired.has("MAXAR_content_geojson")
-    ) {
-      const issue =
-        SemanticValidationIssues.EXTENSION_REQUIRED_BUT_NOT_DECLARED(
-          extensionsRequiredPath,
-          "MAXAR_content_geojson"
-        );
-      context.addIssue(issue);
-      result = false;
-    }
-
     // The 3DTILES_content_gltf extension can end up in the
     // "actualExtensionsFound" in two ways:
     // - because an actual glTF content was found.
@@ -395,27 +378,14 @@ export class TilesetValidator implements Validator<Tileset> {
       }
     }
 
+    // Every extension that is found must be declared in extensionsUsed
     for (const extensionName of actualExtensionsFound) {
       if (!actualExtensionsUsed.has(extensionName)) {
-        // Special handling for MAXAR_content_geojson: GeoJSON content is not valid
-        // by default in 3D Tiles and requires this extension to be declared
-        if (extensionName === "MAXAR_content_geojson") {
-          const message =
-            `GeoJSON content is not valid by default in 3D Tiles. ` +
-            `The MAXAR_content_geojson extension must be declared in extensionsUsed ` +
-            `to use GeoJSON content.`;
-          const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
-            extensionsUsedPath,
-            message
-          );
-          context.addIssue(issue);
-        } else {
-          const issue = SemanticValidationIssues.EXTENSION_FOUND_BUT_NOT_USED(
-            extensionsUsedPath,
-            extensionName
-          );
-          context.addIssue(issue);
-        }
+        const issue = SemanticValidationIssues.EXTENSION_FOUND_BUT_NOT_USED(
+          extensionsUsedPath,
+          extensionName
+        );
+        context.addIssue(issue);
         result = false;
       }
     }
@@ -430,6 +400,63 @@ export class TilesetValidator implements Validator<Tileset> {
           extensionName
         );
         context.addIssue(issue);
+      }
+    }
+
+    // Certain extensions that are 'found' must also be listed
+    // in the 'extensionsRequired'
+    if (
+      !TilesetValidator.validateExtensionsRequired(
+        extensionsRequiredPath,
+        actualExtensionsFound,
+        actualExtensionsRequired,
+        context
+      )
+    ) {
+      result = false;
+    }
+
+    return result;
+  }
+
+  /**
+   * Validates that the extensions that are known to be 'required' actually
+   * appear in the 'extensionsRequired' declarations when they have been
+   * found in the tileset.
+   *
+   * @param path - The path for validation issues
+   * @param actualExtensionsFound - The extensions that have been found
+   * @param actualExtensionsRequired - The extensions from 'extensionsRequired'
+   * @param context - The context for validation issues
+   * @returns Whether the 'extensionsRequired' declaration was valid
+   */
+  private static validateExtensionsRequired(
+    path: string,
+    actualExtensionsFound: Set<string>,
+    actualExtensionsRequired: Set<string>,
+    context: ValidationContext
+  ): boolean {
+    // There currently is no streamlined mechanism in the validator to
+    // declare which extensions are 'required'. A good place for this
+    // could be in ContentDataValidators.registerDefaults. Information
+    // about the extensions that are found AND required could then be
+    // tracked at the place where ContentDataValidator.trackExtensionsFound
+    // is called. Special cases (like 3DTILES_content_gltf, which is
+    // only required in 3D Tiles 1.0 but not in 1.1) make this difficult.
+    // For now, just list the extensions that are known to be required:
+    const requiredExtensions = ["MAXAR_content_3tz", "MAXAR_content_geojson"];
+    let result = true;
+    for (const extensionName of actualExtensionsFound) {
+      if (requiredExtensions.includes(extensionName)) {
+        if (!actualExtensionsRequired.has(extensionName)) {
+          const issue =
+            SemanticValidationIssues.EXTENSION_REQUIRED_BUT_NOT_DECLARED(
+              path,
+              extensionName
+            );
+          context.addIssue(issue);
+          result = false;
+        }
       }
     }
     return result;
