@@ -311,7 +311,7 @@ export class MaxarExtentValidator implements Validator<any> {
       const message = `MAXAR_extent GeoJSON must contain only Polygon or MultiPolygon geometries, but found: ${uniqueTypes.join(
         ", "
       )}`;
-      const issue = SemanticValidationIssues.BOUNDING_VOLUMES_INCONSISTENT(
+      const issue = SemanticValidationIssues.INVALID_GEOMETRY_TYPE(
         path,
         message
       );
@@ -416,7 +416,7 @@ export class MaxarExtentValidator implements Validator<any> {
       const uniqueCoords = MaxarExtentValidator.getUniqueCoordinates(ring);
       if (uniqueCoords.length < 3) {
         const message = `Extent polygon ring must have at least 3 unique coordinates, but has ${uniqueCoords.length}`;
-        const issue = SemanticValidationIssues.BOUNDING_VOLUMES_INCONSISTENT(
+        const issue = SemanticValidationIssues.INVALID_GEOMETRY_SIZE(
           path,
           message
         );
@@ -427,7 +427,7 @@ export class MaxarExtentValidator implements Validator<any> {
       // Check for self-intersection
       if (MaxarExtentValidator.isRingSelfIntersecting(ring)) {
         const message = `Extent polygon ring ${ringIndex} is self-intersecting, which is forbidden`;
-        const issue = SemanticValidationIssues.BOUNDING_VOLUMES_INCONSISTENT(
+        const issue = SemanticValidationIssues.INVALID_GEOMETRY_STRUCTURE(
           path,
           message
         );

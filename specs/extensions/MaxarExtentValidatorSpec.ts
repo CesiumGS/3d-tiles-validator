@@ -80,7 +80,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
       "specs/data/extensions/maxarExtent/invalidGeometryTypesTileset.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
+    expect(result.get(0).type).toEqual("INVALID_GEOMETRY_TYPE");
     expect(result.get(0).message).toContain(
       "must contain only Polygon or MultiPolygon geometries"
     );
@@ -92,7 +92,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
       "specs/data/extensions/maxarExtent/insufficientCoordinatesTileset.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
+    expect(result.get(0).type).toEqual("INVALID_GEOMETRY_SIZE");
     expect(result.get(0).message).toContain(
       "must have at least 3 unique coordinates"
     );
@@ -103,7 +103,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
       "specs/data/extensions/maxarExtent/selfIntersectingTileset.json"
     );
     expect(result.length).toEqual(1);
-    expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
+    expect(result.get(0).type).toEqual("INVALID_GEOMETRY_STRUCTURE");
     expect(result.get(0).message).toContain(
       "is self-intersecting, which is forbidden"
     );
