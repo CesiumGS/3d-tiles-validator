@@ -16,6 +16,11 @@ import { GeojsonValidator } from "../../tileFormats/GeojsonValidator";
  */
 export class MaxarExtentValidator implements Validator<any> {
   /**
+   * Epsilon value used for floating-point comparisons throughout the validator
+   */
+  private static readonly EPSILON = 1e-10;
+
+  /**
    * Performs the validation to determine whether the given tileset contains
    * a valid MAXAR_extent extension.
    *
@@ -450,7 +455,6 @@ export class MaxarExtentValidator implements Validator<any> {
     if (ring.length === 0) return [];
 
     const unique: number[][] = [];
-    const epsilon = 1e-10; // Consistent epsilon for coordinate comparison
 
     // Process all coordinates except the last one (which should close the ring)
     const coordsToCheck =
@@ -458,7 +462,7 @@ export class MaxarExtentValidator implements Validator<any> {
       MaxarExtentValidator.coordinatesEqual(
         ring[0],
         ring[ring.length - 1],
-        epsilon
+        MaxarExtentValidator.EPSILON
       )
         ? ring.slice(0, -1)
         : ring;
@@ -466,7 +470,11 @@ export class MaxarExtentValidator implements Validator<any> {
     for (const coord of coordsToCheck) {
       // Check if this coordinate is already in the unique list
       const isDuplicate = unique.some((existingCoord) =>
-        MaxarExtentValidator.coordinatesEqual(coord, existingCoord, epsilon)
+        MaxarExtentValidator.coordinatesEqual(
+          coord,
+          existingCoord,
+          MaxarExtentValidator.EPSILON
+        )
       );
 
       if (!isDuplicate) {
@@ -554,7 +562,7 @@ export class MaxarExtentValidator implements Validator<any> {
   ): boolean {
     const orientation = (p: number[], q: number[], r: number[]): number => {
       const val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1]);
-      if (Math.abs(val) < 1e-10) return 0; // Collinear
+      if (Math.abs(val) < MaxarExtentValidator.EPSILON) return 0; // Collinear
       return val > 0 ? 1 : 2; // Clockwise or Counterclockwise
     };
 
