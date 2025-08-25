@@ -120,6 +120,63 @@ export class SemanticValidationIssues {
   }
 
   /**
+   * Indicates that a geometry type is invalid for the specific context.
+   *
+   * This is used for geometric validation where certain geometry types
+   * are not allowed or supported. For example, when an extension requires
+   * only specific geometry types like Polygon or MultiPolygon, but other
+   * types like Point or LineString are found.
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static INVALID_GEOMETRY_TYPE(path: string, message: string) {
+    const type = "INVALID_GEOMETRY_TYPE";
+    const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  /**
+   * Indicates that a geometry has an invalid size or insufficient data.
+   *
+   * This is used for geometric validation where geometries do not meet
+   * minimum size requirements. For example, when a polygon ring has
+   * insufficient coordinates to form a valid polygon, or when geometric
+   * structures are too small to be meaningful.
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static INVALID_GEOMETRY_SIZE(path: string, message: string) {
+    const type = "INVALID_GEOMETRY_SIZE";
+    const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  /**
+   * Indicates that a geometry has an invalid structure or topology.
+   *
+   * This is used for geometric validation where geometries have structural
+   * problems that make them invalid. For example, when a polygon ring is
+   * self-intersecting, has invalid winding order, or contains topological
+   * inconsistencies that violate geometric constraints.
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static INVALID_GEOMETRY_STRUCTURE(path: string, message: string) {
+    const type = "INVALID_GEOMETRY_STRUCTURE";
+    const severity = ValidationIssueSeverity.ERROR;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
+
+  /**
    * Indicates that the minimum value of a 'tileset.properties'
    * element was larger than the maximum.
    *

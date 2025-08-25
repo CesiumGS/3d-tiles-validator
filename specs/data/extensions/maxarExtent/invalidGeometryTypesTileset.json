@@ -1,0 +1,26 @@
+{
+  "extras" : {
+    "info": {
+      "note": "Test file with MAXAR_extent extension containing invalid geometry types (Point, LineString)"
+    }
+  },
+  "extensionsUsed": [
+    "MAXAR_extent"
+  ],
+  "extensions": {
+    "MAXAR_extent": {
+      "uri": "invalidGeometryTypes.geojson"
+    }    
+  },
+  "asset" : {
+    "version" : "1.1"
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "refine": "REPLACE",
+    "boundingVolume" : {
+      "region": [-0.017453292519943295, -0.017453292519943295, 0.017453292519943295, 0.017453292519943295, 0.0, 1000.0]
+    },
+    "geometricError" : 1.0
+  }
+}

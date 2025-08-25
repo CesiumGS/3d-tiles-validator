@@ -12,7 +12,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/invalidEmptyUri.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("STRING_VALUE_INVALID");
   });
 
@@ -20,7 +20,7 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/invalidMissingUri.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("PROPERTY_MISSING");
   });
 
@@ -28,7 +28,95 @@ describe("Tileset MAXAR_extent extension validation", function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/extensions/maxarExtent/invalidUriType.json"
     );
-    expect(result.length).toBeGreaterThan(0);
+    expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("TYPE_MISMATCH");
+  });
+
+  it("detects issues in invalidNonResolvableUri", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/invalidNonResolvableUri.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("IO_ERROR");
+    expect(result.get(0).message).toContain("could not be resolved");
+  });
+
+  it("detects issues in invalidGeojsonContent", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/invalidGeojsonContent.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("TYPE_MISMATCH");
+    expect(result.get(0).message).toContain("coordinates");
+  });
+
+  it("validates spatial containment with validTilesetWithSpatialExtent", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/validTilesetWithSpatialExtent.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects spatial containment issues in invalidSpatialExtent", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/invalidSpatialExtent.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
+    expect(result.get(0).message).toContain(
+      "not contained within the root tile's bounding volume"
+    );
+  });
+
+  it("validates GeoJSON with only Polygon and MultiPolygon geometries", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/validPolygonsOnlyTileset.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects invalid geometry types in GeoJSON", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/invalidGeometryTypesTileset.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("INVALID_GEOMETRY_TYPE");
+    expect(result.get(0).message).toContain(
+      "must contain only Polygon or MultiPolygon geometries"
+    );
+    expect(result.get(0).message).toContain("Point, LineString");
+  });
+
+  it("detects insufficient coordinates in extent polygon", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/insufficientCoordinatesTileset.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("INVALID_GEOMETRY_SIZE");
+    expect(result.get(0).message).toContain(
+      "must have at least 3 unique coordinates"
+    );
+  });
+
+  it("detects self-intersecting extent polygon", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/selfIntersectingTileset.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("INVALID_GEOMETRY_STRUCTURE");
+    expect(result.get(0).message).toContain(
+      "is self-intersecting, which is forbidden"
+    );
+  });
+
+  it("detects complex extent with vertex outside southern hemisphere region bounds", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/extentOverflowingTileTileset.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("BOUNDING_VOLUMES_INCONSISTENT");
+    expect(result.get(0).message).toContain(
+      "not contained within the root tile's bounding volume"
+    );
   });
 });

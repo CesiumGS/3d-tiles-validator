@@ -1,0 +1,13 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": "invalid_coordinates_should_be_array"
+      },
+      "properties": {}
+    }
+  ]
+}

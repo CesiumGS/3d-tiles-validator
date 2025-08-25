@@ -1,0 +1,26 @@
+{
+  "extras" : {
+    "info": {
+      "note": "Test file with non-resolvable URI for MAXAR_extent extension"
+    }
+  },
+  "extensionsUsed": [
+    "MAXAR_extent"
+  ],
+  "extensions": {
+    "MAXAR_extent": {
+      "uri": "non_existent_file.geojson"
+    }    
+  },
+  "asset" : {
+    "version" : "1.1"
+  },
+  "geometricError" : 2.0,
+  "root" : {
+    "refine": "REPLACE",
+    "boundingVolume" : {
+      "box" : [ 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "geometricError" : 1.0
+  }
+}
