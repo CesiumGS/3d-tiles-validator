@@ -129,6 +129,7 @@ export class GltfExtensionValidators {
     input: Buffer,
     context: ValidationContext
   ): Promise<boolean> {
+    GltfExtensionValidators.registerValidators();
     const gltfData = await GltfDataReader.readGltfData(path, input, context);
     if (!gltfData) {
       // Issue was already added to context
