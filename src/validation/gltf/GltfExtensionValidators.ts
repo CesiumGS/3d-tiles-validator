@@ -1,14 +1,26 @@
 import { ValidationContext } from "../ValidationContext";
 
+import { GltfDataReader } from "./GltfDataReader";
+import { GltfData } from "./GltfData";
+
 import { ExtInstanceFeaturesValidator } from "./instanceFeatures/ExtInstanceFeaturesValidator";
 import { ExtMeshFeaturesValidator } from "./meshFeatures/ExtMeshFeaturesValidator";
 import { ExtStructuralMetadataValidator } from "./structuralMetadata/ExtStructuralMetadataValidator";
 import { MaxarNonvisualGeometryValidator } from "./nonvisualGeometry/MaxarNonvisualGeometryValidator";
-
-import { GltfDataReader } from "./GltfDataReader";
 import { NgaGpmLocalValidator } from "./gpmLocal/NgaGpmLocalValidator";
 import { MaxarImageOrthoValidator } from "./imageOrtho/MaxarImageOrthoValidator";
 import { KhrLightsPunctualValidator } from "./lightsPunctual/KhrLightsPunctualValidator";
+
+/**
+ * An internal type definition for a function that performs the
+ * validation of a glTF extension in a given GltfData object,
+ * and adds any issues to a given context.
+ */
+type GltfExtensionValidator = (
+  path: string,
+  gltfData: GltfData,
+  context: ValidationContext
+) => Promise<boolean>;
 
 /**
  * A class that only serves as an entry point for validating
@@ -16,6 +28,94 @@ import { KhrLightsPunctualValidator } from "./lightsPunctual/KhrLightsPunctualVa
  * as embedded glTF, or as binary glTF).
  */
 export class GltfExtensionValidators {
+  /**
+   * The mapping from the full name of a glTF extension to the
+   * `GltfExtensionValidator` for this extension.
+   */
+  private static readonly gltfExtensionValidators: {
+    [key: string]: GltfExtensionValidator;
+  } = {};
+
+  /**
+   * Whether the 'registerValidators' function was already called.
+   */
+  private static didRegisterValidators = false;
+
+  /**
+   * Register the given validator as the validator for the extension with
+   * the given name
+   *
+   * @param extensionName - The full glTF extension name
+   * @param gltfExtensionValidator - The validator
+   */
+  private static registerValidator(
+    extensionName: string,
+    gltfExtensionValidator: GltfExtensionValidator
+  ) {
+    GltfExtensionValidators.gltfExtensionValidators[extensionName] =
+      gltfExtensionValidator;
+  }
+
+  /**
+   * Returns whether the given name is the name of a glTF extension that
+   * is "known" by the validator.
+   *
+   * This means that there is a dedicated validator for this specific
+   * extension, and this validator was implemented as part of the
+   * 3D Tiles Validator. Issues that are caused by the glTF Validator
+   * not knowing this extension should be filtered out of
+   * the glTF validation result.
+   *
+   * @param extensionName - The full glTF extension name
+   * @returns Whether the extension is known by the 3D Tiles Validator
+   */
+  static isRegistered(extensionName: string) {
+    GltfExtensionValidators.registerValidators();
+    const names = Object.keys(GltfExtensionValidators.gltfExtensionValidators);
+    return names.includes(extensionName);
+  }
+
+  /**
+   * Registers all known extension validators if they have not
+   * yet been registered.
+   */
+  private static registerValidators() {
+    if (GltfExtensionValidators.didRegisterValidators) {
+      return;
+    }
+
+    GltfExtensionValidators.registerValidator(
+      "EXT_mesh_features",
+      ExtMeshFeaturesValidator.validateGltf
+    );
+    GltfExtensionValidators.registerValidator(
+      "EXT_instance_features",
+      ExtInstanceFeaturesValidator.validateGltf
+    );
+    GltfExtensionValidators.registerValidator(
+      "EXT_structural_metadata",
+      ExtStructuralMetadataValidator.validateGltf
+    );
+    GltfExtensionValidators.registerValidator(
+      "NGA_gpm_local",
+      NgaGpmLocalValidator.validateGltf
+    );
+    GltfExtensionValidators.registerValidator(
+      "MAXAR_image_ortho",
+      MaxarImageOrthoValidator.validateGltf
+    );
+    GltfExtensionValidators.registerValidator(
+      "KHR_lights_punctual",
+      KhrLightsPunctualValidator.validateGltf
+    );
+    GltfExtensionValidators.registerValidator(
+      "MAXAR_nonvisual_geometry",
+      MaxarNonvisualGeometryValidator.validateGltf
+    );
+
+    GltfExtensionValidators.didRegisterValidators = true;
+  }
+
   /**
    * Ensure that the extensions in the given glTF data are valid.
    *
@@ -36,76 +136,15 @@ export class GltfExtensionValidators {
     }
 
     let result = true;
-
-    // Validate `EXT_mesh_features`
-    const extMeshFeaturesValid = await ExtMeshFeaturesValidator.validateGltf(
-      path,
-      gltfData,
-      context
+    const validators = Object.values(
+      GltfExtensionValidators.gltfExtensionValidators
     );
-    if (!extMeshFeaturesValid) {
-      result = false;
+    for (const validator of validators) {
+      const valid = validator(path, gltfData, context);
+      if (!valid) {
+        result = false;
+      }
     }
-
-    // Validate `EXT_instance_features`
-    const extInstanceFeatures = await ExtInstanceFeaturesValidator.validateGltf(
-      path,
-      gltfData,
-      context
-    );
-    if (!extInstanceFeatures) {
-      result = false;
-    }
-
-    // Validate `EXT_structural_metadata`
-    const extStructuralMetadataValid =
-      await ExtStructuralMetadataValidator.validateGltf(
-        path,
-        gltfData,
-        context
-      );
-    if (!extStructuralMetadataValid) {
-      result = false;
-    }
-
-    // Validate `NGA_gpm_local`
-    const ngaGpmLocalValid = await NgaGpmLocalValidator.validateGltf(
-      path,
-      gltfData,
-      context
-    );
-    if (!ngaGpmLocalValid) {
-      result = false;
-    }
-
-    // Validate `MAXAR_image_ortho`
-    const maxarImageOrthoValid = await MaxarImageOrthoValidator.validateGltf(
-      path,
-      gltfData,
-      context
-    );
-    if (!maxarImageOrthoValid) {
-      result = false;
-    }
-
-    // Validate `KHR_lights_punctual`
-    const khrLightsPunctualValid =
-      await KhrLightsPunctualValidator.validateGltf(path, gltfData, context);
-    if (!khrLightsPunctualValid) {
-      result = false;
-    }
-
-    // Validate `MAXAR_nonvisual_geometry`
-    const maxarNonvisualGeometryValid =
-      await MaxarNonvisualGeometryValidator.validateGltf(
-        path,
-        gltfData,
-        context
-      );
-    if (!maxarNonvisualGeometryValid) {
-      result = false;
-    }
-
     return result;
   }
 }
