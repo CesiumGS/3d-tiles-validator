@@ -240,7 +240,7 @@ resultPromise.then((result) => {
 ```
 The `Validators.validateTilesetFile` receives a file name, and returns a promise to the `ValidationResult`, which can then be printed to the console. The second (optional) parameter is a `ValidationOptions` object that summarizes the options for the validation process (also see [Option Files](#option-files)).
 
-### Validaton Result Filtering
+### Validation Result Filtering
 
 Clients can perform basic filtering operations on a `ValidationResult`, in order to remove validation issues that are below a certain severity level, or warnings that are anticipated in a certain application context.
 
