@@ -141,7 +141,7 @@ export class GltfExtensionValidators {
       GltfExtensionValidators.gltfExtensionValidators
     );
     for (const validator of validators) {
-      const valid = validator(path, gltfData, context);
+      const valid = await validator(path, gltfData, context);
       if (!valid) {
         result = false;
       }
