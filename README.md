@@ -195,6 +195,9 @@ In order to include a 'semantics schema' in the validation process, the name of 
 }
 ```
 
+Note: Relative paths in the `semanticSchemaFileNames` array are resolved relative to the directory of the options file (`--optionsFile`)
+
+
 This options file can then be passed to the validator:
 ```
 npx 3d-tiles-validator --optionsFile exampleOptions.json -t ./data/exampleTileset.json

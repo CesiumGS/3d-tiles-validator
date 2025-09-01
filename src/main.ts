@@ -6,6 +6,7 @@ import { readJsonUnchecked } from "./base/readJsonUnchecked";
 import { ValidationOptions } from "./validation/ValidationOptions";
 
 import { ValidatorMain } from "./ValidatorMain";
+import path from "path";
 
 const args = yargs(process.argv.slice(1))
   .help("help")
@@ -96,6 +97,16 @@ async function readOptionsFile(
   if (!validationOptionsObject) {
     return new ValidationOptions();
   }
+
+  // Resolve semanticSchemaFileNames relative to the options file location
+  const baseDir = path.dirname(optionsFile);
+  if (Array.isArray(validationOptionsObject.semanticSchemaFileNames)) {
+    validationOptionsObject.semanticSchemaFileNames =
+      validationOptionsObject.semanticSchemaFileNames.map((p: string) =>
+        path.isAbsolute(p) ? p : path.resolve(baseDir, p)
+      );
+  }
+
   const validationOptions = ValidationOptions.fromJson(validationOptionsObject);
   return validationOptions;
 }
