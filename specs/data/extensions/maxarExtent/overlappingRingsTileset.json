@@ -1,0 +1,34 @@
+{
+  "extras": {
+    "info": {
+      "note": "Two non-self-intersecting rings that overlap; overlaps should be allowed and treated as union"
+    }
+  },
+  "extensionsUsed": [
+    "MAXAR_extent"
+  ],
+  "extensions": {
+    "MAXAR_extent": {
+      "uri": "overlappingRings.geojson"
+    }
+  },
+  "asset": {
+    "version": "1.1"
+  },
+  "geometricError": 2.0,
+  "root": {
+    "refine": "REPLACE",
+    "boundingVolume": {
+      "region": [
+        -0.017453292519943295,
+        -0.017453292519943295,
+        0.017453292519943295,
+        0.017453292519943295,
+        0.0,
+        1000.0
+      ]
+    },
+    "geometricError": 1.0
+  }
+}
+

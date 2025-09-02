@@ -149,3 +149,10 @@ it("flags a collinear overlap as invalid geometry", async function () {
     "is self-intersecting, which is forbidden"
   );
 });
+
+it("accepts overlapping rings without self-intersections", async function () {
+  const result = await Validators.validateTilesetFile(
+    "specs/data/extensions/maxarExtent/overlappingRingsTileset.json"
+  );
+  expect(result.length).toEqual(0);
+});
