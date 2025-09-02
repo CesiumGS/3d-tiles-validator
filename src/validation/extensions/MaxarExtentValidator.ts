@@ -429,9 +429,23 @@ export class MaxarExtentValidator implements Validator<any> {
         result = false;
       }
 
-      // Check for self-intersection
-      if (MaxarExtentValidator.isRingSelfIntersecting(ring)) {
-        const message = `Extent polygon ring ${ringIndex} is self-intersecting, which is forbidden`;
+      // Check for self-intersection with debug details
+      const intersection = MaxarExtentValidator.findRingSelfIntersection(ring);
+      if (intersection) {
+        const { e1s, e1e, e2s, e2e, point } = intersection;
+        // Try to identify if the intersection lies exactly on an existing vertex
+        const vertexIndex = point
+          ? MaxarExtentValidator.findMatchingVertexIndex(ring, point)
+          : -1;
+        const atVertex = vertexIndex !== -1;
+        const coordStr = point
+          ? `[${point[0]}, ${point[1]}${
+              point.length > 2 ? ", " + point[2] : ""
+            }]`
+          : "unknown";
+        const message = atVertex
+          ? `Extent polygon ring ${ringIndex} is self-intersecting, which is forbidden. Intersection at vertex ${vertexIndex} ${coordStr}`
+          : `Extent polygon ring ${ringIndex} is self-intersecting, which is forbidden. Intersects between edges (${e1s}-${e1e}) and (${e2s}-${e2e}) near ${coordStr}`;
         const issue = SemanticValidationIssues.INVALID_GEOMETRY_STRUCTURE(
           path,
           message
@@ -515,34 +529,104 @@ export class MaxarExtentValidator implements Validator<any> {
    * @returns Whether the ring has self-intersecting edges
    */
   private static isRingSelfIntersecting(ring: number[][]): boolean {
-    if (ring.length < 4) return false; // Need at least 4 points to form a closed polygon
+    // Use the detailed intersection finder; boolean result is sufficient here
+    return MaxarExtentValidator.findRingSelfIntersection(ring) !== null;
+  }
 
-    // Check each edge against every other non-adjacent edge
+  /**
+   * Finds the first pair of intersecting non-adjacent edges in a ring and the intersection point
+   * Returns indices of the edge start/end vertices and the intersection point (if computable)
+   */
+  private static findRingSelfIntersection(ring: number[][]): {
+    e1s: number;
+    e1e: number;
+    e2s: number;
+    e2e: number;
+    point: number[] | null;
+  } | null {
+    if (ring.length < 4) return null;
+
     for (let i = 0; i < ring.length - 1; i++) {
-      const edge1Start = ring[i];
-      const edge1End = ring[i + 1];
+      const a1 = ring[i];
+      const a2 = ring[i + 1];
 
       for (let j = i + 2; j < ring.length - 1; j++) {
-        // Skip adjacent edges and the closing edge
-        if (j === ring.length - 2 && i === 0) continue; // Skip last edge vs first edge
+        if (j === ring.length - 2 && i === 0) continue; // Skip adjacent/closing edges
 
-        const edge2Start = ring[j];
-        const edge2End = ring[j + 1];
+        const b1 = ring[j];
+        const b2 = ring[j + 1];
 
-        if (
-          MaxarExtentValidator.doLineSegmentsIntersect(
-            edge1Start,
-            edge1End,
-            edge2Start,
-            edge2End
-          )
-        ) {
-          return true;
+        const point = MaxarExtentValidator.segmentsIntersectionFinite(
+          a1,
+          a2,
+          b1,
+          b2
+        );
+        if (point) {
+          return { e1s: i, e1e: i + 1, e2s: j, e2e: j + 1, point };
+        }
+        if (point) {
+          return { e1s: i, e1e: i + 1, e2s: j, e2e: j + 1, point };
         }
       }
     }
 
-    return false;
+    return null;
+  }
+
+  /**
+   * Compute intersection point of two line segments in 2D (lon/lat), if they intersect
+   * Returns null for parallel/collinear overlaps.
+   */
+  private static segmentIntersectionPoint(
+    p1: number[],
+    p2: number[],
+    p3: number[],
+    p4: number[]
+  ): number[] | null {
+    const x1 = p1[0],
+      y1 = p1[1];
+    const x2 = p2[0],
+      y2 = p2[1];
+    const x3 = p3[0],
+      y3 = p3[1];
+    const x4 = p4[0],
+      y4 = p4[1];
+
+    const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    if (Math.abs(denom) < MaxarExtentValidator.EPSILON) {
+      return null; // Parallel or collinear
+    }
+
+    const px =
+      ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) /
+      denom;
+    const py =
+      ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) /
+      denom;
+
+    return [px, py];
+  }
+
+  /**
+   * Find index of a vertex in ring that matches the given point within epsilon, or -1
+   */
+  private static findMatchingVertexIndex(
+    ring: number[][],
+    point: number[]
+  ): number {
+    for (let i = 0; i < ring.length; i++) {
+      if (
+        MaxarExtentValidator.coordinatesEqual(
+          ring[i],
+          point,
+          MaxarExtentValidator.EPSILON
+        )
+      ) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   /**
@@ -593,11 +677,69 @@ export class MaxarExtentValidator implements Validator<any> {
   }
 
   /**
+   * Robust finite-segment intersection check.
+   * Returns an intersection point on the finite segments (with epsilon tolerance),
+   * or a representative point for collinear overlaps, or null if segments don't intersect.
+   */
+  private static segmentsIntersectionFinite(
+    p1: number[],
+    p2: number[],
+    p3: number[],
+    p4: number[]
+  ): number[] | null {
+    const eps = MaxarExtentValidator.EPSILON;
+
+    const r = [p2[0] - p1[0], p2[1] - p1[1]];
+    const s = [p4[0] - p3[0], p4[1] - p3[1]];
+
+    const cross = (a: number[], b: number[]) => a[0] * b[1] - a[1] * b[0];
+
+    const denom = cross(r, s);
+    const qmp = [p3[0] - p1[0], p3[1] - p1[1]];
+    const crossQmpR = cross(qmp, r);
+
+    if (Math.abs(denom) < eps) {
+      // Parallel: either collinear or disjoint
+      if (Math.abs(crossQmpR) >= eps) {
+        return null; // Parallel, non-collinear
+      }
+      // Collinear: check overlap in 1D along r
+      const rr = r[0] * r[0] + r[1] * r[1];
+      if (rr < eps) {
+        return null; // Degenerate segment: |p2 - p1| ≈ 0 (within EPSILON). Intersection parameters are ill-defined; ignore as non-intersecting.
+      }
+      const dot = (a: number[], b: number[]) => a[0] * b[0] + a[1] * b[1];
+      const t0 = dot([p3[0] - p1[0], p3[1] - p1[1]], r) / rr;
+      const t1 = dot([p4[0] - p1[0], p4[1] - p1[1]], r) / rr;
+      const tmin = Math.min(t0, t1);
+      const tmax = Math.max(t0, t1);
+      const overlapStart = Math.max(0 - eps, tmin);
+      const overlapEnd = Math.min(1 + eps, tmax);
+      if (overlapStart <= overlapEnd) {
+        // Pick a representative point within the overlap interval, clamped to [0,1]
+        const t = Math.min(1, Math.max(0, (overlapStart + overlapEnd) / 2));
+        return [p1[0] + t * r[0], p1[1] + t * r[1]];
+      }
+      return null;
+    }
+
+    // Proper intersection: compute parameters along each segment
+    const t = cross(qmp, s) / denom; // along p1->p2
+    const u = cross(qmp, r) / denom; // along p3->p4
+
+    if (t >= -eps && t <= 1 + eps && u >= -eps && u <= 1 + eps) {
+      return [p1[0] + t * r[0], p1[1] + t * r[1]];
+    }
+
+    return null;
+  }
+  /**
    * Extracts all coordinate arrays from a GeoJSON object
    *
    * @param geojsonObject - The GeoJSON object to extract coordinates from
    * @returns Array of coordinate arrays [longitude, latitude, optional height]
    */
+
   private static extractAllCoordinates(geojsonObject: any): number[][] {
     const coordinates: number[][] = [];
 
