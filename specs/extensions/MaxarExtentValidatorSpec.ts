@@ -120,3 +120,32 @@ describe("Tileset MAXAR_extent extension validation", function () {
     );
   });
 });
+
+it("does not flag a near-miss as self-intersection", async function () {
+  const result = await Validators.validateTilesetFile(
+    "specs/data/extensions/maxarExtent/nearMissTileset.json"
+  );
+  expect(result.length).toEqual(0);
+});
+
+it("flags a true crossing as self-intersection", async function () {
+  const result = await Validators.validateTilesetFile(
+    "specs/data/extensions/maxarExtent/trueCrossingTileset.json"
+  );
+  expect(result.length).toEqual(1);
+  expect(result.get(0).type).toEqual("INVALID_GEOMETRY_STRUCTURE");
+  expect(result.get(0).message).toContain(
+    "is self-intersecting, which is forbidden"
+  );
+});
+
+it("flags a collinear overlap as invalid geometry", async function () {
+  const result = await Validators.validateTilesetFile(
+    "specs/data/extensions/maxarExtent/collinearOverlapTileset.json"
+  );
+  expect(result.length).toEqual(1);
+  expect(result.get(0).type).toEqual("INVALID_GEOMETRY_STRUCTURE");
+  expect(result.get(0).message).toContain(
+    "is self-intersecting, which is forbidden"
+  );
+});
