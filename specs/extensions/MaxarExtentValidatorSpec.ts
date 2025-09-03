@@ -119,40 +119,63 @@ describe("Tileset MAXAR_extent extension validation", function () {
       "not contained within the root tile's bounding volume"
     );
   });
-});
 
-it("does not flag a near-miss as self-intersection", async function () {
-  const result = await Validators.validateTilesetFile(
-    "specs/data/extensions/maxarExtent/nearMissTileset.json"
-  );
-  expect(result.length).toEqual(0);
-});
+  it("does not flag a near-miss as self-intersection", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/nearMissTileset.json"
+    );
+    expect(result.length).toEqual(0);
+  });
 
-it("flags a true crossing as self-intersection", async function () {
-  const result = await Validators.validateTilesetFile(
-    "specs/data/extensions/maxarExtent/trueCrossingTileset.json"
-  );
-  expect(result.length).toEqual(1);
-  expect(result.get(0).type).toEqual("INVALID_GEOMETRY_STRUCTURE");
-  expect(result.get(0).message).toContain(
-    "is self-intersecting, which is forbidden"
-  );
-});
+  it("flags a true crossing as self-intersection", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/trueCrossingTileset.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("INVALID_GEOMETRY_STRUCTURE");
+    expect(result.get(0).message).toContain(
+      "is self-intersecting, which is forbidden"
+    );
+  });
 
-it("flags a collinear overlap as invalid geometry", async function () {
-  const result = await Validators.validateTilesetFile(
-    "specs/data/extensions/maxarExtent/collinearOverlapTileset.json"
-  );
-  expect(result.length).toEqual(1);
-  expect(result.get(0).type).toEqual("INVALID_GEOMETRY_STRUCTURE");
-  expect(result.get(0).message).toContain(
-    "is self-intersecting, which is forbidden"
-  );
-});
+  it("flags a collinear overlap as invalid geometry", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/collinearOverlapTileset.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("INVALID_GEOMETRY_STRUCTURE");
+    expect(result.get(0).message).toContain(
+      "is self-intersecting, which is forbidden"
+    );
+  });
 
-it("accepts overlapping rings without self-intersections", async function () {
-  const result = await Validators.validateTilesetFile(
-    "specs/data/extensions/maxarExtent/overlappingRingsTileset.json"
-  );
-  expect(result.length).toEqual(0);
+  it("accepts overlapping rings without self-intersections", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/overlappingRingsTileset.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("flags internal vertex touching a non-adjacent edge as invalid", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/internalTouchRingTileset.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("INVALID_GEOMETRY_STRUCTURE");
+  });
+
+  it("flags near-vertex-on-other-side that breaks the ring as invalid", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/nearVertexOnOtherSideFailTileset.json"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("INVALID_GEOMETRY_STRUCTURE");
+  });
+
+  it("accepts near-vertex-on-other-side within epsilon as valid", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/extensions/maxarExtent/nearVertexOnOtherSideOkTileset.json"
+    );
+    expect(result.length).toEqual(0);
+  });
 });

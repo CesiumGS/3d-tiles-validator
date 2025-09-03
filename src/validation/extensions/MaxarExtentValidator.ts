@@ -523,17 +523,6 @@ export class MaxarExtentValidator implements Validator<any> {
   }
 
   /**
-   * Checks if a ring is self-intersecting using a simple line segment intersection algorithm
-   *
-   * @param ring - Array of coordinate pairs forming a ring [longitude, latitude]
-   * @returns Whether the ring has self-intersecting edges
-   */
-  private static isRingSelfIntersecting(ring: number[][]): boolean {
-    // Use the detailed intersection finder; boolean result is sufficient here
-    return MaxarExtentValidator.findRingSelfIntersection(ring) !== null;
-  }
-
-  /**
    * Finds the first pair of intersecting non-adjacent edges in a ring and the intersection point
    * Returns indices of the edge start/end vertices and the intersection point (if computable)
    */
@@ -565,47 +554,10 @@ export class MaxarExtentValidator implements Validator<any> {
         if (point) {
           return { e1s: i, e1e: i + 1, e2s: j, e2e: j + 1, point };
         }
-        if (point) {
-          return { e1s: i, e1e: i + 1, e2s: j, e2e: j + 1, point };
-        }
       }
     }
 
     return null;
-  }
-
-  /**
-   * Compute intersection point of two line segments in 2D (lon/lat), if they intersect
-   * Returns null for parallel/collinear overlaps.
-   */
-  private static segmentIntersectionPoint(
-    p1: number[],
-    p2: number[],
-    p3: number[],
-    p4: number[]
-  ): number[] | null {
-    const x1 = p1[0],
-      y1 = p1[1];
-    const x2 = p2[0],
-      y2 = p2[1];
-    const x3 = p3[0],
-      y3 = p3[1];
-    const x4 = p4[0],
-      y4 = p4[1];
-
-    const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-    if (Math.abs(denom) < MaxarExtentValidator.EPSILON) {
-      return null; // Parallel or collinear
-    }
-
-    const px =
-      ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) /
-      denom;
-    const py =
-      ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) /
-      denom;
-
-    return [px, py];
   }
 
   /**
@@ -627,53 +579,6 @@ export class MaxarExtentValidator implements Validator<any> {
       }
     }
     return -1;
-  }
-
-  /**
-   * Checks if two line segments intersect using the orientation method
-   *
-   * @param p1 - First point of first line segment [x, y]
-   * @param q1 - Second point of first line segment [x, y]
-   * @param p2 - First point of second line segment [x, y]
-   * @param q2 - Second point of second line segment [x, y]
-   * @returns Whether the two line segments intersect
-   */
-  private static doLineSegmentsIntersect(
-    p1: number[],
-    q1: number[],
-    p2: number[],
-    q2: number[]
-  ): boolean {
-    const orientation = (p: number[], q: number[], r: number[]): number => {
-      const val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1]);
-      if (Math.abs(val) < MaxarExtentValidator.EPSILON) return 0; // Collinear
-      return val > 0 ? 1 : 2; // Clockwise or Counterclockwise
-    };
-
-    const onSegment = (p: number[], q: number[], r: number[]): boolean => {
-      return (
-        q[0] <= Math.max(p[0], r[0]) &&
-        q[0] >= Math.min(p[0], r[0]) &&
-        q[1] <= Math.max(p[1], r[1]) &&
-        q[1] >= Math.min(p[1], r[1])
-      );
-    };
-
-    const o1 = orientation(p1, q1, p2);
-    const o2 = orientation(p1, q1, q2);
-    const o3 = orientation(p2, q2, p1);
-    const o4 = orientation(p2, q2, q1);
-
-    // General case
-    if (o1 !== o2 && o3 !== o4) return true;
-
-    // Special cases - collinear points
-    if (o1 === 0 && onSegment(p1, p2, q1)) return true;
-    if (o2 === 0 && onSegment(p1, q2, q1)) return true;
-    if (o3 === 0 && onSegment(p2, p1, q2)) return true;
-    if (o4 === 0 && onSegment(p2, q1, q2)) return true;
-
-    return false;
   }
 
   /**
@@ -727,7 +632,11 @@ export class MaxarExtentValidator implements Validator<any> {
     const t = cross(qmp, s) / denom; // along p1->p2
     const u = cross(qmp, r) / denom; // along p3->p4
 
-    if (t >= -eps && t <= 1 + eps && u >= -eps && u <= 1 + eps) {
+    const inside01 = (x: number) => x >= 0 && x <= 1;
+    const nearEndpoint = (x: number) =>
+      Math.abs(x) <= eps || Math.abs(1 - x) <= eps;
+
+    if ((inside01(t) || nearEndpoint(t)) && (inside01(u) || nearEndpoint(u))) {
       return [p1[0] + t * r[0], p1[1] + t * r[1]];
     }
 
