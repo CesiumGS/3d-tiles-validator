@@ -135,14 +135,14 @@ export class MaxarValidatorCommon {
       return true;
     }
 
-    // Check S2 pattern: S2F[1-6]
-    const s2Pattern = /^S2F[1-6]$/;
+    // Check S2 pattern: S2F[0-5]
+    const s2Pattern = /^S2F[0-5]$/;
     if (s2Pattern.test(coordinateSystem)) {
       return true;
     }
 
     // If none of the patterns match, it's invalid
-    const message = `The 'coordinateSystem' value '${coordinateSystem}' is invalid. It must be 'GEOD', 'ECEF', match UTM pattern 'UTM(01-60)[NS]', or S2 pattern 'S2F[1-6]'`;
+    const message = `The 'coordinateSystem' value '${coordinateSystem}' is invalid. It must be 'GEOD', 'ECEF', match UTM pattern 'UTM(01-60)[NS]', or S2 pattern 'S2F[0-5]'`;
     const issue = JsonValidationIssues.STRING_VALUE_INVALID(path, message);
     context.addIssue(issue);
     return false;
