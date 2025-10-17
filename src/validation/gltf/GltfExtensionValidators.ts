@@ -1,6 +1,5 @@
 import { ValidationContext } from "../ValidationContext";
-
-import { GltfDataReader } from "./GltfDataReader";
+import { ValidationIssue } from "../ValidationIssue";
 import { GltfData } from "./GltfData";
 
 import { ExtInstanceFeaturesValidator } from "./instanceFeatures/ExtInstanceFeaturesValidator";
@@ -10,17 +9,57 @@ import { MaxarNonvisualGeometryValidator } from "./nonvisualGeometry/MaxarNonvis
 import { NgaGpmLocalValidator } from "./gpmLocal/NgaGpmLocalValidator";
 import { MaxarImageOrthoValidator } from "./imageOrtho/MaxarImageOrthoValidator";
 import { KhrLightsPunctualValidator } from "./lightsPunctual/KhrLightsPunctualValidator";
+import { GltfExtensionIssues } from "./GltfExtensionIssues";
 
 /**
- * An internal type definition for a function that performs the
- * validation of a glTF extension in a given GltfData object,
- * and adds any issues to a given context.
+ * An internal type definition for glTF extension validators
  */
-type GltfExtensionValidator = (
-  path: string,
-  gltfData: GltfData,
-  context: ValidationContext
-) => Promise<boolean>;
+interface GltfExtensionValidator {
+  /**
+   * Performs the validation of a glTF extension in a given GltfData
+   * object.
+   *
+   * This adds any issues to the given context, and returns
+   * whether the extension was valid.
+   *
+   * @param path - The path for validation issues
+   * @param gltfData - The GltfData object
+   * @param context - The validation context
+   * @returns Whether the extension was valid
+   */
+  validate(
+    path: string,
+    gltfData: GltfData,
+    context: ValidationContext
+  ): Promise<boolean>;
+
+  /**
+   * Process the given list of validation issues, based on the knowledge
+   * that only this validator implementation has.
+   *
+   * The given list are the validation issues that have been created
+   * from the validation issues of the glTF validator (possibly processed
+   * from other GltfExtensionValidator implementations).
+   *
+   * This method can omit some of these issues, if it determines that the
+   * respective issue is obsolete due to the validation that is performed
+   * by this instance. For example, all implementations of this interface
+   * will remove the issue where the message is
+   * "Cannot validate an extension as it is not supported by the validator:"
+   * followed by the name of the extension that this validator is
+   * responsible for. (Note that the method can also add new issues, but
+   * this is usually supposed to be done in the 'validate' method)
+   *
+   * @param path - The path for validation issues
+   * @param gltfData - The GltfData objects
+   * @param causes - The validation issues
+   */
+  processCauses(
+    path: string,
+    gltfData: GltfData,
+    causes: ValidationIssue[]
+  ): Promise<ValidationIssue[]>;
+}
 
 /**
  * A class that only serves as an entry point for validating
@@ -84,34 +123,58 @@ export class GltfExtensionValidators {
       return;
     }
 
-    GltfExtensionValidators.registerValidator(
-      "EXT_mesh_features",
-      ExtMeshFeaturesValidator.validateGltf
-    );
-    GltfExtensionValidators.registerValidator(
-      "EXT_instance_features",
-      ExtInstanceFeaturesValidator.validateGltf
-    );
-    GltfExtensionValidators.registerValidator(
-      "EXT_structural_metadata",
-      ExtStructuralMetadataValidator.validateGltf
-    );
-    GltfExtensionValidators.registerValidator(
-      "NGA_gpm_local",
-      NgaGpmLocalValidator.validateGltf
-    );
-    GltfExtensionValidators.registerValidator(
-      "MAXAR_image_ortho",
-      MaxarImageOrthoValidator.validateGltf
-    );
-    GltfExtensionValidators.registerValidator(
-      "KHR_lights_punctual",
-      KhrLightsPunctualValidator.validateGltf
-    );
-    GltfExtensionValidators.registerValidator(
-      "MAXAR_nonvisual_geometry",
-      MaxarNonvisualGeometryValidator.validateGltf
-    );
+    const emptyValidation = async (
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      path: string,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      gltfData: GltfData,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      context: ValidationContext
+    ) => true;
+    const emptyProcessing = async (
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      path: string,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      gltfData: GltfData,
+      causes: ValidationIssue[]
+    ) => causes;
+
+    GltfExtensionValidators.registerValidator("EXT_mesh_features", {
+      validate: ExtMeshFeaturesValidator.validateGltf,
+      processCauses: emptyProcessing,
+    });
+    GltfExtensionValidators.registerValidator("EXT_instance_features", {
+      validate: ExtInstanceFeaturesValidator.validateGltf,
+      processCauses: emptyProcessing,
+    });
+    GltfExtensionValidators.registerValidator("EXT_structural_metadata", {
+      validate: ExtStructuralMetadataValidator.validateGltf,
+      processCauses: emptyProcessing,
+    });
+    GltfExtensionValidators.registerValidator("NGA_gpm_local", {
+      validate: NgaGpmLocalValidator.validateGltf,
+      processCauses: emptyProcessing,
+    });
+    GltfExtensionValidators.registerValidator("MAXAR_image_ortho", {
+      validate: MaxarImageOrthoValidator.validateGltf,
+      processCauses: emptyProcessing,
+    });
+    GltfExtensionValidators.registerValidator("KHR_lights_punctual", {
+      validate: KhrLightsPunctualValidator.validateGltf,
+      processCauses: emptyProcessing,
+    });
+    GltfExtensionValidators.registerValidator("MAXAR_nonvisual_geometry", {
+      validate: MaxarNonvisualGeometryValidator.validateGltf,
+      processCauses: emptyProcessing,
+    });
+
+    // Register an empty validator for KHR_texture_basisu that only
+    // filters out the messages about unused images and
+    // unsupported MIME types.
+    GltfExtensionValidators.registerValidator("KHR_texture_basisu", {
+      validate: emptyValidation,
+      processCauses: GltfExtensionIssues.processCausesKhrTextureBasisu,
+    });
 
     GltfExtensionValidators.didRegisterValidators = true;
   }
@@ -120,31 +183,53 @@ export class GltfExtensionValidators {
    * Ensure that the extensions in the given glTF data are valid.
    *
    * @param path - The path for `ValidationIssue` instances
-   * @param input - The raw glTF data
+   * @param gltfData - The GltfData
    * @param context - The `ValidationContext`
    * @returns Whether the object is valid
    */
   static async validateGltfExtensions(
     path: string,
-    input: Buffer,
+    gltfData: GltfData,
     context: ValidationContext
   ): Promise<boolean> {
     GltfExtensionValidators.registerValidators();
-    const gltfData = await GltfDataReader.readGltfData(path, input, context);
-    if (!gltfData) {
-      // Issue was already added to context
-      return false;
-    }
-
     let result = true;
     const validators = Object.values(
       GltfExtensionValidators.gltfExtensionValidators
     );
     for (const validator of validators) {
-      const valid = await validator(path, gltfData, context);
+      const valid = await validator.validate(path, gltfData, context);
       if (!valid) {
         result = false;
       }
+    }
+    return result;
+  }
+
+  /**
+   * Filter the given list of issues, to omit the ones that are obsolete
+   * due to the validation that is performed by validators that are
+   * implemented as part of the 3D Tiles validator.
+   *
+   * @param path - The path for validation issues
+   * @param gltfData - The GltfData
+   * @param allCauses - All validation issues that have been created
+   * from the issues that are generated by the glTF validator
+   * @returns A possibly filtered list of validation issues
+   */
+  static async processCauses(
+    path: string,
+    gltfData: GltfData,
+    allCauses: ValidationIssue[]
+  ): Promise<ValidationIssue[]> {
+    GltfExtensionValidators.registerValidators();
+
+    let result = allCauses.slice();
+    const validators = Object.values(
+      GltfExtensionValidators.gltfExtensionValidators
+    );
+    for (const validator of validators) {
+      result = await validator.processCauses(path, gltfData, result);
     }
     return result;
   }
