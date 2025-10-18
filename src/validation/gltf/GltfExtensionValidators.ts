@@ -9,7 +9,6 @@ import { MaxarNonvisualGeometryValidator } from "./nonvisualGeometry/MaxarNonvis
 import { NgaGpmLocalValidator } from "./gpmLocal/NgaGpmLocalValidator";
 import { MaxarImageOrthoValidator } from "./imageOrtho/MaxarImageOrthoValidator";
 import { KhrLightsPunctualValidator } from "./lightsPunctual/KhrLightsPunctualValidator";
-import { GltfExtensionIssues } from "./GltfExtensionIssues";
 import { GltfExtensionIssuesKhrTextureBasisu } from "./GltfExtensionIssuesKhrTextureBasisu";
 import { ExtStructuralMetadataIssues } from "./structuralMetadata/ExtStructuralMetadataIssues";
 import { ExtMeshFeaturesIssues } from "./meshFeatures/ExtMeshFeaturesIssues";

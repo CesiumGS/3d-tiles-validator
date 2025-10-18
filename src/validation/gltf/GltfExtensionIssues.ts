@@ -1,8 +1,4 @@
 import { ValidationIssue } from "../ValidationIssue";
-import { GltfData } from "./GltfData";
-
-import { ValidationIssues } from "../../issues/ValidationIssues";
-import { ValidationIssueSeverity } from "../ValidationIssueSeverity";
 
 /**
  * Functions for implementing filters on lists of validation issues,
