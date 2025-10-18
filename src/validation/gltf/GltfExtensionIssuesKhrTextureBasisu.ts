@@ -23,24 +23,21 @@ export class GltfExtensionIssuesKhrTextureBasisu {
    * @param causes - The causes
    * @returns The filtered causes
    */
-  static async processCausesKhrTextureBasisu(
+  static async processCauses(
     path: string,
     gltfData: GltfData,
     causes: ValidationIssue[]
   ): Promise<ValidationIssue[]> {
     const gltf = gltfData.gltf;
-    const khrTextureBasisuImageIndices =
-      GltfExtensionIssuesKhrTextureBasisu.computeImageIndicesKhrTextureBasisu(
-        gltf
-      );
+    const usedImageIndices =
+      GltfExtensionIssuesKhrTextureBasisu.computeUsedImageIndices(gltf);
 
     const processedCauses: ValidationIssue[] = [];
     for (const cause of causes) {
-      const remove =
-        await GltfExtensionIssuesKhrTextureBasisu.shouldRemoveKhrTextureBasisu(
-          khrTextureBasisuImageIndices,
-          cause
-        );
+      const remove = await GltfExtensionIssuesKhrTextureBasisu.shouldRemove(
+        usedImageIndices,
+        cause
+      );
       if (!remove) {
         processedCauses.push(cause);
       }
@@ -65,13 +62,13 @@ export class GltfExtensionIssuesKhrTextureBasisu {
    * because it is caused by the lack of support of the KHR_texture_basisu
    * extension in the glTF validator.
    *
-   * @param khrTextureBasisuImageIndices - The indices of images that
+   * @param usedImageIndices - The indices of images that
    * are used by the KHR_texture_basisu extension
    * @param issue - The validation issue
    * @returns Whether the issue should be removed
    */
-  private static async shouldRemoveKhrTextureBasisu(
-    khrTextureBasisuImageIndices: number[],
+  private static async shouldRemove(
+    usedImageIndices: number[],
     issue: ValidationIssue
   ): Promise<boolean> {
     // Never remove errors!
@@ -112,7 +109,7 @@ export class GltfExtensionIssuesKhrTextureBasisu {
         console.warn("Could not extract image index from path: " + path);
         return false;
       }
-      if (khrTextureBasisuImageIndices.includes(imageIndex)) {
+      if (usedImageIndices.includes(imageIndex)) {
         return true;
       }
     }
@@ -126,13 +123,13 @@ export class GltfExtensionIssuesKhrTextureBasisu {
    * @param gltf - The glTF JSON object
    * @returns The image indices
    */
-  private static computeImageIndicesKhrTextureBasisu(gltf: any): number[] {
+  private static computeUsedImageIndices(gltf: any): number[] {
     const imageIndices = [];
     const textures = gltf.textures ?? [];
     for (const texture of textures) {
       const extensions = texture.extensions ?? {};
-      const khrTextureBasisuExtension = extensions["KHR_texture_basisu"] ?? {};
-      const source = khrTextureBasisuExtension.source;
+      const extension = extensions["KHR_texture_basisu"] ?? {};
+      const source = extension.source;
       if (typeof source === "number") {
         imageIndices.push(source);
       }

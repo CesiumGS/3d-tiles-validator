@@ -175,8 +175,7 @@ export class GltfExtensionValidators {
     // unsupported MIME types.
     GltfExtensionValidators.registerValidator("KHR_texture_basisu", {
       validate: emptyValidation,
-      processCauses:
-        GltfExtensionIssuesKhrTextureBasisu.processCausesKhrTextureBasisu,
+      processCauses: GltfExtensionIssuesKhrTextureBasisu.processCauses,
     });
     GltfExtensionValidators.didRegisterValidators = true;
   }
