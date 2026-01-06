@@ -73,15 +73,16 @@ export class FeatureIdAccessorValidator {
     // Only if the structures have been valid until now,
     // validate the actual data of the accessor
     if (result && gltfData.gltfDocument) {
-      const dataValid = FeatureIdAccessorValidator.validateFeatureIdAcessorData(
-        path,
-        accessorIndex,
-        featureCount,
-        gltfData,
-        propertyTableState,
-        nullFeatureId,
-        context
-      );
+      const dataValid =
+        FeatureIdAccessorValidator.validateFeatureIdAccessorData(
+          path,
+          accessorIndex,
+          featureCount,
+          gltfData,
+          propertyTableState,
+          nullFeatureId,
+          context
+        );
       if (!dataValid) {
         result = false;
       }
@@ -90,7 +91,7 @@ export class FeatureIdAccessorValidator {
   }
 
   /**
-   * Validate the data of the given feature ID atribute.
+   * Validate the data of the given feature ID attribute.
    *
    * This assumes that the glTF data is valid as determined by the
    * glTF Validator, **AND** as determined by the validation of
@@ -110,7 +111,7 @@ export class FeatureIdAccessorValidator {
    * @param context - The `ValidationContext` that any issues will be added to
    * @returns Whether the object was valid
    */
-  private static validateFeatureIdAcessorData(
+  private static validateFeatureIdAccessorData(
     path: string,
     accessorIndex: number,
     featureCount: number,
@@ -126,7 +127,7 @@ export class FeatureIdAccessorValidator {
     if (!accessorValues) {
       // This should only happen for invalid glTF assets (e.g. ones that
       // use wrong accessor component types), or when the gltfDocument
-      // could not be read due to another structual error that should
+      // could not be read due to another structural error that should
       // be detected by the extension validation.
       const message = `Could not read data for feature ID attribute accessor`;
       const issue = ValidationIssues.INTERNAL_ERROR(path, message);

@@ -14,7 +14,7 @@ import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues"
  * metadata classes. This refers to `metadataEntity` and
  * `propertyTable` definitions. It offers a method to check
  * whether the respective `class` name is a valid class name,
- * and whether the `properites` match the properties of the
+ * and whether the `properties` match the properties of the
  * respective class.
  *
  * @internal

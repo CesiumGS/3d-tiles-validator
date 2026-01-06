@@ -132,7 +132,7 @@ export class FeatureIdValidator {
    * @param path - The path for validation issues
    * @param sourceName - The source, 'texture' or 'attribute'
    * @param featureIdSet - The feature ID set. Note that This set
-   * might be modifified by this method!
+   * might be modified by this method!
    * @param featureCount - The `featureCount` value from the feature ID definition
    * @param propertyTableState - The validation state of the property table
    * definition (i.e. the index into the property tables array)
