@@ -43,16 +43,46 @@ export class BinaryPropertyTableValidator {
     for (const propertyId of Object.keys(classProperties)) {
       const classProperty = classProperties[propertyId];
       const propertyPath = path + "/properties/" + propertyId;
-      if (
-        !BinaryPropertyTableValidator.validateBinaryPropertyTableProperty(
-          propertyPath,
-          propertyId,
-          classProperty,
-          binaryPropertyTable,
-          context
-        )
-      ) {
-        result = false;
+
+      // Obtain the property table property
+      const propertyTable = binaryPropertyTable.propertyTable;
+      const propertyTableProperties = defaultValue(
+        propertyTable.properties,
+        {}
+      );
+      const propertyTableProperty = propertyTableProperties[propertyId];
+
+      // Validate that the property is actually present when it
+      // is "required"
+      if (!defined(propertyTableProperty)) {
+        const required = classProperty.required ?? false;
+        if (required) {
+          const issue =
+            MetadataValidationIssues.METADATA_VALUE_REQUIRED_BUT_MISSING(
+              path,
+              propertyId
+            );
+          context.addIssue(issue);
+          result = false;
+        }
+      } else {
+        // Perform the structural validation of the property, checking
+        // for the presence of the necessary buffer views (values,
+        // arrayOffsets, and stringOffsets), depending on the type
+        // of the property. This does not yet check the actual values
+        // that are stored in the "values" buffer view. This is done
+        // below, in validateBinaryPropertyTableValues
+        if (
+          !BinaryPropertyTableValidator.validateBinaryPropertyTableProperty(
+            propertyPath,
+            propertyId,
+            classProperty,
+            binaryPropertyTable,
+            context
+          )
+        ) {
+          result = false;
+        }
       }
     }
 
@@ -113,10 +143,13 @@ export class BinaryPropertyTableValidator {
         )
       ) {
         result = false;
+
         // Bail out early when the arrayOffsets are not valid
         return result;
       }
     }
+
+    // The following assumes that the arrayOffsets are valid:
 
     // If the property is a STRING property, validate
     // the 'stringOffsets' buffer view

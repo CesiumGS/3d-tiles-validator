@@ -9,6 +9,14 @@ describe("combined EXT_structural_metadata and EXT_mesh_features extension valid
     expect(result.get(0).type).toEqual("VALUE_NOT_IN_RANGE");
   });
 
+  it("detects issues in FeatureIdAttributeAndPropertyTableWithValueNotInRange", async function () {
+    const result = await validateGltf(
+      "./specs/data/gltfExtensions/FeatureIdAttributeAndPropertyTableWithValueNotInRange.gltf"
+    );
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("METADATA_VALUE_NOT_IN_RANGE");
+  });
+
   it("detects issues in FeatureIdAttributePropertyTableInvalidValue", async function () {
     const result = await validateGltf(
       "./specs/data/gltfExtensions/FeatureIdAttributePropertyTableInvalidValue.gltf"
