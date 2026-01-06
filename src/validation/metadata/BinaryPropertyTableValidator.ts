@@ -43,16 +43,46 @@ export class BinaryPropertyTableValidator {
     for (const propertyId of Object.keys(classProperties)) {
       const classProperty = classProperties[propertyId];
       const propertyPath = path + "/properties/" + propertyId;
-      if (
-        !BinaryPropertyTableValidator.validateBinaryPropertyTableProperty(
-          propertyPath,
-          propertyId,
-          classProperty,
-          binaryPropertyTable,
-          context
-        )
-      ) {
-        result = false;
+
+      // Obtain the property table property
+      const propertyTable = binaryPropertyTable.propertyTable;
+      const propertyTableProperties = defaultValue(
+        propertyTable.properties,
+        {}
+      );
+      const propertyTableProperty = propertyTableProperties[propertyId];
+
+      // Validate that the property is actually present when it
+      // is "required"
+      if (!defined(propertyTableProperty)) {
+        const required = classProperty.required ?? false;
+        if (required) {
+          const issue =
+            MetadataValidationIssues.METADATA_VALUE_REQUIRED_BUT_MISSING(
+              path,
+              propertyId
+            );
+          context.addIssue(issue);
+          result = false;
+        }
+      } else {
+        // Perform the structural validation of the property, checking
+        // for the presence of the necessary buffer views (values,
+        // arrayOffsets, and stringOffsets), depending on the type
+        // of the property. This does not yet check the actual values
+        // that are stored in the "values" buffer view. This is done
+        // below, in validateBinaryPropertyTableValues
+        if (
+          !BinaryPropertyTableValidator.validateBinaryPropertyTableProperty(
+            propertyPath,
+            propertyId,
+            classProperty,
+            binaryPropertyTable,
+            context
+          )
+        ) {
+          result = false;
+        }
       }
     }
 
@@ -76,7 +106,7 @@ export class BinaryPropertyTableValidator {
   /**
    * Validate a single property of a `BinaryPropertyTable`
    *
-   * @param path - The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTableProperty`, for
    * `ValidationIssue` instances
    * @param propertyId - The property ID
    * @param classProperty - The `ClassProperty`
@@ -113,10 +143,13 @@ export class BinaryPropertyTableValidator {
         )
       ) {
         result = false;
+
         // Bail out early when the arrayOffsets are not valid
         return result;
       }
     }
+
+    // The following assumes that the arrayOffsets are valid:
 
     // If the property is a STRING property, validate
     // the 'stringOffsets' buffer view
@@ -171,7 +204,7 @@ export class BinaryPropertyTableValidator {
    * 'stringOffsets' have been validated for types that require
    * them.
    *
-   * @param path - The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTableProperty`, for
    * `ValidationIssue` instances
    * @param propertyId - The property ID
    * @param classProperty - The `ClassProperty`
@@ -278,7 +311,7 @@ export class BinaryPropertyTableValidator {
    * This assumes that the specified property is a variable-length
    * property.
    *
-   * @param path - The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTableProperty`, for
    * `ValidationIssue` instances
    * @param propertyId - The property ID
    * @param binaryPropertyTable - The `BinaryPropertyTable`
@@ -366,7 +399,7 @@ export class BinaryPropertyTableValidator {
    *
    * This assumes that the specified property is a STRING property
    *
-   * @param path - The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTableProperty`, for
    * `ValidationIssue` instances
    * @param propertyId - The property ID
    * @param binaryPropertyTable - The `BinaryPropertyTable`
@@ -875,7 +908,7 @@ export class BinaryPropertyTableValidator {
     }
 
     // For non-STRING, non-BOOLEAN properties, the number of bytes
-    // is given by the nunber of values, multiplied with the
+    // is given by the number of values, multiplied with the
     // component size
     const message =
       `The 'values' buffer view of property '${propertyId}' ` +
@@ -1009,7 +1042,7 @@ export class BinaryPropertyTableValidator {
    * index.
    *
    * This assumes that the property is a variable-length array property
-   * and the requried structures for accessing that data have already
+   * and the required structures for accessing that data have already
    * been validated.
    *
    * @param propertyId - The property ID
@@ -1046,7 +1079,7 @@ export class BinaryPropertyTableValidator {
    * index.
    *
    * This assumes that the property is a STRING property and the
-   * requried structures for accessing that data have already
+   * required structures for accessing that data have already
    * been validated.
    *
    * @param propertyId - The property ID

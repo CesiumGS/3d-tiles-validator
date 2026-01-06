@@ -27,14 +27,14 @@ export class ValidationIssueFilters {
    * `ValidationIssue` instances where the `ValidationIssue#severity`
    * is one of the given severities.
    *
-   * @param includedServerities - The included severities
+   * @param includedSeverities - The included severities
    * @returns The `ValidationIssueFilter`
    */
   static byIncludedSeverities(
-    ...includedServerities: ValidationIssueSeverity[]
+    ...includedSeverities: ValidationIssueSeverity[]
   ): ValidationIssueFilter {
     const predicate = (issues: ValidationIssue[]) =>
-      includedServerities.includes(issues[issues.length - 1].severity);
+      includedSeverities.includes(issues[issues.length - 1].severity);
     return predicate;
   }
 }

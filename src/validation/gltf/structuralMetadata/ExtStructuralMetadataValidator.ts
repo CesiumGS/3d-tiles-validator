@@ -1,4 +1,11 @@
-import { Schema, defined } from "3d-tiles-tools";
+import {
+  BinaryBufferStructure,
+  BinaryMetadata,
+  BinaryPropertyTable,
+  MetadataUtilities,
+  Schema,
+  defined,
+} from "3d-tiles-tools";
 import { defaultValue } from "3d-tiles-tools";
 
 import { ValidationContext } from "../../ValidationContext";
@@ -16,6 +23,7 @@ import { PropertyTablesDefinitionValidator } from "../../metadata/PropertyTables
 import { GltfExtensionValidationIssues } from "../../../issues/GltfExtensionValidationIssues";
 import { JsonValidationIssues } from "../../../issues/JsonValidationIssues";
 import { PropertyAttributeValuesValidator } from "./PropertyAttributeValuesValidator";
+import { BinaryPropertyTableValidator } from "../../metadata/BinaryPropertyTableValidator";
 
 /**
  * A class for validating the `EXT_structural_metadata` extension in
@@ -225,6 +233,23 @@ export class ExtStructuralMetadataValidator {
       !defined(propertyTablesState.validatedElement)
     ) {
       result = false;
+    } else {
+      // When there was a property table, and it was structurally
+      // valid, then validate the VALUES of the property tables
+      if (defined(schemaState.validatedElement)) {
+        const schema = schemaState.validatedElement;
+        const valuesValid =
+          ExtStructuralMetadataValidator.validatePropertyTablesValues(
+            path,
+            structuralMetadata.propertyTables,
+            schema,
+            gltfData,
+            context
+          );
+        if (!valuesValid) {
+          result = false;
+        }
+      }
     }
 
     // Validate the property textures definition
@@ -397,6 +422,82 @@ export class ExtStructuralMetadataValidator {
       }
     }
 
+    return result;
+  }
+
+  /**
+   * Validate the values that are stored in property tables.
+   *
+   * This assumes that the structural validity of the schema and the
+   * property table JSON objects has already been verified, as of
+   * PropertyTablesDefinitionValidator.validatePropertyTablesDefinition.
+   *
+   * If will obtain the actual metadata values from the buffer views
+   * that are defined in the glTF and referred to by the property tables
+   * (i.e. the values, arrayOffsets, and stringOffsets). This is done
+   * by BinaryPropertyTableValidator.validateBinaryPropertyTable.
+   *
+   * @param path - The path for validation issues
+   * @param structuralMetadataPropertyTables - The propertyTables array
+   * that has been obtained from the top-level structural metadata object
+   * @param schema - The metadata schema
+   * @param gltfData - The glTF data that contained the structural metadata
+   * @param context - The `ValidationContext` that any issues will be added to
+   * @returns Whether the object was valid
+   */
+  private static validatePropertyTablesValues(
+    path: string,
+    structuralMetadataPropertyTables: any,
+    schema: Schema,
+    gltfData: GltfData,
+    context: ValidationContext
+  ): boolean {
+    let result = true;
+
+    // Define the binary buffer structure that will be used
+    // for creating the BinaryPropertyTable. Here, the required
+    // buffers and buffer views are sourced from the glTF.
+    const gltf = gltfData.gltf;
+    const binaryBufferStructure: BinaryBufferStructure = {
+      buffers: gltf.buffers,
+      bufferViews: gltf.bufferViews,
+    };
+    const binaryBufferData = gltfData.binaryBufferData;
+
+    // Obtain the structural information about the schema
+    // that is required for validating each property table
+    const classes = defaultValue(schema.classes, {});
+    const binaryEnumInfo = MetadataUtilities.computeBinaryEnumInfo(schema);
+    const propertyTables = defaultValue(structuralMetadataPropertyTables, []);
+    for (const propertyTable of propertyTables) {
+      const classId = propertyTable.class;
+      const metadataClass = classes[classId];
+
+      // Create the `BinaryPropertyTable` for each property table,
+      // which contains everything that is required for the
+      // validation of the binary representation of the
+      // property table
+      const binaryMetadata: BinaryMetadata = {
+        metadataClass: metadataClass,
+        binaryEnumInfo: binaryEnumInfo,
+        binaryBufferStructure: binaryBufferStructure,
+        binaryBufferData: binaryBufferData,
+      };
+      const binaryPropertyTable: BinaryPropertyTable = {
+        propertyTable: propertyTable,
+        binaryMetadata: binaryMetadata,
+      };
+
+      if (
+        !BinaryPropertyTableValidator.validateBinaryPropertyTable(
+          path,
+          binaryPropertyTable,
+          context
+        )
+      ) {
+        result = false;
+      }
+    }
     return result;
   }
 }

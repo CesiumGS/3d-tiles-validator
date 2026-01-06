@@ -117,15 +117,15 @@ export class StatisticsClassValidator {
       ) {
         result = false;
       } else {
-        for (const statisticsClassPropetyName of Object.keys(
+        for (const statisticsClassPropertyName of Object.keys(
           statisticsClassProperties
         )) {
           if (
-            !metadataClassPropertyNames.includes(statisticsClassPropetyName)
+            !metadataClassPropertyNames.includes(statisticsClassPropertyName)
           ) {
             const message =
               `Statistics class '${className}' contains a property name ` +
-              `'${statisticsClassPropetyName}', but the schema class does ` +
+              `'${statisticsClassPropertyName}', but the schema class does ` +
               `not define this property`;
             const issue = StructureValidationIssues.IDENTIFIER_NOT_FOUND(
               classPath,

@@ -254,7 +254,7 @@ export class I3dmValidator implements Validator<Buffer> {
       result = false;
     }
 
-    // If the GLB data was embdedded, validate it directly
+    // If the GLB data was embedded, validate it directly
     if (hasEmbeddedGlb) {
       const gltfValidator = new GltfValidator();
       const gltfResult = await gltfValidator.validateObject(
@@ -268,7 +268,7 @@ export class I3dmValidator implements Validator<Buffer> {
     } else {
       // The GLB data was a URI, as indicated by `gltfFormat === 0`.
       // The padding bytes in this case should be 0x20 (space) bytes,
-      // so issue a warning if the buffer contais 0x00 (zero) bytes.
+      // so issue a warning if the buffer contains 0x00 (zero) bytes.
       if (glbData.includes("\0")) {
         const message =
           `The field containing the URI of the glTF asset contained ` +

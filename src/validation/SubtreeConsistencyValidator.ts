@@ -45,7 +45,7 @@ export class SubtreeConsistencyValidator {
    * is not given, then the validation of the availability information
    * (that requires information about the subtree structure) will be
    * skipped
-   * @param context - The `ValidationCondext`
+   * @param context - The `ValidationContext`
    * @returns Whether the data was consistent
    */
   static validateSubtreeConsistency(
@@ -111,7 +111,7 @@ export class SubtreeConsistencyValidator {
     let result = true;
 
     // The implicitTiling has already been validated to have a valid
-    // subvisionScheme. Therefore, the methods from `ImplicitTilings`
+    // subdivisionScheme. Therefore, the methods from `ImplicitTilings`
     // should never throw an `ImplicitTilingError` here.
 
     // Validate the consistency of the tileAvailability

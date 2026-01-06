@@ -24,7 +24,7 @@ export class MetadataPropertyValidator {
    * This method will ensure that these elements are NOT given if the
    * given class property indicates a variable-length array. If they
    * are given, it will ensure that their structure matches the
-   * structure that is defined by the class property definiton.
+   * structure that is defined by the class property definition.
    *
    * @param path - The path for the `ValidationIssue` instances
    * @param property - The object to validate

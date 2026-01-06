@@ -49,7 +49,7 @@ export class PropertyAttributeValuesValidator {
    * the extension object
    * @param meshIndex - The index of the mesh (only for details
    * in validation messages)
-   * @param pimitiveIndex - The index of the primitive (only for details
+   * @param primitiveIndex - The index of the primitive (only for details
    * in validation messages)
    * @param schema - The metadata schema
    * @param gltfStructuralMetadata - The top-level glTF structural
@@ -164,7 +164,7 @@ export class PropertyAttributeValuesValidator {
    * @param meshPrimitive - The mesh primitive
    * @param meshIndex - The index of the mesh (only for details
    * in validation messages)
-   * @param pimitiveIndex - The index of the primitive (only for details
+   * @param primitiveIndex - The index of the primitive (only for details
    * in validation messages)
    * @param schema  - The metadata schema
    * @param metadataClassName - Te class name that was given in the
