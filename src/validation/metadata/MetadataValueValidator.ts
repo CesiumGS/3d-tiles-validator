@@ -444,6 +444,7 @@ export class MetadataValueValidator {
           context
         );
       }
+      return true;
     }
 
     // Here, the value must be an array.

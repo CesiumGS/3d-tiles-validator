@@ -1,0 +1,15 @@
+{
+  "id": "EXAMPLE_SCHEMA_ID",
+  "classes": {
+    "exampleClass": {
+      "properties": {
+        "exampleProperty": {
+          "type": "VEC2",
+          "componentType": "FLOAT32",
+          "min": [0.0, 0.0],
+          "max": [1.0, 1.0]
+        }
+      }
+    }
+  }
+}

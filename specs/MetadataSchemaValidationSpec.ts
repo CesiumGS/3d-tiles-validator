@@ -587,6 +587,13 @@ describe("Metadata schema validation", function () {
     expect(result.length).toEqual(0);
   });
 
+  it("detects no issues in validSchemaWithMinMax", async function () {
+    const result = await Validators.validateSchemaFile(
+      "specs/data/schemas/validSchemaWithMinMax.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
   it("detects issues in metadataClassPropertySemanticArrayMismatchA", async function () {
     const result = await Validators.validateSchemaFile(
       "specs/data/schemas/metadataClassPropertySemanticArrayMismatchA.json"
