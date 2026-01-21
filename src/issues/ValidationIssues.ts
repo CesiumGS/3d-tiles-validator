@@ -21,4 +21,19 @@ export class ValidationIssues {
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
+
+  /**
+   * An issue that just summarizes information about the validation
+   * process or result.
+   *
+   * @param path - The path for the `ValidationIssue`
+   * @param message - The message for the `ValidationIssue`
+   * @returns The `ValidationIssue`
+   */
+  static VALIDATION_INFO(path: string, message: string) {
+    const type = "VALIDATION_INFO";
+    const severity = ValidationIssueSeverity.INFO;
+    const issue = new ValidationIssue(type, path, message, severity);
+    return issue;
+  }
 }
