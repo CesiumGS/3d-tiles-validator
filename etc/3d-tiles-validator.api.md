@@ -36,7 +36,7 @@ export type ValidationIssueFilter = (issuesStack: ValidationIssue[]) => boolean;
 // @beta
 export class ValidationIssueFilters {
     static byExcludedTypes(...excludedTypes: string[]): ValidationIssueFilter;
-    static byIncludedSeverities(...includedServerities: ValidationIssueSeverity[]): ValidationIssueFilter;
+    static byIncludedSeverities(...includedSeverities: ValidationIssueSeverity[]): ValidationIssueFilter;
 }
 
 // @beta
