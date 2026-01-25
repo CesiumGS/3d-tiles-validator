@@ -1,4 +1,21 @@
 
+Version 0.6.1 - 2026-01-25
+
+- Added validation for the `3DTILES_content_gltf` extension [#336](https://github.com/CesiumGS/3d-tiles-validator/pull/336)
+- Added validation for the `MAXAR_grid` extension [#337](https://github.com/CesiumGS/3d-tiles-validator/pull/337)
+- Added validation for the `MAXAR_extent` extension [#338](https://github.com/CesiumGS/3d-tiles-validator/pull/338), [#347](https://github.com/CesiumGS/3d-tiles-validator/pull/347), [#351](https://github.com/CesiumGS/3d-tiles-validator/pull/351)
+- Added validation for the `MAXAR_content_geojson` extension [#339](https://github.com/CesiumGS/3d-tiles-validator/pull/339)
+- Changed the validation issue type for string lengths that are invalid according to the `minLength/maxLength` definitions of the JSON schema from `ARRAY_LENGTH_MISMATCH` to `STRING_LENGTH_MISMATCH` [#340](https://github.com/CesiumGS/3d-tiles-validator/pull/340)
+- Added validation for the `MAXAR_image_ortho` glTF extension [#341](https://github.com/CesiumGS/3d-tiles-validator/pull/341)
+- Added validation for the `MAXAR_temporal_light_traits` glTF extension [#342](https://github.com/CesiumGS/3d-tiles-validator/pull/342)
+- Added validation for the `MAXAR_nonvisual_geometry` glTF extension [#343](https://github.com/CesiumGS/3d-tiles-validator/pull/343)
+- Fixed a case where a missing `extensionsRequired` declaration was not detected [#346](https://github.com/CesiumGS/3d-tiles-validator/pull/346)
+- Changed the mechanism for resolving semantic schema files to resolve them relative to the options file that defines them [#350](https://github.com/CesiumGS/3d-tiles-validator/pull/350)
+- Fixed MAXAR spatial reference system validation of S2 faces [#352](https://github.com/CesiumGS/3d-tiles-validator/pull/352)
+- Fixed a case where a validation issue was erroneously generated when a non-scalar class property defined valid `min/max` properties [#356](https://github.com/CesiumGS/3d-tiles-validator/pull/356)
+- Added validation of the values in binary property tables in glTF against the value ranges that have been defined in the schema [#357](https://github.com/CesiumGS/3d-tiles-validator/pull/357)
+- Build process: The CI will now fail when `eslint` generates warnings [#344](https://github.com/CesiumGS/3d-tiles-validator/pull/344)
+
 Version 0.6.0 - 2025-02-24
 
 - Fixed a bug where a `BOUNDING_VOLUMES_INCONSISTENT` error was reported when a tile defined a `transform` [#328](https://github.com/CesiumGS/3d-tiles-validator/pull/328)
