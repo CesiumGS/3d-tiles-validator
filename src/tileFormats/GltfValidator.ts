@@ -6,6 +6,8 @@ import { ValidationIssue } from "../validation/ValidationIssue";
 
 import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { GltfExtensionValidators } from "../validation/gltf/GltfExtensionValidators";
+import { ValidationIssueSeverity } from "../validation/ValidationIssueSeverity";
+import { GltfDataReader } from "../validation/gltf/GltfDataReader";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const validator = require("gltf-validator");
@@ -126,19 +128,59 @@ export class GltfValidator implements Validator<Buffer> {
       return false;
     }
 
+    // Convert all messages from the glTF validator into ValidationIssue
+    // objects that act as the "causes" of the content validation issue
+    // that may be about to be created
+    const allCauses: ValidationIssue[] = [];
+    const gltfMessages = gltfResult.issues?.messages ?? [];
+    for (const gltfMessage of gltfMessages) {
+      //console.log(gltfMessage);
+      const cause =
+        GltfValidator.createValidationIssueFromGltfMessage(gltfMessage);
+      allCauses.push(cause);
+    }
+
+    // Read the glTF data
+    const gltfData = await GltfDataReader.readGltfData(uri, input, context);
+    if (!gltfData) {
+      // Issue was already added to context
+      return false;
+    }
+
+    // Process the list of causes, possibly filtering out the ones that
+    // are known to be obsolete due to the validation that is performed
+    // by validators that are part of the 3D Tiles Validator
+    const causes = await GltfExtensionValidators.processCauses(
+      uri,
+      gltfData,
+      allCauses
+    );
+
+    // The number of errors/warnings/infos is determined based on
+    // the filtered issues.
+    const numErrors = GltfValidator.countIssueSeverities(
+      causes,
+      ValidationIssueSeverity.ERROR
+    );
+    const numWarnings = GltfValidator.countIssueSeverities(
+      causes,
+      ValidationIssueSeverity.WARNING
+    );
+    const numInfos = GltfValidator.countIssueSeverities(
+      causes,
+      ValidationIssueSeverity.INFO
+    );
+
     // If there are any errors, then summarize ALL issues from the glTF
     // validation as 'internal issues' in a CONTENT_VALIDATION_ERROR
-    if (gltfResult.issues.numErrors > 0) {
+    if (numErrors > 0) {
       const path = uri;
       const message = `Content ${uri} caused validation errors`;
       const issue = ContentValidationIssues.CONTENT_VALIDATION_ERROR(
         path,
         message
       );
-      for (const gltfMessage of gltfResult.issues.messages) {
-        //console.log(gltfMessage);
-        const cause =
-          GltfValidator.createValidationIssueFromGltfMessage(gltfMessage);
+      for (const cause of causes) {
         issue.addCause(cause);
       }
       context.addIssue(issue);
@@ -150,7 +192,7 @@ export class GltfValidator implements Validator<Buffer> {
     // If there are any warnings, then summarize them in a
     // CONTENT_VALIDATION_WARNING, but still consider the
     // object to be valid.
-    if (gltfResult.issues.numWarnings > 0) {
+    if (numWarnings > 0) {
       const path = uri;
       const message = `Content ${uri} caused validation warnings`;
       const issue = ContentValidationIssues.CONTENT_VALIDATION_WARNING(
@@ -158,14 +200,11 @@ export class GltfValidator implements Validator<Buffer> {
         message
       );
 
-      for (const gltfMessage of gltfResult.issues.messages) {
-        //console.log(gltfMessage);
-        const cause =
-          GltfValidator.createValidationIssueFromGltfMessage(gltfMessage);
+      for (const cause of causes) {
         issue.addCause(cause);
       }
       context.addIssue(issue);
-    } else if (gltfResult.issues.numInfos > 0) {
+    } else if (numInfos > 0) {
       // If there are no warnings, but infos, then summarize them in a
       // CONTENT_VALIDATION_INFO, but still consider the
       // object to be valid.
@@ -177,22 +216,46 @@ export class GltfValidator implements Validator<Buffer> {
         message
       );
 
-      for (const gltfMessage of gltfResult.issues.messages) {
-        const cause =
-          GltfValidator.createValidationIssueFromGltfMessage(gltfMessage);
+      for (const cause of causes) {
         issue.addCause(cause);
       }
       context.addIssue(issue);
     }
 
     // When the glTF itself is considered to be valid, then perform
-    // the validation of the Cesium glTF metadata extensions
+    // the validation of the glTF extensions that are implemented
+    // as part of the 3D Tiles Validator
     const extensionsValid =
-      await GltfExtensionValidators.validateGltfExtensions(uri, input, context);
+      await GltfExtensionValidators.validateGltfExtensions(
+        uri,
+        gltfData,
+        context
+      );
     if (!extensionsValid) {
       return false;
     }
 
     return true;
+  }
+
+  /**
+   * Counts and returns the number of issues in the given array that have
+   * the given severity.
+   *
+   * @param issues - The issues
+   * @param severity - The severity
+   * @returns The number of issues with the given severity
+   */
+  private static countIssueSeverities(
+    issues: ValidationIssue[],
+    severity: ValidationIssueSeverity
+  ): number {
+    let count = 0;
+    for (const issue of issues) {
+      if (issue.severity === severity) {
+        count++;
+      }
+    }
+    return count;
   }
 }
