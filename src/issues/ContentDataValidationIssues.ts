@@ -14,11 +14,13 @@ export class ContentDataValidationIssues {
    * @param message - The message for the `ValidationIssue`
    * @returns The `ValidationIssue`
    */
-  static CONTENT_NOT_ENCLOSED_BY_BOUNDING_VOLUME(path: string, message: string) {
+  static CONTENT_NOT_ENCLOSED_BY_BOUNDING_VOLUME(
+    path: string,
+    message: string
+  ) {
     const type = "CONTENT_NOT_ENCLOSED_BY_BOUNDING_VOLUME";
     const severity = ValidationIssueSeverity.ERROR;
     const issue = new ValidationIssue(type, path, message, severity);
     return issue;
   }
-
 }
