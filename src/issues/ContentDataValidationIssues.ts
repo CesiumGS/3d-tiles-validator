@@ -1,6 +1,5 @@
 import { ValidationIssue } from "../validation/ValidationIssue";
 import { ValidationIssueSeverity } from "../validation/ValidationIssueSeverity";
-import { ValidationResult } from "../validation/ValidationResult";
 
 /**
  * Methods to create `ValidationIssue` instances that describe
