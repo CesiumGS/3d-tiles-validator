@@ -62,7 +62,7 @@ export class ContentDataBoundingVolumeValidator {
     // bounding volumes of the tiles: For each traversed tile,
     // it will go UP to the root, and gather the transformed
     // bounding volumes for each ancestor. This could be
-    // optimized by doing a manual traversal here, and 
+    // optimized by doing a manual traversal here, and
     // maintaining the "stack" of bounding volumes alongside
     // the stack of traversed tiles. Given that the majority
     // of the time is spent in the geometry/vertex processing,
@@ -122,20 +122,18 @@ export class ContentDataBoundingVolumeValidator {
     // Compute the mapping from 'traversedTile.path' strings
     // to the bounding volume of the respective tile, each
     // transformed using the global transform of the tile
-    const transformedBoundingVolumes =
-      ContentDataBoundingVolumeValidator.computeTransformedBoundingVolumes(
+    const transformedTileBoundingVolumes =
+      ContentDataBoundingVolumeValidator.computeTransformedTileBoundingVolumes(
         traversedTile
       );
     const globalTileTransform =
       ContentDataBoundingVolumeValidator.computeGlobalTransform(traversedTile);
 
     // Validate all contents against all bounding volumes
-    const finalTile = traversedTile.asFinalTile();
-    const contentUris = Tiles.getContentUris(finalTile);
     const result =
       await ContentDataBoundingVolumeValidator.validateAllContentsAllBoundingVolumes(
-        contentUris,
-        transformedBoundingVolumes,
+        traversedTile,
+        transformedTileBoundingVolumes,
         globalTileTransform,
         resourceResolver,
         context
@@ -144,14 +142,16 @@ export class ContentDataBoundingVolumeValidator {
   }
 
   /**
-   * Validate the specified contents against the given bounding volumes.
+   * Validate the contents of the given traversed tile against the given
+   * bounding volumes.
    *
    * This will read each content, transform its vertices with the given
    * transform, and check that the resulting vertex is contained in
-   * each of the given bounding volumes.
+   * each of the given bounding volumes (and in the content bounding
+   * volume of that content, if it is defined).
    *
    * @param contentUris - The content URIs
-   * @param transformedBoundingVolumes - The transformed bounding volumes
+   * @param transformedTileBoundingVolumes - The transformed bounding volumes
    * @param globalTileTransform - The global transform of the containing
    * tile, used to transform the vertices of the content
    * @param resourceResolver - The resolver for resolving the content data
@@ -160,18 +160,37 @@ export class ContentDataBoundingVolumeValidator {
    * @returns Whether the contents have been valid
    */
   private static async validateAllContentsAllBoundingVolumes(
-    contentUris: string[],
-    transformedBoundingVolumes: Map<string, BoundingVolume>,
+    traversedTile: TraversedTile,
+    transformedTileBoundingVolumes: Map<string, BoundingVolume>,
     globalTileTransform: number[],
     resourceResolver: ResourceResolver,
     context: ValidationContext
   ): Promise<boolean> {
     let allValid = true;
-    for (const contentUri of contentUris) {
+
+    const finalTile = traversedTile.asFinalTile();
+    const contents = Tiles.getContents(finalTile);
+    for (const content of contents) {
+      // Obtain the optional content bounding volume, and transform
+      // it with the global tile transform
+      let transformedContentBoundingVolume = undefined;
+      const contentBoundingVolume = content.boundingVolume;
+      if (contentBoundingVolume) {
+        transformedContentBoundingVolume =
+          ContentDataBoundingVolumeValidator.computeTransformedBoundingVolume(
+            contentBoundingVolume,
+            globalTileTransform
+          );
+      }
+
+      // Validate the data from the content URI against all transformed
+      // tile bounding volumes and the transformed content bounding volume
+      const contentUri = content.uri;
       const valid =
         await ContentDataBoundingVolumeValidator.validateSingleContentAllBoundingVolumes(
           contentUri,
-          transformedBoundingVolumes,
+          transformedTileBoundingVolumes,
+          transformedContentBoundingVolume,
           globalTileTransform,
           resourceResolver,
           context
@@ -189,7 +208,9 @@ export class ContentDataBoundingVolumeValidator {
    * each of the given bounding volumes.
    *
    * @param contentUri - The content URI
-   * @param transformedBoundingVolumes - The transformed bounding volumes
+   * @param transformedTileBoundingVolumes - The transformed bounding volumes
+   * @param transformedContentBoundingVolume  - The optional transformed
+   * bounding volume of the content
    * @param globalTileTransform - The global transform of the containing
    * tile, used to transform the vertices of the content
    * @param resourceResolver - The resolver for resolving the content data
@@ -199,7 +220,8 @@ export class ContentDataBoundingVolumeValidator {
    */
   private static async validateSingleContentAllBoundingVolumes(
     contentUri: string,
-    transformedBoundingVolumes: Map<string, BoundingVolume>,
+    transformedTileBoundingVolumes: Map<string, BoundingVolume>,
+    transformedContentBoundingVolume: BoundingVolume | undefined,
     globalTileTransform: number[],
     resourceResolver: ResourceResolver,
     context: ValidationContext
@@ -220,7 +242,8 @@ export class ContentDataBoundingVolumeValidator {
         contentUri,
         data,
         externalGlbResolver,
-        transformedBoundingVolumes,
+        transformedTileBoundingVolumes,
+        transformedContentBoundingVolume,
         globalTileTransform,
         context
       );
@@ -238,7 +261,9 @@ export class ContentDataBoundingVolumeValidator {
    * @param data - The content data
    * @param externalGlbResolver - The function for resolving external GLB
    * files from I3DM content
-   * @param transformedBoundingVolumes - The transformed bounding volumes
+   * @param transformedTileBoundingVolumes - The transformed bounding volumes
+   * @param transformedContentBoundingVolume  - The optional transformed
+   * bounding volume of the content
    * @param globalTileTransform - The global transform of the containing
    * tile, used to transform the vertices of the content
    * @param context - The context for validation issues
@@ -248,7 +273,8 @@ export class ContentDataBoundingVolumeValidator {
     contentUri: string,
     data: Buffer,
     externalGlbResolver: (glbUri: string) => Promise<Buffer | undefined>,
-    transformedBoundingVolumes: Map<string, BoundingVolume>,
+    transformedTileBoundingVolumes: Map<string, BoundingVolume>,
+    transformedContentBoundingVolume: BoundingVolume | undefined,
     globalTileTransform: number[],
     context: ValidationContext
   ): Promise<boolean> {
@@ -261,7 +287,8 @@ export class ContentDataBoundingVolumeValidator {
     // volumes (which are the 'traversedTile.path' strings) to
     // the number of vertices that have NOT been contained in
     // the bounding volume of the respective tile
-    const nonContainedVertexCounters = new Map<string, number>();
+    const nonContainedInTileBvVertexCounters = new Map<string, number>();
+    let nonContainedInContentBvVertexCounter = 0;
 
     // The consumer that will receive all vertices of the content
     const consumer = (p: number[]) => {
@@ -275,27 +302,38 @@ export class ContentDataBoundingVolumeValidator {
       // Check each transformed bounding volume to see whether it contains
       // the transformed point, and count the number of points that are
       // not contained for each of them
-      let allContained = true;
       for (const [
         tilePath,
-        transformedBoundingVolume,
-      ] of transformedBoundingVolumes.entries()) {
-        const contained = BoundingVolumesContainment.contains(
-          transformedBoundingVolume,
+        transformedTileBoundingVolume,
+      ] of transformedTileBoundingVolumes.entries()) {
+        const containedInTileBv = BoundingVolumesContainment.contains(
+          transformedTileBoundingVolume,
           transformedPoint,
           ContentDataBoundingVolumeValidator.CONTAINMENT_EPSILON
         );
-        allContained = allContained && contained;
-
-        const nonContainedVertexCounter =
-          nonContainedVertexCounters.get(tilePath) ?? 0;
-        if (!contained) {
-          nonContainedVertexCounters.set(
+        if (!containedInTileBv) {
+          const nonContainedVertexCounter =
+            nonContainedInTileBvVertexCounters.get(tilePath) ?? 0;
+          nonContainedInTileBvVertexCounters.set(
             tilePath,
             nonContainedVertexCounter + 1
           );
         }
       }
+
+      // If a content bounding volume was defined, check for containment
+      // in the content bounding volume
+      if (transformedContentBoundingVolume) {
+        const containedInContentBv = BoundingVolumesContainment.contains(
+          transformedContentBoundingVolume,
+          transformedPoint,
+          ContentDataBoundingVolumeValidator.CONTAINMENT_EPSILON
+        );
+        if (!containedInContentBv) {
+          nonContainedInContentBvVertexCounter++;
+        }
+      }
+
       vertexCounter++;
     };
 
@@ -309,13 +347,13 @@ export class ContentDataBoundingVolumeValidator {
       consumer
     );
 
-    // Generate validation issues for each bounding volume that
+    // Generate validation issues for each tile bounding volume that
     // did not contain all vertices
     let allValid = true;
     for (const [
       tilePath,
       nonContainedCounter,
-    ] of nonContainedVertexCounters.entries()) {
+    ] of nonContainedInTileBvVertexCounters.entries()) {
       if (nonContainedCounter > 0) {
         const message =
           `The bounding volume of tile ${tilePath} does not contain ${nonContainedCounter} ` +
@@ -329,6 +367,25 @@ export class ContentDataBoundingVolumeValidator {
         allValid = false;
       }
     }
+
+    // Generate a validation issue if there was a content bounding
+    // volume that did not contain all vertices
+    if (
+      transformedContentBoundingVolume &&
+      nonContainedInContentBvVertexCounter > 0
+    ) {
+      const message =
+        `The content bounding volume for content '${contentUri}' does not contain ` +
+        `${nonContainedInContentBvVertexCounter} of the ${vertexCounter} vertices`;
+      const issue =
+        ContentDataValidationIssues.CONTENT_NOT_ENCLOSED_BY_BOUNDING_VOLUME(
+          contentUri,
+          message
+        );
+      context.addIssue(issue);
+      allValid = false;
+    }
+
     return allValid;
   }
 
@@ -474,10 +531,10 @@ export class ContentDataBoundingVolumeValidator {
    * @param traversedTile - The traversed tile
    * @returns The transformed bounding volumes
    */
-  private static computeTransformedBoundingVolumes(
+  private static computeTransformedTileBoundingVolumes(
     traversedTile: TraversedTile
   ): Map<string, BoundingVolume> {
-    const transformedBoundingVolumes = new Map<string, BoundingVolume>();
+    const transformedTileBoundingVolumes = new Map<string, BoundingVolume>();
     let currentTile: TraversedTile | undefined = traversedTile;
     while (currentTile) {
       const tilePath = currentTile.path;
@@ -485,15 +542,18 @@ export class ContentDataBoundingVolumeValidator {
       const boundingVolume = finalCurrentTile.boundingVolume;
       const transform =
         ContentDataBoundingVolumeValidator.computeGlobalTransform(currentTile);
-      const transformedBoundingVolume =
+      const transformedTileBoundingVolume =
         ContentDataBoundingVolumeValidator.computeTransformedBoundingVolume(
           boundingVolume,
           transform
         );
-      transformedBoundingVolumes.set(tilePath, transformedBoundingVolume);
+      transformedTileBoundingVolumes.set(
+        tilePath,
+        transformedTileBoundingVolume
+      );
       currentTile = currentTile.getParent();
     }
-    return transformedBoundingVolumes;
+    return transformedTileBoundingVolumes;
   }
 
   /**
