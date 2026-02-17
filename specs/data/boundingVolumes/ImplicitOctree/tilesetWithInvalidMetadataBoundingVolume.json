@@ -1,0 +1,49 @@
+{
+  "asset" : {
+    "extras" : {
+      "generator" : "J3DTiles-0.0.1-SNAPSHOT"
+    },
+    "version" : "1.1"
+  },
+  "schema": {
+    "id": "validator_test_data_schema",
+    "classes": {
+      "tile": {
+        "properties": {
+          "tightBoundingBox": {
+            "type": "SCALAR",
+            "componentType": "FLOAT64",
+            "array": true,
+            "count": 12,
+            "semantic": "TILE_BOUNDING_BOX"
+          }
+        }
+      }
+    }
+  },  
+  "geometricError" : 1048576.0,
+  "root" : {
+    "boundingVolume" : {
+      "box" : [ 0.5, -0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5 ]
+    },
+    "metadata": {
+      "class": "tile",
+      "properties": {
+        "tightBoundingBox": [ 0.6, -0.6, 0.3, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.25 ]
+      }
+    },    
+    "geometricError" : 1024.0,
+    "refine" : "REPLACE",
+    "content" : {
+      "uri" : "content/content_{level}__{x}_{y}_{z}.glb"
+    },
+    "implicitTiling" : {
+      "subdivisionScheme" : "OCTREE",
+      "subtreeLevels" : 2,
+      "availableLevels" : 4,
+      "subtrees" : {
+        "uri" : "subtrees/{level}.{x}.{y}.{z}.subtree"
+      }
+    }
+  }
+}

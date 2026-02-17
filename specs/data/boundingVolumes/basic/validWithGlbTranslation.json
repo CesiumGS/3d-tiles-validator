@@ -1,0 +1,32 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "extras": {
+    "info": {
+      "description": "A unit cube translated by (10, 20, 30)."
+    }
+  },
+  "geometricError": 10.0,
+  "root": {
+    "refine": "REPLACE",
+    "transform": [
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      10, 20, 30, 1
+    ],
+    "boundingVolume": {
+      "box": [
+        0.5, -0.5, 0.5,
+        0.5, 0, 0,
+        0, 0.5, 0,
+        0, 0, 0.5
+      ]
+    },
+    "geometricError": 0.0,
+    "content": {
+      "uri": "unitCube.glb"
+    }
+  }
+}
