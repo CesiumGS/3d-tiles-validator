@@ -70,6 +70,7 @@ export class ContentDataBoundingVolumeValidator {
     const resourceResolver = context.getResourceResolver();
     const tilesetTraverser = new TilesetTraverser(".", resourceResolver, {
       depthFirst: true,
+      traverseExternalTilesets: true,
     });
     try {
       const schema = validationState.schemaState.validatedElement;
@@ -117,7 +118,7 @@ export class ContentDataBoundingVolumeValidator {
     resourceResolver: ResourceResolver,
     context: ValidationContext
   ): Promise<boolean> {
-    console.log("Have to validate " + traversedTile);
+    //console.log("Have to validate " + traversedTile);
 
     // Compute the mapping from 'traversedTile.path' strings
     // to the bounding volume of the respective tile, each
@@ -311,6 +312,12 @@ export class ContentDataBoundingVolumeValidator {
           transformedPoint,
           ContentDataBoundingVolumeValidator.CONTAINMENT_EPSILON
         );
+
+        //console.log("check if vertex   ", p);
+        //console.log("      transformed ", transformedPoint);
+        //console.log("  is contained in ", transformedTileBoundingVolume);
+        //console.log("       results in ", containedInTileBv);
+
         if (!containedInTileBv) {
           const nonContainedVertexCounter =
             nonContainedInTileBvVertexCounters.get(tilePath) ?? 0;
@@ -356,7 +363,7 @@ export class ContentDataBoundingVolumeValidator {
     ] of nonContainedInTileBvVertexCounters.entries()) {
       if (nonContainedCounter > 0) {
         const message =
-          `The bounding volume of tile ${tilePath} does not contain ${nonContainedCounter} ` +
+          `The bounding volume of tile '${tilePath}' does not contain ${nonContainedCounter} ` +
           `of the ${vertexCounter} vertices of content '${contentUri}'`;
         const issue =
           ContentDataValidationIssues.CONTENT_NOT_ENCLOSED_BY_BOUNDING_VOLUME(
