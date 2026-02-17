@@ -990,6 +990,13 @@ describe("Tileset validation", function () {
     expect(result.length).toEqual(0);
   });
 
+  it("detects no issues in validTilesetWithValidGlb", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithValidGlb.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
   it("detects no issues in validTilesetWithValidSchemaFromUri", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/validTilesetWithValidSchemaFromUri.json"

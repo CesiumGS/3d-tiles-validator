@@ -1,0 +1,51 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "extras": {
+    "info": {
+      "description": "A root tile with a translation of (100, 0, 0) and a child tile with a rotation of 45 degrees around the Z-axis, referring to an external tileset with an invalid box"
+    }
+  },
+  "geometricError": 50.0,
+  "root": {
+    "refine": "REPLACE",
+    "transform": [
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      100, 0, 0, 1
+    ],
+    "boundingVolume": {
+      "box": [
+        0.70710678, 0, 0.6,
+        0.70710678, 0, 0,
+        0, 0.70710678, 0,
+        0, 0, 0.5
+      ]
+    },
+    "geometricError": 10,
+    "children": [
+      {
+        "transform": [
+          0.70710678, 0.70710678, 0, 0,
+          -0.70710678, 0.70710678, 0, 0,
+          0, 0, 1, 0,
+          0, 0, 0, 1
+        ],
+        "boundingVolume": {
+          "box": [
+            0.5, -0.5, 0.5,
+            0.5, 0, 0,
+            0, 0.5, 0,
+            0, 0, 0.5
+          ]
+        },
+        "geometricError": 5,
+        "content": {
+          "uri": "withExternalInvalidBox_external.json"
+        }
+      }
+    ]
+  }
+}
