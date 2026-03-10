@@ -1,7 +1,7 @@
 import { ValidationOptions } from "../src/validation/ValidationOptions";
 import { Validators } from "../src/validation/Validators";
 
-fdescribe("Bounding volume containment validation", function () {
+describe("Bounding volume containment validation", function () {
   //==========================================================================
   // Valid basic:
 
