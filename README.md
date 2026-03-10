@@ -102,6 +102,13 @@ The following options will cause the validator to _exclude_ tileset files (i.e. 
   "excludeContentTypes": [ "CONTENT_TYPE_TILESET" ]
 }
 ```
+The following options will cause the validator to validate that each bounding volume contains all points and vertices of the content of the respective tile and all its descendants:
+```JSON
+{
+  "validateBoundingVolumeContainment": true
+}
+```
+Note that this form of validation may be computationally expensive, and is therefore disabled by default.
 
 The options can also be part of a configuration file, as described in the next section.
 
