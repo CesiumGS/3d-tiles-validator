@@ -1,0 +1,26 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "extras": {
+    "info": {
+      "description": "A single unit cube at the origin with no explicit transform."
+    }
+  },
+  "geometricError": 10.0,
+  "root": {
+    "refine": "REPLACE",
+    "boundingVolume": {
+      "box": [
+        0.5, -0.5, 0.5,
+        0.5, 0, 0,
+        0, 0.5, 0,
+        0, 0, 0.5
+      ]
+    },
+    "geometricError": 0.0,
+    "content": {
+      "uri": "unitCube.glb"
+    }
+  }
+}

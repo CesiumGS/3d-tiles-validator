@@ -1,0 +1,26 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "extras": {
+    "info": {
+      "description": "A unit cube placed in an East-North-Up reference frame. The boundingRegion is defined in WGS84 and does not fully enclose the transformed cube."
+    }
+  },
+  "geometricError": 10.0,
+  "root": {
+    "refine": "REPLACE",
+    "transform": [0.9666108723721498, 0.2562487490934376, 0, 0, -0.1645317863982543, 0.6206399607647399, 0.766638983072568, 0, 0.19645028041861062, -0.7410415762222726, 0.6420783983544834, 0, 1254723.361032366, -4733015.270841262, 4073486.511929942, 1],
+    "boundingVolume": {
+      "region": [
+        -1.3116569604021266, 0.6972060827730874,
+        -1.3116567561748709, 0.697206239961853,
+        20, 20.5
+      ]
+    },
+    "geometricError": 0.0,
+    "content": {
+      "uri": "unitCube.glb"
+    }
+  }
+}

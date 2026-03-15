@@ -1,0 +1,32 @@
+{
+  "asset": {
+    "version": "1.1"
+  },
+  "extras": {
+    "info": {
+      "description": "A unit cube scaled by (2, 3, 4)."
+    }
+  },
+  "geometricError": 10.0,
+  "root": {
+    "refine": "REPLACE",
+    "transform": [
+      2, 0, 0, 0,
+      0, 3, 0, 0,
+      0, 0, 4, 0,
+      0, 0, 0, 1
+    ],
+    "boundingVolume": {
+      "box": [
+        0.5, -0.5, 0.5,
+        0.5, 0, 0,
+        0, 0.5, 0,
+        0, 0, 0.5
+      ]
+    },
+    "geometricError": 0.0,
+    "content": {
+      "uri": "unitCube.glb"
+    }
+  }
+}

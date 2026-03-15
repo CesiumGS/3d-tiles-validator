@@ -39,6 +39,13 @@ export class ValidationOptions {
   private _semanticSchemaFileNames: string[] | undefined;
 
   /**
+   * Whether the validator should check that the content data
+   * is fully contained in the content bounding volume, the
+   * bounding volume of a tile, and the bounding volumes of
+   * all ancestors of the tile
+   */
+  private _validateBoundingVolumeContainment: boolean;
+  /**
    * Default constructor.
    *
    * The default options will be:
@@ -55,6 +62,7 @@ export class ValidationOptions {
     this._includeContentTypes = undefined;
     this._excludeContentTypes = undefined;
     this._semanticSchemaFileNames = undefined;
+    this._validateBoundingVolumeContainment = false;
   }
 
   /**
@@ -155,6 +163,20 @@ export class ValidationOptions {
 
   set semanticSchemaFileNames(value: string[] | undefined) {
     this._semanticSchemaFileNames = value;
+  }
+
+  /**
+   * The flag that indicates whether the validator should check
+   * that the content data is fully contained in the content
+   * bounding volume, the bounding volume of a tile, and the
+   * bounding volumes of all ancestors of the tile
+   */
+  get validateBoundingVolumeContainment(): boolean {
+    return this._validateBoundingVolumeContainment;
+  }
+
+  set validateBoundingVolumeContainment(value: boolean) {
+    this._validateBoundingVolumeContainment = value;
   }
 
   /**

@@ -23,6 +23,7 @@ import { Group } from "3d-tiles-tools";
 import { IoValidationIssues } from "../issues/IoValidationIssue";
 import { StructureValidationIssues } from "../issues/StructureValidationIssues";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
+import { ContentDataBoundingVolumeValidator } from "./ContentDataBoundingVolumeValidator";
 
 /**
  * A class that can validate a 3D Tiles tileset.
@@ -275,6 +276,24 @@ export class TilesetValidator implements Validator<Tileset> {
       !TilesetValidator.validateExtensionDeclarations(path, tileset, context)
     ) {
       result = false;
+    }
+
+    // Perform the bounding volume containment validation only when the traversal
+    // itself was valid, and it is explicitly requested via the options
+    if (traversalValid) {
+      const options = context.getOptions();
+      if (options.validateBoundingVolumeContainment) {
+        const boundingVolumeContainmentValid =
+          await ContentDataBoundingVolumeValidator.validateBoundingVolumeContainment(
+            path,
+            tileset,
+            validationState,
+            context
+          );
+        if (!boundingVolumeContainmentValid) {
+          result = false;
+        }
+      }
     }
 
     return result;
