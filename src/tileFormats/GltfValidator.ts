@@ -96,6 +96,17 @@ export class GltfValidator implements Validator<Buffer> {
     return inputWithoutPadding;
   }
 
+  /**
+   * Implementation of the `Validator` interface that performs the
+   * validation of the given buffer, which is supposed to
+   * contain glTF data.
+   *
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The subtree data
+   * @param context - The `ValidationContext`
+   * @returns A promise that resolves when the validation is finished
+   * and indicates whether the object was valid or not.
+   */
   async validateObject(
     uri: string,
     input: Buffer,
@@ -149,7 +160,7 @@ export class GltfValidator implements Validator<Buffer> {
 
     // Process the list of causes, possibly filtering out the ones that
     // are known to be obsolete due to the validation that is performed
-    // by validators that are part of the 3D Tiles Validator
+    // by validators that are part of the 3D Tiles Validator (below)
     const causes = await GltfExtensionValidators.processCauses(
       uri,
       gltfData,
