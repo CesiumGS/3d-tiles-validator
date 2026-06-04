@@ -1,67 +1,26 @@
 import { ValidationContext } from "../ValidationContext";
 import { ValidationIssue } from "../ValidationIssue";
 import { GltfData } from "./GltfData";
+import { GltfExtensionIssues } from "./GltfExtensionIssues";
+import { GltfExtensionValidator } from "./GltfExtensionValidator";
+import { GltfExtensionIssuesDraco } from "./GltfExtensionIssuesDraco";
+import { GltfExtensionIssuesKhrTextureBasisu } from "./GltfExtensionIssuesKhrTextureBasisu";
 
 import { ExtInstanceFeaturesValidator } from "./instanceFeatures/ExtInstanceFeaturesValidator";
-import { ExtMeshFeaturesValidator } from "./meshFeatures/ExtMeshFeaturesValidator";
-import { ExtStructuralMetadataValidator } from "./structuralMetadata/ExtStructuralMetadataValidator";
-import { MaxarNonvisualGeometryValidator } from "./nonvisualGeometry/MaxarNonvisualGeometryValidator";
-import { NgaGpmLocalValidator } from "./gpmLocal/NgaGpmLocalValidator";
-import { MaxarImageOrthoValidator } from "./imageOrtho/MaxarImageOrthoValidator";
-import { KhrLightsPunctualValidator } from "./lightsPunctual/KhrLightsPunctualValidator";
-import { GltfExtensionIssuesKhrTextureBasisu } from "./GltfExtensionIssuesKhrTextureBasisu";
-import { ExtStructuralMetadataIssues } from "./structuralMetadata/ExtStructuralMetadataIssues";
+
 import { ExtMeshFeaturesIssues } from "./meshFeatures/ExtMeshFeaturesIssues";
+import { ExtMeshFeaturesValidator } from "./meshFeatures/ExtMeshFeaturesValidator";
 
-/**
- * An internal type definition for glTF extension validators
- */
-interface GltfExtensionValidator {
-  /**
-   * Performs the validation of a glTF extension in a given GltfData
-   * object.
-   *
-   * This adds any issues to the given context, and returns
-   * whether the extension was valid.
-   *
-   * @param path - The path for validation issues
-   * @param gltfData - The GltfData object
-   * @param context - The validation context
-   * @returns Whether the extension was valid
-   */
-  validate(
-    path: string,
-    gltfData: GltfData,
-    context: ValidationContext
-  ): Promise<boolean>;
+import { ExtStructuralMetadataValidator } from "./structuralMetadata/ExtStructuralMetadataValidator";
+import { ExtStructuralMetadataIssues } from "./structuralMetadata/ExtStructuralMetadataIssues";
 
-  /**
-   * Process the given list of validation issues, based on the knowledge
-   * that only this validator implementation has.
-   *
-   * The given list are the validation issues that have been created
-   * from the validation issues of the glTF validator (possibly processed
-   * from other GltfExtensionValidator implementations).
-   *
-   * This method can omit some of these issues, if it determines that the
-   * respective issue is obsolete due to the validation that is performed
-   * by this instance. For example, all implementations of this interface
-   * will remove the issue where the message is
-   * "Cannot validate an extension as it is not supported by the validator:"
-   * followed by the name of the extension that this validator is
-   * responsible for. (Note that the method can also add new issues, but
-   * this is usually supposed to be done in the 'validate' method)
-   *
-   * @param path - The path for validation issues
-   * @param gltfData - The GltfData objects
-   * @param causes - The validation issues
-   */
-  processCauses(
-    path: string,
-    gltfData: GltfData,
-    causes: ValidationIssue[]
-  ): Promise<ValidationIssue[]>;
-}
+import { MaxarNonvisualGeometryValidator } from "./nonvisualGeometry/MaxarNonvisualGeometryValidator";
+
+import { NgaGpmLocalValidator } from "./gpmLocal/NgaGpmLocalValidator";
+
+import { MaxarImageOrthoValidator } from "./imageOrtho/MaxarImageOrthoValidator";
+
+import { KhrLightsPunctualValidator } from "./lightsPunctual/KhrLightsPunctualValidator";
 
 /**
  * A class that only serves as an entry point for validating
@@ -177,6 +136,24 @@ export class GltfExtensionValidators {
       validate: emptyValidation,
       processCauses: GltfExtensionIssuesKhrTextureBasisu.processCauses,
     });
+
+    // Register an empty validator for KHR_draco_mesh_compression that only
+    // filters out the messages about unused buffer views
+    GltfExtensionValidators.registerValidator("KHR_draco_mesh_compression", {
+      validate: emptyValidation,
+      processCauses: GltfExtensionIssuesDraco.processCauses,
+    });
+
+    // Register an empty validator for EXT_meshopt_compression that only
+    // filters out the messages about the extension not being supported
+    GltfExtensionValidators.registerValidator("EXT_meshopt_compression", {
+      validate: emptyValidation,
+      processCauses:
+        GltfExtensionIssues.processCausesOmittingUnsupportedExtension(
+          "EXT_meshopt_compression"
+        ),
+    });
+
     GltfExtensionValidators.didRegisterValidators = true;
   }
 
