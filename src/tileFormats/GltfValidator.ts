@@ -12,6 +12,9 @@ import { GltfDataReader } from "../validation/gltf/GltfDataReader";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const validator = require("gltf-validator");
 
+import { Loggers } from "3d-tiles-tools";
+const logger = Loggers.get("gltfValidator");
+
 /**
  * A thin wrapper around the `gltf-validator`, implementing the
  * `Validator` interface for glTF- and GLB data that is given
@@ -158,16 +161,30 @@ export class GltfValidator implements Validator<Buffer> {
       return false;
     }
 
+    // Compute the number of errors/warnings/infos from all issues
+    const allNumErrors = GltfValidator.countIssueSeverities(
+      allCauses,
+      ValidationIssueSeverity.ERROR
+    );
+    const allNumWarnings = GltfValidator.countIssueSeverities(
+      allCauses,
+      ValidationIssueSeverity.WARNING
+    );
+    const allNumInfos = GltfValidator.countIssueSeverities(
+      allCauses,
+      ValidationIssueSeverity.INFO
+    );
+
     // Process the list of causes, possibly filtering out the ones that
     // are known to be obsolete due to the validation that is performed
     // by validators that are part of the 3D Tiles Validator (below)
-    const causes = await GltfExtensionValidators.processCauses(
+    const causes = await GltfExtensionValidators.processCausesForGltfExtensions(
       uri,
       gltfData,
       allCauses
     );
 
-    // The number of errors/warnings/infos is determined based on
+    // The actual number of errors/warnings/infos is determined based on
     // the filtered issues.
     const numErrors = GltfValidator.countIssueSeverities(
       causes,
@@ -181,6 +198,20 @@ export class GltfValidator implements Validator<Buffer> {
       causes,
       ValidationIssueSeverity.INFO
     );
+
+    const omittedErrors = allNumErrors - numErrors;
+    const omittedWarnings = allNumWarnings - numWarnings;
+    const omittedInfos = allNumInfos - numInfos;
+
+    if (omittedErrors > 0) {
+      logger.warn(`Omitted ${omittedErrors} errors from glTF-Validator`);
+    }
+    if (omittedWarnings > 0) {
+      logger.info(`Omitted ${omittedWarnings} warnings from glTF-Validator`);
+    }
+    if (omittedInfos > 0) {
+      logger.info(`Omitted ${omittedInfos} infos from glTF-Validator`);
+    }
 
     // If there are any errors, then summarize ALL issues from the glTF
     // validation as 'internal issues' in a CONTENT_VALIDATION_ERROR

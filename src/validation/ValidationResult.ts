@@ -22,6 +22,18 @@ export class ValidationResult {
    */
   private readonly _issues: ValidationIssue[];
 
+  private _numErrors: number;
+
+  private _numWarnings: number;
+
+  private _numInfos: number;
+
+  private _totalNumErrors: number;
+
+  private _totalNumWarnings: number;
+
+  private _totalNumInfos: number;
+
   /**
    * Creates a new, empty validation result.
    *
@@ -43,6 +55,12 @@ export class ValidationResult {
   private constructor(date: Date) {
     this._date = date;
     this._issues = [];
+    this._numErrors = 0;
+    this._numWarnings = 0;
+    this._numInfos = 0;
+    this._totalNumErrors = 0;
+    this._totalNumWarnings = 0;
+    this._totalNumInfos = 0;
   }
 
   /**
@@ -79,6 +97,58 @@ export class ValidationResult {
    */
   add(issue: ValidationIssue): void {
     this._issues.push(issue);
+
+    if (issue.severity === ValidationIssueSeverity.ERROR) {
+      this._numErrors++;
+    } else if (issue.severity === ValidationIssueSeverity.WARNING) {
+      this._numWarnings++;
+    } else if (issue.severity === ValidationIssueSeverity.INFO) {
+      this._numInfos++;
+    }
+
+    this._totalNumErrors += ValidationResult.countLeaves(
+      issue,
+      ValidationIssueSeverity.ERROR
+    );
+    this._totalNumWarnings += ValidationResult.countLeaves(
+      issue,
+      ValidationIssueSeverity.WARNING
+    );
+    this._totalNumInfos += ValidationResult.countLeaves(
+      issue,
+      ValidationIssueSeverity.INFO
+    );
+  }
+
+  /**
+   * Returns the number of "leaves" in the given issue that have the
+   * given severity.
+   *
+   * In this context, "leaves" are issues that do not have any direct
+   * "causes". So for example, for an issue that has three "causes"
+   * with two of them being a WARNING, then calling this method with
+   * the root issue and WARNING severity will return 2.
+   *
+   * @param issue - The issue
+   * @param severity - The severity
+   * @returns The result
+   */
+  private static countLeaves(
+    issue: ValidationIssue,
+    severity: ValidationIssueSeverity
+  ): number {
+    const causes = issue.causes;
+    if (causes.length === 0) {
+      if (issue.severity === severity) {
+        return 1;
+      }
+      return 0;
+    }
+    let sum = 0;
+    for (const cause of causes) {
+      sum += ValidationResult.countLeaves(cause, severity);
+    }
+    return sum;
   }
 
   /**
@@ -108,7 +178,7 @@ export class ValidationResult {
    * @internal
    */
   get numErrors(): number {
-    return this.count(ValidationIssueSeverity.ERROR);
+    return this._numErrors;
   }
 
   /**
@@ -118,7 +188,7 @@ export class ValidationResult {
    * @internal
    */
   get numWarnings(): number {
-    return this.count(ValidationIssueSeverity.WARNING);
+    return this._numWarnings;
   }
 
   /**
@@ -128,23 +198,7 @@ export class ValidationResult {
    * @internal
    */
   get numInfos(): number {
-    return this.count(ValidationIssueSeverity.INFO);
-  }
-
-  /**
-   * Counts the number of issues in this result that have the
-   * given severity level
-   *
-   * @param severity - The severity level
-   * @returns The number of issues
-   */
-  private count(severity: ValidationIssueSeverity): number {
-    return this._issues.reduce((accumulator, element) => {
-      if (element.severity === severity) {
-        return accumulator + 1;
-      }
-      return accumulator;
-    }, 0);
+    return this._numInfos;
   }
 
   /**
@@ -157,14 +211,14 @@ export class ValidationResult {
   toJson(): any {
     const issuesJson =
       this._issues.length > 0 ? this._issues.map((i) => i.toJson()) : undefined;
-    const numErrors = this.numErrors;
-    const numWarnings = this.numWarnings;
-    const numInfos = this.numInfos;
     return {
       date: this._date,
-      numErrors: numErrors,
-      numWarnings: numWarnings,
-      numInfos: numInfos,
+      numErrors: this._numErrors,
+      numWarnings: this._numWarnings,
+      numInfos: this._numInfos,
+      totalNumErrors: this._totalNumErrors,
+      totalNumWarnings: this._totalNumWarnings,
+      totalNumInfos: this._totalNumInfos,
       issues: issuesJson,
     };
   }
