@@ -1,7 +1,6 @@
 import { GltfData } from "../GltfData";
 
 import { ValidationIssue } from "../../ValidationIssue";
-import { ValidationIssueSeverity } from "../../ValidationIssueSeverity";
 import { GltfExtensionIssues } from "../GltfExtensionIssues";
 
 /**
@@ -32,74 +31,29 @@ export class ExtMeshFeaturesIssues {
       gltfData.gltf
     );
 
-    const processedCauses: ValidationIssue[] = [];
-    for (const cause of causes) {
-      const remove = await ExtMeshFeaturesIssues.shouldRemove(
-        usedAccessorIndices,
-        usedTextureIndices,
-        cause
+    // Remove the issue about the extension not being supported
+    const isAboutUnsupportedExtension =
+      GltfExtensionIssues.isAboutUnsupportedExtension("EXT_mesh_features");
+
+    // Remove issues about unused objects for buffer views and
+    // textures that are actually used by the extension
+    const isAboutUnusedAccessor = GltfExtensionIssues.isAboutUnusedObject(
+      "accessors",
+      usedAccessorIndices
+    );
+    const isAboutUnusedTexture = GltfExtensionIssues.isAboutUnusedObject(
+      "textures",
+      usedTextureIndices
+    );
+
+    const processedCauses: ValidationIssue[] =
+      await GltfExtensionIssues.processCausesWith(
+        causes,
+        isAboutUnsupportedExtension,
+        isAboutUnusedAccessor,
+        isAboutUnusedTexture
       );
-      if (!remove) {
-        processedCauses.push(cause);
-      }
-    }
     return processedCauses;
-  }
-
-  /**
-   * Returns whether the given issue is an issue that should be removed
-   * because it is obsolete due to the validation that is performed by
-   * 'validateGltf'
-   *
-   * @param usedAccessorIndices - The accessor indices that are
-   * actually used by the extension, via feature ID attributes
-   * @param usedTextureIndices - The texture indices that are
-   * actually used by the extension, via feature ID textures
-   * @param issue - The validation issue
-   * @returns Whether the issue should be removed
-   */
-  private static async shouldRemove(
-    usedAccessorIndices: number[],
-    usedTextureIndices: number[],
-    issue: ValidationIssue
-  ): Promise<boolean> {
-    // Never remove errors!
-    if (issue.severity === ValidationIssueSeverity.ERROR) {
-      return false;
-    }
-
-    // Remove the message about the extension not being supported
-    const isIssueAboutUnsupportedExtension =
-      GltfExtensionIssues.isIssueAboutUnsupportedExtension(
-        issue,
-        "EXT_mesh_features"
-      );
-    if (isIssueAboutUnsupportedExtension) {
-      return true;
-    }
-
-    // Remove all INFO- and WARNING issues about unused objects
-    // for buffer views and textures that are actually used
-    // by the extension
-    const isObsoleteAboutAccessor =
-      GltfExtensionIssues.isObsoleteIssueAboutUnusedObject(
-        issue,
-        "accessors",
-        usedAccessorIndices
-      );
-    if (isObsoleteAboutAccessor) {
-      return true;
-    }
-    const isObsoleteAboutTexture =
-      GltfExtensionIssues.isObsoleteIssueAboutUnusedObject(
-        issue,
-        "textures",
-        usedTextureIndices
-      );
-    if (isObsoleteAboutTexture) {
-      return true;
-    }
-    return false;
   }
 
   /**

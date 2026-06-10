@@ -1,7 +1,6 @@
 import { GltfData } from "./GltfData";
 
 import { ValidationIssue } from "../ValidationIssue";
-import { ValidationIssueSeverity } from "../ValidationIssueSeverity";
 import { GltfExtensionIssues } from "./GltfExtensionIssues";
 
 /**
@@ -31,61 +30,24 @@ export class GltfExtensionIssuesDraco {
       return causes;
     }
 
-    const usedBufferViewIndices =
-      GltfExtensionIssuesDraco.computeUsedBufferViewIndices(gltfData.gltf);
-
-    const processedCauses: ValidationIssue[] = [];
-    for (const cause of causes) {
-      const remove = await GltfExtensionIssuesDraco.shouldRemove(
-        usedBufferViewIndices,
-        cause
-      );
-      if (!remove) {
-        processedCauses.push(cause);
-      }
-    }
-    return processedCauses;
-  }
-
-  /**
-   * Returns whether the given issue is an issue that should be removed
-   *
-   * @param usedBufferViewIndices - The buffer view indices that are
-   * actually used by the extension
-   * @param issue - The validation issue
-   * @returns Whether the issue should be removed
-   */
-  private static async shouldRemove(
-    usedBufferViewIndices: number[],
-    issue: ValidationIssue
-  ): Promise<boolean> {
-    // Never remove errors!
-    if (issue.severity === ValidationIssueSeverity.ERROR) {
-      return false;
-    }
-
-    // Remove the message about the extension not being supported
-    const isIssueAboutUnsupportedExtension =
-      GltfExtensionIssues.isIssueAboutUnsupportedExtension(
-        issue,
+    const isAboutUnsupportedExtension =
+      GltfExtensionIssues.isAboutUnsupportedExtension(
         "KHR_draco_mesh_compression"
       );
-    if (isIssueAboutUnsupportedExtension) {
-      return true;
-    }
 
-    // Remove all INFO- and WARNING issues about unused objects
-    // for buffer views that are actually used by the extension
-    const isObsoleteAboutBufferView =
-      GltfExtensionIssues.isObsoleteIssueAboutUnusedObject(
-        issue,
-        "bufferViews",
-        usedBufferViewIndices
-      );
-    if (isObsoleteAboutBufferView) {
-      return true;
-    }
-    return false;
+    const usedBufferViewIndices =
+      GltfExtensionIssuesDraco.computeUsedBufferViewIndices(gltfData.gltf);
+    const isAboutUnusedBufferView = GltfExtensionIssues.isAboutUnusedObject(
+      "bufferViews",
+      usedBufferViewIndices
+    );
+
+    const processedCauses = GltfExtensionIssues.processCausesWith(
+      causes,
+      isAboutUnsupportedExtension,
+      isAboutUnusedBufferView
+    );
+    return processedCauses;
   }
 
   /**

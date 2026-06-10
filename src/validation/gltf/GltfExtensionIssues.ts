@@ -1,5 +1,4 @@
 import { ValidationIssue } from "../ValidationIssue";
-import { ValidationIssueSeverity } from "../ValidationIssueSeverity";
 import { GltfData } from "./GltfData";
 
 /**
@@ -8,6 +7,35 @@ import { GltfData } from "./GltfData";
  * steps that are performed by the 3D Tiles validator.
  */
 export class GltfExtensionIssues {
+  /**
+   * Process the given list of causes using the given predicate, and
+   * return only the ones for which none of the predicates returns
+   * 'true'.
+   *
+   * This is used for filtering out issues that are obsolete due to
+   * the glTF validation that is performed by the 3D Tiles Validator.
+   *
+   * @param causes - The causes
+   * @param predicates - The predicate
+   * @returns The filtered list
+   */
+  static async processCausesWith(
+    causes: ValidationIssue[],
+    ...predicates: ((issue: ValidationIssue) => Promise<boolean>)[]
+  ) {
+    const processedCauses: ValidationIssue[] = [];
+    for (const cause of causes) {
+      let shouldRemove = false;
+      for (const predicate of predicates) {
+        const remove = await predicate(cause);
+        shouldRemove = shouldRemove || remove;
+      }
+      if (!shouldRemove) {
+        processedCauses.push(cause);
+      }
+    }
+    return processedCauses;
+  }
   /**
    * Returns a 'processCauses' function for a GltfExtensionValidator
    * that only omits the issue about an extension not being supported.
@@ -25,22 +53,8 @@ export class GltfExtensionIssues {
     // The function that determines whether a given issue should be removed,
     // only returning 'true' when it is about the extension not being
     // supported
-    const shouldRemove = async (issue: ValidationIssue) => {
-      // Never remove errors!
-      if (issue.severity === ValidationIssueSeverity.ERROR) {
-        return false;
-      }
-      // Remove the message about the extension not being supported
-      const isIssueAboutUnsupportedExtension =
-        GltfExtensionIssues.isIssueAboutUnsupportedExtension(
-          issue,
-          extensionName
-        );
-      if (isIssueAboutUnsupportedExtension) {
-        return true;
-      }
-      return false;
-    };
+    const shouldRemove =
+      GltfExtensionIssues.isAboutUnsupportedExtension(extensionName);
     // The function to process all causes, only removing the issues
     // that are about the extension not being supported
     const processCauses = async (
@@ -48,16 +62,30 @@ export class GltfExtensionIssues {
       gltfData: GltfData,
       causes: ValidationIssue[]
     ): Promise<ValidationIssue[]> => {
-      const processedCauses: ValidationIssue[] = [];
-      for (const cause of causes) {
-        const remove = await shouldRemove(cause);
-        if (!remove) {
-          processedCauses.push(cause);
-        }
-      }
-      return processedCauses;
+      return GltfExtensionIssues.processCausesWith(causes, shouldRemove);
     };
     return processCauses;
+  }
+
+  /**
+   * Returns a function that returns whether a given issue is about
+   * the specified object type and index, with the index being
+   * contained in the given array.
+   *
+   * @param topLevelName - The top level name, e.g. "textures" or "bufferViews"
+   * @param usedIndices - The indices that are actually used
+   * @returns The function
+   */
+  static isAboutUnusedObject(
+    topLevelName: string,
+    usedIndices: number[]
+  ): (issue: ValidationIssue) => Promise<boolean> {
+    return async (issue: ValidationIssue) =>
+      GltfExtensionIssues.isIssueAboutUnusedObject(
+        issue,
+        topLevelName,
+        usedIndices
+      );
   }
 
   /**
@@ -76,11 +104,11 @@ export class GltfExtensionIssues {
    * @param usedIndices - The indices that are actually used
    * @returns Whether the issue is obsolete
    */
-  static isObsoleteIssueAboutUnusedObject(
+  private static isIssueAboutUnusedObject(
     issue: ValidationIssue,
     topLevelName: string,
     usedIndices: number[]
-  ) {
+  ): boolean {
     const message = issue.message;
     const path = issue.path;
     if (!message.startsWith("This object may be unused.")) {
@@ -88,7 +116,7 @@ export class GltfExtensionIssues {
     }
     const prefix = "/" + topLevelName + "/";
     if (!path.startsWith(prefix)) {
-      return;
+      return false;
     }
     const index = GltfExtensionIssues.extractIndex(topLevelName, path);
     if (index === undefined) {
@@ -152,6 +180,23 @@ export class GltfExtensionIssues {
   }
 
   /**
+   * Returns a function that returns whether a given issue is about
+   * the specified extension not being supported.
+   *
+   * @param extensionName - The extension name
+   * @returns The function
+   */
+  static isAboutUnsupportedExtension(
+    extensionName: string
+  ): (issue: ValidationIssue) => Promise<boolean> {
+    return async (issue: ValidationIssue) =>
+      GltfExtensionIssues.isIssueAboutUnsupportedExtension(
+        issue,
+        extensionName
+      );
+  }
+
+  /**
    * Returns whether the given validation issue is an issue that just
    * reports that the extension with the given name is not supported
    * by the glTF validator.
@@ -160,7 +205,7 @@ export class GltfExtensionIssues {
    * @param extensionName - The extension name
    * @returns The result
    */
-  static isIssueAboutUnsupportedExtension(
+  private static isIssueAboutUnsupportedExtension(
     issue: ValidationIssue,
     extensionName: string
   ): boolean {

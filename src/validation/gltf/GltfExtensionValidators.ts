@@ -114,11 +114,17 @@ export class GltfExtensionValidators {
     });
     GltfExtensionValidators.registerValidator("NGA_gpm_local", {
       validate: NgaGpmLocalValidator.validateGltf,
-      processCauses: emptyProcessing,
+      processCauses:
+        GltfExtensionIssues.processCausesOmittingUnsupportedExtension(
+          "NGA_gpm_local"
+        ),
     });
     GltfExtensionValidators.registerValidator("MAXAR_image_ortho", {
       validate: MaxarImageOrthoValidator.validateGltf,
-      processCauses: emptyProcessing,
+      processCauses:
+        GltfExtensionIssues.processCausesOmittingUnsupportedExtension(
+          "MAXAR_image_ortho"
+        ),
     });
     GltfExtensionValidators.registerValidator("KHR_lights_punctual", {
       validate: KhrLightsPunctualValidator.validateGltf,
@@ -126,7 +132,7 @@ export class GltfExtensionValidators {
     });
     GltfExtensionValidators.registerValidator("MAXAR_nonvisual_geometry", {
       validate: MaxarNonvisualGeometryValidator.validateGltf,
-      processCauses: emptyProcessing,
+      processCauses: MaxarNonvisualGeometryValidator.processCauses,
     });
 
     // Register an empty validator for KHR_texture_basisu that only
