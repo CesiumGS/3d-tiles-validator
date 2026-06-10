@@ -913,6 +913,13 @@ describe("Tileset validation", function () {
     expect(result.length).toEqual(0);
   });
 
+  it("detects no issues in validTilesetWithTileMetadata", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithTileMetadata.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
   it("detects issues in validTilesetWithUnresolvableSchemaUri", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/validTilesetWithUnresolvableSchemaUri.json"
