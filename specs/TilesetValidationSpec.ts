@@ -997,6 +997,29 @@ describe("Tileset validation", function () {
     expect(result.length).toEqual(0);
   });
 
+  it("detects no issues in validTilesetWithValidGltfWithGpmLocal", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithValidGltfWithGpmLocal.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects no issues in validTilesetWithValidGltfWithMaxarImageOrtho", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithValidGltfWithMaxarImageOrtho.json"
+    );
+    // One info about the (actually) unused image
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_INFO");
+  });
+
+  it("detects no issues in validTilesetWithValidGltfWithMaxarNonvisualGeometry", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithValidGltfWithMaxarNonvisualGeometry.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
   it("detects no issues in validTilesetWithValidSchemaFromUri", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/validTilesetWithValidSchemaFromUri.json"
