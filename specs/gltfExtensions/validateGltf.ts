@@ -45,7 +45,7 @@ export async function validateGltf(
     const issue = IoValidationIssues.IO_ERROR(gltfFileName, message);
     context.addIssue(issue);
   } else {
-    // If this fails, and issue will be added to the context:
+    // If this fails, an issue will be added to the context:
     const gltfData = await GltfDataReader.readGltfData(
       gltfFileName,
       gltfFileData,
