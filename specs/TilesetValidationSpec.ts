@@ -1207,5 +1207,4 @@ describe("Tileset validation", function () {
     );
     expect(result.length).toEqual(0);
   });
-
 });
