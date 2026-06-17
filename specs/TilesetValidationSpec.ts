@@ -1186,4 +1186,26 @@ describe("Tileset validation", function () {
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CONTENT_VALIDATION_WARNING");
   });
+
+  it("detects no issues in TilesetWithDraco", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/TilesetWithDraco/tileset.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects no issues in TilesetWithMeshopt", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/TilesetWithMeshopt/tileset.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects no issues in TilesetWithKtx", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/TilesetWithKtx/tileset.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
 });
