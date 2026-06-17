@@ -1,15 +1,15 @@
-import { GltfData } from "./GltfData";
+import { GltfData } from "../GltfData";
 
-import { ValidationIssue } from "../ValidationIssue";
-import { GltfExtensionIssues } from "./GltfExtensionIssues";
+import { ValidationIssue } from "../../ValidationIssue";
+import { GltfExtensionIssues } from "../GltfExtensionIssues";
 
 /**
  * Functions for implementing filters on lists of validation issues,
- * related to the KHR_texture_basisu extension
+ * related to the KHR_draco_mesh_compression extension
  *
  * @internal
  */
-export class GltfExtensionIssuesDraco {
+export class KhrDracoMeshCompressionIssues {
   /**
    * Process the given list of validation issues, and possibly filer
    * out the issues that are obsolete
@@ -36,7 +36,7 @@ export class GltfExtensionIssuesDraco {
       );
 
     const usedBufferViewIndices =
-      GltfExtensionIssuesDraco.computeUsedBufferViewIndices(gltfData.gltf);
+      KhrDracoMeshCompressionIssues.computeUsedBufferViewIndices(gltfData.gltf);
     const isAboutUnusedBufferView = GltfExtensionIssues.isAboutUnusedObject(
       "bufferViews",
       usedBufferViewIndices

@@ -1,6 +1,6 @@
-import { ValidationIssue } from "../ValidationIssue";
-import { GltfData } from "./GltfData";
-import { GltfExtensionIssues } from "./GltfExtensionIssues";
+import { ValidationIssue } from "../../ValidationIssue";
+import { GltfData } from "../GltfData";
+import { GltfExtensionIssues } from "../GltfExtensionIssues";
 
 /**
  * Functions for implementing filters on lists of validation issues,
@@ -8,7 +8,7 @@ import { GltfExtensionIssues } from "./GltfExtensionIssues";
  *
  * @internal
  */
-export class GltfExtensionIssuesKhrTextureBasisu {
+export class KhrTextureBasisuIssues {
   /**
    * Process the given list of issues in view of KHR_texture_basisu.
    *
@@ -33,15 +33,14 @@ export class GltfExtensionIssuesKhrTextureBasisu {
 
     // Remove the issue about the unused image object when the image is used
     const usedImageIndices =
-      GltfExtensionIssuesKhrTextureBasisu.computeUsedImageIndices(gltf);
+      KhrTextureBasisuIssues.computeUsedImageIndices(gltf);
     const isAboutUnusedImage = GltfExtensionIssues.isAboutUnusedObject(
       "images",
       usedImageIndices
     );
 
     // Remove the issues about unsupported mime type and image format
-    const isAboutKtx =
-      GltfExtensionIssuesKhrTextureBasisu.isAboutKtx(usedImageIndices);
+    const isAboutKtx = KhrTextureBasisuIssues.isAboutKtx(usedImageIndices);
 
     const processedCauses: ValidationIssue[] =
       await GltfExtensionIssues.processCausesWith(

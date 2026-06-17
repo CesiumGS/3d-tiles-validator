@@ -3,10 +3,12 @@ import { ValidationIssue } from "../ValidationIssue";
 import { GltfData } from "./GltfData";
 import { GltfExtensionIssues } from "./GltfExtensionIssues";
 import { GltfExtensionValidator } from "./GltfExtensionValidator";
-import { GltfExtensionIssuesDraco } from "./GltfExtensionIssuesDraco";
-import { GltfExtensionIssuesKhrTextureBasisu } from "./GltfExtensionIssuesKhrTextureBasisu";
 
 import { ExtInstanceFeaturesValidator } from "./instanceFeatures/ExtInstanceFeaturesValidator";
+
+import { KhrDracoMeshCompressionIssues } from "./dracoMeshCompression/KhrDracoMeshCompressionIssues";
+
+import { KhrTextureBasisuIssues } from "./textureBasisu/KhrTextureBasisuIssues";
 
 import { ExtMeshFeaturesIssues } from "./meshFeatures/ExtMeshFeaturesIssues";
 import { ExtMeshFeaturesValidator } from "./meshFeatures/ExtMeshFeaturesValidator";
@@ -15,6 +17,7 @@ import { ExtStructuralMetadataValidator } from "./structuralMetadata/ExtStructur
 import { ExtStructuralMetadataIssues } from "./structuralMetadata/ExtStructuralMetadataIssues";
 
 import { MaxarNonvisualGeometryValidator } from "./nonvisualGeometry/MaxarNonvisualGeometryValidator";
+import { MaxarNonvisualGeometryIssues } from "./nonvisualGeometry/MaxarNonvisualGeometryIssues";
 
 import { NgaGpmLocalValidator } from "./gpmLocal/NgaGpmLocalValidator";
 
@@ -132,7 +135,7 @@ export class GltfExtensionValidators {
     });
     GltfExtensionValidators.registerValidator("MAXAR_nonvisual_geometry", {
       validate: MaxarNonvisualGeometryValidator.validateGltf,
-      processCauses: MaxarNonvisualGeometryValidator.processCauses,
+      processCauses: MaxarNonvisualGeometryIssues.processCauses,
     });
 
     // Register an empty validator for KHR_texture_basisu that only
@@ -140,14 +143,14 @@ export class GltfExtensionValidators {
     // unsupported MIME types.
     GltfExtensionValidators.registerValidator("KHR_texture_basisu", {
       validate: emptyValidation,
-      processCauses: GltfExtensionIssuesKhrTextureBasisu.processCauses,
+      processCauses: KhrTextureBasisuIssues.processCauses,
     });
 
     // Register an empty validator for KHR_draco_mesh_compression that only
     // filters out the messages about unused buffer views
     GltfExtensionValidators.registerValidator("KHR_draco_mesh_compression", {
       validate: emptyValidation,
-      processCauses: GltfExtensionIssuesDraco.processCauses,
+      processCauses: KhrDracoMeshCompressionIssues.processCauses,
     });
 
     // Register an empty validator for EXT_meshopt_compression that only
