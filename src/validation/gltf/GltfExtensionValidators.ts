@@ -60,25 +60,6 @@ export class GltfExtensionValidators {
   }
 
   /**
-   * Returns whether the given name is the name of a glTF extension that
-   * is "known" by the validator.
-   *
-   * This means that there is a dedicated validator for this specific
-   * extension, and this validator was implemented as part of the
-   * 3D Tiles Validator. Issues that are caused by the glTF Validator
-   * not knowing this extension should be filtered out of
-   * the glTF validation result.
-   *
-   * @param extensionName - The full glTF extension name
-   * @returns Whether the extension is known by the 3D Tiles Validator
-   */
-  static isRegistered(extensionName: string) {
-    GltfExtensionValidators.registerValidators();
-    const names = Object.keys(GltfExtensionValidators.gltfExtensionValidators);
-    return names.includes(extensionName);
-  }
-
-  /**
    * Registers all known extension validators if they have not
    * yet been registered.
    */
