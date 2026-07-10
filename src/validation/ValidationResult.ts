@@ -1,3 +1,4 @@
+import { IssueCounters } from "./IssueCounters";
 import { ValidationIssue } from "./ValidationIssue";
 import { ValidationIssueFilter } from "./ValidationIssueFilter";
 import { ValidationIssueSeverity } from "./ValidationIssueSeverity";
@@ -22,17 +23,24 @@ export class ValidationResult {
    */
   private readonly _issues: ValidationIssue[];
 
-  private _numErrors: number;
+  /**
+   * Counters for the number of top-level issues
+   */
+  private readonly _issueCounters: IssueCounters;
 
-  private _numWarnings: number;
+  /**
+   * Counters for the total number of issues (i.e. the
+   * numbers of issues in all "leaf" issues)
+   */
+  private readonly _totalIssueCounters: IssueCounters;
 
-  private _numInfos: number;
-
-  private _totalNumErrors: number;
-
-  private _totalNumWarnings: number;
-
-  private _totalNumInfos: number;
+  /**
+   * Counters for the number of issues that have been caused
+   * by the glTF-Validator and that have been omitted (because
+   * the issues are obsolete, usually because the validation
+   * is performed by the 3D Tiles Validator)
+   */
+  private readonly _omittedIssueCounters: IssueCounters;
 
   /**
    * Creates a new, empty validation result.
@@ -55,12 +63,9 @@ export class ValidationResult {
   private constructor(date: Date) {
     this._date = date;
     this._issues = [];
-    this._numErrors = 0;
-    this._numWarnings = 0;
-    this._numInfos = 0;
-    this._totalNumErrors = 0;
-    this._totalNumWarnings = 0;
-    this._totalNumInfos = 0;
+    this._issueCounters = new IssueCounters();
+    this._totalIssueCounters = new IssueCounters();
+    this._omittedIssueCounters = new IssueCounters();
   }
 
   /**
@@ -99,25 +104,32 @@ export class ValidationResult {
     this._issues.push(issue);
 
     if (issue.severity === ValidationIssueSeverity.ERROR) {
-      this._numErrors++;
+      this._issueCounters.numErrors++;
     } else if (issue.severity === ValidationIssueSeverity.WARNING) {
-      this._numWarnings++;
+      this._issueCounters.numWarnings++;
     } else if (issue.severity === ValidationIssueSeverity.INFO) {
-      this._numInfos++;
+      this._issueCounters.numInfos++;
     }
 
-    this._totalNumErrors += ValidationResult.countLeaves(
+    this._totalIssueCounters.numErrors += ValidationResult.countLeaves(
       issue,
       ValidationIssueSeverity.ERROR
     );
-    this._totalNumWarnings += ValidationResult.countLeaves(
+    this._totalIssueCounters.numWarnings += ValidationResult.countLeaves(
       issue,
       ValidationIssueSeverity.WARNING
     );
-    this._totalNumInfos += ValidationResult.countLeaves(
+    this._totalIssueCounters.numInfos += ValidationResult.countLeaves(
       issue,
       ValidationIssueSeverity.INFO
     );
+  }
+
+  addOmittedIssueCounters(issueCounters: IssueCounters) {
+    this._omittedIssueCounters.add(issueCounters);
+  }
+  getOmittedIssueCounters(): IssueCounters {
+    return this._omittedIssueCounters;
   }
 
   /**
@@ -178,7 +190,7 @@ export class ValidationResult {
    * @internal
    */
   get numErrors(): number {
-    return this._numErrors;
+    return this._issueCounters.numErrors;
   }
 
   /**
@@ -188,7 +200,7 @@ export class ValidationResult {
    * @internal
    */
   get numWarnings(): number {
-    return this._numWarnings;
+    return this._issueCounters.numWarnings;
   }
 
   /**
@@ -198,7 +210,7 @@ export class ValidationResult {
    * @internal
    */
   get numInfos(): number {
-    return this._numInfos;
+    return this._issueCounters.numInfos;
   }
 
   /**
@@ -211,16 +223,30 @@ export class ValidationResult {
   toJson(): any {
     const issuesJson =
       this._issues.length > 0 ? this._issues.map((i) => i.toJson()) : undefined;
-    return {
+
+    const omittedNumErrors = this._omittedIssueCounters.numErrors;
+    const omittedNumWarnings = this._omittedIssueCounters.numWarnings;
+    const omittedNumInfos = this._omittedIssueCounters.numInfos;
+
+    const json: any = {
       date: this._date,
-      numErrors: this._numErrors,
-      numWarnings: this._numWarnings,
-      numInfos: this._numInfos,
-      totalNumErrors: this._totalNumErrors,
-      totalNumWarnings: this._totalNumWarnings,
-      totalNumInfos: this._totalNumInfos,
+      numErrors: this._issueCounters.numErrors,
+      numWarnings: this._issueCounters.numWarnings,
+      numInfos: this._issueCounters.numInfos,
+      totalNumErrors: this._totalIssueCounters.numErrors,
+      totalNumWarnings: this._totalIssueCounters.numWarnings,
+      totalNumInfos: this._totalIssueCounters.numInfos,
+      omittedNumErrors: omittedNumErrors,
+      omittedNumWarnings: omittedNumWarnings,
+      omittedNumInfos: omittedNumInfos,
       issues: issuesJson,
     };
+    if (omittedNumErrors > 0 || omittedNumWarnings > 0 || omittedNumInfos > 0) {
+      json.message =
+        `Omitted obsolete validation issues from glTF-Validator. ` +
+        `Use the 'verboseGltfValidation' option to include these issues.`;
+    }
+    return json;
   }
 
   /**

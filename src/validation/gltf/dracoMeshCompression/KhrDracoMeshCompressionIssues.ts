@@ -15,11 +15,14 @@ export class KhrDracoMeshCompressionIssues {
    * out the issues that are obsolete
    *
    * @param path - The path for validation issues
+   * @param keepObsoleteIssues - Whether issues should be retained even
+   * when they are obsolete.
    * @param gltfData - The GltfData objects
    * @param causes - The validation issues
    */
   static async processCauses(
     path: string,
+    keepObsoleteIssues: boolean,
     gltfData: GltfData,
     causes: ValidationIssue[]
   ): Promise<ValidationIssue[]> {
@@ -27,6 +30,9 @@ export class KhrDracoMeshCompressionIssues {
     const gltf = gltfData.gltf;
     const extensionsUsed = gltf.extensionsUsed ?? [];
     if (!extensionsUsed.includes("KHR_draco_mesh_compression")) {
+      return causes;
+    }
+    if (keepObsoleteIssues) {
       return causes;
     }
 

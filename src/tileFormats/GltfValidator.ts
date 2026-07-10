@@ -8,6 +8,7 @@ import { ContentValidationIssues } from "../issues/ContentValidationIssues";
 import { GltfExtensionValidators } from "../validation/gltf/GltfExtensionValidators";
 import { ValidationIssueSeverity } from "../validation/ValidationIssueSeverity";
 import { GltfDataReader } from "../validation/gltf/GltfDataReader";
+import { IssueCounters } from "../validation/IssueCounters";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const validator = require("gltf-validator");
@@ -178,8 +179,12 @@ export class GltfValidator implements Validator<Buffer> {
     // Process the list of causes, possibly filtering out the ones that
     // are known to be obsolete due to the validation that is performed
     // by validators that are part of the 3D Tiles Validator (below)
+
+    const options = context.getOptions();
+    const keepObsoleteIssues = options.verboseGltfValidation;
     const causes = await GltfExtensionValidators.processCausesForGltfExtensions(
       uri,
+      keepObsoleteIssues,
       gltfData,
       allCauses
     );
@@ -203,15 +208,22 @@ export class GltfValidator implements Validator<Buffer> {
     const omittedWarnings = allNumWarnings - numWarnings;
     const omittedInfos = allNumInfos - numInfos;
 
+    // Errors should usually not be omitted. Print a warning in this case.
     if (omittedErrors > 0) {
       logger.warn(`Omitted ${omittedErrors} errors from glTF-Validator`);
     }
     if (omittedWarnings > 0) {
-      logger.info(`Omitted ${omittedWarnings} warnings from glTF-Validator`);
+      logger.debug(`Omitted ${omittedWarnings} warnings from glTF-Validator`);
     }
     if (omittedInfos > 0) {
-      logger.info(`Omitted ${omittedInfos} infos from glTF-Validator`);
+      logger.debug(`Omitted ${omittedInfos} infos from glTF-Validator`);
     }
+
+    const omittedIssues = new IssueCounters();
+    omittedIssues.numErrors = allNumErrors - numErrors;
+    omittedIssues.numWarnings = allNumWarnings - numWarnings;
+    omittedIssues.numInfos = allNumInfos - numInfos;
+    context.addOmittedIssueCounters(omittedIssues);
 
     // If there are any errors, then summarize ALL issues from the glTF
     // validation as 'internal issues' in a CONTENT_VALIDATION_ERROR

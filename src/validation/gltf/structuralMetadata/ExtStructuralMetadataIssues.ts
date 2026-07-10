@@ -17,14 +17,20 @@ export class ExtStructuralMetadataIssues {
    * is performed by 'validateGltf'.
    *
    * @param path - The path for validation issues
+   * @param keepObsoleteIssues - Whether issues should be retained even
+   * when they are obsolete.
    * @param gltfData - The GltfData objects
    * @param causes - The validation issues
    */
   static async processCauses(
     path: string,
+    keepObsoleteIssues: boolean,
     gltfData: GltfData,
     causes: ValidationIssue[]
   ): Promise<ValidationIssue[]> {
+    if (keepObsoleteIssues) {
+      return causes;
+    }
     // Remove the issue about the extension not being supported
     const isAboutUnsupportedExtension =
       GltfExtensionIssues.isAboutUnsupportedExtension(

@@ -7,6 +7,7 @@ import { ResourceResolver } from "3d-tiles-tools";
 import { ValidationIssue } from "./ValidationIssue";
 import { ValidationOptions } from "./ValidationOptions";
 import { ValidationResult } from "./ValidationResult";
+import { IssueCounters } from "./IssueCounters";
 
 /**
  * A class describing the context in which a validation takes place.
@@ -197,6 +198,13 @@ export class ValidationContext {
    */
   getExtensionsFound(): Set<string> {
     return new Set<string>(this._extensionsFound);
+  }
+
+  addOmittedIssueCounters(issueCounters: IssueCounters) {
+    this._result.addOmittedIssueCounters(issueCounters);
+  }
+  getOmittedIssueCounters(): IssueCounters {
+    return this._result.getOmittedIssueCounters();
   }
 
   /**

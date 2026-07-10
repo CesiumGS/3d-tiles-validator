@@ -220,6 +220,7 @@ export class ContentDataValidator {
     if (issue) {
       context.addIssue(issue);
     }
+    context.addOmittedIssueCounters(derivedContext.getOmittedIssueCounters());
 
     context.removeActiveTilesetUri(resolvedTilesetContentUri);
 
@@ -279,6 +280,7 @@ export class ContentDataValidator {
     if (issue) {
       context.addIssue(issue);
     }
+    context.addOmittedIssueCounters(derivedContext.getOmittedIssueCounters());
     return result;
   }
 

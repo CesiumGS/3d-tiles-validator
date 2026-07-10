@@ -47,6 +47,7 @@ export class GltfExtensionIssues {
     extensionName: string
   ): (
     path: string,
+    keepObsoleteIssues: boolean,
     gltfData: GltfData,
     causes: ValidationIssue[]
   ) => Promise<ValidationIssue[]> {
@@ -59,9 +60,13 @@ export class GltfExtensionIssues {
     // that are about the extension not being supported
     const processCauses = async (
       path: string,
+      keepObsoleteIssues: boolean,
       gltfData: GltfData,
       causes: ValidationIssue[]
     ): Promise<ValidationIssue[]> => {
+      if (keepObsoleteIssues) {
+        return causes;
+      }
       return GltfExtensionIssues.processCausesWith(causes, shouldRemove);
     };
     return processCauses;

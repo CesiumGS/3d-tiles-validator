@@ -327,6 +327,9 @@ export class I3dmValidator implements Validator<Buffer> {
         if (issue) {
           context.addIssue(issue);
         }
+        context.addOmittedIssueCounters(
+          derivedContext.getOmittedIssueCounters()
+        );
         return result;
       }
     }
