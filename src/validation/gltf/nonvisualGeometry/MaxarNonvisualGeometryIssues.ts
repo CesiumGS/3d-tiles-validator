@@ -64,15 +64,15 @@ export class MaxarNonvisualGeometryIssues {
    * @param gltf - The glTF JSON object
    * @returns The mesh indices
    */
-  private static computeUsedMeshIndices(gltf: any): number[] {
-    const meshIndices = [];
+  private static computeUsedMeshIndices(gltf: any): Set<number> {
+    const meshIndices = new Set<number>();
     const nodes = gltf.nodes ?? [];
     for (const node of nodes) {
       const extensions = node.extensions ?? {};
       const extension = extensions["MAXAR_nonvisual_geometry"] ?? {};
       const meshIndex = extension.mesh;
       if (typeof meshIndex === "number") {
-        meshIndices.push(meshIndex);
+        meshIndices.add(meshIndex);
       }
     }
     return meshIndices;

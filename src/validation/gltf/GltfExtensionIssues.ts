@@ -78,7 +78,7 @@ export class GltfExtensionIssues {
    */
   static isAboutUnusedObject(
     topLevelName: string,
-    usedIndices: number[]
+    usedIndices: Set<number>
   ): (issue: ValidationIssue) => Promise<boolean> {
     return async (issue: ValidationIssue) =>
       GltfExtensionIssues.isIssueAboutUnusedObject(
@@ -107,7 +107,7 @@ export class GltfExtensionIssues {
   private static isIssueAboutUnusedObject(
     issue: ValidationIssue,
     topLevelName: string,
-    usedIndices: number[]
+    usedIndices: Set<number>
   ): boolean {
     const message = issue.message;
     const path = issue.path;
@@ -127,7 +127,7 @@ export class GltfExtensionIssues {
       //);
       return false;
     }
-    const isUsed = usedIndices.includes(index);
+    const isUsed = usedIndices.has(index);
     return isUsed;
   }
 

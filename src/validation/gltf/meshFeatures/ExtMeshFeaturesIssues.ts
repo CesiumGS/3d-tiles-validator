@@ -68,8 +68,8 @@ export class ExtMeshFeaturesIssues {
    * @returns The accessor indices that are used by the
    * EXT_mesh_features extension
    */
-  private static computeUsedAccessorIndices(gltf: any): number[] {
-    const accessorIndices: number[] = [];
+  private static computeUsedAccessorIndices(gltf: any): Set<number> {
+    const accessorIndices = new Set<number>();
     const meshes = gltf.meshes ?? [];
     for (const mesh of meshes) {
       const primitives = mesh.primitives ?? [];
@@ -80,12 +80,12 @@ export class ExtMeshFeaturesIssues {
         for (const featureId of featureIds) {
           const attributeAccessorIndex = featureId.attribute;
           if (typeof attributeAccessorIndex === "number") {
-            accessorIndices.push(attributeAccessorIndex);
+            accessorIndices.add(attributeAccessorIndex);
           }
           const texture = featureId.texture ?? {};
           const texcoordAccessorIndex = texture.texCoord;
           if (typeof texcoordAccessorIndex === "number") {
-            accessorIndices.push(texcoordAccessorIndex);
+            accessorIndices.add(texcoordAccessorIndex);
           }
         }
       }
@@ -104,8 +104,8 @@ export class ExtMeshFeaturesIssues {
    * @returns The texture indices that are used by the
    * EXT_mesh_features extension
    */
-  private static computeUsedTextureIndices(gltf: any): number[] {
-    const textureIndices: number[] = [];
+  private static computeUsedTextureIndices(gltf: any): Set<number> {
+    const textureIndices = new Set<number>();
     const meshes = gltf.meshes ?? [];
     for (const mesh of meshes) {
       const primitives = mesh.primitives ?? [];
@@ -117,7 +117,7 @@ export class ExtMeshFeaturesIssues {
           const texture = featureId.texture ?? {};
           const textureIndex = texture.index;
           if (typeof textureIndex === "number") {
-            textureIndices.push(textureIndex);
+            textureIndices.add(textureIndex);
           }
         }
       }

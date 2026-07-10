@@ -67,8 +67,8 @@ export class ExtStructuralMetadataIssues {
    * @returns The buffer view indices that are used by the
    * EXT_structural_metadata extension
    */
-  private static computeUsedBufferViewIndices(gltf: any): number[] {
-    const bufferViewIndices: number[] = [];
+  private static computeUsedBufferViewIndices(gltf: any): Set<number> {
+    const bufferViewIndices = new Set<number>();
     const extensions = gltf.extensions ?? {};
     const extension = extensions["EXT_structural_metadata"] ?? {};
     const propertyTables = extension.propertyTables ?? [];
@@ -80,13 +80,13 @@ export class ExtStructuralMetadataIssues {
         const stringOffsetsBufferViewIndex = p.stringOffsets;
         const arrayOffsetsBufferViewIndex = p.arrayOffsets;
         if (typeof valuesBufferViewIndex === "number") {
-          bufferViewIndices.push(valuesBufferViewIndex);
+          bufferViewIndices.add(valuesBufferViewIndex);
         }
         if (typeof stringOffsetsBufferViewIndex === "number") {
-          bufferViewIndices.push(stringOffsetsBufferViewIndex);
+          bufferViewIndices.add(stringOffsetsBufferViewIndex);
         }
         if (typeof arrayOffsetsBufferViewIndex === "number") {
-          bufferViewIndices.push(arrayOffsetsBufferViewIndex);
+          bufferViewIndices.add(arrayOffsetsBufferViewIndex);
         }
       }
     }
@@ -104,8 +104,8 @@ export class ExtStructuralMetadataIssues {
    * @returns The texture indices that are used by the
    * EXT_structural_metadata extension
    */
-  private static computeUsedTextureIndices(gltf: any): number[] {
-    const textureIndices: number[] = [];
+  private static computeUsedTextureIndices(gltf: any): Set<number> {
+    const textureIndices = new Set<number>();
     const extensions = gltf.extensions ?? {};
     const extension = extensions["EXT_structural_metadata"] ?? {};
     const propertyTextures = extension.propertyTextures ?? [];
@@ -115,7 +115,7 @@ export class ExtStructuralMetadataIssues {
         const p = property as any;
         const textureIndex = p.index;
         if (typeof textureIndex === "number") {
-          textureIndices.push(textureIndex);
+          textureIndices.add(textureIndex);
         }
       }
     }

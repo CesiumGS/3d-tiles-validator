@@ -63,7 +63,7 @@ export class KhrTextureBasisuIssues {
    * @returns Whether the issue should be removed
    */
   private static isAboutKtx(
-    usedImageIndices: number[]
+    usedImageIndices: Set<number>
   ): (issue: ValidationIssue) => Promise<boolean> {
     const predicate = async (issue: ValidationIssue) => {
       // Remove all INFO- and WARNING issues about
@@ -86,7 +86,7 @@ export class KhrTextureBasisuIssues {
           //console.warn("Could not extract image index from path: " + path);
           return false;
         }
-        return usedImageIndices.includes(imageIndex);
+        return usedImageIndices.has(imageIndex);
       }
       return false;
     };
@@ -100,15 +100,15 @@ export class KhrTextureBasisuIssues {
    * @param gltf - The glTF JSON object
    * @returns The image indices
    */
-  private static computeUsedImageIndices(gltf: any): number[] {
-    const imageIndices = [];
+  private static computeUsedImageIndices(gltf: any): Set<number> {
+    const imageIndices = new Set<number>();
     const textures = gltf.textures ?? [];
     for (const texture of textures) {
       const extensions = texture.extensions ?? {};
       const extension = extensions["KHR_texture_basisu"] ?? {};
       const source = extension.source;
       if (typeof source === "number") {
-        imageIndices.push(source);
+        imageIndices.add(source);
       }
     }
     return imageIndices;

@@ -61,8 +61,8 @@ export class KhrDracoMeshCompressionIssues {
    * @returns The buffer view indices that are used by the
    * KHR_draco_mesh_compression extension
    */
-  private static computeUsedBufferViewIndices(gltf: any): number[] {
-    const bufferViewIndices: number[] = [];
+  private static computeUsedBufferViewIndices(gltf: any): Set<number> {
+    const bufferViewIndices = new Set<number>();
     const meshes = gltf.meshes ?? [];
     for (const mesh of meshes) {
       const primitives = mesh.primitives ?? [];
@@ -72,7 +72,7 @@ export class KhrDracoMeshCompressionIssues {
         if (extension) {
           const bufferViewIndex = extension.bufferView;
           if (bufferViewIndex !== undefined) {
-            bufferViewIndices.push(bufferViewIndex);
+            bufferViewIndices.add(bufferViewIndex);
           }
         }
       }
