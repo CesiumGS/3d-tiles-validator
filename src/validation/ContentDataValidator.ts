@@ -287,7 +287,7 @@ export class ContentDataValidator {
    * validation issues that are at least as severe as the given severity.
    *
    * @param result - The validation result
-   * @param severity - The highest validation issue severity that should be included
+   * @param severity - The lowest validation issue severity that should be included
    * @returns The filtered result
    */
   private static filterResult(
