@@ -1,3 +1,4 @@
+import { IssueCounters } from "./IssueCounters";
 import { ValidationIssue } from "./ValidationIssue";
 import { ValidationIssueFilter } from "./ValidationIssueFilter";
 import { ValidationIssueSeverity } from "./ValidationIssueSeverity";
@@ -23,6 +24,25 @@ export class ValidationResult {
   private readonly _issues: ValidationIssue[];
 
   /**
+   * Counters for the number of top-level issues
+   */
+  private readonly _issueCounters: IssueCounters;
+
+  /**
+   * Counters for the total number of issues (i.e. the
+   * numbers of issues in all "leaf" issues)
+   */
+  private readonly _totalIssueCounters: IssueCounters;
+
+  /**
+   * Counters for the number of issues that have been caused
+   * by the glTF-Validator and that have been omitted (because
+   * the issues are obsolete, usually because the validation
+   * is performed by the 3D Tiles Validator)
+   */
+  private readonly _omittedIssueCounters: IssueCounters;
+
+  /**
    * Creates a new, empty validation result.
    *
    * Clients should not call this method. They only receive
@@ -43,6 +63,9 @@ export class ValidationResult {
   private constructor(date: Date) {
     this._date = date;
     this._issues = [];
+    this._issueCounters = new IssueCounters();
+    this._totalIssueCounters = new IssueCounters();
+    this._omittedIssueCounters = new IssueCounters();
   }
 
   /**
@@ -79,6 +102,65 @@ export class ValidationResult {
    */
   add(issue: ValidationIssue): void {
     this._issues.push(issue);
+
+    if (issue.severity === ValidationIssueSeverity.ERROR) {
+      this._issueCounters.numErrors++;
+    } else if (issue.severity === ValidationIssueSeverity.WARNING) {
+      this._issueCounters.numWarnings++;
+    } else if (issue.severity === ValidationIssueSeverity.INFO) {
+      this._issueCounters.numInfos++;
+    }
+
+    this._totalIssueCounters.numErrors += ValidationResult.countLeaves(
+      issue,
+      ValidationIssueSeverity.ERROR
+    );
+    this._totalIssueCounters.numWarnings += ValidationResult.countLeaves(
+      issue,
+      ValidationIssueSeverity.WARNING
+    );
+    this._totalIssueCounters.numInfos += ValidationResult.countLeaves(
+      issue,
+      ValidationIssueSeverity.INFO
+    );
+  }
+
+  addOmittedIssueCounters(issueCounters: IssueCounters) {
+    this._omittedIssueCounters.add(issueCounters);
+  }
+  getOmittedIssueCounters(): IssueCounters {
+    return this._omittedIssueCounters;
+  }
+
+  /**
+   * Returns the number of "leaves" in the given issue that have the
+   * given severity.
+   *
+   * In this context, "leaves" are issues that do not have any direct
+   * "causes". So for example, for an issue that has three "causes"
+   * with two of them being a WARNING, then calling this method with
+   * the root issue and WARNING severity will return 2.
+   *
+   * @param issue - The issue
+   * @param severity - The severity
+   * @returns The result
+   */
+  private static countLeaves(
+    issue: ValidationIssue,
+    severity: ValidationIssueSeverity
+  ): number {
+    const causes = issue.causes;
+    if (causes.length === 0) {
+      if (issue.severity === severity) {
+        return 1;
+      }
+      return 0;
+    }
+    let sum = 0;
+    for (const cause of causes) {
+      sum += ValidationResult.countLeaves(cause, severity);
+    }
+    return sum;
   }
 
   /**
@@ -108,7 +190,7 @@ export class ValidationResult {
    * @internal
    */
   get numErrors(): number {
-    return this.count(ValidationIssueSeverity.ERROR);
+    return this._issueCounters.numErrors;
   }
 
   /**
@@ -118,7 +200,7 @@ export class ValidationResult {
    * @internal
    */
   get numWarnings(): number {
-    return this.count(ValidationIssueSeverity.WARNING);
+    return this._issueCounters.numWarnings;
   }
 
   /**
@@ -128,23 +210,7 @@ export class ValidationResult {
    * @internal
    */
   get numInfos(): number {
-    return this.count(ValidationIssueSeverity.INFO);
-  }
-
-  /**
-   * Counts the number of issues in this result that have the
-   * given severity level
-   *
-   * @param severity - The severity level
-   * @returns The number of issues
-   */
-  private count(severity: ValidationIssueSeverity): number {
-    return this._issues.reduce((accumulator, element) => {
-      if (element.severity === severity) {
-        return accumulator + 1;
-      }
-      return accumulator;
-    }, 0);
+    return this._issueCounters.numInfos;
   }
 
   /**
@@ -157,16 +223,30 @@ export class ValidationResult {
   toJson(): any {
     const issuesJson =
       this._issues.length > 0 ? this._issues.map((i) => i.toJson()) : undefined;
-    const numErrors = this.numErrors;
-    const numWarnings = this.numWarnings;
-    const numInfos = this.numInfos;
-    return {
+
+    const omittedNumErrors = this._omittedIssueCounters.numErrors;
+    const omittedNumWarnings = this._omittedIssueCounters.numWarnings;
+    const omittedNumInfos = this._omittedIssueCounters.numInfos;
+
+    const json: any = {
       date: this._date,
-      numErrors: numErrors,
-      numWarnings: numWarnings,
-      numInfos: numInfos,
+      numErrors: this._issueCounters.numErrors,
+      numWarnings: this._issueCounters.numWarnings,
+      numInfos: this._issueCounters.numInfos,
+      totalNumErrors: this._totalIssueCounters.numErrors,
+      totalNumWarnings: this._totalIssueCounters.numWarnings,
+      totalNumInfos: this._totalIssueCounters.numInfos,
+      omittedNumErrors: omittedNumErrors,
+      omittedNumWarnings: omittedNumWarnings,
+      omittedNumInfos: omittedNumInfos,
       issues: issuesJson,
     };
+    if (omittedNumErrors > 0 || omittedNumWarnings > 0 || omittedNumInfos > 0) {
+      json.message =
+        `Omitted obsolete validation issues from glTF-Validator. ` +
+        `Use the 'verboseGltfValidation' option to include these issues.`;
+    }
+    return json;
   }
 
   /**

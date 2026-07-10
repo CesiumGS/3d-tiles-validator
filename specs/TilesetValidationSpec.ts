@@ -913,6 +913,13 @@ describe("Tileset validation", function () {
     expect(result.length).toEqual(0);
   });
 
+  it("detects no issues in validTilesetWithTileMetadata", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithTileMetadata.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
   it("detects issues in validTilesetWithUnresolvableSchemaUri", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/validTilesetWithUnresolvableSchemaUri.json"
@@ -986,6 +993,29 @@ describe("Tileset validation", function () {
   it("detects no issues in validTilesetWithValidGltf", async function () {
     const result = await Validators.validateTilesetFile(
       "specs/data/tilesets/validTilesetWithValidGltf.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects no issues in validTilesetWithValidGltfWithGpmLocal", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithValidGltfWithGpmLocal.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects no issues in validTilesetWithValidGltfWithMaxarImageOrtho", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithValidGltfWithMaxarImageOrtho.json"
+    );
+    // One info about the (actually) unused image
+    expect(result.length).toEqual(1);
+    expect(result.get(0).type).toEqual("CONTENT_VALIDATION_INFO");
+  });
+
+  it("detects no issues in validTilesetWithValidGltfWithMaxarNonvisualGeometry", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/validTilesetWithValidGltfWithMaxarNonvisualGeometry.json"
     );
     expect(result.length).toEqual(0);
   });
@@ -1155,5 +1185,26 @@ describe("Tileset validation", function () {
     );
     expect(result.length).toEqual(1);
     expect(result.get(0).type).toEqual("CONTENT_VALIDATION_WARNING");
+  });
+
+  it("detects no issues in TilesetWithDraco", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/TilesetWithDraco/tileset.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects no issues in TilesetWithMeshopt", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/TilesetWithMeshopt/tileset.json"
+    );
+    expect(result.length).toEqual(0);
+  });
+
+  it("detects no issues in TilesetWithKtx", async function () {
+    const result = await Validators.validateTilesetFile(
+      "specs/data/tilesets/TilesetWithKtx/tileset.json"
+    );
+    expect(result.length).toEqual(0);
   });
 });
