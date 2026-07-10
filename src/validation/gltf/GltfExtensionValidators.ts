@@ -68,7 +68,7 @@ export class GltfExtensionValidators {
       return;
     }
 
-    // eslint-disable @typescript-eslint/no-unused-vars
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     const emptyValidation = async (
       path: string,
       gltfData: GltfData,
@@ -80,7 +80,7 @@ export class GltfExtensionValidators {
       gltfData: GltfData,
       causes: ValidationIssue[]
     ) => causes;
-    // eslint-enable @typescript-eslint/no-unused-vars
+    /* eslint-enable @typescript-eslint/no-unused-vars */
 
     GltfExtensionValidators.registerValidator("EXT_mesh_features", {
       validate: ExtMeshFeaturesValidator.validateGltf,
