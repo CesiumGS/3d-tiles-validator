@@ -125,9 +125,31 @@ export class ValidationResult {
     );
   }
 
+  /**
+   * Add the given counters of issues that have been omitted.
+   *
+   * See 'getOmittedIssueCounters' for details.
+   *
+   * @param issueCounters - The issue counters
+   * @private
+   */
   addOmittedIssueCounters(issueCounters: IssueCounters) {
     this._omittedIssueCounters.add(issueCounters);
   }
+
+  /**
+   * Returns the numbers of issues that have been omitted.
+   *
+   * For issues that have originally been reported by the glTF-Validator,
+   * but filtered out due to the validation that is performed by the
+   * 3D Tiles validator, the number of issues that have been omitted
+   * are tracked, so that they can appear in the final report.
+   *
+   * Clients should usually not call this function.
+   *
+   * @returns The issue counters
+   * @private
+   */
   getOmittedIssueCounters(): IssueCounters {
     return this._omittedIssueCounters;
   }
