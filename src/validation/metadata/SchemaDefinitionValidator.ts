@@ -14,7 +14,7 @@ import { JsonValidationIssues } from "../../issues/JsonValidationIssues";
  * Utility class for validating the definition of a metadata schema.
  *
  * The metadata schema can either be defined as an inlined `schema`
- * object in the JSON, or via a `schemUri` (but not both!).
+ * object in the JSON, or via a `schemaUri` (but not both!).
  * This class resolves and validates the schema from either of
  * these sources, and returns information about that validation
  * result.

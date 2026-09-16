@@ -12,9 +12,9 @@ import { GltfExtensionIssues } from "../GltfExtensionIssues";
  */
 export class ExtStructuralMetadataIssues {
   /**
-   * Process the given list of validation issues, and possibly filer
+   * Process the given list of validation issues, and possibly filter
    * out the issues that are obsolete due to the validation that
-   * is performed by 'validateGltf'.
+   * is performed by 'ExtStructuralMetadataValidator.validateGltf'.
    *
    * @param path - The path for validation issues
    * @param keepObsoleteIssues - Whether issues should be retained even

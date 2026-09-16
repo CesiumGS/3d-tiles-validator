@@ -64,7 +64,7 @@ export class BinaryPropertyTableValuesValidator {
   /**
    * Validate the values of a single property of a `BinaryPropertyTable`
    *
-   * @param path - The path of the `PropertyTablePropery`, for
+   * @param path - The path of the `PropertyTableProperty`, for
    * `ValidationIssue` instances
    * @param propertyName - The property name
    * @param classProperty - The `ClassProperty`
@@ -83,7 +83,7 @@ export class BinaryPropertyTableValuesValidator {
 
     const propertyTable = binaryPropertyTable.propertyTable;
     const propertyTableProperties = defaultValue(propertyTable.properties, {});
-    const propertyTablePropertry = propertyTableProperties[propertyName];
+    const propertyTableProperty = propertyTableProperties[propertyName];
 
     const keys = RangeIterables.range1D(propertyTable.count);
 
@@ -123,7 +123,7 @@ export class BinaryPropertyTableValuesValidator {
         new BinaryPropertyTableDefaultMetadataPropertyModel(
           binaryPropertyTable,
           propertyName,
-          propertyTablePropertry,
+          propertyTableProperty,
           classProperty
         );
 
@@ -133,7 +133,7 @@ export class BinaryPropertyTableValuesValidator {
           propertyName,
           keys,
           metadataPropertyModel,
-          propertyTablePropertry,
+          propertyTableProperty,
           "property table",
           classProperty,
           context

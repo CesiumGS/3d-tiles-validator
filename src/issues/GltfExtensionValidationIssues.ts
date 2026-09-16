@@ -23,7 +23,7 @@ export class GltfExtensionValidationIssues {
 
   /**
    * Indicates that the extension referred to an element in the
-   * glTF assset that did not match the requirements of the
+   * glTF asset that did not match the requirements of the
    * extension specification. (For example, a 'texCoord' that
    * referred to a VEC3 accessor). Further details should be
    * encoded in the 'message'.

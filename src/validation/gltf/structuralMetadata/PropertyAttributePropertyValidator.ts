@@ -176,7 +176,7 @@ export class PropertyAttributePropertyValidator {
       }
     }
 
-    // glTF acessors can only represent certain ENUM value types
+    // glTF accessors can only represent certain ENUM value types
     if (defined(enumValueType)) {
       // The enum valueType can be one of these types (i.e.
       // it can not be INT32, UINT32, INT64, or UINT64)

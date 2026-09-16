@@ -55,7 +55,7 @@ function validateFeatureTable(
         }
 
         if (!defined(componentByteLength)) {
-          return `Feate table binary property "${name}" has invalid componentType "${componentType}".`;
+          return `Feature table binary property "${name}" has invalid componentType "${componentType}".`;
         }
 
         if (typeof byteOffset !== "number") {

@@ -14,7 +14,7 @@ import { MetadataValidationIssues } from "../../issues/MetadataValidationIssues"
  * metadata classes. This refers to `metadataEntity` and
  * `propertyTable` definitions. It offers a method to check
  * whether the respective `class` name is a valid class name,
- * and whether the `properites` match the properties of the
+ * and whether the `properties` match the properties of the
  * respective class.
  *
  * @internal
@@ -30,7 +30,7 @@ export class MetadataStructureValidator {
    * - each property that is marked as `required` in the class also
    *   has a value in the given `properties` dictionary
    *
-   * This will **NOT** validate the property values themself. The
+   * This will **NOT** validate the actual property values. The
    * exact type of the property values will either be `anyValue`
    * objects (in a `metadataEntity`), or `propertyTable.property`
    * values (in a `propertyTable`), and therefore be validated

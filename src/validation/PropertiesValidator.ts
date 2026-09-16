@@ -8,7 +8,7 @@ import { Properties } from "3d-tiles-tools";
 import { SemanticValidationIssues } from "../issues/SemanticValidationIssues";
 
 /**
- * A class for validations related to `tileset.properties` objects. Aplogies
+ * A class for validations related to `tileset.properties` objects. Apologies
  * for the confusing name...
  *
  * @internal

@@ -8,7 +8,7 @@ import { GltfData } from "./GltfData";
  * Instances of this interface will be registered in the
  * GltfExtensionValidators class.
  *
- * The GltfValidator will perfom the validation of glTF data in two
+ * The GltfValidator will perform the validation of glTF data in two
  * steps:
  *
  * 1. It will call the 'glTF-Validator' and convert its issues
