@@ -131,7 +131,6 @@ export class ValidationResult {
    * See 'getOmittedIssueCounters' for details.
    *
    * @param issueCounters - The issue counters
-   * @private
    */
   addOmittedIssueCounters(issueCounters: IssueCounters) {
     this._omittedIssueCounters.add(issueCounters);
@@ -148,7 +147,6 @@ export class ValidationResult {
    * Clients should usually not call this function.
    *
    * @returns The issue counters
-   * @private
    */
   getOmittedIssueCounters(): IssueCounters {
     return this._omittedIssueCounters;
