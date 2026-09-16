@@ -2,13 +2,24 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2021",
-    "outDir": "build",
+    "outDir": "./build",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
         
+    "rootDir": ".",
+
+    //-----------------------------------------------------------------------
+    // TODO This was suddenly necessary. Clean this up.
+    "ignoreDeprecations": "6.0",
+    "types": [
+      "node",
+      "@types/jasmine"
+    ],
+    //-----------------------------------------------------------------------
+
     "resolveJsonModule": true,
     "strictNullChecks": true,
     "noImplicitOverride": true,
@@ -19,6 +30,6 @@
       "dom"
     ]
   },
-  "include": ["src"],
+  "include": ["src/**/*", "specs/**/*"],
   "exclude": ["node_modules"]
 }

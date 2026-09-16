@@ -52,6 +52,17 @@ export enum GeojsonValidationMode {
  * @internal
  */
 export class GeojsonValidator implements Validator<Buffer> {
+  /**
+   * Implementation of the `Validator` interface that performs the
+   * validation of the given buffer, which is supposed to
+   * contain GeoJSON data.
+   *
+   * @param path - The path for `ValidationIssue` instances
+   * @param input - The subtree data
+   * @param context - The `ValidationContext`
+   * @returns A promise that resolves when the validation is finished
+   * and indicates whether the object was valid or not.
+   */
   async validateObject(
     uri: string,
     input: Buffer,

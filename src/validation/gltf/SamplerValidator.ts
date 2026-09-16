@@ -94,7 +94,7 @@ export class SamplerValidator {
     if (!allowedValues.includes(sampler.magFilter)) {
       const message =
         `The texture refers to a sampler with 'magFilter' ` +
-        `mode ${sampler.minFilter}, but the filter mode must ` +
+        `mode ${sampler.magFilter}, but the filter mode must ` +
         `be one of ${allowedValuesString}`;
       const issue = JsonValidationIssues.VALUE_NOT_IN_LIST(path, message);
       context.addIssue(issue);
