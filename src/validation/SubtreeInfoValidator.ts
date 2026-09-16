@@ -106,7 +106,7 @@ export class SubtreeInfoValidator {
       result = false;
     }
 
-    // TOOD The validation of whether the child subtrees that are
+    // TODO The validation of whether the child subtrees that are
     // marked as available are actually available is not done yet
     // (Should this really try to resolve the resource?)
 

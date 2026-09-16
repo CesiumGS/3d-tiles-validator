@@ -27,13 +27,13 @@ export class PropertyAttributesDefinitionValidator {
    * schema, then an error will be added to the given context,
    * and `{true, undefined}` is returned.
    *
-   * The method will return `{true, propertyattributes}` only if the
+   * The method will return `{true, propertyAttributes}` only if the
    * given property attributes have been valid.
    *
    * @param path - The path for `ValidationIssue` instances
    * @param name - The name of the object containing the definition
    * (for example, 'metadata extension object')
-   * @param propertyattributes - The actual property attributes
+   * @param propertyAttributes - The actual property attributes
    * @param gltf - The containing glTF object
    * @param schemaState - The state of the schema validation
    * @param context - The `ValidationContext`

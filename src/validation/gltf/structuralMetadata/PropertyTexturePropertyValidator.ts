@@ -28,7 +28,7 @@ export class PropertyTexturePropertyValidator {
    * - it is an object
    * - its `index` refers to an existing texture in the glTF
    * - its `texCoord` is a nonnegative integer
-   * - its `chennels` (if defined) is an array of at least one nonnegative integers
+   * - its `channels` (if defined) is an array of at least one nonnegative integers
    * - its type (defined via the `classProperty`) is suitable for a property texture
    * - the sampler of the texture is suitable for a property texture
    * - its `offset/scale/min/max` properties match the `classProperty` structure

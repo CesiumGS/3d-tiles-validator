@@ -52,7 +52,7 @@ export class PropertyTablePropertyValidator {
     let result = true;
 
     // The basic structure of the class property was already
-    // validated by the `MatadataStructureValidator`
+    // validated by the `MetadataStructureValidator`
     const isVariableLengthArray =
       classProperty.array && !defined(classProperty.count);
     const isString = classProperty.type === "STRING";

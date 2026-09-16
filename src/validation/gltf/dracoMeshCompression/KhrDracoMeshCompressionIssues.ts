@@ -11,7 +11,7 @@ import { GltfExtensionIssues } from "../GltfExtensionIssues";
  */
 export class KhrDracoMeshCompressionIssues {
   /**
-   * Process the given list of validation issues, and possibly filer
+   * Process the given list of validation issues, and possibly filter
    * out the issues that are obsolete
    *
    * @param path - The path for validation issues

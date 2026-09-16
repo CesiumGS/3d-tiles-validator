@@ -47,7 +47,7 @@ export class MetadataValueValidator {
    * the class property component type (if it is a numeric value).
    * For example, whether the components are in [0,255] when the
    * component type is `UINT8`.
-   * @param schem - The metadata schema
+   * @param schema - The metadata schema
    * @param context - The `ValidationContext`
    * @returns Whether the object was valid
    */
